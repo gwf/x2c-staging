@@ -1,0 +1,950 @@
+<!DOCTYPE HTML>
+<html lang="en" class="light sidebar-visible" dir="ltr">
+    <head>
+        <!-- Book generated using mdBook -->
+        <meta charset="UTF-8">
+        <title>lib/array.x - The x2c Book</title>
+
+
+        <!-- Custom HTML head -->
+        <link rel="preconnect" href="https://fonts.googleapis.com">
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=Archivo:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">
+
+        <meta name="description" content="The x2c language, standard library, and compiler.">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <meta name="theme-color" content="#ffffff">
+
+        <link rel="icon" href="../../favicon-995a3c20.svg">
+        <link rel="stylesheet" href="../../css/variables-8adf115d.css">
+        <link rel="stylesheet" href="../../css/general-e96d0476.css">
+        <link rel="stylesheet" href="../../css/chrome-d279d366.css">
+        <link rel="stylesheet" href="../../css/print-9e4910d8.css" media="print">
+
+        <!-- Fonts -->
+        <link rel="stylesheet" href="../../fonts/fonts-9644e21d.css">
+
+        <!-- Highlight.js Stylesheets -->
+        <link rel="stylesheet" id="mdbook-highlight-css" href="../../highlight-493f70e1.css">
+        <link rel="stylesheet" id="mdbook-tomorrow-night-css" href="../../tomorrow-night-4c0ae647.css">
+        <link rel="stylesheet" id="mdbook-ayu-highlight-css" href="../../ayu-highlight-3fdfc3ac.css">
+
+        <!-- Custom theme stylesheets -->
+        <link rel="stylesheet" href="../../theme/header-2c1becca.css">
+        <link rel="stylesheet" href="../../theme/x2c-fd3d182e.css">
+
+
+        <!-- Provide site root and default themes to javascript -->
+        <script>
+            const path_to_root = "../../";
+            const default_light_theme = "light";
+            const default_dark_theme = "light";
+            window.path_to_searchindex_js = "../../searchindex-2643e100.js";
+        </script>
+        <!-- Start loading toc.js asap -->
+        <script src="../../toc-a71616d6.js"></script>
+        <!-- x2c publication metadata -->
+        <link rel="canonical" href="https://staging.x2c-lang.dev/docs/library/modules/array.html">
+        <meta property="og:type" content="website">
+        <meta property="og:title" content="lib/array.x - The x2c Book">
+        <meta property="og:description" content="The x2c language, standard library, and compiler.">
+        <meta property="og:url" content="https://staging.x2c-lang.dev/docs/library/modules/array.html">
+        <meta property="og:image" content="https://staging.x2c-lang.dev/x2c-social.png">
+        <meta property="og:image:width" content="1200">
+        <meta property="og:image:height" content="630">
+        <meta name="twitter:card" content="summary_large_image">
+        <meta name="twitter:title" content="lib/array.x - The x2c Book">
+        <meta name="twitter:description" content="The x2c language, standard library, and compiler.">
+        <meta name="twitter:image" content="https://staging.x2c-lang.dev/x2c-social.png">
+    </head>
+    <body><aside aria-label="Release candidate" style="padding:1rem;background:#fff1bf;color:#241c00;font:14px/1.5 monospace;overflow-wrap:anywhere"><strong>Public staging: candidate-c2a89d999e81f47a4422a26edf0033eb0b98c6c6-35470032964-1</strong><p>Source: c2a89d999e81f47a4422a26edf0033eb0b98c6c6. Use a fresh scratch installation and the explicit candidate index below. Bare x2c install commands and production URLs in the book refer to production.</p><pre style="overflow:auto">export X2C_PREFIX=&quot;$(mktemp -d)/x2c&quot;
+curl -fsSL https://staging.x2c-lang.dev/install.sh | sh
+export PATH=&quot;$X2C_PREFIX/bin:$PATH&quot;
+x2c run &quot;$X2C_PREFIX/examples/foreach.x&quot;
+x2c install pcre2 --index https://staging.x2c-lang.dev/packages/index.txt</pre></aside>
+    <div id="mdbook-help-container">
+        <div id="mdbook-help-popup">
+            <h2 class="mdbook-help-title">Keyboard shortcuts</h2>
+            <div>
+                <p>Press <kbd>←</kbd> or <kbd>→</kbd> to navigate between chapters</p>
+                <p>Press <kbd>S</kbd> or <kbd>/</kbd> to search in the book</p>
+                <p>Press <kbd>?</kbd> to show this help</p>
+                <p>Press <kbd>Esc</kbd> to hide this help</p>
+            </div>
+        </div>
+    </div>
+    <div id="mdbook-body-container">
+        <!-- Work around some values being stored in localStorage wrapped in quotes -->
+        <script>
+            try {
+                let theme = localStorage.getItem('mdbook-theme');
+                let sidebar = localStorage.getItem('mdbook-sidebar');
+
+                if (theme.startsWith('"') && theme.endsWith('"')) {
+                    localStorage.setItem('mdbook-theme', theme.slice(1, theme.length - 1));
+                }
+
+                if (sidebar.startsWith('"') && sidebar.endsWith('"')) {
+                    localStorage.setItem('mdbook-sidebar', sidebar.slice(1, sidebar.length - 1));
+                }
+            } catch (e) { }
+        </script>
+
+        <!-- Set the theme before any content is loaded, prevents flash -->
+        <script>
+            const default_theme = window.matchMedia("(prefers-color-scheme: dark)").matches ? default_dark_theme : default_light_theme;
+            let theme;
+            try { theme = localStorage.getItem('mdbook-theme'); } catch(e) { }
+            if (theme === null || theme === undefined) { theme = default_theme; }
+            const html = document.documentElement;
+            html.classList.remove('light')
+            html.classList.add(theme);
+            html.classList.add("js");
+        </script>
+
+        <input type="checkbox" id="mdbook-sidebar-toggle-anchor" class="hidden">
+
+        <!-- Hide / unhide sidebar before it is displayed -->
+        <script>
+            let sidebar = null;
+            const sidebar_toggle = document.getElementById("mdbook-sidebar-toggle-anchor");
+            if (document.body.clientWidth >= 1080) {
+                try { sidebar = localStorage.getItem('mdbook-sidebar'); } catch(e) { }
+                sidebar = sidebar || 'visible';
+            } else {
+                sidebar = 'hidden';
+                sidebar_toggle.checked = false;
+            }
+            if (sidebar === 'visible') {
+                sidebar_toggle.checked = true;
+            } else {
+                html.classList.remove('sidebar-visible');
+            }
+        </script>
+
+        <nav id="mdbook-sidebar" class="sidebar" aria-label="Table of contents">
+            <!-- populated by js -->
+            <mdbook-sidebar-scrollbox class="sidebar-scrollbox"></mdbook-sidebar-scrollbox>
+            <noscript>
+                <iframe class="sidebar-iframe-outer" src="../../toc.html"></iframe>
+            </noscript>
+            <div id="mdbook-sidebar-resize-handle" class="sidebar-resize-handle">
+                <div class="sidebar-resize-indicator"></div>
+            </div>
+        </nav>
+
+        <div id="mdbook-page-wrapper" class="page-wrapper">
+
+            <div class="page">
+                <div id="mdbook-menu-bar" class="hidden"></div>
+                <header class="landing-header x2c-header">
+                    <div class="landing-header-inner">
+                        <div class="landing-branding">
+                            <a class="landing-brand" href="../../../" aria-label="x2c home">
+                                <svg viewBox="0 0 100 100" width="22" height="22" aria-hidden="true"><g fill="none" stroke="#da291c" stroke-width="17" stroke-linecap="butt"><path d="M9 16 A34.5 34.5 0 0 1 9 84"></path><path d="M91 16 A34.5 34.5 0 0 0 91 84"></path></g></svg>
+                                <span class="x2c-wordmark landing-wordmark">x2c</span>
+                            </a>
+                            <span class="landing-tagline">The x2c Book</span>
+                        </div>
+                        <nav class="landing-nav" aria-label="x2c website">
+                            <div class="landing-page-nav">
+                                <a href="../../../#love">love</a>
+                                <a href="../../../#power">power</a>
+                                <a href="../../../#magic">magic</a>
+                            </div>
+                            <div class="landing-site-nav">
+                                <a href="../../../#install">install</a>
+                                <a href="../../../#packages">packages</a>
+                            </div>
+                            <div class="landing-reference-nav">
+                                <a href="../../../about/">about</a>
+                                <a href="../../" aria-current="page">docs</a>
+                                <a href="https://github.com/gwf/x2c">source</a>
+                            </div>
+                        </nav>
+                    </div>
+                    <div class="x2c-book-tools">
+                        <div class="x2c-header-tools">
+                            <label id="mdbook-sidebar-toggle" class="icon-button" for="mdbook-sidebar-toggle-anchor" title="Toggle Table of Contents" aria-label="Toggle Table of Contents" aria-controls="mdbook-sidebar">
+                                <span class=fa-svg><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc. --><path d="M0 96C0 78.3 14.3 64 32 64H416c17.7 0 32 14.3 32 32s-14.3 32-32 32H32C14.3 128 0 113.7 0 96zM0 256c0-17.7 14.3-32 32-32H416c17.7 0 32 14.3 32 32s-14.3 32-32 32H32c-17.7 0-32-14.3-32-32zM448 416c0 17.7-14.3 32-32 32H32c-17.7 0-32-14.3-32-32s14.3-32 32-32H416c17.7 0 32 14.3 32 32z"/></svg></span>
+                            </label>
+                        </div>
+                        <div class="x2c-header-tools x2c-header-tools-right">
+                            <button id="mdbook-search-toggle" class="icon-button" type="button" title="Search (`/`)" aria-label="Toggle Searchbar" aria-expanded="false" aria-keyshortcuts="/ s" aria-controls="mdbook-searchbar">
+                                <span class=fa-svg><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc. --><path d="M416 208c0 45.9-14.9 88.3-40 122.7L502.6 457.4c12.5 12.5 12.5 32.8 0 45.3s-32.8 12.5-45.3 0L330.7 376c-34.4 25.2-76.8 40-122.7 40C93.1 416 0 322.9 0 208S93.1 0 208 0S416 93.1 416 208zM208 352c79.5 0 144-64.5 144-144s-64.5-144-144-144S64 128.5 64 208s64.5 144 144 144z"/></svg></span>
+                            </button>
+                            <button id="mdbook-theme-toggle" class="icon-button" type="button" title="Change theme" aria-label="Change theme" aria-haspopup="true" aria-expanded="false" aria-controls="mdbook-theme-list">
+                                <span class=fa-svg><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc. --><path d="M448 256c0-106-86-192-192-192V448c106 0 192-86 192-192zm64 0c0 141.4-114.6 256-256 256S0 397.4 0 256S114.6 0 256 0S512 114.6 512 256z"/></svg></span>
+                            </button>
+                            <ul id="mdbook-theme-list" class="theme-popup" aria-label="Themes" role="menu">
+                                <li role="none"><button role="menuitem" class="theme" id="mdbook-theme-default_theme">Auto</button></li>
+                                <li role="none"><button role="menuitem" class="theme" id="mdbook-theme-light">Light</button></li>
+                                <li role="none"><button role="menuitem" class="theme" id="mdbook-theme-ayu">Dark</button></li>
+                            </ul>
+                            <a href="https://github.com/gwf/x2c/edit/main/docs/src/library/modules/array.md" title="Suggest an edit" aria-label="Suggest an edit" rel="edit" class="icon-button">
+                                <span class=fa-svg id="git-edit-button"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc. --><path d="M421.7 220.3l-11.3 11.3-22.6 22.6-205 205c-6.6 6.6-14.8 11.5-23.8 14.1L30.8 511c-8.4 2.5-17.5 .2-23.7-6.1S-1.5 489.7 1 481.2L38.7 353.1c2.6-9 7.5-17.2 14.1-23.8l205-205 22.6-22.6 11.3-11.3 33.9 33.9 62.1 62.1 33.9 33.9zM96 353.9l-9.3 9.3c-.9 .9-1.6 2.1-2 3.4l-25.3 86 86-25.3c1.3-.4 2.5-1.1 3.4-2l9.3-9.3H112c-8.8 0-16-7.2-16-16V353.9zM453.3 19.3l39.4 39.4c25 25 25 65.5 0 90.5l-14.5 14.5-22.6 22.6-11.3 11.3-33.9-33.9-62.1-62.1L314.3 67.7l11.3-11.3 22.6-22.6 14.5-14.5c25-25 65.5-25 90.5 0z"/></svg></span>
+                            </a>
+                        </div>
+                    </div>
+                </header>
+                <script>
+                    const bookHeader = document.querySelector('.x2c-header');
+                    new ResizeObserver(() => {
+                        document.documentElement.style.setProperty(
+                            '--menu-bar-height', `${bookHeader.getBoundingClientRect().height}px`);
+                    }).observe(bookHeader);
+                </script>
+
+                <div id="mdbook-search-wrapper" class="hidden">
+                    <form id="mdbook-searchbar-outer" class="searchbar-outer">
+                        <div class="search-wrapper">
+                            <input type="search" id="mdbook-searchbar" name="searchbar" placeholder="Search this book ..." aria-controls="mdbook-searchresults-outer" aria-describedby="searchresults-header">
+                            <div class="spinner-wrapper">
+                                <span class=fa-svg id="fa-spin"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc. --><path d="M304 48c0-26.5-21.5-48-48-48s-48 21.5-48 48s21.5 48 48 48s48-21.5 48-48zm0 416c0-26.5-21.5-48-48-48s-48 21.5-48 48s21.5 48 48 48s48-21.5 48-48zM48 304c26.5 0 48-21.5 48-48s-21.5-48-48-48s-48 21.5-48 48s21.5 48 48 48zm464-48c0-26.5-21.5-48-48-48s-48 21.5-48 48s21.5 48 48 48s48-21.5 48-48zM142.9 437c18.7-18.7 18.7-49.1 0-67.9s-49.1-18.7-67.9 0s-18.7 49.1 0 67.9s49.1 18.7 67.9 0zm0-294.2c18.7-18.7 18.7-49.1 0-67.9S93.7 56.2 75 75s-18.7 49.1 0 67.9s49.1 18.7 67.9 0zM369.1 437c18.7 18.7 49.1 18.7 67.9 0s18.7-49.1 0-67.9s-49.1-18.7-67.9 0s-18.7 49.1 0 67.9z"/></svg></span>
+                            </div>
+                        </div>
+                    </form>
+                    <div id="mdbook-searchresults-outer" class="searchresults-outer hidden">
+                        <div id="mdbook-searchresults-header" class="searchresults-header"></div>
+                        <ul id="mdbook-searchresults">
+                        </ul>
+                    </div>
+                </div>
+
+                <!-- Apply ARIA attributes after the sidebar and the sidebar toggle button are added to the DOM -->
+                <script>
+                    document.getElementById('mdbook-sidebar-toggle').setAttribute('aria-expanded', sidebar === 'visible');
+                    document.getElementById('mdbook-sidebar').setAttribute('aria-hidden', sidebar !== 'visible');
+                    Array.from(document.querySelectorAll('#mdbook-sidebar a')).forEach(function(link) {
+                        link.setAttribute('tabIndex', sidebar === 'visible' ? 0 : -1);
+                    });
+                </script>
+
+                <div id="mdbook-content" class="content">
+                    <main>
+                        <!-- Generated by `python3 tools/gen-api-reference.py --write` from
+     lib/*.x and the stage interfaces. Do not edit by hand. -->
+<h1 id="libarrayx"><a class="header" href="#libarrayx"><code>lib/array.x</code></a></h1>
+<p>Dynamic contiguous arrays of <code>Var</code> elements.</p>
+<h2 id="primary-api"><a class="header" href="#primary-api">Primary API</a></h2>
+<div class="table-wrapper">
+<table>
+<thead>
+<tr><th>Function</th><th>Summary</th></tr>
+</thead>
+<tbody>
+<tr><td><a href="#Array.concat"><code>Array.concat</code></a></td><td>Returns a new <code>Array</code> holding the elements of <code>a</code> followed by those of <code>b</code>.</td></tr>
+<tr><td><a href="#Array.contains"><code>Array.contains</code></a></td><td>Returns nonzero when some element of <code>array</code> equals <code>value</code>.</td></tr>
+<tr><td><a href="#Array.copy"><code>Array.copy</code></a></td><td>Returns a new <code>Array</code> holding the same elements as <code>array</code>.</td></tr>
+<tr><td><a href="#Array.count"><code>Array.count</code></a></td><td>Returns how many elements compare equal to <code>value</code>.</td></tr>
+<tr><td><a href="#Array.find"><code>Array.find</code></a></td><td>Returns the index of the first element equal to <code>value</code>, or -1.</td></tr>
+<tr><td><a href="#Array.foldl"><code>Array.foldl</code></a></td><td>Folds <code>fn</code> over <code>array</code> from <code>seed</code>, front to back.</td></tr>
+<tr><td><a href="#Array.getindex"><code>Array.getindex</code></a></td><td>Returns the element at <code>index</code>, or <code>void</code> when <code>index</code> is out of range.</td></tr>
+<tr><td><a href="#Array.getslice"><code>Array.getslice</code></a></td><td>Returns a new <code>Array</code> holding the elements <code>array[start:end:step]</code>.</td></tr>
+<tr><td><a href="#Array.indexof"><code>Array.indexof</code></a></td><td>Returns <code>Array.find(array, value)</code>.</td></tr>
+<tr><td><a href="#Array.insert"><code>Array.insert</code></a></td><td>Inserts <code>elem</code> at <code>index</code> and returns it, or <code>void</code> when out of range.</td></tr>
+<tr><td><a href="#Array.iter"><code>Array.iter</code></a></td><td>Initializes <code>dest</code> as an iterator over the elements of <code>x</code>.</td></tr>
+<tr><td><a href="#Array.join"><code>Array.join</code></a></td><td>Joins the elements of <code>array</code> into one <code>String</code> separated by <code>separator</code>.</td></tr>
+<tr><td><a href="#Array.map"><code>Array.map</code></a></td><td>Returns a new <code>Array</code> holding <code>func</code> applied to each element of <code>array</code>.</td></tr>
+<tr><td><a href="#Array.map2"><code>Array.map2</code></a></td><td>Maps <code>func</code> over corresponding elements up to the shorter <code>Array</code>.</td></tr>
+<tr><td><a href="#Array.new"><code>Array.new</code></a></td><td>Returns a fresh empty <code>Array</code> with its own identity.</td></tr>
+<tr><td><a href="#Array.postfixindex"><code>Array.postfixindex</code></a></td><td>Applies postfix <code>Array</code> element increment or decrement.</td></tr>
+<tr><td><a href="#Array.push"><code>Array.push</code></a></td><td>Appends <code>elem</code> to the end of <code>array</code> and returns it.</td></tr>
+<tr><td><a href="#Array.remove"><code>Array.remove</code></a></td><td>Removes and returns the element at <code>index</code>, or <code>void</code> when out of range.</td></tr>
+<tr><td><a href="#Array.resize"><code>Array.resize</code></a></td><td>Resizes <code>arr</code>, truncating or appending <code>Null</code> elements as needed.</td></tr>
+<tr><td><a href="#Array.reverse"><code>Array.reverse</code></a></td><td>Reverses <code>array</code> in place and returns that same <code>Array</code>.</td></tr>
+<tr><td><a href="#Array.setindex"><code>Array.setindex</code></a></td><td>Stores <code>elem</code> at <code>index</code> and returns it, or <code>void</code> when out of range.</td></tr>
+<tr><td><a href="#Array.setslice"><code>Array.setslice</code></a></td><td>Replaces the region <code>array[start:end]</code> with the elements of <code>values</code> and returns <code>array</code>.</td></tr>
+<tr><td><a href="#Array.shift"><code>Array.shift</code></a></td><td>Removes and returns the first element of <code>array</code>, or <code>void</code> if it is empty.</td></tr>
+<tr><td><a href="#Array.sort"><code>Array.sort</code></a></td><td>Sorts <code>array</code> in place in ascending order and returns that same <code>Array</code>.</td></tr>
+<tr><td><a href="#Array.sort_by"><code>Array.sort_by</code></a></td><td>Stably sorts <code>array</code> by keys produced once per value, returning the Array.</td></tr>
+<tr><td><a href="#Array.sort_with"><code>Array.sort_with</code></a></td><td>Stably sorts <code>array</code> with a borrowed synchronous comparator and returns it.</td></tr>
+<tr><td><a href="#Array.splice"><code>Array.splice</code></a></td><td>Replaces <code>remove_count</code> elements at <code>index</code> with <code>values</code> and returns what was removed.</td></tr>
+<tr><td><a href="#Array.take_last"><code>Array.take_last</code></a></td><td>Takes and returns the last element of <code>array</code>, or <code>void</code> if it is empty.</td></tr>
+<tr><td><a href="#Array.try_next"><code>Array.try_next</code></a></td><td>Writes the next element, advances <code>cursor</code>, and returns one.</td></tr>
+<tr><td><a href="#Array.unshift"><code>Array.unshift</code></a></td><td>Inserts <code>elem</code> at the front of <code>array</code> and returns it.</td></tr>
+<tr><td><a href="#Array.updateindex"><code>Array.updateindex</code></a></td><td>Updates one <code>Array</code> element in place.</td></tr>
+<tr><td><a href="#Array.write_str"><code>Array.write_str</code></a></td><td>Appends the <code>Array</code> display text to <code>out</code>, using each element’s <code>write_str</code>.</td></tr>
+<tr><td><a href="#Block.array"><code>Block.array</code></a></td><td>Returns the same object as an <code>Array</code> view; mutations remain shared.</td></tr>
+<tr><td><a href="#Iter.array"><code>Iter.array</code></a></td><td>Drains <code>iter</code> into a fresh <code>Array</code>.</td></tr>
+</tbody>
+</table>
+</div>
+<h3 id="array"><a class="header" href="#array"><code>Array</code></a></h3>
+<p><a id="Array.concat"></a></p>
+<h4 id="arrayconcat"><a class="header" href="#arrayconcat">Array.concat</a></h4>
+<p><code>Self Array.concat(Self a, Self b)</code></p>
+<p>Returns a new <code>Array</code> holding the elements of <code>a</code> followed by those of <code>b</code>.
+Neither input is modified and the result is a fresh object. A null or
+empty <code>b</code> yields a copy of <code>a</code>.</p>
+<p><strong>Raises:</strong> <code>&lt;size-limit&gt;</code> or <code>&lt;alloc-fail&gt;</code> when the result cannot be
+represented or allocated.</p>
+<p>Source: <code>lib/array.x:433</code></p>
+<p><a id="Array.contains"></a></p>
+<h4 id="arraycontains"><a class="header" href="#arraycontains">Array.contains</a></h4>
+<p><code>int Array.contains(Array array, Var value)</code></p>
+<p>Returns nonzero when some element of <code>array</code> equals <code>value</code>.
+Uses the same linear search and structural <code>Var</code> equality as <code>Array.find</code>.
+Use a <code>Map</code> for frequent membership tests.</p>
+<p><strong>Raises:</strong> <code>&lt;size-limit&gt;</code> when <code>array</code> exceeds the <code>INT_MAX</code> index limit that
+<code>Array.getindex</code> describes.</p>
+<p>Source: <code>lib/array.x:416</code></p>
+<p><a id="Array.copy"></a></p>
+<h4 id="arraycopy"><a class="header" href="#arraycopy">Array.copy</a></h4>
+<p><code>Self Array.copy(Self array)</code></p>
+<p>Returns a new <code>Array</code> holding the same elements as <code>array</code>.
+The copy is shallow and independent: pushing to one does not affect the
+other, but the two share whatever objects their elements point at.
+Because <code>Array</code>s are identity-bearing, plain assignment aliases instead of
+copying, so copy before handing scratch storage to code that may mutate
+it.</p>
+<p><strong>Raises:</strong> <code>&lt;size-limit&gt;</code> or <code>&lt;alloc-fail&gt;</code> when the copy cannot be
+represented or allocated.</p>
+<p>Source: <code>lib/array.x:311</code></p>
+<p><a id="Array.count"></a></p>
+<h4 id="arraycount"><a class="header" href="#arraycount">Array.count</a></h4>
+<p><code>int Array.count(Array array, Var value)</code></p>
+<p>Returns how many elements compare equal to <code>value</code>.</p>
+<p>Source: <code>lib/array.x:419</code></p>
+<p><a id="Array.find"></a></p>
+<h4 id="arrayfind"><a class="header" href="#arrayfind">Array.find</a></h4>
+<p><code>int Array.find(Array array, Var value)</code></p>
+<p>Returns the index of the first element equal to <code>value</code>, or -1.
+The scan is linear and compares with <code>Var</code> equality, the same rule <code>==</code>
+applies to boxed values. <code>Array</code>s and <code>Map</code>s participate
+structurally, while
+<code>===</code> remains the identity test. <code>Array.indexof</code> is a synonym.</p>
+<p><strong>Raises:</strong> <code>&lt;size-limit&gt;</code> when <code>array</code> exceeds the <code>INT_MAX</code> index limit that
+<code>Array.getindex</code> describes.</p>
+<p>Source: <code>lib/array.x:405</code></p>
+<p><a id="Array.foldl"></a></p>
+<h4 id="arrayfoldl"><a class="header" href="#arrayfoldl">Array.foldl</a></h4>
+<p><code>Var Array.foldl(Array array, Var seed, Func fn)</code></p>
+<p>Folds <code>fn</code> over <code>array</code> from <code>seed</code>, front to back.
+A <code>void</code> seed means “no seed”: the first element becomes the accumulator
+and the fold starts at the second, so folding an empty <code>Array</code> that way
+returns <code>void</code>. Elements are passed as values. Input with nothing left to
+fold does not invoke or check <code>fn</code>. The callback receives the accumulator
+then the next element and is not retained. It must not structurally mutate
+<code>array</code> during the walk. Any cause from <code>Func.apply</code> or <code>fn</code> propagates
+without changing <code>array</code>.</p>
+<p>Source: <code>lib/array.x:498</code></p>
+<p><a id="Array.getindex"></a></p>
+<h4 id="arraygetindex"><a class="header" href="#arraygetindex">Array.getindex</a></h4>
+<p><code>Var Array.getindex(Array array, int index)</code></p>
+<p>Returns the element at <code>index</code>, or <code>void</code> when <code>index</code> is out of range.
+This is what <code>array[index]</code> lowers to. A negative <code>index</code> counts from
+the end, so <code>-1</code> is the last element and <code>-array.len()</code> is the first.
+An index that still falls outside the array after that normalization
+yields <code>void</code>.</p>
+<p><code>Array</code> has no <code>Array.try_get</code>; the <code>void</code> result reports the miss. It is
+unambiguous because <code>void</code> is excluded from the element domain. Raw <code>Null</code>
+is <code>Array</code> data and reads back as itself.</p>
+<p>Compound assignment and increment/decrement on an indexed <code>Array</code> become
+single calls to <code>Array.updateindex</code> and <code>Array.postfixindex</code>. The read,
+modify, and write happen in one call. That is not thread-safe
+synchronization.</p>
+<pre class="shiki shiki-themes x2c-light x2c-dark x2c-code" style="--shiki-light:#24292e;--shiki-dark:#e9e5df;--shiki-light-bg:#fff;--shiki-dark-bg:#101011" tabindex="0"><code class="language-x2c no-highlight"><span class="line boring"><span style="--shiki-light:#007C8A;--shiki-dark:#29D3E2">Array</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF"> digits </span><span style="--shiki-light:#D73A49;--shiki-dark:#E9E5DF">=</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF"> [</span><span style="--shiki-light:#005CC5;--shiki-dark:#A9C9F5">0</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">, </span><span style="--shiki-light:#005CC5;--shiki-dark:#A9C9F5">1</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">, </span><span style="--shiki-light:#005CC5;--shiki-dark:#A9C9F5">2</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">, </span><span style="--shiki-light:#005CC5;--shiki-dark:#A9C9F5">3</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">, </span><span style="--shiki-light:#005CC5;--shiki-dark:#A9C9F5">4</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">, </span><span style="--shiki-light:#005CC5;--shiki-dark:#A9C9F5">5</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">];</span>
+</span><span class="line"><span style="--shiki-light:#6F42C1;--shiki-dark:#E9E5DF">printf</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">(</span><span style="--shiki-light:#032F62;--shiki-dark:#9EDFB8">"</span><span style="--shiki-light:#005CC5;--shiki-dark:#9EDFB8">%s</span><span style="--shiki-light:#005CC5;--shiki-dark:#9EDFB8"> %s\n</span><span style="--shiki-light:#032F62;--shiki-dark:#9EDFB8">"</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">, </span><span style="--shiki-light:#E36209;--shiki-dark:#E9E5DF">digits</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">[</span><span style="--shiki-light:#005CC5;--shiki-dark:#A9C9F5">0</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">].</span><span style="--shiki-light:#6F42C1;--shiki-dark:#E9E5DF">repr</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">(), </span><span style="--shiki-light:#E36209;--shiki-dark:#E9E5DF">digits</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">[</span><span style="--shiki-light:#D73A49;--shiki-dark:#E9E5DF">-</span><span style="--shiki-light:#005CC5;--shiki-dark:#A9C9F5">1</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">].</span><span style="--shiki-light:#6F42C1;--shiki-dark:#E9E5DF">repr</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">());</span>
+</span><span class="line"><span style="--shiki-light:#6F42C1;--shiki-dark:#E9E5DF">printf</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">(</span><span style="--shiki-light:#032F62;--shiki-dark:#9EDFB8">"</span><span style="--shiki-light:#005CC5;--shiki-dark:#9EDFB8">%s</span><span style="--shiki-light:#005CC5;--shiki-dark:#9EDFB8"> %s\n</span><span style="--shiki-light:#032F62;--shiki-dark:#9EDFB8">"</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">, </span><span style="--shiki-light:#E36209;--shiki-dark:#E9E5DF">digits</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">[</span><span style="--shiki-light:#005CC5;--shiki-dark:#A9C9F5">6</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">].</span><span style="--shiki-light:#6F42C1;--shiki-dark:#E9E5DF">repr</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">(), </span><span style="--shiki-light:#E36209;--shiki-dark:#E9E5DF">digits</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">[</span><span style="--shiki-light:#D73A49;--shiki-dark:#E9E5DF">-</span><span style="--shiki-light:#005CC5;--shiki-dark:#A9C9F5">7</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">].</span><span style="--shiki-light:#6F42C1;--shiki-dark:#E9E5DF">repr</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">());</span></span></code></pre>
+
+<p><strong>Raises:</strong> <code>&lt;size-limit&gt;</code> when <code>array</code> holds more than <code>INT_MAX</code> elements.</p>
+<p>Source: <code>lib/array.x:128</code></p>
+<p><a id="Array.getslice"></a></p>
+<h4 id="arraygetslice"><a class="header" href="#arraygetslice">Array.getslice</a></h4>
+<p><code>Self Array.getslice(Self array, int start, int end, int step)</code></p>
+<p>Returns a new <code>Array</code> holding the elements <code>array[start:end:step]</code>.
+This is what <code>array[start:end:step]</code> lowers to; a part omitted from that
+literal form becomes the whole-array default. Negative bounds count from
+the end and a negative <code>step</code> walks backwards, normalized the same way
+<code>List</code> and <code>String</code> slicing normalize them, so the rules match across the
+three types.</p>
+<p>The result is a fresh <code>Array</code>, never a view, so later writes to either
+side are invisible to the other. A range that selects nothing yields an
+empty <code>Array</code>. Ask for the rest of an array by omitting the bound, as in
+<code>array[start:]</code>. A forward <code>end</code> above the length is not clamped to it
+and reads one element beyond the last.</p>
+<pre class="shiki shiki-themes x2c-light x2c-dark x2c-code" style="--shiki-light:#24292e;--shiki-dark:#e9e5df;--shiki-light-bg:#fff;--shiki-dark-bg:#101011" tabindex="0"><code class="language-x2c no-highlight"><span class="line boring"><span style="--shiki-light:#007C8A;--shiki-dark:#29D3E2">Array</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF"> digits </span><span style="--shiki-light:#D73A49;--shiki-dark:#E9E5DF">=</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF"> [</span><span style="--shiki-light:#005CC5;--shiki-dark:#A9C9F5">0</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">, </span><span style="--shiki-light:#005CC5;--shiki-dark:#A9C9F5">1</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">, </span><span style="--shiki-light:#005CC5;--shiki-dark:#A9C9F5">2</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">, </span><span style="--shiki-light:#005CC5;--shiki-dark:#A9C9F5">3</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">, </span><span style="--shiki-light:#005CC5;--shiki-dark:#A9C9F5">4</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">, </span><span style="--shiki-light:#005CC5;--shiki-dark:#A9C9F5">5</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">];</span>
+</span><span class="line"><span style="--shiki-light:#6F42C1;--shiki-dark:#E9E5DF">printf</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">(</span><span style="--shiki-light:#032F62;--shiki-dark:#9EDFB8">"</span><span style="--shiki-light:#005CC5;--shiki-dark:#9EDFB8">%s</span><span style="--shiki-light:#005CC5;--shiki-dark:#9EDFB8"> %s\n</span><span style="--shiki-light:#032F62;--shiki-dark:#9EDFB8">"</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">, </span><span style="--shiki-light:#E36209;--shiki-dark:#E9E5DF">digits</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">[</span><span style="--shiki-light:#005CC5;--shiki-dark:#A9C9F5">1</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">:</span><span style="--shiki-light:#005CC5;--shiki-dark:#A9C9F5">4</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">].</span><span style="--shiki-light:#6F42C1;--shiki-dark:#E9E5DF">repr</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">(), </span><span style="--shiki-light:#E36209;--shiki-dark:#E9E5DF">digits</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">[</span><span style="--shiki-light:#005CC5;--shiki-dark:#A9C9F5">3</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">:].</span><span style="--shiki-light:#6F42C1;--shiki-dark:#E9E5DF">repr</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">());</span>
+</span><span class="line"><span style="--shiki-light:#6F42C1;--shiki-dark:#E9E5DF">printf</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">(</span><span style="--shiki-light:#032F62;--shiki-dark:#9EDFB8">"</span><span style="--shiki-light:#005CC5;--shiki-dark:#9EDFB8">%s</span><span style="--shiki-light:#005CC5;--shiki-dark:#9EDFB8"> %s\n</span><span style="--shiki-light:#032F62;--shiki-dark:#9EDFB8">"</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">, </span><span style="--shiki-light:#E36209;--shiki-dark:#E9E5DF">digits</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">[::</span><span style="--shiki-light:#005CC5;--shiki-dark:#A9C9F5">2</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">].</span><span style="--shiki-light:#6F42C1;--shiki-dark:#E9E5DF">repr</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">(), </span><span style="--shiki-light:#E36209;--shiki-dark:#E9E5DF">digits</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">[::</span><span style="--shiki-light:#D73A49;--shiki-dark:#E9E5DF">-</span><span style="--shiki-light:#005CC5;--shiki-dark:#A9C9F5">1</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">].</span><span style="--shiki-light:#6F42C1;--shiki-dark:#E9E5DF">repr</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">());</span></span></code></pre>
+
+<p><strong>Raises:</strong> <code>&lt;bad-arg&gt;</code> when <code>step</code> is zero, or <code>&lt;size-limit&gt;</code> when <code>array</code>
+exceeds the <code>INT_MAX</code> index limit that <code>Array.getindex</code> describes.</p>
+<p>Source: <code>lib/array.x:336</code></p>
+<p><a id="Array.indexof"></a></p>
+<h4 id="arrayindexof"><a class="header" href="#arrayindexof">Array.indexof</a></h4>
+<p><code>int Array.indexof(Array array, Var value)</code></p>
+<p>Returns <code>Array.find(array, value)</code>.</p>
+<p>Source: <code>lib/array.x:425</code></p>
+<p><a id="Array.insert"></a></p>
+<h4 id="arrayinsert"><a class="header" href="#arrayinsert">Array.insert</a></h4>
+<p><code>Var Array.insert(Array array, int index, Var elem)</code></p>
+<p>Inserts <code>elem</code> at <code>index</code> and returns it, or <code>void</code> when out of range.
+Elements at and after <code>index</code> move up one position. An insertion may
+also land past the last element, so the accepted range is one wider than
+for reading. <code>index</code> may equal <code>array.len()</code>, which appends.</p>
+<p>Negative indices normalize against that wider range, so they do not line
+up with <code>Array.getindex</code>. <code>-1</code> appends at the end, <code>-2</code> inserts before
+the last element, and <code>-(array.len() + 1)</code> inserts at the front. Anything
+further out inserts nothing and returns <code>void</code>.</p>
+<p><strong>Raises:</strong> <code>&lt;void-op&gt;</code> when <code>elem</code> is <code>void</code> and <code>index</code> is in range, or
+<code>&lt;size-limit&gt;</code> when <code>array</code> exceeds the <code>INT_MAX</code> index limit that
+<code>Array.getindex</code> describes, or <code>&lt;alloc-fail&gt;</code> when storage cannot grow.
+These failures leave <code>array</code> unchanged.</p>
+<p>Source: <code>lib/array.x:278</code></p>
+<p><a id="Array.iter"></a></p>
+<h4 id="arrayiter"><a class="header" href="#arrayiter">Array.iter</a></h4>
+<p><code>Iter Array.iter(Array x, Iter dest)</code></p>
+<p>Initializes <code>dest</code> as an iterator over the elements of <code>x</code>.
+The caller owns the storage: declare a <code>struct Iter</code> and pass its
+address. The return value is that same <code>dest</code>, or <code>NULL</code> when <code>dest</code> is
+null, as in every iterator constructor in the library.
+<code>foreach (Var item, array)</code> uses this, and the lazy combinators start
+here.</p>
+<p>The iterator borrows <code>x</code> and its stored <code>Var</code> values, so
+the <code>Array</code> and any
+pointed-to values used by the caller must remain live. An <code>Iter</code> is
+single-pass, with no rewind, and any structural mutation of
+the <code>Array</code> while
+one is outstanding invalidates it. <code>Iter.array</code> is the other direction,
+draining an iterator into a fresh <code>Array</code>, and <code>Array.list</code> converts to a
+canonical <code>List</code>.</p>
+<p>Source: <code>lib/array.x:810</code></p>
+<p><a id="Array.join"></a></p>
+<h4 id="arrayjoin"><a class="header" href="#arrayjoin">Array.join</a></h4>
+<p><code>String Array.join(Array array, String separator)</code></p>
+<p>Joins the elements of <code>array</code> into one <code>String</code> separated by <code>separator</code>.
+Elements are converted with their <code>str</code> form, so a <code>String</code> element
+contributes its bytes without quotes and a number contributes its
+digits. A null <code>separator</code> joins with nothing between elements, and an
+empty array yields the empty <code>String</code>.</p>
+<p>The receiver here is the <code>Array</code>. In <code>String.join</code> the separator is the
+receiver and the elements arrive as a <code>List</code>. Raises: <code>&lt;alloc-fail&gt;</code> or
+<code>&lt;size-limit&gt;</code> while rendering or canonicalizing the result, or a cause
+from an element’s <code>write_str</code>.</p>
+<p>Source: <code>lib/array.x:719</code></p>
+<p><a id="Array.map"></a></p>
+<h4 id="arraymap"><a class="header" href="#arraymap">Array.map</a></h4>
+<p><code>Array Array.map(Array array, Func func)</code></p>
+<p>Returns a new <code>Array</code> holding <code>func</code> applied to each element of <code>array</code>.
+<code>array</code> itself is untouched, and elements are passed as values. An empty
+input returns a fresh empty <code>Array</code> without invoking or checking <code>func</code>.
+The
+callback is invoked front to back and is not retained. It must not mutate
+<code>array</code> while the walk is in progress; <code>Func</code> rejects a <code>void</code> result.</p>
+<p><strong>Raises:</strong> whatever <code>Func.apply</code> or <code>func</code> raises, or an allocation cause
+while constructing the result. The partial result is freed.</p>
+<p>Source: <code>lib/array.x:459</code></p>
+<p><a id="Array.map2"></a></p>
+<h4 id="arraymap2"><a class="header" href="#arraymap2">Array.map2</a></h4>
+<p><code>Array Array.map2(Array a, Array b, Func func)</code></p>
+<p>Maps <code>func</code> over corresponding elements up to the shorter <code>Array</code>.
+The callback receives left then right, runs front to back, and is not
+retained. An empty input does not invoke or check it; neither input may be
+structurally mutated during the walk.</p>
+<p><strong>Raises:</strong> whatever <code>Func.apply</code> or <code>func</code> raises, or an allocation cause
+while constructing the result. The partial result is freed.</p>
+<p>Source: <code>lib/array.x:476</code></p>
+<p><a id="Array.new"></a></p>
+<h4 id="arraynew"><a class="header" href="#arraynew">Array.new</a></h4>
+<p><code>Array Array.new(void)</code></p>
+<p>Returns a fresh empty <code>Array</code> with its own identity.
+The literal <code>%[]</code> calls this constructor. Test emptiness with <code>Array.len</code>.</p>
+<p><strong>Raises:</strong> <code>&lt;alloc-fail&gt;</code> if the backing <code>Block</code> cannot be allocated.</p>
+<p>Source: <code>lib/array.x:64</code></p>
+<p><a id="Array.postfixindex"></a></p>
+<h4 id="arraypostfixindex"><a class="header" href="#arraypostfixindex">Array.postfixindex</a></h4>
+<p><code>Var Array.postfixindex(Array array, int index, Symbol op)</code></p>
+<p>Applies postfix <code>Array</code> element increment or decrement.
+The returned value is the original element. The slot remains unchanged if
+the index or operation is invalid.</p>
+<p><strong>Raises:</strong> <code>&lt;bad-arg&gt;</code> for a null <code>Array</code> or invalid index,
+<code>&lt;size-limit&gt;</code> when
+its length cannot be indexed, or any cause from <code>Var.postfix</code>. The element
+is unchanged on failure.</p>
+<p>Source: <code>lib/array.x:188</code></p>
+<p><a id="Array.push"></a></p>
+<h4 id="arraypush"><a class="header" href="#arraypush">Array.push</a></h4>
+<p><code>Var Array.push(Array array, Var elem)</code></p>
+<p>Appends <code>elem</code> to the end of <code>array</code> and returns it.
+Returning the appended value lets a push be used directly in another
+expression. The array grows as needed; capacity is an implementation
+detail.</p>
+<pre class="shiki shiki-themes x2c-light x2c-dark x2c-code" style="--shiki-light:#24292e;--shiki-dark:#e9e5df;--shiki-light-bg:#fff;--shiki-dark-bg:#101011" tabindex="0"><code class="language-x2c no-highlight"><span class="line boring"><span style="--shiki-light:#007C8A;--shiki-dark:#29D3E2">Array</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF"> queue </span><span style="--shiki-light:#D73A49;--shiki-dark:#E9E5DF">=</span><span style="--shiki-light:#D73A49;--shiki-dark:#F0ADA1"> []</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">;</span>
+</span><span class="line"><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">queue.</span><span style="--shiki-light:#6F42C1;--shiki-dark:#E9E5DF">push</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">(</span><span style="--shiki-light:#005CC5;--shiki-dark:#A9C9F5">10</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">);</span>
+</span><span class="line"><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">queue.</span><span style="--shiki-light:#6F42C1;--shiki-dark:#E9E5DF">push</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">(</span><span style="--shiki-light:#032F62;--shiki-dark:#9EDFB8">"twenty"</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">);</span>
+</span><span class="line"><span style="--shiki-light:#6F42C1;--shiki-dark:#E9E5DF">printf</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">(</span><span style="--shiki-light:#032F62;--shiki-dark:#9EDFB8">"</span><span style="--shiki-light:#005CC5;--shiki-dark:#9EDFB8">%s\n</span><span style="--shiki-light:#032F62;--shiki-dark:#9EDFB8">"</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">, queue.</span><span style="--shiki-light:#6F42C1;--shiki-dark:#E9E5DF">repr</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">().</span><span style="--shiki-light:#6F42C1;--shiki-dark:#E9E5DF">str</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">());</span></span></code></pre>
+
+<p><strong>Raises:</strong> <code>&lt;void-op&gt;</code> when <code>elem</code> is <code>void</code>, or <code>&lt;size-limit&gt;</code> when the
+<code>Array</code> cannot grow within its index domain, or <code>&lt;alloc-fail&gt;</code> when storage
+cannot grow. These failures leave <code>array</code> unchanged.</p>
+<p>Source: <code>lib/array.x:213</code></p>
+<p><a id="Array.remove"></a></p>
+<h4 id="arrayremove"><a class="header" href="#arrayremove">Array.remove</a></h4>
+<p><code>Var Array.remove(Array array, int index)</code></p>
+<p>Removes and returns the element at <code>index</code>, or <code>void</code> when out of range.
+Elements after <code>index</code> move down one position, so this is O(n) unless
+<code>index</code> is the last one. Negative indices count from the end as in
+<code>Array.getindex</code>, so <code>-1</code> removes the last element. <code>Array.insert</code> uses
+a different rule. An empty array yields <code>void</code>.</p>
+<p><strong>Raises:</strong> <code>&lt;size-limit&gt;</code> when <code>array</code> exceeds the <code>INT_MAX</code> index limit that
+<code>Array.getindex</code> describes.</p>
+<p>Source: <code>lib/array.x:296</code></p>
+<p><a id="Array.resize"></a></p>
+<h4 id="arrayresize"><a class="header" href="#arrayresize">Array.resize</a></h4>
+<p><code>void Array.resize(Array arr, size_t size)</code></p>
+<p>Resizes <code>arr</code>, truncating or appending <code>Null</code> elements as needed.</p>
+<p><strong>Raises:</strong> <code>&lt;size-limit&gt;</code> when <code>size</code> exceeds the <code>Array</code> index domain, plus
+any cause from <code>Block</code> growth. Allocation and size failure do not return
+here. A growth failure leaves the length and existing elements unchanged.</p>
+<p>Source: <code>lib/array.x:71</code></p>
+<p><a id="Array.reverse"></a></p>
+<h4 id="arrayreverse"><a class="header" href="#arrayreverse">Array.reverse</a></h4>
+<p><code>Self Array.reverse(Self array)</code></p>
+<p>Reverses <code>array</code> in place and returns that same <code>Array</code>.
+To preserve the original order, slice with a negative step
+(<code>array[::-1]</code>), which builds a fresh <code>Array</code>.</p>
+<p>Source: <code>lib/array.x:448</code></p>
+<p><a id="Array.setindex"></a></p>
+<h4 id="arraysetindex"><a class="header" href="#arraysetindex">Array.setindex</a></h4>
+<p><code>Var Array.setindex(Array array, int index, Var elem)</code></p>
+<p>Stores <code>elem</code> at <code>index</code> and returns it, or <code>void</code> when out of range.
+This is what <code>array[index] = elem</code> lowers to. Negative indices count
+from the end as in <code>Array.getindex</code>. An out-of-range index changes
+nothing and is reported by the <code>void</code> result. <code>setindex</code> never grows the
+array; use <code>Array.push</code> or <code>Array.insert</code> to add an element.</p>
+<p>The bounds check runs before the value check, so an out-of-range write
+of <code>void</code> returns <code>void</code> instead of failing.</p>
+<p><strong>Raises:</strong> <code>&lt;void-op&gt;</code> when <code>elem</code> is <code>void</code> and <code>index</code> is in range, or
+<code>&lt;size-limit&gt;</code> when <code>array</code> exceeds the <code>INT_MAX</code> index limit that
+<code>Array.getindex</code> describes.</p>
+<p>Source: <code>lib/array.x:148</code></p>
+<p><a id="Array.setslice"></a></p>
+<h4 id="arraysetslice"><a class="header" href="#arraysetslice">Array.setslice</a></h4>
+<p><code>Self Array.setslice(Self array, int start, int end, Self values)</code></p>
+<p>Replaces the region <code>array[start:end]</code> with the elements of <code>values</code> and
+returns <code>array</code>.
+The replacement need not match the length of the region it replaces.
+The array grows or shrinks and the tail moves to fit. A null or empty
+<code>values</code> deletes the region, and an empty region inserts.</p>
+<p>Bounds are normalized exactly as <code>array[start:end]</code> normalizes them, so
+the replaced region is the one that slice selects: <code>start</code> counts from the
+end when negative, and a negative <code>end</code> is a stop, with -1 naming the
+position after the last element. A reversed pair is swapped.
+There is no <code>step</code> and no bracket spelling; <code>array[start:end] = values</code>
+is not accepted, so call the method. Aliasing is handled, so passing
+<code>array</code> as its own <code>values</code> copies first.</p>
+<p><strong>Raises:</strong> <code>&lt;size-limit&gt;</code> when either <code>Array</code> cannot be indexed or the result
+cannot be represented, or <code>&lt;alloc-fail&gt;</code> while copying an aliased source
+or growing. These failures leave <code>array</code> unchanged.</p>
+<p>Source: <code>lib/array.x:365</code></p>
+<p><a id="Array.shift"></a></p>
+<h4 id="arrayshift"><a class="header" href="#arrayshift">Array.shift</a></h4>
+<p><code>Var Array.shift(Array array)</code></p>
+<p>Removes and returns the first element of <code>array</code>, or <code>void</code> if it is
+empty.
+Every remaining element moves down one position, so this is O(n) in the
+length while <code>Array.take_last</code> is O(1). Pair <code>Array.push</code> with <code>shift</code>
+for a FIFO queue and with <code>Array.take_last</code> for a stack.</p>
+<p>Source: <code>lib/array.x:243</code></p>
+<p><a id="Array.sort"></a></p>
+<h4 id="arraysort"><a class="header" href="#arraysort">Array.sort</a></h4>
+<p><code>Self Array.sort(Self array)</code></p>
+<p>Sorts <code>array</code> in place in ascending order and returns that same <code>Array</code>.
+Call <code>Array.copy</code> first to preserve the original order. Ordering is
+<code>Var.compare</code>, which compares numbers numerically and <code>String</code>s, <code>Symbol</code>s,
+and <code>Atom</code>s by content. The sort is <code>qsort</code>, so it is not stable, and a
+null or one-element <code>array</code> is returned unchanged.</p>
+<pre class="shiki shiki-themes x2c-light x2c-dark x2c-code" style="--shiki-light:#24292e;--shiki-dark:#e9e5df;--shiki-light-bg:#fff;--shiki-dark-bg:#101011" tabindex="0"><code class="language-x2c no-highlight"><span class="line boring"><span style="--shiki-light:#007C8A;--shiki-dark:#29D3E2">Array</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF"> numbers </span><span style="--shiki-light:#D73A49;--shiki-dark:#E9E5DF">=</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF"> [</span><span style="--shiki-light:#005CC5;--shiki-dark:#A9C9F5">5</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">, </span><span style="--shiki-light:#005CC5;--shiki-dark:#A9C9F5">3</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">, </span><span style="--shiki-light:#005CC5;--shiki-dark:#A9C9F5">9</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">, </span><span style="--shiki-light:#005CC5;--shiki-dark:#A9C9F5">1</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">];</span>
+</span><span class="line"><span style="--shiki-light:#007C8A;--shiki-dark:#29D3E2">Array</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF"> sorted </span><span style="--shiki-light:#D73A49;--shiki-dark:#E9E5DF">=</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF"> numbers.</span><span style="--shiki-light:#6F42C1;--shiki-dark:#E9E5DF">sort</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">();</span>
+</span><span class="line"><span style="--shiki-light:#6F42C1;--shiki-dark:#E9E5DF">printf</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">(</span><span style="--shiki-light:#032F62;--shiki-dark:#9EDFB8">"</span><span style="--shiki-light:#005CC5;--shiki-dark:#9EDFB8">%s</span><span style="--shiki-light:#005CC5;--shiki-dark:#9EDFB8"> %d\n</span><span style="--shiki-light:#032F62;--shiki-dark:#9EDFB8">"</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">, numbers.</span><span style="--shiki-light:#6F42C1;--shiki-dark:#E9E5DF">repr</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">(), sorted </span><span style="--shiki-light:#D73A49;--shiki-dark:#E9E5DF">==</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF"> numbers);</span></span></code></pre>
+
+<p><strong>Raises:</strong> causes from element comparison. The <code>Array</code> may already be
+partially
+reordered when a catch receives the cause.</p>
+<p>Source: <code>lib/array.x:539</code></p>
+<p><a id="Array.sort_by"></a></p>
+<h4 id="arraysort_by"><a class="header" href="#arraysort_by">Array.sort_by</a></h4>
+<p><code>Self Array.sort_by(Self array, Func key)</code></p>
+<p>Stably sorts <code>array</code> by keys produced once per value, returning the Array.
+The borrowed callback runs front to back and must not mutate this Array.
+Keys use <code>Var.compare</code>; equal keys preserve the original element order.
+A null or empty Array invokes no callback. Sorting another Array inside
+the callback is valid. Raises: allocation, key comparison, <code>Func.apply</code>,
+or callback causes. Failure leaves the original Array unchanged;
+callback side effects are not undone.</p>
+<p>Source: <code>lib/array.x:605</code></p>
+<p><a id="Array.sort_with"></a></p>
+<h4 id="arraysort_with"><a class="header" href="#arraysort_with">Array.sort_with</a></h4>
+<p><code>Self Array.sort_with(Self array, Func compare)</code></p>
+<p>Stably sorts <code>array</code> with a borrowed synchronous comparator and returns it.
+The callback receives two values; its result converts to <code>int</code>, with a
+negative, zero, or positive result ordering the first before, equal to,
+or after the second. It must give a consistent ordering and must not
+mutate this Array. Sorting a different Array inside the callback is valid.
+Null and fewer than two elements return unchanged without a callback.</p>
+<p><strong>Raises:</strong> allocation, <code>Func.apply</code>, conversion, or callback causes. Failure
+leaves the original Array unchanged; temporary storage is released.
+Callback side effects are not undone.</p>
+<p>Source: <code>lib/array.x:560</code></p>
+<p><a id="Array.splice"></a></p>
+<h4 id="arraysplice"><a class="header" href="#arraysplice">Array.splice</a></h4>
+<p><code>Self Array.splice(Self array, int index, int remove_count, Self values)</code></p>
+<p>Replaces <code>remove_count</code> elements at <code>index</code> with <code>values</code> and returns
+what was removed.
+The returned <code>Array</code> is fresh and holds the removed region in order.
+<code>index</code> is normalized as a slice bound, so a negative value counts from
+the end and a value past the end clamps to it. A <code>remove_count</code> of zero
+or less removes nothing, making <code>splice</code> an insertion; a null <code>values</code>
+makes it a deletion.</p>
+<p><strong>Raises:</strong> <code>&lt;size-limit&gt;</code> when either <code>Array</code> or the result cannot be
+represented, or <code>&lt;alloc-fail&gt;</code> while copying or growing. These failures
+leave <code>array</code> unchanged.</p>
+<p>Source: <code>lib/array.x:391</code></p>
+<p><a id="Array.take_last"></a></p>
+<h4 id="arraytake_last"><a class="header" href="#arraytake_last">Array.take_last</a></h4>
+<p><code>Var Array.take_last(Array array)</code></p>
+<p>Takes and returns the last element of <code>array</code>, or <code>void</code> if it is empty.
+With <code>Array.push</code> this makes a stack. Both work at the end of the array,
+move no other elements, and are amortized O(1). Capacity is retained
+after taking the element, so taking and pushing again does not
+reallocate.</p>
+<p>Source: <code>lib/array.x:229</code></p>
+<p><a id="Array.try_next"></a></p>
+<h4 id="arraytry_next"><a class="header" href="#arraytry_next">Array.try_next</a></h4>
+<p><code>int Array.try_next(Array array, int *cursor, Var *out)</code></p>
+<p>Writes the next element, advances <code>cursor</code>, and returns one.
+Initialize the caller-owned cursor to zero. A null <code>Array</code>, a null
+pointer, a negative cursor, or exhaustion returns zero without changing
+<code>cursor</code> or <code>out</code>. Structural mutation invalidates an outstanding cursor.</p>
+<p><code>foreach (Var item, array)</code> compiles to this loop.</p>
+<p><strong>Raises:</strong> <code>&lt;size-limit&gt;</code> for an <code>Array</code> outside the integer index domain.</p>
+<p>Source: <code>lib/array.x:786</code></p>
+<p><a id="Array.unshift"></a></p>
+<h4 id="arrayunshift"><a class="header" href="#arrayunshift">Array.unshift</a></h4>
+<p><code>Var Array.unshift(Array array, Var elem)</code></p>
+<p>Inserts <code>elem</code> at the front of <code>array</code> and returns it.
+Existing elements move up one position, so this is O(n); <code>Array.push</code> is
+the amortized O(1) end of the array. Returning <code>elem</code> lets an unshift
+be used directly in another expression, as <code>Array.push</code> does.</p>
+<p><strong>Raises:</strong> <code>&lt;void-op&gt;</code> when <code>elem</code> is <code>void</code>, or <code>&lt;size-limit&gt;</code> when the
+<code>Array</code> cannot grow within its index domain, or <code>&lt;alloc-fail&gt;</code> when storage
+cannot grow. These failures leave <code>array</code> unchanged.</p>
+<p>Source: <code>lib/array.x:256</code></p>
+<p><a id="Array.updateindex"></a></p>
+<h4 id="arrayupdateindex"><a class="header" href="#arrayupdateindex">Array.updateindex</a></h4>
+<p><code>Var Array.updateindex(Array array, int index, Symbol op, Var rhs)</code></p>
+<p>Updates one <code>Array</code> element in place.
+The index is normalized once, including negative indexing, and the
+element slot is delegated to <code>Var.update</code>. The stored <code>Var</code> tag is
+therefore preserved and the slot remains unchanged on failure.</p>
+<p><strong>Raises:</strong> <code>&lt;bad-arg&gt;</code> for a null <code>Array</code> or invalid index,
+<code>&lt;size-limit&gt;</code> when
+its length cannot be indexed, <code>&lt;void-op&gt;</code> for a <code>void</code> right operand, or
+any cause from <code>Var.update</code>. These failures leave the element unchanged
+.</p>
+<p>Source: <code>lib/array.x:168</code></p>
+<p><a id="Array.write_str"></a></p>
+<h4 id="arraywrite_str"><a class="header" href="#arraywrite_str">Array.write_str</a></h4>
+<p><code>Buffer Array.write_str(Array a, Buffer out)</code></p>
+<p>Appends the <code>Array</code> display text to <code>out</code>, using each element’s
+<code>write_str</code>.
+<code>Array.str</code> materializes this into a <code>String</code>.</p>
+<p>Source: <code>lib/array.x:741</code></p>
+<h3 id="block"><a class="header" href="#block"><code>Block</code></a></h3>
+<p><a id="Block.array"></a></p>
+<h4 id="blockarray"><a class="header" href="#blockarray">Block.array</a></h4>
+<p><code>inline Array Block.array(Block x)</code></p>
+<p>Returns the same object as an <code>Array</code> view; mutations remain shared.</p>
+<p>Source: <code>lib/array.x:58</code></p>
+<h3 id="iter"><a class="header" href="#iter"><code>Iter</code></a></h3>
+<p><a id="Iter.array"></a></p>
+<h4 id="iterarray"><a class="header" href="#iterarray">Iter.array</a></h4>
+<p><code>Array Iter.array(Iter iter)</code></p>
+<p>Drains <code>iter</code> into a fresh <code>Array</code>.</p>
+<p>Source: <code>lib/array.x:816</code></p>
+<h2 id="advanced-and-interop-api"><a class="header" href="#advanced-and-interop-api">Advanced and interop API</a></h2>
+<div class="table-wrapper">
+<table>
+<thead>
+<tr><th>Function</th><th>Summary</th></tr>
+</thead>
+<tbody>
+<tr><td><a href="#Array.cleanup"><code>Array.cleanup</code></a></td><td>Ends the owned lifetime when a managed local leaves its block.</td></tr>
+<tr><td><a href="#Array.compare"><code>Array.compare</code></a></td><td>Compares <code>Array</code>s lexicographically with <code>Var.compare</code>.</td></tr>
+<tr><td><a href="#Array.equal"><code>Array.equal</code></a></td><td>Returns nonzero when two <code>Array</code>s have structurally equal elements.</td></tr>
+<tr><td><a href="#Array.heap_pop"><code>Array.heap_pop</code></a></td><td>Removes and returns the smallest element of <code>heap</code>, or <code>void</code> when it is empty.</td></tr>
+<tr><td><a href="#Array.heap_push"><code>Array.heap_push</code></a></td><td>Adds <code>val</code> to <code>heap</code>, an <code>Array</code> maintained as a binary min-heap.</td></tr>
+<tr><td><a href="#Array.heapify"><code>Array.heapify</code></a></td><td>Rearranges <code>heap</code> in place so that it satisfies the min-heap invariant.</td></tr>
+<tr><td><a href="#Array.remslice"><code>Array.remslice</code></a></td><td>Removes the region <code>array[start:end]</code> and returns a fresh <code>Array</code>.</td></tr>
+<tr><td><a href="#Array.repr"><code>Array.repr</code></a></td><td>Returns the readable <code>[ a, b, c ]</code> representation of <code>array</code>.</td></tr>
+<tr><td><a href="#Array.str"><code>Array.str</code></a></td><td>Returns an <code>Array</code> display <code>String</code> using each element’s <code>str</code>.</td></tr>
+<tr><td><a href="#Array.update_n"><code>Array.update_n</code></a></td><td>Appends exactly <code>element_count</code> variadic values to <code>array</code>.</td></tr>
+<tr><td><a href="#Array.write_repr"><code>Array.write_repr</code></a></td><td>Appends the readable <code>Array</code> representation to <code>out</code>.</td></tr>
+</tbody>
+</table>
+</div>
+<h3 id="array-1"><a class="header" href="#array-1"><code>Array</code></a></h3>
+<p><a id="Array.cleanup"></a></p>
+<h4 id="arraycleanup"><a class="header" href="#arraycleanup">Array.cleanup</a></h4>
+<p><code>void Array.cleanup(Array value)</code></p>
+<p>Ends the owned lifetime when a managed local leaves its block.</p>
+<p>Source: <code>lib/array.x:824</code></p>
+<p><a id="Array.compare"></a></p>
+<h4 id="arraycompare"><a class="header" href="#arraycompare">Array.compare</a></h4>
+<p><code>int Array.compare(Array a, Array b)</code></p>
+<p>Compares <code>Array</code>s lexicographically with <code>Var.compare</code>.</p>
+<p>Source: <code>lib/array.x:518</code></p>
+<p><a id="Array.equal"></a></p>
+<h4 id="arrayequal"><a class="header" href="#arrayequal">Array.equal</a></h4>
+<p><code>int Array.equal(Array a, Array b)</code></p>
+<p>Returns nonzero when two <code>Array</code>s have structurally equal elements.</p>
+<p>Source: <code>lib/array.x:732</code></p>
+<p><a id="Array.heap_pop"></a></p>
+<h4 id="arrayheap_pop"><a class="header" href="#arrayheap_pop">Array.heap_pop</a></h4>
+<p><code>Var Array.heap_pop(Array heap)</code></p>
+<p>Removes and returns the smallest element of <code>heap</code>, or <code>void</code> when it is
+empty. The remaining elements are re-heaped in O(log n), so repeated calls
+yield ascending order and draining a heap is a sort. An <code>Array</code> that never
+satisfied the heap invariant gives a meaningless answer instead of an
+error. Call <code>Array.heapify</code> first if it was not built with
+<code>Array.heap_push</code>.</p>
+<p><strong>Raises:</strong> any cause reported by element comparison while restoring the heap.
+The heap may already have removed its root when a catch receives the error.</p>
+<p>Source: <code>lib/array.x:685</code></p>
+<p><a id="Array.heap_push"></a></p>
+<h4 id="arrayheap_push"><a class="header" href="#arrayheap_push">Array.heap_push</a></h4>
+<p><code>void Array.heap_push(Array heap, Var val)</code></p>
+<p>Adds <code>val</code> to <code>heap</code>, an <code>Array</code> maintained as a binary min-heap.
+The heap operations arrange an <code>Array</code> as a priority queue in place, with
+no second data structure and no extra allocation. The elements stay in
+the <code>Array</code> with the smallest at index 0. Ordering is <code>Var.compare</code>, the
+same rule <code>Array.sort</code> uses.</p>
+<p><code>heap_push</code> and <code>Array.heap_pop</code> maintain the invariant, but the
+positional operations do not. After a plain <code>Array.push</code>, an assignment
+through <code>Array.setindex</code>, or any slicing, call <code>Array.heapify</code> before
+popping again.</p>
+<pre class="shiki shiki-themes x2c-light x2c-dark x2c-code" style="--shiki-light:#24292e;--shiki-dark:#e9e5df;--shiki-light-bg:#fff;--shiki-dark-bg:#101011" tabindex="0"><code class="language-x2c no-highlight"><span class="line boring"><span style="--shiki-light:#007C8A;--shiki-dark:#29D3E2">Array</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF"> heap </span><span style="--shiki-light:#D73A49;--shiki-dark:#E9E5DF">=</span><span style="--shiki-light:#D73A49;--shiki-dark:#F0ADA1"> []</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">;</span>
+</span><span class="line"><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">heap.</span><span style="--shiki-light:#6F42C1;--shiki-dark:#E9E5DF">heap_push</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">(</span><span style="--shiki-light:#005CC5;--shiki-dark:#A9C9F5">30</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">);</span>
+</span><span class="line"><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">heap.</span><span style="--shiki-light:#6F42C1;--shiki-dark:#E9E5DF">heap_push</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">(</span><span style="--shiki-light:#005CC5;--shiki-dark:#A9C9F5">10</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">);</span>
+</span><span class="line"><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">heap.</span><span style="--shiki-light:#6F42C1;--shiki-dark:#E9E5DF">heap_push</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">(</span><span style="--shiki-light:#005CC5;--shiki-dark:#A9C9F5">20</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">);</span>
+</span><span class="line"><span style="--shiki-light:#6F42C1;--shiki-dark:#E9E5DF">printf</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">(</span><span style="--shiki-light:#032F62;--shiki-dark:#9EDFB8">"</span><span style="--shiki-light:#005CC5;--shiki-dark:#9EDFB8">%s</span><span style="--shiki-light:#005CC5;--shiki-dark:#9EDFB8"> %s\n</span><span style="--shiki-light:#032F62;--shiki-dark:#9EDFB8">"</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">, heap.</span><span style="--shiki-light:#6F42C1;--shiki-dark:#E9E5DF">heap_pop</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">().</span><span style="--shiki-light:#6F42C1;--shiki-dark:#E9E5DF">repr</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">(), heap.</span><span style="--shiki-light:#6F42C1;--shiki-dark:#E9E5DF">heap_pop</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">().</span><span style="--shiki-light:#6F42C1;--shiki-dark:#E9E5DF">repr</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">());</span></span></code></pre>
+
+<p><strong>Raises:</strong> <code>&lt;void-op&gt;</code> when <code>val</code> is <code>void</code>, or <code>&lt;size-limit&gt;</code> when the heap
+cannot grow within the <code>Array</code> index domain, <code>&lt;alloc-fail&gt;</code> when storage
+cannot grow, or a cause from element comparison. A value or earlier swap
+may remain when comparison fails; pre-insertion failures leave the heap
+unchanged.</p>
+<p>Source: <code>lib/array.x:671</code></p>
+<p><a id="Array.heapify"></a></p>
+<h4 id="arrayheapify"><a class="header" href="#arrayheapify">Array.heapify</a></h4>
+<p><code>void Array.heapify(Array heap)</code></p>
+<p>Rearranges <code>heap</code> in place so that it satisfies the min-heap invariant.
+Use this before the first <code>Array.heap_pop</code> on an <code>Array</code> that was built by
+<code>Array.push</code>, read in from somewhere else, or disturbed by a positional
+operation. It is O(n), cheaper than pushing the same elements one at a
+time.</p>
+<p><strong>Raises:</strong> <code>&lt;size-limit&gt;</code> when <code>heap</code> exceeds the <code>INT_MAX</code> index limit that
+<code>Array.getindex</code> describes, or a cause from element comparison. Comparison
+failure may leave a partially rearranged <code>Array</code>.</p>
+<p>Source: <code>lib/array.x:704</code></p>
+<p><a id="Array.remslice"></a></p>
+<h4 id="arrayremslice"><a class="header" href="#arrayremslice">Array.remslice</a></h4>
+<p><code>Self Array.remslice(Self array, int start, int end)</code></p>
+<p>Removes the region <code>array[start:end]</code> and returns a fresh <code>Array</code>.
+Bounds are normalized the way that slice normalizes them, so a negative
+<code>end</code> is a stop. A reversed pair is swapped. Allocation or size failure
+occurs before <code>array</code> is changed.</p>
+<p>Source: <code>lib/array.x:375</code></p>
+<p><a id="Array.repr"></a></p>
+<h4 id="arrayrepr"><a class="header" href="#arrayrepr">Array.repr</a></h4>
+<p><code>String Array.repr(Array array)</code></p>
+<p>Returns the readable <code>[ a, b, c ]</code> representation of <code>array</code>.
+Each element is rendered with its own <code>repr</code>, so <code>String</code>s appear quoted
+and <code>Symbol</code>s in angle brackets. The result is for reading and for
+diagnostics; unlike the <code>List</code> reader syntax it does not round-trip back
+through a parser. An empty <code>Array</code> renders as <code>[  ]</code>.</p>
+<p><code>Array.str</code> has the same shape but uses each element’s <code>str</code> form.
+<code>Array.write_repr</code> and <code>Array.write_str</code> append to a <code>Buffer</code> instead of
+allocating a <code>String</code>, and the two <code>String</code> forms are built on them.</p>
+<p><strong>Raises:</strong> <code>&lt;alloc-fail&gt;</code> or <code>&lt;size-limit&gt;</code> while constructing the result.</p>
+<p>Source: <code>lib/array.x:761</code></p>
+<p><a id="Array.str"></a></p>
+<h4 id="arraystr"><a class="header" href="#arraystr">Array.str</a></h4>
+<p><code>String Array.str(Array array)</code></p>
+<p>Returns an <code>Array</code> display <code>String</code> using each element’s <code>str</code>.</p>
+<p>Source: <code>lib/array.x:744</code></p>
+<p><a id="Array.update_n"></a></p>
+<h4 id="arrayupdate_n"><a class="header" href="#arrayupdate_n">Array.update_n</a></h4>
+<p><code>Self Array.update_n(Self array, unsigned element_count, ...)</code></p>
+<p>Appends exactly <code>element_count</code> variadic values to <code>array</code>.
+Values appended before a later <code>&lt;void-op&gt;</code>, <code>&lt;size-limit&gt;</code>, or
+<code>&lt;alloc-fail&gt;</code> remain in <code>array</code>. The caller must supply that many <code>Var</code>
+arguments.</p>
+<p>Source: <code>lib/array.x:95</code></p>
+<p><a id="Array.write_repr"></a></p>
+<h4 id="arraywrite_repr"><a class="header" href="#arraywrite_repr">Array.write_repr</a></h4>
+<p><code>Buffer Array.write_repr(Array a, Buffer out)</code></p>
+<p>Appends the readable <code>Array</code> representation to <code>out</code>.</p>
+<p>Source: <code>lib/array.x:735</code></p>
+<h2 id="runtime-internal-callables"><a class="header" href="#runtime-internal-callables">Runtime-internal callables</a></h2>
+<p>These callables connect runtime translation units. They are documented
+for source readers but are not supported as user API.</p>
+<div class="table-wrapper">
+<table>
+<thead>
+<tr><th>Function</th><th>Summary</th></tr>
+</thead>
+<tbody>
+<tr><td><a href="#Array.block"><code>Array.block</code></a></td><td>Returns the same object as a <code>Block</code> view; no copy or transfer occurs.</td></tr>
+</tbody>
+</table>
+</div>
+<h3 id="array-2"><a class="header" href="#array-2"><code>Array</code></a></h3>
+<p><a id="Array.block"></a></p>
+<h4 id="arrayblock"><a class="header" href="#arrayblock">Array.block</a></h4>
+<p><code>inline Block Array.block(Array x)</code></p>
+<p>Returns the same object as a <code>Block</code> view; no copy or transfer occurs.</p>
+<p>Source: <code>lib/array.x:56</code></p>
+<h2 id="public-types"><a class="header" href="#public-types">Public types</a></h2>
+<div class="table-wrapper">
+<table>
+<thead>
+<tr><th>Type</th><th>Kind</th><th>Summary</th></tr>
+</thead>
+<tbody>
+<tr><td><a href="#Array"><code>Array</code></a></td><td>alias</td><td>Holds a mutable identity-bearing sequence of non-<code>void</code> <code>Var</code> elements.</td></tr>
+</tbody>
+</table>
+</div>
+<p><a id="Array"></a></p>
+<h3 id="array-3"><a class="header" href="#array-3">Array</a></h3>
+<p><code>typedef Block Array</code></p>
+<p>Holds a mutable identity-bearing sequence of non-<code>void</code> <code>Var</code> elements.
+<code>Array</code> is the same object as its <code>Block</code> view; that object and its backing
+storage belong to the <code>Scope</code> active at construction.
+Assignment aliases it;
+<code>Array.copy</code> creates a new container, but still borrows any objects
+referenced by its elements. <code>Array.free</code> invalidates all aliases.</p>
+<p>Source: <code>lib/array.x:35</code></p>
+<h2 id="design-notes"><a class="header" href="#design-notes">Design notes</a></h2>
+<p><code>Array</code> is mutable, identity-bearing contiguous <code>Var</code> storage over <code>Block</code>.
+Every constructor returns an allocated object, including for an empty
+<code>Array</code>; assignment aliases that object, while <code>Array.copy</code> makes a shallow
+independent container. <code>Scope</code> owns its allocation unless <code>Array.free</code>
+shortens the lifetime. <code>Array</code> data may contain raw <code>Null</code> but never
+<code>void</code>.</p>
+<p>The declared <code>Block</code> protocol supplies <code>Array</code>’s generated <code>truth</code>, <code>pop</code>,
+<code>free</code>, and <code>truncate</code> members. <code>Array.pop</code> discards the final element;
+<code>Array.take_last</code> removes and returns it.</p>
+<p>Indexing and slicing normalize negative positions here. Positional
+mutation preserves the object identity, and structural mutation
+invalidates outstanding iterators.</p>
+<h2 id="tests-and-examples"><a class="header" href="#tests-and-examples">Tests and examples</a></h2>
+<p><code>make verify</code> (<code>unittest/test-array.x</code>) and <code>make examples</code>.</p>
+
+                    </main>
+
+                    <nav class="x2c-pager" aria-label="Page navigation">
+                        <a rel="prev" href="../../library/modules/args.html" class="x2c-pager-prev" aria-keyshortcuts="Left">
+                            <span class="x2c-pager-label">previous</span>
+                            <span class="x2c-pager-title">lib/args.x</span>
+                        </a>
+                        
+                        <a rel="next prefetch" href="../../library/modules/atom.html" class="x2c-pager-next" aria-keyshortcuts="Right">
+                            <span class="x2c-pager-label">next</span>
+                            <span class="x2c-pager-title">lib/atom.x</span>
+                        </a>
+                    </nav>
+                    <footer class="x2c-footer">
+                        &copy; 2025&ndash;2026
+                        <a href="https://flake.org">GWF</a>
+                        &middot;
+                        <a href="https://github.com/gwf/x2c/blob/c2a89d999e81f47a4422a26edf0033eb0b98c6c6/LICENSE">Apache 2.0</a>
+                        &middot;
+                        <a href="https://github.com/gwf/x2c/blob/c2a89d999e81f47a4422a26edf0033eb0b98c6c6/TRADEMARKS.md">Trademarks</a>
+                    </footer>
+                </div>
+            </div>
+
+
+        </div>
+
+        <template id=fa-eye><span class=fa-svg><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 576 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc. --><path d="M288 32c-80.8 0-145.5 36.8-192.6 80.6C48.6 156 17.3 208 2.5 243.7c-3.3 7.9-3.3 16.7 0 24.6C17.3 304 48.6 356 95.4 399.4C142.5 443.2 207.2 480 288 480s145.5-36.8 192.6-80.6c46.8-43.5 78.1-95.4 93-131.1c3.3-7.9 3.3-16.7 0-24.6c-14.9-35.7-46.2-87.7-93-131.1C433.5 68.8 368.8 32 288 32zM432 256c0 79.5-64.5 144-144 144s-144-64.5-144-144s64.5-144 144-144s144 64.5 144 144zM288 192c0 35.3-28.7 64-64 64c-11.5 0-22.3-3-31.6-8.4c-.2 2.8-.4 5.5-.4 8.4c0 53 43 96 96 96s96-43 96-96s-43-96-96-96c-2.8 0-5.6 .1-8.4 .4c5.3 9.3 8.4 20.1 8.4 31.6z"/></svg></span></template>
+        <template id=fa-eye-slash><span class=fa-svg><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 640 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc. --><path d="M38.8 5.1C28.4-3.1 13.3-1.2 5.1 9.2S-1.2 34.7 9.2 42.9l592 464c10.4 8.2 25.5 6.3 33.7-4.1s6.3-25.5-4.1-33.7L525.6 386.7c39.6-40.6 66.4-86.1 79.9-118.4c3.3-7.9 3.3-16.7 0-24.6c-14.9-35.7-46.2-87.7-93-131.1C465.5 68.8 400.8 32 320 32c-68.2 0-125 26.3-169.3 60.8L38.8 5.1zM223.1 149.5C248.6 126.2 282.7 112 320 112c79.5 0 144 64.5 144 144c0 24.9-6.3 48.3-17.4 68.7L408 294.5c5.2-11.8 8-24.8 8-38.5c0-53-43-96-96-96c-2.8 0-5.6 .1-8.4 .4c5.3 9.3 8.4 20.1 8.4 31.6c0 10.2-2.4 19.8-6.6 28.3l-90.3-70.8zm223.1 298L373 389.9c-16.4 6.5-34.3 10.1-53 10.1c-79.5 0-144-64.5-144-144c0-6.9 .5-13.6 1.4-20.2L83.1 161.5C60.3 191.2 44 220.8 34.5 243.7c-3.3 7.9-3.3 16.7 0 24.6c14.9 35.7 46.2 87.7 93 131.1C174.5 443.2 239.2 480 320 480c47.8 0 89.9-12.9 126.2-32.5z"/></svg></span></template>
+        <template id=fa-copy><span class=fa-svg><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc. --><path d="M502.6 70.63l-61.25-61.25C435.4 3.371 427.2 0 418.7 0H255.1c-35.35 0-64 28.66-64 64l.0195 256C192 355.4 220.7 384 256 384h192c35.2 0 64-28.8 64-64V93.25C512 84.77 508.6 76.63 502.6 70.63zM464 320c0 8.836-7.164 16-16 16H255.1c-8.838 0-16-7.164-16-16L239.1 64.13c0-8.836 7.164-16 16-16h128L384 96c0 17.67 14.33 32 32 32h47.1V320zM272 448c0 8.836-7.164 16-16 16H63.1c-8.838 0-16-7.164-16-16L47.98 192.1c0-8.836 7.164-16 16-16H160V128H63.99c-35.35 0-64 28.65-64 64l.0098 256C.002 483.3 28.66 512 64 512h192c35.2 0 64-28.8 64-64v-32h-47.1L272 448z"/></svg></span></template>
+        <template id=fa-play><span class=fa-svg><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 384 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc. --><path d="M73 39c-14.8-9.1-33.4-9.4-48.5-.9S0 62.6 0 80V432c0 17.4 9.4 33.4 24.5 41.9s33.7 8.1 48.5-.9L361 297c14.3-8.7 23-24.2 23-41s-8.7-32.2-23-41L73 39z"/></svg></span></template>
+        <template id=fa-clock-rotate-left><span class=fa-svg><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc. --><path d="M75 75L41 41C25.9 25.9 0 36.6 0 57.9V168c0 13.3 10.7 24 24 24H134.1c21.4 0 32.1-25.9 17-41l-30.8-30.8C155 85.5 203 64 256 64c106 0 192 86 192 192s-86 192-192 192c-40.8 0-78.6-12.7-109.7-34.4c-14.5-10.1-34.4-6.6-44.6 7.9s-6.6 34.4 7.9 44.6C151.2 495 201.7 512 256 512c141.4 0 256-114.6 256-256S397.4 0 256 0C185.3 0 121.3 28.7 75 75zm181 53c-13.3 0-24 10.7-24 24V256c0 6.4 2.5 12.5 7 17l72 72c9.4 9.4 24.6 9.4 33.9 0s9.4-24.6 0-33.9l-65-65V152c0-13.3-10.7-24-24-24z"/></svg></span></template>
+
+
+
+        <script>
+            window.playground_copyable = true;
+        </script>
+
+
+        <script src="../../elasticlunr-ef4e11c1.min.js"></script>
+        <script src="../../mark-09e88c2c.min.js"></script>
+        <script src="../../searcher-09f2665d.js"></script>
+
+        <script src="../../clipboard-1626706a.min.js"></script>
+        <script src="../../highlight-abc7f01d.js"></script>
+        <script src="../../book-609e4cb8.js"></script>
+
+        <script>
+            document.addEventListener('DOMContentLoaded', () => {
+                const sidebar = document.querySelector('#mdbook-sidebar');
+                sidebar.querySelectorAll('ol').forEach(list => {
+                    const numbers = list.querySelectorAll(
+                        ':scope > li > .chapter-link-wrapper > a > strong, :scope > li > a > strong');
+                    if (numbers.length) {
+                        const width = Math.max(...Array.from(numbers,
+                            number => number.textContent.trim().length));
+                        list.style.setProperty('--chapter-number-width', width + 'ch');
+                    }
+                });
+                const chapter = sidebar.querySelector('a.active');
+                const item = chapter?.closest('.chapter-item');
+                if (item?.querySelector(':scope > .on-this-page')) {
+                    const row = chapter.parentElement;
+                    if (!row.querySelector('.chapter-fold-toggle')) {
+                        const toggle = document.createElement('button');
+                        toggle.type = 'button';
+                        toggle.className = 'chapter-fold-toggle';
+                        toggle.appendChild(document.createElement('div'));
+                        toggle.addEventListener('click', () => {
+                            item.classList.toggle('expanded');
+                        });
+                        row.appendChild(toggle);
+                    }
+                }
+                sidebar.querySelectorAll('.chapter-fold-toggle').forEach(toggle => {
+                    const row = toggle.parentElement;
+                    const item = row.parentElement;
+                    const title = row.querySelector('a').textContent.trim();
+                    toggle.setAttribute('aria-label', 'Toggle ' + title);
+                    const update = () => toggle.setAttribute('aria-expanded',
+                        String(item.classList.contains('expanded')));
+                    update();
+                    toggle.addEventListener('click', update);
+                    if (toggle.tagName === 'A') {
+                        toggle.setAttribute('role', 'button');
+                        toggle.tabIndex = 0;
+                        toggle.addEventListener('keydown', event => {
+                            if (event.key === 'Enter' || event.key === ' ') {
+                                event.preventDefault();
+                                toggle.click();
+                            }
+                        });
+                    }
+                });
+            });
+        </script>
+
+        <!-- Custom JS scripts -->
+
+
+
+    </div>
+    </body>
+</html>

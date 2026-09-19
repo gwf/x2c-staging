@@ -1,0 +1,595 @@
+<!DOCTYPE HTML>
+<html lang="en" class="light sidebar-visible" dir="ltr">
+    <head>
+        <!-- Book generated using mdBook -->
+        <meta charset="UTF-8">
+        <title>lib/path.x - The x2c Book</title>
+
+
+        <!-- Custom HTML head -->
+        <link rel="preconnect" href="https://fonts.googleapis.com">
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=Archivo:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">
+
+        <meta name="description" content="The x2c language, standard library, and compiler.">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <meta name="theme-color" content="#ffffff">
+
+        <link rel="icon" href="../../favicon-995a3c20.svg">
+        <link rel="stylesheet" href="../../css/variables-8adf115d.css">
+        <link rel="stylesheet" href="../../css/general-e96d0476.css">
+        <link rel="stylesheet" href="../../css/chrome-d279d366.css">
+        <link rel="stylesheet" href="../../css/print-9e4910d8.css" media="print">
+
+        <!-- Fonts -->
+        <link rel="stylesheet" href="../../fonts/fonts-9644e21d.css">
+
+        <!-- Highlight.js Stylesheets -->
+        <link rel="stylesheet" id="mdbook-highlight-css" href="../../highlight-493f70e1.css">
+        <link rel="stylesheet" id="mdbook-tomorrow-night-css" href="../../tomorrow-night-4c0ae647.css">
+        <link rel="stylesheet" id="mdbook-ayu-highlight-css" href="../../ayu-highlight-3fdfc3ac.css">
+
+        <!-- Custom theme stylesheets -->
+        <link rel="stylesheet" href="../../theme/header-2c1becca.css">
+        <link rel="stylesheet" href="../../theme/x2c-fd3d182e.css">
+
+
+        <!-- Provide site root and default themes to javascript -->
+        <script>
+            const path_to_root = "../../";
+            const default_light_theme = "light";
+            const default_dark_theme = "light";
+            window.path_to_searchindex_js = "../../searchindex-2643e100.js";
+        </script>
+        <!-- Start loading toc.js asap -->
+        <script src="../../toc-a71616d6.js"></script>
+        <!-- x2c publication metadata -->
+        <link rel="canonical" href="https://staging.x2c-lang.dev/docs/library/modules/path.html">
+        <meta property="og:type" content="website">
+        <meta property="og:title" content="lib/path.x - The x2c Book">
+        <meta property="og:description" content="The x2c language, standard library, and compiler.">
+        <meta property="og:url" content="https://staging.x2c-lang.dev/docs/library/modules/path.html">
+        <meta property="og:image" content="https://staging.x2c-lang.dev/x2c-social.png">
+        <meta property="og:image:width" content="1200">
+        <meta property="og:image:height" content="630">
+        <meta name="twitter:card" content="summary_large_image">
+        <meta name="twitter:title" content="lib/path.x - The x2c Book">
+        <meta name="twitter:description" content="The x2c language, standard library, and compiler.">
+        <meta name="twitter:image" content="https://staging.x2c-lang.dev/x2c-social.png">
+    </head>
+    <body><aside aria-label="Release candidate" style="padding:1rem;background:#fff1bf;color:#241c00;font:14px/1.5 monospace;overflow-wrap:anywhere"><strong>Public staging: candidate-c2a89d999e81f47a4422a26edf0033eb0b98c6c6-35470032964-1</strong><p>Source: c2a89d999e81f47a4422a26edf0033eb0b98c6c6. Use a fresh scratch installation and the explicit candidate index below. Bare x2c install commands and production URLs in the book refer to production.</p><pre style="overflow:auto">export X2C_PREFIX=&quot;$(mktemp -d)/x2c&quot;
+curl -fsSL https://staging.x2c-lang.dev/install.sh | sh
+export PATH=&quot;$X2C_PREFIX/bin:$PATH&quot;
+x2c run &quot;$X2C_PREFIX/examples/foreach.x&quot;
+x2c install pcre2 --index https://staging.x2c-lang.dev/packages/index.txt</pre></aside>
+    <div id="mdbook-help-container">
+        <div id="mdbook-help-popup">
+            <h2 class="mdbook-help-title">Keyboard shortcuts</h2>
+            <div>
+                <p>Press <kbd>←</kbd> or <kbd>→</kbd> to navigate between chapters</p>
+                <p>Press <kbd>S</kbd> or <kbd>/</kbd> to search in the book</p>
+                <p>Press <kbd>?</kbd> to show this help</p>
+                <p>Press <kbd>Esc</kbd> to hide this help</p>
+            </div>
+        </div>
+    </div>
+    <div id="mdbook-body-container">
+        <!-- Work around some values being stored in localStorage wrapped in quotes -->
+        <script>
+            try {
+                let theme = localStorage.getItem('mdbook-theme');
+                let sidebar = localStorage.getItem('mdbook-sidebar');
+
+                if (theme.startsWith('"') && theme.endsWith('"')) {
+                    localStorage.setItem('mdbook-theme', theme.slice(1, theme.length - 1));
+                }
+
+                if (sidebar.startsWith('"') && sidebar.endsWith('"')) {
+                    localStorage.setItem('mdbook-sidebar', sidebar.slice(1, sidebar.length - 1));
+                }
+            } catch (e) { }
+        </script>
+
+        <!-- Set the theme before any content is loaded, prevents flash -->
+        <script>
+            const default_theme = window.matchMedia("(prefers-color-scheme: dark)").matches ? default_dark_theme : default_light_theme;
+            let theme;
+            try { theme = localStorage.getItem('mdbook-theme'); } catch(e) { }
+            if (theme === null || theme === undefined) { theme = default_theme; }
+            const html = document.documentElement;
+            html.classList.remove('light')
+            html.classList.add(theme);
+            html.classList.add("js");
+        </script>
+
+        <input type="checkbox" id="mdbook-sidebar-toggle-anchor" class="hidden">
+
+        <!-- Hide / unhide sidebar before it is displayed -->
+        <script>
+            let sidebar = null;
+            const sidebar_toggle = document.getElementById("mdbook-sidebar-toggle-anchor");
+            if (document.body.clientWidth >= 1080) {
+                try { sidebar = localStorage.getItem('mdbook-sidebar'); } catch(e) { }
+                sidebar = sidebar || 'visible';
+            } else {
+                sidebar = 'hidden';
+                sidebar_toggle.checked = false;
+            }
+            if (sidebar === 'visible') {
+                sidebar_toggle.checked = true;
+            } else {
+                html.classList.remove('sidebar-visible');
+            }
+        </script>
+
+        <nav id="mdbook-sidebar" class="sidebar" aria-label="Table of contents">
+            <!-- populated by js -->
+            <mdbook-sidebar-scrollbox class="sidebar-scrollbox"></mdbook-sidebar-scrollbox>
+            <noscript>
+                <iframe class="sidebar-iframe-outer" src="../../toc.html"></iframe>
+            </noscript>
+            <div id="mdbook-sidebar-resize-handle" class="sidebar-resize-handle">
+                <div class="sidebar-resize-indicator"></div>
+            </div>
+        </nav>
+
+        <div id="mdbook-page-wrapper" class="page-wrapper">
+
+            <div class="page">
+                <div id="mdbook-menu-bar" class="hidden"></div>
+                <header class="landing-header x2c-header">
+                    <div class="landing-header-inner">
+                        <div class="landing-branding">
+                            <a class="landing-brand" href="../../../" aria-label="x2c home">
+                                <svg viewBox="0 0 100 100" width="22" height="22" aria-hidden="true"><g fill="none" stroke="#da291c" stroke-width="17" stroke-linecap="butt"><path d="M9 16 A34.5 34.5 0 0 1 9 84"></path><path d="M91 16 A34.5 34.5 0 0 0 91 84"></path></g></svg>
+                                <span class="x2c-wordmark landing-wordmark">x2c</span>
+                            </a>
+                            <span class="landing-tagline">The x2c Book</span>
+                        </div>
+                        <nav class="landing-nav" aria-label="x2c website">
+                            <div class="landing-page-nav">
+                                <a href="../../../#love">love</a>
+                                <a href="../../../#power">power</a>
+                                <a href="../../../#magic">magic</a>
+                            </div>
+                            <div class="landing-site-nav">
+                                <a href="../../../#install">install</a>
+                                <a href="../../../#packages">packages</a>
+                            </div>
+                            <div class="landing-reference-nav">
+                                <a href="../../../about/">about</a>
+                                <a href="../../" aria-current="page">docs</a>
+                                <a href="https://github.com/gwf/x2c">source</a>
+                            </div>
+                        </nav>
+                    </div>
+                    <div class="x2c-book-tools">
+                        <div class="x2c-header-tools">
+                            <label id="mdbook-sidebar-toggle" class="icon-button" for="mdbook-sidebar-toggle-anchor" title="Toggle Table of Contents" aria-label="Toggle Table of Contents" aria-controls="mdbook-sidebar">
+                                <span class=fa-svg><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc. --><path d="M0 96C0 78.3 14.3 64 32 64H416c17.7 0 32 14.3 32 32s-14.3 32-32 32H32C14.3 128 0 113.7 0 96zM0 256c0-17.7 14.3-32 32-32H416c17.7 0 32 14.3 32 32s-14.3 32-32 32H32c-17.7 0-32-14.3-32-32zM448 416c0 17.7-14.3 32-32 32H32c-17.7 0-32-14.3-32-32s14.3-32 32-32H416c17.7 0 32 14.3 32 32z"/></svg></span>
+                            </label>
+                        </div>
+                        <div class="x2c-header-tools x2c-header-tools-right">
+                            <button id="mdbook-search-toggle" class="icon-button" type="button" title="Search (`/`)" aria-label="Toggle Searchbar" aria-expanded="false" aria-keyshortcuts="/ s" aria-controls="mdbook-searchbar">
+                                <span class=fa-svg><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc. --><path d="M416 208c0 45.9-14.9 88.3-40 122.7L502.6 457.4c12.5 12.5 12.5 32.8 0 45.3s-32.8 12.5-45.3 0L330.7 376c-34.4 25.2-76.8 40-122.7 40C93.1 416 0 322.9 0 208S93.1 0 208 0S416 93.1 416 208zM208 352c79.5 0 144-64.5 144-144s-64.5-144-144-144S64 128.5 64 208s64.5 144 144 144z"/></svg></span>
+                            </button>
+                            <button id="mdbook-theme-toggle" class="icon-button" type="button" title="Change theme" aria-label="Change theme" aria-haspopup="true" aria-expanded="false" aria-controls="mdbook-theme-list">
+                                <span class=fa-svg><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc. --><path d="M448 256c0-106-86-192-192-192V448c106 0 192-86 192-192zm64 0c0 141.4-114.6 256-256 256S0 397.4 0 256S114.6 0 256 0S512 114.6 512 256z"/></svg></span>
+                            </button>
+                            <ul id="mdbook-theme-list" class="theme-popup" aria-label="Themes" role="menu">
+                                <li role="none"><button role="menuitem" class="theme" id="mdbook-theme-default_theme">Auto</button></li>
+                                <li role="none"><button role="menuitem" class="theme" id="mdbook-theme-light">Light</button></li>
+                                <li role="none"><button role="menuitem" class="theme" id="mdbook-theme-ayu">Dark</button></li>
+                            </ul>
+                            <a href="https://github.com/gwf/x2c/edit/main/docs/src/library/modules/path.md" title="Suggest an edit" aria-label="Suggest an edit" rel="edit" class="icon-button">
+                                <span class=fa-svg id="git-edit-button"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc. --><path d="M421.7 220.3l-11.3 11.3-22.6 22.6-205 205c-6.6 6.6-14.8 11.5-23.8 14.1L30.8 511c-8.4 2.5-17.5 .2-23.7-6.1S-1.5 489.7 1 481.2L38.7 353.1c2.6-9 7.5-17.2 14.1-23.8l205-205 22.6-22.6 11.3-11.3 33.9 33.9 62.1 62.1 33.9 33.9zM96 353.9l-9.3 9.3c-.9 .9-1.6 2.1-2 3.4l-25.3 86 86-25.3c1.3-.4 2.5-1.1 3.4-2l9.3-9.3H112c-8.8 0-16-7.2-16-16V353.9zM453.3 19.3l39.4 39.4c25 25 25 65.5 0 90.5l-14.5 14.5-22.6 22.6-11.3 11.3-33.9-33.9-62.1-62.1L314.3 67.7l11.3-11.3 22.6-22.6 14.5-14.5c25-25 65.5-25 90.5 0z"/></svg></span>
+                            </a>
+                        </div>
+                    </div>
+                </header>
+                <script>
+                    const bookHeader = document.querySelector('.x2c-header');
+                    new ResizeObserver(() => {
+                        document.documentElement.style.setProperty(
+                            '--menu-bar-height', `${bookHeader.getBoundingClientRect().height}px`);
+                    }).observe(bookHeader);
+                </script>
+
+                <div id="mdbook-search-wrapper" class="hidden">
+                    <form id="mdbook-searchbar-outer" class="searchbar-outer">
+                        <div class="search-wrapper">
+                            <input type="search" id="mdbook-searchbar" name="searchbar" placeholder="Search this book ..." aria-controls="mdbook-searchresults-outer" aria-describedby="searchresults-header">
+                            <div class="spinner-wrapper">
+                                <span class=fa-svg id="fa-spin"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc. --><path d="M304 48c0-26.5-21.5-48-48-48s-48 21.5-48 48s21.5 48 48 48s48-21.5 48-48zm0 416c0-26.5-21.5-48-48-48s-48 21.5-48 48s21.5 48 48 48s48-21.5 48-48zM48 304c26.5 0 48-21.5 48-48s-21.5-48-48-48s-48 21.5-48 48s21.5 48 48 48zm464-48c0-26.5-21.5-48-48-48s-48 21.5-48 48s21.5 48 48 48s48-21.5 48-48zM142.9 437c18.7-18.7 18.7-49.1 0-67.9s-49.1-18.7-67.9 0s-18.7 49.1 0 67.9s49.1 18.7 67.9 0zm0-294.2c18.7-18.7 18.7-49.1 0-67.9S93.7 56.2 75 75s-18.7 49.1 0 67.9s49.1 18.7 67.9 0zM369.1 437c18.7 18.7 49.1 18.7 67.9 0s18.7-49.1 0-67.9s-49.1-18.7-67.9 0s-18.7 49.1 0 67.9z"/></svg></span>
+                            </div>
+                        </div>
+                    </form>
+                    <div id="mdbook-searchresults-outer" class="searchresults-outer hidden">
+                        <div id="mdbook-searchresults-header" class="searchresults-header"></div>
+                        <ul id="mdbook-searchresults">
+                        </ul>
+                    </div>
+                </div>
+
+                <!-- Apply ARIA attributes after the sidebar and the sidebar toggle button are added to the DOM -->
+                <script>
+                    document.getElementById('mdbook-sidebar-toggle').setAttribute('aria-expanded', sidebar === 'visible');
+                    document.getElementById('mdbook-sidebar').setAttribute('aria-hidden', sidebar !== 'visible');
+                    Array.from(document.querySelectorAll('#mdbook-sidebar a')).forEach(function(link) {
+                        link.setAttribute('tabIndex', sidebar === 'visible' ? 0 : -1);
+                    });
+                </script>
+
+                <div id="mdbook-content" class="content">
+                    <main>
+                        <!-- Generated by `python3 tools/gen-api-reference.py --write` from
+     lib/*.x and the stage interfaces. Do not edit by hand. -->
+<h1 id="libpathx"><a class="header" href="#libpathx"><code>lib/path.x</code></a></h1>
+<p>Filesystem locations and the operations on them.</p>
+<h2 id="primary-api"><a class="header" href="#primary-api">Primary API</a></h2>
+<div class="table-wrapper">
+<table>
+<thead>
+<tr><th>Function</th><th>Summary</th></tr>
+</thead>
+<tbody>
+<tr><td><a href="#Path.absolute"><code>Path.absolute</code></a></td><td>Returns an absolute form of <code>path</code> with symbolic links resolved.</td></tr>
+<tr><td><a href="#Path.basename"><code>Path.basename</code></a></td><td>Returns the last component of <code>path</code>, ignoring trailing slashes.</td></tr>
+<tr><td><a href="#Path.copy_file"><code>Path.copy_file</code></a></td><td>Copies the regular file <code>source</code> to <code>target</code>, replacing <code>target</code> and giving it <code>source</code>’s permission bits.</td></tr>
+<tr><td><a href="#Path.copy_tree"><code>Path.copy_tree</code></a></td><td>Copies <code>source</code> to <code>target</code>: a directory recursively, a symbolic link as a link, and a regular file with <code>Path.copy_file</code>.</td></tr>
+<tr><td><a href="#Path.dirname"><code>Path.dirname</code></a></td><td>Returns the directory part of <code>path</code>: <code>.</code> when it has no slash and <code>/</code> for a path directly under the root.</td></tr>
+<tr><td><a href="#Path.exists"><code>Path.exists</code></a></td><td>Reports whether <code>p</code> names an existing file, following links.</td></tr>
+<tr><td><a href="#Path.extension"><code>Path.extension</code></a></td><td>Returns the extension of <code>path</code>’s last component, including its dot, or NULL when there is none.</td></tr>
+<tr><td><a href="#Path.glob"><code>Path.glob</code></a></td><td>Returns the existing paths that match the glob <code>pattern</code>, sorted.</td></tr>
+<tr><td><a href="#Path.glob_match"><code>Path.glob_match</code></a></td><td>Reports whether all of <code>path</code> matches the glob <code>pattern</code>.</td></tr>
+<tr><td><a href="#Path.is_dir"><code>Path.is_dir</code></a></td><td>Reports whether <code>p</code> names a directory, following links.</td></tr>
+<tr><td><a href="#Path.is_executable"><code>Path.is_executable</code></a></td><td>Reports whether this process may execute <code>path</code>, as the shell’s <code>-x</code>.</td></tr>
+<tr><td><a href="#Path.is_file"><code>Path.is_file</code></a></td><td>Reports whether <code>p</code> names a regular file, following links.</td></tr>
+<tr><td><a href="#Path.join"><code>Path.join</code></a></td><td>Returns <code>name</code> joined to <code>base</code> with one separating slash.</td></tr>
+<tr><td><a href="#Path.list_dir"><code>Path.list_dir</code></a></td><td>Returns the names in the directory <code>path</code>, sorted, without <code>.</code> and <code>..</code>.</td></tr>
+<tr><td><a href="#Path.make_dirs"><code>Path.make_dirs</code></a></td><td>Creates the directory <code>p</code> and any missing parents.</td></tr>
+<tr><td><a href="#Path.modified_time"><code>Path.modified_time</code></a></td><td>Returns the modification time of <code>path</code> in seconds since the epoch, with the fraction the filesystem records.</td></tr>
+<tr><td><a href="#Path.move_to"><code>Path.move_to</code></a></td><td>Moves <code>source</code> to <code>target</code>, copying and removing when they are on different filesystems.</td></tr>
+<tr><td><a href="#Path.new"><code>Path.new</code></a></td><td>Provides the class default for <code>Path.new</code>.</td></tr>
+<tr><td><a href="#Path.read_text"><code>Path.read_text</code></a></td><td>Returns the contents of the file at <code>path</code>, or NULL when it is empty.</td></tr>
+<tr><td><a href="#Path.remove_file"><code>Path.remove_file</code></a></td><td>Removes the file or symbolic link <code>path</code> when it exists.</td></tr>
+<tr><td><a href="#Path.remove_tree"><code>Path.remove_tree</code></a></td><td>Removes <code>path</code> and everything below it when it exists.</td></tr>
+<tr><td><a href="#Path.size"><code>Path.size</code></a></td><td>Returns the size of the file at <code>path</code> in bytes.</td></tr>
+<tr><td><a href="#Path.stem"><code>Path.stem</code></a></td><td>Returns <code>path</code>’s last component without its extension.</td></tr>
+<tr><td><a href="#Path.symlink_to"><code>Path.symlink_to</code></a></td><td>Creates the symbolic link <code>link</code> pointing at <code>target</code>.</td></tr>
+<tr><td><a href="#Path.temp_dir"><code>Path.temp_dir</code></a></td><td>Creates a new private directory under <code>TMPDIR</code>, or <code>/tmp</code>, and returns its path.</td></tr>
+<tr><td><a href="#Path.walk"><code>Path.walk</code></a></td><td>Returns a lazy iterator over every path below the directory <code>root</code>, parents before their contents and siblings sorted.</td></tr>
+<tr><td><a href="#Path.write_text"><code>Path.write_text</code></a></td><td>Replaces the contents of the file at <code>path</code> with <code>text</code>.</td></tr>
+</tbody>
+</table>
+</div>
+<h3 id="path"><a class="header" href="#path"><code>Path</code></a></h3>
+<p><a id="Path.absolute"></a></p>
+<h4 id="pathabsolute"><a class="header" href="#pathabsolute">Path.absolute</a></h4>
+<p><code>Self Path.absolute(Self path)</code></p>
+<p>Returns an absolute form of <code>path</code> with symbolic links resolved.
+Missing trailing components are appended to their resolved parent with
+<code>.</code> and <code>..</code> normalized, so a path that does not exist yet still has a
+stable identity.</p>
+<p><strong>Raises:</strong> <code>&lt;io-fail&gt;</code> when a relative path needs the current directory and
+it cannot be read.</p>
+<p>Source: <code>lib/path.x:102</code></p>
+<p><a id="Path.basename"></a></p>
+<h4 id="pathbasename"><a class="header" href="#pathbasename">Path.basename</a></h4>
+<p><code>Self Path.basename(Self path)</code></p>
+<p>Returns the last component of <code>path</code>, ignoring trailing slashes.</p>
+<p>Source: <code>lib/path.x:65</code></p>
+<p><a id="Path.copy_file"></a></p>
+<h4 id="pathcopy_file"><a class="header" href="#pathcopy_file">Path.copy_file</a></h4>
+<p><code>void Path.copy_file(Path source, Path target)</code></p>
+<p>Copies the regular file <code>source</code> to <code>target</code>, replacing <code>target</code> and
+giving it <code>source</code>’s permission bits. A <code>target</code> that is already the same
+file as <code>source</code> is left as it is.</p>
+<p><strong>Raises:</strong> <code>&lt;not-found&gt;</code> or <code>&lt;io-fail&gt;</code>, including for a directory <code>source</code>.</p>
+<p>Source: <code>lib/path.x:450</code></p>
+<p><a id="Path.copy_tree"></a></p>
+<h4 id="pathcopy_tree"><a class="header" href="#pathcopy_tree">Path.copy_tree</a></h4>
+<p><code>void Path.copy_tree(Path source, Path target)</code></p>
+<p>Copies <code>source</code> to <code>target</code>: a directory recursively, a symbolic link as
+a link, and a regular file with <code>Path.copy_file</code>.</p>
+<p><strong>Raises:</strong> <code>&lt;not-found&gt;</code> or <code>&lt;io-fail&gt;</code>, with <code>EINVAL</code> when <code>source</code> is a
+directory and <code>target</code> is that directory or inside it.</p>
+<p>Source: <code>lib/path.x:490</code></p>
+<p><a id="Path.dirname"></a></p>
+<h4 id="pathdirname"><a class="header" href="#pathdirname">Path.dirname</a></h4>
+<p><code>Self Path.dirname(Self path)</code></p>
+<p>Returns the directory part of <code>path</code>: <code>.</code> when it has no slash and <code>/</code>
+for a path directly under the root.</p>
+<p>Source: <code>lib/path.x:56</code></p>
+<p><a id="Path.exists"></a></p>
+<h4 id="pathexists"><a class="header" href="#pathexists">Path.exists</a></h4>
+<p><code>int Path.exists(Path p)</code></p>
+<p>Reports whether <code>p</code> names an existing file, following links.</p>
+<p>Source: <code>lib/path.x:129</code></p>
+<p><a id="Path.extension"></a></p>
+<h4 id="pathextension"><a class="header" href="#pathextension">Path.extension</a></h4>
+<p><code>String Path.extension(Path path)</code></p>
+<p>Returns the extension of <code>path</code>’s last component, including its dot, or
+NULL when there is none. A leading or trailing dot does not start an
+extension, so <code>..</code> and <code>notes.</code> have none.</p>
+<p>Source: <code>lib/path.x:82</code></p>
+<p><a id="Path.glob"></a></p>
+<h4 id="pathglob"><a class="header" href="#pathglob">Path.glob</a></h4>
+<p><code>List Path.glob(Path pattern)</code></p>
+<p>Returns the existing paths that match the glob <code>pattern</code>, sorted.
+The walk starts at the longest leading directory without a wildcard,
+spelled as the pattern spells it, and descends only as deep as the
+pattern can match. As in a shell, a name that begins with a dot matches
+only where the pattern spells the dot, and a pattern that ends with a
+slash matches only directories, each returned with a trailing slash.
+No match returns an empty <code>List</code>.</p>
+<p>Source: <code>lib/path.x:350</code></p>
+<p><a id="Path.glob_match"></a></p>
+<h4 id="pathglob_match"><a class="header" href="#pathglob_match">Path.glob_match</a></h4>
+<p><code>int Path.glob_match(Path pattern, Path path)</code></p>
+<p>Reports whether all of <code>path</code> matches the glob <code>pattern</code>. A path
+component that begins with a dot matches only a pattern component that
+begins with one, and a run of slashes matches a run of slashes.</p>
+<p>Source: <code>lib/path.x:339</code></p>
+<p><a id="Path.is_dir"></a></p>
+<h4 id="pathis_dir"><a class="header" href="#pathis_dir">Path.is_dir</a></h4>
+<p><code>int Path.is_dir(Path p)</code></p>
+<p>Reports whether <code>p</code> names a directory, following links.</p>
+<p>Source: <code>lib/path.x:132</code></p>
+<p><a id="Path.is_executable"></a></p>
+<h4 id="pathis_executable"><a class="header" href="#pathis_executable">Path.is_executable</a></h4>
+<p><code>int Path.is_executable(Path path)</code></p>
+<p>Reports whether this process may execute <code>path</code>, as the shell’s <code>-x</code>.</p>
+<p>Source: <code>lib/path.x:138</code></p>
+<p><a id="Path.is_file"></a></p>
+<h4 id="pathis_file"><a class="header" href="#pathis_file">Path.is_file</a></h4>
+<p><code>int Path.is_file(Path p)</code></p>
+<p>Reports whether <code>p</code> names a regular file, following links.</p>
+<p>Source: <code>lib/path.x:135</code></p>
+<p><a id="Path.join"></a></p>
+<h4 id="pathjoin"><a class="header" href="#pathjoin">Path.join</a></h4>
+<p><code>Self Path.join(Self base, Path name)</code></p>
+<p>Returns <code>name</code> joined to <code>base</code> with one separating slash.
+An absolute <code>name</code>, or an empty <code>base</code>, is returned unchanged.</p>
+<p>Source: <code>lib/path.x:47</code></p>
+<p><a id="Path.list_dir"></a></p>
+<h4 id="pathlist_dir"><a class="header" href="#pathlist_dir">Path.list_dir</a></h4>
+<p><code>List Path.list_dir(Path path)</code></p>
+<p>Returns the names in the directory <code>path</code>, sorted, without <code>.</code> and <code>..</code>.</p>
+<p><strong>Raises:</strong> <code>&lt;not-found&gt;</code> or <code>&lt;io-fail&gt;</code>.</p>
+<p>Source: <code>lib/path.x:180</code></p>
+<p><a id="Path.make_dirs"></a></p>
+<h4 id="pathmake_dirs"><a class="header" href="#pathmake_dirs">Path.make_dirs</a></h4>
+<p><code>void Path.make_dirs(Path p)</code></p>
+<p>Creates the directory <code>p</code> and any missing parents.
+An existing directory is left as it is.</p>
+<p><strong>Raises:</strong> <code>&lt;io-fail&gt;</code> when a component cannot be created or names an
+existing non-directory, or <code>&lt;not-found&gt;</code>.</p>
+<p>Source: <code>lib/path.x:381</code></p>
+<p><a id="Path.modified_time"></a></p>
+<h4 id="pathmodified_time"><a class="header" href="#pathmodified_time">Path.modified_time</a></h4>
+<p><code>double Path.modified_time(Path path)</code></p>
+<p>Returns the modification time of <code>path</code> in seconds since the epoch,
+with the fraction the filesystem records.</p>
+<p><strong>Raises:</strong> <code>&lt;not-found&gt;</code> or <code>&lt;io-fail&gt;</code>.</p>
+<p>Source: <code>lib/path.x:168</code></p>
+<p><a id="Path.move_to"></a></p>
+<h4 id="pathmove_to"><a class="header" href="#pathmove_to">Path.move_to</a></h4>
+<p><code>void Path.move_to(Path source, Path target)</code></p>
+<p>Moves <code>source</code> to <code>target</code>, copying and removing when they are on
+different filesystems.</p>
+<p><strong>Raises:</strong> <code>&lt;not-found&gt;</code> or <code>&lt;io-fail&gt;</code>.</p>
+<p>Source: <code>lib/path.x:502</code></p>
+<p><a id="Path.new"></a></p>
+<h4 id="pathnew"><a class="header" href="#pathnew">Path.new</a></h4>
+<p><code>Path Path.new(const char *)</code></p>
+<p>Provides the class default for <code>Path.new</code>.</p>
+<p>See <a href="../../guide/system-macros.html">Classes and system macros</a> for the default behavior.</p>
+<p>Source: <code>lib/path.x:25</code></p>
+<p><a id="Path.read_text"></a></p>
+<h4 id="pathread_text"><a class="header" href="#pathread_text">Path.read_text</a></h4>
+<p><code>String Path.read_text(Path path)</code></p>
+<p>Returns the contents of the file at <code>path</code>, or NULL when it is empty.</p>
+<p><strong>Raises:</strong> <code>&lt;not-found&gt;</code>, <code>&lt;io-fail&gt;</code>, or <code>&lt;bad-arg&gt;</code> when the file contains
+a NUL byte.</p>
+<p>Source: <code>lib/path.x:520</code></p>
+<p><a id="Path.remove_file"></a></p>
+<h4 id="pathremove_file"><a class="header" href="#pathremove_file">Path.remove_file</a></h4>
+<p><code>void Path.remove_file(Path path)</code></p>
+<p>Removes the file or symbolic link <code>path</code> when it exists.</p>
+<p><strong>Raises:</strong> <code>&lt;io-fail&gt;</code> when it exists and cannot be removed.</p>
+<p>Source: <code>lib/path.x:394</code></p>
+<p><a id="Path.remove_tree"></a></p>
+<h4 id="pathremove_tree"><a class="header" href="#pathremove_tree">Path.remove_tree</a></h4>
+<p><code>void Path.remove_tree(Path path)</code></p>
+<p>Removes <code>path</code> and everything below it when it exists.
+Symbolic links are removed, not followed. Removal continues past an
+entry that cannot be removed.</p>
+<p><strong>Raises:</strong> <code>&lt;io-fail&gt;</code> naming the first path that could not be removed.</p>
+<p>Source: <code>lib/path.x:437</code></p>
+<p><a id="Path.size"></a></p>
+<h4 id="pathsize"><a class="header" href="#pathsize">Path.size</a></h4>
+<p><code>long Path.size(Path path)</code></p>
+<p>Returns the size of the file at <code>path</code> in bytes.</p>
+<p><strong>Raises:</strong> <code>&lt;not-found&gt;</code> or <code>&lt;io-fail&gt;</code>.</p>
+<p>Source: <code>lib/path.x:162</code></p>
+<p><a id="Path.stem"></a></p>
+<h4 id="pathstem"><a class="header" href="#pathstem">Path.stem</a></h4>
+<p><code>String Path.stem(Path path)</code></p>
+<p>Returns <code>path</code>’s last component without its extension.</p>
+<p>Source: <code>lib/path.x:89</code></p>
+<p><a id="Path.symlink_to"></a></p>
+<h4 id="pathsymlink_to"><a class="header" href="#pathsymlink_to">Path.symlink_to</a></h4>
+<p><code>void Path.symlink_to(Path link, Path target)</code></p>
+<p>Creates the symbolic link <code>link</code> pointing at <code>target</code>.</p>
+<p><strong>Raises:</strong> <code>&lt;io-fail&gt;</code> when the link cannot be created.</p>
+<p>Source: <code>lib/path.x:512</code></p>
+<p><a id="Path.temp_dir"></a></p>
+<h4 id="pathtemp_dir"><a class="header" href="#pathtemp_dir">Path.temp_dir</a></h4>
+<p><code>Path Path.temp_dir(void)</code></p>
+<p>Creates a new private directory under <code>TMPDIR</code>, or <code>/tmp</code>, and returns
+its path. The caller removes it, usually with <code>Path.remove_tree</code>.</p>
+<p><strong>Raises:</strong> <code>&lt;io-fail&gt;</code> when the directory cannot be created.</p>
+<p>Source: <code>lib/path.x:536</code></p>
+<p><a id="Path.walk"></a></p>
+<h4 id="pathwalk"><a class="header" href="#pathwalk">Path.walk</a></h4>
+<p><code>Iter Path.walk(Path root, Iter dest)</code></p>
+<p>Returns a lazy iterator over every path below the directory <code>root</code>,
+parents before their contents and siblings sorted. Symbolic links to
+directories are listed but not followed, and a directory that cannot be
+read is listed without its contents. Only the paths not yet visited are
+held; the yielded paths live in the active pool.</p>
+<pre class="shiki shiki-themes x2c-light x2c-dark x2c-code" style="--shiki-light:#24292e;--shiki-dark:#e9e5df;--shiki-light-bg:#fff;--shiki-dark-bg:#101011" tabindex="0"><code class="language-x2c no-highlight"><span class="line boring"><span style="--shiki-light:#D73A49;--shiki-dark:#F0ADA1">#include</span><span style="--shiki-light:#032F62;--shiki-dark:#9EDFB8"> "path.x"</span>
+</span><span class="line boring"><span style="--shiki-light:#D73A49;--shiki-dark:#F0ADA1">int</span><span style="--shiki-light:#6F42C1;--shiki-dark:#E9E5DF"> main</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">(</span><span style="--shiki-light:#D73A49;--shiki-dark:#F0ADA1">void</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">) {</span>
+</span><span class="line"><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">Path source </span><span style="--shiki-light:#D73A49;--shiki-dark:#E9E5DF">=</span><span style="--shiki-light:#032F62;--shiki-dark:#9EDFB8"> "src"</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">;</span>
+</span><span class="line"><span style="--shiki-light:#A626A4;--shiki-light-font-weight:bold;--shiki-dark:#FF4FD8;--shiki-dark-font-weight:bold">foreach</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF"> (Path path, source.</span><span style="--shiki-light:#6F42C1;--shiki-dark:#E9E5DF">walk</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">()) </span><span style="--shiki-light:#6F42C1;--shiki-dark:#E9E5DF">printf</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">(</span><span style="--shiki-light:#032F62;--shiki-dark:#9EDFB8">"</span><span style="--shiki-light:#005CC5;--shiki-dark:#9EDFB8">%s\n</span><span style="--shiki-light:#032F62;--shiki-dark:#9EDFB8">"</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">, path);</span>
+</span><span class="line"><span style="--shiki-light:#D73A49;--shiki-dark:#F0ADA1">long</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF"> units </span><span style="--shiki-light:#D73A49;--shiki-dark:#E9E5DF">=</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF"> source.</span><span style="--shiki-light:#6F42C1;--shiki-dark:#E9E5DF">walk</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">().</span><span style="--shiki-light:#6F42C1;--shiki-dark:#E9E5DF">filter</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">(</span><span style="--shiki-light:#24292E;--shiki-dark:#FF715A">%!</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">(p) </span><span style="--shiki-light:#A626A4;--shiki-light-font-weight:bold;--shiki-dark:#FF4FD8;--shiki-dark-font-weight:bold">=&gt;</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF"> p.</span><span style="--shiki-light:#6F42C1;--shiki-dark:#E9E5DF">str</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">().</span><span style="--shiki-light:#6F42C1;--shiki-dark:#E9E5DF">endswith</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">(</span><span style="--shiki-light:#032F62;--shiki-dark:#9EDFB8">".x"</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">)).</span><span style="--shiki-light:#6F42C1;--shiki-dark:#E9E5DF">count</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">();</span>
+</span><span class="line boring"><span style="--shiki-light:#D73A49;--shiki-dark:#F0ADA1">  return</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF"> units </span><span style="--shiki-light:#D73A49;--shiki-dark:#E9E5DF">&gt;=</span><span style="--shiki-light:#005CC5;--shiki-dark:#A9C9F5"> 0</span><span style="--shiki-light:#D73A49;--shiki-dark:#E9E5DF"> ?</span><span style="--shiki-light:#005CC5;--shiki-dark:#A9C9F5"> 0</span><span style="--shiki-light:#D73A49;--shiki-dark:#E9E5DF"> :</span><span style="--shiki-light:#005CC5;--shiki-dark:#A9C9F5"> 1</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">;</span>
+</span><span class="line boring"><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">}</span></span></code></pre>
+
+<p><strong>Raises:</strong> <code>&lt;not-found&gt;</code> or <code>&lt;io-fail&gt;</code> when <code>root</code> cannot be listed, and
+<code>&lt;io-fail&gt;</code> from a pull when a directory vanishes during the walk.</p>
+<p>Source: <code>lib/path.x:232</code></p>
+<p><a id="Path.write_text"></a></p>
+<h4 id="pathwrite_text"><a class="header" href="#pathwrite_text">Path.write_text</a></h4>
+<p><code>void Path.write_text(Path path, String text)</code></p>
+<p>Replaces the contents of the file at <code>path</code> with <code>text</code>.</p>
+<p><strong>Raises:</strong> <code>&lt;not-found&gt;</code> when the directory does not exist, or <code>&lt;io-fail&gt;</code>.</p>
+<p>Source: <code>lib/path.x:526</code></p>
+<h2 id="public-types"><a class="header" href="#public-types">Public types</a></h2>
+<div class="table-wrapper">
+<table>
+<thead>
+<tr><th>Type</th><th>Kind</th><th>Summary</th></tr>
+</thead>
+<tbody>
+<tr><td><a href="#Path"><code>Path</code></a></td><td>class</td><td>A <code>String</code> that names a filesystem location.</td></tr>
+</tbody>
+</table>
+</div>
+<p><a id="Path"></a></p>
+<h3 id="path-1"><a class="header" href="#path-1">Path</a></h3>
+<p><code>class Path String</code></p>
+<p>A <code>String</code> that names a filesystem location. A literal or a <code>String</code>
+converts to a <code>Path</code> wherever one is expected, and a <code>Path</code> passes
+wherever a <code>String</code> is expected. Slicing and <code>+</code> are <code>String</code> operations.</p>
+<p>Source: <code>lib/path.x:25</code></p>
+<h2 id="design-notes"><a class="header" href="#design-notes">Design notes</a></h2>
+<p>A <code>Path</code> is a <code>String</code> that names a filesystem location; its methods read
+and change the files it names. A failure raises <code>&lt;not-found&gt;</code> when a
+named path does not exist and <code>&lt;io-fail&gt;</code> for any other host failure,
+both with <code>operation</code>, <code>path</code>, and <code>errno</code> details. Removing a path that
+is already absent succeeds.</p>
+<p>The path-part methods only examine text. <code>dirname</code> and <code>basename</code> follow
+POSIX, ignoring trailing slashes. Glob patterns use <code>*</code> and <code>?</code> within
+one path component, <code>[...]</code> character classes, <code>**</code> for any number of
+components, and backslash to quote the next character. As in a shell, a
+wildcard does not match a leading dot; spell the dot to match it.</p>
+<h2 id="tests-and-examples"><a class="header" href="#tests-and-examples">Tests and examples</a></h2>
+<p><code>make verify</code> (<code>unittest/test-path.x</code>) and <code>make examples</code> (<code>scripts/line-counts</code>).</p>
+
+                    </main>
+
+                    <nav class="x2c-pager" aria-label="Page navigation">
+                        <a rel="prev" href="../../library/modules/mutex.html" class="x2c-pager-prev" aria-keyshortcuts="Left">
+                            <span class="x2c-pager-label">previous</span>
+                            <span class="x2c-pager-title">lib/mutex.x</span>
+                        </a>
+                        
+                        <a rel="next prefetch" href="../../library/modules/pool.html" class="x2c-pager-next" aria-keyshortcuts="Right">
+                            <span class="x2c-pager-label">next</span>
+                            <span class="x2c-pager-title">lib/pool.x</span>
+                        </a>
+                    </nav>
+                    <footer class="x2c-footer">
+                        &copy; 2025&ndash;2026
+                        <a href="https://flake.org">GWF</a>
+                        &middot;
+                        <a href="https://github.com/gwf/x2c/blob/c2a89d999e81f47a4422a26edf0033eb0b98c6c6/LICENSE">Apache 2.0</a>
+                        &middot;
+                        <a href="https://github.com/gwf/x2c/blob/c2a89d999e81f47a4422a26edf0033eb0b98c6c6/TRADEMARKS.md">Trademarks</a>
+                    </footer>
+                </div>
+            </div>
+
+
+        </div>
+
+        <template id=fa-eye><span class=fa-svg><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 576 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc. --><path d="M288 32c-80.8 0-145.5 36.8-192.6 80.6C48.6 156 17.3 208 2.5 243.7c-3.3 7.9-3.3 16.7 0 24.6C17.3 304 48.6 356 95.4 399.4C142.5 443.2 207.2 480 288 480s145.5-36.8 192.6-80.6c46.8-43.5 78.1-95.4 93-131.1c3.3-7.9 3.3-16.7 0-24.6c-14.9-35.7-46.2-87.7-93-131.1C433.5 68.8 368.8 32 288 32zM432 256c0 79.5-64.5 144-144 144s-144-64.5-144-144s64.5-144 144-144s144 64.5 144 144zM288 192c0 35.3-28.7 64-64 64c-11.5 0-22.3-3-31.6-8.4c-.2 2.8-.4 5.5-.4 8.4c0 53 43 96 96 96s96-43 96-96s-43-96-96-96c-2.8 0-5.6 .1-8.4 .4c5.3 9.3 8.4 20.1 8.4 31.6z"/></svg></span></template>
+        <template id=fa-eye-slash><span class=fa-svg><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 640 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc. --><path d="M38.8 5.1C28.4-3.1 13.3-1.2 5.1 9.2S-1.2 34.7 9.2 42.9l592 464c10.4 8.2 25.5 6.3 33.7-4.1s6.3-25.5-4.1-33.7L525.6 386.7c39.6-40.6 66.4-86.1 79.9-118.4c3.3-7.9 3.3-16.7 0-24.6c-14.9-35.7-46.2-87.7-93-131.1C465.5 68.8 400.8 32 320 32c-68.2 0-125 26.3-169.3 60.8L38.8 5.1zM223.1 149.5C248.6 126.2 282.7 112 320 112c79.5 0 144 64.5 144 144c0 24.9-6.3 48.3-17.4 68.7L408 294.5c5.2-11.8 8-24.8 8-38.5c0-53-43-96-96-96c-2.8 0-5.6 .1-8.4 .4c5.3 9.3 8.4 20.1 8.4 31.6c0 10.2-2.4 19.8-6.6 28.3l-90.3-70.8zm223.1 298L373 389.9c-16.4 6.5-34.3 10.1-53 10.1c-79.5 0-144-64.5-144-144c0-6.9 .5-13.6 1.4-20.2L83.1 161.5C60.3 191.2 44 220.8 34.5 243.7c-3.3 7.9-3.3 16.7 0 24.6c14.9 35.7 46.2 87.7 93 131.1C174.5 443.2 239.2 480 320 480c47.8 0 89.9-12.9 126.2-32.5z"/></svg></span></template>
+        <template id=fa-copy><span class=fa-svg><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc. --><path d="M502.6 70.63l-61.25-61.25C435.4 3.371 427.2 0 418.7 0H255.1c-35.35 0-64 28.66-64 64l.0195 256C192 355.4 220.7 384 256 384h192c35.2 0 64-28.8 64-64V93.25C512 84.77 508.6 76.63 502.6 70.63zM464 320c0 8.836-7.164 16-16 16H255.1c-8.838 0-16-7.164-16-16L239.1 64.13c0-8.836 7.164-16 16-16h128L384 96c0 17.67 14.33 32 32 32h47.1V320zM272 448c0 8.836-7.164 16-16 16H63.1c-8.838 0-16-7.164-16-16L47.98 192.1c0-8.836 7.164-16 16-16H160V128H63.99c-35.35 0-64 28.65-64 64l.0098 256C.002 483.3 28.66 512 64 512h192c35.2 0 64-28.8 64-64v-32h-47.1L272 448z"/></svg></span></template>
+        <template id=fa-play><span class=fa-svg><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 384 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc. --><path d="M73 39c-14.8-9.1-33.4-9.4-48.5-.9S0 62.6 0 80V432c0 17.4 9.4 33.4 24.5 41.9s33.7 8.1 48.5-.9L361 297c14.3-8.7 23-24.2 23-41s-8.7-32.2-23-41L73 39z"/></svg></span></template>
+        <template id=fa-clock-rotate-left><span class=fa-svg><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc. --><path d="M75 75L41 41C25.9 25.9 0 36.6 0 57.9V168c0 13.3 10.7 24 24 24H134.1c21.4 0 32.1-25.9 17-41l-30.8-30.8C155 85.5 203 64 256 64c106 0 192 86 192 192s-86 192-192 192c-40.8 0-78.6-12.7-109.7-34.4c-14.5-10.1-34.4-6.6-44.6 7.9s-6.6 34.4 7.9 44.6C151.2 495 201.7 512 256 512c141.4 0 256-114.6 256-256S397.4 0 256 0C185.3 0 121.3 28.7 75 75zm181 53c-13.3 0-24 10.7-24 24V256c0 6.4 2.5 12.5 7 17l72 72c9.4 9.4 24.6 9.4 33.9 0s9.4-24.6 0-33.9l-65-65V152c0-13.3-10.7-24-24-24z"/></svg></span></template>
+
+
+
+        <script>
+            window.playground_copyable = true;
+        </script>
+
+
+        <script src="../../elasticlunr-ef4e11c1.min.js"></script>
+        <script src="../../mark-09e88c2c.min.js"></script>
+        <script src="../../searcher-09f2665d.js"></script>
+
+        <script src="../../clipboard-1626706a.min.js"></script>
+        <script src="../../highlight-abc7f01d.js"></script>
+        <script src="../../book-609e4cb8.js"></script>
+
+        <script>
+            document.addEventListener('DOMContentLoaded', () => {
+                const sidebar = document.querySelector('#mdbook-sidebar');
+                sidebar.querySelectorAll('ol').forEach(list => {
+                    const numbers = list.querySelectorAll(
+                        ':scope > li > .chapter-link-wrapper > a > strong, :scope > li > a > strong');
+                    if (numbers.length) {
+                        const width = Math.max(...Array.from(numbers,
+                            number => number.textContent.trim().length));
+                        list.style.setProperty('--chapter-number-width', width + 'ch');
+                    }
+                });
+                const chapter = sidebar.querySelector('a.active');
+                const item = chapter?.closest('.chapter-item');
+                if (item?.querySelector(':scope > .on-this-page')) {
+                    const row = chapter.parentElement;
+                    if (!row.querySelector('.chapter-fold-toggle')) {
+                        const toggle = document.createElement('button');
+                        toggle.type = 'button';
+                        toggle.className = 'chapter-fold-toggle';
+                        toggle.appendChild(document.createElement('div'));
+                        toggle.addEventListener('click', () => {
+                            item.classList.toggle('expanded');
+                        });
+                        row.appendChild(toggle);
+                    }
+                }
+                sidebar.querySelectorAll('.chapter-fold-toggle').forEach(toggle => {
+                    const row = toggle.parentElement;
+                    const item = row.parentElement;
+                    const title = row.querySelector('a').textContent.trim();
+                    toggle.setAttribute('aria-label', 'Toggle ' + title);
+                    const update = () => toggle.setAttribute('aria-expanded',
+                        String(item.classList.contains('expanded')));
+                    update();
+                    toggle.addEventListener('click', update);
+                    if (toggle.tagName === 'A') {
+                        toggle.setAttribute('role', 'button');
+                        toggle.tabIndex = 0;
+                        toggle.addEventListener('keydown', event => {
+                            if (event.key === 'Enter' || event.key === ' ') {
+                                event.preventDefault();
+                                toggle.click();
+                            }
+                        });
+                    }
+                });
+            });
+        </script>
+
+        <!-- Custom JS scripts -->
+
+
+
+    </div>
+    </body>
+</html>

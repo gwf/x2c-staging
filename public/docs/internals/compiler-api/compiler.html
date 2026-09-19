@@ -1,0 +1,1281 @@
+<!DOCTYPE HTML>
+<html lang="en" class="light sidebar-visible" dir="ltr">
+    <head>
+        <!-- Book generated using mdBook -->
+        <meta charset="UTF-8">
+        <title>src/compiler.x - The x2c Book</title>
+
+
+        <!-- Custom HTML head -->
+        <link rel="preconnect" href="https://fonts.googleapis.com">
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=Archivo:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">
+
+        <meta name="description" content="The x2c language, standard library, and compiler.">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <meta name="theme-color" content="#ffffff">
+
+        <link rel="icon" href="../../favicon-995a3c20.svg">
+        <link rel="stylesheet" href="../../css/variables-8adf115d.css">
+        <link rel="stylesheet" href="../../css/general-e96d0476.css">
+        <link rel="stylesheet" href="../../css/chrome-d279d366.css">
+        <link rel="stylesheet" href="../../css/print-9e4910d8.css" media="print">
+
+        <!-- Fonts -->
+        <link rel="stylesheet" href="../../fonts/fonts-9644e21d.css">
+
+        <!-- Highlight.js Stylesheets -->
+        <link rel="stylesheet" id="mdbook-highlight-css" href="../../highlight-493f70e1.css">
+        <link rel="stylesheet" id="mdbook-tomorrow-night-css" href="../../tomorrow-night-4c0ae647.css">
+        <link rel="stylesheet" id="mdbook-ayu-highlight-css" href="../../ayu-highlight-3fdfc3ac.css">
+
+        <!-- Custom theme stylesheets -->
+        <link rel="stylesheet" href="../../theme/header-2c1becca.css">
+        <link rel="stylesheet" href="../../theme/x2c-fd3d182e.css">
+
+
+        <!-- Provide site root and default themes to javascript -->
+        <script>
+            const path_to_root = "../../";
+            const default_light_theme = "light";
+            const default_dark_theme = "light";
+            window.path_to_searchindex_js = "../../searchindex-2643e100.js";
+        </script>
+        <!-- Start loading toc.js asap -->
+        <script src="../../toc-a71616d6.js"></script>
+        <!-- x2c publication metadata -->
+        <link rel="canonical" href="https://staging.x2c-lang.dev/docs/internals/compiler-api/compiler.html">
+        <meta property="og:type" content="website">
+        <meta property="og:title" content="src/compiler.x - The x2c Book">
+        <meta property="og:description" content="The x2c language, standard library, and compiler.">
+        <meta property="og:url" content="https://staging.x2c-lang.dev/docs/internals/compiler-api/compiler.html">
+        <meta property="og:image" content="https://staging.x2c-lang.dev/x2c-social.png">
+        <meta property="og:image:width" content="1200">
+        <meta property="og:image:height" content="630">
+        <meta name="twitter:card" content="summary_large_image">
+        <meta name="twitter:title" content="src/compiler.x - The x2c Book">
+        <meta name="twitter:description" content="The x2c language, standard library, and compiler.">
+        <meta name="twitter:image" content="https://staging.x2c-lang.dev/x2c-social.png">
+    </head>
+    <body><aside aria-label="Release candidate" style="padding:1rem;background:#fff1bf;color:#241c00;font:14px/1.5 monospace;overflow-wrap:anywhere"><strong>Public staging: candidate-c2a89d999e81f47a4422a26edf0033eb0b98c6c6-35470032964-1</strong><p>Source: c2a89d999e81f47a4422a26edf0033eb0b98c6c6. Use a fresh scratch installation and the explicit candidate index below. Bare x2c install commands and production URLs in the book refer to production.</p><pre style="overflow:auto">export X2C_PREFIX=&quot;$(mktemp -d)/x2c&quot;
+curl -fsSL https://staging.x2c-lang.dev/install.sh | sh
+export PATH=&quot;$X2C_PREFIX/bin:$PATH&quot;
+x2c run &quot;$X2C_PREFIX/examples/foreach.x&quot;
+x2c install pcre2 --index https://staging.x2c-lang.dev/packages/index.txt</pre></aside>
+    <div id="mdbook-help-container">
+        <div id="mdbook-help-popup">
+            <h2 class="mdbook-help-title">Keyboard shortcuts</h2>
+            <div>
+                <p>Press <kbd>←</kbd> or <kbd>→</kbd> to navigate between chapters</p>
+                <p>Press <kbd>S</kbd> or <kbd>/</kbd> to search in the book</p>
+                <p>Press <kbd>?</kbd> to show this help</p>
+                <p>Press <kbd>Esc</kbd> to hide this help</p>
+            </div>
+        </div>
+    </div>
+    <div id="mdbook-body-container">
+        <!-- Work around some values being stored in localStorage wrapped in quotes -->
+        <script>
+            try {
+                let theme = localStorage.getItem('mdbook-theme');
+                let sidebar = localStorage.getItem('mdbook-sidebar');
+
+                if (theme.startsWith('"') && theme.endsWith('"')) {
+                    localStorage.setItem('mdbook-theme', theme.slice(1, theme.length - 1));
+                }
+
+                if (sidebar.startsWith('"') && sidebar.endsWith('"')) {
+                    localStorage.setItem('mdbook-sidebar', sidebar.slice(1, sidebar.length - 1));
+                }
+            } catch (e) { }
+        </script>
+
+        <!-- Set the theme before any content is loaded, prevents flash -->
+        <script>
+            const default_theme = window.matchMedia("(prefers-color-scheme: dark)").matches ? default_dark_theme : default_light_theme;
+            let theme;
+            try { theme = localStorage.getItem('mdbook-theme'); } catch(e) { }
+            if (theme === null || theme === undefined) { theme = default_theme; }
+            const html = document.documentElement;
+            html.classList.remove('light')
+            html.classList.add(theme);
+            html.classList.add("js");
+        </script>
+
+        <input type="checkbox" id="mdbook-sidebar-toggle-anchor" class="hidden">
+
+        <!-- Hide / unhide sidebar before it is displayed -->
+        <script>
+            let sidebar = null;
+            const sidebar_toggle = document.getElementById("mdbook-sidebar-toggle-anchor");
+            if (document.body.clientWidth >= 1080) {
+                try { sidebar = localStorage.getItem('mdbook-sidebar'); } catch(e) { }
+                sidebar = sidebar || 'visible';
+            } else {
+                sidebar = 'hidden';
+                sidebar_toggle.checked = false;
+            }
+            if (sidebar === 'visible') {
+                sidebar_toggle.checked = true;
+            } else {
+                html.classList.remove('sidebar-visible');
+            }
+        </script>
+
+        <nav id="mdbook-sidebar" class="sidebar" aria-label="Table of contents">
+            <!-- populated by js -->
+            <mdbook-sidebar-scrollbox class="sidebar-scrollbox"></mdbook-sidebar-scrollbox>
+            <noscript>
+                <iframe class="sidebar-iframe-outer" src="../../toc.html"></iframe>
+            </noscript>
+            <div id="mdbook-sidebar-resize-handle" class="sidebar-resize-handle">
+                <div class="sidebar-resize-indicator"></div>
+            </div>
+        </nav>
+
+        <div id="mdbook-page-wrapper" class="page-wrapper">
+
+            <div class="page">
+                <div id="mdbook-menu-bar" class="hidden"></div>
+                <header class="landing-header x2c-header">
+                    <div class="landing-header-inner">
+                        <div class="landing-branding">
+                            <a class="landing-brand" href="../../../" aria-label="x2c home">
+                                <svg viewBox="0 0 100 100" width="22" height="22" aria-hidden="true"><g fill="none" stroke="#da291c" stroke-width="17" stroke-linecap="butt"><path d="M9 16 A34.5 34.5 0 0 1 9 84"></path><path d="M91 16 A34.5 34.5 0 0 0 91 84"></path></g></svg>
+                                <span class="x2c-wordmark landing-wordmark">x2c</span>
+                            </a>
+                            <span class="landing-tagline">The x2c Book</span>
+                        </div>
+                        <nav class="landing-nav" aria-label="x2c website">
+                            <div class="landing-page-nav">
+                                <a href="../../../#love">love</a>
+                                <a href="../../../#power">power</a>
+                                <a href="../../../#magic">magic</a>
+                            </div>
+                            <div class="landing-site-nav">
+                                <a href="../../../#install">install</a>
+                                <a href="../../../#packages">packages</a>
+                            </div>
+                            <div class="landing-reference-nav">
+                                <a href="../../../about/">about</a>
+                                <a href="../../" aria-current="page">docs</a>
+                                <a href="https://github.com/gwf/x2c">source</a>
+                            </div>
+                        </nav>
+                    </div>
+                    <div class="x2c-book-tools">
+                        <div class="x2c-header-tools">
+                            <label id="mdbook-sidebar-toggle" class="icon-button" for="mdbook-sidebar-toggle-anchor" title="Toggle Table of Contents" aria-label="Toggle Table of Contents" aria-controls="mdbook-sidebar">
+                                <span class=fa-svg><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc. --><path d="M0 96C0 78.3 14.3 64 32 64H416c17.7 0 32 14.3 32 32s-14.3 32-32 32H32C14.3 128 0 113.7 0 96zM0 256c0-17.7 14.3-32 32-32H416c17.7 0 32 14.3 32 32s-14.3 32-32 32H32c-17.7 0-32-14.3-32-32zM448 416c0 17.7-14.3 32-32 32H32c-17.7 0-32-14.3-32-32s14.3-32 32-32H416c17.7 0 32 14.3 32 32z"/></svg></span>
+                            </label>
+                        </div>
+                        <div class="x2c-header-tools x2c-header-tools-right">
+                            <button id="mdbook-search-toggle" class="icon-button" type="button" title="Search (`/`)" aria-label="Toggle Searchbar" aria-expanded="false" aria-keyshortcuts="/ s" aria-controls="mdbook-searchbar">
+                                <span class=fa-svg><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc. --><path d="M416 208c0 45.9-14.9 88.3-40 122.7L502.6 457.4c12.5 12.5 12.5 32.8 0 45.3s-32.8 12.5-45.3 0L330.7 376c-34.4 25.2-76.8 40-122.7 40C93.1 416 0 322.9 0 208S93.1 0 208 0S416 93.1 416 208zM208 352c79.5 0 144-64.5 144-144s-64.5-144-144-144S64 128.5 64 208s64.5 144 144 144z"/></svg></span>
+                            </button>
+                            <button id="mdbook-theme-toggle" class="icon-button" type="button" title="Change theme" aria-label="Change theme" aria-haspopup="true" aria-expanded="false" aria-controls="mdbook-theme-list">
+                                <span class=fa-svg><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc. --><path d="M448 256c0-106-86-192-192-192V448c106 0 192-86 192-192zm64 0c0 141.4-114.6 256-256 256S0 397.4 0 256S114.6 0 256 0S512 114.6 512 256z"/></svg></span>
+                            </button>
+                            <ul id="mdbook-theme-list" class="theme-popup" aria-label="Themes" role="menu">
+                                <li role="none"><button role="menuitem" class="theme" id="mdbook-theme-default_theme">Auto</button></li>
+                                <li role="none"><button role="menuitem" class="theme" id="mdbook-theme-light">Light</button></li>
+                                <li role="none"><button role="menuitem" class="theme" id="mdbook-theme-ayu">Dark</button></li>
+                            </ul>
+                            <a href="https://github.com/gwf/x2c/edit/main/docs/src/internals/compiler-api/compiler.md" title="Suggest an edit" aria-label="Suggest an edit" rel="edit" class="icon-button">
+                                <span class=fa-svg id="git-edit-button"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc. --><path d="M421.7 220.3l-11.3 11.3-22.6 22.6-205 205c-6.6 6.6-14.8 11.5-23.8 14.1L30.8 511c-8.4 2.5-17.5 .2-23.7-6.1S-1.5 489.7 1 481.2L38.7 353.1c2.6-9 7.5-17.2 14.1-23.8l205-205 22.6-22.6 11.3-11.3 33.9 33.9 62.1 62.1 33.9 33.9zM96 353.9l-9.3 9.3c-.9 .9-1.6 2.1-2 3.4l-25.3 86 86-25.3c1.3-.4 2.5-1.1 3.4-2l9.3-9.3H112c-8.8 0-16-7.2-16-16V353.9zM453.3 19.3l39.4 39.4c25 25 25 65.5 0 90.5l-14.5 14.5-22.6 22.6-11.3 11.3-33.9-33.9-62.1-62.1L314.3 67.7l11.3-11.3 22.6-22.6 14.5-14.5c25-25 65.5-25 90.5 0z"/></svg></span>
+                            </a>
+                        </div>
+                    </div>
+                </header>
+                <script>
+                    const bookHeader = document.querySelector('.x2c-header');
+                    new ResizeObserver(() => {
+                        document.documentElement.style.setProperty(
+                            '--menu-bar-height', `${bookHeader.getBoundingClientRect().height}px`);
+                    }).observe(bookHeader);
+                </script>
+
+                <div id="mdbook-search-wrapper" class="hidden">
+                    <form id="mdbook-searchbar-outer" class="searchbar-outer">
+                        <div class="search-wrapper">
+                            <input type="search" id="mdbook-searchbar" name="searchbar" placeholder="Search this book ..." aria-controls="mdbook-searchresults-outer" aria-describedby="searchresults-header">
+                            <div class="spinner-wrapper">
+                                <span class=fa-svg id="fa-spin"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc. --><path d="M304 48c0-26.5-21.5-48-48-48s-48 21.5-48 48s21.5 48 48 48s48-21.5 48-48zm0 416c0-26.5-21.5-48-48-48s-48 21.5-48 48s21.5 48 48 48s48-21.5 48-48zM48 304c26.5 0 48-21.5 48-48s-21.5-48-48-48s-48 21.5-48 48s21.5 48 48 48zm464-48c0-26.5-21.5-48-48-48s-48 21.5-48 48s21.5 48 48 48s48-21.5 48-48zM142.9 437c18.7-18.7 18.7-49.1 0-67.9s-49.1-18.7-67.9 0s-18.7 49.1 0 67.9s49.1 18.7 67.9 0zm0-294.2c18.7-18.7 18.7-49.1 0-67.9S93.7 56.2 75 75s-18.7 49.1 0 67.9s49.1 18.7 67.9 0zM369.1 437c18.7 18.7 49.1 18.7 67.9 0s18.7-49.1 0-67.9s-49.1-18.7-67.9 0s-18.7 49.1 0 67.9z"/></svg></span>
+                            </div>
+                        </div>
+                    </form>
+                    <div id="mdbook-searchresults-outer" class="searchresults-outer hidden">
+                        <div id="mdbook-searchresults-header" class="searchresults-header"></div>
+                        <ul id="mdbook-searchresults">
+                        </ul>
+                    </div>
+                </div>
+
+                <!-- Apply ARIA attributes after the sidebar and the sidebar toggle button are added to the DOM -->
+                <script>
+                    document.getElementById('mdbook-sidebar-toggle').setAttribute('aria-expanded', sidebar === 'visible');
+                    document.getElementById('mdbook-sidebar').setAttribute('aria-hidden', sidebar !== 'visible');
+                    Array.from(document.querySelectorAll('#mdbook-sidebar a')).forEach(function(link) {
+                        link.setAttribute('tabIndex', sidebar === 'visible' ? 0 : -1);
+                    });
+                </script>
+
+                <div id="mdbook-content" class="content">
+                    <main>
+                        <!-- Generated by `python3 tools/gen-api-reference.py --write` from
+     src/*.x and the stage interfaces. Do not edit by hand. -->
+<blockquote>
+<p><strong>Provisional API:</strong> This reference documents current compiler behavior.
+Compatibility is not yet promised.</p>
+</blockquote>
+<h1 id="srccompilerx"><a class="header" href="#srccompilerx"><code>src/compiler.x</code></a></h1>
+<p>Core <span class="x2c-wordmark">x2c</span> compiler state and operations.</p>
+<h2 id="functions"><a class="header" href="#functions">Functions</a></h2>
+<div class="table-wrapper">
+<table>
+<thead>
+<tr><th>Function</th><th>Summary</th></tr>
+</thead>
+<tbody>
+<tr><td><a href="#home_absolute_path"><code>home_absolute_path</code></a></td><td>Returns the absolute path that a <code>home_portable_path</code> spelling names.</td></tr>
+<tr><td><a href="#home_portable_path"><code>home_portable_path</code></a></td><td>Returns <code>path</code> relative to the canonical <span class="x2c-wordmark">x2c</span> home when it lies below the home, otherwise <code>path</code>.</td></tr>
+<tr><td><a href="#Compiler._at_function_arrow"><code>Compiler._at_function_arrow</code></a></td><td>Reports whether the current two tokens are <code>=&gt;</code>.</td></tr>
+<tr><td><a href="#Compiler._skip_shallow_expression"><code>Compiler._skip_shallow_expression</code></a></td><td>Skips a balanced shallow expression without consuming its terminator.</td></tr>
+<tr><td><a href="#Compiler.add_early"><code>Compiler.add_early</code></a></td><td>Appends a generated declaration to the early-declaration queue.</td></tr>
+<tr><td><a href="#Compiler.add_init"><code>Compiler.add_init</code></a></td><td>Appends a statement to file initialization order under <code>phase</code>, which is <code>&lt;protocol&gt;</code> for protocol setup, or <code>&lt;early&gt;</code>, <code>&lt;mid&gt;</code>, or <code>&lt;late&gt;</code> for the file initializer’s three stages.</td></tr>
+<tr><td><a href="#Compiler.add_translation_dependency"><code>Compiler.add_translation_dependency</code></a></td><td>Records a path dependency not embedded in generated C.</td></tr>
+<tr><td><a href="#Compiler.aggregate_name"><code>Compiler.aggregate_name</code></a></td><td>Binds a local aggregate tag before its fields, preserving native spelling.</td></tr>
+<tr><td><a href="#Compiler.anchor_origin"><code>Compiler.anchor_origin</code></a></td><td>Wraps a parsed node in the source location of its opening token.</td></tr>
+<tr><td><a href="#Compiler.begin_semantic_transaction"><code>Compiler.begin_semantic_transaction</code></a></td><td>Begins a reversible transaction over the current semantic scope.</td></tr>
+<tr><td><a href="#Compiler.borrow_diagnostics"><code>Compiler.borrow_diagnostics</code></a></td><td>Shares a caller’s diagnostic stream while preserving its emission policy.</td></tr>
+<tr><td><a href="#Compiler.cache"><code>Compiler.cache</code></a></td><td>Interns a constant key and returns its stable <code>(cache id)</code> reference.</td></tr>
+<tr><td><a href="#Compiler.cache_cons_cell"><code>Compiler.cache_cons_cell</code></a></td><td>Caches a cons cell when both parts have immutable cache forms.</td></tr>
+<tr><td><a href="#Compiler.cache_literal_list"><code>Compiler.cache_literal_list</code></a></td><td>Returns a runtime <code>List</code> expression for cached compiler-owned syntax.</td></tr>
+<tr><td><a href="#Compiler.canonical_path"><code>Compiler.canonical_path</code></a></td><td>Returns the spelling that identifies the file at <code>path</code>.</td></tr>
+<tr><td><a href="#Compiler.close_child"><code>Compiler.close_child</code></a></td><td>Retains a child’s final diagnostics and closes its owned Lisp session.</td></tr>
+<tr><td><a href="#Compiler.copy_source_declaration"><code>Compiler.copy_source_declaration</code></a></td><td>Carries declaration metadata with one actual symbol contribution.</td></tr>
+<tr><td><a href="#Compiler.define_match_binders"><code>Compiler.define_match_binders</code></a></td><td>Defines a typed <code>Match</code> pattern’s definite binders in the current scope.</td></tr>
+<tr><td><a href="#Compiler.emitted_binding_name"><code>Compiler.emitted_binding_name</code></a></td><td>Returns a binding’s selected emitted spelling.</td></tr>
+<tr><td><a href="#Compiler.expect"><code>Compiler.expect</code></a></td><td>Requires and consumes the current token type.</td></tr>
+<tr><td><a href="#Compiler.free_lisp"><code>Compiler.free_lisp</code></a></td><td>Destroys a compiler’s owned <code>Lisp</code> session, if any.</td></tr>
+<tr><td><a href="#Compiler.freeze_declaration_syntax"><code>Compiler.freeze_declaration_syntax</code></a></td><td>Retains declaration syntax across source segments and cached interfaces.</td></tr>
+<tr><td><a href="#Compiler.fresh_name"><code>Compiler.fresh_name</code></a></td><td>Allocates the next compiler-private C spelling for <code>stem</code>.</td></tr>
+<tr><td><a href="#Compiler.full_parse"><code>Compiler.full_parse</code></a></td><td>Parses and types the positioned source against <code>globs</code>.</td></tr>
+<tr><td><a href="#Compiler.gensym"><code>Compiler.gensym</code></a></td><td>Returns a fresh semantic identity for an anonymous aggregate.</td></tr>
+<tr><td><a href="#Compiler.imported_providers"><code>Compiler.imported_providers</code></a></td><td>Returns sorted imported packages that publish <code>name</code>.</td></tr>
+<tr><td><a href="#Compiler.imported_spelling"><code>Compiler.imported_spelling</code></a></td><td>Returns an unambiguous imported spelling for <code>name</code>, or <code>NULL</code>.</td></tr>
+<tr><td><a href="#Compiler.init_statements"><code>Compiler.init_statements</code></a></td><td>Returns the statements queued for <code>phase</code>, in the order they were added.</td></tr>
+<tr><td><a href="#Compiler.leading_preproc"><code>Compiler.leading_preproc</code></a></td><td>Returns source-ordered preprocessor nodes in the preceding trivia.</td></tr>
+<tr><td><a href="#Compiler.macro_definition_locals"><code>Compiler.macro_definition_locals</code></a></td><td>Returns the active macro definition’s borrowed local map, or <code>NULL</code>.</td></tr>
+<tr><td><a href="#Compiler.match_pattern_binders"><code>Compiler.match_pattern_binders</code></a></td><td>Returns definite binders from a typed <code>Match</code> pattern AST.</td></tr>
+<tr><td><a href="#Compiler.match_pattern_flat_head"><code>Compiler.match_pattern_flat_head</code></a></td><td>Returns the head of a flat Symbol-and-captures pattern, or zero.</td></tr>
+<tr><td><a href="#Compiler.match_pattern_head_symbol"><code>Compiler.match_pattern_head_symbol</code></a></td><td>Returns a typed <code>Match</code> pattern’s fixed literal head symbol, or zero.</td></tr>
+<tr><td><a href="#Compiler.match_pattern_is_static"><code>Compiler.match_pattern_is_static</code></a></td><td>Reports whether a typed <code>Match</code> pattern has a fully static value graph.</td></tr>
+<tr><td><a href="#Compiler.match_pattern_value"><code>Compiler.match_pattern_value</code></a></td><td>Recovers a pattern value graph, using <code>x2c-dyn</code> for computed values.</td></tr>
+<tr><td><a href="#Compiler.merge_source_declarations"><code>Compiler.merge_source_declarations</code></a></td><td>Carries declaration metadata beside a completed symbol-map merge.</td></tr>
+<tr><td><a href="#Compiler.merge_translation_dependencies"><code>Compiler.merge_translation_dependencies</code></a></td><td>Merges another translation’s dependency rows into this compiler.</td></tr>
+<tr><td><a href="#Compiler.new"><code>Compiler.new</code></a></td><td>Creates a compiler with independent package and generated-name state.</td></tr>
+<tr><td><a href="#Compiler.new_shared"><code>Compiler.new_shared</code></a></td><td>Creates a compiler sharing its owner’s package and generated-name state.</td></tr>
+<tr><td><a href="#Compiler.next"><code>Compiler.next</code></a></td><td>Consumes the current token and advances past following trivia.</td></tr>
+<tr><td><a href="#Compiler.own_diagnostics"><code>Compiler.own_diagnostics</code></a></td><td>Routes this compiler’s diagnostic store through its own printer.</td></tr>
+<tr><td><a href="#Compiler.package_member_spelling"><code>Compiler.package_member_spelling</code></a></td><td>Returns a visible <code>with</code> name’s package-prefixed spelling, or <code>NULL</code>.</td></tr>
+<tr><td><a href="#Compiler.package_spelling"><code>Compiler.package_spelling</code></a></td><td>Returns a name in the current package namespace, preserving prefixes.</td></tr>
+<tr><td><a href="#Compiler.peek"><code>Compiler.peek</code></a></td><td>Returns the non-trivia token type <code>steps</code> from parser position.</td></tr>
+<tr><td><a href="#Compiler.queue_declaration_effect"><code>Compiler.queue_declaration_effect</code></a></td><td>Queues a source Lisp form until declaration production needs its state.</td></tr>
+<tr><td><a href="#Compiler.read_source"><code>Compiler.read_source</code></a></td><td>Reads a source through the request view and retains exact response bytes.</td></tr>
+<tr><td><a href="#Compiler.record_origin"><code>Compiler.record_origin</code></a></td><td>Records a token’s location and returns its one-based occurrence.</td></tr>
+<tr><td><a href="#Compiler.record_source_declaration"><code>Compiler.record_source_declaration</code></a></td><td>Records a physical declaration using the binding’s actual scope and key.</td></tr>
+<tr><td><a href="#Compiler.record_source_reference"><code>Compiler.record_source_reference</code></a></td><td>Records a resolved reference without inventing spans for constructed ASTs.</td></tr>
+<tr><td><a href="#Compiler.register_package_alias"><code>Compiler.register_package_alias</code></a></td><td>Registers one local package alias.</td></tr>
+<tr><td><a href="#Compiler.register_package_member"><code>Compiler.register_package_member</code></a></td><td>Registers one package member under a bare local spelling.</td></tr>
+<tr><td><a href="#Compiler.return_unit_state"><code>Compiler.return_unit_state</code></a></td><td>Returns that state to <code>owner</code>, so the next segment starts where this one finished and any Lisp environment this segment created stays alive after the shadow is released.</td></tr>
+<tr><td><a href="#Compiler.run_declaration_effects"><code>Compiler.run_declaration_effects</code></a></td><td>Runs pending effects for declaration production or CPP macro evaluation.</td></tr>
+<tr><td><a href="#Compiler.select_declaration_defaults"><code>Compiler.select_declaration_defaults</code></a></td><td>Selects the owning file’s declaration defaults after all its segments.</td></tr>
+<tr><td><a href="#Compiler.semantic_binding_facts"><code>Compiler.semantic_binding_facts</code></a></td><td>Returns the current borrowed semantic-facts map indexed by binding.</td></tr>
+<tr><td><a href="#Compiler.shallow_parse"><code>Compiler.shallow_parse</code></a></td><td>Collects file-scope declarations into <code>globals</code> without parsing bodies.</td></tr>
+<tr><td><a href="#Compiler.shallow_parse_overlay"><code>Compiler.shallow_parse_overlay</code></a></td><td>Collects declarations with reads over <code>base</code> then <code>overlay</code>.</td></tr>
+<tr><td><a href="#Compiler.skip_script_statement"><code>Compiler.skip_script_statement</code></a></td><td>Moves past one run of a script unit’s statement tokens, through a <code>;</code> or a closing <code>}</code> outside every bracket.</td></tr>
+<tr><td><a href="#Compiler.skip_trivia_from"><code>Compiler.skip_trivia_from</code></a></td><td>Returns the first non-trivia token at or after <code>token</code>.</td></tr>
+<tr><td><a href="#Compiler.take_diagnostics"><code>Compiler.take_diagnostics</code></a></td><td>Moves collected child reports into the caller’s store without re-emitting.</td></tr>
+<tr><td><a href="#Compiler.take_unit_state"><code>Compiler.take_unit_state</code></a></td><td>Takes over <code>owner</code>’s macro, object-like <code>#define</code>, import, keyword, and Lisp state for one segment of a collected file.</td></tr>
+<tr><td><a href="#Compiler.test"><code>Compiler.test</code></a></td><td>Consumes <code>type</code> when current and reports whether it matched.</td></tr>
+<tr><td><a href="#Compiler.thaw_declaration_syntax"><code>Compiler.thaw_declaration_syntax</code></a></td><td>Restores a retained declaration recipe in the current parsing lifetime.</td></tr>
+<tr><td><a href="#Compiler.tokenize"><code>Compiler.tokenize</code></a></td><td>Scans source and positions the compiler at its first non-trivia token.</td></tr>
+<tr><td><a href="#Compiler.update_source_visibility"><code>Compiler.update_source_visibility</code></a></td><td>Applies public and private pragma directives to source visibility state and records each object-like <code>#define</code> name, less those <code>#undef</code> drops, for the literal warning.</td></tr>
+<tr><td><a href="#Compiler.var"><code>Compiler.var</code></a></td><td>Boxes the compiler’s pointer; the caller keeps the compiler.</td></tr>
+<tr><td><a href="#Map.merge_translation_dependency"><code>Map.merge_translation_dependency</code></a></td><td>Merges one translation dependency, preserving an existing content hash.</td></tr>
+<tr><td><a href="#Sym.base_symbols"><code>Sym.base_symbols</code></a></td><td>Copies all base-scope symbols into a fresh map in source order.</td></tr>
+<tr><td><a href="#Sym.bind_identity"><code>Sym.bind_identity</code></a></td><td>Installs an existing binding with <code>ast</code>’s qualifier-preserving type.</td></tr>
+<tr><td><a href="#Sym.binding_is_local"><code>Sym.binding_is_local</code></a></td><td>Reports whether <code>binding</code> belongs to a scope inside the base scopes.</td></tr>
+<tr><td><a href="#Sym.binding_is_local_before"><code>Sym.binding_is_local_before</code></a></td><td>Reports whether <code>binding</code> belongs to a local scope below <code>scope_count</code>.</td></tr>
+<tr><td><a href="#Sym.current_binding"><code>Sym.current_binding</code></a></td><td>Returns <code>key</code>’s binding in the current scope, or <code>NULL</code>.</td></tr>
+<tr><td><a href="#Sym.current_symbols"><code>Sym.current_symbols</code></a></td><td>Returns the current scope’s mutable symbol map, or <code>NULL</code>.</td></tr>
+<tr><td><a href="#Sym.declare"><code>Sym.declare</code></a></td><td>Analyzes a complete declaration type and installs its stored declared type.</td></tr>
+<tr><td><a href="#Sym.declare_delegate_field"><code>Sym.declare_delegate_field</code></a></td><td>Marks one named aggregate field as a delegate.</td></tr>
+<tr><td><a href="#Sym.declare_enumerator"><code>Sym.declare_enumerator</code></a></td><td>Associates an enumerator key with its owner in the active scope.</td></tr>
+<tr><td><a href="#Sym.declare_field_order"><code>Sym.declare_field_order</code></a></td><td>Records declaration AST fields in source order after binding finishes.</td></tr>
+<tr><td><a href="#Sym.define"><code>Sym.define</code></a></td><td>Defines <code>key</code> and returns its stable binding in the active scope.</td></tr>
+<tr><td><a href="#Sym.define_global"><code>Sym.define_global</code></a></td><td>Defines <code>key</code> in the unit’s writable base scope and returns its binding.</td></tr>
+<tr><td><a href="#Sym.define_macro"><code>Sym.define_macro</code></a></td><td>Defines or replaces a macro in the active lexical scope.</td></tr>
+<tr><td><a href="#Sym.delegate_aggregate"><code>Sym.delegate_aggregate</code></a></td><td>Resolves typedefs or one pointer layer to an aggregate tag, or <code>NULL</code>.</td></tr>
+<tr><td><a href="#Sym.enumerator_owner"><code>Sym.enumerator_owner</code></a></td><td>Returns the current scope’s enum owner for <code>key</code>, or zero.</td></tr>
+<tr><td><a href="#Sym.field_order"><code>Sym.field_order</code></a></td><td>Returns recorded fields in source order, or <code>NULL</code>.</td></tr>
+<tr><td><a href="#Sym.file_statics"><code>Sym.file_statics</code></a></td><td>Returns the current borrowed set of file-static declaration keys.</td></tr>
+<tr><td><a href="#Sym.get"><code>Sym.get</code></a></td><td>Returns <code>key</code>’s type, retrying a bare key in package space, or <code>NULL</code>.</td></tr>
+<tr><td><a href="#Sym.get_exact"><code>Sym.get_exact</code></a></td><td>Returns <code>key</code>’s type without package fallback, or <code>NULL</code>.</td></tr>
+<tr><td><a href="#Sym.global_symbols"><code>Sym.global_symbols</code></a></td><td>Returns the mutable global symbol map supplied to the latest reset.</td></tr>
+<tr><td><a href="#Sym.has_local_macros"><code>Sym.has_local_macros</code></a></td><td>Returns whether any lexical scope contains a local macro definition.</td></tr>
+<tr><td><a href="#Sym.introduce"><code>Sym.introduce</code></a></td><td>Allocates a fresh binding identity for a compiler-introduced spelling.</td></tr>
+<tr><td><a href="#Sym.is_array_type"><code>Sym.is_array_type</code></a></td><td>Reports whether <code>type</code> reaches the named <code>Array</code> value type.</td></tr>
+<tr><td><a href="#Sym.is_map_type"><code>Sym.is_map_type</code></a></td><td>Reports whether <code>type</code> reaches the named <code>Map</code> value type.</td></tr>
+<tr><td><a href="#Sym.is_named_value_type"><code>Sym.is_named_value_type</code></a></td><td>Reports whether <code>type</code> reaches a named value type before its definition.</td></tr>
+<tr><td><a href="#Sym.is_string_type"><code>Sym.is_string_type</code></a></td><td>Reports whether <code>type</code> reaches the named <code>String</code> value type.</td></tr>
+<tr><td><a href="#Sym.is_var_type"><code>Sym.is_var_type</code></a></td><td>Reports whether <code>type</code> reaches the named <code>Var</code> value type.</td></tr>
+<tr><td><a href="#Sym.local_type"><code>Sym.local_type</code></a></td><td>Resolves a block-local typedef to the type saved at its declaration.</td></tr>
+<tr><td><a href="#Sym.lookup"><code>Sym.lookup</code></a></td><td>Resolves an existing key and optionally stores its semantic type.</td></tr>
+<tr><td><a href="#Sym.lookup_field"><code>Sym.lookup_field</code></a></td><td>Returns an aggregate field’s declared type, or <code>NULL</code>.</td></tr>
+<tr><td><a href="#Sym.lookup_macro"><code>Sym.lookup_macro</code></a></td><td>Returns the innermost visible local macro named <code>name</code>, or <code>NULL</code>.</td></tr>
+<tr><td><a href="#Sym.mark_static"><code>Sym.mark_static</code></a></td><td>Marks a declaration key as file-static.</td></tr>
+<tr><td><a href="#Sym.next_typedef"><code>Sym.next_typedef</code></a></td><td>Resolves one typedef hop and counts against the shared cycle budget.</td></tr>
+<tr><td><a href="#Sym.normalize_declared_type"><code>Sym.normalize_declared_type</code></a></td><td>Resolves typedef bases while retaining every declarator qualifier.</td></tr>
+<tr><td><a href="#Sym.pop_scope"><code>Sym.pop_scope</code></a></td><td>Pops the innermost scope, or returns an empty scope when none exists.</td></tr>
+<tr><td><a href="#Sym.push_new_scope"><code>Sym.push_new_scope</code></a></td><td>Pushes a new empty lexical scope.</td></tr>
+<tr><td><a href="#Sym.push_scope"><code>Sym.push_scope</code></a></td><td>Pushes a caller-supplied lexical scope while retaining its map objects.</td></tr>
+<tr><td><a href="#Sym.reference"><code>Sym.reference</code></a></td><td>Resolves <code>key</code> or creates a forward binding in the current scope.</td></tr>
+<tr><td><a href="#Sym.reference_global"><code>Sym.reference_global</code></a></td><td>Resolves a global name or creates its forward binding in the base scope.</td></tr>
+<tr><td><a href="#Sym.reset"><code>Sym.reset</code></a></td><td>Resets symbol state to one base scope backed by <code>globals</code>.</td></tr>
+<tr><td><a href="#Sym.resolve_global"><code>Sym.resolve_global</code></a></td><td>Resolves a binding through base scopes and optionally stores its type.</td></tr>
+<tr><td><a href="#Sym.resolve_key"><code>Sym.resolve_key</code></a></td><td>Resolves a canonical typedef key to the end of its declared chain.</td></tr>
+<tr><td><a href="#Sym.resolve_numeric_type"><code>Sym.resolve_numeric_type</code></a></td><td>Resolves a numeric typedef without reducing semantic object types.</td></tr>
+<tr><td><a href="#Sym.scope_count"><code>Sym.scope_count</code></a></td><td>Returns the number of semantic scopes, including base scopes.</td></tr>
+<tr><td><a href="#Sym.seed_var_tags"><code>Sym.seed_var_tags</code></a></td><td>Registers declared <code>T_var</code> converters in the active <code>Type</code> unit.</td></tr>
+<tr><td><a href="#Sym.set"><code>Sym.set</code></a></td><td>Sets a semantic type for <code>key</code> in the required active scope.</td></tr>
+<tr><td><a href="#Sym.var_tag_for_type"><code>Sym.var_tag_for_type</code></a></td><td>Returns a type’s <code>Var</code> tag and optionally stores its resolved type.</td></tr>
+<tr><td><a href="#SymTxn.commit"><code>SymTxn.commit</code></a></td><td>Publishes an active semantic transaction and makes rollback a no-op.</td></tr>
+<tr><td><a href="#SymTxn.local_macros_changed"><code>SymTxn.local_macros_changed</code></a></td><td>Returns whether the transaction’s active scope changed its macro map.</td></tr>
+<tr><td><a href="#SymTxn.rollback"><code>SymTxn.rollback</code></a></td><td>Restores every semantic value captured by an active transaction.</td></tr>
+<tr><td><a href="#Symbol.group_step"><code>Symbol.group_step</code></a></td><td>Returns 1 for a token type that opens a delimited group, -1 for one that closes a group, and 0 otherwise.</td></tr>
+<tr><td><a href="#Token.after_group"><code>Token.after_group</code></a></td><td>Returns the first non-trivia token after the group <code>t</code> opens, or after <code>t</code> when it opens no group.</td></tr>
+<tr><td><a href="#Token.group_close"><code>Token.group_close</code></a></td><td>Returns the token that closes the group <code>t</code> opens, <code>t</code> itself when it opens no group, or the <code>eof</code> token when the group never closes.</td></tr>
+<tr><td><a href="#Var.compiler"><code>Var.compiler</code></a></td><td>Recovers the compiler pointer boxed by <code>Compiler.var</code>.</td></tr>
+</tbody>
+</table>
+</div>
+<h3 id="functions-1"><a class="header" href="#functions-1">Functions</a></h3>
+<h4 id="home_absolute_path"><a class="header" href="#home_absolute_path">home_absolute_path</a></h4>
+<p><code>String home_absolute_path(String spelling)</code></p>
+<p>Returns the absolute path that a <code>home_portable_path</code> spelling names.</p>
+<p>Source: <code>src/compiler.x:403</code></p>
+<h4 id="home_portable_path"><a class="header" href="#home_portable_path">home_portable_path</a></h4>
+<p><code>String home_portable_path(String path)</code></p>
+<p>Returns <code>path</code> relative to the canonical <span class="x2c-wordmark">x2c</span> home when it lies below the
+home, otherwise <code>path</code>. Interfaces, retained declarations, and generated
+identities spell paths this way, so they do not depend on where the home
+is installed.</p>
+<p>Source: <code>src/compiler.x:397</code></p>
+<h3 id="compiler"><a class="header" href="#compiler"><code>Compiler</code></a></h3>
+<p><a id="Compiler._at_function_arrow"></a></p>
+<h4 id="compiler_at_function_arrow"><a class="header" href="#compiler_at_function_arrow">Compiler._at_function_arrow</a></h4>
+<p><code>int Compiler._at_function_arrow(Compiler compiler)</code></p>
+<p>Reports whether the current two tokens are <code>=&gt;</code>.</p>
+<p>Source: <code>src/compiler.x:852</code></p>
+<p><a id="Compiler._skip_shallow_expression"></a></p>
+<h4 id="compiler_skip_shallow_expression"><a class="header" href="#compiler_skip_shallow_expression">Compiler._skip_shallow_expression</a></h4>
+<p><code>void Compiler._skip_shallow_expression(Compiler c, int stop_at_comma)</code></p>
+<p>Skips a balanced shallow expression without consuming its terminator.
+A top-level comma also terminates the expression when <code>stop_at_comma</code> is
+nonzero.</p>
+<p>Source: <code>src/compiler.x:859</code></p>
+<p><a id="Compiler.add_early"></a></p>
+<h4 id="compileradd_early"><a class="header" href="#compileradd_early">Compiler.add_early</a></h4>
+<p><code>void Compiler.add_early(Compiler compiler, List decl)</code></p>
+<p>Appends a generated declaration to the early-declaration queue.</p>
+<p>Source: <code>src/compiler.x:2042</code></p>
+<p><a id="Compiler.add_init"></a></p>
+<h4 id="compileradd_init"><a class="header" href="#compileradd_init">Compiler.add_init</a></h4>
+<p><code>void Compiler.add_init(Compiler compiler, Symbol phase, List stmt)</code></p>
+<p>Appends a statement to file initialization order under <code>phase</code>, which is
+<code>&lt;protocol&gt;</code> for protocol setup, or <code>&lt;early&gt;</code>, <code>&lt;mid&gt;</code>, or <code>&lt;late&gt;</code> for
+the file initializer’s three stages.</p>
+<p>Source: <code>src/compiler.x:2050</code></p>
+<p><a id="Compiler.add_translation_dependency"></a></p>
+<h4 id="compileradd_translation_dependency"><a class="header" href="#compileradd_translation_dependency">Compiler.add_translation_dependency</a></h4>
+<p><code>void Compiler.add_translation_dependency(Compiler compiler, String path)</code></p>
+<p>Records a path dependency not embedded in generated C.</p>
+<p>Source: <code>src/compiler.x:181</code></p>
+<p><a id="Compiler.aggregate_name"></a></p>
+<h4 id="compileraggregate_name"><a class="header" href="#compileraggregate_name">Compiler.aggregate_name</a></h4>
+<p><code>Var Compiler.aggregate_name( Compiler compiler, Symbol kind, Var name, int definition)</code></p>
+<p>Binds a local aggregate tag before its fields, preserving native spelling.
+A reference reuses the nearest visible tag; a definition or standalone
+forward declaration introduces the tag in the current lexical scope.</p>
+<p>Source: <code>src/compiler.x:3183</code></p>
+<p><a id="Compiler.anchor_origin"></a></p>
+<h4 id="compileranchor_origin"><a class="header" href="#compileranchor_origin">Compiler.anchor_origin</a></h4>
+<p><code>List Compiler.anchor_origin(Compiler compiler, List node, Token token)</code></p>
+<p>Wraps a parsed node in the source location of its opening token.</p>
+<p>A null node remains null. Macro construction uses its active <code>m-origin</code>
+marker; otherwise a node without a token remains unwrapped.</p>
+<p>Source: <code>src/compiler.x:807</code></p>
+<p><a id="Compiler.begin_semantic_transaction"></a></p>
+<h4 id="compilerbegin_semantic_transaction"><a class="header" href="#compilerbegin_semantic_transaction">Compiler.begin_semantic_transaction</a></h4>
+<p><code>SymTxn Compiler.begin_semantic_transaction(Compiler c)</code></p>
+<p>Begins a reversible transaction over the current semantic scope.</p>
+<p>The transaction stages the current scope maps, file-static and binding
+facts, binding and generated-name counters, and initializer names. It
+does not snapshot parser position or other compiler state.</p>
+<p>Source: <code>src/compiler.x:2136</code></p>
+<p><a id="Compiler.borrow_diagnostics"></a></p>
+<h4 id="compilerborrow_diagnostics"><a class="header" href="#compilerborrow_diagnostics">Compiler.borrow_diagnostics</a></h4>
+<p><code>void Compiler.borrow_diagnostics(Compiler compiler, Compiler owner)</code></p>
+<p>Shares a caller’s diagnostic stream while preserving its emission policy.
+The caller restores the saved printer after this child finishes.</p>
+<p>Source: <code>src/compiler.x:235</code></p>
+<p><a id="Compiler.cache"></a></p>
+<h4 id="compilercache"><a class="header" href="#compilercache">Compiler.cache</a></h4>
+<p><code>List Compiler.cache(Compiler c, List key)</code></p>
+<p>Interns a constant key and returns its stable <code>(cache id)</code> reference.</p>
+<p>Source: <code>src/compiler.x:1847</code></p>
+<p><a id="Compiler.cache_cons_cell"></a></p>
+<h4 id="compilercache_cons_cell"><a class="header" href="#compilercache_cons_cell">Compiler.cache_cons_cell</a></h4>
+<p><code>List Compiler.cache_cons_cell(Compiler compiler, List head, List tail)</code></p>
+<p>Caches a cons cell when both parts have immutable cache forms.</p>
+<p>Returns <code>NULL</code> when runtime literals are required or either part cannot
+be represented by the immutable cache graph.</p>
+<p>Source: <code>src/compiler.x:1860</code></p>
+<p><a id="Compiler.cache_literal_list"></a></p>
+<h4 id="compilercache_literal_list"><a class="header" href="#compilercache_literal_list">Compiler.cache_literal_list</a></h4>
+<p><code>List Compiler.cache_literal_list(Compiler compiler, List values)</code></p>
+<p>Returns a runtime <code>List</code> expression for cached compiler-owned syntax.</p>
+<p><code>values</code> may contain nested <code>List</code>s, <code>String</code>s, and <code>Symbol</code>s.</p>
+<p>Source: <code>src/compiler.x:1906</code></p>
+<p><a id="Compiler.canonical_path"></a></p>
+<h4 id="compilercanonical_path"><a class="header" href="#compilercanonical_path">Compiler.canonical_path</a></h4>
+<p><code>String Compiler.canonical_path(Compiler c, String path)</code></p>
+<p>Returns the spelling that identifies the file at <code>path</code>. Through a
+source view it is the absolute path, because an unsaved file need not
+exist on disk; otherwise it is the real path, or <code>path</code> itself when that
+does not resolve.</p>
+<p>Source: <code>src/compiler.x:386</code></p>
+<p><a id="Compiler.close_child"></a></p>
+<h4 id="compilerclose_child"><a class="header" href="#compilerclose_child">Compiler.close_child</a></h4>
+<p><code>void Compiler.close_child(Compiler compiler, Compiler child)</code></p>
+<p>Retains a child’s final diagnostics and closes its owned Lisp session.</p>
+<p>Source: <code>src/compiler.x:255</code></p>
+<p><a id="Compiler.copy_source_declaration"></a></p>
+<h4 id="compilercopy_source_declaration"><a class="header" href="#compilercopy_source_declaration">Compiler.copy_source_declaration</a></h4>
+<p><code>void Compiler.copy_source_declaration( Compiler compiler, Map target, Map source, List key)</code></p>
+<p>Carries declaration metadata with one actual symbol contribution.</p>
+<p>Source: <code>src/compiler.x:407</code></p>
+<p><a id="Compiler.define_match_binders"></a></p>
+<h4 id="compilerdefine_match_binders"><a class="header" href="#compilerdefine_match_binders">Compiler.define_match_binders</a></h4>
+<p><code>void Compiler.define_match_binders(Compiler compiler, List pattern)</code></p>
+<p>Defines a typed <code>Match</code> pattern’s definite binders in the current scope.</p>
+<p>Source: <code>src/compiler.x:2033</code></p>
+<p><a id="Compiler.emitted_binding_name"></a></p>
+<h4 id="compileremitted_binding_name"><a class="header" href="#compileremitted_binding_name">Compiler.emitted_binding_name</a></h4>
+<p><code>String Compiler.emitted_binding_name(Compiler compiler, List binding)</code></p>
+<p>Returns a binding’s selected emitted spelling.</p>
+<p>A binding without an explicit emission rename uses its identity spelling.</p>
+<p>Source: <code>src/compiler.x:495</code></p>
+<p><a id="Compiler.expect"></a></p>
+<h4 id="compilerexpect"><a class="header" href="#compilerexpect">Compiler.expect</a></h4>
+<p><code>Symbol Compiler.expect(Compiler c, Symbol type)</code></p>
+<p>Requires and consumes the current token type.</p>
+<p>A mismatch reports a parse diagnostic. An active recovery boundary raises
+<code>&lt;malformed&gt;</code>; without one, diagnostic reporting exits.</p>
+<p>Source: <code>src/compiler.x:723</code></p>
+<p><a id="Compiler.free_lisp"></a></p>
+<h4 id="compilerfree_lisp"><a class="header" href="#compilerfree_lisp">Compiler.free_lisp</a></h4>
+<p><code>void Compiler.free_lisp(Compiler c)</code></p>
+<p>Destroys a compiler’s owned <code>Lisp</code> session, if any.</p>
+<p>A borrowed session is left alive. Owned sessions not freed here are
+destroyed when the compiler’s Scope ends. This is final compiler cleanup:
+it clears the diagnostic store and the compiler must not be reused.
+At process exit, root Scope cleanup follows shutdown hooks and canonical
+pool cleanup. Close explicitly while any native session dependencies live.</p>
+<p>Source: <code>src/compiler.x:208</code></p>
+<p><a id="Compiler.freeze_declaration_syntax"></a></p>
+<h4 id="compilerfreeze_declaration_syntax"><a class="header" href="#compilerfreeze_declaration_syntax">Compiler.freeze_declaration_syntax</a></h4>
+<p><code>Var Compiler.freeze_declaration_syntax(Compiler c, Var syntax)</code></p>
+<p>Retains declaration syntax across source segments and cached interfaces.
+Tokens and origin indices become portable source data; marker-shaped user
+Lists are escaped so thawing preserves their values.</p>
+<p>Source: <code>src/compiler.x:950</code></p>
+<p><a id="Compiler.fresh_name"></a></p>
+<h4 id="compilerfresh_name"><a class="header" href="#compilerfresh_name">Compiler.fresh_name</a></h4>
+<p><code>String Compiler.fresh_name(Compiler compiler, String stem)</code></p>
+<p>Allocates the next compiler-private C spelling for <code>stem</code>.</p>
+<p>Related compilers increment the same per-stem counter.</p>
+<p>Source: <code>src/compiler.x:482</code></p>
+<p><a id="Compiler.full_parse"></a></p>
+<h4 id="compilerfull_parse"><a class="header" href="#compilerfull_parse">Compiler.full_parse</a></h4>
+<p><code>List Compiler.full_parse(Compiler c, Map globs, int generated_symbols)</code></p>
+<p>Parses and types the positioned source against <code>globs</code>.</p>
+<p>The result is a source-ordered top-level AST. This resets per-parse
+origins, macro state, and protocol resolution.
+<code>generated_symbols</code> publishes external adapter signatures before parsing.</p>
+<p>Source: <code>src/compiler.x:1605</code></p>
+<p><a id="Compiler.gensym"></a></p>
+<h4 id="compilergensym"><a class="header" href="#compilergensym">Compiler.gensym</a></h4>
+<p><code>List Compiler.gensym(Compiler c)</code></p>
+<p>Returns a fresh semantic identity for an anonymous aggregate.
+Identities are scoped to the compiler’s current file and numbered per
+file, so every process mints the same sequence for one file and two
+files never share an identity. No emission path prints one.</p>
+<p>Source: <code>src/compiler.x:3355</code></p>
+<p><a id="Compiler.imported_providers"></a></p>
+<h4 id="compilerimported_providers"><a class="header" href="#compilerimported_providers">Compiler.imported_providers</a></h4>
+<p><code>List Compiler.imported_providers(Compiler c, String name)</code></p>
+<p>Returns sorted imported packages that publish <code>name</code>.</p>
+<p>Package-owned methods use <code>&lt;package&gt;__&lt;Type&gt;_&lt;member&gt;</code> internally while
+consumers retain the spelling from the package header. Sorting keeps
+ambiguity diagnostics deterministic.</p>
+<p>Source: <code>src/compiler.x:2660</code></p>
+<p><a id="Compiler.imported_spelling"></a></p>
+<h4 id="compilerimported_spelling"><a class="header" href="#compilerimported_spelling">Compiler.imported_spelling</a></h4>
+<p><code>String Compiler.imported_spelling(Compiler compiler, String name)</code></p>
+<p>Returns an unambiguous imported spelling for <code>name</code>, or <code>NULL</code>.</p>
+<p>Source: <code>src/compiler.x:2672</code></p>
+<p><a id="Compiler.init_statements"></a></p>
+<h4 id="compilerinit_statements"><a class="header" href="#compilerinit_statements">Compiler.init_statements</a></h4>
+<p><code>List Compiler.init_statements(Compiler compiler, Symbol phase)</code></p>
+<p>Returns the statements queued for <code>phase</code>, in the order they were added.</p>
+<p>Source: <code>src/compiler.x:2055</code></p>
+<p><a id="Compiler.leading_preproc"></a></p>
+<h4 id="compilerleading_preproc"><a class="header" href="#compilerleading_preproc">Compiler.leading_preproc</a></h4>
+<p><code>List Compiler.leading_preproc(Compiler compiler)</code></p>
+<p>Returns source-ordered preprocessor nodes in the preceding trivia.</p>
+<p>Spaces and comments remain trivia rather than becoming AST nodes.</p>
+<p>Source: <code>src/compiler.x:1440</code></p>
+<p><a id="Compiler.macro_definition_locals"></a></p>
+<h4 id="compilermacro_definition_locals"><a class="header" href="#compilermacro_definition_locals">Compiler.macro_definition_locals</a></h4>
+<p><code>Map Compiler.macro_definition_locals(Compiler compiler)</code></p>
+<p>Returns the active macro definition’s borrowed local map, or <code>NULL</code>.</p>
+<p>Source: <code>src/compiler.x:473</code></p>
+<p><a id="Compiler.match_pattern_binders"></a></p>
+<h4 id="compilermatch_pattern_binders"><a class="header" href="#compilermatch_pattern_binders">Compiler.match_pattern_binders</a></h4>
+<p><code>List Compiler.match_pattern_binders(Compiler c, List pattern, List *possible)</code></p>
+<p>Returns definite binders from a typed <code>Match</code> pattern AST.</p>
+<p>When <code>possible</code> is non-null, stores every binder appearing on any path.</p>
+<p>Source: <code>src/compiler.x:2023</code></p>
+<p><a id="Compiler.match_pattern_flat_head"></a></p>
+<h4 id="compilermatch_pattern_flat_head"><a class="header" href="#compilermatch_pattern_flat_head">Compiler.match_pattern_flat_head</a></h4>
+<p><code>Symbol Compiler.match_pattern_flat_head( Compiler compiler, List pattern, List binders, List *tags)</code></p>
+<p>Returns the head of a flat Symbol-and-captures pattern, or zero.</p>
+<p>Each element after the head is a unique named <code>?</code> binder or a typed
+capture of one. When <code>tags</code> is non-null, stores one entry per binder
+in order: the capture’s tag Symbol, or integer zero when untyped.</p>
+<p>Source: <code>src/compiler.x:1998</code></p>
+<p><a id="Compiler.match_pattern_head_symbol"></a></p>
+<h4 id="compilermatch_pattern_head_symbol"><a class="header" href="#compilermatch_pattern_head_symbol">Compiler.match_pattern_head_symbol</a></h4>
+<p><code>Symbol Compiler.match_pattern_head_symbol(Compiler compiler, List pattern)</code></p>
+<p>Returns a typed <code>Match</code> pattern’s fixed literal head symbol, or zero.</p>
+<p>A binder, guard, non-list value, or computed head has no fixed symbol.
+Other pattern elements may remain dynamic because a literal head alone
+constrains the first input element.</p>
+<p>Source: <code>src/compiler.x:1967</code></p>
+<p><a id="Compiler.match_pattern_is_static"></a></p>
+<h4 id="compilermatch_pattern_is_static"><a class="header" href="#compilermatch_pattern_is_static">Compiler.match_pattern_is_static</a></h4>
+<p><code>int Compiler.match_pattern_is_static(Compiler compiler, List pattern)</code></p>
+<p>Reports whether a typed <code>Match</code> pattern has a fully static value graph.</p>
+<p>Source: <code>src/compiler.x:1958</code></p>
+<p><a id="Compiler.match_pattern_value"></a></p>
+<h4 id="compilermatch_pattern_value"><a class="header" href="#compilermatch_pattern_value">Compiler.match_pattern_value</a></h4>
+<p><code>Var Compiler.match_pattern_value(Compiler c, Var node)</code></p>
+<p>Recovers a pattern value graph, using <code>x2c-dyn</code> for computed values.</p>
+<p>Source: <code>src/compiler.x:1924</code></p>
+<p><a id="Compiler.merge_source_declarations"></a></p>
+<h4 id="compilermerge_source_declarations"><a class="header" href="#compilermerge_source_declarations">Compiler.merge_source_declarations</a></h4>
+<p><code>void Compiler.merge_source_declarations(Compiler c, Map target, Map source)</code></p>
+<p>Carries declaration metadata beside a completed symbol-map merge.</p>
+<p>Source: <code>src/compiler.x:418</code></p>
+<p><a id="Compiler.merge_translation_dependencies"></a></p>
+<h4 id="compilermerge_translation_dependencies"><a class="header" href="#compilermerge_translation_dependencies">Compiler.merge_translation_dependencies</a></h4>
+<p><code>void Compiler.merge_translation_dependencies(Compiler c, Map dependencies)</code></p>
+<p>Merges another translation’s dependency rows into this compiler.</p>
+<p>Source: <code>src/compiler.x:186</code></p>
+<p><a id="Compiler.new"></a></p>
+<h4 id="compilernew"><a class="header" href="#compilernew">Compiler.new</a></h4>
+<p><code>Compiler Compiler.new(void)</code></p>
+<p>Creates a compiler with independent package and generated-name state.</p>
+<p>Source: <code>src/compiler.x:330</code></p>
+<p><a id="Compiler.new_shared"></a></p>
+<h4 id="compilernew_shared"><a class="header" href="#compilernew_shared">Compiler.new_shared</a></h4>
+<p><code>Compiler Compiler.new_shared(Compiler owner)</code></p>
+<p>Creates a compiler sharing its owner’s package and generated-name state.</p>
+<p>Source: <code>src/compiler.x:333</code></p>
+<p><a id="Compiler.next"></a></p>
+<h4 id="compilernext"><a class="header" href="#compilernext">Compiler.next</a></h4>
+<p><code>void Compiler.next(Compiler compiler)</code></p>
+<p>Consumes the current token and advances past following trivia.</p>
+<p>This updates the unmatched-brace stack. An unmatched <code>}</code> reports a parse
+diagnostic, which raises <code>&lt;malformed&gt;</code> under recovery and otherwise exits.</p>
+<p>Source: <code>src/compiler.x:752</code></p>
+<p><a id="Compiler.own_diagnostics"></a></p>
+<h4 id="compilerown_diagnostics"><a class="header" href="#compilerown_diagnostics">Compiler.own_diagnostics</a></h4>
+<p><code>void Compiler.own_diagnostics(Compiler compiler)</code></p>
+<p>Routes this compiler’s diagnostic store through its own printer.</p>
+<p>Compilers that share a store call this when taking the diagnostic stream
+back from another compiler.</p>
+<p>Source: <code>src/compiler.x:228</code></p>
+<p><a id="Compiler.package_member_spelling"></a></p>
+<h4 id="compilerpackage_member_spelling"><a class="header" href="#compilerpackage_member_spelling">Compiler.package_member_spelling</a></h4>
+<p><code>String Compiler.package_member_spelling(Compiler c, String name)</code></p>
+<p>Returns a visible <code>with</code> name’s package-prefixed spelling, or <code>NULL</code>.</p>
+<p>An ordinary declaration of the local spelling shadows the <code>with</code> name.</p>
+<p>Source: <code>src/compiler.x:2645</code></p>
+<p><a id="Compiler.package_spelling"></a></p>
+<h4 id="compilerpackage_spelling"><a class="header" href="#compilerpackage_spelling">Compiler.package_spelling</a></h4>
+<p><code>String Compiler.package_spelling(Compiler compiler, String name)</code></p>
+<p>Returns a name in the current package namespace, preserving prefixes.</p>
+<p>Idempotence lets parsing and declaration rewrites share this operation.</p>
+<p>Source: <code>src/compiler.x:2576</code></p>
+<p><a id="Compiler.peek"></a></p>
+<h4 id="compilerpeek"><a class="header" href="#compilerpeek">Compiler.peek</a></h4>
+<p><code>Symbol Compiler.peek(Compiler compiler, int steps)</code></p>
+<p>Returns the non-trivia token type <code>steps</code> from parser position.</p>
+<p>Zero reads the current token; positive and negative steps count forward
+and backward through non-trivia tokens. The parser cursor is unchanged.</p>
+<p>Source: <code>src/compiler.x:705</code></p>
+<p><a id="Compiler.queue_declaration_effect"></a></p>
+<h4 id="compilerqueue_declaration_effect"><a class="header" href="#compilerqueue_declaration_effect">Compiler.queue_declaration_effect</a></h4>
+<p><code>void Compiler.queue_declaration_effect( Compiler c, String form, Token first, Token after)</code></p>
+<p>Queues a source Lisp form until declaration production needs its state.
+Files without declaration producers keep ordinary full-parse evaluation.</p>
+<p>Source: <code>src/compiler.x:1027</code></p>
+<p><a id="Compiler.read_source"></a></p>
+<h4 id="compilerread_source"><a class="header" href="#compilerread_source">Compiler.read_source</a></h4>
+<p><code>int Compiler.read_source(Compiler c, String path, String volatile *text)</code></p>
+<p>Reads a source through the request view and retains exact response
+bytes.</p>
+<p>Source: <code>src/compiler.x:375</code></p>
+<p><a id="Compiler.record_origin"></a></p>
+<h4 id="compilerrecord_origin"><a class="header" href="#compilerrecord_origin">Compiler.record_origin</a></h4>
+<p><code>int Compiler.record_origin(Compiler c, Token token)</code></p>
+<p>Records a token’s location and returns its one-based occurrence.</p>
+<p>A null token returns zero. Callers pass the token that opened a construct,
+so an <code>(at N node)</code> wrapper retains its start for transform diagnostics
+after <code>compiler.token</code> has reached end of file.</p>
+<p>Source: <code>src/compiler.x:793</code></p>
+<p><a id="Compiler.record_source_declaration"></a></p>
+<h4 id="compilerrecord_source_declaration"><a class="header" href="#compilerrecord_source_declaration">Compiler.record_source_declaration</a></h4>
+<p><code>void Compiler.record_source_declaration( Compiler c, List binding, Token first, Token after)</code></p>
+<p>Records a physical declaration using the binding’s actual scope and key.</p>
+<p>Source: <code>src/compiler.x:437</code></p>
+<p><a id="Compiler.record_source_reference"></a></p>
+<h4 id="compilerrecord_source_reference"><a class="header" href="#compilerrecord_source_reference">Compiler.record_source_reference</a></h4>
+<p><code>void Compiler.record_source_reference( Compiler c, List binding, Type type, Token first, Token after)</code></p>
+<p>Records a resolved reference without inventing spans for constructed
+ASTs.</p>
+<p>Source: <code>src/compiler.x:458</code></p>
+<p><a id="Compiler.register_package_alias"></a></p>
+<h4 id="compilerregister_package_alias"><a class="header" href="#compilerregister_package_alias">Compiler.register_package_alias</a></h4>
+<p><code>void Compiler.register_package_alias( Compiler compiler, String name, String alias, Token token)</code></p>
+<p>Registers one local package alias.</p>
+<p>Shallow collection and full parsing both see an import, so repeating the
+same package and alias is a no-op. Another binding of the local spelling
+is a parse error.</p>
+<p>Source: <code>src/compiler.x:2611</code></p>
+<p><a id="Compiler.register_package_member"></a></p>
+<h4 id="compilerregister_package_member"><a class="header" href="#compilerregister_package_member">Compiler.register_package_member</a></h4>
+<p><code>void Compiler.register_package_member( Compiler c, String name, String member, String local, Token member_token, Token local_token)</code></p>
+<p>Registers one package member under a bare local spelling.</p>
+<p>The package member must already exist in the symbol table. Repeating the
+same binding is a no-op; any conflicting local binding is an error.</p>
+<p>Source: <code>src/compiler.x:2624</code></p>
+<p><a id="Compiler.return_unit_state"></a></p>
+<h4 id="compilerreturn_unit_state"><a class="header" href="#compilerreturn_unit_state">Compiler.return_unit_state</a></h4>
+<p><code>void Compiler.return_unit_state(Compiler compiler, Compiler owner)</code></p>
+<p>Returns that state to <code>owner</code>, so the next segment starts where this one
+finished and any Lisp environment this segment created stays alive after
+the shadow is released.</p>
+<p>Source: <code>src/compiler.x:360</code></p>
+<p><a id="Compiler.run_declaration_effects"></a></p>
+<h4 id="compilerrun_declaration_effects"><a class="header" href="#compilerrun_declaration_effects">Compiler.run_declaration_effects</a></h4>
+<p><code>void Compiler.run_declaration_effects(Compiler c)</code></p>
+<p>Runs pending effects for declaration production or CPP macro evaluation.</p>
+<p>Source: <code>src/compiler.x:1037</code></p>
+<p><a id="Compiler.select_declaration_defaults"></a></p>
+<h4 id="compilerselect_declaration_defaults"><a class="header" href="#compilerselect_declaration_defaults">Compiler.select_declaration_defaults</a></h4>
+<p><code>Map Compiler.select_declaration_defaults( Compiler compiler, String path, Map symbols, Array parts, Map definitions)</code></p>
+<p>Selects the owning file’s declaration defaults after all its segments.
+The selected signatures join ordinary declarations before protocol and
+body binding; discarded candidates never bind their bodies. Returns added
+signatures for the caller to retain in the header-cache lifetime.</p>
+<p>Source: <code>src/compiler.x:1212</code></p>
+<p><a id="Compiler.semantic_binding_facts"></a></p>
+<h4 id="compilersemantic_binding_facts"><a class="header" href="#compilersemantic_binding_facts">Compiler.semantic_binding_facts</a></h4>
+<p><code>Map Compiler.semantic_binding_facts(Compiler c)</code></p>
+<p>Returns the current borrowed semantic-facts map indexed by binding.</p>
+<p>A semantic transaction may replace this map, so reacquire it afterwards.</p>
+<p>Source: <code>src/compiler.x:470</code></p>
+<p><a id="Compiler.shallow_parse"></a></p>
+<h4 id="compilershallow_parse"><a class="header" href="#compilershallow_parse">Compiler.shallow_parse</a></h4>
+<p><code>void Compiler.shallow_parse(Compiler c, Map globals)</code></p>
+<p>Collects file-scope declarations into <code>globals</code> without parsing bodies.</p>
+<p>Source: <code>src/compiler.x:1407</code></p>
+<p><a id="Compiler.shallow_parse_overlay"></a></p>
+<h4 id="compilershallow_parse_overlay"><a class="header" href="#compilershallow_parse_overlay">Compiler.shallow_parse_overlay</a></h4>
+<p><code>void Compiler.shallow_parse_overlay(Compiler c, Map base, Map overlay)</code></p>
+<p>Collects declarations with reads over <code>base</code> then <code>overlay</code>.</p>
+<p>Writes go to <code>overlay</code>, which captures exactly what this translation
+contributes above <code>base</code>.</p>
+<p>Source: <code>src/compiler.x:1422</code></p>
+<p><a id="Compiler.skip_script_statement"></a></p>
+<h4 id="compilerskip_script_statement"><a class="header" href="#compilerskip_script_statement">Compiler.skip_script_statement</a></h4>
+<p><code>void Compiler.skip_script_statement(Compiler c)</code></p>
+<p>Moves past one run of a script unit’s statement tokens, through a <code>;</code> or
+a closing <code>}</code> outside every bracket. A statement that ends early this
+way leaves its remainder as the next run, and runs are rejoined in order.</p>
+<p>Source: <code>src/compiler.x:872</code></p>
+<p><a id="Compiler.skip_trivia_from"></a></p>
+<h4 id="compilerskip_trivia_from"><a class="header" href="#compilerskip_trivia_from">Compiler.skip_trivia_from</a></h4>
+<p><code>Token Compiler.skip_trivia_from(Compiler compiler, Token token)</code></p>
+<p>Returns the first non-trivia token at or after <code>token</code>.</p>
+<p>Source: <code>src/compiler.x:665</code></p>
+<p><a id="Compiler.take_diagnostics"></a></p>
+<h4 id="compilertake_diagnostics"><a class="header" href="#compilertake_diagnostics">Compiler.take_diagnostics</a></h4>
+<p><code>void Compiler.take_diagnostics(Compiler compiler, Compiler child)</code></p>
+<p>Moves collected child reports into the caller’s store without re-emitting.
+Shared stores already contain their entries. The child’s separate store
+remains configured and empty after its reports have been transferred.</p>
+<p>Source: <code>src/compiler.x:244</code></p>
+<p><a id="Compiler.take_unit_state"></a></p>
+<h4 id="compilertake_unit_state"><a class="header" href="#compilertake_unit_state">Compiler.take_unit_state</a></h4>
+<p><code>void Compiler.take_unit_state(Compiler compiler, Compiler owner)</code></p>
+<p>Takes over <code>owner</code>’s macro, object-like <code>#define</code>, import, keyword, and
+Lisp state for one segment of a collected file. Segments are one
+translation unit, so a shadow uses the unit’s Lisp environment rather
+than its own.</p>
+<p>Source: <code>src/compiler.x:345</code></p>
+<p><a id="Compiler.test"></a></p>
+<h4 id="compilertest"><a class="header" href="#compilertest">Compiler.test</a></h4>
+<p><code>inline int Compiler.test(Compiler compiler, Symbol type)</code></p>
+<p>Consumes <code>type</code> when current and reports whether it matched.</p>
+<p>Source: <code>src/compiler.x:760</code></p>
+<p><a id="Compiler.thaw_declaration_syntax"></a></p>
+<h4 id="compilerthaw_declaration_syntax"><a class="header" href="#compilerthaw_declaration_syntax">Compiler.thaw_declaration_syntax</a></h4>
+<p><code>Var Compiler.thaw_declaration_syntax(Compiler c, Var syntax)</code></p>
+<p>Restores a retained declaration recipe in the current parsing lifetime.</p>
+<p>Source: <code>src/compiler.x:985</code></p>
+<p><a id="Compiler.tokenize"></a></p>
+<h4 id="compilertokenize"><a class="header" href="#compilertokenize">Compiler.tokenize</a></h4>
+<p><code>void Compiler.tokenize(Compiler c, char *text)</code></p>
+<p>Scans source and positions the compiler at its first non-trivia token.</p>
+<p>The compiler borrows <code>text</code> for diagnostics and macro source capture until
+translation finishes.</p>
+<p>Source: <code>src/compiler.x:625</code></p>
+<p><a id="Compiler.update_source_visibility"></a></p>
+<h4 id="compilerupdate_source_visibility"><a class="header" href="#compilerupdate_source_visibility">Compiler.update_source_visibility</a></h4>
+<p><code>void Compiler.update_source_visibility(Compiler c, List directives)</code></p>
+<p>Applies public and private pragma directives to source visibility state
+and records each object-like <code>#define</code> name, less those <code>#undef</code> drops,
+for the literal warning.</p>
+<p>A negative visibility state disables pragma tracking for this token
+stream; macro names are recorded regardless.</p>
+<p>Source: <code>src/compiler.x:1552</code></p>
+<p><a id="Compiler.var"></a></p>
+<h4 id="compilervar"><a class="header" href="#compilervar">Compiler.var</a></h4>
+<p><code>Var Compiler.var(Compiler compiler)</code></p>
+<p>Boxes the compiler’s pointer; the caller keeps the compiler.</p>
+<p>Source: <code>src/compiler.x:153</code></p>
+<h3 id="map"><a class="header" href="#map"><code>Map</code></a></h3>
+<p><a id="Map.merge_translation_dependency"></a></p>
+<h4 id="mapmerge_translation_dependency"><a class="header" href="#mapmerge_translation_dependency">Map.merge_translation_dependency</a></h4>
+<p><code>void Map.merge_translation_dependency(Map m, String path, Var content_hash)</code></p>
+<p>Merges one translation dependency, preserving an existing content hash.</p>
+<p>Source: <code>src/compiler.x:173</code></p>
+<h3 id="sym"><a class="header" href="#sym"><code>Sym</code></a></h3>
+<p><a id="Sym.base_symbols"></a></p>
+<h4 id="symbase_symbols"><a class="header" href="#symbase_symbols">Sym.base_symbols</a></h4>
+<p><code>Map Sym.base_symbols(Sym sym)</code></p>
+<p>Copies all base-scope symbols into a fresh map in source order.</p>
+<p>Package collection uses this so it resolves against the prelude and the
+importing unit’s already-visible includes without mutating either.</p>
+<p>Source: <code>src/compiler.x:2265</code></p>
+<p><a id="Sym.bind_identity"></a></p>
+<h4 id="symbind_identity"><a class="header" href="#symbind_identity">Sym.bind_identity</a></h4>
+<p><code>List Sym.bind_identity(Sym s, List context, List binding, List ast)</code></p>
+<p>Installs an existing binding with <code>ast</code>’s qualifier-preserving type.</p>
+<p>Source: <code>src/compiler.x:2773</code></p>
+<p><a id="Sym.binding_is_local"></a></p>
+<h4 id="symbinding_is_local"><a class="header" href="#symbinding_is_local">Sym.binding_is_local</a></h4>
+<p><code>int Sym.binding_is_local(Sym sym, List binding)</code></p>
+<p>Reports whether <code>binding</code> belongs to a scope inside the base scopes.</p>
+<p>Source: <code>src/compiler.x:2530</code></p>
+<p><a id="Sym.binding_is_local_before"></a></p>
+<h4 id="symbinding_is_local_before"><a class="header" href="#symbinding_is_local_before">Sym.binding_is_local_before</a></h4>
+<p><code>int Sym.binding_is_local_before(Sym sym, List binding, int scope_count)</code></p>
+<p>Reports whether <code>binding</code> belongs to a local scope below <code>scope_count</code>.</p>
+<p>Counts beyond the current scope depth are clamped to that depth.</p>
+<p>Source: <code>src/compiler.x:2537</code></p>
+<p><a id="Sym.current_binding"></a></p>
+<h4 id="symcurrent_binding"><a class="header" href="#symcurrent_binding">Sym.current_binding</a></h4>
+<p><code>List Sym.current_binding(Sym sym, List key)</code></p>
+<p>Returns <code>key</code>’s binding in the current scope, or <code>NULL</code>.</p>
+<p>Source: <code>src/compiler.x:2290</code></p>
+<p><a id="Sym.current_symbols"></a></p>
+<h4 id="symcurrent_symbols"><a class="header" href="#symcurrent_symbols">Sym.current_symbols</a></h4>
+<p><code>Map Sym.current_symbols(Sym sym)</code></p>
+<p>Returns the current scope’s mutable symbol map, or <code>NULL</code>.</p>
+<p>Source: <code>src/compiler.x:2284</code></p>
+<p><a id="Sym.declare"></a></p>
+<h4 id="symdeclare"><a class="header" href="#symdeclare">Sym.declare</a></h4>
+<p><code>List Sym.declare(Sym sym, List context, List key, List ast)</code></p>
+<p>Analyzes a complete declaration type and installs its stored declared type.</p>
+<p>Returns the declared binding. At file scope this also records static
+visibility; local declarations record automatic-storage and declared-type
+facts. Stored types discard storage and <code>inline</code> while retaining <code>const</code>,
+<code>restrict</code>, and <code>volatile</code>.</p>
+<p>Source: <code>src/compiler.x:2716</code></p>
+<p><a id="Sym.declare_delegate_field"></a></p>
+<h4 id="symdeclare_delegate_field"><a class="header" href="#symdeclare_delegate_field">Sym.declare_delegate_field</a></h4>
+<p><code>void Sym.declare_delegate_field(Sym sym, Type aggregate, String name)</code></p>
+<p>Marks one named aggregate field as a delegate.</p>
+<p>Source: <code>src/compiler.x:3332</code></p>
+<p><a id="Sym.declare_enumerator"></a></p>
+<h4 id="symdeclare_enumerator"><a class="header" href="#symdeclare_enumerator">Sym.declare_enumerator</a></h4>
+<p><code>void Sym.declare_enumerator(Sym sym, List key, Symbol owner)</code></p>
+<p>Associates an enumerator key with its owner in the active scope.</p>
+<p>Source: <code>src/compiler.x:2306</code></p>
+<p><a id="Sym.declare_field_order"></a></p>
+<h4 id="symdeclare_field_order"><a class="header" href="#symdeclare_field_order">Sym.declare_field_order</a></h4>
+<p><code>void Sym.declare_field_order(Sym sym, Type type, List fields)</code></p>
+<p>Records declaration AST fields in source order after binding finishes.</p>
+<p><code>Field</code> types already use member keys. Unnamed rows retain their type
+and an empty name so initializer traversal preserves anonymous subobjects.</p>
+<p>Source: <code>src/compiler.x:3311</code></p>
+<p><a id="Sym.define"></a></p>
+<h4 id="symdefine"><a class="header" href="#symdefine">Sym.define</a></h4>
+<p><code>List Sym.define(Sym sym, List key, List type)</code></p>
+<p>Defines <code>key</code> and returns its stable binding in the active scope.</p>
+<p>Source: <code>src/compiler.x:2426</code></p>
+<p><a id="Sym.define_global"></a></p>
+<h4 id="symdefine_global"><a class="header" href="#symdefine_global">Sym.define_global</a></h4>
+<p><code>List Sym.define_global(Sym sym, List key, List type)</code></p>
+<p>Defines <code>key</code> in the unit’s writable base scope and returns its binding.</p>
+<p>The definition survives the expression scope that first resolved it.</p>
+<p>Source: <code>src/compiler.x:2437</code></p>
+<p><a id="Sym.define_macro"></a></p>
+<h4 id="symdefine_macro"><a class="header" href="#symdefine_macro">Sym.define_macro</a></h4>
+<p><code>void Sym.define_macro(Sym sym, Atom name, List definition)</code></p>
+<p>Defines or replaces a macro in the active lexical scope.</p>
+<p>Captured bindings are recorded for later shadow handling. Replacing a
+name already defined in this scope does not increase the local macro
+count.</p>
+<p>Source: <code>src/compiler.x:2317</code></p>
+<p><a id="Sym.delegate_aggregate"></a></p>
+<h4 id="symdelegate_aggregate"><a class="header" href="#symdelegate_aggregate">Sym.delegate_aggregate</a></h4>
+<p><code>Type Sym.delegate_aggregate(Sym sym, Type type)</code></p>
+<p>Resolves typedefs or one pointer layer to an aggregate tag, or <code>NULL</code>.</p>
+<p>Source: <code>src/compiler.x:3337</code></p>
+<p><a id="Sym.enumerator_owner"></a></p>
+<h4 id="symenumerator_owner"><a class="header" href="#symenumerator_owner">Sym.enumerator_owner</a></h4>
+<p><code>Symbol Sym.enumerator_owner(Sym sym, List key)</code></p>
+<p>Returns the current scope’s enum owner for <code>key</code>, or zero.</p>
+<p>Source: <code>src/compiler.x:2298</code></p>
+<p><a id="Sym.field_order"></a></p>
+<h4 id="symfield_order"><a class="header" href="#symfield_order">Sym.field_order</a></h4>
+<p><code>List Sym.field_order(Sym sym, Type type)</code></p>
+<p>Returns recorded fields in source order, or <code>NULL</code>.</p>
+<p>Source: <code>src/compiler.x:3329</code></p>
+<p><a id="Sym.file_statics"></a></p>
+<h4 id="symfile_statics"><a class="header" href="#symfile_statics">Sym.file_statics</a></h4>
+<p><code>Map Sym.file_statics(Sym sym)</code></p>
+<p>Returns the current borrowed set of file-static declaration keys.</p>
+<p>A semantic transaction may replace this map, so reacquire it afterwards.</p>
+<p>Source: <code>src/compiler.x:2276</code></p>
+<p><a id="Sym.get"></a></p>
+<h4 id="symget"><a class="header" href="#symget">Sym.get</a></h4>
+<p><code>List Sym.get(Sym sym, List key)</code></p>
+<p>Returns <code>key</code>’s type, retrying a bare key in package space, or <code>NULL</code>.</p>
+<p>Source: <code>src/compiler.x:2468</code></p>
+<p><a id="Sym.get_exact"></a></p>
+<h4 id="symget_exact"><a class="header" href="#symget_exact">Sym.get_exact</a></h4>
+<p><code>List Sym.get_exact(Sym sym, List key)</code></p>
+<p>Returns <code>key</code>’s type without package fallback, or <code>NULL</code>.</p>
+<p>Source: <code>src/compiler.x:2445</code></p>
+<p><a id="Sym.global_symbols"></a></p>
+<h4 id="symglobal_symbols"><a class="header" href="#symglobal_symbols">Sym.global_symbols</a></h4>
+<p><code>Map Sym.global_symbols(Sym sym)</code></p>
+<p>Returns the mutable global symbol map supplied to the latest reset.</p>
+<p>Source: <code>src/compiler.x:2258</code></p>
+<p><a id="Sym.has_local_macros"></a></p>
+<h4 id="symhas_local_macros"><a class="header" href="#symhas_local_macros">Sym.has_local_macros</a></h4>
+<p><code>int Sym.has_local_macros(Sym sym)</code></p>
+<p>Returns whether any lexical scope contains a local macro definition.</p>
+<p>Source: <code>src/compiler.x:2329</code></p>
+<p><a id="Sym.introduce"></a></p>
+<h4 id="symintroduce"><a class="header" href="#symintroduce">Sym.introduce</a></h4>
+<p><code>List Sym.introduce(Sym sym, String spelling)</code></p>
+<p>Allocates a fresh binding identity for a compiler-introduced spelling.</p>
+<p>Source: <code>src/compiler.x:2546</code></p>
+<p><a id="Sym.is_array_type"></a></p>
+<h4 id="symis_array_type"><a class="header" href="#symis_array_type">Sym.is_array_type</a></h4>
+<p><code>int Sym.is_array_type(Sym sym, Type type)</code></p>
+<p>Reports whether <code>type</code> reaches the named <code>Array</code> value type.</p>
+<p>Source: <code>src/compiler.x:3271</code></p>
+<p><a id="Sym.is_map_type"></a></p>
+<h4 id="symis_map_type"><a class="header" href="#symis_map_type">Sym.is_map_type</a></h4>
+<p><code>int Sym.is_map_type(Sym s, Type type)</code></p>
+<p>Reports whether <code>type</code> reaches the named <code>Map</code> value type.</p>
+<p>Source: <code>src/compiler.x:3275</code></p>
+<p><a id="Sym.is_named_value_type"></a></p>
+<h4 id="symis_named_value_type"><a class="header" href="#symis_named_value_type">Sym.is_named_value_type</a></h4>
+<p><code>int Sym.is_named_value_type(Sym sym, Type type, String name)</code></p>
+<p>Reports whether <code>type</code> reaches a named value type before its definition.</p>
+<p>Source: <code>src/compiler.x:3278</code></p>
+<p><a id="Sym.is_string_type"></a></p>
+<h4 id="symis_string_type"><a class="header" href="#symis_string_type">Sym.is_string_type</a></h4>
+<p><code>int Sym.is_string_type(Sym sym, Type type)</code></p>
+<p>Reports whether <code>type</code> reaches the named <code>String</code> value type.</p>
+<p>Source: <code>src/compiler.x:3267</code></p>
+<p><a id="Sym.is_var_type"></a></p>
+<h4 id="symis_var_type"><a class="header" href="#symis_var_type">Sym.is_var_type</a></h4>
+<p><code>int Sym.is_var_type(Sym s, Type type)</code></p>
+<p>Reports whether <code>type</code> reaches the named <code>Var</code> value type.</p>
+<p>Source: <code>src/compiler.x:3264</code></p>
+<p><a id="Sym.local_type"></a></p>
+<h4 id="symlocal_type"><a class="header" href="#symlocal_type">Sym.local_type</a></h4>
+<p><code>Type Sym.local_type(Sym sym, Type type)</code></p>
+<p>Resolves a block-local typedef to the type saved at its declaration.
+File-scope names retain their semantic identity. Local alias definitions
+are resolved before they are installed, so one lookup crosses the whole
+local chain without consulting names shadowed since its declaration.</p>
+<p>Source: <code>src/compiler.x:3154</code></p>
+<p><a id="Sym.lookup"></a></p>
+<h4 id="symlookup"><a class="header" href="#symlookup">Sym.lookup</a></h4>
+<p><code>List Sym.lookup(Sym sym, List key, List *type)</code></p>
+<p>Resolves an existing key and optionally stores its semantic type.</p>
+<p>A symbol row without a binding receives a stable binding identity. A total
+miss returns <code>NULL</code> and stores <code>NULL</code> through <code>type</code> when provided.</p>
+<p>Source: <code>src/compiler.x:2503</code></p>
+<p><a id="Sym.lookup_field"></a></p>
+<h4 id="symlookup_field"><a class="header" href="#symlookup_field">Sym.lookup_field</a></h4>
+<p><code>Type Sym.lookup_field(Sym sym, Type type, List field)</code></p>
+<p>Returns an aggregate field’s declared type, or <code>NULL</code>.
+A member of an anonymous struct or union belongs to its enclosing
+aggregate in C, so unnamed rows are searched the way a designated
+initializer already reaches them.</p>
+<p>Source: <code>src/compiler.x:3291</code></p>
+<p><a id="Sym.lookup_macro"></a></p>
+<h4 id="symlookup_macro"><a class="header" href="#symlookup_macro">Sym.lookup_macro</a></h4>
+<p><code>List Sym.lookup_macro(Sym sym, Atom name)</code></p>
+<p>Returns the innermost visible local macro named <code>name</code>, or <code>NULL</code>.</p>
+<p>Source: <code>src/compiler.x:2335</code></p>
+<p><a id="Sym.mark_static"></a></p>
+<h4 id="symmark_static"><a class="header" href="#symmark_static">Sym.mark_static</a></h4>
+<p><code>void Sym.mark_static(Sym sym, List key)</code></p>
+<p>Marks a declaration key as file-static.</p>
+<p>Source: <code>src/compiler.x:2279</code></p>
+<p><a id="Sym.next_typedef"></a></p>
+<h4 id="symnext_typedef"><a class="header" href="#symnext_typedef">Sym.next_typedef</a></h4>
+<p><code>Type Sym.next_typedef(Sym sym, Type type, int *hops)</code></p>
+<p>Resolves one typedef hop and counts against the shared cycle budget.</p>
+<p><code>hops</code> is an in-out counter initialized by the caller for the whole walk.
+Returns <code>NULL</code> for an unresolved link. The shared budget turns a cycle
+into the same diagnostic as full-chain resolution.</p>
+<p>Source: <code>src/compiler.x:3086</code></p>
+<p><a id="Sym.normalize_declared_type"></a></p>
+<h4 id="symnormalize_declared_type"><a class="header" href="#symnormalize_declared_type">Sym.normalize_declared_type</a></h4>
+<p><code>Type Sym.normalize_declared_type(Sym sym, Type type)</code></p>
+<p>Resolves typedef bases while retaining every declarator qualifier.</p>
+<p>Source: <code>src/compiler.x:3223</code></p>
+<p><a id="Sym.pop_scope"></a></p>
+<h4 id="sympop_scope"><a class="header" href="#sympop_scope">Sym.pop_scope</a></h4>
+<p><code>SymScope Sym.pop_scope(Sym s)</code></p>
+<p>Pops the innermost scope, or returns an empty scope when none exists.</p>
+<p>Source: <code>src/compiler.x:3381</code></p>
+<p><a id="Sym.push_new_scope"></a></p>
+<h4 id="sympush_new_scope"><a class="header" href="#sympush_new_scope">Sym.push_new_scope</a></h4>
+<p><code>void Sym.push_new_scope(Sym sym)</code></p>
+<p>Pushes a new empty lexical scope.</p>
+<p>Source: <code>src/compiler.x:3366</code></p>
+<p><a id="Sym.push_scope"></a></p>
+<h4 id="sympush_scope"><a class="header" href="#sympush_scope">Sym.push_scope</a></h4>
+<p><code>void Sym.push_scope(Sym sym, SymScope scope)</code></p>
+<p>Pushes a caller-supplied lexical scope while retaining its map objects.</p>
+<p>Source: <code>src/compiler.x:3376</code></p>
+<p><a id="Sym.reference"></a></p>
+<h4 id="symreference"><a class="header" href="#symreference">Sym.reference</a></h4>
+<p><code>List Sym.reference(Sym sym, List key, List *type)</code></p>
+<p>Resolves <code>key</code> or creates a forward binding in the current scope.</p>
+<p>Stores <code>NULL</code> through <code>type</code> when no declaration supplies a type.</p>
+<p>Source: <code>src/compiler.x:2510</code></p>
+<p><a id="Sym.reference_global"></a></p>
+<h4 id="symreference_global"><a class="header" href="#symreference_global">Sym.reference_global</a></h4>
+<p><code>List Sym.reference_global(Sym sym, List key)</code></p>
+<p>Resolves a global name or creates its forward binding in the base scope.
+Local declarations cannot capture a retained macro’s global reference.</p>
+<p>Source: <code>src/compiler.x:2523</code></p>
+<p><a id="Sym.reset"></a></p>
+<h4 id="symreset"><a class="header" href="#symreset">Sym.reset</a></h4>
+<p><code>void Sym.reset(Sym sym, Map globals)</code></p>
+<p>Resets symbol state to one base scope backed by <code>globals</code>.</p>
+<p>Later definitions mutate that caller-supplied map.</p>
+<p>Source: <code>src/compiler.x:2249</code></p>
+<p><a id="Sym.resolve_global"></a></p>
+<h4 id="symresolve_global"><a class="header" href="#symresolve_global">Sym.resolve_global</a></h4>
+<p><code>List Sym.resolve_global(Sym sym, List key, List *type)</code></p>
+<p>Resolves a binding through base scopes and optionally stores its type.</p>
+<p>Returns <code>NULL</code> when no base scope contains the key.</p>
+<p>Source: <code>src/compiler.x:2517</code></p>
+<p><a id="Sym.resolve_key"></a></p>
+<h4 id="symresolve_key"><a class="header" href="#symresolve_key">Sym.resolve_key</a></h4>
+<p><code>Type Sym.resolve_key(Sym sym, Type key)</code></p>
+<p>Resolves a canonical typedef key to the end of its declared chain.</p>
+<p>Source: <code>src/compiler.x:3074</code></p>
+<p><a id="Sym.resolve_numeric_type"></a></p>
+<h4 id="symresolve_numeric_type"><a class="header" href="#symresolve_numeric_type">Sym.resolve_numeric_type</a></h4>
+<p><code>Type Sym.resolve_numeric_type(Sym sym, Type type)</code></p>
+<p>Resolves a numeric typedef without reducing semantic object types.</p>
+<p>Returns <code>NULL</code> when resolution yields neither a numeric type nor a
+recognized builtin numeric typedef.</p>
+<p>Source: <code>src/compiler.x:3135</code></p>
+<p><a id="Sym.scope_count"></a></p>
+<h4 id="symscope_count"><a class="header" href="#symscope_count">Sym.scope_count</a></h4>
+<p><code>int Sym.scope_count(Sym sym)</code></p>
+<p>Returns the number of semantic scopes, including base scopes.</p>
+<p>Source: <code>src/compiler.x:2332</code></p>
+<p><a id="Sym.seed_var_tags"></a></p>
+<h4 id="symseed_var_tags"><a class="header" href="#symseed_var_tags">Sym.seed_var_tags</a></h4>
+<p><code>void Sym.seed_var_tags(Sym sym, Map symbols)</code></p>
+<p>Registers declared <code>T_var</code> converters in the active <code>Type</code> unit.</p>
+<p>Source: <code>src/compiler.x:2419</code></p>
+<p><a id="Sym.set"></a></p>
+<h4 id="symset"><a class="header" href="#symset">Sym.set</a></h4>
+<p><code>void Sym.set(Sym s, List key, List type)</code></p>
+<p>Sets a semantic type for <code>key</code> in the required active scope.</p>
+<p>Source: <code>src/compiler.x:2351</code></p>
+<p><a id="Sym.var_tag_for_type"></a></p>
+<h4 id="symvar_tag_for_type"><a class="header" href="#symvar_tag_for_type">Sym.var_tag_for_type</a></h4>
+<p><code>Symbol Sym.var_tag_for_type(Sym sym, Type type, Type *resolved)</code></p>
+<p>Returns a type’s <code>Var</code> tag and optionally stores its resolved type.</p>
+<p><code>resolved</code> receives the final type even when the result is zero because no
+<code>Var</code> tag is registered. A null input stores <code>NULL</code> and returns zero.</p>
+<p>Source: <code>src/compiler.x:3254</code></p>
+<h3 id="symtxn"><a class="header" href="#symtxn"><code>SymTxn</code></a></h3>
+<p><a id="SymTxn.commit"></a></p>
+<h4 id="symtxncommit"><a class="header" href="#symtxncommit">SymTxn.commit</a></h4>
+<p><code>void SymTxn.commit(SymTxn s)</code></p>
+<p>Publishes an active semantic transaction and makes rollback a no-op.</p>
+<p>Source: <code>src/compiler.x:2171</code></p>
+<p><a id="SymTxn.local_macros_changed"></a></p>
+<h4 id="symtxnlocal_macros_changed"><a class="header" href="#symtxnlocal_macros_changed">SymTxn.local_macros_changed</a></h4>
+<p><code>int SymTxn.local_macros_changed(SymTxn s)</code></p>
+<p>Returns whether the transaction’s active scope changed its macro map.</p>
+<p>Source: <code>src/compiler.x:2191</code></p>
+<p><a id="SymTxn.rollback"></a></p>
+<h4 id="symtxnrollback"><a class="header" href="#symtxnrollback">SymTxn.rollback</a></h4>
+<p><code>void SymTxn.rollback(SymTxn transaction)</code></p>
+<p>Restores every semantic value captured by an active transaction.</p>
+<p>Source: <code>src/compiler.x:2200</code></p>
+<h3 id="symbol"><a class="header" href="#symbol"><code>Symbol</code></a></h3>
+<p><a id="Symbol.group_step"></a></p>
+<h4 id="symbolgroup_step"><a class="header" href="#symbolgroup_step">Symbol.group_step</a></h4>
+<p><code>int Symbol.group_step(Symbol s)</code></p>
+<p>Returns 1 for a token type that opens a delimited group, -1 for one that
+closes a group, and 0 otherwise. Every opener spelling ends in the <code>(</code>,
+<code>[</code>, or <code>{</code> that its closer matches.</p>
+<p>Source: <code>src/compiler.x:672</code></p>
+<h3 id="token"><a class="header" href="#token"><code>Token</code></a></h3>
+<p><a id="Token.after_group"></a></p>
+<h4 id="tokenafter_group"><a class="header" href="#tokenafter_group">Token.after_group</a></h4>
+<p><code>Token Token.after_group(Token t)</code></p>
+<p>Returns the first non-trivia token after the group <code>t</code> opens, or after
+<code>t</code> when it opens no group. A group that never closes yields <code>eof</code>.</p>
+<p>Source: <code>src/compiler.x:695</code></p>
+<p><a id="Token.group_close"></a></p>
+<h4 id="tokengroup_close"><a class="header" href="#tokengroup_close">Token.group_close</a></h4>
+<p><code>Token Token.group_close(Token t)</code></p>
+<p>Returns the token that closes the group <code>t</code> opens, <code>t</code> itself when it
+opens no group, or the <code>eof</code> token when the group never closes.</p>
+<p>Source: <code>src/compiler.x:686</code></p>
+<h3 id="var"><a class="header" href="#var"><code>Var</code></a></h3>
+<p><a id="Var.compiler"></a></p>
+<h4 id="varcompiler"><a class="header" href="#varcompiler">Var.compiler</a></h4>
+<p><code>Compiler Var.compiler(Var value)</code></p>
+<p>Recovers the compiler pointer boxed by <code>Compiler.var</code>.</p>
+<p>Source: <code>src/compiler.x:156</code></p>
+<h2 id="public-types"><a class="header" href="#public-types">Public types</a></h2>
+<div class="table-wrapper">
+<table>
+<thead>
+<tr><th>Type</th><th>Kind</th><th>Summary</th></tr>
+</thead>
+<tbody>
+<tr><td><a href="#Compiler"><code>Compiler</code></a></td><td>struct</td><td>Holds mutable state for one source translation.</td></tr>
+<tr><td><a href="#Diagnostics"><code>Diagnostics</code></a></td><td>struct</td><td>Names the positioned diagnostic store routed by a <code>Compiler</code>.</td></tr>
+<tr><td><a href="#GenNames"><code>GenNames</code></a></td><td>struct</td><td>Holds scope-owned generated-name state shared by related compilers.</td></tr>
+<tr><td><a href="#ScriptUnit"><code>ScriptUnit</code></a></td><td>struct</td><td>Describes the <code>#!</code> script unit a translation unit was started from: its canonical path, its first line as written, and whether it defines <code>main</code> itself.</td></tr>
+<tr><td><a href="#Sym"><code>Sym</code></a></td><td>struct</td><td>Names the scope-owned semantic table belonging to one compiler.</td></tr>
+<tr><td><a href="#SymScope"><code>SymScope</code></a></td><td>struct</td><td>Holds the three mutable maps that form one lexical semantic scope.</td></tr>
+<tr><td><a href="#SymTxn"><code>SymTxn</code></a></td><td>struct</td><td>Names a scope-owned, one-use semantic transaction.</td></tr>
+</tbody>
+</table>
+</div>
+<p><a id="Compiler"></a></p>
+<h3 id="compiler-1"><a class="header" href="#compiler-1">Compiler</a></h3>
+<p><code>typedef struct Compiler { String filename, text, root_dir; String package, List package_dirs; Map package_roots, package_aliases, package_members; Token token; Tokenizer tokenizer; List return_type, include_dirs; Map deps; List aggregate_type, macro_stack, declaration_effects, Sym sym; SymScope params; Map key_ids, macros, kw_aliases; Map object_macros; List arms; Map arm_stacks; Token directives_taken; Map kw_seen; Map fixed; Map protocols, conforms, protocol_helpers; Map proto_cache; Map adoptions; Map macro_holes; Map local_macro_captures; List lambda_scopes; Array match_types; Map imports; Map init_tokens, static_init_deps, fn_defs; Array id_keys, inits; String init_fn, fini_fn; Array early_decls, int prelude; int runtime_inc, runtime_hdrs, collect_protocols, shallow, source_private; int in_pattern, match_is, runtime_literals, inline_header; int builtin_defs, in_proto, macro_count, recovery_depth; int declaration_projection, declaration_produced; int needs_exception; int local_macro_capture_scopes; String fn_name, Diagnostics diagnostics, Array braces, import_stack; ScriptUnit unit_script, script; Lisp macro_lisp, String import_src, int borrowed_lisp; GenNames names; Array origins, int origin, source_map; SourceView sources; int source_facts, source_primary; Array source_occurrences; Map source_definitions, source_declarations, source_texts; } *Compiler</code></p>
+<p>Holds mutable state for one source translation.</p>
+<p>The structure, its state, and its owned compile-time <code>Lisp</code> session belong
+to the current <code>Scope</code>. <code>Compiler.free_lisp</code> permits early session cleanup;
+otherwise Scope teardown releases it. All Lisp calls must return first.</p>
+<p>Source: <code>src/compiler.x:70</code></p>
+<p><a id="Diagnostics"></a></p>
+<h3 id="diagnostics"><a class="header" href="#diagnostics">Diagnostics</a></h3>
+<p><code>typedef struct Diagnostics *Diagnostics</code></p>
+<p>Names the positioned diagnostic store routed by a <code>Compiler</code>.</p>
+<p>Source: <code>src/compiler.x:22</code></p>
+<p><a id="GenNames"></a></p>
+<h3 id="gennames"><a class="header" href="#gennames">GenNames</a></h3>
+<p><code>typedef struct GenNames { Map counters, adapters; int next_binding; } *GenNames</code></p>
+<p>Holds scope-owned generated-name state shared by related compilers.</p>
+<p><code>Compiler.new</code> initializes every valid instance; callers borrow it from
+the compiler rather than constructing or freeing it. <code>next_binding</code> is
+the last binding identity issued in the translation unit: collection,
+shadow, package, and full-parse compilers all draw from it, so a binding
+number names one live declaration across every symbol table in the unit.
+Rows replayed from an interface keep that interface’s own numbering,
+which starts at 1, so their numbers identify declarations only within
+their own rows.</p>
+<p>Source: <code>src/compiler.x:45</code></p>
+<p><a id="ScriptUnit"></a></p>
+<h3 id="scriptunit"><a class="header" href="#scriptunit">ScriptUnit</a></h3>
+<p><code>typedef struct ScriptUnit { String path, shebang; int defines_main; } *ScriptUnit</code></p>
+<p>Describes the <code>#!</code> script unit a translation unit was started from: its
+canonical path, its first line as written, and whether it defines <code>main</code>
+itself. Every compiler of that unit shares one record, so collection sees
+the same script settings the full parse does.</p>
+<p>Source: <code>src/compiler.x:29</code></p>
+<p><a id="Sym"></a></p>
+<h3 id="sym-1"><a class="header" href="#sym-1">Sym</a></h3>
+<p><code>typedef struct Sym *Sym</code></p>
+<p>Names the scope-owned semantic table belonging to one compiler.</p>
+<p>Source: <code>src/compiler.x:60</code></p>
+<p><a id="SymScope"></a></p>
+<h3 id="symscope"><a class="header" href="#symscope">SymScope</a></h3>
+<p><code>typedef struct SymScope { Map symbols, bindings, enumerators, macros; } SymScope</code></p>
+<p>Holds the three mutable maps that form one lexical semantic scope.</p>
+<p>Active scopes have initialized maps. The zero value is only the sentinel
+returned when an empty scope stack is popped.</p>
+<p>Source: <code>src/compiler.x:55</code></p>
+<p><a id="SymTxn"></a></p>
+<h3 id="symtxn-1"><a class="header" href="#symtxn-1">SymTxn</a></h3>
+<p><code>typedef struct SymTxn *SymTxn</code></p>
+<p>Names a scope-owned, one-use semantic transaction.</p>
+<p>Source: <code>src/compiler.x:62</code></p>
+<h2 id="design-notes"><a class="header" href="#design-notes">Design notes</a></h2>
+<p>Coordinates tokenization, shallow declaration discovery, full parsing,
+symbol scopes, diagnostics, and generated initialization. Shallow parsing
+skips function bodies; full parsing produces the AST of the source.</p>
+<p><code>Symbol</code> lookup walks the scope stack from inner to outer. Diagnostics may
+exit immediately or raise <code>&lt;malformed&gt;</code> while a recovery boundary is
+active.</p>
+
+                    </main>
+
+                    <nav class="x2c-pager" aria-label="Page navigation">
+                        <a rel="prev" href="../../internals/compiler-api/collect.html" class="x2c-pager-prev" aria-keyshortcuts="Left">
+                            <span class="x2c-pager-label">previous</span>
+                            <span class="x2c-pager-title">src/collect.x</span>
+                        </a>
+                        
+                        <a rel="next prefetch" href="../../internals/compiler-api/deps.html" class="x2c-pager-next" aria-keyshortcuts="Right">
+                            <span class="x2c-pager-label">next</span>
+                            <span class="x2c-pager-title">src/deps.x</span>
+                        </a>
+                    </nav>
+                    <footer class="x2c-footer">
+                        &copy; 2025&ndash;2026
+                        <a href="https://flake.org">GWF</a>
+                        &middot;
+                        <a href="https://github.com/gwf/x2c/blob/c2a89d999e81f47a4422a26edf0033eb0b98c6c6/LICENSE">Apache 2.0</a>
+                        &middot;
+                        <a href="https://github.com/gwf/x2c/blob/c2a89d999e81f47a4422a26edf0033eb0b98c6c6/TRADEMARKS.md">Trademarks</a>
+                    </footer>
+                </div>
+            </div>
+
+
+        </div>
+
+        <template id=fa-eye><span class=fa-svg><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 576 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc. --><path d="M288 32c-80.8 0-145.5 36.8-192.6 80.6C48.6 156 17.3 208 2.5 243.7c-3.3 7.9-3.3 16.7 0 24.6C17.3 304 48.6 356 95.4 399.4C142.5 443.2 207.2 480 288 480s145.5-36.8 192.6-80.6c46.8-43.5 78.1-95.4 93-131.1c3.3-7.9 3.3-16.7 0-24.6c-14.9-35.7-46.2-87.7-93-131.1C433.5 68.8 368.8 32 288 32zM432 256c0 79.5-64.5 144-144 144s-144-64.5-144-144s64.5-144 144-144s144 64.5 144 144zM288 192c0 35.3-28.7 64-64 64c-11.5 0-22.3-3-31.6-8.4c-.2 2.8-.4 5.5-.4 8.4c0 53 43 96 96 96s96-43 96-96s-43-96-96-96c-2.8 0-5.6 .1-8.4 .4c5.3 9.3 8.4 20.1 8.4 31.6z"/></svg></span></template>
+        <template id=fa-eye-slash><span class=fa-svg><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 640 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc. --><path d="M38.8 5.1C28.4-3.1 13.3-1.2 5.1 9.2S-1.2 34.7 9.2 42.9l592 464c10.4 8.2 25.5 6.3 33.7-4.1s6.3-25.5-4.1-33.7L525.6 386.7c39.6-40.6 66.4-86.1 79.9-118.4c3.3-7.9 3.3-16.7 0-24.6c-14.9-35.7-46.2-87.7-93-131.1C465.5 68.8 400.8 32 320 32c-68.2 0-125 26.3-169.3 60.8L38.8 5.1zM223.1 149.5C248.6 126.2 282.7 112 320 112c79.5 0 144 64.5 144 144c0 24.9-6.3 48.3-17.4 68.7L408 294.5c5.2-11.8 8-24.8 8-38.5c0-53-43-96-96-96c-2.8 0-5.6 .1-8.4 .4c5.3 9.3 8.4 20.1 8.4 31.6c0 10.2-2.4 19.8-6.6 28.3l-90.3-70.8zm223.1 298L373 389.9c-16.4 6.5-34.3 10.1-53 10.1c-79.5 0-144-64.5-144-144c0-6.9 .5-13.6 1.4-20.2L83.1 161.5C60.3 191.2 44 220.8 34.5 243.7c-3.3 7.9-3.3 16.7 0 24.6c14.9 35.7 46.2 87.7 93 131.1C174.5 443.2 239.2 480 320 480c47.8 0 89.9-12.9 126.2-32.5z"/></svg></span></template>
+        <template id=fa-copy><span class=fa-svg><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc. --><path d="M502.6 70.63l-61.25-61.25C435.4 3.371 427.2 0 418.7 0H255.1c-35.35 0-64 28.66-64 64l.0195 256C192 355.4 220.7 384 256 384h192c35.2 0 64-28.8 64-64V93.25C512 84.77 508.6 76.63 502.6 70.63zM464 320c0 8.836-7.164 16-16 16H255.1c-8.838 0-16-7.164-16-16L239.1 64.13c0-8.836 7.164-16 16-16h128L384 96c0 17.67 14.33 32 32 32h47.1V320zM272 448c0 8.836-7.164 16-16 16H63.1c-8.838 0-16-7.164-16-16L47.98 192.1c0-8.836 7.164-16 16-16H160V128H63.99c-35.35 0-64 28.65-64 64l.0098 256C.002 483.3 28.66 512 64 512h192c35.2 0 64-28.8 64-64v-32h-47.1L272 448z"/></svg></span></template>
+        <template id=fa-play><span class=fa-svg><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 384 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc. --><path d="M73 39c-14.8-9.1-33.4-9.4-48.5-.9S0 62.6 0 80V432c0 17.4 9.4 33.4 24.5 41.9s33.7 8.1 48.5-.9L361 297c14.3-8.7 23-24.2 23-41s-8.7-32.2-23-41L73 39z"/></svg></span></template>
+        <template id=fa-clock-rotate-left><span class=fa-svg><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc. --><path d="M75 75L41 41C25.9 25.9 0 36.6 0 57.9V168c0 13.3 10.7 24 24 24H134.1c21.4 0 32.1-25.9 17-41l-30.8-30.8C155 85.5 203 64 256 64c106 0 192 86 192 192s-86 192-192 192c-40.8 0-78.6-12.7-109.7-34.4c-14.5-10.1-34.4-6.6-44.6 7.9s-6.6 34.4 7.9 44.6C151.2 495 201.7 512 256 512c141.4 0 256-114.6 256-256S397.4 0 256 0C185.3 0 121.3 28.7 75 75zm181 53c-13.3 0-24 10.7-24 24V256c0 6.4 2.5 12.5 7 17l72 72c9.4 9.4 24.6 9.4 33.9 0s9.4-24.6 0-33.9l-65-65V152c0-13.3-10.7-24-24-24z"/></svg></span></template>
+
+
+
+        <script>
+            window.playground_copyable = true;
+        </script>
+
+
+        <script src="../../elasticlunr-ef4e11c1.min.js"></script>
+        <script src="../../mark-09e88c2c.min.js"></script>
+        <script src="../../searcher-09f2665d.js"></script>
+
+        <script src="../../clipboard-1626706a.min.js"></script>
+        <script src="../../highlight-abc7f01d.js"></script>
+        <script src="../../book-609e4cb8.js"></script>
+
+        <script>
+            document.addEventListener('DOMContentLoaded', () => {
+                const sidebar = document.querySelector('#mdbook-sidebar');
+                sidebar.querySelectorAll('ol').forEach(list => {
+                    const numbers = list.querySelectorAll(
+                        ':scope > li > .chapter-link-wrapper > a > strong, :scope > li > a > strong');
+                    if (numbers.length) {
+                        const width = Math.max(...Array.from(numbers,
+                            number => number.textContent.trim().length));
+                        list.style.setProperty('--chapter-number-width', width + 'ch');
+                    }
+                });
+                const chapter = sidebar.querySelector('a.active');
+                const item = chapter?.closest('.chapter-item');
+                if (item?.querySelector(':scope > .on-this-page')) {
+                    const row = chapter.parentElement;
+                    if (!row.querySelector('.chapter-fold-toggle')) {
+                        const toggle = document.createElement('button');
+                        toggle.type = 'button';
+                        toggle.className = 'chapter-fold-toggle';
+                        toggle.appendChild(document.createElement('div'));
+                        toggle.addEventListener('click', () => {
+                            item.classList.toggle('expanded');
+                        });
+                        row.appendChild(toggle);
+                    }
+                }
+                sidebar.querySelectorAll('.chapter-fold-toggle').forEach(toggle => {
+                    const row = toggle.parentElement;
+                    const item = row.parentElement;
+                    const title = row.querySelector('a').textContent.trim();
+                    toggle.setAttribute('aria-label', 'Toggle ' + title);
+                    const update = () => toggle.setAttribute('aria-expanded',
+                        String(item.classList.contains('expanded')));
+                    update();
+                    toggle.addEventListener('click', update);
+                    if (toggle.tagName === 'A') {
+                        toggle.setAttribute('role', 'button');
+                        toggle.tabIndex = 0;
+                        toggle.addEventListener('keydown', event => {
+                            if (event.key === 'Enter' || event.key === ' ') {
+                                event.preventDefault();
+                                toggle.click();
+                            }
+                        });
+                    }
+                });
+            });
+        </script>
+
+        <!-- Custom JS scripts -->
+
+
+
+    </div>
+    </body>
+</html>

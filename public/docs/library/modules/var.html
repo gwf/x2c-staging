@@ -1,0 +1,895 @@
+<!DOCTYPE HTML>
+<html lang="en" class="light sidebar-visible" dir="ltr">
+    <head>
+        <!-- Book generated using mdBook -->
+        <meta charset="UTF-8">
+        <title>lib/var.x - The x2c Book</title>
+
+
+        <!-- Custom HTML head -->
+        <link rel="preconnect" href="https://fonts.googleapis.com">
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=Archivo:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">
+
+        <meta name="description" content="The x2c language, standard library, and compiler.">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <meta name="theme-color" content="#ffffff">
+
+        <link rel="icon" href="../../favicon-995a3c20.svg">
+        <link rel="stylesheet" href="../../css/variables-8adf115d.css">
+        <link rel="stylesheet" href="../../css/general-e96d0476.css">
+        <link rel="stylesheet" href="../../css/chrome-d279d366.css">
+        <link rel="stylesheet" href="../../css/print-9e4910d8.css" media="print">
+
+        <!-- Fonts -->
+        <link rel="stylesheet" href="../../fonts/fonts-9644e21d.css">
+
+        <!-- Highlight.js Stylesheets -->
+        <link rel="stylesheet" id="mdbook-highlight-css" href="../../highlight-493f70e1.css">
+        <link rel="stylesheet" id="mdbook-tomorrow-night-css" href="../../tomorrow-night-4c0ae647.css">
+        <link rel="stylesheet" id="mdbook-ayu-highlight-css" href="../../ayu-highlight-3fdfc3ac.css">
+
+        <!-- Custom theme stylesheets -->
+        <link rel="stylesheet" href="../../theme/header-2c1becca.css">
+        <link rel="stylesheet" href="../../theme/x2c-fd3d182e.css">
+
+
+        <!-- Provide site root and default themes to javascript -->
+        <script>
+            const path_to_root = "../../";
+            const default_light_theme = "light";
+            const default_dark_theme = "light";
+            window.path_to_searchindex_js = "../../searchindex-2643e100.js";
+        </script>
+        <!-- Start loading toc.js asap -->
+        <script src="../../toc-a71616d6.js"></script>
+        <!-- x2c publication metadata -->
+        <link rel="canonical" href="https://staging.x2c-lang.dev/docs/library/modules/var.html">
+        <meta property="og:type" content="website">
+        <meta property="og:title" content="lib/var.x - The x2c Book">
+        <meta property="og:description" content="The x2c language, standard library, and compiler.">
+        <meta property="og:url" content="https://staging.x2c-lang.dev/docs/library/modules/var.html">
+        <meta property="og:image" content="https://staging.x2c-lang.dev/x2c-social.png">
+        <meta property="og:image:width" content="1200">
+        <meta property="og:image:height" content="630">
+        <meta name="twitter:card" content="summary_large_image">
+        <meta name="twitter:title" content="lib/var.x - The x2c Book">
+        <meta name="twitter:description" content="The x2c language, standard library, and compiler.">
+        <meta name="twitter:image" content="https://staging.x2c-lang.dev/x2c-social.png">
+    </head>
+    <body><aside aria-label="Release candidate" style="padding:1rem;background:#fff1bf;color:#241c00;font:14px/1.5 monospace;overflow-wrap:anywhere"><strong>Public staging: candidate-c2a89d999e81f47a4422a26edf0033eb0b98c6c6-35470032964-1</strong><p>Source: c2a89d999e81f47a4422a26edf0033eb0b98c6c6. Use a fresh scratch installation and the explicit candidate index below. Bare x2c install commands and production URLs in the book refer to production.</p><pre style="overflow:auto">export X2C_PREFIX=&quot;$(mktemp -d)/x2c&quot;
+curl -fsSL https://staging.x2c-lang.dev/install.sh | sh
+export PATH=&quot;$X2C_PREFIX/bin:$PATH&quot;
+x2c run &quot;$X2C_PREFIX/examples/foreach.x&quot;
+x2c install pcre2 --index https://staging.x2c-lang.dev/packages/index.txt</pre></aside>
+    <div id="mdbook-help-container">
+        <div id="mdbook-help-popup">
+            <h2 class="mdbook-help-title">Keyboard shortcuts</h2>
+            <div>
+                <p>Press <kbd>←</kbd> or <kbd>→</kbd> to navigate between chapters</p>
+                <p>Press <kbd>S</kbd> or <kbd>/</kbd> to search in the book</p>
+                <p>Press <kbd>?</kbd> to show this help</p>
+                <p>Press <kbd>Esc</kbd> to hide this help</p>
+            </div>
+        </div>
+    </div>
+    <div id="mdbook-body-container">
+        <!-- Work around some values being stored in localStorage wrapped in quotes -->
+        <script>
+            try {
+                let theme = localStorage.getItem('mdbook-theme');
+                let sidebar = localStorage.getItem('mdbook-sidebar');
+
+                if (theme.startsWith('"') && theme.endsWith('"')) {
+                    localStorage.setItem('mdbook-theme', theme.slice(1, theme.length - 1));
+                }
+
+                if (sidebar.startsWith('"') && sidebar.endsWith('"')) {
+                    localStorage.setItem('mdbook-sidebar', sidebar.slice(1, sidebar.length - 1));
+                }
+            } catch (e) { }
+        </script>
+
+        <!-- Set the theme before any content is loaded, prevents flash -->
+        <script>
+            const default_theme = window.matchMedia("(prefers-color-scheme: dark)").matches ? default_dark_theme : default_light_theme;
+            let theme;
+            try { theme = localStorage.getItem('mdbook-theme'); } catch(e) { }
+            if (theme === null || theme === undefined) { theme = default_theme; }
+            const html = document.documentElement;
+            html.classList.remove('light')
+            html.classList.add(theme);
+            html.classList.add("js");
+        </script>
+
+        <input type="checkbox" id="mdbook-sidebar-toggle-anchor" class="hidden">
+
+        <!-- Hide / unhide sidebar before it is displayed -->
+        <script>
+            let sidebar = null;
+            const sidebar_toggle = document.getElementById("mdbook-sidebar-toggle-anchor");
+            if (document.body.clientWidth >= 1080) {
+                try { sidebar = localStorage.getItem('mdbook-sidebar'); } catch(e) { }
+                sidebar = sidebar || 'visible';
+            } else {
+                sidebar = 'hidden';
+                sidebar_toggle.checked = false;
+            }
+            if (sidebar === 'visible') {
+                sidebar_toggle.checked = true;
+            } else {
+                html.classList.remove('sidebar-visible');
+            }
+        </script>
+
+        <nav id="mdbook-sidebar" class="sidebar" aria-label="Table of contents">
+            <!-- populated by js -->
+            <mdbook-sidebar-scrollbox class="sidebar-scrollbox"></mdbook-sidebar-scrollbox>
+            <noscript>
+                <iframe class="sidebar-iframe-outer" src="../../toc.html"></iframe>
+            </noscript>
+            <div id="mdbook-sidebar-resize-handle" class="sidebar-resize-handle">
+                <div class="sidebar-resize-indicator"></div>
+            </div>
+        </nav>
+
+        <div id="mdbook-page-wrapper" class="page-wrapper">
+
+            <div class="page">
+                <div id="mdbook-menu-bar" class="hidden"></div>
+                <header class="landing-header x2c-header">
+                    <div class="landing-header-inner">
+                        <div class="landing-branding">
+                            <a class="landing-brand" href="../../../" aria-label="x2c home">
+                                <svg viewBox="0 0 100 100" width="22" height="22" aria-hidden="true"><g fill="none" stroke="#da291c" stroke-width="17" stroke-linecap="butt"><path d="M9 16 A34.5 34.5 0 0 1 9 84"></path><path d="M91 16 A34.5 34.5 0 0 0 91 84"></path></g></svg>
+                                <span class="x2c-wordmark landing-wordmark">x2c</span>
+                            </a>
+                            <span class="landing-tagline">The x2c Book</span>
+                        </div>
+                        <nav class="landing-nav" aria-label="x2c website">
+                            <div class="landing-page-nav">
+                                <a href="../../../#love">love</a>
+                                <a href="../../../#power">power</a>
+                                <a href="../../../#magic">magic</a>
+                            </div>
+                            <div class="landing-site-nav">
+                                <a href="../../../#install">install</a>
+                                <a href="../../../#packages">packages</a>
+                            </div>
+                            <div class="landing-reference-nav">
+                                <a href="../../../about/">about</a>
+                                <a href="../../" aria-current="page">docs</a>
+                                <a href="https://github.com/gwf/x2c">source</a>
+                            </div>
+                        </nav>
+                    </div>
+                    <div class="x2c-book-tools">
+                        <div class="x2c-header-tools">
+                            <label id="mdbook-sidebar-toggle" class="icon-button" for="mdbook-sidebar-toggle-anchor" title="Toggle Table of Contents" aria-label="Toggle Table of Contents" aria-controls="mdbook-sidebar">
+                                <span class=fa-svg><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc. --><path d="M0 96C0 78.3 14.3 64 32 64H416c17.7 0 32 14.3 32 32s-14.3 32-32 32H32C14.3 128 0 113.7 0 96zM0 256c0-17.7 14.3-32 32-32H416c17.7 0 32 14.3 32 32s-14.3 32-32 32H32c-17.7 0-32-14.3-32-32zM448 416c0 17.7-14.3 32-32 32H32c-17.7 0-32-14.3-32-32s14.3-32 32-32H416c17.7 0 32 14.3 32 32z"/></svg></span>
+                            </label>
+                        </div>
+                        <div class="x2c-header-tools x2c-header-tools-right">
+                            <button id="mdbook-search-toggle" class="icon-button" type="button" title="Search (`/`)" aria-label="Toggle Searchbar" aria-expanded="false" aria-keyshortcuts="/ s" aria-controls="mdbook-searchbar">
+                                <span class=fa-svg><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc. --><path d="M416 208c0 45.9-14.9 88.3-40 122.7L502.6 457.4c12.5 12.5 12.5 32.8 0 45.3s-32.8 12.5-45.3 0L330.7 376c-34.4 25.2-76.8 40-122.7 40C93.1 416 0 322.9 0 208S93.1 0 208 0S416 93.1 416 208zM208 352c79.5 0 144-64.5 144-144s-64.5-144-144-144S64 128.5 64 208s64.5 144 144 144z"/></svg></span>
+                            </button>
+                            <button id="mdbook-theme-toggle" class="icon-button" type="button" title="Change theme" aria-label="Change theme" aria-haspopup="true" aria-expanded="false" aria-controls="mdbook-theme-list">
+                                <span class=fa-svg><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc. --><path d="M448 256c0-106-86-192-192-192V448c106 0 192-86 192-192zm64 0c0 141.4-114.6 256-256 256S0 397.4 0 256S114.6 0 256 0S512 114.6 512 256z"/></svg></span>
+                            </button>
+                            <ul id="mdbook-theme-list" class="theme-popup" aria-label="Themes" role="menu">
+                                <li role="none"><button role="menuitem" class="theme" id="mdbook-theme-default_theme">Auto</button></li>
+                                <li role="none"><button role="menuitem" class="theme" id="mdbook-theme-light">Light</button></li>
+                                <li role="none"><button role="menuitem" class="theme" id="mdbook-theme-ayu">Dark</button></li>
+                            </ul>
+                            <a href="https://github.com/gwf/x2c/edit/main/docs/src/library/modules/var.md" title="Suggest an edit" aria-label="Suggest an edit" rel="edit" class="icon-button">
+                                <span class=fa-svg id="git-edit-button"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc. --><path d="M421.7 220.3l-11.3 11.3-22.6 22.6-205 205c-6.6 6.6-14.8 11.5-23.8 14.1L30.8 511c-8.4 2.5-17.5 .2-23.7-6.1S-1.5 489.7 1 481.2L38.7 353.1c2.6-9 7.5-17.2 14.1-23.8l205-205 22.6-22.6 11.3-11.3 33.9 33.9 62.1 62.1 33.9 33.9zM96 353.9l-9.3 9.3c-.9 .9-1.6 2.1-2 3.4l-25.3 86 86-25.3c1.3-.4 2.5-1.1 3.4-2l9.3-9.3H112c-8.8 0-16-7.2-16-16V353.9zM453.3 19.3l39.4 39.4c25 25 25 65.5 0 90.5l-14.5 14.5-22.6 22.6-11.3 11.3-33.9-33.9-62.1-62.1L314.3 67.7l11.3-11.3 22.6-22.6 14.5-14.5c25-25 65.5-25 90.5 0z"/></svg></span>
+                            </a>
+                        </div>
+                    </div>
+                </header>
+                <script>
+                    const bookHeader = document.querySelector('.x2c-header');
+                    new ResizeObserver(() => {
+                        document.documentElement.style.setProperty(
+                            '--menu-bar-height', `${bookHeader.getBoundingClientRect().height}px`);
+                    }).observe(bookHeader);
+                </script>
+
+                <div id="mdbook-search-wrapper" class="hidden">
+                    <form id="mdbook-searchbar-outer" class="searchbar-outer">
+                        <div class="search-wrapper">
+                            <input type="search" id="mdbook-searchbar" name="searchbar" placeholder="Search this book ..." aria-controls="mdbook-searchresults-outer" aria-describedby="searchresults-header">
+                            <div class="spinner-wrapper">
+                                <span class=fa-svg id="fa-spin"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc. --><path d="M304 48c0-26.5-21.5-48-48-48s-48 21.5-48 48s21.5 48 48 48s48-21.5 48-48zm0 416c0-26.5-21.5-48-48-48s-48 21.5-48 48s21.5 48 48 48s48-21.5 48-48zM48 304c26.5 0 48-21.5 48-48s-21.5-48-48-48s-48 21.5-48 48s21.5 48 48 48zm464-48c0-26.5-21.5-48-48-48s-48 21.5-48 48s21.5 48 48 48s48-21.5 48-48zM142.9 437c18.7-18.7 18.7-49.1 0-67.9s-49.1-18.7-67.9 0s-18.7 49.1 0 67.9s49.1 18.7 67.9 0zm0-294.2c18.7-18.7 18.7-49.1 0-67.9S93.7 56.2 75 75s-18.7 49.1 0 67.9s49.1 18.7 67.9 0zM369.1 437c18.7 18.7 49.1 18.7 67.9 0s18.7-49.1 0-67.9s-49.1-18.7-67.9 0s-18.7 49.1 0 67.9z"/></svg></span>
+                            </div>
+                        </div>
+                    </form>
+                    <div id="mdbook-searchresults-outer" class="searchresults-outer hidden">
+                        <div id="mdbook-searchresults-header" class="searchresults-header"></div>
+                        <ul id="mdbook-searchresults">
+                        </ul>
+                    </div>
+                </div>
+
+                <!-- Apply ARIA attributes after the sidebar and the sidebar toggle button are added to the DOM -->
+                <script>
+                    document.getElementById('mdbook-sidebar-toggle').setAttribute('aria-expanded', sidebar === 'visible');
+                    document.getElementById('mdbook-sidebar').setAttribute('aria-hidden', sidebar !== 'visible');
+                    Array.from(document.querySelectorAll('#mdbook-sidebar a')).forEach(function(link) {
+                        link.setAttribute('tabIndex', sidebar === 'visible' ? 0 : -1);
+                    });
+                </script>
+
+                <div id="mdbook-content" class="content">
+                    <main>
+                        <!-- Generated by `python3 tools/gen-api-reference.py --write` from
+     lib/*.x and the stage interfaces. Do not edit by hand. -->
+<h1 id="libvarx"><a class="header" href="#libvarx"><code>lib/var.x</code></a></h1>
+<p>Variant type for dynamic typing.</p>
+<h2 id="primary-api"><a class="header" href="#primary-api">Primary API</a></h2>
+<div class="table-wrapper">
+<table>
+<thead>
+<tr><th>Function</th><th>Summary</th></tr>
+</thead>
+<tbody>
+<tr><td><a href="#x2c_var_descriptor_index"><code>x2c_var_descriptor_index</code></a></td><td>Returns <code>value</code>’s dense built-in descriptor row, or <code>-1</code> when it has none.</td></tr>
+<tr><td><a href="#x2c_var_tag_descriptor_index"><code>x2c_var_tag_descriptor_index</code></a></td><td>Returns a built-in object or <code>Symbol</code> tag’s descriptor row, or <code>-1</code>.</td></tr>
+<tr><td><a href="#Var.is"><code>Var.is</code></a></td><td>Reports whether <code>value</code> has the requested runtime tag.</td></tr>
+<tr><td><a href="#Var.is_floating"><code>Var.is_floating</code></a></td><td>Reports whether <code>v</code> belongs to the floating runtime family.</td></tr>
+<tr><td><a href="#Var.is_integer"><code>Var.is_integer</code></a></td><td>Reports whether <code>v</code> belongs to the integer runtime family.</td></tr>
+<tr><td><a href="#Var.is_nil"><code>Var.is_nil</code></a></td><td>Reports whether <code>v</code> is the typed empty <code>List</code>.</td></tr>
+<tr><td><a href="#Var.is_null"><code>Var.is_null</code></a></td><td>Reports whether <code>v</code> is the all-zero <code>Null</code> value.</td></tr>
+<tr><td><a href="#Var.is_object"><code>Var.is_object</code></a></td><td>Reports whether <code>v</code> holds a registered boxed object.</td></tr>
+<tr><td><a href="#Var.is_pointer"><code>Var.is_pointer</code></a></td><td>Reports whether <code>v</code> holds a native pointer.</td></tr>
+<tr><td><a href="#Var.is_reference"><code>Var.is_reference</code></a></td><td>Reports whether <code>v</code> holds a pointer to a boxed handle.</td></tr>
+<tr><td><a href="#Var.is_void"><code>Var.is_void</code></a></td><td>Reports whether <code>v</code> is the absence sentinel <code>void</code>.</td></tr>
+<tr><td><a href="#Var.new"><code>Var.new</code></a></td><td>Constructs a <code>Var</code> with <code>tag</code> from its tag-directed variadic payload.</td></tr>
+<tr><td><a href="#Var.null"><code>Var.null</code></a></td><td>Returns <code>Null</code>, the all-zero <code>Var</code> that stands for external <code>nil</code>.</td></tr>
+</tbody>
+</table>
+</div>
+<h3 id="functions"><a class="header" href="#functions">Functions</a></h3>
+<h4 id="x2c_var_descriptor_index"><a class="header" href="#x2c_var_descriptor_index">x2c_var_descriptor_index</a></h4>
+<p><code>int x2c_var_descriptor_index(Var value)</code></p>
+<p>Returns <code>value</code>’s dense built-in descriptor row, or <code>-1</code> when it has none.
+The row is the tag’s offset from <code>&lt;array&gt;</code> and includes the <code>Symbol</code> row.
+Numbers, pointers, references, custom tags, and invalid encodings have no
+built-in row.</p>
+<p>Source: <code>lib/var.x:209</code></p>
+<h4 id="x2c_var_tag_descriptor_index"><a class="header" href="#x2c_var_tag_descriptor_index">x2c_var_tag_descriptor_index</a></h4>
+<p><code>int x2c_var_tag_descriptor_index(Symbol tag)</code></p>
+<p>Returns a built-in object or <code>Symbol</code> tag’s descriptor row, or <code>-1</code>.</p>
+<p>Source: <code>lib/var.x:222</code></p>
+<h3 id="var"><a class="header" href="#var"><code>Var</code></a></h3>
+<p><a id="Var.is"></a></p>
+<h4 id="varis"><a class="header" href="#varis">Var.is</a></h4>
+<p><code>int Var.is(Var var, Symbol tag)</code></p>
+<p>Reports whether <code>value</code> has the requested runtime tag.
+This tests one family. A <code>Var</code> holding an <code>unsigned char</code> answers 0 for
+<code>&lt;i32&gt;</code> even though both are integers. When any integer will do, ask
+<code>Var.is_integer</code>, or compare <code>Var.kind</code>.
+As with <code>Var.tag</code>, validate externally constructed bits first: an invalid
+encoding uses the <code>&lt;f64&gt;</code> fallback.</p>
+<p>Source: <code>lib/var.x:296</code></p>
+<p><a id="Var.is_floating"></a></p>
+<h4 id="varis_floating"><a class="header" href="#varis_floating">Var.is_floating</a></h4>
+<p><code>int Var.is_floating(Var v)</code></p>
+<p>Reports whether <code>v</code> belongs to the floating runtime family.
+True for <code>&lt;f32&gt;</code>, <code>&lt;f64&gt;</code>, and <code>&lt;ldouble&gt;</code>, and for the discrete <code>&lt;nan&gt;</code>,
+<code>&lt;+inf&gt;</code>, and <code>&lt;-inf&gt;</code> values. Read the payload with <code>Var.floating</code>, or
+with <code>Var.long_double_value</code> when the tag is <code>&lt;ldouble&gt;</code> and the extra
+precision matters.</p>
+<p>Source: <code>lib/var.x:321</code></p>
+<p><a id="Var.is_integer"></a></p>
+<h4 id="varis_integer"><a class="header" href="#varis_integer">Var.is_integer</a></h4>
+<p><code>int Var.is_integer(Var v)</code></p>
+<p>Reports whether <code>v</code> belongs to the integer runtime family.
+True for every signed and unsigned integer family from <code>&lt;u8&gt;</code> through
+<code>&lt;ullong&gt;</code>, including the scope-owned wide boxes. <code>Symbol</code>s are a kind of
+their own and answer 0 here, even though <code>Var.integer</code> returns a <code>Symbol</code>’s
+numeric value.</p>
+<p>Source: <code>lib/var.x:329</code></p>
+<p><a id="Var.is_nil"></a></p>
+<h4 id="varis_nil"><a class="header" href="#varis_nil">Var.is_nil</a></h4>
+<p><code>int Var.is_nil(Var v)</code></p>
+<p>Reports whether <code>v</code> is the typed empty <code>List</code>.
+The empty <code>List</code> is a native null pointer carrying the <code>&lt;list&gt;</code> tag.
+<code>Var.is_null</code> answers 0 and <code>Var.tag</code> answers <code>&lt;list&gt;</code>. Every <code>%()</code> and
+every exhausted <code>List.cdr</code> yields this one value, so an identity test on
+the bits is a valid emptiness test.</p>
+<p>Source: <code>lib/var.x:393</code></p>
+<p><a id="Var.is_null"></a></p>
+<h4 id="varis_null"><a class="header" href="#varis_null">Var.is_null</a></h4>
+<p><code>int Var.is_null(Var v)</code></p>
+<p>Reports whether <code>v</code> is the all-zero <code>Null</code> value.
+<code>Null</code> is a value: the null pointer and the external <code>nil</code>. It is legal
+collection data, iterating a <code>List</code> can return it, and it is false in a
+condition. Its tag decodes as <code>&lt;p48&gt;</code>, so there is no
+dedicated null family for <code>Var.is</code> to match.</p>
+<p>Write <code>Null</code> as <code>(Var) { .u64 = 0 }</code>. An unresolved C <code>NULL</code> macro also
+converts to this value when its <span class="x2c-wordmark">x2c</span> target is <code>Var</code>.</p>
+<p>Source: <code>lib/var.x:376</code></p>
+<p><a id="Var.is_object"></a></p>
+<h4 id="varis_object"><a class="header" href="#varis_object">Var.is_object</a></h4>
+<p><code>int Var.is_object(Var v)</code></p>
+<p>Reports whether <code>v</code> holds a registered boxed object.
+True for the builtin classes such as <code>String</code>, <code>List</code>, <code>Array</code>, <code>Map</code>,
+<code>File</code>, and <code>Iter</code>, and for any tag registered with
+<code>Var.register_object_tag</code>. A
+pointer to a handle, such as <code>&lt;string*&gt;</code>, is <code>&lt;reference&gt;</code> instead and
+answers 0 here.</p>
+<p>Source: <code>lib/var.x:343</code></p>
+<p><a id="Var.is_pointer"></a></p>
+<h4 id="varis_pointer"><a class="header" href="#varis_pointer">Var.is_pointer</a></h4>
+<p><code>int Var.is_pointer(Var v)</code></p>
+<p>Reports whether <code>v</code> holds a native pointer.</p>
+<p>Source: <code>lib/var.x:332</code></p>
+<p><a id="Var.is_reference"></a></p>
+<h4 id="varis_reference"><a class="header" href="#varis_reference">Var.is_reference</a></h4>
+<p><code>int Var.is_reference(Var v)</code></p>
+<p>Reports whether <code>v</code> holds a pointer to a boxed handle.</p>
+<p>Source: <code>lib/var.x:334</code></p>
+<p><a id="Var.is_void"></a></p>
+<h4 id="varis_void"><a class="header" href="#varis_void">Var.is_void</a></h4>
+<p><code>int Var.is_void(Var v)</code></p>
+<p>Reports whether <code>v</code> is the absence sentinel <code>void</code>.
+An API returns <code>void</code> to say there is nothing here. It is excluded from
+every collection and iterator value domain: it cannot be pushed into an
+<code>Array</code> or stored in a <code>Map</code>. Equality and identity still inspect it. Two
+sentinels compare equal and identical, while one sentinel and one
+ordinary value compare unequal. Truthiness, hashing, ordering, conversion,
+and iteration on <code>void</code> raise to a matching catch or terminate.</p>
+<p><code>Null</code> is the all-zero <code>Var</code>: legal collection data and false in a
+condition. A <code>void</code> result may mean missing, exhausted, or invalid;
+each API documents its meaning.</p>
+<pre class="shiki shiki-themes x2c-light x2c-dark x2c-code" style="--shiki-light:#24292e;--shiki-dark:#e9e5df;--shiki-light-bg:#fff;--shiki-dark-bg:#101011" tabindex="0"><code class="language-x2c no-highlight"><span class="line boring"><span style="--shiki-light:#007C8A;--shiki-dark:#29D3E2">Var</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF"> raw </span><span style="--shiki-light:#D73A49;--shiki-dark:#E9E5DF">=</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF"> (</span><span style="--shiki-light:#007C8A;--shiki-dark:#29D3E2">Var</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">) { .u64 </span><span style="--shiki-light:#D73A49;--shiki-dark:#E9E5DF">=</span><span style="--shiki-light:#005CC5;--shiki-dark:#A9C9F5"> 0</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF"> };</span>
+</span><span class="line"><span style="--shiki-light:#6F42C1;--shiki-dark:#E9E5DF">printf</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">(</span><span style="--shiki-light:#032F62;--shiki-dark:#9EDFB8">"null: void=</span><span style="--shiki-light:#005CC5;--shiki-dark:#9EDFB8">%d</span><span style="--shiki-light:#032F62;--shiki-dark:#9EDFB8"> null=</span><span style="--shiki-light:#005CC5;--shiki-dark:#9EDFB8">%d\n</span><span style="--shiki-light:#032F62;--shiki-dark:#9EDFB8">"</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">, raw </span><span style="--shiki-light:#A626A4;--shiki-light-font-weight:bold;--shiki-dark:#FF4FD8;--shiki-dark-font-weight:bold">is</span><span style="--shiki-light:#005CC5;--shiki-dark:#E9E5DF"> void</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">, raw.</span><span style="--shiki-light:#6F42C1;--shiki-dark:#E9E5DF">is_null</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">());</span>
+</span><span class="line"><span style="--shiki-light:#6F42C1;--shiki-dark:#E9E5DF">printf</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">(</span><span style="--shiki-light:#032F62;--shiki-dark:#9EDFB8">"void: void=</span><span style="--shiki-light:#005CC5;--shiki-dark:#9EDFB8">%d</span><span style="--shiki-light:#032F62;--shiki-dark:#9EDFB8"> null=</span><span style="--shiki-light:#005CC5;--shiki-dark:#9EDFB8">%d\n</span><span style="--shiki-light:#032F62;--shiki-dark:#9EDFB8">"</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">, </span><span style="--shiki-light:#D73A49;--shiki-dark:#F0ADA1">void</span><span style="--shiki-light:#A626A4;--shiki-light-font-weight:bold;--shiki-dark:#FF4FD8;--shiki-dark-font-weight:bold"> is</span><span style="--shiki-light:#005CC5;--shiki-dark:#E9E5DF"> void</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">, </span><span style="--shiki-light:#D73A49;--shiki-dark:#F0ADA1">void</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">.</span><span style="--shiki-light:#6F42C1;--shiki-dark:#E9E5DF">is_null</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">());</span></span></code></pre>
+
+<p>This is the test that accepts a <code>void</code> argument.</p>
+<p>Source: <code>lib/var.x:365</code></p>
+<p><a id="Var.new"></a></p>
+<h4 id="varnew"><a class="header" href="#varnew">Var.new</a></h4>
+<p><code>Var Var.new(Symbol tag, ...)</code></p>
+<p>Constructs a <code>Var</code> with <code>tag</code> from its tag-directed variadic payload.
+The tag chooses how the argument is read, so pass exactly the C type the
+tag names: an <code>int</code> for <code>&lt;i32&gt;</code>, an <code>unsigned long</code> for <code>&lt;u48&gt;</code>, a
+<code>double</code> for <code>&lt;f64&gt;</code>, a <code>long double</code> for <code>&lt;ldouble&gt;</code>, a pointer for any
+pointer, reference, or object family, and a <code>Symbol</code>’s numeric value for
+<code>&lt;symbol&gt;</code>. <code>&lt;void&gt;</code> consumes no payload. Variadic arguments are not
+converted for you. Assignment, <code>Var boxed = 42;</code>, is the usual way to box
+a value. Use this constructor when the tag is computed at run time.</p>
+<p>Immediate values are stored inline. Wide numeric tags allocate a box in the
+active <code>Scope</code>. Pointer, reference, and object tags borrow the address and
+encode only its low 48 bits; they do not take ownership, and the address
+must satisfy the alignment implied by the tag. A tag previously registered
+with <code>Var.register_object_tag</code> is accepted too and requires an 8-byte-
+aligned pointer.</p>
+<p><strong>Raises:</strong> <code>&lt;bad-target&gt;</code> when <code>tag</code> is neither known nor registered,
+<code>&lt;conv-range&gt;</code> when a scalar does not fit the tag’s payload width,
+<code>&lt;bad-arg&gt;</code> when an <code>&lt;array&gt;</code> or <code>&lt;map&gt;</code> pointer is null, <code>&lt;alloc-fail&gt;</code>
+when a wide box cannot be allocated, and <code>&lt;bad-enc&gt;</code> when a box address
+cannot be represented or a custom object pointer is not 8-byte
+aligned.</p>
+<p>Source: <code>lib/var.x:649</code></p>
+<p><a id="Var.null"></a></p>
+<h4 id="varnull"><a class="header" href="#varnull">Var.null</a></h4>
+<p><code>Var Var.null(void)</code></p>
+<p>Returns <code>Null</code>, the all-zero <code>Var</code> that stands for external <code>nil</code>.
+Generated call adapters return it for a <code>void</code> target.</p>
+<p>Source: <code>lib/var.x:381</code></p>
+<h2 id="advanced-and-interop-api"><a class="header" href="#advanced-and-interop-api">Advanced and interop API</a></h2>
+<div class="table-wrapper">
+<table>
+<thead>
+<tr><th>Function</th><th>Summary</th></tr>
+</thead>
+<tbody>
+<tr><td><a href="#Var.box_long"><code>Var.box_long</code></a></td><td>Boxes a <code>long</code> into a scope-owned <code>&lt;long&gt;</code> value.</td></tr>
+<tr><td><a href="#Var.box_long_double"><code>Var.box_long_double</code></a></td><td>Boxes a <code>long double</code> into a scope-owned <code>&lt;ldouble&gt;</code> value.</td></tr>
+<tr><td><a href="#Var.box_long_long"><code>Var.box_long_long</code></a></td><td>Boxes a native signed long-long value without losing precision.</td></tr>
+<tr><td><a href="#Var.box_ulong"><code>Var.box_ulong</code></a></td><td>Boxes an <code>unsigned long</code> into a scope-owned <code>&lt;ulong&gt;</code> value.</td></tr>
+<tr><td><a href="#Var.box_ulong_long"><code>Var.box_ulong_long</code></a></td><td>Boxes a native unsigned long-long value without losing precision.</td></tr>
+<tr><td><a href="#Var.encoding_valid"><code>Var.encoding_valid</code></a></td><td>Reports whether <code>value</code> has a valid structural <code>Var</code> encoding.</td></tr>
+<tr><td><a href="#Var.floating"><code>Var.floating</code></a></td><td>Returns <code>v</code>’s payload as a <code>double</code> when its tag is floating, or 0.0.</td></tr>
+<tr><td><a href="#Var.integer"><code>Var.integer</code></a></td><td>Returns <code>v</code>’s payload as a <code>long</code> when its tag is integral, or 0.</td></tr>
+<tr><td><a href="#Var.integer_compare"><code>Var.integer_compare</code></a></td><td>Orders the integer payloads of <code>a</code> and <code>b</code>, returning -1, 0, or 1.</td></tr>
+<tr><td><a href="#Var.integer_floating_compare"><code>Var.integer_floating_compare</code></a></td><td>Orders an integer-kinded <code>integer</code> against a floating <code>floating</code>.</td></tr>
+<tr><td><a href="#Var.kind"><code>Var.kind</code></a></td><td>Returns the <code>Symbol</code> naming the coarse category of <code>v</code>’s payload.</td></tr>
+<tr><td><a href="#Var.known_tag"><code>Var.known_tag</code></a></td><td>Reports whether <code>tag</code> has a built-in encoding or registered custom row.</td></tr>
+<tr><td><a href="#Var.long_double_value"><code>Var.long_double_value</code></a></td><td>Returns the payload of an <code>&lt;ldouble&gt;</code> box, or 0.0 if <code>v</code> has another tag.</td></tr>
+<tr><td><a href="#Var.long_long_value"><code>Var.long_long_value</code></a></td><td>Returns an <code>&lt;llong&gt;</code> box’s signed payload, or 0 for another tag.</td></tr>
+<tr><td><a href="#Var.long_value"><code>Var.long_value</code></a></td><td>Returns the payload of a <code>&lt;long&gt;</code> box, or 0 if <code>v</code> has a different tag.</td></tr>
+<tr><td><a href="#Var.parse"><code>Var.parse</code></a></td><td>Parses <code>str</code> as source text of kind <code>kind</code> and returns the boxed value.</td></tr>
+<tr><td><a href="#Var.pointer"><code>Var.pointer</code></a></td><td>Returns the raw address stored in <code>v</code>, or NULL if it holds no address.</td></tr>
+<tr><td><a href="#Var.register_object_tag"><code>Var.register_object_tag</code></a></td><td>Reserves or returns a process-lifetime row for custom boxed-object <code>tag</code>.</td></tr>
+<tr><td><a href="#Var.tag"><code>Var.tag</code></a></td><td>Returns the <code>Symbol</code> naming the exact family of <code>v</code>’s payload.</td></tr>
+<tr><td><a href="#Var.ulong_long_value"><code>Var.ulong_long_value</code></a></td><td>Returns a <code>&lt;ullong&gt;</code> box’s unsigned payload, or 0 for another tag.</td></tr>
+<tr><td><a href="#Var.ulong_value"><code>Var.ulong_value</code></a></td><td>Returns the payload of a <code>&lt;ulong&gt;</code> box, or 0 if <code>v</code> has a different tag.</td></tr>
+<tr><td><a href="#Var.wide_compare"><code>Var.wide_compare</code></a></td><td>Orders two wide boxes carrying the same tag, returning -1, 0, or 1.</td></tr>
+<tr><td><a href="#Var.wide_equal"><code>Var.wide_equal</code></a></td><td>Reports content equality for supported wide scalar boxes.</td></tr>
+<tr><td><a href="#Var.wide_hash"><code>Var.wide_hash</code></a></td><td>Returns a supported wide scalar box’s content hash, or 0 otherwise.</td></tr>
+</tbody>
+</table>
+</div>
+<h3 id="var-1"><a class="header" href="#var-1"><code>Var</code></a></h3>
+<p><a id="Var.box_long"></a></p>
+<h4 id="varbox_long"><a class="header" href="#varbox_long">Var.box_long</a></h4>
+<p><code>Var Var.box_long(long value)</code></p>
+<p>Boxes a <code>long</code> into a scope-owned <code>&lt;long&gt;</code> value.
+A <code>Var</code> is eight bytes, and the tag consumes some of them. The five widest
+native families, <code>long</code>, <code>unsigned long</code>, <code>long long</code>, <code>unsigned long long</code>, and <code>long double</code>, cannot be stored inline. Boxing one allocates a
+small immutable box in the active scope, and the result lives for that
+scope’s lifetime like any other scope allocation.</p>
+<p>Two boxes of the same number are equal but not identical. On <code>Var</code>
+operands <code>==</code> is <code>Var.equal</code>, which compares payloads, while <code>===</code> is
+<code>Var.same</code>, which compares the 64 bits and therefore the box addresses.</p>
+<pre class="shiki shiki-themes x2c-light x2c-dark x2c-code" style="--shiki-light:#24292e;--shiki-dark:#e9e5df;--shiki-light-bg:#fff;--shiki-dark-bg:#101011" tabindex="0"><code class="language-x2c no-highlight"><span class="line boring"><span style="--shiki-light:#007C8A;--shiki-dark:#29D3E2">Var</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF"> five </span><span style="--shiki-light:#D73A49;--shiki-dark:#E9E5DF">=</span><span style="--shiki-light:#007C8A;--shiki-dark:#29D3E2"> Var</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">.</span><span style="--shiki-light:#6F42C1;--shiki-dark:#E9E5DF">box_long</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">(</span><span style="--shiki-light:#005CC5;--shiki-dark:#A9C9F5">5</span><span style="--shiki-light:#D73A49;--shiki-dark:#E9E5DF">L</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">);</span>
+</span><span class="line boring"><span style="--shiki-light:#007C8A;--shiki-dark:#29D3E2">Var</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF"> also </span><span style="--shiki-light:#D73A49;--shiki-dark:#E9E5DF">=</span><span style="--shiki-light:#007C8A;--shiki-dark:#29D3E2"> Var</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">.</span><span style="--shiki-light:#6F42C1;--shiki-dark:#E9E5DF">box_long</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">(</span><span style="--shiki-light:#005CC5;--shiki-dark:#A9C9F5">5</span><span style="--shiki-light:#D73A49;--shiki-dark:#E9E5DF">L</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">);</span>
+</span><span class="line"><span style="--shiki-light:#6F42C1;--shiki-dark:#E9E5DF">printf</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">(</span><span style="--shiki-light:#032F62;--shiki-dark:#9EDFB8">"equal=</span><span style="--shiki-light:#005CC5;--shiki-dark:#9EDFB8">%d</span><span style="--shiki-light:#032F62;--shiki-dark:#9EDFB8"> same=</span><span style="--shiki-light:#005CC5;--shiki-dark:#9EDFB8">%d</span><span style="--shiki-light:#032F62;--shiki-dark:#9EDFB8"> tag=</span><span style="--shiki-light:#005CC5;--shiki-dark:#9EDFB8">%s\n</span><span style="--shiki-light:#032F62;--shiki-dark:#9EDFB8">"</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">, five </span><span style="--shiki-light:#D73A49;--shiki-dark:#E9E5DF">==</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF"> also, five </span><span style="--shiki-light:#D73A49;--shiki-dark:#E9E5DF">===</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF"> also,</span>
+</span><span class="line"><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">       five.</span><span style="--shiki-light:#6F42C1;--shiki-dark:#E9E5DF">tag</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">().</span><span style="--shiki-light:#6F42C1;--shiki-dark:#E9E5DF">str</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">());</span></span></code></pre>
+
+<p><strong>Raises:</strong> <code>&lt;alloc-fail&gt;</code> when the box cannot be allocated and <code>&lt;bad-enc&gt;</code>
+when its address cannot be represented in a <code>Var</code>. Before <code>Error</code>
+initialization, allocation failure uses the raw fatal floor.</p>
+<p>Source: <code>lib/var.x:478</code></p>
+<p><a id="Var.box_long_double"></a></p>
+<h4 id="varbox_long_double"><a class="header" href="#varbox_long_double">Var.box_long_double</a></h4>
+<p><code>Var Var.box_long_double(long double value)</code></p>
+<p>Boxes a <code>long double</code> into a scope-owned <code>&lt;ldouble&gt;</code> value.
+This is the only family that keeps a full <code>long double</code> payload. The tag
+names that C family; it does not promise a bit width. <code>Var.floating</code>
+narrows the value to <code>double</code>; <code>Var.long_double_value</code> preserves the
+extra precision.</p>
+<p><strong>Raises:</strong> <code>&lt;alloc-fail&gt;</code> when the box cannot be allocated and <code>&lt;bad-enc&gt;</code>
+when its address cannot be represented in a <code>Var</code>. Before <code>Error</code>
+initialization, allocation failure uses the raw fatal floor.</p>
+<p>Source: <code>lib/var.x:530</code></p>
+<p><a id="Var.box_long_long"></a></p>
+<h4 id="varbox_long_long"><a class="header" href="#varbox_long_long">Var.box_long_long</a></h4>
+<p><code>Var Var.box_long_long(long long value)</code></p>
+<p>Boxes a native signed long-long value without losing precision.</p>
+<p><strong>Raises:</strong> <code>&lt;alloc-fail&gt;</code> when the box cannot be allocated and <code>&lt;bad-enc&gt;</code>
+when its address cannot be represented in a <code>Var</code>. Before <code>Error</code>
+initialization, allocation failure uses the raw fatal floor.</p>
+<p>Source: <code>lib/var.x:504</code></p>
+<p><a id="Var.box_ulong"></a></p>
+<h4 id="varbox_ulong"><a class="header" href="#varbox_ulong">Var.box_ulong</a></h4>
+<p><code>Var Var.box_ulong(unsigned long value)</code></p>
+<p>Boxes an <code>unsigned long</code> into a scope-owned <code>&lt;ulong&gt;</code> value.
+<code>&lt;ulong&gt;</code> is a distinct family from <code>&lt;long&gt;</code>, so a box made here never
+compares equal to one made by <code>Var.box_long</code> even when both hold the same
+bit pattern; <code>Var.wide_equal</code> requires matching tags. Read it back with
+<code>Var.ulong_value</code>, the one reader that returns the payload unsigned.</p>
+<p><strong>Raises:</strong> <code>&lt;alloc-fail&gt;</code> when the box cannot be allocated and <code>&lt;bad-enc&gt;</code>
+when its address cannot be represented in a <code>Var</code>. Before <code>Error</code>
+initialization, allocation failure uses the raw fatal floor.</p>
+<p>Source: <code>lib/var.x:493</code></p>
+<p><a id="Var.box_ulong_long"></a></p>
+<h4 id="varbox_ulong_long"><a class="header" href="#varbox_ulong_long">Var.box_ulong_long</a></h4>
+<p><code>Var Var.box_ulong_long(unsigned long long value)</code></p>
+<p>Boxes a native unsigned long-long value without losing precision.</p>
+<p><strong>Raises:</strong> <code>&lt;alloc-fail&gt;</code> when the box cannot be allocated and <code>&lt;bad-enc&gt;</code>
+when its address cannot be represented in a <code>Var</code>. Before <code>Error</code>
+initialization, allocation failure uses the raw fatal floor.</p>
+<p>Source: <code>lib/var.x:515</code></p>
+<p><a id="Var.encoding_valid"></a></p>
+<h4 id="varencoding_valid"><a class="header" href="#varencoding_valid">Var.encoding_valid</a></h4>
+<p><code>int Var.encoding_valid(Var value)</code></p>
+<p>Reports whether <code>value</code> has a valid structural <code>Var</code> encoding.
+An address-bearing encoding must still refer to live storage of the right
+type; wide encodings in particular require a readable <code>Scope</code>-owned box.</p>
+<p>Source: <code>lib/var.x:231</code></p>
+<p><a id="Var.floating"></a></p>
+<h4 id="varfloating"><a class="header" href="#varfloating">Var.floating</a></h4>
+<p><code>double Var.floating(Var v)</code></p>
+<p>Returns <code>v</code>’s payload as a <code>double</code> when its tag is floating, or 0.0.
+Handles <code>&lt;f32&gt;</code>, <code>&lt;f64&gt;</code>, and <code>&lt;ldouble&gt;</code>, and reconstructs NaN,
+<code>+Inf</code>, and <code>-Inf</code> from their discrete tags. An <code>&lt;ldouble&gt;</code> payload is
+narrowed to <code>double</code>; call <code>Var.long_double_value</code> to keep the full
+precision.</p>
+<p>Like the other raw payload readers this one is silent. An integer, a
+<code>String</code>, or <code>void</code> reads as 0.0, and nothing distinguishes that from a
+stored zero. When the tag is not already known, convert with
+<code>Var.convert</code> in <code>lib/varconvert.x</code>, which raises a conversion failure;
+the scalar-named readers such as <code>Var.double</code> do this for you.</p>
+<p>An unhandled tag yields 0.0.</p>
+<p>Source: <code>lib/var.x:714</code></p>
+<p><a id="Var.integer"></a></p>
+<h4 id="varinteger"><a class="header" href="#varinteger">Var.integer</a></h4>
+<p><code>long Var.integer(Var v)</code></p>
+<p>Returns <code>v</code>’s payload as a <code>long</code> when its tag is integral, or 0.
+This reads the payload; it does not convert. It decodes every integer
+family, from <code>&lt;u8&gt;</code> through <code>&lt;ullong&gt;</code>, including the scope-owned boxes,
+and returns 0 for a tag it does not handle. A <code>double</code> reads as 0, and so
+does a <code>String</code>; nothing reports the mismatch. A <code>&lt;ullong&gt;</code> or <code>&lt;llong&gt;</code>
+payload is truncated to <code>long</code>, and a <code>&lt;ulong&gt;</code> above <code>LONG_MAX</code> comes back
+negative. <code>Var.ulong_value</code> preserves the unsigned payload. A
+<code>Symbol</code> reads as its numeric <code>Symbol</code> value.</p>
+<p>When the tag might not be what you expect, convert instead of reading.
+<code>Var.convert</code> in <code>lib/varconvert.x</code> raises a conversion failure.
+Assigning a <code>Var</code> to an <code>int</code> or a <code>long</code>, and the scalar-named readers
+such as <code>Var.int</code>, go through <code>Var.convert</code> too.</p>
+<pre class="shiki shiki-themes x2c-light x2c-dark x2c-code" style="--shiki-light:#24292e;--shiki-dark:#e9e5df;--shiki-light-bg:#fff;--shiki-dark-bg:#101011" tabindex="0"><code class="language-x2c no-highlight"><span class="line boring"><span style="--shiki-light:#007C8A;--shiki-dark:#29D3E2">Var</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF"> text </span><span style="--shiki-light:#D73A49;--shiki-dark:#E9E5DF">=</span><span style="--shiki-light:#032F62;--shiki-dark:#9EDFB8"> "ada"</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">;</span>
+</span><span class="line boring"><span style="--shiki-light:#007C8A;--shiki-dark:#29D3E2">Var</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF"> small </span><span style="--shiki-light:#D73A49;--shiki-dark:#E9E5DF">=</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF"> (</span><span style="--shiki-light:#D73A49;--shiki-dark:#F0ADA1">unsigned</span><span style="--shiki-light:#D73A49;--shiki-dark:#F0ADA1"> char</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">) </span><span style="--shiki-light:#005CC5;--shiki-dark:#A9C9F5">44</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">;</span>
+</span><span class="line"><span style="--shiki-light:#6F42C1;--shiki-dark:#E9E5DF">printf</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">(</span><span style="--shiki-light:#032F62;--shiki-dark:#9EDFB8">"small=</span><span style="--shiki-light:#005CC5;--shiki-dark:#9EDFB8">%ld</span><span style="--shiki-light:#032F62;--shiki-dark:#9EDFB8"> text=</span><span style="--shiki-light:#005CC5;--shiki-dark:#9EDFB8">%ld\n</span><span style="--shiki-light:#032F62;--shiki-dark:#9EDFB8">"</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">, small.</span><span style="--shiki-light:#6F42C1;--shiki-dark:#E9E5DF">integer</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">(), text.</span><span style="--shiki-light:#6F42C1;--shiki-dark:#E9E5DF">integer</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">());</span></span></code></pre>
+
+<p>An unhandled tag yields 0.</p>
+<p>Source: <code>lib/var.x:759</code></p>
+<p><a id="Var.integer_compare"></a></p>
+<h4 id="varinteger_compare"><a class="header" href="#varinteger_compare">Var.integer_compare</a></h4>
+<p><code>int Var.integer_compare(Var a, Var b)</code></p>
+<p>Orders the integer payloads of <code>a</code> and <code>b</code>, returning -1, 0, or 1.
+Each value is decomposed into a sign and an unsigned magnitude first, so
+the whole integer range orders correctly, including a <code>&lt;ullong&gt;</code> above
+<code>LONG_MAX</code> against a negative <code>&lt;long&gt;</code>. Subtracting in a fixed-width
+integer type could overflow.</p>
+<p>Both arguments are assumed to be integer-kinded. Another value is decoded
+by <code>Var.integer</code>, which reads it as 0. Confirm with <code>Var.is_integer</code> when
+the kinds are not known.</p>
+<p>Source: <code>lib/var.x:939</code></p>
+<p><a id="Var.integer_floating_compare"></a></p>
+<h4 id="varinteger_floating_compare"><a class="header" href="#varinteger_floating_compare">Var.integer_floating_compare</a></h4>
+<p><code>int Var.integer_floating_compare(Var integer, Var floating)</code></p>
+<p>Orders an integer-kinded <code>integer</code> against a floating <code>floating</code>.
+Returns -1, 0, or 1 for less, equal, and greater. The integer is never
+converted to floating point, so a large <code>&lt;ullong&gt;</code> and a nearby <code>double</code>
+order by their true values. A floating value with a fractional part is
+never equal to an integer.</p>
+<p><code>+Inf</code> is greater than every integer and <code>-Inf</code> is less than every
+integer. NaN is not ordered and reports -1. Test the tag for <code>&lt;nan&gt;</code>
+first if that distinction matters.</p>
+<p>Source: <code>lib/var.x:967</code></p>
+<p><a id="Var.kind"></a></p>
+<h4 id="varkind"><a class="header" href="#varkind">Var.kind</a></h4>
+<p><code>Symbol Var.kind(Var v)</code></p>
+<p>Returns the <code>Symbol</code> naming the coarse category of <code>v</code>’s payload.
+The categories are <code>&lt;integer&gt;</code>, <code>&lt;floating&gt;</code>, <code>&lt;symbol&gt;</code>, <code>&lt;object&gt;</code>,
+<code>&lt;pointer&gt;</code>, <code>&lt;reference&gt;</code>, and <code>&lt;void&gt;</code>, and every tag belongs to exactly
+one. Use kind when a group of families is treated alike. All twelve
+integer widths answer <code>&lt;integer&gt;</code>, and every builtin class handle such as
+<code>String</code>, <code>List</code>, <code>Map</code>, and <code>File</code> answers <code>&lt;object&gt;</code>.</p>
+<p><code>&lt;pointer&gt;</code> means a raw C pointer such as <code>&lt;u8*&gt;</code>, while <code>&lt;reference&gt;</code>
+means a pointer to an object handle such as <code>&lt;string*&gt;</code>. NaN and the
+infinities are <code>&lt;floating&gt;</code>. Only <code>void</code> is <code>&lt;void&gt;</code>.</p>
+<p>Source: <code>lib/var.x:309</code></p>
+<p><a id="Var.known_tag"></a></p>
+<h4 id="varknown_tag"><a class="header" href="#varknown_tag">Var.known_tag</a></h4>
+<p><code>int Var.known_tag(Symbol tag)</code></p>
+<p>Reports whether <code>tag</code> has a built-in encoding or registered custom row.</p>
+<p>Source: <code>lib/var.x:61</code></p>
+<p><a id="Var.long_double_value"></a></p>
+<h4 id="varlong_double_value"><a class="header" href="#varlong_double_value">Var.long_double_value</a></h4>
+<p><code>long double Var.long_double_value(Var v)</code></p>
+<p>Returns the payload of an <code>&lt;ldouble&gt;</code> box, or 0.0 if <code>v</code> has another tag.
+This is the only reader that preserves a <code>long double</code>. Every other
+floating tag, <code>&lt;f64&gt;</code> included, yields 0.0 here instead of being widened.
+<code>Var.floating</code> is the general floating reader.</p>
+<p>A tag mismatch yields 0.0.</p>
+<p>Source: <code>lib/var.x:831</code></p>
+<p><a id="Var.long_long_value"></a></p>
+<h4 id="varlong_long_value"><a class="header" href="#varlong_long_value">Var.long_long_value</a></h4>
+<p><code>long long Var.long_long_value(Var v)</code></p>
+<p>Returns an <code>&lt;llong&gt;</code> box’s signed payload, or 0 for another tag.</p>
+<p>Source: <code>lib/var.x:817</code></p>
+<p><a id="Var.long_value"></a></p>
+<h4 id="varlong_value"><a class="header" href="#varlong_value">Var.long_value</a></h4>
+<p><code>long Var.long_value(Var v)</code></p>
+<p>Returns the payload of a <code>&lt;long&gt;</code> box, or 0 if <code>v</code> has a different tag.
+The test is on the tag, so a <code>&lt;ulong&gt;</code>, <code>&lt;llong&gt;</code>, or <code>&lt;i32&gt;</code> value
+reads as 0 with no complaint. <code>Var.integer</code> accepts any integer family;
+use this one when the tag is known and the payload must survive intact.</p>
+<p>A tag mismatch yields 0.</p>
+<p>Source: <code>lib/var.x:802</code></p>
+<p><a id="Var.parse"></a></p>
+<h4 id="varparse"><a class="header" href="#varparse">Var.parse</a></h4>
+<p><code>Var Var.parse(String str, Symbol kind)</code></p>
+<p>Parses <code>str</code> as source text of kind <code>kind</code> and returns the boxed value.
+The kinds understood are <code>&lt;int&gt;</code>, <code>&lt;float&gt;</code>, <code>&lt;double&gt;</code>, <code>&lt;string&gt;</code>,
+<code>&lt;symbol&gt;</code>, and <code>&lt;char&gt;</code>. For <code>&lt;string&gt;</code>, matching <code>%"..."</code> or <code>"..."</code>
+delimiters are removed; unquoted input is also accepted, and either form
+is unescaped. <code>&lt;char&gt;</code> expects <code>'a'</code> complete with its quotes and produces
+an <code>&lt;i32&gt;</code>. Both <code>&lt;float&gt;</code> and <code>&lt;double&gt;</code> produce an <code>&lt;f64&gt;</code>; there is no
+path here to <code>&lt;f32&gt;</code>.</p>
+<p>Integer and floating kinds require the whole input to parse, apart from
+surrounding whitespace. Malformed input, trailing text, a value outside
+the native reader’s range, or an <code>&lt;int&gt;</code> outside <code>int</code> range returns
+<code>void</code>, so a parsed numeric zero remains distinguishable from failure.</p>
+<p><code>&lt;symbol&gt;</code> accepts the leading atom or <code>&lt;...&gt;</code> <code>Symbol</code> literal and ignores
+trailing text; no recognized leading <code>Symbol</code> produces the zero <code>Symbol</code>. A
+kind this function does not handle returns <code>void</code>, and a bad character
+literal gives <code>&lt;i32&gt;</code> -1.</p>
+<pre class="shiki shiki-themes x2c-light x2c-dark x2c-code" style="--shiki-light:#24292e;--shiki-dark:#e9e5df;--shiki-light-bg:#fff;--shiki-dark-bg:#101011" tabindex="0"><code class="language-x2c no-highlight"><span class="line boring"><span style="--shiki-light:#007C8A;--shiki-dark:#29D3E2">Var</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF"> count </span><span style="--shiki-light:#D73A49;--shiki-dark:#E9E5DF">=</span><span style="--shiki-light:#007C8A;--shiki-dark:#29D3E2"> Var</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">.</span><span style="--shiki-light:#6F42C1;--shiki-dark:#E9E5DF">parse</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">(</span><span style="--shiki-light:#032F62;--shiki-dark:#9EDFB8">"42"</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">, </span><span style="--shiki-light:#24292E;--shiki-dark:#FF715A">&lt;</span><span style="--shiki-light:#005CC5;--shiki-dark:#E9E5DF">int</span><span style="--shiki-light:#24292E;--shiki-dark:#FF715A">&gt;</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">);</span>
+</span><span class="line boring"><span style="--shiki-light:#007C8A;--shiki-dark:#29D3E2">Var</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF"> broken </span><span style="--shiki-light:#D73A49;--shiki-dark:#E9E5DF">=</span><span style="--shiki-light:#007C8A;--shiki-dark:#29D3E2"> Var</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">.</span><span style="--shiki-light:#6F42C1;--shiki-dark:#E9E5DF">parse</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">(</span><span style="--shiki-light:#032F62;--shiki-dark:#9EDFB8">"abc"</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">, </span><span style="--shiki-light:#24292E;--shiki-dark:#FF715A">&lt;</span><span style="--shiki-light:#005CC5;--shiki-dark:#E9E5DF">int</span><span style="--shiki-light:#24292E;--shiki-dark:#FF715A">&gt;</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">);</span>
+</span><span class="line boring"><span style="--shiki-light:#007C8A;--shiki-dark:#29D3E2">Var</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF"> refused </span><span style="--shiki-light:#D73A49;--shiki-dark:#E9E5DF">=</span><span style="--shiki-light:#007C8A;--shiki-dark:#29D3E2"> Var</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">.</span><span style="--shiki-light:#6F42C1;--shiki-dark:#E9E5DF">parse</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">(</span><span style="--shiki-light:#032F62;--shiki-dark:#9EDFB8">"3"</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">, </span><span style="--shiki-light:#24292E;--shiki-dark:#FF715A">&lt;</span><span style="--shiki-light:#005CC5;--shiki-dark:#E9E5DF">u8</span><span style="--shiki-light:#24292E;--shiki-dark:#FF715A">&gt;</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">);</span>
+</span><span class="line"><span style="--shiki-light:#6F42C1;--shiki-dark:#E9E5DF">printf</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">(</span><span style="--shiki-light:#032F62;--shiki-dark:#9EDFB8">"</span><span style="--shiki-light:#005CC5;--shiki-dark:#9EDFB8">%s</span><span style="--shiki-light:#032F62;--shiki-dark:#9EDFB8">=</span><span style="--shiki-light:#005CC5;--shiki-dark:#9EDFB8">%s</span><span style="--shiki-light:#005CC5;--shiki-dark:#9EDFB8"> %s</span><span style="--shiki-light:#032F62;--shiki-dark:#9EDFB8">=</span><span style="--shiki-light:#005CC5;--shiki-dark:#9EDFB8">%s</span><span style="--shiki-light:#032F62;--shiki-dark:#9EDFB8"> refused=</span><span style="--shiki-light:#005CC5;--shiki-dark:#9EDFB8">%d\n</span><span style="--shiki-light:#032F62;--shiki-dark:#9EDFB8">"</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">, count.</span><span style="--shiki-light:#6F42C1;--shiki-dark:#E9E5DF">tag</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">().</span><span style="--shiki-light:#6F42C1;--shiki-dark:#E9E5DF">str</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">(), count,</span>
+</span><span class="line"><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">       broken.</span><span style="--shiki-light:#6F42C1;--shiki-dark:#E9E5DF">tag</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">().</span><span style="--shiki-light:#6F42C1;--shiki-dark:#E9E5DF">str</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">(), broken, refused </span><span style="--shiki-light:#A626A4;--shiki-light-font-weight:bold;--shiki-dark:#FF4FD8;--shiki-dark-font-weight:bold">is</span><span style="--shiki-light:#005CC5;--shiki-dark:#E9E5DF"> void</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">);</span></span></code></pre>
+
+<p><strong>Raises:</strong> <code>&lt;alloc-fail&gt;</code> while constructing <code>String</code> or quoted-<code>Symbol</code>
+output.</p>
+<p>Source: <code>lib/var.x:1068</code></p>
+<p><a id="Var.pointer"></a></p>
+<h4 id="varpointer"><a class="header" href="#varpointer">Var.pointer</a></h4>
+<p><code>void *Var.pointer(Var v)</code></p>
+<p>Returns the raw address stored in <code>v</code>, or NULL if it holds no address.
+Every pointer, reference, and object family shares one decoder: the
+payload is masked free of the subtype bits its family reserves, so the
+result is the stored low-48-bit address for a <code>&lt;u8*&gt;</code>, a <code>&lt;string&gt;</code>
+handle, and a registered custom object. The returned pointer is borrowed;
+this operation does not retain it or change its lifetime. A value that is
+not address-shaped, such as an integer, a double, a <code>Symbol</code>, a wide box,
+or <code>void</code>, reads as NULL, and nothing distinguishes that from a stored
+null pointer.</p>
+<p>Nothing here proves that an accepted address is live or came from the
+right constructor; that remains the typed API’s precondition. This raw
+decoder
+also accepts some reserved pointer-shaped bit patterns. Validate external
+bits with <code>Var.encoding_valid</code>, then confirm the family with <code>Var.tag</code> or
+<code>Var.is</code> before trusting the result.</p>
+<p>Source: <code>lib/var.x:1022</code></p>
+<p><a id="Var.register_object_tag"></a></p>
+<h4 id="varregister_object_tag"><a class="header" href="#varregister_object_tag">Var.register_object_tag</a></h4>
+<p><code>int Var.register_object_tag(Symbol tag)</code></p>
+<p>Reserves or returns a process-lifetime row for custom boxed-object <code>tag</code>.
+Before registration freezes, a repeated custom tag returns its existing
+row; NULL, a built-in tag, or a full 32-row registry returns -1 without
+changing the registry. Registration must finish before the first successful
+<code>Thread.start</code>; afterward it raises <code>&lt;bad-state&gt;</code>. Native registry-mutex
+failure aborts.</p>
+<p>Source: <code>lib/var.x:240</code></p>
+<p><a id="Var.tag"></a></p>
+<h4 id="vartag"><a class="header" href="#vartag">Var.tag</a></h4>
+<p><code>Symbol Var.tag(Var v)</code></p>
+<p>Returns the <code>Symbol</code> naming the exact family of <code>v</code>’s payload.
+The tag names one family: <code>&lt;i32&gt;</code>, <code>&lt;string&gt;</code>, <code>&lt;f64&gt;</code>, <code>&lt;symbol&gt;</code>, or a
+registered custom object tag. Built-in families have one row in the
+encoding table at the top of this file. Use <code>Var.kind</code> for a group of
+families and <code>Var.is</code> to test one family.</p>
+<p>Raw <code>Null</code>, the all-zero <code>Var</code> written <code>(Var) { .u64 = 0 }</code>, is a native
+null pointer. It decodes as <code>&lt;p48&gt;</code>; there is no dedicated null family.
+Test it with <code>Var.is_null</code>. An encoding matching no reserved row decodes
+as <code>&lt;f64&gt;</code>, since the shifted double range covers everything left over.</p>
+<pre class="shiki shiki-themes x2c-light x2c-dark x2c-code" style="--shiki-light:#24292e;--shiki-dark:#e9e5df;--shiki-light-bg:#fff;--shiki-dark-bg:#101011" tabindex="0"><code class="language-x2c no-highlight"><span class="line boring"><span style="--shiki-light:#007C8A;--shiki-dark:#29D3E2">Var</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF"> raw </span><span style="--shiki-light:#D73A49;--shiki-dark:#E9E5DF">=</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF"> (</span><span style="--shiki-light:#007C8A;--shiki-dark:#29D3E2">Var</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">) { .u64 </span><span style="--shiki-light:#D73A49;--shiki-dark:#E9E5DF">=</span><span style="--shiki-light:#005CC5;--shiki-dark:#A9C9F5"> 0</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF"> };</span>
+</span><span class="line"><span style="--shiki-light:#6F42C1;--shiki-dark:#E9E5DF">printf</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">(</span><span style="--shiki-light:#032F62;--shiki-dark:#9EDFB8">"</span><span style="--shiki-light:#005CC5;--shiki-dark:#9EDFB8">%s</span><span style="--shiki-light:#005CC5;--shiki-dark:#9EDFB8"> %s\n</span><span style="--shiki-light:#032F62;--shiki-dark:#9EDFB8">"</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">, raw.</span><span style="--shiki-light:#6F42C1;--shiki-dark:#E9E5DF">tag</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">().</span><span style="--shiki-light:#6F42C1;--shiki-dark:#E9E5DF">str</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">(), </span><span style="--shiki-light:#D73A49;--shiki-dark:#F0ADA1">void</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">.</span><span style="--shiki-light:#6F42C1;--shiki-dark:#E9E5DF">tag</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">().</span><span style="--shiki-light:#6F42C1;--shiki-dark:#E9E5DF">str</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">());</span></span></code></pre>
+
+<p>Source: <code>lib/var.x:282</code></p>
+<p><a id="Var.ulong_long_value"></a></p>
+<h4 id="varulong_long_value"><a class="header" href="#varulong_long_value">Var.ulong_long_value</a></h4>
+<p><code>unsigned long long Var.ulong_long_value(Var v)</code></p>
+<p>Returns a <code>&lt;ullong&gt;</code> box’s unsigned payload, or 0 for another tag.</p>
+<p>Source: <code>lib/var.x:821</code></p>
+<p><a id="Var.ulong_value"></a></p>
+<h4 id="varulong_value"><a class="header" href="#varulong_value">Var.ulong_value</a></h4>
+<p><code>unsigned long Var.ulong_value(Var v)</code></p>
+<p>Returns the payload of a <code>&lt;ulong&gt;</code> box, or 0 if <code>v</code> has a different tag.
+Prefer this to <code>Var.integer</code> for a <code>&lt;ulong&gt;</code>: the general reader casts the
+payload to <code>long</code>, which reinterprets anything above <code>LONG_MAX</code> as
+negative, while this reader returns the unsigned value. A tag that is
+not <code>&lt;ulong&gt;</code> yields 0 silently, so test with <code>Var.is</code> when the tag is in
+doubt.</p>
+<p>A tag mismatch yields 0.</p>
+<p>Source: <code>lib/var.x:813</code></p>
+<p><a id="Var.wide_compare"></a></p>
+<h4 id="varwide_compare"><a class="header" href="#varwide_compare">Var.wide_compare</a></h4>
+<p><code>int Var.wide_compare(Var a, Var b)</code></p>
+<p>Orders two wide boxes carrying the same tag, returning -1, 0, or 1.
+Integer families delegate to <code>Var.integer_compare</code>. An <code>&lt;ldouble&gt;</code> pair
+compares as <code>long double</code> and falls back to a byte comparison when neither
+operand is less than the other, so distinct NaN representations still
+order deterministically.</p>
+<p>0 means equal, and it is also the answer for mismatched tags and for an
+argument that is not a wide box. Check the tags first, or use the
+relational operators, which reach the runtime’s full ordering.</p>
+<p>Source: <code>lib/var.x:991</code></p>
+<p><a id="Var.wide_equal"></a></p>
+<h4 id="varwide_equal"><a class="header" href="#varwide_equal">Var.wide_equal</a></h4>
+<p><code>int Var.wide_equal(Var a, Var b)</code></p>
+<p>Reports content equality for supported wide scalar boxes.
+Boxed <code>&lt;long&gt;</code>, <code>&lt;ulong&gt;</code>, <code>&lt;llong&gt;</code>, <code>&lt;ullong&gt;</code>, and <code>&lt;ldouble&gt;</code> values
+are separate allocations, so bit identity says nothing about their
+contents. This is the payload comparison that <code>==</code> uses for those tags. An
+<code>&lt;ldouble&gt;</code> pair is compared byte for byte, so two NaNs sharing one
+representation compare equal here.</p>
+<p>A 0 result means “not equal as wide boxes”. It also covers an argument
+that is not a wide box and a pair whose tags differ. For a general
+equality test use <code>==</code>, which reaches <code>Var.equal</code> and covers every
+family.</p>
+<p>Source: <code>lib/var.x:874</code></p>
+<p><a id="Var.wide_hash"></a></p>
+<h4 id="varwide_hash"><a class="header" href="#varwide_hash">Var.wide_hash</a></h4>
+<p><code>unsigned Var.wide_hash(Var v)</code></p>
+<p>Returns a supported wide scalar box’s content hash, or 0 otherwise.</p>
+<p>Source: <code>lib/var.x:841</code></p>
+<h2 id="runtime-internal-callables"><a class="header" href="#runtime-internal-callables">Runtime-internal callables</a></h2>
+<p>These callables connect runtime translation units. They are documented
+for source readers but are not supported as user API.</p>
+<div class="table-wrapper">
+<table>
+<thead>
+<tr><th>Function</th><th>Summary</th></tr>
+</thead>
+<tbody>
+<tr><td><a href="#Var.clone_wide"><code>Var.clone_wide</code></a></td><td>Clones the wide numeric <code>value</code> into a new box in the active <code>Scope</code>.</td></tr>
+<tr><td><a href="#Var.custom_descriptor_index"><code>Var.custom_descriptor_index</code></a></td><td>Returns a registered custom object’s row, or <code>-1</code> for another value.</td></tr>
+<tr><td><a href="#Var.move_wide_to"><code>Var.move_wide_to</code></a></td><td>Moves a wide numeric box into the destination <code>Scope</code> held by <code>scope</code>.</td></tr>
+<tr><td><a href="#Var.wide_owner"><code>Var.wide_owner</code></a></td><td>Returns the <code>Scope</code> owning a live wide numeric box, or NULL otherwise.</td></tr>
+</tbody>
+</table>
+</div>
+<h3 id="var-2"><a class="header" href="#var-2"><code>Var</code></a></h3>
+<p><a id="Var.clone_wide"></a></p>
+<h4 id="varclone_wide"><a class="header" href="#varclone_wide">Var.clone_wide</a></h4>
+<p><code>Var Var.clone_wide(Var value)</code></p>
+<p>Clones the wide numeric <code>value</code> into a new box in the active <code>Scope</code>.
+The clone compares equal but not identical to <code>value</code>. Returns <code>void</code> when
+<code>value</code> is not wide.</p>
+<p><strong>Raises:</strong> <code>&lt;alloc-fail&gt;</code> when the clone cannot be allocated, or <code>&lt;bad-enc&gt;</code>
+if its address cannot be represented in a <code>Var</code>.</p>
+<p>Source: <code>lib/var.x:542</code></p>
+<p><a id="Var.custom_descriptor_index"></a></p>
+<h4 id="varcustom_descriptor_index"><a class="header" href="#varcustom_descriptor_index">Var.custom_descriptor_index</a></h4>
+<p><code>int Var.custom_descriptor_index(Var value)</code></p>
+<p>Returns a registered custom object’s row, or <code>-1</code> for another value.</p>
+<p>Source: <code>lib/var.x:216</code></p>
+<p><a id="Var.move_wide_to"></a></p>
+<h4 id="varmove_wide_to"><a class="header" href="#varmove_wide_to">Var.move_wide_to</a></h4>
+<p><code>Self Var.move_wide_to(Self value, Scope *scope)</code></p>
+<p>Moves a wide numeric box into the destination <code>Scope</code> held by <code>scope</code>.
+The box is not copied and <code>value</code> keeps its identity. If the destination
+slot is NULL, a new <code>Scope</code> is created there. Returns <code>value</code> unchanged for
+another family.
+For a wide value, raises <code>&lt;bad-arg&gt;</code> when <code>scope</code> is NULL, or
+<code>&lt;alloc-fail&gt;</code> when a new destination <code>Scope</code> cannot be allocated.
+Ownership
+is unchanged on failure.</p>
+<p>Source: <code>lib/var.x:567</code></p>
+<p><a id="Var.wide_owner"></a></p>
+<h4 id="varwide_owner"><a class="header" href="#varwide_owner">Var.wide_owner</a></h4>
+<p><code>Scope Var.wide_owner(Var v)</code></p>
+<p>Returns the <code>Scope</code> owning a live wide numeric box, or NULL otherwise.</p>
+<p>Source: <code>lib/var.x:574</code></p>
+<h2 id="design-notes"><a class="header" href="#design-notes">Design notes</a></h2>
+<p><code>Var</code> encodes dynamic values in one 64-bit word. Its layout uses the IEEE
+754 double-precision ranges:</p>
+<p>0000:0000:0000:0000 - 7FEF:FFFF:FFFF:FFFF : [+0.0, MAX_DOUBLE]
+7FF0:0000:0000:0000 - 7FFF:FFFF:FFFF:FFFF : [+Inf, +NaNs]
+8000:0000:0000:0000 - FFEF:FFFF:FFFF:FFFF : [-0.0, MIN_DOUBLE]
+FFF0:0000:0000:0000 - FFFF:FFFF:FFFF:FFFF : [-Inf, -NaNs]</p>
+<p>Special-value ranges carry custom tags and payloads. An f64 is shifted by
+(1 &lt;&lt; 52); shifted -DBL_MAX has a reserved encoding because all-one bits
+mean <code>void</code>. Native pointers retain their raw lower 48 address bits.</p>
+<p>The 64-bit <code>Var</code> layout is structured as follows:</p>
+<p>Tag : Payload         Tag : Payload        bits  Use</p>
+<hr>
+<p>0000:0000:0000:0000 - 0000:FFFF:FFFF:FFFF  48+0  <code>void</code>*
+0001:0000:0000:0000 - 0001:FFFF:FFFF:FFFF  48+0  u8*
+0002:0000:0000:0000 - 0002:FFFF:FFFF:FFFF  48+0  i8*
+0003:0000:0000:0000 - 0003:FFFF:FFFF:FFFF  47+1  u16*,i16*
+0004:0000:0000:0000 - 0004:FFFF:FFFF:FFFF  46+2  u32*,i32*,f32*,ulong*
+0005:0000:0000:0000 - 0005:FFFF:FFFF:FFFF  45+3  long*,f64*,ldouble*,
+llong*,ullong*,long,
+ulong,llong
+0006:0000:0000:0000 - 0007:FFFF:FFFF:FFFF  45+3  builtin pointer families,
+ullong,ldouble
+0008:0000:0000:0000 - 000B:FFFF:FFFF:FFFF  45+3  builtin (Class) x 32
+000C:0000:0000:0000 - 000F:FFFF:FFFF:FFFF  45+3  builtin (Class <em>) x 32
+0010:0000:0000:0000 - 7FFF:FFFF:FFFF:FFFF  64+0  f64 &gt; 0 + (52&lt;&lt;1)
+8000:0000:0000:0000 - 8000:FFFF:FFFF:FFFF  48+0  u48
+8001:0000:0000:0000 - 8001:FFFF:FFFF:FFFF  48+0  i48
+8002:0000:0000:0000 - 8002:FFFF:FFFF:FFFF  32+16 32-bit vals, 16-bit tag
+8003:0000:0000:0000 - 8003:FFFF:FFFF:FFFF  32+16 Special values
+8004:0000:0000:0000 - 800B:FFFF:FFFF:FFFF  50+1  <code>Symbol</code>s
+800C:0000:0000:0000 - 800F:FFFF:FFFF:FFFF  45+3  user (Class)</em> 32
+8010:0000:0000:0000 - FFFF:FFFF:FFFF:FFFF  64+0  f64 &lt; 0 + (52&lt;&lt;1)</p>
+<hr>
+<p>A <code>Var</code> preserves its runtime kind. <code>void</code> is excluded from value-bearing
+protocols.</p>
+<h2 id="tests-and-examples"><a class="header" href="#tests-and-examples">Tests and examples</a></h2>
+<p><code>make verify</code> (<code>unittest/test-var.x</code>) and <code>make examples</code> (<code>type-conversion-matrix</code>).</p>
+
+                    </main>
+
+                    <nav class="x2c-pager" aria-label="Page navigation">
+                        <a rel="prev" href="../../library/modules/typed-map.html" class="x2c-pager-prev" aria-keyshortcuts="Left">
+                            <span class="x2c-pager-label">previous</span>
+                            <span class="x2c-pager-title">lib/typed-map.x</span>
+                        </a>
+                        
+                        <a rel="next prefetch" href="../../library/modules/varconvert.html" class="x2c-pager-next" aria-keyshortcuts="Right">
+                            <span class="x2c-pager-label">next</span>
+                            <span class="x2c-pager-title">lib/varconvert.x</span>
+                        </a>
+                    </nav>
+                    <footer class="x2c-footer">
+                        &copy; 2025&ndash;2026
+                        <a href="https://flake.org">GWF</a>
+                        &middot;
+                        <a href="https://github.com/gwf/x2c/blob/c2a89d999e81f47a4422a26edf0033eb0b98c6c6/LICENSE">Apache 2.0</a>
+                        &middot;
+                        <a href="https://github.com/gwf/x2c/blob/c2a89d999e81f47a4422a26edf0033eb0b98c6c6/TRADEMARKS.md">Trademarks</a>
+                    </footer>
+                </div>
+            </div>
+
+
+        </div>
+
+        <template id=fa-eye><span class=fa-svg><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 576 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc. --><path d="M288 32c-80.8 0-145.5 36.8-192.6 80.6C48.6 156 17.3 208 2.5 243.7c-3.3 7.9-3.3 16.7 0 24.6C17.3 304 48.6 356 95.4 399.4C142.5 443.2 207.2 480 288 480s145.5-36.8 192.6-80.6c46.8-43.5 78.1-95.4 93-131.1c3.3-7.9 3.3-16.7 0-24.6c-14.9-35.7-46.2-87.7-93-131.1C433.5 68.8 368.8 32 288 32zM432 256c0 79.5-64.5 144-144 144s-144-64.5-144-144s64.5-144 144-144s144 64.5 144 144zM288 192c0 35.3-28.7 64-64 64c-11.5 0-22.3-3-31.6-8.4c-.2 2.8-.4 5.5-.4 8.4c0 53 43 96 96 96s96-43 96-96s-43-96-96-96c-2.8 0-5.6 .1-8.4 .4c5.3 9.3 8.4 20.1 8.4 31.6z"/></svg></span></template>
+        <template id=fa-eye-slash><span class=fa-svg><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 640 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc. --><path d="M38.8 5.1C28.4-3.1 13.3-1.2 5.1 9.2S-1.2 34.7 9.2 42.9l592 464c10.4 8.2 25.5 6.3 33.7-4.1s6.3-25.5-4.1-33.7L525.6 386.7c39.6-40.6 66.4-86.1 79.9-118.4c3.3-7.9 3.3-16.7 0-24.6c-14.9-35.7-46.2-87.7-93-131.1C465.5 68.8 400.8 32 320 32c-68.2 0-125 26.3-169.3 60.8L38.8 5.1zM223.1 149.5C248.6 126.2 282.7 112 320 112c79.5 0 144 64.5 144 144c0 24.9-6.3 48.3-17.4 68.7L408 294.5c5.2-11.8 8-24.8 8-38.5c0-53-43-96-96-96c-2.8 0-5.6 .1-8.4 .4c5.3 9.3 8.4 20.1 8.4 31.6c0 10.2-2.4 19.8-6.6 28.3l-90.3-70.8zm223.1 298L373 389.9c-16.4 6.5-34.3 10.1-53 10.1c-79.5 0-144-64.5-144-144c0-6.9 .5-13.6 1.4-20.2L83.1 161.5C60.3 191.2 44 220.8 34.5 243.7c-3.3 7.9-3.3 16.7 0 24.6c14.9 35.7 46.2 87.7 93 131.1C174.5 443.2 239.2 480 320 480c47.8 0 89.9-12.9 126.2-32.5z"/></svg></span></template>
+        <template id=fa-copy><span class=fa-svg><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc. --><path d="M502.6 70.63l-61.25-61.25C435.4 3.371 427.2 0 418.7 0H255.1c-35.35 0-64 28.66-64 64l.0195 256C192 355.4 220.7 384 256 384h192c35.2 0 64-28.8 64-64V93.25C512 84.77 508.6 76.63 502.6 70.63zM464 320c0 8.836-7.164 16-16 16H255.1c-8.838 0-16-7.164-16-16L239.1 64.13c0-8.836 7.164-16 16-16h128L384 96c0 17.67 14.33 32 32 32h47.1V320zM272 448c0 8.836-7.164 16-16 16H63.1c-8.838 0-16-7.164-16-16L47.98 192.1c0-8.836 7.164-16 16-16H160V128H63.99c-35.35 0-64 28.65-64 64l.0098 256C.002 483.3 28.66 512 64 512h192c35.2 0 64-28.8 64-64v-32h-47.1L272 448z"/></svg></span></template>
+        <template id=fa-play><span class=fa-svg><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 384 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc. --><path d="M73 39c-14.8-9.1-33.4-9.4-48.5-.9S0 62.6 0 80V432c0 17.4 9.4 33.4 24.5 41.9s33.7 8.1 48.5-.9L361 297c14.3-8.7 23-24.2 23-41s-8.7-32.2-23-41L73 39z"/></svg></span></template>
+        <template id=fa-clock-rotate-left><span class=fa-svg><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc. --><path d="M75 75L41 41C25.9 25.9 0 36.6 0 57.9V168c0 13.3 10.7 24 24 24H134.1c21.4 0 32.1-25.9 17-41l-30.8-30.8C155 85.5 203 64 256 64c106 0 192 86 192 192s-86 192-192 192c-40.8 0-78.6-12.7-109.7-34.4c-14.5-10.1-34.4-6.6-44.6 7.9s-6.6 34.4 7.9 44.6C151.2 495 201.7 512 256 512c141.4 0 256-114.6 256-256S397.4 0 256 0C185.3 0 121.3 28.7 75 75zm181 53c-13.3 0-24 10.7-24 24V256c0 6.4 2.5 12.5 7 17l72 72c9.4 9.4 24.6 9.4 33.9 0s9.4-24.6 0-33.9l-65-65V152c0-13.3-10.7-24-24-24z"/></svg></span></template>
+
+
+
+        <script>
+            window.playground_copyable = true;
+        </script>
+
+
+        <script src="../../elasticlunr-ef4e11c1.min.js"></script>
+        <script src="../../mark-09e88c2c.min.js"></script>
+        <script src="../../searcher-09f2665d.js"></script>
+
+        <script src="../../clipboard-1626706a.min.js"></script>
+        <script src="../../highlight-abc7f01d.js"></script>
+        <script src="../../book-609e4cb8.js"></script>
+
+        <script>
+            document.addEventListener('DOMContentLoaded', () => {
+                const sidebar = document.querySelector('#mdbook-sidebar');
+                sidebar.querySelectorAll('ol').forEach(list => {
+                    const numbers = list.querySelectorAll(
+                        ':scope > li > .chapter-link-wrapper > a > strong, :scope > li > a > strong');
+                    if (numbers.length) {
+                        const width = Math.max(...Array.from(numbers,
+                            number => number.textContent.trim().length));
+                        list.style.setProperty('--chapter-number-width', width + 'ch');
+                    }
+                });
+                const chapter = sidebar.querySelector('a.active');
+                const item = chapter?.closest('.chapter-item');
+                if (item?.querySelector(':scope > .on-this-page')) {
+                    const row = chapter.parentElement;
+                    if (!row.querySelector('.chapter-fold-toggle')) {
+                        const toggle = document.createElement('button');
+                        toggle.type = 'button';
+                        toggle.className = 'chapter-fold-toggle';
+                        toggle.appendChild(document.createElement('div'));
+                        toggle.addEventListener('click', () => {
+                            item.classList.toggle('expanded');
+                        });
+                        row.appendChild(toggle);
+                    }
+                }
+                sidebar.querySelectorAll('.chapter-fold-toggle').forEach(toggle => {
+                    const row = toggle.parentElement;
+                    const item = row.parentElement;
+                    const title = row.querySelector('a').textContent.trim();
+                    toggle.setAttribute('aria-label', 'Toggle ' + title);
+                    const update = () => toggle.setAttribute('aria-expanded',
+                        String(item.classList.contains('expanded')));
+                    update();
+                    toggle.addEventListener('click', update);
+                    if (toggle.tagName === 'A') {
+                        toggle.setAttribute('role', 'button');
+                        toggle.tabIndex = 0;
+                        toggle.addEventListener('keydown', event => {
+                            if (event.key === 'Enter' || event.key === ' ') {
+                                event.preventDefault();
+                                toggle.click();
+                            }
+                        });
+                    }
+                });
+            });
+        </script>
+
+        <!-- Custom JS scripts -->
+
+
+
+    </div>
+    </body>
+</html>

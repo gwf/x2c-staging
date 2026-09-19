@@ -1,0 +1,485 @@
+<!DOCTYPE HTML>
+<html lang="en" class="light sidebar-visible" dir="ltr">
+    <head>
+        <!-- Book generated using mdBook -->
+        <meta charset="UTF-8">
+        <title>A Recursive Lisp in x2c - The x2c Book</title>
+
+
+        <!-- Custom HTML head -->
+        <link rel="preconnect" href="https://fonts.googleapis.com">
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=Archivo:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">
+
+        <meta name="description" content="The x2c language, standard library, and compiler.">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <meta name="theme-color" content="#ffffff">
+
+        <link rel="icon" href="../favicon-995a3c20.svg">
+        <link rel="stylesheet" href="../css/variables-8adf115d.css">
+        <link rel="stylesheet" href="../css/general-e96d0476.css">
+        <link rel="stylesheet" href="../css/chrome-d279d366.css">
+        <link rel="stylesheet" href="../css/print-9e4910d8.css" media="print">
+
+        <!-- Fonts -->
+        <link rel="stylesheet" href="../fonts/fonts-9644e21d.css">
+
+        <!-- Highlight.js Stylesheets -->
+        <link rel="stylesheet" id="mdbook-highlight-css" href="../highlight-493f70e1.css">
+        <link rel="stylesheet" id="mdbook-tomorrow-night-css" href="../tomorrow-night-4c0ae647.css">
+        <link rel="stylesheet" id="mdbook-ayu-highlight-css" href="../ayu-highlight-3fdfc3ac.css">
+
+        <!-- Custom theme stylesheets -->
+        <link rel="stylesheet" href="../theme/header-2c1becca.css">
+        <link rel="stylesheet" href="../theme/x2c-fd3d182e.css">
+
+
+        <!-- Provide site root and default themes to javascript -->
+        <script>
+            const path_to_root = "../";
+            const default_light_theme = "light";
+            const default_dark_theme = "light";
+            window.path_to_searchindex_js = "../searchindex-2643e100.js";
+        </script>
+        <!-- Start loading toc.js asap -->
+        <script src="../toc-a71616d6.js"></script>
+        <!-- x2c publication metadata -->
+        <link rel="canonical" href="https://staging.x2c-lang.dev/docs/internals/reference-lisp.html">
+        <meta property="og:type" content="website">
+        <meta property="og:title" content="A Recursive Lisp in x2c - The x2c Book">
+        <meta property="og:description" content="The x2c language, standard library, and compiler.">
+        <meta property="og:url" content="https://staging.x2c-lang.dev/docs/internals/reference-lisp.html">
+        <meta property="og:image" content="https://staging.x2c-lang.dev/x2c-social.png">
+        <meta property="og:image:width" content="1200">
+        <meta property="og:image:height" content="630">
+        <meta name="twitter:card" content="summary_large_image">
+        <meta name="twitter:title" content="A Recursive Lisp in x2c - The x2c Book">
+        <meta name="twitter:description" content="The x2c language, standard library, and compiler.">
+        <meta name="twitter:image" content="https://staging.x2c-lang.dev/x2c-social.png">
+    </head>
+    <body><aside aria-label="Release candidate" style="padding:1rem;background:#fff1bf;color:#241c00;font:14px/1.5 monospace;overflow-wrap:anywhere"><strong>Public staging: candidate-c2a89d999e81f47a4422a26edf0033eb0b98c6c6-35470032964-1</strong><p>Source: c2a89d999e81f47a4422a26edf0033eb0b98c6c6. Use a fresh scratch installation and the explicit candidate index below. Bare x2c install commands and production URLs in the book refer to production.</p><pre style="overflow:auto">export X2C_PREFIX=&quot;$(mktemp -d)/x2c&quot;
+curl -fsSL https://staging.x2c-lang.dev/install.sh | sh
+export PATH=&quot;$X2C_PREFIX/bin:$PATH&quot;
+x2c run &quot;$X2C_PREFIX/examples/foreach.x&quot;
+x2c install pcre2 --index https://staging.x2c-lang.dev/packages/index.txt</pre></aside>
+    <div id="mdbook-help-container">
+        <div id="mdbook-help-popup">
+            <h2 class="mdbook-help-title">Keyboard shortcuts</h2>
+            <div>
+                <p>Press <kbd>←</kbd> or <kbd>→</kbd> to navigate between chapters</p>
+                <p>Press <kbd>S</kbd> or <kbd>/</kbd> to search in the book</p>
+                <p>Press <kbd>?</kbd> to show this help</p>
+                <p>Press <kbd>Esc</kbd> to hide this help</p>
+            </div>
+        </div>
+    </div>
+    <div id="mdbook-body-container">
+        <!-- Work around some values being stored in localStorage wrapped in quotes -->
+        <script>
+            try {
+                let theme = localStorage.getItem('mdbook-theme');
+                let sidebar = localStorage.getItem('mdbook-sidebar');
+
+                if (theme.startsWith('"') && theme.endsWith('"')) {
+                    localStorage.setItem('mdbook-theme', theme.slice(1, theme.length - 1));
+                }
+
+                if (sidebar.startsWith('"') && sidebar.endsWith('"')) {
+                    localStorage.setItem('mdbook-sidebar', sidebar.slice(1, sidebar.length - 1));
+                }
+            } catch (e) { }
+        </script>
+
+        <!-- Set the theme before any content is loaded, prevents flash -->
+        <script>
+            const default_theme = window.matchMedia("(prefers-color-scheme: dark)").matches ? default_dark_theme : default_light_theme;
+            let theme;
+            try { theme = localStorage.getItem('mdbook-theme'); } catch(e) { }
+            if (theme === null || theme === undefined) { theme = default_theme; }
+            const html = document.documentElement;
+            html.classList.remove('light')
+            html.classList.add(theme);
+            html.classList.add("js");
+        </script>
+
+        <input type="checkbox" id="mdbook-sidebar-toggle-anchor" class="hidden">
+
+        <!-- Hide / unhide sidebar before it is displayed -->
+        <script>
+            let sidebar = null;
+            const sidebar_toggle = document.getElementById("mdbook-sidebar-toggle-anchor");
+            if (document.body.clientWidth >= 1080) {
+                try { sidebar = localStorage.getItem('mdbook-sidebar'); } catch(e) { }
+                sidebar = sidebar || 'visible';
+            } else {
+                sidebar = 'hidden';
+                sidebar_toggle.checked = false;
+            }
+            if (sidebar === 'visible') {
+                sidebar_toggle.checked = true;
+            } else {
+                html.classList.remove('sidebar-visible');
+            }
+        </script>
+
+        <nav id="mdbook-sidebar" class="sidebar" aria-label="Table of contents">
+            <!-- populated by js -->
+            <mdbook-sidebar-scrollbox class="sidebar-scrollbox"></mdbook-sidebar-scrollbox>
+            <noscript>
+                <iframe class="sidebar-iframe-outer" src="../toc.html"></iframe>
+            </noscript>
+            <div id="mdbook-sidebar-resize-handle" class="sidebar-resize-handle">
+                <div class="sidebar-resize-indicator"></div>
+            </div>
+        </nav>
+
+        <div id="mdbook-page-wrapper" class="page-wrapper">
+
+            <div class="page">
+                <div id="mdbook-menu-bar" class="hidden"></div>
+                <header class="landing-header x2c-header">
+                    <div class="landing-header-inner">
+                        <div class="landing-branding">
+                            <a class="landing-brand" href="../../" aria-label="x2c home">
+                                <svg viewBox="0 0 100 100" width="22" height="22" aria-hidden="true"><g fill="none" stroke="#da291c" stroke-width="17" stroke-linecap="butt"><path d="M9 16 A34.5 34.5 0 0 1 9 84"></path><path d="M91 16 A34.5 34.5 0 0 0 91 84"></path></g></svg>
+                                <span class="x2c-wordmark landing-wordmark">x2c</span>
+                            </a>
+                            <span class="landing-tagline">The x2c Book</span>
+                        </div>
+                        <nav class="landing-nav" aria-label="x2c website">
+                            <div class="landing-page-nav">
+                                <a href="../../#love">love</a>
+                                <a href="../../#power">power</a>
+                                <a href="../../#magic">magic</a>
+                            </div>
+                            <div class="landing-site-nav">
+                                <a href="../../#install">install</a>
+                                <a href="../../#packages">packages</a>
+                            </div>
+                            <div class="landing-reference-nav">
+                                <a href="../../about/">about</a>
+                                <a href="../" aria-current="page">docs</a>
+                                <a href="https://github.com/gwf/x2c">source</a>
+                            </div>
+                        </nav>
+                    </div>
+                    <div class="x2c-book-tools">
+                        <div class="x2c-header-tools">
+                            <label id="mdbook-sidebar-toggle" class="icon-button" for="mdbook-sidebar-toggle-anchor" title="Toggle Table of Contents" aria-label="Toggle Table of Contents" aria-controls="mdbook-sidebar">
+                                <span class=fa-svg><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc. --><path d="M0 96C0 78.3 14.3 64 32 64H416c17.7 0 32 14.3 32 32s-14.3 32-32 32H32C14.3 128 0 113.7 0 96zM0 256c0-17.7 14.3-32 32-32H416c17.7 0 32 14.3 32 32s-14.3 32-32 32H32c-17.7 0-32-14.3-32-32zM448 416c0 17.7-14.3 32-32 32H32c-17.7 0-32-14.3-32-32s14.3-32 32-32H416c17.7 0 32 14.3 32 32z"/></svg></span>
+                            </label>
+                        </div>
+                        <div class="x2c-header-tools x2c-header-tools-right">
+                            <button id="mdbook-search-toggle" class="icon-button" type="button" title="Search (`/`)" aria-label="Toggle Searchbar" aria-expanded="false" aria-keyshortcuts="/ s" aria-controls="mdbook-searchbar">
+                                <span class=fa-svg><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc. --><path d="M416 208c0 45.9-14.9 88.3-40 122.7L502.6 457.4c12.5 12.5 12.5 32.8 0 45.3s-32.8 12.5-45.3 0L330.7 376c-34.4 25.2-76.8 40-122.7 40C93.1 416 0 322.9 0 208S93.1 0 208 0S416 93.1 416 208zM208 352c79.5 0 144-64.5 144-144s-64.5-144-144-144S64 128.5 64 208s64.5 144 144 144z"/></svg></span>
+                            </button>
+                            <button id="mdbook-theme-toggle" class="icon-button" type="button" title="Change theme" aria-label="Change theme" aria-haspopup="true" aria-expanded="false" aria-controls="mdbook-theme-list">
+                                <span class=fa-svg><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc. --><path d="M448 256c0-106-86-192-192-192V448c106 0 192-86 192-192zm64 0c0 141.4-114.6 256-256 256S0 397.4 0 256S114.6 0 256 0S512 114.6 512 256z"/></svg></span>
+                            </button>
+                            <ul id="mdbook-theme-list" class="theme-popup" aria-label="Themes" role="menu">
+                                <li role="none"><button role="menuitem" class="theme" id="mdbook-theme-default_theme">Auto</button></li>
+                                <li role="none"><button role="menuitem" class="theme" id="mdbook-theme-light">Light</button></li>
+                                <li role="none"><button role="menuitem" class="theme" id="mdbook-theme-ayu">Dark</button></li>
+                            </ul>
+                            <a href="https://github.com/gwf/x2c/edit/main/docs/src/internals/reference-lisp.md" title="Suggest an edit" aria-label="Suggest an edit" rel="edit" class="icon-button">
+                                <span class=fa-svg id="git-edit-button"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc. --><path d="M421.7 220.3l-11.3 11.3-22.6 22.6-205 205c-6.6 6.6-14.8 11.5-23.8 14.1L30.8 511c-8.4 2.5-17.5 .2-23.7-6.1S-1.5 489.7 1 481.2L38.7 353.1c2.6-9 7.5-17.2 14.1-23.8l205-205 22.6-22.6 11.3-11.3 33.9 33.9 62.1 62.1 33.9 33.9zM96 353.9l-9.3 9.3c-.9 .9-1.6 2.1-2 3.4l-25.3 86 86-25.3c1.3-.4 2.5-1.1 3.4-2l9.3-9.3H112c-8.8 0-16-7.2-16-16V353.9zM453.3 19.3l39.4 39.4c25 25 25 65.5 0 90.5l-14.5 14.5-22.6 22.6-11.3 11.3-33.9-33.9-62.1-62.1L314.3 67.7l11.3-11.3 22.6-22.6 14.5-14.5c25-25 65.5-25 90.5 0z"/></svg></span>
+                            </a>
+                        </div>
+                    </div>
+                </header>
+                <script>
+                    const bookHeader = document.querySelector('.x2c-header');
+                    new ResizeObserver(() => {
+                        document.documentElement.style.setProperty(
+                            '--menu-bar-height', `${bookHeader.getBoundingClientRect().height}px`);
+                    }).observe(bookHeader);
+                </script>
+
+                <div id="mdbook-search-wrapper" class="hidden">
+                    <form id="mdbook-searchbar-outer" class="searchbar-outer">
+                        <div class="search-wrapper">
+                            <input type="search" id="mdbook-searchbar" name="searchbar" placeholder="Search this book ..." aria-controls="mdbook-searchresults-outer" aria-describedby="searchresults-header">
+                            <div class="spinner-wrapper">
+                                <span class=fa-svg id="fa-spin"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc. --><path d="M304 48c0-26.5-21.5-48-48-48s-48 21.5-48 48s21.5 48 48 48s48-21.5 48-48zm0 416c0-26.5-21.5-48-48-48s-48 21.5-48 48s21.5 48 48 48s48-21.5 48-48zM48 304c26.5 0 48-21.5 48-48s-21.5-48-48-48s-48 21.5-48 48s21.5 48 48 48zm464-48c0-26.5-21.5-48-48-48s-48 21.5-48 48s21.5 48 48 48s48-21.5 48-48zM142.9 437c18.7-18.7 18.7-49.1 0-67.9s-49.1-18.7-67.9 0s-18.7 49.1 0 67.9s49.1 18.7 67.9 0zm0-294.2c18.7-18.7 18.7-49.1 0-67.9S93.7 56.2 75 75s-18.7 49.1 0 67.9s49.1 18.7 67.9 0zM369.1 437c18.7 18.7 49.1 18.7 67.9 0s18.7-49.1 0-67.9s-49.1-18.7-67.9 0s-18.7 49.1 0 67.9z"/></svg></span>
+                            </div>
+                        </div>
+                    </form>
+                    <div id="mdbook-searchresults-outer" class="searchresults-outer hidden">
+                        <div id="mdbook-searchresults-header" class="searchresults-header"></div>
+                        <ul id="mdbook-searchresults">
+                        </ul>
+                    </div>
+                </div>
+
+                <!-- Apply ARIA attributes after the sidebar and the sidebar toggle button are added to the DOM -->
+                <script>
+                    document.getElementById('mdbook-sidebar-toggle').setAttribute('aria-expanded', sidebar === 'visible');
+                    document.getElementById('mdbook-sidebar').setAttribute('aria-hidden', sidebar !== 'visible');
+                    Array.from(document.querySelectorAll('#mdbook-sidebar a')).forEach(function(link) {
+                        link.setAttribute('tabIndex', sidebar === 'visible' ? 0 : -1);
+                    });
+                </script>
+
+                <div id="mdbook-content" class="content">
+                    <main>
+                        <h1 id="literate-lisp-in-x2c"><a class="header" href="#literate-lisp-in-x2c">Literate Lisp in <span class="x2c-wordmark">x2c</span></a></h1>
+<p><a href="https://github.com/gwf/x2c/blob/c2a89d999e81f47a4422a26edf0033eb0b98c6c6/examples/programs/literate-lisp.x">The reference interpreter</a>
+implements <span class="x2c-wordmark">x2c</span> Lisp in one source file. It owns its reader, environments,
+closures, special forms, native registry, and standard vocabulary. Evaluation
+recurses over ordinary values; it never constructs a Lisp session, calls the
+production evaluator, or prepares or executes word code.</p>
+<p>Build it from the repository root:</p>
+<pre><code class="language-sh">./builds/0/x2c build --output /tmp/reference-lisp \
+  examples/programs/literate-lisp.x
+/tmp/reference-lisp --selftest
+/tmp/reference-lisp -e '(map (lambda (x) (* x x)) (list 1 2 3 4))'
+/tmp/reference-lisp examples/data/reference-lisp/showcase.xlisp
+</code></pre>
+<p>With no arguments it reads forms from standard input, prompting when attached
+to a terminal. It accepts multiline input and continues after a failed form.
+The executable needs no initialization file or repository-relative lookup.
+The source also stands alone: its standard vocabulary is an ordinary quoted
+List literal, evaluated by this interpreter at startup. An explicit <code>import</code>
+reads the file requested by the Lisp program.</p>
+<h2 id="reading-the-source"><a class="header" href="#reading-the-source">Reading the source</a></h2>
+<p>View this example at 120 columns. Top-level block comments explain Lisp;
+these comments stay within 75 columns and code within 79 columns. Terse line comments begin at
+column 81 and explain <span class="x2c-wordmark">x2c</span> syntax, conversions, and lifetime rules beside their
+uses. Notes beside the quoted standard library describe its runtime Lisp
+forms. Block comments begin at the left edge.</p>
+<p>Start with <code>Interp.eval</code>, then <code>Interp.special</code>. The first reads
+like the evaluation rule: resolve an atom, return a literal, or evaluate a
+call. The second matches the grammar directly: <code>(quote form)</code>, <code>(def name form)</code>, <code>(lambda parameters body)</code>, and the other special forms. A matched
+shape supplies its parts; separate error helpers describe rejected forms.
+The small <code>$fail</code> statement macro constructs the ordinary <code>raise</code> syntax from
+a cause, an operation, and the remaining field/value pairs. Each call keeps
+its diagnostic details visible and preserves their value types and order.</p>
+<p><code>Interp.apply</code> receives values. Only <code>eval</code> decides which arguments to
+evaluate: ordinary calls evaluate left to right, while a macro receives its
+raw argument forms. Native argument marshalling lives with the native
+operations, so it does not interrupt the evaluator’s rules.</p>
+<p><code>Fn</code> is a closure: parameters, a body, captured values, and a macro flag. It
+uses the ordinary <code>Var</code> value tag <code>lambda</code>, preserving sorting, type queries,
+and native diagnostics. The record is defined entirely here; no
+production <code>Lambda</code> object or protocol is used.</p>
+<p><code>Env</code> is a stack-local link and a Map of bindings. Call bindings are
+freed when the call returns. Closure records and their capture Maps remain in
+the session Scope. Capturing copies a Var, preserving the identity and
+ownership of its referent. Ordinary String and List pools own canonical data.</p>
+<p>These private records use plain structs. Class defaults would require extra
+initialization and comparison methods for their Map fields; the evaluator
+needs neither generic record boxing nor field comparison. <code>foreach</code> handles
+element traversal. The remaining <code>for</code> loops follow environment links or keep
+the parameter tail needed to bind a dotted rest argument.</p>
+<p>Quasiquotation has two operations with distinct results: <code>quasiquote</code> returns
+one value; <code>quoted_item</code> returns the elements that value contributes to its
+containing List. An active <code>,@</code> can contribute several elements. The nesting
+depth determines when an unquote becomes active.</p>
+<p><code>Reader.scan</code> tokenizes one source batch. <code>Reader.read</code> returns successive
+forms, using recursive descent for Lists and reader prefixes. End of input is
+<code>void</code>; an unfinished or malformed form raises an error at its source
+position. Token storage has its own temporary Scope, while the forms outlive
+it. The REPL retains unfinished input and resumes from that form’s start.
+<code>Repl.read_line</code> handles prompts, line input, and EOF. <code>Repl.read_unit</code> calls
+it when needed, then handles tokenization and parsing. It returns one form
+or <code>void</code> when no form is ready, setting <code>done</code> at EOF. The <code>storage</code> scope owns
+the tokens between forms and is released before the source buffer changes.
+The single loop in <code>_repl</code> calls <code>read_unit</code>, passes the form to <code>Interp.eval</code>,
+and prints the result. Evaluation errors are caught per form.</p>
+<p><code>_install_natives</code> is one table of Lisp names, <code>bind</code> spellings, and ordinary
+<span class="x2c-wordmark">x2c</span> functions. A native whose Lisp name is <code>()</code> is available through <code>bind</code>
+without being installed globally. Function conversion supplies fixed native
+signatures; the small <code>$rest</code> macro states the shared convention for native
+functions that take every argument as a List. These are compile-time <span class="x2c-wordmark">x2c</span>
+facilities, not another runtime evaluator. The <code>lisp_*</code> strings are
+compatibility names; their implementations belong to this file or ordinary
+runtime modules.</p>
+<p>The static <code>_stdlib</code> List supplies the remaining macros and higher-order
+functions in Lisp itself. <span class="x2c-wordmark">x2c</span> hoists its initialization; it needs no accessor
+function. Native definitions appear only in the table, rather than being
+declared again in this List. The few text adapters that return <code>Var</code> preserve
+signatures printed in Lisp error messages.</p>
+<p>The source uses ordinary runtime collection and pattern operations, including
+<code>List.match</code> and replacement. Those operations retain their normal runtime
+implementation; this example replaces Lisp evaluation, not <span class="x2c-wordmark">x2c</span>’s collection
+or pattern engine.</p>
+<h2 id="compatibility"><a class="header" href="#compatibility">Compatibility</a></h2>
+<p>The reference follows <span class="x2c-wordmark">x2c</span> Lisp, including behavior that differs from Scheme:</p>
+<ul>
+<li>Only the empty List is false; zero and the empty String are true.</li>
+<li>Ordinary arguments run left to right. Macros receive unevaluated forms.</li>
+<li>Special forms are callable identities, so aliases and shadowing work.</li>
+<li>A closure captures local names found by flattening its List body, including
+quoted and nested forms. Its own parameters and reserved names are excluded.
+A scalar body captures nothing. Lookup continues through caller environments
+for names absent from the call’s bindings and captures.</li>
+<li><code>def</code> writes globals. <code>eval</code> evaluates its supplied expression globally.</li>
+<li><code>apply</code> consumes evaluated values and rejects macros and special forms,
+except for the built-in <code>apply</code> itself.</li>
+<li><code>bind</code> looks up a fixed native registry; repeated lookup preserves identity.</li>
+<li>Completed effects remain when a later form fails to read or evaluate.</li>
+</ul>
+<p>Native calls use <span class="x2c-wordmark">x2c</span>’s existing checked <code>Func</code> boundary. Deliberate Lisp
+signature and form errors remain in the evaluator. No additional syntax
+validation or compiler-specific protection of <code>x2c.*</code> names is introduced.</p>
+<p>The reference targets language behavior, not the embedding APIs, AUTO
+instrumentation, word-code introspection, or native stack capacity of the
+production runtime. Calls consume native stack: sufficiently deep recursion
+can exhaust it. Callable addresses are process-specific, as they are in the
+production implementation. This is a tested reference, not a proof that every
+possible program behaves identically.</p>
+<h2 id="production-execution"><a class="header" href="#production-execution">Production execution</a></h2>
+<p>The production evaluator can prepare repeated Lambda calls as word code.
+Preparation can mix lowered operations with ordinary evaluation: when a form
+has no lowering, its partial words are discarded and that form runs through
+the evaluator with the current parameters, captures, and caller environment.
+For example, an interpreted <code>def</code> can sit inside a lowered <code>cond</code>; it does
+not prevent preparation of the whole body. This changes execution, not
+which Lisp forms are legal or when their effects occur.</p>
+<p>Lowered <code>quote</code>, <code>cond</code>, and <code>quasiquote</code> forms check their binding at the
+start of that form. Prepared macro expansions likewise check the bindings
+used during expansion. If a preceding effect changed a dependency, only the
+original form is evaluated, without replaying earlier effects. Rebinding
+inside a selected special form does not replace that operation midway
+through it; later forms resolve their own bindings.</p>
+<p>Preparation still has parameter and program-capacity limits: dotted rest
+parameters and more parameters than the machine frame supports remain
+interpreted. Prepared calls use bounded frame, local, and operand storage;
+when a call cannot fit, it crosses to recursive evaluation. A lowered self
+call in tail position can reuse its frame when the runtime callee still
+matches. Other recursion, including recursion inside an interpreted form,
+can consume native stack. AUTO therefore does not prepare every Lambda or
+promise unbounded recursion.</p>
+<h2 id="the-showcase-and-comparison"><a class="header" href="#the-showcase-and-comparison">The showcase and comparison</a></h2>
+<p><a href="https://github.com/gwf/x2c/blob/c2a89d999e81f47a4422a26edf0033eb0b98c6c6/examples/data/reference-lisp/showcase.xlisp">The Lisp demonstration</a>
+differentiates <code>x*x + 3*x</code> using recursive pattern matching, simplifies the
+result, evaluates both expressions at <code>x = 5</code>, and maps a captured offset over
+a List. Its result is:</p>
+<pre><code class="language-text">((+ (* x x) (* 3 x)) (+ (+ x x) 3) 40 13 (11 12 13))
+</code></pre>
+<p>The example is listed in <code>examples/manifest.txt</code>, so <code>make examples</code> checks
+its output alongside the existing examples. The optional differential checker
+builds both implementations and compares exit status, stdout, and stderr:</p>
+<pre><code class="language-sh">python3 examples/programs/check-reference-lisp.py --build
+</code></pre>
+<p>The corpus covers ordinary values, arithmetic, macros, capture, shadowing,
+reader failures, native errors, file imports, optional Lisp libraries, and
+REPL recovery. It avoids printing opaque addresses and performs no output
+normalization. Run it when changing this interpreter or the production Lisp
+semantics; it is not an additional publication gate.</p>
+<h2 id="basic-benchmarks"><a class="header" href="#basic-benchmarks">Basic benchmarks</a></h2>
+<p>The optional runner compares the recursive interpreter with the word-machine
+shell in <code>examples/programs/lisp.x</code>. Run it from the repository root:</p>
+<pre><code class="language-sh">python3 examples/programs/benchmark-reference-lisp.py --build
+python3 examples/programs/benchmark-reference-lisp.py --repeat 10
+python3 examples/programs/benchmark-reference-lisp.py --case fibonacci --show-source
+</code></pre>
+<p>The five workloads cover startup, recursive Fibonacci, map/fold operations,
+captured closures, and runtime Lisp macros. Each sample verifies an expected
+result. The runner alternates execution order and reports median milliseconds
+from fresh processes, including startup, library initialization, reading,
+word-machine compilation, evaluation, and output. These measure complete CLI
+runs; they do not isolate evaluator speed. The startup baseline is reported
+separately, without subtracting it from the other measurements.</p>
+
+                    </main>
+
+                    <nav class="x2c-pager" aria-label="Page navigation">
+                        <a rel="prev" href="../internals/building.html" class="x2c-pager-prev" aria-keyshortcuts="Left">
+                            <span class="x2c-pager-label">previous</span>
+                            <span class="x2c-pager-title">Building the Compiler</span>
+                        </a>
+                        
+                    </nav>
+                    <footer class="x2c-footer">
+                        &copy; 2025&ndash;2026
+                        <a href="https://flake.org">GWF</a>
+                        &middot;
+                        <a href="https://github.com/gwf/x2c/blob/c2a89d999e81f47a4422a26edf0033eb0b98c6c6/LICENSE">Apache 2.0</a>
+                        &middot;
+                        <a href="https://github.com/gwf/x2c/blob/c2a89d999e81f47a4422a26edf0033eb0b98c6c6/TRADEMARKS.md">Trademarks</a>
+                    </footer>
+                </div>
+            </div>
+
+
+        </div>
+
+        <template id=fa-eye><span class=fa-svg><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 576 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc. --><path d="M288 32c-80.8 0-145.5 36.8-192.6 80.6C48.6 156 17.3 208 2.5 243.7c-3.3 7.9-3.3 16.7 0 24.6C17.3 304 48.6 356 95.4 399.4C142.5 443.2 207.2 480 288 480s145.5-36.8 192.6-80.6c46.8-43.5 78.1-95.4 93-131.1c3.3-7.9 3.3-16.7 0-24.6c-14.9-35.7-46.2-87.7-93-131.1C433.5 68.8 368.8 32 288 32zM432 256c0 79.5-64.5 144-144 144s-144-64.5-144-144s64.5-144 144-144s144 64.5 144 144zM288 192c0 35.3-28.7 64-64 64c-11.5 0-22.3-3-31.6-8.4c-.2 2.8-.4 5.5-.4 8.4c0 53 43 96 96 96s96-43 96-96s-43-96-96-96c-2.8 0-5.6 .1-8.4 .4c5.3 9.3 8.4 20.1 8.4 31.6z"/></svg></span></template>
+        <template id=fa-eye-slash><span class=fa-svg><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 640 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc. --><path d="M38.8 5.1C28.4-3.1 13.3-1.2 5.1 9.2S-1.2 34.7 9.2 42.9l592 464c10.4 8.2 25.5 6.3 33.7-4.1s6.3-25.5-4.1-33.7L525.6 386.7c39.6-40.6 66.4-86.1 79.9-118.4c3.3-7.9 3.3-16.7 0-24.6c-14.9-35.7-46.2-87.7-93-131.1C465.5 68.8 400.8 32 320 32c-68.2 0-125 26.3-169.3 60.8L38.8 5.1zM223.1 149.5C248.6 126.2 282.7 112 320 112c79.5 0 144 64.5 144 144c0 24.9-6.3 48.3-17.4 68.7L408 294.5c5.2-11.8 8-24.8 8-38.5c0-53-43-96-96-96c-2.8 0-5.6 .1-8.4 .4c5.3 9.3 8.4 20.1 8.4 31.6c0 10.2-2.4 19.8-6.6 28.3l-90.3-70.8zm223.1 298L373 389.9c-16.4 6.5-34.3 10.1-53 10.1c-79.5 0-144-64.5-144-144c0-6.9 .5-13.6 1.4-20.2L83.1 161.5C60.3 191.2 44 220.8 34.5 243.7c-3.3 7.9-3.3 16.7 0 24.6c14.9 35.7 46.2 87.7 93 131.1C174.5 443.2 239.2 480 320 480c47.8 0 89.9-12.9 126.2-32.5z"/></svg></span></template>
+        <template id=fa-copy><span class=fa-svg><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc. --><path d="M502.6 70.63l-61.25-61.25C435.4 3.371 427.2 0 418.7 0H255.1c-35.35 0-64 28.66-64 64l.0195 256C192 355.4 220.7 384 256 384h192c35.2 0 64-28.8 64-64V93.25C512 84.77 508.6 76.63 502.6 70.63zM464 320c0 8.836-7.164 16-16 16H255.1c-8.838 0-16-7.164-16-16L239.1 64.13c0-8.836 7.164-16 16-16h128L384 96c0 17.67 14.33 32 32 32h47.1V320zM272 448c0 8.836-7.164 16-16 16H63.1c-8.838 0-16-7.164-16-16L47.98 192.1c0-8.836 7.164-16 16-16H160V128H63.99c-35.35 0-64 28.65-64 64l.0098 256C.002 483.3 28.66 512 64 512h192c35.2 0 64-28.8 64-64v-32h-47.1L272 448z"/></svg></span></template>
+        <template id=fa-play><span class=fa-svg><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 384 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc. --><path d="M73 39c-14.8-9.1-33.4-9.4-48.5-.9S0 62.6 0 80V432c0 17.4 9.4 33.4 24.5 41.9s33.7 8.1 48.5-.9L361 297c14.3-8.7 23-24.2 23-41s-8.7-32.2-23-41L73 39z"/></svg></span></template>
+        <template id=fa-clock-rotate-left><span class=fa-svg><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc. --><path d="M75 75L41 41C25.9 25.9 0 36.6 0 57.9V168c0 13.3 10.7 24 24 24H134.1c21.4 0 32.1-25.9 17-41l-30.8-30.8C155 85.5 203 64 256 64c106 0 192 86 192 192s-86 192-192 192c-40.8 0-78.6-12.7-109.7-34.4c-14.5-10.1-34.4-6.6-44.6 7.9s-6.6 34.4 7.9 44.6C151.2 495 201.7 512 256 512c141.4 0 256-114.6 256-256S397.4 0 256 0C185.3 0 121.3 28.7 75 75zm181 53c-13.3 0-24 10.7-24 24V256c0 6.4 2.5 12.5 7 17l72 72c9.4 9.4 24.6 9.4 33.9 0s9.4-24.6 0-33.9l-65-65V152c0-13.3-10.7-24-24-24z"/></svg></span></template>
+
+
+
+        <script>
+            window.playground_copyable = true;
+        </script>
+
+
+        <script src="../elasticlunr-ef4e11c1.min.js"></script>
+        <script src="../mark-09e88c2c.min.js"></script>
+        <script src="../searcher-09f2665d.js"></script>
+
+        <script src="../clipboard-1626706a.min.js"></script>
+        <script src="../highlight-abc7f01d.js"></script>
+        <script src="../book-609e4cb8.js"></script>
+
+        <script>
+            document.addEventListener('DOMContentLoaded', () => {
+                const sidebar = document.querySelector('#mdbook-sidebar');
+                sidebar.querySelectorAll('ol').forEach(list => {
+                    const numbers = list.querySelectorAll(
+                        ':scope > li > .chapter-link-wrapper > a > strong, :scope > li > a > strong');
+                    if (numbers.length) {
+                        const width = Math.max(...Array.from(numbers,
+                            number => number.textContent.trim().length));
+                        list.style.setProperty('--chapter-number-width', width + 'ch');
+                    }
+                });
+                const chapter = sidebar.querySelector('a.active');
+                const item = chapter?.closest('.chapter-item');
+                if (item?.querySelector(':scope > .on-this-page')) {
+                    const row = chapter.parentElement;
+                    if (!row.querySelector('.chapter-fold-toggle')) {
+                        const toggle = document.createElement('button');
+                        toggle.type = 'button';
+                        toggle.className = 'chapter-fold-toggle';
+                        toggle.appendChild(document.createElement('div'));
+                        toggle.addEventListener('click', () => {
+                            item.classList.toggle('expanded');
+                        });
+                        row.appendChild(toggle);
+                    }
+                }
+                sidebar.querySelectorAll('.chapter-fold-toggle').forEach(toggle => {
+                    const row = toggle.parentElement;
+                    const item = row.parentElement;
+                    const title = row.querySelector('a').textContent.trim();
+                    toggle.setAttribute('aria-label', 'Toggle ' + title);
+                    const update = () => toggle.setAttribute('aria-expanded',
+                        String(item.classList.contains('expanded')));
+                    update();
+                    toggle.addEventListener('click', update);
+                    if (toggle.tagName === 'A') {
+                        toggle.setAttribute('role', 'button');
+                        toggle.tabIndex = 0;
+                        toggle.addEventListener('keydown', event => {
+                            if (event.key === 'Enter' || event.key === ' ') {
+                                event.preventDefault();
+                                toggle.click();
+                            }
+                        });
+                    }
+                });
+            });
+        </script>
+
+        <!-- Custom JS scripts -->
+
+
+
+    </div>
+    </body>
+</html>

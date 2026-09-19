@@ -1,0 +1,1 @@
+import{t as e}from"./analytics.C0oV1xKC.js";document.addEventListener(`click`,t=>{if(!(t.target instanceof Element))return;let n=t.target.closest(`a[data-example-action]`);n&&e(n,n.dataset.exampleAction)});

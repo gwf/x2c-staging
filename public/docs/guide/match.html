@@ -1,0 +1,642 @@
+<!DOCTYPE HTML>
+<html lang="en" class="light sidebar-visible" dir="ltr">
+    <head>
+        <!-- Book generated using mdBook -->
+        <meta charset="UTF-8">
+        <title>Pattern Matching - The x2c Book</title>
+
+
+        <!-- Custom HTML head -->
+        <link rel="preconnect" href="https://fonts.googleapis.com">
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=Archivo:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">
+
+        <meta name="description" content="The x2c language, standard library, and compiler.">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <meta name="theme-color" content="#ffffff">
+
+        <link rel="icon" href="../favicon-995a3c20.svg">
+        <link rel="stylesheet" href="../css/variables-8adf115d.css">
+        <link rel="stylesheet" href="../css/general-e96d0476.css">
+        <link rel="stylesheet" href="../css/chrome-d279d366.css">
+        <link rel="stylesheet" href="../css/print-9e4910d8.css" media="print">
+
+        <!-- Fonts -->
+        <link rel="stylesheet" href="../fonts/fonts-9644e21d.css">
+
+        <!-- Highlight.js Stylesheets -->
+        <link rel="stylesheet" id="mdbook-highlight-css" href="../highlight-493f70e1.css">
+        <link rel="stylesheet" id="mdbook-tomorrow-night-css" href="../tomorrow-night-4c0ae647.css">
+        <link rel="stylesheet" id="mdbook-ayu-highlight-css" href="../ayu-highlight-3fdfc3ac.css">
+
+        <!-- Custom theme stylesheets -->
+        <link rel="stylesheet" href="../theme/header-2c1becca.css">
+        <link rel="stylesheet" href="../theme/x2c-fd3d182e.css">
+
+
+        <!-- Provide site root and default themes to javascript -->
+        <script>
+            const path_to_root = "../";
+            const default_light_theme = "light";
+            const default_dark_theme = "light";
+            window.path_to_searchindex_js = "../searchindex-2643e100.js";
+        </script>
+        <!-- Start loading toc.js asap -->
+        <script src="../toc-a71616d6.js"></script>
+        <!-- x2c publication metadata -->
+        <link rel="canonical" href="https://staging.x2c-lang.dev/docs/guide/match.html">
+        <meta property="og:type" content="website">
+        <meta property="og:title" content="Pattern Matching - The x2c Book">
+        <meta property="og:description" content="The x2c language, standard library, and compiler.">
+        <meta property="og:url" content="https://staging.x2c-lang.dev/docs/guide/match.html">
+        <meta property="og:image" content="https://staging.x2c-lang.dev/x2c-social.png">
+        <meta property="og:image:width" content="1200">
+        <meta property="og:image:height" content="630">
+        <meta name="twitter:card" content="summary_large_image">
+        <meta name="twitter:title" content="Pattern Matching - The x2c Book">
+        <meta name="twitter:description" content="The x2c language, standard library, and compiler.">
+        <meta name="twitter:image" content="https://staging.x2c-lang.dev/x2c-social.png">
+    </head>
+    <body><aside aria-label="Release candidate" style="padding:1rem;background:#fff1bf;color:#241c00;font:14px/1.5 monospace;overflow-wrap:anywhere"><strong>Public staging: candidate-c2a89d999e81f47a4422a26edf0033eb0b98c6c6-35470032964-1</strong><p>Source: c2a89d999e81f47a4422a26edf0033eb0b98c6c6. Use a fresh scratch installation and the explicit candidate index below. Bare x2c install commands and production URLs in the book refer to production.</p><pre style="overflow:auto">export X2C_PREFIX=&quot;$(mktemp -d)/x2c&quot;
+curl -fsSL https://staging.x2c-lang.dev/install.sh | sh
+export PATH=&quot;$X2C_PREFIX/bin:$PATH&quot;
+x2c run &quot;$X2C_PREFIX/examples/foreach.x&quot;
+x2c install pcre2 --index https://staging.x2c-lang.dev/packages/index.txt</pre></aside>
+    <div id="mdbook-help-container">
+        <div id="mdbook-help-popup">
+            <h2 class="mdbook-help-title">Keyboard shortcuts</h2>
+            <div>
+                <p>Press <kbd>←</kbd> or <kbd>→</kbd> to navigate between chapters</p>
+                <p>Press <kbd>S</kbd> or <kbd>/</kbd> to search in the book</p>
+                <p>Press <kbd>?</kbd> to show this help</p>
+                <p>Press <kbd>Esc</kbd> to hide this help</p>
+            </div>
+        </div>
+    </div>
+    <div id="mdbook-body-container">
+        <!-- Work around some values being stored in localStorage wrapped in quotes -->
+        <script>
+            try {
+                let theme = localStorage.getItem('mdbook-theme');
+                let sidebar = localStorage.getItem('mdbook-sidebar');
+
+                if (theme.startsWith('"') && theme.endsWith('"')) {
+                    localStorage.setItem('mdbook-theme', theme.slice(1, theme.length - 1));
+                }
+
+                if (sidebar.startsWith('"') && sidebar.endsWith('"')) {
+                    localStorage.setItem('mdbook-sidebar', sidebar.slice(1, sidebar.length - 1));
+                }
+            } catch (e) { }
+        </script>
+
+        <!-- Set the theme before any content is loaded, prevents flash -->
+        <script>
+            const default_theme = window.matchMedia("(prefers-color-scheme: dark)").matches ? default_dark_theme : default_light_theme;
+            let theme;
+            try { theme = localStorage.getItem('mdbook-theme'); } catch(e) { }
+            if (theme === null || theme === undefined) { theme = default_theme; }
+            const html = document.documentElement;
+            html.classList.remove('light')
+            html.classList.add(theme);
+            html.classList.add("js");
+        </script>
+
+        <input type="checkbox" id="mdbook-sidebar-toggle-anchor" class="hidden">
+
+        <!-- Hide / unhide sidebar before it is displayed -->
+        <script>
+            let sidebar = null;
+            const sidebar_toggle = document.getElementById("mdbook-sidebar-toggle-anchor");
+            if (document.body.clientWidth >= 1080) {
+                try { sidebar = localStorage.getItem('mdbook-sidebar'); } catch(e) { }
+                sidebar = sidebar || 'visible';
+            } else {
+                sidebar = 'hidden';
+                sidebar_toggle.checked = false;
+            }
+            if (sidebar === 'visible') {
+                sidebar_toggle.checked = true;
+            } else {
+                html.classList.remove('sidebar-visible');
+            }
+        </script>
+
+        <nav id="mdbook-sidebar" class="sidebar" aria-label="Table of contents">
+            <!-- populated by js -->
+            <mdbook-sidebar-scrollbox class="sidebar-scrollbox"></mdbook-sidebar-scrollbox>
+            <noscript>
+                <iframe class="sidebar-iframe-outer" src="../toc.html"></iframe>
+            </noscript>
+            <div id="mdbook-sidebar-resize-handle" class="sidebar-resize-handle">
+                <div class="sidebar-resize-indicator"></div>
+            </div>
+        </nav>
+
+        <div id="mdbook-page-wrapper" class="page-wrapper">
+
+            <div class="page">
+                <div id="mdbook-menu-bar" class="hidden"></div>
+                <header class="landing-header x2c-header">
+                    <div class="landing-header-inner">
+                        <div class="landing-branding">
+                            <a class="landing-brand" href="../../" aria-label="x2c home">
+                                <svg viewBox="0 0 100 100" width="22" height="22" aria-hidden="true"><g fill="none" stroke="#da291c" stroke-width="17" stroke-linecap="butt"><path d="M9 16 A34.5 34.5 0 0 1 9 84"></path><path d="M91 16 A34.5 34.5 0 0 0 91 84"></path></g></svg>
+                                <span class="x2c-wordmark landing-wordmark">x2c</span>
+                            </a>
+                            <span class="landing-tagline">The x2c Book</span>
+                        </div>
+                        <nav class="landing-nav" aria-label="x2c website">
+                            <div class="landing-page-nav">
+                                <a href="../../#love">love</a>
+                                <a href="../../#power">power</a>
+                                <a href="../../#magic">magic</a>
+                            </div>
+                            <div class="landing-site-nav">
+                                <a href="../../#install">install</a>
+                                <a href="../../#packages">packages</a>
+                            </div>
+                            <div class="landing-reference-nav">
+                                <a href="../../about/">about</a>
+                                <a href="../" aria-current="page">docs</a>
+                                <a href="https://github.com/gwf/x2c">source</a>
+                            </div>
+                        </nav>
+                    </div>
+                    <div class="x2c-book-tools">
+                        <div class="x2c-header-tools">
+                            <label id="mdbook-sidebar-toggle" class="icon-button" for="mdbook-sidebar-toggle-anchor" title="Toggle Table of Contents" aria-label="Toggle Table of Contents" aria-controls="mdbook-sidebar">
+                                <span class=fa-svg><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc. --><path d="M0 96C0 78.3 14.3 64 32 64H416c17.7 0 32 14.3 32 32s-14.3 32-32 32H32C14.3 128 0 113.7 0 96zM0 256c0-17.7 14.3-32 32-32H416c17.7 0 32 14.3 32 32s-14.3 32-32 32H32c-17.7 0-32-14.3-32-32zM448 416c0 17.7-14.3 32-32 32H32c-17.7 0-32-14.3-32-32s14.3-32 32-32H416c17.7 0 32 14.3 32 32z"/></svg></span>
+                            </label>
+                        </div>
+                        <div class="x2c-header-tools x2c-header-tools-right">
+                            <button id="mdbook-search-toggle" class="icon-button" type="button" title="Search (`/`)" aria-label="Toggle Searchbar" aria-expanded="false" aria-keyshortcuts="/ s" aria-controls="mdbook-searchbar">
+                                <span class=fa-svg><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc. --><path d="M416 208c0 45.9-14.9 88.3-40 122.7L502.6 457.4c12.5 12.5 12.5 32.8 0 45.3s-32.8 12.5-45.3 0L330.7 376c-34.4 25.2-76.8 40-122.7 40C93.1 416 0 322.9 0 208S93.1 0 208 0S416 93.1 416 208zM208 352c79.5 0 144-64.5 144-144s-64.5-144-144-144S64 128.5 64 208s64.5 144 144 144z"/></svg></span>
+                            </button>
+                            <button id="mdbook-theme-toggle" class="icon-button" type="button" title="Change theme" aria-label="Change theme" aria-haspopup="true" aria-expanded="false" aria-controls="mdbook-theme-list">
+                                <span class=fa-svg><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc. --><path d="M448 256c0-106-86-192-192-192V448c106 0 192-86 192-192zm64 0c0 141.4-114.6 256-256 256S0 397.4 0 256S114.6 0 256 0S512 114.6 512 256z"/></svg></span>
+                            </button>
+                            <ul id="mdbook-theme-list" class="theme-popup" aria-label="Themes" role="menu">
+                                <li role="none"><button role="menuitem" class="theme" id="mdbook-theme-default_theme">Auto</button></li>
+                                <li role="none"><button role="menuitem" class="theme" id="mdbook-theme-light">Light</button></li>
+                                <li role="none"><button role="menuitem" class="theme" id="mdbook-theme-ayu">Dark</button></li>
+                            </ul>
+                            <a href="https://github.com/gwf/x2c/edit/main/docs/src/guide/match.md" title="Suggest an edit" aria-label="Suggest an edit" rel="edit" class="icon-button">
+                                <span class=fa-svg id="git-edit-button"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc. --><path d="M421.7 220.3l-11.3 11.3-22.6 22.6-205 205c-6.6 6.6-14.8 11.5-23.8 14.1L30.8 511c-8.4 2.5-17.5 .2-23.7-6.1S-1.5 489.7 1 481.2L38.7 353.1c2.6-9 7.5-17.2 14.1-23.8l205-205 22.6-22.6 11.3-11.3 33.9 33.9 62.1 62.1 33.9 33.9zM96 353.9l-9.3 9.3c-.9 .9-1.6 2.1-2 3.4l-25.3 86 86-25.3c1.3-.4 2.5-1.1 3.4-2l9.3-9.3H112c-8.8 0-16-7.2-16-16V353.9zM453.3 19.3l39.4 39.4c25 25 25 65.5 0 90.5l-14.5 14.5-22.6 22.6-11.3 11.3-33.9-33.9-62.1-62.1L314.3 67.7l11.3-11.3 22.6-22.6 14.5-14.5c25-25 65.5-25 90.5 0z"/></svg></span>
+                            </a>
+                        </div>
+                    </div>
+                </header>
+                <script>
+                    const bookHeader = document.querySelector('.x2c-header');
+                    new ResizeObserver(() => {
+                        document.documentElement.style.setProperty(
+                            '--menu-bar-height', `${bookHeader.getBoundingClientRect().height}px`);
+                    }).observe(bookHeader);
+                </script>
+
+                <div id="mdbook-search-wrapper" class="hidden">
+                    <form id="mdbook-searchbar-outer" class="searchbar-outer">
+                        <div class="search-wrapper">
+                            <input type="search" id="mdbook-searchbar" name="searchbar" placeholder="Search this book ..." aria-controls="mdbook-searchresults-outer" aria-describedby="searchresults-header">
+                            <div class="spinner-wrapper">
+                                <span class=fa-svg id="fa-spin"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc. --><path d="M304 48c0-26.5-21.5-48-48-48s-48 21.5-48 48s21.5 48 48 48s48-21.5 48-48zm0 416c0-26.5-21.5-48-48-48s-48 21.5-48 48s21.5 48 48 48s48-21.5 48-48zM48 304c26.5 0 48-21.5 48-48s-21.5-48-48-48s-48 21.5-48 48s21.5 48 48 48zm464-48c0-26.5-21.5-48-48-48s-48 21.5-48 48s21.5 48 48 48s48-21.5 48-48zM142.9 437c18.7-18.7 18.7-49.1 0-67.9s-49.1-18.7-67.9 0s-18.7 49.1 0 67.9s49.1 18.7 67.9 0zm0-294.2c18.7-18.7 18.7-49.1 0-67.9S93.7 56.2 75 75s-18.7 49.1 0 67.9s49.1 18.7 67.9 0zM369.1 437c18.7 18.7 49.1 18.7 67.9 0s18.7-49.1 0-67.9s-49.1-18.7-67.9 0s-18.7 49.1 0 67.9z"/></svg></span>
+                            </div>
+                        </div>
+                    </form>
+                    <div id="mdbook-searchresults-outer" class="searchresults-outer hidden">
+                        <div id="mdbook-searchresults-header" class="searchresults-header"></div>
+                        <ul id="mdbook-searchresults">
+                        </ul>
+                    </div>
+                </div>
+
+                <!-- Apply ARIA attributes after the sidebar and the sidebar toggle button are added to the DOM -->
+                <script>
+                    document.getElementById('mdbook-sidebar-toggle').setAttribute('aria-expanded', sidebar === 'visible');
+                    document.getElementById('mdbook-sidebar').setAttribute('aria-hidden', sidebar !== 'visible');
+                    Array.from(document.querySelectorAll('#mdbook-sidebar a')).forEach(function(link) {
+                        link.setAttribute('tabIndex', sidebar === 'visible' ? 0 : -1);
+                    });
+                </script>
+
+                <div id="mdbook-content" class="content">
+                    <main>
+                        <h1 id="pattern-matching"><a class="header" href="#pattern-matching">Pattern Matching</a></h1>
+<p>A <code>match</code> statement takes a <code>List</code> apart by describing the shape you expect.
+Instead of a run of <code>List_car</code>, <code>List_cdr</code>, length checks, and tag tests, you
+write a pattern that looks like the data, name the pieces you care about, and
+use those names as ordinary local variables.</p>
+<p>The <code>match</code> statement and the runtime matcher share one pattern language.
+The exhaustive rules are in
+<a href="../reference/language.html">the language reference</a>.</p>
+<h2 id="the-match-statement"><a class="header" href="#the-match-statement">The match statement</a></h2>
+<p>A <code>match</code> has a subject in parentheses and a sequence of arms. Each arm is
+<code>case pattern:</code> followed by one statement, and an optional final <code>default:</code>
+arm runs when nothing matched.</p>
+<pre class="shiki shiki-themes x2c-light x2c-dark x2c-code" style="--shiki-light:#24292e;--shiki-dark:#e9e5df;--shiki-light-bg:#fff;--shiki-dark-bg:#101011" tabindex="0"><code class="language-x2c no-highlight"><span class="line"><span style="--shiki-light:#007C8A;--shiki-dark:#29D3E2">List</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF"> reply </span><span style="--shiki-light:#D73A49;--shiki-dark:#E9E5DF">=</span><span style="--shiki-light:#24292E;--shiki-dark:#FF715A"> %(</span><span style="--shiki-light:#005CC5;--shiki-dark:#E9E5DF">status</span><span style="--shiki-light:#005CC5;--shiki-dark:#E9E5DF"> ok</span><span style="--shiki-light:#005CC5;--shiki-dark:#A9C9F5"> 200</span><span style="--shiki-light:#24292E;--shiki-dark:#FF715A">)</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">;</span>
+</span><span class="line"><span style="--shiki-light:#A626A4;--shiki-light-font-weight:bold;--shiki-dark:#FF4FD8;--shiki-dark-font-weight:bold">match</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF"> (reply) {</span>
+</span><span class="line"><span style="--shiki-light:#D73A49;--shiki-dark:#F0ADA1">  case</span><span style="--shiki-light:#24292E;--shiki-dark:#FF715A"> %(</span><span style="--shiki-light:#005CC5;--shiki-dark:#E9E5DF">status</span><span style="--shiki-light:#005CC5;--shiki-dark:#E9E5DF"> ok</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF"> ?code</span><span style="--shiki-light:#24292E;--shiki-dark:#FF715A">)</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">:</span>
+</span><span class="line"><span style="--shiki-light:#6F42C1;--shiki-dark:#E9E5DF">    printf</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">(</span><span style="--shiki-light:#032F62;--shiki-dark:#9EDFB8">"ok with code </span><span style="--shiki-light:#005CC5;--shiki-dark:#9EDFB8">%d\n</span><span style="--shiki-light:#032F62;--shiki-dark:#9EDFB8">"</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">, code);</span>
+</span><span class="line"><span style="--shiki-light:#D73A49;--shiki-dark:#F0ADA1">  case</span><span style="--shiki-light:#24292E;--shiki-dark:#FF715A"> %(</span><span style="--shiki-light:#005CC5;--shiki-dark:#E9E5DF">status</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF"> ?state ?code</span><span style="--shiki-light:#24292E;--shiki-dark:#FF715A">)</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">:</span>
+</span><span class="line"><span style="--shiki-light:#6F42C1;--shiki-dark:#E9E5DF">    printf</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">(</span><span style="--shiki-light:#032F62;--shiki-dark:#9EDFB8">"</span><span style="--shiki-light:#005CC5;--shiki-dark:#9EDFB8">%s</span><span style="--shiki-light:#032F62;--shiki-dark:#9EDFB8"> with code </span><span style="--shiki-light:#005CC5;--shiki-dark:#9EDFB8">%d\n</span><span style="--shiki-light:#032F62;--shiki-dark:#9EDFB8">"</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">, state, code);</span>
+</span><span class="line"><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">  default:</span>
+</span><span class="line"><span style="--shiki-light:#6F42C1;--shiki-dark:#E9E5DF">    printf</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">(</span><span style="--shiki-light:#032F62;--shiki-dark:#9EDFB8">"not a status reply</span><span style="--shiki-light:#005CC5;--shiki-dark:#9EDFB8">\n</span><span style="--shiki-light:#032F62;--shiki-dark:#9EDFB8">"</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">);</span>
+</span><span class="line"><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">}</span></span></code></pre>
+
+<p>The subject is evaluated once. Arms are then tried in source order, and the
+<strong>first</strong> one that matches runs. The second arm above would also have matched,
+but it is never tried. If no arm matches and there is no
+<code>default</code>, the whole statement does nothing.</p>
+<p>An arm’s body is a single statement, so use braces when you want several.
+A pattern is always a <code>%(...)</code> <code>List</code> literal.</p>
+<p>For a single arm you may drop the outer braces, the same way you can
+with <code>if</code>:</p>
+<pre class="shiki shiki-themes x2c-light x2c-dark x2c-code" style="--shiki-light:#24292e;--shiki-dark:#e9e5df;--shiki-light-bg:#fff;--shiki-dark-bg:#101011" tabindex="0"><code class="language-x2c no-highlight"><span class="line"><span style="--shiki-light:#007C8A;--shiki-dark:#29D3E2">List</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF"> value </span><span style="--shiki-light:#D73A49;--shiki-dark:#E9E5DF">=</span><span style="--shiki-light:#24292E;--shiki-dark:#FF715A"> %(</span><span style="--shiki-light:#005CC5;--shiki-dark:#E9E5DF">one</span><span style="--shiki-light:#24292E;--shiki-dark:#FF715A">)</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">;</span>
+</span><span class="line"><span style="--shiki-light:#A626A4;--shiki-light-font-weight:bold;--shiki-dark:#FF4FD8;--shiki-dark-font-weight:bold">match</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF"> (value)</span>
+</span><span class="line"><span style="--shiki-light:#D73A49;--shiki-dark:#F0ADA1">  case</span><span style="--shiki-light:#24292E;--shiki-dark:#FF715A"> %(</span><span style="--shiki-light:#005CC5;--shiki-dark:#E9E5DF">one</span><span style="--shiki-light:#24292E;--shiki-dark:#FF715A">)</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">:</span>
+</span><span class="line"><span style="--shiki-light:#6F42C1;--shiki-dark:#E9E5DF">    printf</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">(</span><span style="--shiki-light:#032F62;--shiki-dark:#9EDFB8">"no braces needed for a single arm</span><span style="--shiki-light:#005CC5;--shiki-dark:#9EDFB8">\n</span><span style="--shiki-light:#032F62;--shiki-dark:#9EDFB8">"</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">);</span></span></code></pre>
+
+<p>Arm order is also cost order, so put cheap, common shapes first.</p>
+<h3 id="typed-captures-and-expression-guards"><a class="header" href="#typed-captures-and-expression-guards">Typed captures and expression guards</a></h3>
+<p>Write <code>?(Type name)</code> to capture a value as a native typed local. The pattern
+tests the value’s <code>Var</code> tag; a different tag fails the pattern without
+converting the value. The supported types are the same as for <code>value is Type</code>.
+The <code>?(</code> opener must be adjacent; <code>? (String text)</code> remains a wildcard
+followed by a sublist pattern.</p>
+<pre class="shiki shiki-themes x2c-light x2c-dark x2c-code" style="--shiki-light:#24292e;--shiki-dark:#e9e5df;--shiki-light-bg:#fff;--shiki-dark-bg:#101011" tabindex="0"><code class="language-x2c no-highlight"><span class="line"><span style="--shiki-light:#007C8A;--shiki-dark:#29D3E2">List</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF"> reply </span><span style="--shiki-light:#D73A49;--shiki-dark:#E9E5DF">=</span><span style="--shiki-light:#24292E;--shiki-dark:#FF715A"> %(</span><span style="--shiki-light:#005CC5;--shiki-dark:#E9E5DF">message</span><span style="--shiki-light:#24292E;--shiki-dark:#FF715A"> "</span><span style="--shiki-light:#032F62;--shiki-dark:#9EDFB8">ready</span><span style="--shiki-light:#24292E;--shiki-dark:#FF715A">"</span><span style="--shiki-light:#24292E;--shiki-dark:#FF715A">)</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">;</span>
+</span><span class="line"><span style="--shiki-light:#A626A4;--shiki-light-font-weight:bold;--shiki-dark:#FF4FD8;--shiki-dark-font-weight:bold">match</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF"> (reply) {</span>
+</span><span class="line"><span style="--shiki-light:#D73A49;--shiki-dark:#F0ADA1">  case</span><span style="--shiki-light:#24292E;--shiki-dark:#FF715A"> %(</span><span style="--shiki-light:#005CC5;--shiki-dark:#E9E5DF">message</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF"> ?(</span><span style="--shiki-light:#007C8A;--shiki-dark:#29D3E2">String</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF"> text)</span><span style="--shiki-light:#24292E;--shiki-dark:#FF715A">)</span><span style="--shiki-light:#D73A49;--shiki-dark:#F0ADA1"> if</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF"> (text.</span><span style="--shiki-light:#6F42C1;--shiki-dark:#E9E5DF">len</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">() </span><span style="--shiki-light:#D73A49;--shiki-dark:#E9E5DF">&gt;</span><span style="--shiki-light:#005CC5;--shiki-dark:#A9C9F5"> 3</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">):</span>
+</span><span class="line"><span style="--shiki-light:#6F42C1;--shiki-dark:#E9E5DF">    printf</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">(</span><span style="--shiki-light:#032F62;--shiki-dark:#9EDFB8">"long message: </span><span style="--shiki-light:#005CC5;--shiki-dark:#9EDFB8">%s\n</span><span style="--shiki-light:#032F62;--shiki-dark:#9EDFB8">"</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">, text.</span><span style="--shiki-light:#6F42C1;--shiki-dark:#E9E5DF">str</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">());</span>
+</span><span class="line"><span style="--shiki-light:#D73A49;--shiki-dark:#F0ADA1">  case</span><span style="--shiki-light:#24292E;--shiki-dark:#FF715A"> %(</span><span style="--shiki-light:#005CC5;--shiki-dark:#E9E5DF">message</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF"> ?(</span><span style="--shiki-light:#007C8A;--shiki-dark:#29D3E2">String</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF"> text)</span><span style="--shiki-light:#24292E;--shiki-dark:#FF715A">)</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">:</span>
+</span><span class="line"><span style="--shiki-light:#6F42C1;--shiki-dark:#E9E5DF">    printf</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">(</span><span style="--shiki-light:#032F62;--shiki-dark:#9EDFB8">"short message: </span><span style="--shiki-light:#005CC5;--shiki-dark:#9EDFB8">%s\n</span><span style="--shiki-light:#032F62;--shiki-dark:#9EDFB8">"</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">, text.</span><span style="--shiki-light:#6F42C1;--shiki-dark:#E9E5DF">str</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">());</span>
+</span><span class="line"><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">}</span></span></code></pre>
+
+<p>An optional <code>if (expression)</code> before the colon runs after the pattern
+matches, with its captures in scope. A false guard tries the next arm;
+errors propagate normally. The guard uses ordinary expression truth rules.</p>
+<p>A typed name has the same type throughout its arm, including other
+occurrences written as <code>?name</code> and occurrences in alternative patterns.
+Repeated names still require equal values. <code>!quote</code> remains opaque, and the
+existing rule that each binder must be assigned in every alternative still
+applies. Explicit <code>(!is ?name type string)</code> keeps <code>name</code> as a <code>Var</code>.</p>
+<p>The shorthand lowers to the existing <code>!is</code> pattern predicate and ordinary
+typed local declarations. An expression guard lowers to an ordinary <code>if</code>;
+both forms match exactly as the explicit patterns do.</p>
+<h2 id="the-pattern-vocabulary"><a class="header" href="#the-pattern-vocabulary">The pattern vocabulary</a></h2>
+<p>Patterns are written in <code>List</code>-literal notation, which is described in
+<a href="collections.html">strings, lists, arrays, and maps</a>.</p>
+<h3 id="literals"><a class="header" href="#literals">Literals</a></h3>
+<p>A bare spelling in a pattern is an exact <code>Atom</code> that must appear in that
+position. Numbers and strings compare by value, and <code>$name</code> or
+<code>${expression}</code> unquotes a value to compare against. A pattern can require a
+<code>match</code> with something computed at run time.</p>
+<h3 id="wildcards"><a class="header" href="#wildcards">Wildcards</a></h3>
+<p><code>?</code> matches exactly one element and discards it. <code>*</code> matches any number of
+elements and discards them.</p>
+<h3 id="binders"><a class="header" href="#binders">Binders</a></h3>
+<p><code>?name</code> matches one element and binds it; <code>*name</code> matches a run of elements
+and binds them as a <code>List</code>.</p>
+<pre class="shiki shiki-themes x2c-light x2c-dark x2c-code" style="--shiki-light:#24292e;--shiki-dark:#e9e5df;--shiki-light-bg:#fff;--shiki-dark-bg:#101011" tabindex="0"><code class="language-x2c no-highlight"><span class="line"><span style="--shiki-light:#007C8A;--shiki-dark:#29D3E2">List</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF"> command </span><span style="--shiki-light:#D73A49;--shiki-dark:#E9E5DF">=</span><span style="--shiki-light:#24292E;--shiki-dark:#FF715A"> %(</span><span style="--shiki-light:#005CC5;--shiki-dark:#E9E5DF">move</span><span style="--shiki-light:#005CC5;--shiki-dark:#A9C9F5"> 10</span><span style="--shiki-light:#005CC5;--shiki-dark:#A9C9F5"> 20</span><span style="--shiki-light:#005CC5;--shiki-dark:#E9E5DF"> fast</span><span style="--shiki-light:#005CC5;--shiki-dark:#E9E5DF"> quiet</span><span style="--shiki-light:#24292E;--shiki-dark:#FF715A">)</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">;</span>
+</span><span class="line"><span style="--shiki-light:#A626A4;--shiki-light-font-weight:bold;--shiki-dark:#FF4FD8;--shiki-dark-font-weight:bold">match</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF"> (command) {</span>
+</span><span class="line"><span style="--shiki-light:#D73A49;--shiki-dark:#F0ADA1">  case</span><span style="--shiki-light:#24292E;--shiki-dark:#FF715A"> %(</span><span style="--shiki-light:#005CC5;--shiki-dark:#E9E5DF">move</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF"> ?x ?y *flags</span><span style="--shiki-light:#24292E;--shiki-dark:#FF715A">)</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">:</span>
+</span><span class="line"><span style="--shiki-light:#6F42C1;--shiki-dark:#E9E5DF">    printf</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">(</span><span style="--shiki-light:#032F62;--shiki-dark:#9EDFB8">"to </span><span style="--shiki-light:#005CC5;--shiki-dark:#9EDFB8">%d</span><span style="--shiki-light:#032F62;--shiki-dark:#9EDFB8">,</span><span style="--shiki-light:#005CC5;--shiki-dark:#9EDFB8">%d</span><span style="--shiki-light:#032F62;--shiki-dark:#9EDFB8"> with </span><span style="--shiki-light:#005CC5;--shiki-dark:#9EDFB8">%d</span><span style="--shiki-light:#032F62;--shiki-dark:#9EDFB8"> flag(s)</span><span style="--shiki-light:#005CC5;--shiki-dark:#9EDFB8">\n</span><span style="--shiki-light:#032F62;--shiki-dark:#9EDFB8">"</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">,</span>
+</span><span class="line"><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">           x, y, flags.</span><span style="--shiki-light:#6F42C1;--shiki-dark:#E9E5DF">len</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">());</span>
+</span><span class="line"><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">}</span>
+</span><span class="line"><span style="--shiki-light:#A626A4;--shiki-light-font-weight:bold;--shiki-dark:#FF4FD8;--shiki-dark-font-weight:bold">match</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF"> (command) {</span>
+</span><span class="line"><span style="--shiki-light:#D73A49;--shiki-dark:#F0ADA1">  case</span><span style="--shiki-light:#24292E;--shiki-dark:#FF715A"> %(</span><span style="--shiki-light:#005CC5;--shiki-dark:#E9E5DF">move</span><span style="--shiki-light:#005CC5;--shiki-dark:#E9E5DF"> ?</span><span style="--shiki-light:#005CC5;--shiki-dark:#E9E5DF"> ?</span><span style="--shiki-light:#005CC5;--shiki-dark:#E9E5DF"> *</span><span style="--shiki-light:#24292E;--shiki-dark:#FF715A">)</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">: </span><span style="--shiki-light:#6F42C1;--shiki-dark:#E9E5DF">printf</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">(</span><span style="--shiki-light:#032F62;--shiki-dark:#9EDFB8">"some move</span><span style="--shiki-light:#005CC5;--shiki-dark:#9EDFB8">\n</span><span style="--shiki-light:#032F62;--shiki-dark:#9EDFB8">"</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">);</span>
+</span><span class="line"><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">}</span></span></code></pre>
+
+<p>A <code>?name</code> binder is a <code>Var</code>; a <code>*name</code> binder is a <code>List</code>. A <code>*name</code> takes
+the leftmost split that lets the rest of the pattern succeed, and matching a
+<code>*name</code> against typed <code>nil</code> binds an empty <code>List</code> rather than failing.</p>
+<p>Repeating a binder name in one pattern means “these must be equal”:
+<code>%(?x ?x)</code> matches <code>%(same same)</code> and rejects <code>%(other same)</code>.</p>
+<p>Binder names follow the C identifier grammar, <code>[A-Za-z_][A-Za-z0-9_]*</code>. A
+sigil followed by anything else is a mistake, and the compiler reports it with
+a position. <code>%(node ?bad-name)</code> reports <code>invalid match binder name</code>.</p>
+<h3 id="nested-shapes"><a class="header" href="#nested-shapes">Nested shapes</a></h3>
+<p>A parenthesized group inside a pattern is a sublist, so nesting states nested
+structure without any index arithmetic:</p>
+<pre class="shiki shiki-themes x2c-light x2c-dark x2c-code" style="--shiki-light:#24292e;--shiki-dark:#e9e5df;--shiki-light-bg:#fff;--shiki-dark-bg:#101011" tabindex="0"><code class="language-x2c no-highlight"><span class="line"><span style="--shiki-light:#007C8A;--shiki-dark:#29D3E2">List</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF"> tree </span><span style="--shiki-light:#D73A49;--shiki-dark:#E9E5DF">=</span><span style="--shiki-light:#24292E;--shiki-dark:#FF715A"> %(</span><span style="--shiki-light:#005CC5;--shiki-dark:#E9E5DF">tree</span><span style="--shiki-light:#24292E;--shiki-dark:#FF715A"> (</span><span style="--shiki-light:#005CC5;--shiki-dark:#E9E5DF">node</span><span style="--shiki-light:#005CC5;--shiki-dark:#A9C9F5"> 3</span><span style="--shiki-light:#005CC5;--shiki-dark:#A9C9F5"> 4</span><span style="--shiki-light:#24292E;--shiki-dark:#FF715A">)</span><span style="--shiki-light:#005CC5;--shiki-dark:#E9E5DF"> leaf</span><span style="--shiki-light:#24292E;--shiki-dark:#FF715A">)</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">;</span>
+</span><span class="line"><span style="--shiki-light:#A626A4;--shiki-light-font-weight:bold;--shiki-dark:#FF4FD8;--shiki-dark-font-weight:bold">match</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF"> (tree) {</span>
+</span><span class="line"><span style="--shiki-light:#D73A49;--shiki-dark:#F0ADA1">  case</span><span style="--shiki-light:#24292E;--shiki-dark:#FF715A"> %(</span><span style="--shiki-light:#005CC5;--shiki-dark:#E9E5DF">tree</span><span style="--shiki-light:#24292E;--shiki-dark:#FF715A"> (</span><span style="--shiki-light:#005CC5;--shiki-dark:#E9E5DF">node</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF"> ?a ?b</span><span style="--shiki-light:#24292E;--shiki-dark:#FF715A">)</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF"> ?rest</span><span style="--shiki-light:#24292E;--shiki-dark:#FF715A">)</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">:</span>
+</span><span class="line"><span style="--shiki-light:#6F42C1;--shiki-dark:#E9E5DF">    printf</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">(</span><span style="--shiki-light:#032F62;--shiki-dark:#9EDFB8">"</span><span style="--shiki-light:#005CC5;--shiki-dark:#9EDFB8">%d\n</span><span style="--shiki-light:#032F62;--shiki-dark:#9EDFB8">"</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">, a </span><span style="--shiki-light:#D73A49;--shiki-dark:#E9E5DF">*</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF"> b);</span>
+</span><span class="line"><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">}</span>
+</span><span class="line"><span style="--shiki-light:#007C8A;--shiki-dark:#29D3E2">Symbol</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF"> wanted </span><span style="--shiki-light:#D73A49;--shiki-dark:#E9E5DF">=</span><span style="--shiki-light:#24292E;--shiki-dark:#FF715A"> &lt;</span><span style="--shiki-light:#005CC5;--shiki-dark:#E9E5DF">leaf</span><span style="--shiki-light:#24292E;--shiki-dark:#FF715A">&gt;</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">;</span>
+</span><span class="line"><span style="--shiki-light:#A626A4;--shiki-light-font-weight:bold;--shiki-dark:#FF4FD8;--shiki-dark-font-weight:bold">match</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF"> (tree) {</span>
+</span><span class="line"><span style="--shiki-light:#D73A49;--shiki-dark:#F0ADA1">  case</span><span style="--shiki-light:#24292E;--shiki-dark:#FF715A"> %(</span><span style="--shiki-light:#005CC5;--shiki-dark:#E9E5DF">tree</span><span style="--shiki-light:#005CC5;--shiki-dark:#E9E5DF"> ?</span><span style="--shiki-light:#24292E;--shiki-dark:#FF715A"> $</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">wanted</span><span style="--shiki-light:#24292E;--shiki-dark:#FF715A">)</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">: </span><span style="--shiki-light:#6F42C1;--shiki-dark:#E9E5DF">printf</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">(</span><span style="--shiki-light:#032F62;--shiki-dark:#9EDFB8">"ends with the wanted tag</span><span style="--shiki-light:#005CC5;--shiki-dark:#9EDFB8">\n</span><span style="--shiki-light:#032F62;--shiki-dark:#9EDFB8">"</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">);</span>
+</span><span class="line"><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">}</span></span></code></pre>
+
+<h3 id="guards"><a class="header" href="#guards">Guards</a></h3>
+<p>Six guard operators turn a position in a pattern into a test. Each is written
+as a sublist headed by the operator.</p>
+<p><code>(!or a b ...)</code> succeeds when any alternative matches, <code>(!and a b ...)</code> when
+all of them do, and <code>(!not a b ...)</code> when none of them do:</p>
+<pre class="shiki shiki-themes x2c-light x2c-dark x2c-code" style="--shiki-light:#24292e;--shiki-dark:#e9e5df;--shiki-light-bg:#fff;--shiki-dark-bg:#101011" tabindex="0"><code class="language-x2c no-highlight"><span class="line"><span style="--shiki-light:#007C8A;--shiki-dark:#29D3E2">List</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF"> reply </span><span style="--shiki-light:#D73A49;--shiki-dark:#E9E5DF">=</span><span style="--shiki-light:#24292E;--shiki-dark:#FF715A"> %(</span><span style="--shiki-light:#005CC5;--shiki-dark:#E9E5DF">status</span><span style="--shiki-light:#005CC5;--shiki-dark:#E9E5DF"> created</span><span style="--shiki-light:#005CC5;--shiki-dark:#A9C9F5"> 201</span><span style="--shiki-light:#24292E;--shiki-dark:#FF715A">)</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">;</span>
+</span><span class="line"><span style="--shiki-light:#A626A4;--shiki-light-font-weight:bold;--shiki-dark:#FF4FD8;--shiki-dark-font-weight:bold">match</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF"> (reply) {</span>
+</span><span class="line"><span style="--shiki-light:#D73A49;--shiki-dark:#F0ADA1">  case</span><span style="--shiki-light:#24292E;--shiki-dark:#FF715A"> %(</span><span style="--shiki-light:#005CC5;--shiki-dark:#E9E5DF">status</span><span style="--shiki-light:#24292E;--shiki-dark:#FF715A"> (</span><span style="--shiki-light:#005CC5;--shiki-dark:#E9E5DF">!or</span><span style="--shiki-light:#005CC5;--shiki-dark:#E9E5DF"> ok</span><span style="--shiki-light:#005CC5;--shiki-dark:#E9E5DF"> created</span><span style="--shiki-light:#24292E;--shiki-dark:#FF715A">)</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF"> ?code</span><span style="--shiki-light:#24292E;--shiki-dark:#FF715A">)</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">:</span>
+</span><span class="line"><span style="--shiki-light:#6F42C1;--shiki-dark:#E9E5DF">    printf</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">(</span><span style="--shiki-light:#032F62;--shiki-dark:#9EDFB8">"success </span><span style="--shiki-light:#005CC5;--shiki-dark:#9EDFB8">%d\n</span><span style="--shiki-light:#032F62;--shiki-dark:#9EDFB8">"</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">, code);</span>
+</span><span class="line"><span style="--shiki-light:#D73A49;--shiki-dark:#F0ADA1">  case</span><span style="--shiki-light:#24292E;--shiki-dark:#FF715A"> %(</span><span style="--shiki-light:#005CC5;--shiki-dark:#E9E5DF">status</span><span style="--shiki-light:#24292E;--shiki-dark:#FF715A"> (</span><span style="--shiki-light:#005CC5;--shiki-dark:#E9E5DF">!not</span><span style="--shiki-light:#005CC5;--shiki-dark:#E9E5DF"> ok</span><span style="--shiki-light:#24292E;--shiki-dark:#FF715A">)</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF"> ?code</span><span style="--shiki-light:#24292E;--shiki-dark:#FF715A">)</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">:</span>
+</span><span class="line"><span style="--shiki-light:#6F42C1;--shiki-dark:#E9E5DF">    printf</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">(</span><span style="--shiki-light:#032F62;--shiki-dark:#9EDFB8">"failure </span><span style="--shiki-light:#005CC5;--shiki-dark:#9EDFB8">%d\n</span><span style="--shiki-light:#032F62;--shiki-dark:#9EDFB8">"</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">, code);</span>
+</span><span class="line"><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">}</span>
+</span><span class="line"><span style="--shiki-light:#A626A4;--shiki-light-font-weight:bold;--shiki-dark:#FF4FD8;--shiki-dark-font-weight:bold">match</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF"> (</span><span style="--shiki-light:#24292E;--shiki-dark:#FF715A">%(</span><span style="--shiki-light:#005CC5;--shiki-dark:#E9E5DF">color</span><span style="--shiki-light:#005CC5;--shiki-dark:#E9E5DF"> green</span><span style="--shiki-light:#24292E;--shiki-dark:#FF715A">)</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">) {</span>
+</span><span class="line"><span style="--shiki-light:#D73A49;--shiki-dark:#F0ADA1">  case</span><span style="--shiki-light:#24292E;--shiki-dark:#FF715A"> %(</span><span style="--shiki-light:#005CC5;--shiki-dark:#E9E5DF">color</span><span style="--shiki-light:#24292E;--shiki-dark:#FF715A"> (</span><span style="--shiki-light:#005CC5;--shiki-dark:#E9E5DF">!and</span><span style="--shiki-light:#24292E;--shiki-dark:#FF715A"> (</span><span style="--shiki-light:#005CC5;--shiki-dark:#E9E5DF">!not</span><span style="--shiki-light:#005CC5;--shiki-dark:#E9E5DF"> red</span><span style="--shiki-light:#24292E;--shiki-dark:#FF715A">)</span><span style="--shiki-light:#24292E;--shiki-dark:#FF715A"> (</span><span style="--shiki-light:#005CC5;--shiki-dark:#E9E5DF">!not</span><span style="--shiki-light:#005CC5;--shiki-dark:#E9E5DF"> blue</span><span style="--shiki-light:#24292E;--shiki-dark:#FF715A">)))</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">:</span>
+</span><span class="line"><span style="--shiki-light:#6F42C1;--shiki-dark:#E9E5DF">    printf</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">(</span><span style="--shiki-light:#032F62;--shiki-dark:#9EDFB8">"neither red nor blue</span><span style="--shiki-light:#005CC5;--shiki-dark:#9EDFB8">\n</span><span style="--shiki-light:#032F62;--shiki-dark:#9EDFB8">"</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">);</span>
+</span><span class="line"><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">}</span></span></code></pre>
+
+<p><code>(!set PATTERN ...)</code> is membership: it succeeds when any member matches.
+<code>(!quote PATTERN)</code> compares the input to the pattern as literal data, with no
+binder interpretation inside it. <code>(!is ...)</code> is the type and category
+predicate: <code>(!is type string)</code> checks a <code>Var</code> tag, and <code>(!is atom)</code>,
+<code>(!is binder)</code>, <code>(!is op)</code>, <code>(!is var binder)</code>, and <code>(!is list binder)</code> check
+the named category.</p>
+<p>Every guard except <code>!quote</code> accepts an optional leading binder, which
+captures the slice of input the guard checked. A leading binder needs at
+least one operand after it, so <code>(!not ?y)</code> tests <code>?y</code> rather than capturing
+it, and <code>(!set ?w a b)</code> captures the <code>a</code>-or-<code>b</code> membership:</p>
+<pre class="shiki shiki-themes x2c-light x2c-dark x2c-code" style="--shiki-light:#24292e;--shiki-dark:#e9e5df;--shiki-light-bg:#fff;--shiki-dark-bg:#101011" tabindex="0"><code class="language-x2c no-highlight"><span class="line"><span style="--shiki-light:#A626A4;--shiki-light-font-weight:bold;--shiki-dark:#FF4FD8;--shiki-dark-font-weight:bold">match</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF"> (</span><span style="--shiki-light:#24292E;--shiki-dark:#FF715A">%(</span><span style="--shiki-light:#005CC5;--shiki-dark:#E9E5DF">node</span><span style="--shiki-light:#005CC5;--shiki-dark:#A9C9F5"> 7</span><span style="--shiki-light:#005CC5;--shiki-dark:#A9C9F5"> 8</span><span style="--shiki-light:#24292E;--shiki-dark:#FF715A">)</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">) {</span>
+</span><span class="line"><span style="--shiki-light:#D73A49;--shiki-dark:#F0ADA1">  case</span><span style="--shiki-light:#24292E;--shiki-dark:#FF715A"> %(</span><span style="--shiki-light:#005CC5;--shiki-dark:#E9E5DF">!set</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF"> ?whole </span><span style="--shiki-light:#24292E;--shiki-dark:#FF715A">(</span><span style="--shiki-light:#005CC5;--shiki-dark:#E9E5DF">node</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF"> ?a ?b</span><span style="--shiki-light:#24292E;--shiki-dark:#FF715A">))</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">:</span>
+</span><span class="line"><span style="--shiki-light:#6F42C1;--shiki-dark:#E9E5DF">    printf</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">(</span><span style="--shiki-light:#032F62;--shiki-dark:#9EDFB8">"</span><span style="--shiki-light:#005CC5;--shiki-dark:#9EDFB8">%s</span><span style="--shiki-light:#032F62;--shiki-dark:#9EDFB8"> holds </span><span style="--shiki-light:#005CC5;--shiki-dark:#9EDFB8">%d</span><span style="--shiki-light:#032F62;--shiki-dark:#9EDFB8"> and </span><span style="--shiki-light:#005CC5;--shiki-dark:#9EDFB8">%d\n</span><span style="--shiki-light:#032F62;--shiki-dark:#9EDFB8">"</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">,</span>
+</span><span class="line"><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">           whole, a, b);</span>
+</span><span class="line"><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">}</span>
+</span><span class="line"><span style="--shiki-light:#A626A4;--shiki-light-font-weight:bold;--shiki-dark:#FF4FD8;--shiki-dark-font-weight:bold">match</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF"> (</span><span style="--shiki-light:#24292E;--shiki-dark:#FF715A">%(</span><span style="--shiki-light:#005CC5;--shiki-dark:#E9E5DF">key</span><span style="--shiki-light:#24292E;--shiki-dark:#FF715A"> "</span><span style="--shiki-light:#032F62;--shiki-dark:#9EDFB8">abc</span><span style="--shiki-light:#24292E;--shiki-dark:#FF715A">"</span><span style="--shiki-light:#24292E;--shiki-dark:#FF715A">)</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">) {</span>
+</span><span class="line"><span style="--shiki-light:#D73A49;--shiki-dark:#F0ADA1">  case</span><span style="--shiki-light:#24292E;--shiki-dark:#FF715A"> %(</span><span style="--shiki-light:#005CC5;--shiki-dark:#E9E5DF">key</span><span style="--shiki-light:#24292E;--shiki-dark:#FF715A"> (</span><span style="--shiki-light:#005CC5;--shiki-dark:#E9E5DF">!is</span><span style="--shiki-light:#005CC5;--shiki-dark:#E9E5DF"> type</span><span style="--shiki-light:#005CC5;--shiki-dark:#E9E5DF"> string</span><span style="--shiki-light:#24292E;--shiki-dark:#FF715A">))</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">:</span>
+</span><span class="line"><span style="--shiki-light:#6F42C1;--shiki-dark:#E9E5DF">    printf</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">(</span><span style="--shiki-light:#032F62;--shiki-dark:#9EDFB8">"a String payload</span><span style="--shiki-light:#005CC5;--shiki-dark:#9EDFB8">\n</span><span style="--shiki-light:#032F62;--shiki-dark:#9EDFB8">"</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">);</span>
+</span><span class="line"><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">}</span>
+</span><span class="line"><span style="--shiki-light:#A626A4;--shiki-light-font-weight:bold;--shiki-dark:#FF4FD8;--shiki-dark-font-weight:bold">match</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF"> (</span><span style="--shiki-light:#24292E;--shiki-dark:#FF715A">%(</span><span style="--shiki-light:#005CC5;--shiki-dark:#E9E5DF">key</span><span style="--shiki-light:#005CC5;--shiki-dark:#A9C9F5"> 42</span><span style="--shiki-light:#24292E;--shiki-dark:#FF715A">)</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">) {</span>
+</span><span class="line"><span style="--shiki-light:#D73A49;--shiki-dark:#F0ADA1">  case</span><span style="--shiki-light:#24292E;--shiki-dark:#FF715A"> %(</span><span style="--shiki-light:#005CC5;--shiki-dark:#E9E5DF">key</span><span style="--shiki-light:#24292E;--shiki-dark:#FF715A"> (</span><span style="--shiki-light:#005CC5;--shiki-dark:#E9E5DF">!is</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF"> ?found </span><span style="--shiki-light:#005CC5;--shiki-dark:#E9E5DF">atom</span><span style="--shiki-light:#24292E;--shiki-dark:#FF715A">))</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">:</span>
+</span><span class="line"><span style="--shiki-light:#6F42C1;--shiki-dark:#E9E5DF">    printf</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">(</span><span style="--shiki-light:#032F62;--shiki-dark:#9EDFB8">"an atom: </span><span style="--shiki-light:#005CC5;--shiki-dark:#9EDFB8">%s\n</span><span style="--shiki-light:#032F62;--shiki-dark:#9EDFB8">"</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">, found);</span>
+</span><span class="line"><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">}</span>
+</span><span class="line"><span style="--shiki-light:#A626A4;--shiki-light-font-weight:bold;--shiki-dark:#FF4FD8;--shiki-dark-font-weight:bold">match</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF"> (</span><span style="--shiki-light:#24292E;--shiki-dark:#FF715A">%(</span><span style="--shiki-light:#005CC5;--shiki-dark:#E9E5DF">tag</span><span style="--shiki-light:#24292E;--shiki-dark:#FF715A"> (</span><span style="--shiki-light:#005CC5;--shiki-dark:#E9E5DF">a</span><span style="--shiki-light:#005CC5;--shiki-dark:#E9E5DF"> b</span><span style="--shiki-light:#24292E;--shiki-dark:#FF715A">))</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">) {</span>
+</span><span class="line"><span style="--shiki-light:#D73A49;--shiki-dark:#F0ADA1">  case</span><span style="--shiki-light:#24292E;--shiki-dark:#FF715A"> %(</span><span style="--shiki-light:#005CC5;--shiki-dark:#E9E5DF">tag</span><span style="--shiki-light:#24292E;--shiki-dark:#FF715A"> (</span><span style="--shiki-light:#005CC5;--shiki-dark:#E9E5DF">!quote</span><span style="--shiki-light:#24292E;--shiki-dark:#FF715A"> (</span><span style="--shiki-light:#005CC5;--shiki-dark:#E9E5DF">a</span><span style="--shiki-light:#005CC5;--shiki-dark:#E9E5DF"> b</span><span style="--shiki-light:#24292E;--shiki-dark:#FF715A">)))</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">:</span>
+</span><span class="line"><span style="--shiki-light:#6F42C1;--shiki-dark:#E9E5DF">    printf</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">(</span><span style="--shiki-light:#032F62;--shiki-dark:#9EDFB8">"literally (a b)</span><span style="--shiki-light:#005CC5;--shiki-dark:#9EDFB8">\n</span><span style="--shiki-light:#032F62;--shiki-dark:#9EDFB8">"</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">);</span>
+</span><span class="line"><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">}</span></span></code></pre>
+
+<p>Runtime-built patterns may put an interned operator <code>Symbol</code> in the head
+position. <code>List.match(input, %($op ...))</code> applies the same operator semantics
+as its literal spelling, and the runtime operator suite checks <code>!or</code>, <code>!not</code>,
+<code>!quote</code>, <code>!is</code>, and nested dynamic forms. Source <code>match</code> arms should spell
+operators literally so the compiler can determine which named binders are
+available to the arm body.</p>
+<p>The <code>?binder?</code>, <code>*binder?</code>, and <code>!op?</code> spellings are reserved in <code>!is</code>
+operand positions. They are not named binders and do not execute a predicate.
+Use the <code>(!is ...)</code> forms above.</p>
+<h2 id="where-binders-live"><a class="header" href="#where-binders-live">Where binders live</a></h2>
+<p>Each arm declares its binders as local variables before its body is parsed. A
+<code>?name</code> has type <code>Var</code>, a <code>*name</code> has type <code>List</code>, and either works with method
+syntax. A binder is visible only inside the arm that introduced it, and it
+shadows any outer name for the length of that arm:</p>
+<pre class="shiki shiki-themes x2c-light x2c-dark x2c-code" style="--shiki-light:#24292e;--shiki-dark:#e9e5df;--shiki-light-bg:#fff;--shiki-dark-bg:#101011" tabindex="0"><code class="language-x2c no-highlight"><span class="line"><span style="--shiki-light:#007C8A;--shiki-dark:#29D3E2">Var</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF"> value </span><span style="--shiki-light:#D73A49;--shiki-dark:#E9E5DF">=</span><span style="--shiki-light:#005CC5;--shiki-dark:#A9C9F5"> 99</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">;</span>
+</span><span class="line"><span style="--shiki-light:#007C8A;--shiki-dark:#29D3E2">List</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF"> input </span><span style="--shiki-light:#D73A49;--shiki-dark:#E9E5DF">=</span><span style="--shiki-light:#24292E;--shiki-dark:#FF715A"> %(</span><span style="--shiki-light:#005CC5;--shiki-dark:#E9E5DF">pair</span><span style="--shiki-light:#005CC5;--shiki-dark:#A9C9F5"> 1</span><span style="--shiki-light:#005CC5;--shiki-dark:#A9C9F5"> 2</span><span style="--shiki-light:#24292E;--shiki-dark:#FF715A">)</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">;</span>
+</span><span class="line"><span style="--shiki-light:#A626A4;--shiki-light-font-weight:bold;--shiki-dark:#FF4FD8;--shiki-dark-font-weight:bold">match</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF"> (input) {</span>
+</span><span class="line"><span style="--shiki-light:#D73A49;--shiki-dark:#F0ADA1">  case</span><span style="--shiki-light:#24292E;--shiki-dark:#FF715A"> %(</span><span style="--shiki-light:#005CC5;--shiki-dark:#E9E5DF">pair</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF"> ?value ?other</span><span style="--shiki-light:#24292E;--shiki-dark:#FF715A">)</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">:</span>
+</span><span class="line"><span style="--shiki-light:#6F42C1;--shiki-dark:#E9E5DF">    printf</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">(</span><span style="--shiki-light:#032F62;--shiki-dark:#9EDFB8">"inside the arm value is </span><span style="--shiki-light:#005CC5;--shiki-dark:#9EDFB8">%d\n</span><span style="--shiki-light:#032F62;--shiki-dark:#9EDFB8">"</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">, value);</span>
+</span><span class="line"><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">}</span>
+</span><span class="line"><span style="--shiki-light:#6F42C1;--shiki-dark:#E9E5DF">printf</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">(</span><span style="--shiki-light:#032F62;--shiki-dark:#9EDFB8">"outside the match value is still </span><span style="--shiki-light:#005CC5;--shiki-dark:#9EDFB8">%d\n</span><span style="--shiki-light:#032F62;--shiki-dark:#9EDFB8">"</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">, value);</span></span></code></pre>
+
+<p>The same binder name can appear in two different arms, and a binder does not
+exist after the <code>match</code> statement ends. There is no
+“result of the <code>match</code>” to read afterwards; assign to a variable you declared
+outside if you need to carry something out.</p>
+<p>Method syntax follows those types:</p>
+<pre class="shiki shiki-themes x2c-light x2c-dark x2c-code" style="--shiki-light:#24292e;--shiki-dark:#e9e5df;--shiki-light-bg:#fff;--shiki-dark-bg:#101011" tabindex="0"><code class="language-x2c no-highlight"><span class="line"><span style="--shiki-light:#A626A4;--shiki-light-font-weight:bold;--shiki-dark:#FF4FD8;--shiki-dark-font-weight:bold">match</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF"> (</span><span style="--shiki-light:#24292E;--shiki-dark:#FF715A">%(</span><span style="--shiki-light:#005CC5;--shiki-dark:#E9E5DF">node</span><span style="--shiki-light:#24292E;--shiki-dark:#FF715A"> (</span><span style="--shiki-light:#005CC5;--shiki-dark:#E9E5DF">a</span><span style="--shiki-light:#005CC5;--shiki-dark:#E9E5DF"> b</span><span style="--shiki-light:#24292E;--shiki-dark:#FF715A">))</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">) {</span>
+</span><span class="line"><span style="--shiki-light:#D73A49;--shiki-dark:#F0ADA1">  case</span><span style="--shiki-light:#24292E;--shiki-dark:#FF715A"> %(</span><span style="--shiki-light:#005CC5;--shiki-dark:#E9E5DF">node</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF"> ?child</span><span style="--shiki-light:#24292E;--shiki-dark:#FF715A">)</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">:</span>
+</span><span class="line"><span style="--shiki-light:#6F42C1;--shiki-dark:#E9E5DF">    printf</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">(</span><span style="--shiki-light:#032F62;--shiki-dark:#9EDFB8">"</span><span style="--shiki-light:#005CC5;--shiki-dark:#9EDFB8">%d\n</span><span style="--shiki-light:#032F62;--shiki-dark:#9EDFB8">"</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">, child.</span><span style="--shiki-light:#6F42C1;--shiki-dark:#E9E5DF">list</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">().</span><span style="--shiki-light:#6F42C1;--shiki-dark:#E9E5DF">len</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">());</span>
+</span><span class="line"><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">}</span></span></code></pre>
+
+<p>Named binders must also be definitely assigned whenever their arm matches.
+Binders under <code>!not</code> are never available, and a binder under <code>!or</code> or
+membership-style <code>!set</code> must occur in every alternative. <code>!quote</code> is opaque
+literal data. The compiler diagnoses a maybe-bound name at the pattern.</p>
+<h2 id="lists-var-and-nil"><a class="header" href="#lists-var-and-nil">Lists, Var, and nil</a></h2>
+<p>The subject of a <code>match</code> is a <code>List</code>, so the shapes you can match are <code>List</code>
+shapes. <code>Array</code>s, <code>Map</code>s, and <code>String</code>s are not <code>match</code> subjects.</p>
+<p>A <code>Var</code> subject works because the compiler inserts the conversion to <code>List</code>
+for you. The conversion does not check the tag, so only <code>match</code> a <code>Var</code> you
+already know holds a <code>List</code>; test <code>Var_is(v, &lt;list&gt;)</code> at the boundary if you do
+not. See <a href="values.html">values and Var</a> for the tag rules and
+<a href="symbols.html">symbols and atoms</a> for what a bare pattern spelling means.</p>
+<p>Nil is typed <code>List</code> data, not the absence of a <code>List</code>. A null <code>List</code> is a legal
+subject, <code>%(*rest)</code> matches it and binds an empty <code>List</code>, and an explicitly
+stored empty <code>List</code> inside a larger structure is a visible node that search can
+find. What is <em>not</em> a node is the implicit terminal cdr of a proper <code>List</code>.</p>
+<p>A <code>match</code> statement binds captured values to arm-local variables. Captured
+values keep their ordinary <a href="memory.html">lifetime rules</a>. For a fixed symbol
+followed only by unique named <code>?</code> binders, typed or not, the compiler emits
+direct checks and captures; other patterns use the runtime matcher with the
+same semantics.</p>
+<h2 id="break-and-continue-inside-an-arm"><a class="header" href="#break-and-continue-inside-an-arm">break and continue inside an arm</a></h2>
+<p><code>break</code> in an arm body exits the <code>match</code>, not any enclosing loop. <code>continue</code>
+skips to the next iteration of the enclosing loop:</p>
+<pre class="shiki shiki-themes x2c-light x2c-dark x2c-code" style="--shiki-light:#24292e;--shiki-dark:#e9e5df;--shiki-light-bg:#fff;--shiki-dark-bg:#101011" tabindex="0"><code class="language-x2c no-highlight"><span class="line"><span style="--shiki-light:#007C8A;--shiki-dark:#29D3E2">List</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF"> items </span><span style="--shiki-light:#D73A49;--shiki-dark:#E9E5DF">=</span><span style="--shiki-light:#24292E;--shiki-dark:#FF715A"> %((</span><span style="--shiki-light:#005CC5;--shiki-dark:#E9E5DF">skip</span><span style="--shiki-light:#24292E;--shiki-dark:#FF715A">)</span><span style="--shiki-light:#24292E;--shiki-dark:#FF715A"> (</span><span style="--shiki-light:#005CC5;--shiki-dark:#E9E5DF">keep</span><span style="--shiki-light:#24292E;--shiki-dark:#FF715A">)</span><span style="--shiki-light:#24292E;--shiki-dark:#FF715A"> (</span><span style="--shiki-light:#005CC5;--shiki-dark:#E9E5DF">skip</span><span style="--shiki-light:#24292E;--shiki-dark:#FF715A">))</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">;</span>
+</span><span class="line"><span style="--shiki-light:#D73A49;--shiki-dark:#F0ADA1">int</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF"> seen </span><span style="--shiki-light:#D73A49;--shiki-dark:#E9E5DF">=</span><span style="--shiki-light:#005CC5;--shiki-dark:#A9C9F5"> 0</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">, kept </span><span style="--shiki-light:#D73A49;--shiki-dark:#E9E5DF">=</span><span style="--shiki-light:#005CC5;--shiki-dark:#A9C9F5"> 0</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">;</span>
+</span><span class="line"><span style="--shiki-light:#A626A4;--shiki-light-font-weight:bold;--shiki-dark:#FF4FD8;--shiki-dark-font-weight:bold">foreach</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">(</span><span style="--shiki-light:#007C8A;--shiki-dark:#29D3E2">Var</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF"> item, items) {</span>
+</span><span class="line"><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">  seen</span><span style="--shiki-light:#D73A49;--shiki-dark:#E9E5DF">++</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">;</span>
+</span><span class="line"><span style="--shiki-light:#A626A4;--shiki-light-font-weight:bold;--shiki-dark:#FF4FD8;--shiki-dark-font-weight:bold">  match</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF"> (item) {</span>
+</span><span class="line"><span style="--shiki-light:#D73A49;--shiki-dark:#F0ADA1">    case</span><span style="--shiki-light:#24292E;--shiki-dark:#FF715A"> %(</span><span style="--shiki-light:#005CC5;--shiki-dark:#E9E5DF">skip</span><span style="--shiki-light:#24292E;--shiki-dark:#FF715A">)</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">: </span><span style="--shiki-light:#D73A49;--shiki-dark:#F0ADA1">continue</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">;</span>
+</span><span class="line"><span style="--shiki-light:#D73A49;--shiki-dark:#F0ADA1">    case</span><span style="--shiki-light:#24292E;--shiki-dark:#FF715A"> %(</span><span style="--shiki-light:#005CC5;--shiki-dark:#E9E5DF">keep</span><span style="--shiki-light:#24292E;--shiki-dark:#FF715A">)</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">: </span><span style="--shiki-light:#D73A49;--shiki-dark:#F0ADA1">break</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">;</span>
+</span><span class="line"><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">  }</span>
+</span><span class="line"><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">  kept</span><span style="--shiki-light:#D73A49;--shiki-dark:#E9E5DF">++</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">;</span>
+</span><span class="line"><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">}</span>
+</span><span class="line"><span style="--shiki-light:#6F42C1;--shiki-dark:#E9E5DF">printf</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">(</span><span style="--shiki-light:#032F62;--shiki-dark:#9EDFB8">"seen </span><span style="--shiki-light:#005CC5;--shiki-dark:#9EDFB8">%d</span><span style="--shiki-light:#032F62;--shiki-dark:#9EDFB8">, kept </span><span style="--shiki-light:#005CC5;--shiki-dark:#9EDFB8">%d\n</span><span style="--shiki-light:#032F62;--shiki-dark:#9EDFB8">"</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">, seen, kept);</span></span></code></pre>
+
+<p>That prints <code>seen 3, kept 1</code>: the two <code>skip</code> items jump past <code>kept++</code>, while
+the <code>keep</code> item leaves the <code>match</code> and falls through to it.</p>
+<h2 id="the-runtime-matcher"><a class="header" href="#the-runtime-matcher">The runtime matcher</a></h2>
+<p>The runtime matcher exposes the same pattern language as <code>List</code> methods. Use
+it when the pattern is data, when you need the bindings as a value, or when
+you are rewriting rather than dispatching.</p>
+<p><code>try_match</code> reports success separately from the bindings, and leaves its
+output pointer untouched on failure. <code>match_replace</code> matches once and expands
+a template from the bindings:</p>
+<pre class="shiki shiki-themes x2c-light x2c-dark x2c-code" style="--shiki-light:#24292e;--shiki-dark:#e9e5df;--shiki-light-bg:#fff;--shiki-dark-bg:#101011" tabindex="0"><code class="language-x2c no-highlight"><span class="line"><span style="--shiki-light:#007C8A;--shiki-dark:#29D3E2">List</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF"> input </span><span style="--shiki-light:#D73A49;--shiki-dark:#E9E5DF">=</span><span style="--shiki-light:#24292E;--shiki-dark:#FF715A"> %(</span><span style="--shiki-light:#005CC5;--shiki-dark:#E9E5DF">define</span><span style="--shiki-light:#005CC5;--shiki-dark:#E9E5DF"> x</span><span style="--shiki-light:#005CC5;--shiki-dark:#A9C9F5"> 10</span><span style="--shiki-light:#24292E;--shiki-dark:#FF715A">)</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">;</span>
+</span><span class="line"><span style="--shiki-light:#007C8A;--shiki-dark:#29D3E2">List</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF"> bindings </span><span style="--shiki-light:#D73A49;--shiki-dark:#E9E5DF">=</span><span style="--shiki-light:#005CC5;--shiki-dark:#E9E5DF"> NULL</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">;</span>
+</span><span class="line"><span style="--shiki-light:#D73A49;--shiki-dark:#F0ADA1">if</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF"> (input.</span><span style="--shiki-light:#6F42C1;--shiki-dark:#E9E5DF">try_match</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">(</span><span style="--shiki-light:#24292E;--shiki-dark:#FF715A">%(</span><span style="--shiki-light:#005CC5;--shiki-dark:#E9E5DF">define</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF"> ?name ?value</span><span style="--shiki-light:#24292E;--shiki-dark:#FF715A">)</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">, </span><span style="--shiki-light:#D73A49;--shiki-dark:#E9E5DF">&amp;</span><span style="--shiki-light:#E36209;--shiki-dark:#E9E5DF">bindings</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">))</span>
+</span><span class="line"><span style="--shiki-light:#6F42C1;--shiki-dark:#E9E5DF">  printf</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">(</span><span style="--shiki-light:#032F62;--shiki-dark:#9EDFB8">"</span><span style="--shiki-light:#005CC5;--shiki-dark:#9EDFB8">%s</span><span style="--shiki-light:#032F62;--shiki-dark:#9EDFB8"> = </span><span style="--shiki-light:#005CC5;--shiki-dark:#9EDFB8">%d\n</span><span style="--shiki-light:#032F62;--shiki-dark:#9EDFB8">"</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">,</span>
+</span><span class="line"><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">         bindings.</span><span style="--shiki-light:#6F42C1;--shiki-dark:#E9E5DF">assoc</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">(</span><span style="--shiki-light:#24292E;--shiki-dark:#FF715A">&lt;</span><span style="--shiki-light:#005CC5;--shiki-dark:#E9E5DF">?name</span><span style="--shiki-light:#24292E;--shiki-dark:#FF715A">&gt;</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">),</span>
+</span><span class="line"><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">         bindings.</span><span style="--shiki-light:#6F42C1;--shiki-dark:#E9E5DF">assoc</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">(</span><span style="--shiki-light:#24292E;--shiki-dark:#FF715A">&lt;</span><span style="--shiki-light:#005CC5;--shiki-dark:#E9E5DF">?value</span><span style="--shiki-light:#24292E;--shiki-dark:#FF715A">&gt;</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">));</span>
+</span><span class="line"><span style="--shiki-light:#007C8A;--shiki-dark:#29D3E2">List</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF"> rewritten </span><span style="--shiki-light:#D73A49;--shiki-dark:#E9E5DF">=</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF"> input.</span><span style="--shiki-light:#6F42C1;--shiki-dark:#E9E5DF">match_replace</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">(</span><span style="--shiki-light:#24292E;--shiki-dark:#FF715A">%(</span><span style="--shiki-light:#005CC5;--shiki-dark:#E9E5DF">define</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF"> ?name ?value</span><span style="--shiki-light:#24292E;--shiki-dark:#FF715A">)</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">,</span>
+</span><span class="line"><span style="--shiki-light:#24292E;--shiki-dark:#FF715A">                                     %(</span><span style="--shiki-light:#005CC5;--shiki-dark:#E9E5DF">assign</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF"> ?name ?value</span><span style="--shiki-light:#24292E;--shiki-dark:#FF715A">)</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">);</span>
+</span><span class="line"><span style="--shiki-light:#6F42C1;--shiki-dark:#E9E5DF">printf</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">(</span><span style="--shiki-light:#032F62;--shiki-dark:#9EDFB8">"</span><span style="--shiki-light:#005CC5;--shiki-dark:#9EDFB8">%s\n</span><span style="--shiki-light:#032F62;--shiki-dark:#9EDFB8">"</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">, rewritten.</span><span style="--shiki-light:#6F42C1;--shiki-dark:#E9E5DF">str</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">());</span></span></code></pre>
+
+<p>Bindings are an association <code>List</code> keyed by the binder <code>Atom</code>, so you read them
+with <code>assoc</code> and the same spelling you wrote in the pattern: <code>&lt;?name&gt;</code> for a
+<code>?</code> binder and <code>&lt;*rest&gt;</code> for a <code>*</code> binder. These are standalone <code>Symbol</code>
+literals, outside the <code>List</code> syntax that accepts bare <code>Atom</code>s.</p>
+<p>The search family walks a whole structure instead of matching at the root.
+<code>try_search</code> returns the first depth-first hit, <code>search</code> collects every hit,
+and <code>search_replace</code> rewrites all of them:</p>
+<pre class="shiki shiki-themes x2c-light x2c-dark x2c-code" style="--shiki-light:#24292e;--shiki-dark:#e9e5df;--shiki-light-bg:#fff;--shiki-dark-bg:#101011" tabindex="0"><code class="language-x2c no-highlight"><span class="line"><span style="--shiki-light:#007C8A;--shiki-dark:#29D3E2">List</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF"> tree </span><span style="--shiki-light:#D73A49;--shiki-dark:#E9E5DF">=</span><span style="--shiki-light:#24292E;--shiki-dark:#FF715A"> %(</span><span style="--shiki-light:#005CC5;--shiki-dark:#E9E5DF">root</span><span style="--shiki-light:#24292E;--shiki-dark:#FF715A"> (</span><span style="--shiki-light:#005CC5;--shiki-dark:#E9E5DF">item</span><span style="--shiki-light:#005CC5;--shiki-dark:#A9C9F5"> 1</span><span style="--shiki-light:#24292E;--shiki-dark:#FF715A">)</span><span style="--shiki-light:#24292E;--shiki-dark:#FF715A"> (</span><span style="--shiki-light:#005CC5;--shiki-dark:#E9E5DF">wrapper</span><span style="--shiki-light:#24292E;--shiki-dark:#FF715A"> (</span><span style="--shiki-light:#005CC5;--shiki-dark:#E9E5DF">item</span><span style="--shiki-light:#005CC5;--shiki-dark:#A9C9F5"> 2</span><span style="--shiki-light:#24292E;--shiki-dark:#FF715A">)))</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">;</span>
+</span><span class="line"><span style="--shiki-light:#007C8A;--shiki-dark:#29D3E2">Var</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF"> node </span><span style="--shiki-light:#D73A49;--shiki-dark:#E9E5DF">=</span><span style="--shiki-light:#005CC5;--shiki-dark:#E9E5DF"> void</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">;</span>
+</span><span class="line"><span style="--shiki-light:#007C8A;--shiki-dark:#29D3E2">List</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF"> bindings </span><span style="--shiki-light:#D73A49;--shiki-dark:#E9E5DF">=</span><span style="--shiki-light:#005CC5;--shiki-dark:#E9E5DF"> NULL</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">;</span>
+</span><span class="line"><span style="--shiki-light:#D73A49;--shiki-dark:#F0ADA1">if</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF"> (tree.</span><span style="--shiki-light:#6F42C1;--shiki-dark:#E9E5DF">try_search</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">(</span><span style="--shiki-light:#24292E;--shiki-dark:#FF715A">%(</span><span style="--shiki-light:#005CC5;--shiki-dark:#E9E5DF">item</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF"> ?id</span><span style="--shiki-light:#24292E;--shiki-dark:#FF715A">)</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">, </span><span style="--shiki-light:#D73A49;--shiki-dark:#E9E5DF">&amp;</span><span style="--shiki-light:#E36209;--shiki-dark:#E9E5DF">node</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">, </span><span style="--shiki-light:#D73A49;--shiki-dark:#E9E5DF">&amp;</span><span style="--shiki-light:#E36209;--shiki-dark:#E9E5DF">bindings</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">))</span>
+</span><span class="line"><span style="--shiki-light:#6F42C1;--shiki-dark:#E9E5DF">  printf</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">(</span><span style="--shiki-light:#032F62;--shiki-dark:#9EDFB8">"first id </span><span style="--shiki-light:#005CC5;--shiki-dark:#9EDFB8">%d\n</span><span style="--shiki-light:#032F62;--shiki-dark:#9EDFB8">"</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">, bindings.</span><span style="--shiki-light:#6F42C1;--shiki-dark:#E9E5DF">assoc</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">(</span><span style="--shiki-light:#24292E;--shiki-dark:#FF715A">&lt;</span><span style="--shiki-light:#005CC5;--shiki-dark:#E9E5DF">?id</span><span style="--shiki-light:#24292E;--shiki-dark:#FF715A">&gt;</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">));</span>
+</span><span class="line"><span style="--shiki-light:#6F42C1;--shiki-dark:#E9E5DF">printf</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">(</span><span style="--shiki-light:#032F62;--shiki-dark:#9EDFB8">"</span><span style="--shiki-light:#005CC5;--shiki-dark:#9EDFB8">%d</span><span style="--shiki-light:#032F62;--shiki-dark:#9EDFB8"> matches in all</span><span style="--shiki-light:#005CC5;--shiki-dark:#9EDFB8">\n</span><span style="--shiki-light:#032F62;--shiki-dark:#9EDFB8">"</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">, tree.</span><span style="--shiki-light:#6F42C1;--shiki-dark:#E9E5DF">search</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">(</span><span style="--shiki-light:#24292E;--shiki-dark:#FF715A">%(</span><span style="--shiki-light:#005CC5;--shiki-dark:#E9E5DF">item</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF"> ?id</span><span style="--shiki-light:#24292E;--shiki-dark:#FF715A">)</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">).</span><span style="--shiki-light:#6F42C1;--shiki-dark:#E9E5DF">len</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">());</span>
+</span><span class="line"><span style="--shiki-light:#6F42C1;--shiki-dark:#E9E5DF">printf</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">(</span><span style="--shiki-light:#032F62;--shiki-dark:#9EDFB8">"</span><span style="--shiki-light:#005CC5;--shiki-dark:#9EDFB8">%s\n</span><span style="--shiki-light:#032F62;--shiki-dark:#9EDFB8">"</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">, tree.</span><span style="--shiki-light:#6F42C1;--shiki-dark:#E9E5DF">search_replace</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">(</span><span style="--shiki-light:#24292E;--shiki-dark:#FF715A">%(</span><span style="--shiki-light:#005CC5;--shiki-dark:#E9E5DF">item</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF"> ?id</span><span style="--shiki-light:#24292E;--shiki-dark:#FF715A">)</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">,</span>
+</span><span class="line"><span style="--shiki-light:#24292E;--shiki-dark:#FF715A">                                    %(</span><span style="--shiki-light:#005CC5;--shiki-dark:#E9E5DF">entry</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF"> ?id</span><span style="--shiki-light:#24292E;--shiki-dark:#FF715A">)</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">).</span><span style="--shiki-light:#6F42C1;--shiki-dark:#E9E5DF">str</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">());</span></span></code></pre>
+
+<p>The <code>try_</code> forms report success separately from their results. <code>match</code> returns
+bindings, <code>%(())</code> for a binder-free success, or <code>nil</code> on a miss.
+<code>match_replace</code> returns the original input on a miss and <code>nil</code> for a successful
+scalar replacement. <code>search</code> returns its results in reverse visitation order,
+so do not read the list as document order. <a href="../library/overview.html">The standard library
+overview</a> has the full API list.</p>
+<p>Each of these operations runs a pattern program rather than the pattern value.
+When the pattern argument is a literal written at the call, the compiler gives
+that call its own program, prepared once for the life of the process. A
+pattern computed at run time – built with <code>cons</code>, interpolated with <code>$</code>, or
+received as a parameter – goes through a plan cache instead: the first call
+prepares its program and later calls with the same pattern reuse it, so a loop
+over one computed pattern pays a single preparation. The cache is local to the
+enclosing <code>Context</code> and holds a bounded number of recent patterns, so a loop
+that alternates between more distinct patterns than it holds prepares them
+again; hoist the pattern out of the loop when that matters. The arms of a
+filtered <code>catch</code> get their own per-site program, like a literal.</p>
+<h2 id="match-for-shape-traversal-for-search"><a class="header" href="#match-for-shape-traversal-for-search">Match for shape, traversal for search</a></h2>
+<p>Use <code>match</code> when the data’s structure determines what to do. Literal elements
+specify what must be present; <code>?name</code> and <code>*tail</code> name the parts you will use.
+Nested patterns describe sublists, and <code>default</code> handles the remaining cases.
+A pattern made entirely of wildcards often calls for iteration instead.</p>
+<p>A loop can find candidate values, then match each candidate:</p>
+<pre class="shiki shiki-themes x2c-light x2c-dark x2c-code" style="--shiki-light:#24292e;--shiki-dark:#e9e5df;--shiki-light-bg:#fff;--shiki-dark-bg:#101011" tabindex="0"><code class="language-x2c no-highlight"><span class="line"><span style="--shiki-light:#007C8A;--shiki-dark:#29D3E2">List</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF"> program </span><span style="--shiki-light:#D73A49;--shiki-dark:#E9E5DF">=</span><span style="--shiki-light:#24292E;--shiki-dark:#FF715A"> %((</span><span style="--shiki-light:#005CC5;--shiki-dark:#E9E5DF">set</span><span style="--shiki-light:#005CC5;--shiki-dark:#E9E5DF"> x</span><span style="--shiki-light:#005CC5;--shiki-dark:#A9C9F5"> 1</span><span style="--shiki-light:#24292E;--shiki-dark:#FF715A">)</span><span style="--shiki-light:#24292E;--shiki-dark:#FF715A"> (</span><span style="--shiki-light:#005CC5;--shiki-dark:#E9E5DF">call</span><span style="--shiki-light:#005CC5;--shiki-dark:#E9E5DF"> print</span><span style="--shiki-light:#005CC5;--shiki-dark:#E9E5DF"> x</span><span style="--shiki-light:#24292E;--shiki-dark:#FF715A">)</span><span style="--shiki-light:#24292E;--shiki-dark:#FF715A"> (</span><span style="--shiki-light:#005CC5;--shiki-dark:#E9E5DF">set</span><span style="--shiki-light:#005CC5;--shiki-dark:#E9E5DF"> y</span><span style="--shiki-light:#005CC5;--shiki-dark:#A9C9F5"> 2</span><span style="--shiki-light:#24292E;--shiki-dark:#FF715A">))</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">;</span>
+</span><span class="line"><span style="--shiki-light:#D73A49;--shiki-dark:#F0ADA1">int</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF"> assignments </span><span style="--shiki-light:#D73A49;--shiki-dark:#E9E5DF">=</span><span style="--shiki-light:#005CC5;--shiki-dark:#A9C9F5"> 0</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">;</span>
+</span><span class="line"><span style="--shiki-light:#A626A4;--shiki-light-font-weight:bold;--shiki-dark:#FF4FD8;--shiki-dark-font-weight:bold">foreach</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">(</span><span style="--shiki-light:#007C8A;--shiki-dark:#29D3E2">Var</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF"> node, program) {</span>
+</span><span class="line"><span style="--shiki-light:#A626A4;--shiki-light-font-weight:bold;--shiki-dark:#FF4FD8;--shiki-dark-font-weight:bold">  match</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF"> (node) {</span>
+</span><span class="line"><span style="--shiki-light:#D73A49;--shiki-dark:#F0ADA1">    case</span><span style="--shiki-light:#24292E;--shiki-dark:#FF715A"> %(</span><span style="--shiki-light:#005CC5;--shiki-dark:#E9E5DF">set</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF"> ?name ?value</span><span style="--shiki-light:#24292E;--shiki-dark:#FF715A">)</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">:</span>
+</span><span class="line"><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">      assignments</span><span style="--shiki-light:#D73A49;--shiki-dark:#E9E5DF">++</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">;</span>
+</span><span class="line"><span style="--shiki-light:#D73A49;--shiki-dark:#F0ADA1">    case</span><span style="--shiki-light:#24292E;--shiki-dark:#FF715A"> %(</span><span style="--shiki-light:#005CC5;--shiki-dark:#E9E5DF">call</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF"> ?fn *args</span><span style="--shiki-light:#24292E;--shiki-dark:#FF715A">)</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">:</span>
+</span><span class="line"><span style="--shiki-light:#6F42C1;--shiki-dark:#E9E5DF">      printf</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">(</span><span style="--shiki-light:#032F62;--shiki-dark:#9EDFB8">"call to </span><span style="--shiki-light:#005CC5;--shiki-dark:#9EDFB8">%s\n</span><span style="--shiki-light:#032F62;--shiki-dark:#9EDFB8">"</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">, fn);</span>
+</span><span class="line"><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">  }</span>
+</span><span class="line"><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">}</span>
+</span><span class="line"><span style="--shiki-light:#6F42C1;--shiki-dark:#E9E5DF">printf</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">(</span><span style="--shiki-light:#032F62;--shiki-dark:#9EDFB8">"</span><span style="--shiki-light:#005CC5;--shiki-dark:#9EDFB8">%d</span><span style="--shiki-light:#032F62;--shiki-dark:#9EDFB8"> assignment(s)</span><span style="--shiki-light:#005CC5;--shiki-dark:#9EDFB8">\n</span><span style="--shiki-light:#032F62;--shiki-dark:#9EDFB8">"</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">, assignments);</span></span></code></pre>
+
+<p>Use a plain <code>if</code> chain instead when there is no shape to state: one tag test,
+one length check, one comparison. A <code>match</code> with a single arm whose pattern is
+<code>%(?x)</code> buys nothing over the test you would have written. Use
+<a href="iteration.html">iteration</a> when order, accumulated state, or early exit
+matters. A loop and a pattern can each do part of the work.</p>
+<p>A binder does not check the captured value’s type. <code>?value</code> captures whatever
+was in that position. If the arm’s body depends on the type, say so in the
+pattern with <code>(!is type string)</code> or check the type before the <code>match</code>.</p>
+<h2 id="limitations-to-know-up-front"><a class="header" href="#limitations-to-know-up-front">Limitations to know up front</a></h2>
+<p><strong><code>default</code> must be the last arm.</strong> The compiler diagnoses a later arm. A final
+<code>default</code> runs only when every earlier case failed. Each branch of a
+conditional group may end with its own <code>default</code>, as long as no arm follows
+the group.</p>
+<p><strong>A <code>case</code> pattern must be a <code>%(...)</code> <code>List</code> literal.</strong> The runtime matcher
+accepts a standalone <code>Symbol</code> pattern such as <code>&lt;?whole&gt;</code>, but the statement
+form does not. The compiler rejects any other case pattern with a positioned
+<span class="x2c-wordmark">x2c</span> diagnostic before generating C.</p>
+<p><strong>Source guard operators must be literal.</strong> Runtime-built patterns may
+interpolate an interned operator <code>Symbol</code>, but a source arm needs a literal
+operator so definite binder assignment can be checked. The <code>?binder?</code> family
+is reserved and is not a working predicate.</p>
+<p>The <a href="../library/modules/match.html">generated Match reference</a> lists the runtime
+operations by API tier.</p>
+
+                    </main>
+
+                    <nav class="x2c-pager" aria-label="Page navigation">
+                        <a rel="prev" href="../guide/collections.html" class="x2c-pager-prev" aria-keyshortcuts="Left">
+                            <span class="x2c-pager-label">previous</span>
+                            <span class="x2c-pager-title">Strings, Lists, Arrays, and Maps</span>
+                        </a>
+                        
+                        <a rel="next prefetch" href="../guide/iteration.html" class="x2c-pager-next" aria-keyshortcuts="Right">
+                            <span class="x2c-pager-label">next</span>
+                            <span class="x2c-pager-title">Iteration</span>
+                        </a>
+                    </nav>
+                    <footer class="x2c-footer">
+                        &copy; 2025&ndash;2026
+                        <a href="https://flake.org">GWF</a>
+                        &middot;
+                        <a href="https://github.com/gwf/x2c/blob/c2a89d999e81f47a4422a26edf0033eb0b98c6c6/LICENSE">Apache 2.0</a>
+                        &middot;
+                        <a href="https://github.com/gwf/x2c/blob/c2a89d999e81f47a4422a26edf0033eb0b98c6c6/TRADEMARKS.md">Trademarks</a>
+                    </footer>
+                </div>
+            </div>
+
+
+        </div>
+
+        <template id=fa-eye><span class=fa-svg><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 576 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc. --><path d="M288 32c-80.8 0-145.5 36.8-192.6 80.6C48.6 156 17.3 208 2.5 243.7c-3.3 7.9-3.3 16.7 0 24.6C17.3 304 48.6 356 95.4 399.4C142.5 443.2 207.2 480 288 480s145.5-36.8 192.6-80.6c46.8-43.5 78.1-95.4 93-131.1c3.3-7.9 3.3-16.7 0-24.6c-14.9-35.7-46.2-87.7-93-131.1C433.5 68.8 368.8 32 288 32zM432 256c0 79.5-64.5 144-144 144s-144-64.5-144-144s64.5-144 144-144s144 64.5 144 144zM288 192c0 35.3-28.7 64-64 64c-11.5 0-22.3-3-31.6-8.4c-.2 2.8-.4 5.5-.4 8.4c0 53 43 96 96 96s96-43 96-96s-43-96-96-96c-2.8 0-5.6 .1-8.4 .4c5.3 9.3 8.4 20.1 8.4 31.6z"/></svg></span></template>
+        <template id=fa-eye-slash><span class=fa-svg><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 640 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc. --><path d="M38.8 5.1C28.4-3.1 13.3-1.2 5.1 9.2S-1.2 34.7 9.2 42.9l592 464c10.4 8.2 25.5 6.3 33.7-4.1s6.3-25.5-4.1-33.7L525.6 386.7c39.6-40.6 66.4-86.1 79.9-118.4c3.3-7.9 3.3-16.7 0-24.6c-14.9-35.7-46.2-87.7-93-131.1C465.5 68.8 400.8 32 320 32c-68.2 0-125 26.3-169.3 60.8L38.8 5.1zM223.1 149.5C248.6 126.2 282.7 112 320 112c79.5 0 144 64.5 144 144c0 24.9-6.3 48.3-17.4 68.7L408 294.5c5.2-11.8 8-24.8 8-38.5c0-53-43-96-96-96c-2.8 0-5.6 .1-8.4 .4c5.3 9.3 8.4 20.1 8.4 31.6c0 10.2-2.4 19.8-6.6 28.3l-90.3-70.8zm223.1 298L373 389.9c-16.4 6.5-34.3 10.1-53 10.1c-79.5 0-144-64.5-144-144c0-6.9 .5-13.6 1.4-20.2L83.1 161.5C60.3 191.2 44 220.8 34.5 243.7c-3.3 7.9-3.3 16.7 0 24.6c14.9 35.7 46.2 87.7 93 131.1C174.5 443.2 239.2 480 320 480c47.8 0 89.9-12.9 126.2-32.5z"/></svg></span></template>
+        <template id=fa-copy><span class=fa-svg><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc. --><path d="M502.6 70.63l-61.25-61.25C435.4 3.371 427.2 0 418.7 0H255.1c-35.35 0-64 28.66-64 64l.0195 256C192 355.4 220.7 384 256 384h192c35.2 0 64-28.8 64-64V93.25C512 84.77 508.6 76.63 502.6 70.63zM464 320c0 8.836-7.164 16-16 16H255.1c-8.838 0-16-7.164-16-16L239.1 64.13c0-8.836 7.164-16 16-16h128L384 96c0 17.67 14.33 32 32 32h47.1V320zM272 448c0 8.836-7.164 16-16 16H63.1c-8.838 0-16-7.164-16-16L47.98 192.1c0-8.836 7.164-16 16-16H160V128H63.99c-35.35 0-64 28.65-64 64l.0098 256C.002 483.3 28.66 512 64 512h192c35.2 0 64-28.8 64-64v-32h-47.1L272 448z"/></svg></span></template>
+        <template id=fa-play><span class=fa-svg><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 384 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc. --><path d="M73 39c-14.8-9.1-33.4-9.4-48.5-.9S0 62.6 0 80V432c0 17.4 9.4 33.4 24.5 41.9s33.7 8.1 48.5-.9L361 297c14.3-8.7 23-24.2 23-41s-8.7-32.2-23-41L73 39z"/></svg></span></template>
+        <template id=fa-clock-rotate-left><span class=fa-svg><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc. --><path d="M75 75L41 41C25.9 25.9 0 36.6 0 57.9V168c0 13.3 10.7 24 24 24H134.1c21.4 0 32.1-25.9 17-41l-30.8-30.8C155 85.5 203 64 256 64c106 0 192 86 192 192s-86 192-192 192c-40.8 0-78.6-12.7-109.7-34.4c-14.5-10.1-34.4-6.6-44.6 7.9s-6.6 34.4 7.9 44.6C151.2 495 201.7 512 256 512c141.4 0 256-114.6 256-256S397.4 0 256 0C185.3 0 121.3 28.7 75 75zm181 53c-13.3 0-24 10.7-24 24V256c0 6.4 2.5 12.5 7 17l72 72c9.4 9.4 24.6 9.4 33.9 0s9.4-24.6 0-33.9l-65-65V152c0-13.3-10.7-24-24-24z"/></svg></span></template>
+
+
+
+        <script>
+            window.playground_copyable = true;
+        </script>
+
+
+        <script src="../elasticlunr-ef4e11c1.min.js"></script>
+        <script src="../mark-09e88c2c.min.js"></script>
+        <script src="../searcher-09f2665d.js"></script>
+
+        <script src="../clipboard-1626706a.min.js"></script>
+        <script src="../highlight-abc7f01d.js"></script>
+        <script src="../book-609e4cb8.js"></script>
+
+        <script>
+            document.addEventListener('DOMContentLoaded', () => {
+                const sidebar = document.querySelector('#mdbook-sidebar');
+                sidebar.querySelectorAll('ol').forEach(list => {
+                    const numbers = list.querySelectorAll(
+                        ':scope > li > .chapter-link-wrapper > a > strong, :scope > li > a > strong');
+                    if (numbers.length) {
+                        const width = Math.max(...Array.from(numbers,
+                            number => number.textContent.trim().length));
+                        list.style.setProperty('--chapter-number-width', width + 'ch');
+                    }
+                });
+                const chapter = sidebar.querySelector('a.active');
+                const item = chapter?.closest('.chapter-item');
+                if (item?.querySelector(':scope > .on-this-page')) {
+                    const row = chapter.parentElement;
+                    if (!row.querySelector('.chapter-fold-toggle')) {
+                        const toggle = document.createElement('button');
+                        toggle.type = 'button';
+                        toggle.className = 'chapter-fold-toggle';
+                        toggle.appendChild(document.createElement('div'));
+                        toggle.addEventListener('click', () => {
+                            item.classList.toggle('expanded');
+                        });
+                        row.appendChild(toggle);
+                    }
+                }
+                sidebar.querySelectorAll('.chapter-fold-toggle').forEach(toggle => {
+                    const row = toggle.parentElement;
+                    const item = row.parentElement;
+                    const title = row.querySelector('a').textContent.trim();
+                    toggle.setAttribute('aria-label', 'Toggle ' + title);
+                    const update = () => toggle.setAttribute('aria-expanded',
+                        String(item.classList.contains('expanded')));
+                    update();
+                    toggle.addEventListener('click', update);
+                    if (toggle.tagName === 'A') {
+                        toggle.setAttribute('role', 'button');
+                        toggle.tabIndex = 0;
+                        toggle.addEventListener('keydown', event => {
+                            if (event.key === 'Enter' || event.key === ' ') {
+                                event.preventDefault();
+                                toggle.click();
+                            }
+                        });
+                    }
+                });
+            });
+        </script>
+
+        <!-- Custom JS scripts -->
+
+
+
+    </div>
+    </body>
+</html>

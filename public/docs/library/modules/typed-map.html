@@ -1,0 +1,1562 @@
+<!DOCTYPE HTML>
+<html lang="en" class="light sidebar-visible" dir="ltr">
+    <head>
+        <!-- Book generated using mdBook -->
+        <meta charset="UTF-8">
+        <title>lib/typed-map.x - The x2c Book</title>
+
+
+        <!-- Custom HTML head -->
+        <link rel="preconnect" href="https://fonts.googleapis.com">
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=Archivo:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">
+
+        <meta name="description" content="The x2c language, standard library, and compiler.">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <meta name="theme-color" content="#ffffff">
+
+        <link rel="icon" href="../../favicon-995a3c20.svg">
+        <link rel="stylesheet" href="../../css/variables-8adf115d.css">
+        <link rel="stylesheet" href="../../css/general-e96d0476.css">
+        <link rel="stylesheet" href="../../css/chrome-d279d366.css">
+        <link rel="stylesheet" href="../../css/print-9e4910d8.css" media="print">
+
+        <!-- Fonts -->
+        <link rel="stylesheet" href="../../fonts/fonts-9644e21d.css">
+
+        <!-- Highlight.js Stylesheets -->
+        <link rel="stylesheet" id="mdbook-highlight-css" href="../../highlight-493f70e1.css">
+        <link rel="stylesheet" id="mdbook-tomorrow-night-css" href="../../tomorrow-night-4c0ae647.css">
+        <link rel="stylesheet" id="mdbook-ayu-highlight-css" href="../../ayu-highlight-3fdfc3ac.css">
+
+        <!-- Custom theme stylesheets -->
+        <link rel="stylesheet" href="../../theme/header-2c1becca.css">
+        <link rel="stylesheet" href="../../theme/x2c-fd3d182e.css">
+
+
+        <!-- Provide site root and default themes to javascript -->
+        <script>
+            const path_to_root = "../../";
+            const default_light_theme = "light";
+            const default_dark_theme = "light";
+            window.path_to_searchindex_js = "../../searchindex-2643e100.js";
+        </script>
+        <!-- Start loading toc.js asap -->
+        <script src="../../toc-a71616d6.js"></script>
+        <!-- x2c publication metadata -->
+        <link rel="canonical" href="https://staging.x2c-lang.dev/docs/library/modules/typed-map.html">
+        <meta property="og:type" content="website">
+        <meta property="og:title" content="lib/typed-map.x - The x2c Book">
+        <meta property="og:description" content="The x2c language, standard library, and compiler.">
+        <meta property="og:url" content="https://staging.x2c-lang.dev/docs/library/modules/typed-map.html">
+        <meta property="og:image" content="https://staging.x2c-lang.dev/x2c-social.png">
+        <meta property="og:image:width" content="1200">
+        <meta property="og:image:height" content="630">
+        <meta name="twitter:card" content="summary_large_image">
+        <meta name="twitter:title" content="lib/typed-map.x - The x2c Book">
+        <meta name="twitter:description" content="The x2c language, standard library, and compiler.">
+        <meta name="twitter:image" content="https://staging.x2c-lang.dev/x2c-social.png">
+    </head>
+    <body><aside aria-label="Release candidate" style="padding:1rem;background:#fff1bf;color:#241c00;font:14px/1.5 monospace;overflow-wrap:anywhere"><strong>Public staging: candidate-c2a89d999e81f47a4422a26edf0033eb0b98c6c6-35470032964-1</strong><p>Source: c2a89d999e81f47a4422a26edf0033eb0b98c6c6. Use a fresh scratch installation and the explicit candidate index below. Bare x2c install commands and production URLs in the book refer to production.</p><pre style="overflow:auto">export X2C_PREFIX=&quot;$(mktemp -d)/x2c&quot;
+curl -fsSL https://staging.x2c-lang.dev/install.sh | sh
+export PATH=&quot;$X2C_PREFIX/bin:$PATH&quot;
+x2c run &quot;$X2C_PREFIX/examples/foreach.x&quot;
+x2c install pcre2 --index https://staging.x2c-lang.dev/packages/index.txt</pre></aside>
+    <div id="mdbook-help-container">
+        <div id="mdbook-help-popup">
+            <h2 class="mdbook-help-title">Keyboard shortcuts</h2>
+            <div>
+                <p>Press <kbd>←</kbd> or <kbd>→</kbd> to navigate between chapters</p>
+                <p>Press <kbd>S</kbd> or <kbd>/</kbd> to search in the book</p>
+                <p>Press <kbd>?</kbd> to show this help</p>
+                <p>Press <kbd>Esc</kbd> to hide this help</p>
+            </div>
+        </div>
+    </div>
+    <div id="mdbook-body-container">
+        <!-- Work around some values being stored in localStorage wrapped in quotes -->
+        <script>
+            try {
+                let theme = localStorage.getItem('mdbook-theme');
+                let sidebar = localStorage.getItem('mdbook-sidebar');
+
+                if (theme.startsWith('"') && theme.endsWith('"')) {
+                    localStorage.setItem('mdbook-theme', theme.slice(1, theme.length - 1));
+                }
+
+                if (sidebar.startsWith('"') && sidebar.endsWith('"')) {
+                    localStorage.setItem('mdbook-sidebar', sidebar.slice(1, sidebar.length - 1));
+                }
+            } catch (e) { }
+        </script>
+
+        <!-- Set the theme before any content is loaded, prevents flash -->
+        <script>
+            const default_theme = window.matchMedia("(prefers-color-scheme: dark)").matches ? default_dark_theme : default_light_theme;
+            let theme;
+            try { theme = localStorage.getItem('mdbook-theme'); } catch(e) { }
+            if (theme === null || theme === undefined) { theme = default_theme; }
+            const html = document.documentElement;
+            html.classList.remove('light')
+            html.classList.add(theme);
+            html.classList.add("js");
+        </script>
+
+        <input type="checkbox" id="mdbook-sidebar-toggle-anchor" class="hidden">
+
+        <!-- Hide / unhide sidebar before it is displayed -->
+        <script>
+            let sidebar = null;
+            const sidebar_toggle = document.getElementById("mdbook-sidebar-toggle-anchor");
+            if (document.body.clientWidth >= 1080) {
+                try { sidebar = localStorage.getItem('mdbook-sidebar'); } catch(e) { }
+                sidebar = sidebar || 'visible';
+            } else {
+                sidebar = 'hidden';
+                sidebar_toggle.checked = false;
+            }
+            if (sidebar === 'visible') {
+                sidebar_toggle.checked = true;
+            } else {
+                html.classList.remove('sidebar-visible');
+            }
+        </script>
+
+        <nav id="mdbook-sidebar" class="sidebar" aria-label="Table of contents">
+            <!-- populated by js -->
+            <mdbook-sidebar-scrollbox class="sidebar-scrollbox"></mdbook-sidebar-scrollbox>
+            <noscript>
+                <iframe class="sidebar-iframe-outer" src="../../toc.html"></iframe>
+            </noscript>
+            <div id="mdbook-sidebar-resize-handle" class="sidebar-resize-handle">
+                <div class="sidebar-resize-indicator"></div>
+            </div>
+        </nav>
+
+        <div id="mdbook-page-wrapper" class="page-wrapper">
+
+            <div class="page">
+                <div id="mdbook-menu-bar" class="hidden"></div>
+                <header class="landing-header x2c-header">
+                    <div class="landing-header-inner">
+                        <div class="landing-branding">
+                            <a class="landing-brand" href="../../../" aria-label="x2c home">
+                                <svg viewBox="0 0 100 100" width="22" height="22" aria-hidden="true"><g fill="none" stroke="#da291c" stroke-width="17" stroke-linecap="butt"><path d="M9 16 A34.5 34.5 0 0 1 9 84"></path><path d="M91 16 A34.5 34.5 0 0 0 91 84"></path></g></svg>
+                                <span class="x2c-wordmark landing-wordmark">x2c</span>
+                            </a>
+                            <span class="landing-tagline">The x2c Book</span>
+                        </div>
+                        <nav class="landing-nav" aria-label="x2c website">
+                            <div class="landing-page-nav">
+                                <a href="../../../#love">love</a>
+                                <a href="../../../#power">power</a>
+                                <a href="../../../#magic">magic</a>
+                            </div>
+                            <div class="landing-site-nav">
+                                <a href="../../../#install">install</a>
+                                <a href="../../../#packages">packages</a>
+                            </div>
+                            <div class="landing-reference-nav">
+                                <a href="../../../about/">about</a>
+                                <a href="../../" aria-current="page">docs</a>
+                                <a href="https://github.com/gwf/x2c">source</a>
+                            </div>
+                        </nav>
+                    </div>
+                    <div class="x2c-book-tools">
+                        <div class="x2c-header-tools">
+                            <label id="mdbook-sidebar-toggle" class="icon-button" for="mdbook-sidebar-toggle-anchor" title="Toggle Table of Contents" aria-label="Toggle Table of Contents" aria-controls="mdbook-sidebar">
+                                <span class=fa-svg><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc. --><path d="M0 96C0 78.3 14.3 64 32 64H416c17.7 0 32 14.3 32 32s-14.3 32-32 32H32C14.3 128 0 113.7 0 96zM0 256c0-17.7 14.3-32 32-32H416c17.7 0 32 14.3 32 32s-14.3 32-32 32H32c-17.7 0-32-14.3-32-32zM448 416c0 17.7-14.3 32-32 32H32c-17.7 0-32-14.3-32-32s14.3-32 32-32H416c17.7 0 32 14.3 32 32z"/></svg></span>
+                            </label>
+                        </div>
+                        <div class="x2c-header-tools x2c-header-tools-right">
+                            <button id="mdbook-search-toggle" class="icon-button" type="button" title="Search (`/`)" aria-label="Toggle Searchbar" aria-expanded="false" aria-keyshortcuts="/ s" aria-controls="mdbook-searchbar">
+                                <span class=fa-svg><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc. --><path d="M416 208c0 45.9-14.9 88.3-40 122.7L502.6 457.4c12.5 12.5 12.5 32.8 0 45.3s-32.8 12.5-45.3 0L330.7 376c-34.4 25.2-76.8 40-122.7 40C93.1 416 0 322.9 0 208S93.1 0 208 0S416 93.1 416 208zM208 352c79.5 0 144-64.5 144-144s-64.5-144-144-144S64 128.5 64 208s64.5 144 144 144z"/></svg></span>
+                            </button>
+                            <button id="mdbook-theme-toggle" class="icon-button" type="button" title="Change theme" aria-label="Change theme" aria-haspopup="true" aria-expanded="false" aria-controls="mdbook-theme-list">
+                                <span class=fa-svg><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc. --><path d="M448 256c0-106-86-192-192-192V448c106 0 192-86 192-192zm64 0c0 141.4-114.6 256-256 256S0 397.4 0 256S114.6 0 256 0S512 114.6 512 256z"/></svg></span>
+                            </button>
+                            <ul id="mdbook-theme-list" class="theme-popup" aria-label="Themes" role="menu">
+                                <li role="none"><button role="menuitem" class="theme" id="mdbook-theme-default_theme">Auto</button></li>
+                                <li role="none"><button role="menuitem" class="theme" id="mdbook-theme-light">Light</button></li>
+                                <li role="none"><button role="menuitem" class="theme" id="mdbook-theme-ayu">Dark</button></li>
+                            </ul>
+                            <a href="https://github.com/gwf/x2c/edit/main/docs/src/library/modules/typed-map.md" title="Suggest an edit" aria-label="Suggest an edit" rel="edit" class="icon-button">
+                                <span class=fa-svg id="git-edit-button"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc. --><path d="M421.7 220.3l-11.3 11.3-22.6 22.6-205 205c-6.6 6.6-14.8 11.5-23.8 14.1L30.8 511c-8.4 2.5-17.5 .2-23.7-6.1S-1.5 489.7 1 481.2L38.7 353.1c2.6-9 7.5-17.2 14.1-23.8l205-205 22.6-22.6 11.3-11.3 33.9 33.9 62.1 62.1 33.9 33.9zM96 353.9l-9.3 9.3c-.9 .9-1.6 2.1-2 3.4l-25.3 86 86-25.3c1.3-.4 2.5-1.1 3.4-2l9.3-9.3H112c-8.8 0-16-7.2-16-16V353.9zM453.3 19.3l39.4 39.4c25 25 25 65.5 0 90.5l-14.5 14.5-22.6 22.6-11.3 11.3-33.9-33.9-62.1-62.1L314.3 67.7l11.3-11.3 22.6-22.6 14.5-14.5c25-25 65.5-25 90.5 0z"/></svg></span>
+                            </a>
+                        </div>
+                    </div>
+                </header>
+                <script>
+                    const bookHeader = document.querySelector('.x2c-header');
+                    new ResizeObserver(() => {
+                        document.documentElement.style.setProperty(
+                            '--menu-bar-height', `${bookHeader.getBoundingClientRect().height}px`);
+                    }).observe(bookHeader);
+                </script>
+
+                <div id="mdbook-search-wrapper" class="hidden">
+                    <form id="mdbook-searchbar-outer" class="searchbar-outer">
+                        <div class="search-wrapper">
+                            <input type="search" id="mdbook-searchbar" name="searchbar" placeholder="Search this book ..." aria-controls="mdbook-searchresults-outer" aria-describedby="searchresults-header">
+                            <div class="spinner-wrapper">
+                                <span class=fa-svg id="fa-spin"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc. --><path d="M304 48c0-26.5-21.5-48-48-48s-48 21.5-48 48s21.5 48 48 48s48-21.5 48-48zm0 416c0-26.5-21.5-48-48-48s-48 21.5-48 48s21.5 48 48 48s48-21.5 48-48zM48 304c26.5 0 48-21.5 48-48s-21.5-48-48-48s-48 21.5-48 48s21.5 48 48 48zm464-48c0-26.5-21.5-48-48-48s-48 21.5-48 48s21.5 48 48 48s48-21.5 48-48zM142.9 437c18.7-18.7 18.7-49.1 0-67.9s-49.1-18.7-67.9 0s-18.7 49.1 0 67.9s49.1 18.7 67.9 0zm0-294.2c18.7-18.7 18.7-49.1 0-67.9S93.7 56.2 75 75s-18.7 49.1 0 67.9s49.1 18.7 67.9 0zM369.1 437c18.7 18.7 49.1 18.7 67.9 0s18.7-49.1 0-67.9s-49.1-18.7-67.9 0s-18.7 49.1 0 67.9z"/></svg></span>
+                            </div>
+                        </div>
+                    </form>
+                    <div id="mdbook-searchresults-outer" class="searchresults-outer hidden">
+                        <div id="mdbook-searchresults-header" class="searchresults-header"></div>
+                        <ul id="mdbook-searchresults">
+                        </ul>
+                    </div>
+                </div>
+
+                <!-- Apply ARIA attributes after the sidebar and the sidebar toggle button are added to the DOM -->
+                <script>
+                    document.getElementById('mdbook-sidebar-toggle').setAttribute('aria-expanded', sidebar === 'visible');
+                    document.getElementById('mdbook-sidebar').setAttribute('aria-hidden', sidebar !== 'visible');
+                    Array.from(document.querySelectorAll('#mdbook-sidebar a')).forEach(function(link) {
+                        link.setAttribute('tabIndex', sidebar === 'visible' ? 0 : -1);
+                    });
+                </script>
+
+                <div id="mdbook-content" class="content">
+                    <main>
+                        <!-- Generated by `python3 tools/gen-api-reference.py --write` from
+     lib/*.x and the stage interfaces. Do not edit by hand. -->
+<h1 id="libtyped-mapx"><a class="header" href="#libtyped-mapx"><code>lib/typed-map.x</code></a></h1>
+<p>Typed <code>Map</code>s generated from shared storage.</p>
+<h2 id="primary-api"><a class="header" href="#primary-api">Primary API</a></h2>
+<div class="table-wrapper">
+<table>
+<thead>
+<tr><th>Function</th><th>Summary</th></tr>
+</thead>
+<tbody>
+<tr><td><a href="#Map.mapintint"><code>Map.mapintint</code></a></td><td>Packs <code>entries</code> into a fresh typed map in the current <code>Scope</code>.</td></tr>
+<tr><td><a href="#Map.maplongdouble"><code>Map.maplongdouble</code></a></td><td>Packs <code>entries</code> into a fresh typed map in the current <code>Scope</code>.</td></tr>
+<tr><td><a href="#Map.mapstringint"><code>Map.mapstringint</code></a></td><td>Packs <code>entries</code> into a fresh typed map in the current <code>Scope</code>.</td></tr>
+<tr><td><a href="#Map.mapstringstring"><code>Map.mapstringstring</code></a></td><td>Packs <code>entries</code> into a fresh typed map in the current <code>Scope</code>.</td></tr>
+<tr><td><a href="#MapIntInt.cleanup"><code>MapIntInt.cleanup</code></a></td><td>Releases the record and its backing Blocks, borrowing stored values.</td></tr>
+<tr><td><a href="#MapIntInt.compare"><code>MapIntInt.compare</code></a></td><td>Compares typed Maps by size and then sorted native key/value contents.</td></tr>
+<tr><td><a href="#MapIntInt.contains"><code>MapIntInt.contains</code></a></td><td>Returns one when <code>key</code> is present, or zero for a null map.</td></tr>
+<tr><td><a href="#MapIntInt.copy"><code>MapIntInt.copy</code></a></td><td>Returns a fresh shallow copy in the current <code>Scope</code>.</td></tr>
+<tr><td><a href="#MapIntInt.del"><code>MapIntInt.del</code></a></td><td>Removes <code>key</code> and returns its value.</td></tr>
+<tr><td><a href="#MapIntInt.enumerate"><code>MapIntInt.enumerate</code></a></td><td>Initializes <code>dest</code> to yield canonical <code>(key value)</code> <code>List</code>s in bucket order.</td></tr>
+<tr><td><a href="#MapIntInt.equal"><code>MapIntInt.equal</code></a></td><td>Reports key/value equality independent of bucket and insertion order.</td></tr>
+<tr><td><a href="#MapIntInt.get"><code>MapIntInt.get</code></a></td><td>Returns the value for <code>key</code>.</td></tr>
+<tr><td><a href="#MapIntInt.getdefault"><code>MapIntInt.getdefault</code></a></td><td>Returns the value for <code>key</code>, or <code>defval</code> without inserting it.</td></tr>
+<tr><td><a href="#MapIntInt.getindex"><code>MapIntInt.getindex</code></a></td><td>Returns the value selected by bracket indexing.</td></tr>
+<tr><td><a href="#MapIntInt.iter"><code>MapIntInt.iter</code></a></td><td>Initializes <code>dest</code> as a single-pass iterator over boxed values.</td></tr>
+<tr><td><a href="#MapIntInt.keys"><code>MapIntInt.keys</code></a></td><td>Initializes <code>dest</code> as a single-pass iterator over boxed keys.</td></tr>
+<tr><td><a href="#MapIntInt.len"><code>MapIntInt.len</code></a></td><td>Returns the number of entries, or zero for a null map.</td></tr>
+<tr><td><a href="#MapIntInt.map"><code>MapIntInt.map</code></a></td><td>Returns a fresh ordinary Map containing boxed keys and values.</td></tr>
+<tr><td><a href="#MapIntInt.merge"><code>MapIntInt.merge</code></a></td><td>Copies every entry of <code>other</code> into <code>map</code> and returns the destination.</td></tr>
+<tr><td><a href="#MapIntInt.new"><code>MapIntInt.new</code></a></td><td>Returns a fresh empty map owned by the current <code>Scope</code>.</td></tr>
+<tr><td><a href="#MapIntInt.new_capacity"><code>MapIntInt.new_capacity</code></a></td><td>Returns a fresh empty map with exactly <code>capacity</code> buckets.</td></tr>
+<tr><td><a href="#MapIntInt.postfixindex"><code>MapIntInt.postfixindex</code></a></td><td>Applies postfix <code>++</code> or <code>--</code> and returns the previous value.</td></tr>
+<tr><td><a href="#MapIntInt.repr"><code>MapIntInt.repr</code></a></td><td>Returns the readable typed-Map representation.</td></tr>
+<tr><td><a href="#MapIntInt.set"><code>MapIntInt.set</code></a></td><td>Copies <code>key</code> and <code>val</code> into the table, replacing an existing value.</td></tr>
+<tr><td><a href="#MapIntInt.setdefault"><code>MapIntInt.setdefault</code></a></td><td>Returns the value for <code>key</code>, inserting <code>defval</code> when absent.</td></tr>
+<tr><td><a href="#MapIntInt.setindex"><code>MapIntInt.setindex</code></a></td><td>Stores <code>val</code> under <code>key</code> and returns <code>val</code>.</td></tr>
+<tr><td><a href="#MapIntInt.str"><code>MapIntInt.str</code></a></td><td>Returns the typed-Map display String.</td></tr>
+<tr><td><a href="#MapIntInt.truth"><code>MapIntInt.truth</code></a></td><td>Returns one when <code>map</code> contains an entry.</td></tr>
+<tr><td><a href="#MapIntInt.try_del"><code>MapIntInt.try_del</code></a></td><td>Removes <code>key</code>, writes its value to <code>out</code>, and returns one when present.</td></tr>
+<tr><td><a href="#MapIntInt.try_get"><code>MapIntInt.try_get</code></a></td><td>Writes the value for <code>key</code> to <code>out</code> and returns one when present.</td></tr>
+<tr><td><a href="#MapIntInt.try_next"><code>MapIntInt.try_next</code></a></td><td>Writes the next bucket’s key and value, advances <code>cursor</code>, and returns one.</td></tr>
+<tr><td><a href="#MapIntInt.updateindex"><code>MapIntInt.updateindex</code></a></td><td>Applies <code>op</code> to the value for <code>key</code> and returns the stored result.</td></tr>
+<tr><td><a href="#MapIntInt.var"><code>MapIntInt.var</code></a></td><td>Boxes <code>map</code> with its registered typed-map tag without copying it.</td></tr>
+<tr><td><a href="#MapIntInt.write_repr"><code>MapIntInt.write_repr</code></a></td><td>Appends the readable typed-Map representation in bucket order.</td></tr>
+<tr><td><a href="#MapIntInt.write_str"><code>MapIntInt.write_str</code></a></td><td>Appends the typed-Map display text in bucket order.</td></tr>
+<tr><td><a href="#MapLongDouble.cleanup"><code>MapLongDouble.cleanup</code></a></td><td>Releases the record and its backing Blocks, borrowing stored values.</td></tr>
+<tr><td><a href="#MapLongDouble.compare"><code>MapLongDouble.compare</code></a></td><td>Compares typed Maps by size and then sorted native key/value contents.</td></tr>
+<tr><td><a href="#MapLongDouble.contains"><code>MapLongDouble.contains</code></a></td><td>Returns one when <code>key</code> is present, or zero for a null map.</td></tr>
+<tr><td><a href="#MapLongDouble.copy"><code>MapLongDouble.copy</code></a></td><td>Returns a fresh shallow copy in the current <code>Scope</code>.</td></tr>
+<tr><td><a href="#MapLongDouble.del"><code>MapLongDouble.del</code></a></td><td>Removes <code>key</code> and returns its value.</td></tr>
+<tr><td><a href="#MapLongDouble.enumerate"><code>MapLongDouble.enumerate</code></a></td><td>Initializes <code>dest</code> to yield canonical <code>(key value)</code> <code>List</code>s in bucket order.</td></tr>
+<tr><td><a href="#MapLongDouble.equal"><code>MapLongDouble.equal</code></a></td><td>Reports key/value equality independent of bucket and insertion order.</td></tr>
+<tr><td><a href="#MapLongDouble.get"><code>MapLongDouble.get</code></a></td><td>Returns the value for <code>key</code>.</td></tr>
+<tr><td><a href="#MapLongDouble.getdefault"><code>MapLongDouble.getdefault</code></a></td><td>Returns the value for <code>key</code>, or <code>defval</code> without inserting it.</td></tr>
+<tr><td><a href="#MapLongDouble.getindex"><code>MapLongDouble.getindex</code></a></td><td>Returns the value selected by bracket indexing.</td></tr>
+<tr><td><a href="#MapLongDouble.iter"><code>MapLongDouble.iter</code></a></td><td>Initializes <code>dest</code> as a single-pass iterator over boxed values.</td></tr>
+<tr><td><a href="#MapLongDouble.keys"><code>MapLongDouble.keys</code></a></td><td>Initializes <code>dest</code> as a single-pass iterator over boxed keys.</td></tr>
+<tr><td><a href="#MapLongDouble.len"><code>MapLongDouble.len</code></a></td><td>Returns the number of entries, or zero for a null map.</td></tr>
+<tr><td><a href="#MapLongDouble.map"><code>MapLongDouble.map</code></a></td><td>Returns a fresh ordinary Map containing boxed keys and values.</td></tr>
+<tr><td><a href="#MapLongDouble.merge"><code>MapLongDouble.merge</code></a></td><td>Copies every entry of <code>other</code> into <code>map</code> and returns the destination.</td></tr>
+<tr><td><a href="#MapLongDouble.new"><code>MapLongDouble.new</code></a></td><td>Returns a fresh empty map owned by the current <code>Scope</code>.</td></tr>
+<tr><td><a href="#MapLongDouble.new_capacity"><code>MapLongDouble.new_capacity</code></a></td><td>Returns a fresh empty map with exactly <code>capacity</code> buckets.</td></tr>
+<tr><td><a href="#MapLongDouble.postfixindex"><code>MapLongDouble.postfixindex</code></a></td><td>Applies postfix <code>++</code> or <code>--</code> and returns the previous value.</td></tr>
+<tr><td><a href="#MapLongDouble.repr"><code>MapLongDouble.repr</code></a></td><td>Returns the readable typed-Map representation.</td></tr>
+<tr><td><a href="#MapLongDouble.set"><code>MapLongDouble.set</code></a></td><td>Copies <code>key</code> and <code>val</code> into the table, replacing an existing value.</td></tr>
+<tr><td><a href="#MapLongDouble.setdefault"><code>MapLongDouble.setdefault</code></a></td><td>Returns the value for <code>key</code>, inserting <code>defval</code> when absent.</td></tr>
+<tr><td><a href="#MapLongDouble.setindex"><code>MapLongDouble.setindex</code></a></td><td>Stores <code>val</code> under <code>key</code> and returns <code>val</code>.</td></tr>
+<tr><td><a href="#MapLongDouble.str"><code>MapLongDouble.str</code></a></td><td>Returns the typed-Map display String.</td></tr>
+<tr><td><a href="#MapLongDouble.truth"><code>MapLongDouble.truth</code></a></td><td>Returns one when <code>map</code> contains an entry.</td></tr>
+<tr><td><a href="#MapLongDouble.try_del"><code>MapLongDouble.try_del</code></a></td><td>Removes <code>key</code>, writes its value to <code>out</code>, and returns one when present.</td></tr>
+<tr><td><a href="#MapLongDouble.try_get"><code>MapLongDouble.try_get</code></a></td><td>Writes the value for <code>key</code> to <code>out</code> and returns one when present.</td></tr>
+<tr><td><a href="#MapLongDouble.try_next"><code>MapLongDouble.try_next</code></a></td><td>Writes the next bucket’s key and value, advances <code>cursor</code>, and returns one.</td></tr>
+<tr><td><a href="#MapLongDouble.updateindex"><code>MapLongDouble.updateindex</code></a></td><td>Applies <code>op</code> to the value for <code>key</code> and returns the stored result.</td></tr>
+<tr><td><a href="#MapLongDouble.var"><code>MapLongDouble.var</code></a></td><td>Boxes <code>map</code> with its registered typed-map tag without copying it.</td></tr>
+<tr><td><a href="#MapLongDouble.write_repr"><code>MapLongDouble.write_repr</code></a></td><td>Appends the readable typed-Map representation in bucket order.</td></tr>
+<tr><td><a href="#MapLongDouble.write_str"><code>MapLongDouble.write_str</code></a></td><td>Appends the typed-Map display text in bucket order.</td></tr>
+<tr><td><a href="#MapStringInt.cleanup"><code>MapStringInt.cleanup</code></a></td><td>Releases the record and its backing Blocks, borrowing stored values.</td></tr>
+<tr><td><a href="#MapStringInt.compare"><code>MapStringInt.compare</code></a></td><td>Compares typed Maps by size and then sorted native key/value contents.</td></tr>
+<tr><td><a href="#MapStringInt.contains"><code>MapStringInt.contains</code></a></td><td>Returns one when <code>key</code> is present, or zero for a null map.</td></tr>
+<tr><td><a href="#MapStringInt.copy"><code>MapStringInt.copy</code></a></td><td>Returns a fresh shallow copy in the current <code>Scope</code>.</td></tr>
+<tr><td><a href="#MapStringInt.del"><code>MapStringInt.del</code></a></td><td>Removes <code>key</code> and returns its value.</td></tr>
+<tr><td><a href="#MapStringInt.enumerate"><code>MapStringInt.enumerate</code></a></td><td>Initializes <code>dest</code> to yield canonical <code>(key value)</code> <code>List</code>s in bucket order.</td></tr>
+<tr><td><a href="#MapStringInt.equal"><code>MapStringInt.equal</code></a></td><td>Reports key/value equality independent of bucket and insertion order.</td></tr>
+<tr><td><a href="#MapStringInt.get"><code>MapStringInt.get</code></a></td><td>Returns the value for <code>key</code>.</td></tr>
+<tr><td><a href="#MapStringInt.getdefault"><code>MapStringInt.getdefault</code></a></td><td>Returns the value for <code>key</code>, or <code>defval</code> without inserting it.</td></tr>
+<tr><td><a href="#MapStringInt.getindex"><code>MapStringInt.getindex</code></a></td><td>Returns the value selected by bracket indexing.</td></tr>
+<tr><td><a href="#MapStringInt.iter"><code>MapStringInt.iter</code></a></td><td>Initializes <code>dest</code> as a single-pass iterator over boxed values.</td></tr>
+<tr><td><a href="#MapStringInt.keys"><code>MapStringInt.keys</code></a></td><td>Initializes <code>dest</code> as a single-pass iterator over boxed keys.</td></tr>
+<tr><td><a href="#MapStringInt.len"><code>MapStringInt.len</code></a></td><td>Returns the number of entries, or zero for a null map.</td></tr>
+<tr><td><a href="#MapStringInt.map"><code>MapStringInt.map</code></a></td><td>Returns a fresh ordinary Map containing boxed keys and values.</td></tr>
+<tr><td><a href="#MapStringInt.merge"><code>MapStringInt.merge</code></a></td><td>Copies every entry of <code>other</code> into <code>map</code> and returns the destination.</td></tr>
+<tr><td><a href="#MapStringInt.new"><code>MapStringInt.new</code></a></td><td>Returns a fresh empty map owned by the current <code>Scope</code>.</td></tr>
+<tr><td><a href="#MapStringInt.new_capacity"><code>MapStringInt.new_capacity</code></a></td><td>Returns a fresh empty map with exactly <code>capacity</code> buckets.</td></tr>
+<tr><td><a href="#MapStringInt.postfixindex"><code>MapStringInt.postfixindex</code></a></td><td>Applies postfix <code>++</code> or <code>--</code> and returns the previous value.</td></tr>
+<tr><td><a href="#MapStringInt.repr"><code>MapStringInt.repr</code></a></td><td>Returns the readable typed-Map representation.</td></tr>
+<tr><td><a href="#MapStringInt.set"><code>MapStringInt.set</code></a></td><td>Copies <code>key</code> and <code>val</code> into the table, replacing an existing value.</td></tr>
+<tr><td><a href="#MapStringInt.setdefault"><code>MapStringInt.setdefault</code></a></td><td>Returns the value for <code>key</code>, inserting <code>defval</code> when absent.</td></tr>
+<tr><td><a href="#MapStringInt.setindex"><code>MapStringInt.setindex</code></a></td><td>Stores <code>val</code> under <code>key</code> and returns <code>val</code>.</td></tr>
+<tr><td><a href="#MapStringInt.str"><code>MapStringInt.str</code></a></td><td>Returns the typed-Map display String.</td></tr>
+<tr><td><a href="#MapStringInt.truth"><code>MapStringInt.truth</code></a></td><td>Returns one when <code>map</code> contains an entry.</td></tr>
+<tr><td><a href="#MapStringInt.try_del"><code>MapStringInt.try_del</code></a></td><td>Removes <code>key</code>, writes its value to <code>out</code>, and returns one when present.</td></tr>
+<tr><td><a href="#MapStringInt.try_get"><code>MapStringInt.try_get</code></a></td><td>Writes the value for <code>key</code> to <code>out</code> and returns one when present.</td></tr>
+<tr><td><a href="#MapStringInt.try_next"><code>MapStringInt.try_next</code></a></td><td>Writes the next bucket’s key and value, advances <code>cursor</code>, and returns one.</td></tr>
+<tr><td><a href="#MapStringInt.updateindex"><code>MapStringInt.updateindex</code></a></td><td>Applies <code>op</code> to the value for <code>key</code> and returns the stored result.</td></tr>
+<tr><td><a href="#MapStringInt.var"><code>MapStringInt.var</code></a></td><td>Boxes <code>map</code> with its registered typed-map tag without copying it.</td></tr>
+<tr><td><a href="#MapStringInt.write_repr"><code>MapStringInt.write_repr</code></a></td><td>Appends the readable typed-Map representation in bucket order.</td></tr>
+<tr><td><a href="#MapStringInt.write_str"><code>MapStringInt.write_str</code></a></td><td>Appends the typed-Map display text in bucket order.</td></tr>
+<tr><td><a href="#MapStringString.cleanup"><code>MapStringString.cleanup</code></a></td><td>Releases the record and its backing Blocks, borrowing stored values.</td></tr>
+<tr><td><a href="#MapStringString.compare"><code>MapStringString.compare</code></a></td><td>Compares typed Maps by size and then sorted native key/value contents.</td></tr>
+<tr><td><a href="#MapStringString.contains"><code>MapStringString.contains</code></a></td><td>Returns one when <code>key</code> is present, or zero for a null map.</td></tr>
+<tr><td><a href="#MapStringString.copy"><code>MapStringString.copy</code></a></td><td>Returns a fresh shallow copy in the current <code>Scope</code>.</td></tr>
+<tr><td><a href="#MapStringString.del"><code>MapStringString.del</code></a></td><td>Removes <code>key</code> and returns its value.</td></tr>
+<tr><td><a href="#MapStringString.enumerate"><code>MapStringString.enumerate</code></a></td><td>Initializes <code>dest</code> to yield canonical <code>(key value)</code> <code>List</code>s in bucket order.</td></tr>
+<tr><td><a href="#MapStringString.equal"><code>MapStringString.equal</code></a></td><td>Reports key/value equality independent of bucket and insertion order.</td></tr>
+<tr><td><a href="#MapStringString.get"><code>MapStringString.get</code></a></td><td>Returns the value for <code>key</code>.</td></tr>
+<tr><td><a href="#MapStringString.getdefault"><code>MapStringString.getdefault</code></a></td><td>Returns the value for <code>key</code>, or <code>defval</code> without inserting it.</td></tr>
+<tr><td><a href="#MapStringString.getindex"><code>MapStringString.getindex</code></a></td><td>Returns the value selected by bracket indexing.</td></tr>
+<tr><td><a href="#MapStringString.iter"><code>MapStringString.iter</code></a></td><td>Initializes <code>dest</code> as a single-pass iterator over boxed values.</td></tr>
+<tr><td><a href="#MapStringString.keys"><code>MapStringString.keys</code></a></td><td>Initializes <code>dest</code> as a single-pass iterator over boxed keys.</td></tr>
+<tr><td><a href="#MapStringString.len"><code>MapStringString.len</code></a></td><td>Returns the number of entries, or zero for a null map.</td></tr>
+<tr><td><a href="#MapStringString.map"><code>MapStringString.map</code></a></td><td>Returns a fresh ordinary Map containing boxed keys and values.</td></tr>
+<tr><td><a href="#MapStringString.merge"><code>MapStringString.merge</code></a></td><td>Copies every entry of <code>other</code> into <code>map</code> and returns the destination.</td></tr>
+<tr><td><a href="#MapStringString.new"><code>MapStringString.new</code></a></td><td>Returns a fresh empty map owned by the current <code>Scope</code>.</td></tr>
+<tr><td><a href="#MapStringString.new_capacity"><code>MapStringString.new_capacity</code></a></td><td>Returns a fresh empty map with exactly <code>capacity</code> buckets.</td></tr>
+<tr><td><a href="#MapStringString.postfixindex"><code>MapStringString.postfixindex</code></a></td><td>Applies postfix <code>++</code> or <code>--</code> and returns the previous value.</td></tr>
+<tr><td><a href="#MapStringString.repr"><code>MapStringString.repr</code></a></td><td>Returns the readable typed-Map representation.</td></tr>
+<tr><td><a href="#MapStringString.set"><code>MapStringString.set</code></a></td><td>Copies <code>key</code> and <code>val</code> into the table, replacing an existing value.</td></tr>
+<tr><td><a href="#MapStringString.setdefault"><code>MapStringString.setdefault</code></a></td><td>Returns the value for <code>key</code>, inserting <code>defval</code> when absent.</td></tr>
+<tr><td><a href="#MapStringString.setindex"><code>MapStringString.setindex</code></a></td><td>Stores <code>val</code> under <code>key</code> and returns <code>val</code>.</td></tr>
+<tr><td><a href="#MapStringString.str"><code>MapStringString.str</code></a></td><td>Returns the typed-Map display String.</td></tr>
+<tr><td><a href="#MapStringString.truth"><code>MapStringString.truth</code></a></td><td>Returns one when <code>map</code> contains an entry.</td></tr>
+<tr><td><a href="#MapStringString.try_del"><code>MapStringString.try_del</code></a></td><td>Removes <code>key</code>, writes its value to <code>out</code>, and returns one when present.</td></tr>
+<tr><td><a href="#MapStringString.try_get"><code>MapStringString.try_get</code></a></td><td>Writes the value for <code>key</code> to <code>out</code> and returns one when present.</td></tr>
+<tr><td><a href="#MapStringString.try_next"><code>MapStringString.try_next</code></a></td><td>Writes the next bucket’s key and value, advances <code>cursor</code>, and returns one.</td></tr>
+<tr><td><a href="#MapStringString.updateindex"><code>MapStringString.updateindex</code></a></td><td>Applies <code>op</code> to the value for <code>key</code> and returns the stored result.</td></tr>
+<tr><td><a href="#MapStringString.var"><code>MapStringString.var</code></a></td><td>Boxes <code>map</code> with its registered typed-map tag without copying it.</td></tr>
+<tr><td><a href="#MapStringString.write_repr"><code>MapStringString.write_repr</code></a></td><td>Appends the readable typed-Map representation in bucket order.</td></tr>
+<tr><td><a href="#MapStringString.write_str"><code>MapStringString.write_str</code></a></td><td>Appends the typed-Map display text in bucket order.</td></tr>
+<tr><td><a href="#Var.mapintint"><code>Var.mapintint</code></a></td><td>Returns the typed-map pointer carried by <code>value</code>.</td></tr>
+<tr><td><a href="#Var.maplongdouble"><code>Var.maplongdouble</code></a></td><td>Returns the typed-map pointer carried by <code>value</code>.</td></tr>
+<tr><td><a href="#Var.mapstringint"><code>Var.mapstringint</code></a></td><td>Returns the typed-map pointer carried by <code>value</code>.</td></tr>
+<tr><td><a href="#Var.mapstringstring"><code>Var.mapstringstring</code></a></td><td>Returns the typed-map pointer carried by <code>value</code>.</td></tr>
+</tbody>
+</table>
+</div>
+<h3 id="map"><a class="header" href="#map"><code>Map</code></a></h3>
+<p><a id="Map.mapintint"></a></p>
+<h4 id="mapmapintint"><a class="header" href="#mapmapintint">Map.mapintint</a></h4>
+<p><code>MapIntInt Map.mapintint(Map entries)</code></p>
+<p>Packs <code>entries</code> into a fresh typed map in the current <code>Scope</code>.
+A null input returns NULL. Each key and value goes through its <code>Var</code>
+conversion, and later entries in bucket order replace earlier equal keys.
+The input <code>Map</code> is unchanged.</p>
+<p><strong>Raises:</strong> any conversion cause, or <code>&lt;alloc-fail&gt;</code>, <code>&lt;size-limit&gt;</code>, or
+<code>&lt;invariant&gt;</code> while inserting.</p>
+<p>Source: <code>lib/typed-map.x:280</code></p>
+<p><a id="Map.maplongdouble"></a></p>
+<h4 id="mapmaplongdouble"><a class="header" href="#mapmaplongdouble">Map.maplongdouble</a></h4>
+<p><code>MapLongDouble Map.maplongdouble(Map entries)</code></p>
+<p>Packs <code>entries</code> into a fresh typed map in the current <code>Scope</code>.
+A null input returns NULL. Each key and value goes through its <code>Var</code>
+conversion, and later entries in bucket order replace earlier equal keys.
+The input <code>Map</code> is unchanged.</p>
+<p><strong>Raises:</strong> any conversion cause, or <code>&lt;alloc-fail&gt;</code>, <code>&lt;size-limit&gt;</code>, or
+<code>&lt;invariant&gt;</code> while inserting.</p>
+<p>Source: <code>lib/typed-map.x:300</code></p>
+<p><a id="Map.mapstringint"></a></p>
+<h4 id="mapmapstringint"><a class="header" href="#mapmapstringint">Map.mapstringint</a></h4>
+<p><code>MapStringInt Map.mapstringint(Map entries)</code></p>
+<p>Packs <code>entries</code> into a fresh typed map in the current <code>Scope</code>.
+A null input returns NULL. Each key and value goes through its <code>Var</code>
+conversion, and later entries in bucket order replace earlier equal keys.
+The input <code>Map</code> is unchanged.</p>
+<p><strong>Raises:</strong> any conversion cause, or <code>&lt;alloc-fail&gt;</code>, <code>&lt;size-limit&gt;</code>, or
+<code>&lt;invariant&gt;</code> while inserting.</p>
+<p>Source: <code>lib/typed-map.x:358</code></p>
+<p><a id="Map.mapstringstring"></a></p>
+<h4 id="mapmapstringstring"><a class="header" href="#mapmapstringstring">Map.mapstringstring</a></h4>
+<p><code>MapStringString Map.mapstringstring(Map entries)</code></p>
+<p>Packs <code>entries</code> into a fresh typed map in the current <code>Scope</code>.
+A null input returns NULL. Each key and value goes through its <code>Var</code>
+conversion, and later entries in bucket order replace earlier equal keys.
+The input <code>Map</code> is unchanged.</p>
+<p><strong>Raises:</strong> any conversion cause, or <code>&lt;alloc-fail&gt;</code>, <code>&lt;size-limit&gt;</code>, or
+<code>&lt;invariant&gt;</code> while inserting.</p>
+<p>Source: <code>lib/typed-map.x:321</code></p>
+<h3 id="mapintint"><a class="header" href="#mapintint"><code>MapIntInt</code></a></h3>
+<p><a id="MapIntInt.cleanup"></a></p>
+<h4 id="mapintintcleanup"><a class="header" href="#mapintintcleanup">MapIntInt.cleanup</a></h4>
+<p><code>void MapIntInt.cleanup(MapIntInt map)</code></p>
+<p>Releases the record and its backing Blocks, borrowing stored values.</p>
+<p>Source: <code>lib/typed-map.x:289</code></p>
+<p><a id="MapIntInt.compare"></a></p>
+<h4 id="mapintintcompare"><a class="header" href="#mapintintcompare">MapIntInt.compare</a></h4>
+<p><code>int MapIntInt.compare(MapIntInt a, MapIntInt b)</code></p>
+<p>Compares typed Maps by size and then sorted native key/value contents.
+Identical handles compare equal and NULL sorts first. Neither Map is
+mutated. Raises: <code>&lt;alloc-fail&gt;</code> while creating temporary storage, or any
+cause from key or value comparison.</p>
+<p>Source: <code>lib/typed-map.x:288</code></p>
+<p><a id="MapIntInt.contains"></a></p>
+<h4 id="mapintintcontains"><a class="header" href="#mapintintcontains">MapIntInt.contains</a></h4>
+<p><code>int MapIntInt.contains(MapIntInt map, int key)</code></p>
+<p>Returns one when <code>key</code> is present, or zero for a null map.</p>
+<p>Source: <code>lib/typed-map.x:280</code></p>
+<p><a id="MapIntInt.copy"></a></p>
+<h4 id="mapintintcopy"><a class="header" href="#mapintintcopy">MapIntInt.copy</a></h4>
+<p><code>MapIntInt MapIntInt.copy(MapIntInt map)</code></p>
+<p>Returns a fresh shallow copy in the current <code>Scope</code>.
+The result has independent table storage but copies native key and value
+fields. A null input produces a fresh empty map.</p>
+<p><strong>Raises:</strong> an allocation, size, or invariant cause while copying.</p>
+<p>Source: <code>lib/typed-map.x:280</code></p>
+<p><a id="MapIntInt.del"></a></p>
+<h4 id="mapintintdel"><a class="header" href="#mapintintdel">MapIntInt.del</a></h4>
+<p><code>int MapIntInt.del(MapIntInt map, int key)</code></p>
+<p>Removes <code>key</code> and returns its value.
+Successful removal invalidates live cursors and iterators.</p>
+<p><strong>Raises:</strong> <code>&lt;bad-arg&gt;</code> for a null map or absent key.</p>
+<p>Source: <code>lib/typed-map.x:280</code></p>
+<p><a id="MapIntInt.enumerate"></a></p>
+<h4 id="mapintintenumerate"><a class="header" href="#mapintintenumerate">MapIntInt.enumerate</a></h4>
+<p><code>Iter MapIntInt.enumerate(MapIntInt map, Iter dest)</code></p>
+<p>Initializes <code>dest</code> to yield canonical <code>(key value)</code> <code>List</code>s in bucket
+order.
+The caller owns <code>dest</code>, and the iterator borrows <code>map</code>; both must remain
+live during traversal. A null <code>dest</code> returns NULL, and a null map is
+exhausted. Each step boxes both fields and interns two <code>List</code> cells. Each
+cell belongs to the pool owning its canonical match, which may be an
+ancestor pool, or to the current pool when newly allocated. Structural
+mutation invalidates the iterator. Each MapLongDouble pull allocates its
+long key as a <code>Var</code> in the current <code>Scope</code>; the yielded <code>List</code> and
+anything
+retaining it must not outlive that <code>Scope</code>.</p>
+<p><strong>Raises:</strong> <code>&lt;alloc-fail&gt;</code> or <code>&lt;size-limit&gt;</code> while interning the <code>List</code>, and
+for MapLongDouble, <code>&lt;alloc-fail&gt;</code> or <code>&lt;bad-enc&gt;</code> while boxing its key.
+Shared causes do not return from the pull.</p>
+<p>Source: <code>lib/typed-map.x:289</code></p>
+<p><a id="MapIntInt.equal"></a></p>
+<h4 id="mapintintequal"><a class="header" href="#mapintintequal">MapIntInt.equal</a></h4>
+<p><code>int MapIntInt.equal(MapIntInt a, MapIntInt b)</code></p>
+<p>Reports key/value equality independent of bucket and insertion order.
+Two null maps compare equal; a null and a nonnull map compare unequal.</p>
+<p>Source: <code>lib/typed-map.x:280</code></p>
+<p><a id="MapIntInt.get"></a></p>
+<h4 id="mapintintget"><a class="header" href="#mapintintget">MapIntInt.get</a></h4>
+<p><code>int MapIntInt.get(MapIntInt map, int key)</code></p>
+<p>Returns the value for <code>key</code>.</p>
+<p><strong>Raises:</strong> <code>&lt;bad-arg&gt;</code> for a null map or absent key.</p>
+<p>Source: <code>lib/typed-map.x:280</code></p>
+<p><a id="MapIntInt.getdefault"></a></p>
+<h4 id="mapintintgetdefault"><a class="header" href="#mapintintgetdefault">MapIntInt.getdefault</a></h4>
+<p><code>int MapIntInt.getdefault(MapIntInt map, int key, int defval)</code></p>
+<p>Returns the value for <code>key</code>, or <code>defval</code> without inserting it.
+A null map is treated as an empty one.</p>
+<p>Source: <code>lib/typed-map.x:280</code></p>
+<p><a id="MapIntInt.getindex"></a></p>
+<h4 id="mapintintgetindex"><a class="header" href="#mapintintgetindex">MapIntInt.getindex</a></h4>
+<p><code>int MapIntInt.getindex(MapIntInt map, int key)</code></p>
+<p>Returns the value selected by bracket indexing.
+This is the bracket-facing form of <code>MapIntInt.get</code>, with the same failure
+behavior.</p>
+<p>Source: <code>lib/typed-map.x:280</code></p>
+<p><a id="MapIntInt.iter"></a></p>
+<h4 id="mapintintiter"><a class="header" href="#mapintintiter">MapIntInt.iter</a></h4>
+<p><code>Iter MapIntInt.iter(MapIntInt map, Iter dest)</code></p>
+<p>Initializes <code>dest</code> as a single-pass iterator over boxed values.
+The caller owns <code>dest</code>, and the iterator borrows <code>map</code>; both must remain
+live during traversal. A null <code>dest</code> returns NULL. Values follow bucket
+order, a null map is exhausted, and structural mutation invalidates the
+iterator.</p>
+<p>Source: <code>lib/typed-map.x:289</code></p>
+<p><a id="MapIntInt.keys"></a></p>
+<h4 id="mapintintkeys"><a class="header" href="#mapintintkeys">MapIntInt.keys</a></h4>
+<p><code>Iter MapIntInt.keys(MapIntInt map, Iter dest)</code></p>
+<p>Initializes <code>dest</code> as a single-pass iterator over boxed keys.
+The caller owns <code>dest</code>, and the iterator borrows <code>map</code>; both must remain
+live during traversal. A null <code>dest</code> returns NULL. Keys follow bucket
+order, a null map is exhausted, and structural mutation invalidates the
+iterator. MapIntInt and both String-keyed families box keys without
+allocation.
+Each MapLongDouble pull allocates its long key as a <code>Var</code> in the current
+<code>Scope</code>; the yielded <code>Var</code> and anything retaining it must
+not outlive that
+<code>Scope</code>.</p>
+<p><strong>Raises:</strong> MapLongDouble iteration may raise <code>&lt;alloc-fail&gt;</code> or <code>&lt;bad-enc&gt;</code>
+while boxing a key.</p>
+<p>Source: <code>lib/typed-map.x:289</code></p>
+<p><a id="MapIntInt.len"></a></p>
+<h4 id="mapintintlen"><a class="header" href="#mapintintlen">MapIntInt.len</a></h4>
+<p><code>unsigned MapIntInt.len(MapIntInt map)</code></p>
+<p>Returns the number of entries, or zero for a null map.</p>
+<p>Source: <code>lib/typed-map.x:280</code></p>
+<p><a id="MapIntInt.map"></a></p>
+<h4 id="mapintintmap"><a class="header" href="#mapintintmap">MapIntInt.map</a></h4>
+<p><code>Map MapIntInt.map(MapIntInt map)</code></p>
+<p>Returns a fresh ordinary Map containing boxed keys and values.
+A null input returns NULL. The typed Map and its storage are unchanged.</p>
+<p><strong>Raises:</strong> any cause from boxing or inserting an entry.</p>
+<p>Source: <code>lib/typed-map.x:288</code></p>
+<p><a id="MapIntInt.merge"></a></p>
+<h4 id="mapintintmerge"><a class="header" href="#mapintintmerge">MapIntInt.merge</a></h4>
+<p><code>MapIntInt MapIntInt.merge(MapIntInt map, MapIntInt other)</code></p>
+<p>Copies every entry of <code>other</code> into <code>map</code> and returns the destination.
+<code>other</code> wins conflicts. A null <code>other</code> is a no-op; a null destination is
+replaced by a fresh map. When a supplied destination fails partway,
+entries already copied remain; a newly created destination is discarded.</p>
+<p><strong>Raises:</strong> an allocation, size, or invariant cause while inserting.</p>
+<p>Source: <code>lib/typed-map.x:280</code></p>
+<p><a id="MapIntInt.new"></a></p>
+<h4 id="mapintintnew"><a class="header" href="#mapintintnew">MapIntInt.new</a></h4>
+<p><code>MapIntInt MapIntInt.new(void)</code></p>
+<p>Returns a fresh empty map owned by the current <code>Scope</code>.
+The initial table has two buckets and grows automatically.</p>
+<p><strong>Raises:</strong> <code>&lt;alloc-fail&gt;</code> or <code>&lt;size-limit&gt;</code> when storage cannot be created.</p>
+<p>Source: <code>lib/typed-map.x:280</code></p>
+<p><a id="MapIntInt.new_capacity"></a></p>
+<h4 id="mapintintnew_capacity"><a class="header" href="#mapintintnew_capacity">MapIntInt.new_capacity</a></h4>
+<p><code>MapIntInt MapIntInt.new_capacity(unsigned capacity)</code></p>
+<p>Returns a fresh empty map with exactly <code>capacity</code> buckets.
+The result and its backing arrays belong to the current <code>Scope</code>.
+<code>capacity</code>
+must be a power of two of at least two.</p>
+<p><strong>Raises:</strong> <code>&lt;bad-arg&gt;</code> for another capacity, or <code>&lt;alloc-fail&gt;</code> /
+<code>&lt;size-limit&gt;</code> when storage cannot be created.</p>
+<p>Source: <code>lib/typed-map.x:280</code></p>
+<p><a id="MapIntInt.postfixindex"></a></p>
+<h4 id="mapintintpostfixindex"><a class="header" href="#mapintintpostfixindex">MapIntInt.postfixindex</a></h4>
+<p><code>int MapIntInt.postfixindex(MapIntInt map, int key, Symbol op)</code></p>
+<p>Applies postfix <code>++</code> or <code>--</code> and returns the previous value.
+The key must already exist, and only generated numeric families support
+these operations.</p>
+<p><strong>Raises:</strong> <code>&lt;bad-arg&gt;</code> for a null map or absent key, or <code>&lt;bad-op&gt;</code> for an
+unsupported operation. These failures leave the value unchanged.</p>
+<p>Source: <code>lib/typed-map.x:280</code></p>
+<p><a id="MapIntInt.repr"></a></p>
+<h4 id="mapintintrepr"><a class="header" href="#mapintintrepr">MapIntInt.repr</a></h4>
+<p><code>String MapIntInt.repr(MapIntInt map)</code></p>
+<p>Returns the readable typed-Map representation.</p>
+<p>Source: <code>lib/typed-map.x:288</code></p>
+<p><a id="MapIntInt.set"></a></p>
+<h4 id="mapintintset"><a class="header" href="#mapintintset">MapIntInt.set</a></h4>
+<p><code>void MapIntInt.set(MapIntInt map, int key, int val)</code></p>
+<p>Copies <code>key</code> and <code>val</code> into the table, replacing an existing value.
+Insertion invalidates live cursors and iterators; replacement does not.</p>
+<p><strong>Raises:</strong> <code>&lt;bad-arg&gt;</code> for a null map, or an allocation, size, or invariant
+cause while inserting. Allocation and size failures leave the table
+unchanged.</p>
+<p>Source: <code>lib/typed-map.x:280</code></p>
+<p><a id="MapIntInt.setdefault"></a></p>
+<h4 id="mapintintsetdefault"><a class="header" href="#mapintintsetdefault">MapIntInt.setdefault</a></h4>
+<p><code>int MapIntInt.setdefault(MapIntInt map, int key, int defval)</code></p>
+<p>Returns the value for <code>key</code>, inserting <code>defval</code> when absent.
+Insertion copies the native key and value fields and invalidates live
+cursors and iterators; an existing-key read does not mutate the table.</p>
+<p><strong>Raises:</strong> <code>&lt;bad-arg&gt;</code> for a null map, or an allocation, size, or invariant
+cause while inserting. Allocation and size failures leave the table
+unchanged.</p>
+<p>Source: <code>lib/typed-map.x:280</code></p>
+<p><a id="MapIntInt.setindex"></a></p>
+<h4 id="mapintintsetindex"><a class="header" href="#mapintintsetindex">MapIntInt.setindex</a></h4>
+<p><code>int MapIntInt.setindex(MapIntInt map, int key, int val)</code></p>
+<p>Stores <code>val</code> under <code>key</code> and returns <code>val</code>.
+This is the bracket-facing form of <code>MapIntInt.set</code>, with the same cursor
+invalidation and failure behavior.</p>
+<p>Source: <code>lib/typed-map.x:280</code></p>
+<p><a id="MapIntInt.str"></a></p>
+<h4 id="mapintintstr"><a class="header" href="#mapintintstr">MapIntInt.str</a></h4>
+<p><code>String MapIntInt.str(MapIntInt map)</code></p>
+<p>Returns the typed-Map display String.</p>
+<p>Source: <code>lib/typed-map.x:288</code></p>
+<p><a id="MapIntInt.truth"></a></p>
+<h4 id="mapintinttruth"><a class="header" href="#mapintinttruth">MapIntInt.truth</a></h4>
+<p><code>int MapIntInt.truth(MapIntInt map)</code></p>
+<p>Returns one when <code>map</code> contains an entry.</p>
+<p>Source: <code>lib/typed-map.x:280</code></p>
+<p><a id="MapIntInt.try_del"></a></p>
+<h4 id="mapintinttry_del"><a class="header" href="#mapintinttry_del">MapIntInt.try_del</a></h4>
+<p><code>int MapIntInt.try_del(MapIntInt map, int key, int *out)</code></p>
+<p>Removes <code>key</code>, writes its value to <code>out</code>, and returns one when present.
+A null map, null <code>out</code>, or absent key returns zero without writing or
+mutation. Successful removal invalidates live cursors and iterators.</p>
+<p>Source: <code>lib/typed-map.x:280</code></p>
+<p><a id="MapIntInt.try_get"></a></p>
+<h4 id="mapintinttry_get"><a class="header" href="#mapintinttry_get">MapIntInt.try_get</a></h4>
+<p><code>int MapIntInt.try_get(MapIntInt map, int key, int *out)</code></p>
+<p>Writes the value for <code>key</code> to <code>out</code> and returns one when present.
+A null map, null <code>out</code>, or absent key returns zero without writing.</p>
+<p>Source: <code>lib/typed-map.x:280</code></p>
+<p><a id="MapIntInt.try_next"></a></p>
+<h4 id="mapintinttry_next"><a class="header" href="#mapintinttry_next">MapIntInt.try_next</a></h4>
+<p><code>int MapIntInt.try_next(MapIntInt map, unsigned *cursor, int *key, int *val)</code></p>
+<p>Writes the next bucket’s key and value, advances <code>cursor</code>, and returns
+one. Initialize the caller-owned cursor to zero. A null argument or
+exhaustion returns zero without changing <code>key</code> or <code>val</code>. Traversal
+follows bucket order, not insertion order, and structural mutation
+invalidates the cursor.</p>
+<p>Source: <code>lib/typed-map.x:280</code></p>
+<p><a id="MapIntInt.updateindex"></a></p>
+<h4 id="mapintintupdateindex"><a class="header" href="#mapintintupdateindex">MapIntInt.updateindex</a></h4>
+<p><code>int MapIntInt.updateindex(MapIntInt map, int key, Symbol op, int rhs)</code></p>
+<p>Applies <code>op</code> to the value for <code>key</code> and returns the stored result.
+<code>+</code> inserts <code>rhs</code> when the key is absent; other operations require an
+existing key. Supported operations depend on the generated value type.</p>
+<p><strong>Raises:</strong> <code>&lt;bad-arg&gt;</code> for a null map or missing required key, a cause from
+the generated value operation, or an allocation, size, or invariant cause
+while inserting. Invalid operations leave an existing value unchanged.
+Allocation and size failures leave the table unchanged.</p>
+<p>Source: <code>lib/typed-map.x:280</code></p>
+<p><a id="MapIntInt.var"></a></p>
+<h4 id="mapintintvar"><a class="header" href="#mapintintvar">MapIntInt.var</a></h4>
+<p><code>Var MapIntInt.var(MapIntInt map)</code></p>
+<p>Boxes <code>map</code> with its registered typed-map tag without copying it.
+The typed pointer and <code>Var</code> share the same mutable map identity.</p>
+<p>Source: <code>lib/typed-map.x:289</code></p>
+<p><a id="MapIntInt.write_repr"></a></p>
+<h4 id="mapintintwrite_repr"><a class="header" href="#mapintintwrite_repr">MapIntInt.write_repr</a></h4>
+<p><code>Buffer MapIntInt.write_repr(MapIntInt map, Buffer out)</code></p>
+<p>Appends the readable typed-Map representation in bucket order.</p>
+<p>Source: <code>lib/typed-map.x:288</code></p>
+<p><a id="MapIntInt.write_str"></a></p>
+<h4 id="mapintintwrite_str"><a class="header" href="#mapintintwrite_str">MapIntInt.write_str</a></h4>
+<p><code>Buffer MapIntInt.write_str(MapIntInt map, Buffer out)</code></p>
+<p>Appends the typed-Map display text in bucket order.</p>
+<p>Source: <code>lib/typed-map.x:288</code></p>
+<h3 id="maplongdouble"><a class="header" href="#maplongdouble"><code>MapLongDouble</code></a></h3>
+<p><a id="MapLongDouble.cleanup"></a></p>
+<h4 id="maplongdoublecleanup"><a class="header" href="#maplongdoublecleanup">MapLongDouble.cleanup</a></h4>
+<p><code>void MapLongDouble.cleanup(MapLongDouble map)</code></p>
+<p>Releases the record and its backing Blocks, borrowing stored values.</p>
+<p>Source: <code>lib/typed-map.x:309</code></p>
+<p><a id="MapLongDouble.compare"></a></p>
+<h4 id="maplongdoublecompare"><a class="header" href="#maplongdoublecompare">MapLongDouble.compare</a></h4>
+<p><code>int MapLongDouble.compare(MapLongDouble a, MapLongDouble b)</code></p>
+<p>Compares typed Maps by size and then sorted native key/value contents.
+Identical handles compare equal and NULL sorts first. Neither Map is
+mutated. Raises: <code>&lt;alloc-fail&gt;</code> while creating temporary storage, or any
+cause from key or value comparison.</p>
+<p>Source: <code>lib/typed-map.x:308</code></p>
+<p><a id="MapLongDouble.contains"></a></p>
+<h4 id="maplongdoublecontains"><a class="header" href="#maplongdoublecontains">MapLongDouble.contains</a></h4>
+<p><code>int MapLongDouble.contains(MapLongDouble map, long key)</code></p>
+<p>Returns one when <code>key</code> is present, or zero for a null map.</p>
+<p>Source: <code>lib/typed-map.x:300</code></p>
+<p><a id="MapLongDouble.copy"></a></p>
+<h4 id="maplongdoublecopy"><a class="header" href="#maplongdoublecopy">MapLongDouble.copy</a></h4>
+<p><code>MapLongDouble MapLongDouble.copy(MapLongDouble map)</code></p>
+<p>Returns a fresh shallow copy in the current <code>Scope</code>.
+The result has independent table storage but copies native key and value
+fields. A null input produces a fresh empty map.</p>
+<p><strong>Raises:</strong> an allocation, size, or invariant cause while copying.</p>
+<p>Source: <code>lib/typed-map.x:300</code></p>
+<p><a id="MapLongDouble.del"></a></p>
+<h4 id="maplongdoubledel"><a class="header" href="#maplongdoubledel">MapLongDouble.del</a></h4>
+<p><code>double MapLongDouble.del(MapLongDouble map, long key)</code></p>
+<p>Removes <code>key</code> and returns its value.
+Successful removal invalidates live cursors and iterators.</p>
+<p><strong>Raises:</strong> <code>&lt;bad-arg&gt;</code> for a null map or absent key.</p>
+<p>Source: <code>lib/typed-map.x:300</code></p>
+<p><a id="MapLongDouble.enumerate"></a></p>
+<h4 id="maplongdoubleenumerate"><a class="header" href="#maplongdoubleenumerate">MapLongDouble.enumerate</a></h4>
+<p><code>Iter MapLongDouble.enumerate(MapLongDouble map, Iter dest)</code></p>
+<p>Initializes <code>dest</code> to yield canonical <code>(key value)</code> <code>List</code>s in bucket
+order.
+The caller owns <code>dest</code>, and the iterator borrows <code>map</code>; both must remain
+live during traversal. A null <code>dest</code> returns NULL, and a null map is
+exhausted. Each step boxes both fields and interns two <code>List</code> cells. Each
+cell belongs to the pool owning its canonical match, which may be an
+ancestor pool, or to the current pool when newly allocated. Structural
+mutation invalidates the iterator. Each MapLongDouble pull allocates its
+long key as a <code>Var</code> in the current <code>Scope</code>; the yielded <code>List</code> and
+anything
+retaining it must not outlive that <code>Scope</code>.</p>
+<p><strong>Raises:</strong> <code>&lt;alloc-fail&gt;</code> or <code>&lt;size-limit&gt;</code> while interning the <code>List</code>, and
+for MapLongDouble, <code>&lt;alloc-fail&gt;</code> or <code>&lt;bad-enc&gt;</code> while boxing its key.
+Shared causes do not return from the pull.</p>
+<p>Source: <code>lib/typed-map.x:309</code></p>
+<p><a id="MapLongDouble.equal"></a></p>
+<h4 id="maplongdoubleequal"><a class="header" href="#maplongdoubleequal">MapLongDouble.equal</a></h4>
+<p><code>int MapLongDouble.equal(MapLongDouble a, MapLongDouble b)</code></p>
+<p>Reports key/value equality independent of bucket and insertion order.
+Two null maps compare equal; a null and a nonnull map compare unequal.</p>
+<p>Source: <code>lib/typed-map.x:300</code></p>
+<p><a id="MapLongDouble.get"></a></p>
+<h4 id="maplongdoubleget"><a class="header" href="#maplongdoubleget">MapLongDouble.get</a></h4>
+<p><code>double MapLongDouble.get(MapLongDouble map, long key)</code></p>
+<p>Returns the value for <code>key</code>.</p>
+<p><strong>Raises:</strong> <code>&lt;bad-arg&gt;</code> for a null map or absent key.</p>
+<p>Source: <code>lib/typed-map.x:300</code></p>
+<p><a id="MapLongDouble.getdefault"></a></p>
+<h4 id="maplongdoublegetdefault"><a class="header" href="#maplongdoublegetdefault">MapLongDouble.getdefault</a></h4>
+<p><code>double MapLongDouble.getdefault(MapLongDouble map, long key, double defval)</code></p>
+<p>Returns the value for <code>key</code>, or <code>defval</code> without inserting it.
+A null map is treated as an empty one.</p>
+<p>Source: <code>lib/typed-map.x:300</code></p>
+<p><a id="MapLongDouble.getindex"></a></p>
+<h4 id="maplongdoublegetindex"><a class="header" href="#maplongdoublegetindex">MapLongDouble.getindex</a></h4>
+<p><code>double MapLongDouble.getindex(MapLongDouble map, long key)</code></p>
+<p>Returns the value selected by bracket indexing.
+This is the bracket-facing form of <code>MapLongDouble.get</code>, with the same failure
+behavior.</p>
+<p>Source: <code>lib/typed-map.x:300</code></p>
+<p><a id="MapLongDouble.iter"></a></p>
+<h4 id="maplongdoubleiter"><a class="header" href="#maplongdoubleiter">MapLongDouble.iter</a></h4>
+<p><code>Iter MapLongDouble.iter(MapLongDouble map, Iter dest)</code></p>
+<p>Initializes <code>dest</code> as a single-pass iterator over boxed values.
+The caller owns <code>dest</code>, and the iterator borrows <code>map</code>; both must remain
+live during traversal. A null <code>dest</code> returns NULL. Values follow bucket
+order, a null map is exhausted, and structural mutation invalidates the
+iterator.</p>
+<p>Source: <code>lib/typed-map.x:309</code></p>
+<p><a id="MapLongDouble.keys"></a></p>
+<h4 id="maplongdoublekeys"><a class="header" href="#maplongdoublekeys">MapLongDouble.keys</a></h4>
+<p><code>Iter MapLongDouble.keys(MapLongDouble map, Iter dest)</code></p>
+<p>Initializes <code>dest</code> as a single-pass iterator over boxed keys.
+The caller owns <code>dest</code>, and the iterator borrows <code>map</code>; both must remain
+live during traversal. A null <code>dest</code> returns NULL. Keys follow bucket
+order, a null map is exhausted, and structural mutation invalidates the
+iterator. MapIntInt and both String-keyed families box keys without
+allocation.
+Each MapLongDouble pull allocates its long key as a <code>Var</code> in the current
+<code>Scope</code>; the yielded <code>Var</code> and anything retaining it must
+not outlive that
+<code>Scope</code>.</p>
+<p><strong>Raises:</strong> MapLongDouble iteration may raise <code>&lt;alloc-fail&gt;</code> or <code>&lt;bad-enc&gt;</code>
+while boxing a key.</p>
+<p>Source: <code>lib/typed-map.x:309</code></p>
+<p><a id="MapLongDouble.len"></a></p>
+<h4 id="maplongdoublelen"><a class="header" href="#maplongdoublelen">MapLongDouble.len</a></h4>
+<p><code>unsigned MapLongDouble.len(MapLongDouble map)</code></p>
+<p>Returns the number of entries, or zero for a null map.</p>
+<p>Source: <code>lib/typed-map.x:300</code></p>
+<p><a id="MapLongDouble.map"></a></p>
+<h4 id="maplongdoublemap"><a class="header" href="#maplongdoublemap">MapLongDouble.map</a></h4>
+<p><code>Map MapLongDouble.map(MapLongDouble map)</code></p>
+<p>Returns a fresh ordinary Map containing boxed keys and values.
+A null input returns NULL. The typed Map and its storage are unchanged.</p>
+<p><strong>Raises:</strong> any cause from boxing or inserting an entry.</p>
+<p>Source: <code>lib/typed-map.x:308</code></p>
+<p><a id="MapLongDouble.merge"></a></p>
+<h4 id="maplongdoublemerge"><a class="header" href="#maplongdoublemerge">MapLongDouble.merge</a></h4>
+<p><code>MapLongDouble MapLongDouble.merge(MapLongDouble map, MapLongDouble other)</code></p>
+<p>Copies every entry of <code>other</code> into <code>map</code> and returns the destination.
+<code>other</code> wins conflicts. A null <code>other</code> is a no-op; a null destination is
+replaced by a fresh map. When a supplied destination fails partway,
+entries already copied remain; a newly created destination is discarded.</p>
+<p><strong>Raises:</strong> an allocation, size, or invariant cause while inserting.</p>
+<p>Source: <code>lib/typed-map.x:300</code></p>
+<p><a id="MapLongDouble.new"></a></p>
+<h4 id="maplongdoublenew"><a class="header" href="#maplongdoublenew">MapLongDouble.new</a></h4>
+<p><code>MapLongDouble MapLongDouble.new(void)</code></p>
+<p>Returns a fresh empty map owned by the current <code>Scope</code>.
+The initial table has two buckets and grows automatically.</p>
+<p><strong>Raises:</strong> <code>&lt;alloc-fail&gt;</code> or <code>&lt;size-limit&gt;</code> when storage cannot be created.</p>
+<p>Source: <code>lib/typed-map.x:300</code></p>
+<p><a id="MapLongDouble.new_capacity"></a></p>
+<h4 id="maplongdoublenew_capacity"><a class="header" href="#maplongdoublenew_capacity">MapLongDouble.new_capacity</a></h4>
+<p><code>MapLongDouble MapLongDouble.new_capacity(unsigned capacity)</code></p>
+<p>Returns a fresh empty map with exactly <code>capacity</code> buckets.
+The result and its backing arrays belong to the current <code>Scope</code>.
+<code>capacity</code>
+must be a power of two of at least two.</p>
+<p><strong>Raises:</strong> <code>&lt;bad-arg&gt;</code> for another capacity, or <code>&lt;alloc-fail&gt;</code> /
+<code>&lt;size-limit&gt;</code> when storage cannot be created.</p>
+<p>Source: <code>lib/typed-map.x:300</code></p>
+<p><a id="MapLongDouble.postfixindex"></a></p>
+<h4 id="maplongdoublepostfixindex"><a class="header" href="#maplongdoublepostfixindex">MapLongDouble.postfixindex</a></h4>
+<p><code>double MapLongDouble.postfixindex(MapLongDouble map, long key, Symbol op)</code></p>
+<p>Applies postfix <code>++</code> or <code>--</code> and returns the previous value.
+The key must already exist, and only generated numeric families support
+these operations.</p>
+<p><strong>Raises:</strong> <code>&lt;bad-arg&gt;</code> for a null map or absent key, or <code>&lt;bad-op&gt;</code> for an
+unsupported operation. These failures leave the value unchanged.</p>
+<p>Source: <code>lib/typed-map.x:300</code></p>
+<p><a id="MapLongDouble.repr"></a></p>
+<h4 id="maplongdoublerepr"><a class="header" href="#maplongdoublerepr">MapLongDouble.repr</a></h4>
+<p><code>String MapLongDouble.repr(MapLongDouble map)</code></p>
+<p>Returns the readable typed-Map representation.</p>
+<p>Source: <code>lib/typed-map.x:308</code></p>
+<p><a id="MapLongDouble.set"></a></p>
+<h4 id="maplongdoubleset"><a class="header" href="#maplongdoubleset">MapLongDouble.set</a></h4>
+<p><code>void MapLongDouble.set(MapLongDouble map, long key, double val)</code></p>
+<p>Copies <code>key</code> and <code>val</code> into the table, replacing an existing value.
+Insertion invalidates live cursors and iterators; replacement does not.</p>
+<p><strong>Raises:</strong> <code>&lt;bad-arg&gt;</code> for a null map, or an allocation, size, or invariant
+cause while inserting. Allocation and size failures leave the table
+unchanged.</p>
+<p>Source: <code>lib/typed-map.x:300</code></p>
+<p><a id="MapLongDouble.setdefault"></a></p>
+<h4 id="maplongdoublesetdefault"><a class="header" href="#maplongdoublesetdefault">MapLongDouble.setdefault</a></h4>
+<p><code>double MapLongDouble.setdefault(MapLongDouble map, long key, double defval)</code></p>
+<p>Returns the value for <code>key</code>, inserting <code>defval</code> when absent.
+Insertion copies the native key and value fields and invalidates live
+cursors and iterators; an existing-key read does not mutate the table.</p>
+<p><strong>Raises:</strong> <code>&lt;bad-arg&gt;</code> for a null map, or an allocation, size, or invariant
+cause while inserting. Allocation and size failures leave the table
+unchanged.</p>
+<p>Source: <code>lib/typed-map.x:300</code></p>
+<p><a id="MapLongDouble.setindex"></a></p>
+<h4 id="maplongdoublesetindex"><a class="header" href="#maplongdoublesetindex">MapLongDouble.setindex</a></h4>
+<p><code>double MapLongDouble.setindex(MapLongDouble map, long key, double val)</code></p>
+<p>Stores <code>val</code> under <code>key</code> and returns <code>val</code>.
+This is the bracket-facing form of <code>MapLongDouble.set</code>, with the same cursor
+invalidation and failure behavior.</p>
+<p>Source: <code>lib/typed-map.x:300</code></p>
+<p><a id="MapLongDouble.str"></a></p>
+<h4 id="maplongdoublestr"><a class="header" href="#maplongdoublestr">MapLongDouble.str</a></h4>
+<p><code>String MapLongDouble.str(MapLongDouble map)</code></p>
+<p>Returns the typed-Map display String.</p>
+<p>Source: <code>lib/typed-map.x:308</code></p>
+<p><a id="MapLongDouble.truth"></a></p>
+<h4 id="maplongdoubletruth"><a class="header" href="#maplongdoubletruth">MapLongDouble.truth</a></h4>
+<p><code>int MapLongDouble.truth(MapLongDouble map)</code></p>
+<p>Returns one when <code>map</code> contains an entry.</p>
+<p>Source: <code>lib/typed-map.x:300</code></p>
+<p><a id="MapLongDouble.try_del"></a></p>
+<h4 id="maplongdoubletry_del"><a class="header" href="#maplongdoubletry_del">MapLongDouble.try_del</a></h4>
+<p><code>int MapLongDouble.try_del(MapLongDouble map, long key, double *out)</code></p>
+<p>Removes <code>key</code>, writes its value to <code>out</code>, and returns one when present.
+A null map, null <code>out</code>, or absent key returns zero without writing or
+mutation. Successful removal invalidates live cursors and iterators.</p>
+<p>Source: <code>lib/typed-map.x:300</code></p>
+<p><a id="MapLongDouble.try_get"></a></p>
+<h4 id="maplongdoubletry_get"><a class="header" href="#maplongdoubletry_get">MapLongDouble.try_get</a></h4>
+<p><code>int MapLongDouble.try_get(MapLongDouble map, long key, double *out)</code></p>
+<p>Writes the value for <code>key</code> to <code>out</code> and returns one when present.
+A null map, null <code>out</code>, or absent key returns zero without writing.</p>
+<p>Source: <code>lib/typed-map.x:300</code></p>
+<p><a id="MapLongDouble.try_next"></a></p>
+<h4 id="maplongdoubletry_next"><a class="header" href="#maplongdoubletry_next">MapLongDouble.try_next</a></h4>
+<p><code>int MapLongDouble.try_next(MapLongDouble map, unsigned *cursor, long *key, double *val)</code></p>
+<p>Writes the next bucket’s key and value, advances <code>cursor</code>, and returns
+one. Initialize the caller-owned cursor to zero. A null argument or
+exhaustion returns zero without changing <code>key</code> or <code>val</code>. Traversal
+follows bucket order, not insertion order, and structural mutation
+invalidates the cursor.</p>
+<p>Source: <code>lib/typed-map.x:300</code></p>
+<p><a id="MapLongDouble.updateindex"></a></p>
+<h4 id="maplongdoubleupdateindex"><a class="header" href="#maplongdoubleupdateindex">MapLongDouble.updateindex</a></h4>
+<p><code>double MapLongDouble.updateindex(MapLongDouble map, long key, Symbol op, double rhs)</code></p>
+<p>Applies <code>op</code> to the value for <code>key</code> and returns the stored result.
+<code>+</code> inserts <code>rhs</code> when the key is absent; other operations require an
+existing key. Supported operations depend on the generated value type.</p>
+<p><strong>Raises:</strong> <code>&lt;bad-arg&gt;</code> for a null map or missing required key, a cause from
+the generated value operation, or an allocation, size, or invariant cause
+while inserting. Invalid operations leave an existing value unchanged.
+Allocation and size failures leave the table unchanged.</p>
+<p>Source: <code>lib/typed-map.x:300</code></p>
+<p><a id="MapLongDouble.var"></a></p>
+<h4 id="maplongdoublevar"><a class="header" href="#maplongdoublevar">MapLongDouble.var</a></h4>
+<p><code>Var MapLongDouble.var(MapLongDouble map)</code></p>
+<p>Boxes <code>map</code> with its registered typed-map tag without copying it.
+The typed pointer and <code>Var</code> share the same mutable map identity.</p>
+<p>Source: <code>lib/typed-map.x:309</code></p>
+<p><a id="MapLongDouble.write_repr"></a></p>
+<h4 id="maplongdoublewrite_repr"><a class="header" href="#maplongdoublewrite_repr">MapLongDouble.write_repr</a></h4>
+<p><code>Buffer MapLongDouble.write_repr(MapLongDouble map, Buffer out)</code></p>
+<p>Appends the readable typed-Map representation in bucket order.</p>
+<p>Source: <code>lib/typed-map.x:308</code></p>
+<p><a id="MapLongDouble.write_str"></a></p>
+<h4 id="maplongdoublewrite_str"><a class="header" href="#maplongdoublewrite_str">MapLongDouble.write_str</a></h4>
+<p><code>Buffer MapLongDouble.write_str(MapLongDouble map, Buffer out)</code></p>
+<p>Appends the typed-Map display text in bucket order.</p>
+<p>Source: <code>lib/typed-map.x:308</code></p>
+<h3 id="mapstringint"><a class="header" href="#mapstringint"><code>MapStringInt</code></a></h3>
+<p><a id="MapStringInt.cleanup"></a></p>
+<h4 id="mapstringintcleanup"><a class="header" href="#mapstringintcleanup">MapStringInt.cleanup</a></h4>
+<p><code>void MapStringInt.cleanup(MapStringInt map)</code></p>
+<p>Releases the record and its backing Blocks, borrowing stored values.</p>
+<p>Source: <code>lib/typed-map.x:383</code></p>
+<p><a id="MapStringInt.compare"></a></p>
+<h4 id="mapstringintcompare"><a class="header" href="#mapstringintcompare">MapStringInt.compare</a></h4>
+<p><code>int MapStringInt.compare(MapStringInt a, MapStringInt b)</code></p>
+<p>Compares typed Maps by size and then sorted native key/value contents.
+Identical handles compare equal and NULL sorts first. Neither Map is
+mutated. Raises: <code>&lt;alloc-fail&gt;</code> while creating temporary storage, or any
+cause from key or value comparison.</p>
+<p>Source: <code>lib/typed-map.x:366</code></p>
+<p><a id="MapStringInt.contains"></a></p>
+<h4 id="mapstringintcontains"><a class="header" href="#mapstringintcontains">MapStringInt.contains</a></h4>
+<p><code>int MapStringInt.contains(MapStringInt map, String key)</code></p>
+<p>Returns one when <code>key</code> is present, or zero for a null map.</p>
+<p>Source: <code>lib/typed-map.x:358</code></p>
+<p><a id="MapStringInt.copy"></a></p>
+<h4 id="mapstringintcopy"><a class="header" href="#mapstringintcopy">MapStringInt.copy</a></h4>
+<p><code>MapStringInt MapStringInt.copy(MapStringInt map)</code></p>
+<p>Returns a fresh shallow copy in the current <code>Scope</code>.
+The result has independent table storage but copies native key and value
+fields. A null input produces a fresh empty map.</p>
+<p><strong>Raises:</strong> an allocation, size, or invariant cause while copying.</p>
+<p>Source: <code>lib/typed-map.x:358</code></p>
+<p><a id="MapStringInt.del"></a></p>
+<h4 id="mapstringintdel"><a class="header" href="#mapstringintdel">MapStringInt.del</a></h4>
+<p><code>int MapStringInt.del(MapStringInt map, String key)</code></p>
+<p>Removes <code>key</code> and returns its value.
+Successful removal invalidates live cursors and iterators.</p>
+<p><strong>Raises:</strong> <code>&lt;bad-arg&gt;</code> for a null map or absent key.</p>
+<p>Source: <code>lib/typed-map.x:358</code></p>
+<p><a id="MapStringInt.enumerate"></a></p>
+<h4 id="mapstringintenumerate"><a class="header" href="#mapstringintenumerate">MapStringInt.enumerate</a></h4>
+<p><code>Iter MapStringInt.enumerate(MapStringInt map, Iter dest)</code></p>
+<p>Initializes <code>dest</code> to yield canonical <code>(key value)</code> <code>List</code>s in bucket
+order.
+The caller owns <code>dest</code>, and the iterator borrows <code>map</code>; both must remain
+live during traversal. A null <code>dest</code> returns NULL, and a null map is
+exhausted. Each step boxes both fields and interns two <code>List</code> cells. Each
+cell belongs to the pool owning its canonical match, which may be an
+ancestor pool, or to the current pool when newly allocated. Structural
+mutation invalidates the iterator. Each MapLongDouble pull allocates its
+long key as a <code>Var</code> in the current <code>Scope</code>; the yielded <code>List</code> and
+anything
+retaining it must not outlive that <code>Scope</code>.</p>
+<p><strong>Raises:</strong> <code>&lt;alloc-fail&gt;</code> or <code>&lt;size-limit&gt;</code> while interning the <code>List</code>, and
+for MapLongDouble, <code>&lt;alloc-fail&gt;</code> or <code>&lt;bad-enc&gt;</code> while boxing its key.
+Shared causes do not return from the pull.</p>
+<p>Source: <code>lib/typed-map.x:383</code></p>
+<p><a id="MapStringInt.equal"></a></p>
+<h4 id="mapstringintequal"><a class="header" href="#mapstringintequal">MapStringInt.equal</a></h4>
+<p><code>int MapStringInt.equal(MapStringInt a, MapStringInt b)</code></p>
+<p>Reports key/value equality independent of bucket and insertion order.
+Two null maps compare equal; a null and a nonnull map compare unequal.</p>
+<p>Source: <code>lib/typed-map.x:358</code></p>
+<p><a id="MapStringInt.get"></a></p>
+<h4 id="mapstringintget"><a class="header" href="#mapstringintget">MapStringInt.get</a></h4>
+<p><code>int MapStringInt.get(MapStringInt map, String key)</code></p>
+<p>Returns the value for <code>key</code>.</p>
+<p><strong>Raises:</strong> <code>&lt;bad-arg&gt;</code> for a null map or absent key.</p>
+<p>Source: <code>lib/typed-map.x:358</code></p>
+<p><a id="MapStringInt.getdefault"></a></p>
+<h4 id="mapstringintgetdefault"><a class="header" href="#mapstringintgetdefault">MapStringInt.getdefault</a></h4>
+<p><code>int MapStringInt.getdefault(MapStringInt map, String key, int defval)</code></p>
+<p>Returns the value for <code>key</code>, or <code>defval</code> without inserting it.
+A null map is treated as an empty one.</p>
+<p>Source: <code>lib/typed-map.x:358</code></p>
+<p><a id="MapStringInt.getindex"></a></p>
+<h4 id="mapstringintgetindex"><a class="header" href="#mapstringintgetindex">MapStringInt.getindex</a></h4>
+<p><code>int MapStringInt.getindex(MapStringInt map, String key)</code></p>
+<p>Returns the value selected by bracket indexing.
+This is the bracket-facing form of <code>MapStringInt.get</code>, with the same failure
+behavior.</p>
+<p>Source: <code>lib/typed-map.x:358</code></p>
+<p><a id="MapStringInt.iter"></a></p>
+<h4 id="mapstringintiter"><a class="header" href="#mapstringintiter">MapStringInt.iter</a></h4>
+<p><code>Iter MapStringInt.iter(MapStringInt map, Iter dest)</code></p>
+<p>Initializes <code>dest</code> as a single-pass iterator over boxed values.
+The caller owns <code>dest</code>, and the iterator borrows <code>map</code>; both must remain
+live during traversal. A null <code>dest</code> returns NULL. Values follow bucket
+order, a null map is exhausted, and structural mutation invalidates the
+iterator.</p>
+<p>Source: <code>lib/typed-map.x:383</code></p>
+<p><a id="MapStringInt.keys"></a></p>
+<h4 id="mapstringintkeys"><a class="header" href="#mapstringintkeys">MapStringInt.keys</a></h4>
+<p><code>Iter MapStringInt.keys(MapStringInt map, Iter dest)</code></p>
+<p>Initializes <code>dest</code> as a single-pass iterator over boxed keys.
+The caller owns <code>dest</code>, and the iterator borrows <code>map</code>; both must remain
+live during traversal. A null <code>dest</code> returns NULL. Keys follow bucket
+order, a null map is exhausted, and structural mutation invalidates the
+iterator. MapIntInt and both String-keyed families box keys without
+allocation.
+Each MapLongDouble pull allocates its long key as a <code>Var</code> in the current
+<code>Scope</code>; the yielded <code>Var</code> and anything retaining it must
+not outlive that
+<code>Scope</code>.</p>
+<p><strong>Raises:</strong> MapLongDouble iteration may raise <code>&lt;alloc-fail&gt;</code> or <code>&lt;bad-enc&gt;</code>
+while boxing a key.</p>
+<p>Source: <code>lib/typed-map.x:383</code></p>
+<p><a id="MapStringInt.len"></a></p>
+<h4 id="mapstringintlen"><a class="header" href="#mapstringintlen">MapStringInt.len</a></h4>
+<p><code>unsigned MapStringInt.len(MapStringInt map)</code></p>
+<p>Returns the number of entries, or zero for a null map.</p>
+<p>Source: <code>lib/typed-map.x:358</code></p>
+<p><a id="MapStringInt.map"></a></p>
+<h4 id="mapstringintmap"><a class="header" href="#mapstringintmap">MapStringInt.map</a></h4>
+<p><code>Map MapStringInt.map(MapStringInt map)</code></p>
+<p>Returns a fresh ordinary Map containing boxed keys and values.
+A null input returns NULL. The typed Map and its storage are unchanged.</p>
+<p><strong>Raises:</strong> any cause from boxing or inserting an entry.</p>
+<p>Source: <code>lib/typed-map.x:366</code></p>
+<p><a id="MapStringInt.merge"></a></p>
+<h4 id="mapstringintmerge"><a class="header" href="#mapstringintmerge">MapStringInt.merge</a></h4>
+<p><code>MapStringInt MapStringInt.merge(MapStringInt map, MapStringInt other)</code></p>
+<p>Copies every entry of <code>other</code> into <code>map</code> and returns the destination.
+<code>other</code> wins conflicts. A null <code>other</code> is a no-op; a null destination is
+replaced by a fresh map. When a supplied destination fails partway,
+entries already copied remain; a newly created destination is discarded.</p>
+<p><strong>Raises:</strong> an allocation, size, or invariant cause while inserting.</p>
+<p>Source: <code>lib/typed-map.x:358</code></p>
+<p><a id="MapStringInt.new"></a></p>
+<h4 id="mapstringintnew"><a class="header" href="#mapstringintnew">MapStringInt.new</a></h4>
+<p><code>MapStringInt MapStringInt.new(void)</code></p>
+<p>Returns a fresh empty map owned by the current <code>Scope</code>.
+The initial table has two buckets and grows automatically.</p>
+<p><strong>Raises:</strong> <code>&lt;alloc-fail&gt;</code> or <code>&lt;size-limit&gt;</code> when storage cannot be created.</p>
+<p>Source: <code>lib/typed-map.x:358</code></p>
+<p><a id="MapStringInt.new_capacity"></a></p>
+<h4 id="mapstringintnew_capacity"><a class="header" href="#mapstringintnew_capacity">MapStringInt.new_capacity</a></h4>
+<p><code>MapStringInt MapStringInt.new_capacity(unsigned capacity)</code></p>
+<p>Returns a fresh empty map with exactly <code>capacity</code> buckets.
+The result and its backing arrays belong to the current <code>Scope</code>.
+<code>capacity</code>
+must be a power of two of at least two.</p>
+<p><strong>Raises:</strong> <code>&lt;bad-arg&gt;</code> for another capacity, or <code>&lt;alloc-fail&gt;</code> /
+<code>&lt;size-limit&gt;</code> when storage cannot be created.</p>
+<p>Source: <code>lib/typed-map.x:358</code></p>
+<p><a id="MapStringInt.postfixindex"></a></p>
+<h4 id="mapstringintpostfixindex"><a class="header" href="#mapstringintpostfixindex">MapStringInt.postfixindex</a></h4>
+<p><code>int MapStringInt.postfixindex(MapStringInt map, String key, Symbol op)</code></p>
+<p>Applies postfix <code>++</code> or <code>--</code> and returns the previous value.
+The key must already exist, and only generated numeric families support
+these operations.</p>
+<p><strong>Raises:</strong> <code>&lt;bad-arg&gt;</code> for a null map or absent key, or <code>&lt;bad-op&gt;</code> for an
+unsupported operation. These failures leave the value unchanged.</p>
+<p>Source: <code>lib/typed-map.x:358</code></p>
+<p><a id="MapStringInt.repr"></a></p>
+<h4 id="mapstringintrepr"><a class="header" href="#mapstringintrepr">MapStringInt.repr</a></h4>
+<p><code>String MapStringInt.repr(MapStringInt map)</code></p>
+<p>Returns the readable typed-Map representation.</p>
+<p>Source: <code>lib/typed-map.x:366</code></p>
+<p><a id="MapStringInt.set"></a></p>
+<h4 id="mapstringintset"><a class="header" href="#mapstringintset">MapStringInt.set</a></h4>
+<p><code>void MapStringInt.set(MapStringInt map, String key, int val)</code></p>
+<p>Copies <code>key</code> and <code>val</code> into the table, replacing an existing value.
+Insertion invalidates live cursors and iterators; replacement does not.</p>
+<p><strong>Raises:</strong> <code>&lt;bad-arg&gt;</code> for a null map, or an allocation, size, or invariant
+cause while inserting. Allocation and size failures leave the table
+unchanged.</p>
+<p>Source: <code>lib/typed-map.x:358</code></p>
+<p><a id="MapStringInt.setdefault"></a></p>
+<h4 id="mapstringintsetdefault"><a class="header" href="#mapstringintsetdefault">MapStringInt.setdefault</a></h4>
+<p><code>int MapStringInt.setdefault(MapStringInt map, String key, int defval)</code></p>
+<p>Returns the value for <code>key</code>, inserting <code>defval</code> when absent.
+Insertion copies the native key and value fields and invalidates live
+cursors and iterators; an existing-key read does not mutate the table.</p>
+<p><strong>Raises:</strong> <code>&lt;bad-arg&gt;</code> for a null map, or an allocation, size, or invariant
+cause while inserting. Allocation and size failures leave the table
+unchanged.</p>
+<p>Source: <code>lib/typed-map.x:358</code></p>
+<p><a id="MapStringInt.setindex"></a></p>
+<h4 id="mapstringintsetindex"><a class="header" href="#mapstringintsetindex">MapStringInt.setindex</a></h4>
+<p><code>int MapStringInt.setindex(MapStringInt map, String key, int val)</code></p>
+<p>Stores <code>val</code> under <code>key</code> and returns <code>val</code>.
+This is the bracket-facing form of <code>MapStringInt.set</code>, with the same cursor
+invalidation and failure behavior.</p>
+<p>Source: <code>lib/typed-map.x:358</code></p>
+<p><a id="MapStringInt.str"></a></p>
+<h4 id="mapstringintstr"><a class="header" href="#mapstringintstr">MapStringInt.str</a></h4>
+<p><code>String MapStringInt.str(MapStringInt map)</code></p>
+<p>Returns the typed-Map display String.</p>
+<p>Source: <code>lib/typed-map.x:366</code></p>
+<p><a id="MapStringInt.truth"></a></p>
+<h4 id="mapstringinttruth"><a class="header" href="#mapstringinttruth">MapStringInt.truth</a></h4>
+<p><code>int MapStringInt.truth(MapStringInt map)</code></p>
+<p>Returns one when <code>map</code> contains an entry.</p>
+<p>Source: <code>lib/typed-map.x:358</code></p>
+<p><a id="MapStringInt.try_del"></a></p>
+<h4 id="mapstringinttry_del"><a class="header" href="#mapstringinttry_del">MapStringInt.try_del</a></h4>
+<p><code>int MapStringInt.try_del(MapStringInt map, String key, int *out)</code></p>
+<p>Removes <code>key</code>, writes its value to <code>out</code>, and returns one when present.
+A null map, null <code>out</code>, or absent key returns zero without writing or
+mutation. Successful removal invalidates live cursors and iterators.</p>
+<p>Source: <code>lib/typed-map.x:358</code></p>
+<p><a id="MapStringInt.try_get"></a></p>
+<h4 id="mapstringinttry_get"><a class="header" href="#mapstringinttry_get">MapStringInt.try_get</a></h4>
+<p><code>int MapStringInt.try_get(MapStringInt map, String key, int *out)</code></p>
+<p>Writes the value for <code>key</code> to <code>out</code> and returns one when present.
+A null map, null <code>out</code>, or absent key returns zero without writing.</p>
+<p>Source: <code>lib/typed-map.x:358</code></p>
+<p><a id="MapStringInt.try_next"></a></p>
+<h4 id="mapstringinttry_next"><a class="header" href="#mapstringinttry_next">MapStringInt.try_next</a></h4>
+<p><code>int MapStringInt.try_next(MapStringInt map, unsigned *cursor, String *key, int *val)</code></p>
+<p>Writes the next bucket’s key and value, advances <code>cursor</code>, and returns
+one. Initialize the caller-owned cursor to zero. A null argument or
+exhaustion returns zero without changing <code>key</code> or <code>val</code>. Traversal
+follows bucket order, not insertion order, and structural mutation
+invalidates the cursor.</p>
+<p>Source: <code>lib/typed-map.x:358</code></p>
+<p><a id="MapStringInt.updateindex"></a></p>
+<h4 id="mapstringintupdateindex"><a class="header" href="#mapstringintupdateindex">MapStringInt.updateindex</a></h4>
+<p><code>int MapStringInt.updateindex(MapStringInt map, String key, Symbol op, int rhs)</code></p>
+<p>Applies <code>op</code> to the value for <code>key</code> and returns the stored result.
+<code>+</code> inserts <code>rhs</code> when the key is absent; other operations require an
+existing key. Supported operations depend on the generated value type.</p>
+<p><strong>Raises:</strong> <code>&lt;bad-arg&gt;</code> for a null map or missing required key, a cause from
+the generated value operation, or an allocation, size, or invariant cause
+while inserting. Invalid operations leave an existing value unchanged.
+Allocation and size failures leave the table unchanged.</p>
+<p>Source: <code>lib/typed-map.x:358</code></p>
+<p><a id="MapStringInt.var"></a></p>
+<h4 id="mapstringintvar"><a class="header" href="#mapstringintvar">MapStringInt.var</a></h4>
+<p><code>Var MapStringInt.var(MapStringInt map)</code></p>
+<p>Boxes <code>map</code> with its registered typed-map tag without copying it.
+The typed pointer and <code>Var</code> share the same mutable map identity.</p>
+<p>Source: <code>lib/typed-map.x:383</code></p>
+<p><a id="MapStringInt.write_repr"></a></p>
+<h4 id="mapstringintwrite_repr"><a class="header" href="#mapstringintwrite_repr">MapStringInt.write_repr</a></h4>
+<p><code>Buffer MapStringInt.write_repr(MapStringInt map, Buffer out)</code></p>
+<p>Appends the readable typed-Map representation in bucket order.</p>
+<p>Source: <code>lib/typed-map.x:366</code></p>
+<p><a id="MapStringInt.write_str"></a></p>
+<h4 id="mapstringintwrite_str"><a class="header" href="#mapstringintwrite_str">MapStringInt.write_str</a></h4>
+<p><code>Buffer MapStringInt.write_str(MapStringInt map, Buffer out)</code></p>
+<p>Appends the typed-Map display text in bucket order.</p>
+<p>Source: <code>lib/typed-map.x:366</code></p>
+<h3 id="mapstringstring"><a class="header" href="#mapstringstring"><code>MapStringString</code></a></h3>
+<p><a id="MapStringString.cleanup"></a></p>
+<h4 id="mapstringstringcleanup"><a class="header" href="#mapstringstringcleanup">MapStringString.cleanup</a></h4>
+<p><code>void MapStringString.cleanup(MapStringString map)</code></p>
+<p>Releases the record and its backing Blocks, borrowing stored values.</p>
+<p>Source: <code>lib/typed-map.x:346</code></p>
+<p><a id="MapStringString.compare"></a></p>
+<h4 id="mapstringstringcompare"><a class="header" href="#mapstringstringcompare">MapStringString.compare</a></h4>
+<p><code>int MapStringString.compare(MapStringString a, MapStringString b)</code></p>
+<p>Compares typed Maps by size and then sorted native key/value contents.
+Identical handles compare equal and NULL sorts first. Neither Map is
+mutated. Raises: <code>&lt;alloc-fail&gt;</code> while creating temporary storage, or any
+cause from key or value comparison.</p>
+<p>Source: <code>lib/typed-map.x:329</code></p>
+<p><a id="MapStringString.contains"></a></p>
+<h4 id="mapstringstringcontains"><a class="header" href="#mapstringstringcontains">MapStringString.contains</a></h4>
+<p><code>int MapStringString.contains(MapStringString map, String key)</code></p>
+<p>Returns one when <code>key</code> is present, or zero for a null map.</p>
+<p>Source: <code>lib/typed-map.x:321</code></p>
+<p><a id="MapStringString.copy"></a></p>
+<h4 id="mapstringstringcopy"><a class="header" href="#mapstringstringcopy">MapStringString.copy</a></h4>
+<p><code>MapStringString MapStringString.copy(MapStringString map)</code></p>
+<p>Returns a fresh shallow copy in the current <code>Scope</code>.
+The result has independent table storage but copies native key and value
+fields. A null input produces a fresh empty map.</p>
+<p><strong>Raises:</strong> an allocation, size, or invariant cause while copying.</p>
+<p>Source: <code>lib/typed-map.x:321</code></p>
+<p><a id="MapStringString.del"></a></p>
+<h4 id="mapstringstringdel"><a class="header" href="#mapstringstringdel">MapStringString.del</a></h4>
+<p><code>String MapStringString.del(MapStringString map, String key)</code></p>
+<p>Removes <code>key</code> and returns its value.
+Successful removal invalidates live cursors and iterators.</p>
+<p><strong>Raises:</strong> <code>&lt;bad-arg&gt;</code> for a null map or absent key.</p>
+<p>Source: <code>lib/typed-map.x:321</code></p>
+<p><a id="MapStringString.enumerate"></a></p>
+<h4 id="mapstringstringenumerate"><a class="header" href="#mapstringstringenumerate">MapStringString.enumerate</a></h4>
+<p><code>Iter MapStringString.enumerate(MapStringString map, Iter dest)</code></p>
+<p>Initializes <code>dest</code> to yield canonical <code>(key value)</code> <code>List</code>s in bucket
+order.
+The caller owns <code>dest</code>, and the iterator borrows <code>map</code>; both must remain
+live during traversal. A null <code>dest</code> returns NULL, and a null map is
+exhausted. Each step boxes both fields and interns two <code>List</code> cells. Each
+cell belongs to the pool owning its canonical match, which may be an
+ancestor pool, or to the current pool when newly allocated. Structural
+mutation invalidates the iterator. Each MapLongDouble pull allocates its
+long key as a <code>Var</code> in the current <code>Scope</code>; the yielded <code>List</code> and
+anything
+retaining it must not outlive that <code>Scope</code>.</p>
+<p><strong>Raises:</strong> <code>&lt;alloc-fail&gt;</code> or <code>&lt;size-limit&gt;</code> while interning the <code>List</code>, and
+for MapLongDouble, <code>&lt;alloc-fail&gt;</code> or <code>&lt;bad-enc&gt;</code> while boxing its key.
+Shared causes do not return from the pull.</p>
+<p>Source: <code>lib/typed-map.x:346</code></p>
+<p><a id="MapStringString.equal"></a></p>
+<h4 id="mapstringstringequal"><a class="header" href="#mapstringstringequal">MapStringString.equal</a></h4>
+<p><code>int MapStringString.equal(MapStringString a, MapStringString b)</code></p>
+<p>Reports key/value equality independent of bucket and insertion order.
+Two null maps compare equal; a null and a nonnull map compare unequal.</p>
+<p>Source: <code>lib/typed-map.x:321</code></p>
+<p><a id="MapStringString.get"></a></p>
+<h4 id="mapstringstringget"><a class="header" href="#mapstringstringget">MapStringString.get</a></h4>
+<p><code>String MapStringString.get(MapStringString map, String key)</code></p>
+<p>Returns the value for <code>key</code>.</p>
+<p><strong>Raises:</strong> <code>&lt;bad-arg&gt;</code> for a null map or absent key.</p>
+<p>Source: <code>lib/typed-map.x:321</code></p>
+<p><a id="MapStringString.getdefault"></a></p>
+<h4 id="mapstringstringgetdefault"><a class="header" href="#mapstringstringgetdefault">MapStringString.getdefault</a></h4>
+<p><code>String MapStringString.getdefault(MapStringString map, String key, String defval)</code></p>
+<p>Returns the value for <code>key</code>, or <code>defval</code> without inserting it.
+A null map is treated as an empty one.</p>
+<p>Source: <code>lib/typed-map.x:321</code></p>
+<p><a id="MapStringString.getindex"></a></p>
+<h4 id="mapstringstringgetindex"><a class="header" href="#mapstringstringgetindex">MapStringString.getindex</a></h4>
+<p><code>String MapStringString.getindex(MapStringString map, String key)</code></p>
+<p>Returns the value selected by bracket indexing.
+This is the bracket-facing form of <code>MapStringString.get</code>, with the same failure
+behavior.</p>
+<p>Source: <code>lib/typed-map.x:321</code></p>
+<p><a id="MapStringString.iter"></a></p>
+<h4 id="mapstringstringiter"><a class="header" href="#mapstringstringiter">MapStringString.iter</a></h4>
+<p><code>Iter MapStringString.iter(MapStringString map, Iter dest)</code></p>
+<p>Initializes <code>dest</code> as a single-pass iterator over boxed values.
+The caller owns <code>dest</code>, and the iterator borrows <code>map</code>; both must remain
+live during traversal. A null <code>dest</code> returns NULL. Values follow bucket
+order, a null map is exhausted, and structural mutation invalidates the
+iterator.</p>
+<p>Source: <code>lib/typed-map.x:346</code></p>
+<p><a id="MapStringString.keys"></a></p>
+<h4 id="mapstringstringkeys"><a class="header" href="#mapstringstringkeys">MapStringString.keys</a></h4>
+<p><code>Iter MapStringString.keys(MapStringString map, Iter dest)</code></p>
+<p>Initializes <code>dest</code> as a single-pass iterator over boxed keys.
+The caller owns <code>dest</code>, and the iterator borrows <code>map</code>; both must remain
+live during traversal. A null <code>dest</code> returns NULL. Keys follow bucket
+order, a null map is exhausted, and structural mutation invalidates the
+iterator. MapIntInt and both String-keyed families box keys without
+allocation.
+Each MapLongDouble pull allocates its long key as a <code>Var</code> in the current
+<code>Scope</code>; the yielded <code>Var</code> and anything retaining it must
+not outlive that
+<code>Scope</code>.</p>
+<p><strong>Raises:</strong> MapLongDouble iteration may raise <code>&lt;alloc-fail&gt;</code> or <code>&lt;bad-enc&gt;</code>
+while boxing a key.</p>
+<p>Source: <code>lib/typed-map.x:346</code></p>
+<p><a id="MapStringString.len"></a></p>
+<h4 id="mapstringstringlen"><a class="header" href="#mapstringstringlen">MapStringString.len</a></h4>
+<p><code>unsigned MapStringString.len(MapStringString map)</code></p>
+<p>Returns the number of entries, or zero for a null map.</p>
+<p>Source: <code>lib/typed-map.x:321</code></p>
+<p><a id="MapStringString.map"></a></p>
+<h4 id="mapstringstringmap"><a class="header" href="#mapstringstringmap">MapStringString.map</a></h4>
+<p><code>Map MapStringString.map(MapStringString map)</code></p>
+<p>Returns a fresh ordinary Map containing boxed keys and values.
+A null input returns NULL. The typed Map and its storage are unchanged.</p>
+<p><strong>Raises:</strong> any cause from boxing or inserting an entry.</p>
+<p>Source: <code>lib/typed-map.x:329</code></p>
+<p><a id="MapStringString.merge"></a></p>
+<h4 id="mapstringstringmerge"><a class="header" href="#mapstringstringmerge">MapStringString.merge</a></h4>
+<p><code>MapStringString MapStringString.merge(MapStringString map, MapStringString other)</code></p>
+<p>Copies every entry of <code>other</code> into <code>map</code> and returns the destination.
+<code>other</code> wins conflicts. A null <code>other</code> is a no-op; a null destination is
+replaced by a fresh map. When a supplied destination fails partway,
+entries already copied remain; a newly created destination is discarded.</p>
+<p><strong>Raises:</strong> an allocation, size, or invariant cause while inserting.</p>
+<p>Source: <code>lib/typed-map.x:321</code></p>
+<p><a id="MapStringString.new"></a></p>
+<h4 id="mapstringstringnew"><a class="header" href="#mapstringstringnew">MapStringString.new</a></h4>
+<p><code>MapStringString MapStringString.new(void)</code></p>
+<p>Returns a fresh empty map owned by the current <code>Scope</code>.
+The initial table has two buckets and grows automatically.</p>
+<p><strong>Raises:</strong> <code>&lt;alloc-fail&gt;</code> or <code>&lt;size-limit&gt;</code> when storage cannot be created.</p>
+<p>Source: <code>lib/typed-map.x:321</code></p>
+<p><a id="MapStringString.new_capacity"></a></p>
+<h4 id="mapstringstringnew_capacity"><a class="header" href="#mapstringstringnew_capacity">MapStringString.new_capacity</a></h4>
+<p><code>MapStringString MapStringString.new_capacity(unsigned capacity)</code></p>
+<p>Returns a fresh empty map with exactly <code>capacity</code> buckets.
+The result and its backing arrays belong to the current <code>Scope</code>.
+<code>capacity</code>
+must be a power of two of at least two.</p>
+<p><strong>Raises:</strong> <code>&lt;bad-arg&gt;</code> for another capacity, or <code>&lt;alloc-fail&gt;</code> /
+<code>&lt;size-limit&gt;</code> when storage cannot be created.</p>
+<p>Source: <code>lib/typed-map.x:321</code></p>
+<p><a id="MapStringString.postfixindex"></a></p>
+<h4 id="mapstringstringpostfixindex"><a class="header" href="#mapstringstringpostfixindex">MapStringString.postfixindex</a></h4>
+<p><code>String MapStringString.postfixindex(MapStringString map, String key, Symbol op)</code></p>
+<p>Applies postfix <code>++</code> or <code>--</code> and returns the previous value.
+The key must already exist, and only generated numeric families support
+these operations.</p>
+<p><strong>Raises:</strong> <code>&lt;bad-arg&gt;</code> for a null map or absent key, or <code>&lt;bad-op&gt;</code> for an
+unsupported operation. These failures leave the value unchanged.</p>
+<p>Source: <code>lib/typed-map.x:321</code></p>
+<p><a id="MapStringString.repr"></a></p>
+<h4 id="mapstringstringrepr"><a class="header" href="#mapstringstringrepr">MapStringString.repr</a></h4>
+<p><code>String MapStringString.repr(MapStringString map)</code></p>
+<p>Returns the readable typed-Map representation.</p>
+<p>Source: <code>lib/typed-map.x:329</code></p>
+<p><a id="MapStringString.set"></a></p>
+<h4 id="mapstringstringset"><a class="header" href="#mapstringstringset">MapStringString.set</a></h4>
+<p><code>void MapStringString.set(MapStringString map, String key, String val)</code></p>
+<p>Copies <code>key</code> and <code>val</code> into the table, replacing an existing value.
+Insertion invalidates live cursors and iterators; replacement does not.</p>
+<p><strong>Raises:</strong> <code>&lt;bad-arg&gt;</code> for a null map, or an allocation, size, or invariant
+cause while inserting. Allocation and size failures leave the table
+unchanged.</p>
+<p>Source: <code>lib/typed-map.x:321</code></p>
+<p><a id="MapStringString.setdefault"></a></p>
+<h4 id="mapstringstringsetdefault"><a class="header" href="#mapstringstringsetdefault">MapStringString.setdefault</a></h4>
+<p><code>String MapStringString.setdefault(MapStringString map, String key, String defval)</code></p>
+<p>Returns the value for <code>key</code>, inserting <code>defval</code> when absent.
+Insertion copies the native key and value fields and invalidates live
+cursors and iterators; an existing-key read does not mutate the table.</p>
+<p><strong>Raises:</strong> <code>&lt;bad-arg&gt;</code> for a null map, or an allocation, size, or invariant
+cause while inserting. Allocation and size failures leave the table
+unchanged.</p>
+<p>Source: <code>lib/typed-map.x:321</code></p>
+<p><a id="MapStringString.setindex"></a></p>
+<h4 id="mapstringstringsetindex"><a class="header" href="#mapstringstringsetindex">MapStringString.setindex</a></h4>
+<p><code>String MapStringString.setindex(MapStringString map, String key, String val)</code></p>
+<p>Stores <code>val</code> under <code>key</code> and returns <code>val</code>.
+This is the bracket-facing form of <code>MapStringString.set</code>, with the same cursor
+invalidation and failure behavior.</p>
+<p>Source: <code>lib/typed-map.x:321</code></p>
+<p><a id="MapStringString.str"></a></p>
+<h4 id="mapstringstringstr"><a class="header" href="#mapstringstringstr">MapStringString.str</a></h4>
+<p><code>String MapStringString.str(MapStringString map)</code></p>
+<p>Returns the typed-Map display String.</p>
+<p>Source: <code>lib/typed-map.x:329</code></p>
+<p><a id="MapStringString.truth"></a></p>
+<h4 id="mapstringstringtruth"><a class="header" href="#mapstringstringtruth">MapStringString.truth</a></h4>
+<p><code>int MapStringString.truth(MapStringString map)</code></p>
+<p>Returns one when <code>map</code> contains an entry.</p>
+<p>Source: <code>lib/typed-map.x:321</code></p>
+<p><a id="MapStringString.try_del"></a></p>
+<h4 id="mapstringstringtry_del"><a class="header" href="#mapstringstringtry_del">MapStringString.try_del</a></h4>
+<p><code>int MapStringString.try_del(MapStringString map, String key, String *out)</code></p>
+<p>Removes <code>key</code>, writes its value to <code>out</code>, and returns one when present.
+A null map, null <code>out</code>, or absent key returns zero without writing or
+mutation. Successful removal invalidates live cursors and iterators.</p>
+<p>Source: <code>lib/typed-map.x:321</code></p>
+<p><a id="MapStringString.try_get"></a></p>
+<h4 id="mapstringstringtry_get"><a class="header" href="#mapstringstringtry_get">MapStringString.try_get</a></h4>
+<p><code>int MapStringString.try_get(MapStringString map, String key, String *out)</code></p>
+<p>Writes the value for <code>key</code> to <code>out</code> and returns one when present.
+A null map, null <code>out</code>, or absent key returns zero without writing.</p>
+<p>Source: <code>lib/typed-map.x:321</code></p>
+<p><a id="MapStringString.try_next"></a></p>
+<h4 id="mapstringstringtry_next"><a class="header" href="#mapstringstringtry_next">MapStringString.try_next</a></h4>
+<p><code>int MapStringString.try_next(MapStringString map, unsigned *cursor, String *key, String *val)</code></p>
+<p>Writes the next bucket’s key and value, advances <code>cursor</code>, and returns
+one. Initialize the caller-owned cursor to zero. A null argument or
+exhaustion returns zero without changing <code>key</code> or <code>val</code>. Traversal
+follows bucket order, not insertion order, and structural mutation
+invalidates the cursor.</p>
+<p>Source: <code>lib/typed-map.x:321</code></p>
+<p><a id="MapStringString.updateindex"></a></p>
+<h4 id="mapstringstringupdateindex"><a class="header" href="#mapstringstringupdateindex">MapStringString.updateindex</a></h4>
+<p><code>String MapStringString.updateindex(MapStringString map, String key, Symbol op, String rhs)</code></p>
+<p>Applies <code>op</code> to the value for <code>key</code> and returns the stored result.
+<code>+</code> inserts <code>rhs</code> when the key is absent; other operations require an
+existing key. Supported operations depend on the generated value type.</p>
+<p><strong>Raises:</strong> <code>&lt;bad-arg&gt;</code> for a null map or missing required key, a cause from
+the generated value operation, or an allocation, size, or invariant cause
+while inserting. Invalid operations leave an existing value unchanged.
+Allocation and size failures leave the table unchanged.</p>
+<p>Source: <code>lib/typed-map.x:321</code></p>
+<p><a id="MapStringString.var"></a></p>
+<h4 id="mapstringstringvar"><a class="header" href="#mapstringstringvar">MapStringString.var</a></h4>
+<p><code>Var MapStringString.var(MapStringString map)</code></p>
+<p>Boxes <code>map</code> with its registered typed-map tag without copying it.
+The typed pointer and <code>Var</code> share the same mutable map identity.</p>
+<p>Source: <code>lib/typed-map.x:346</code></p>
+<p><a id="MapStringString.write_repr"></a></p>
+<h4 id="mapstringstringwrite_repr"><a class="header" href="#mapstringstringwrite_repr">MapStringString.write_repr</a></h4>
+<p><code>Buffer MapStringString.write_repr(MapStringString map, Buffer out)</code></p>
+<p>Appends the readable typed-Map representation in bucket order.</p>
+<p>Source: <code>lib/typed-map.x:329</code></p>
+<p><a id="MapStringString.write_str"></a></p>
+<h4 id="mapstringstringwrite_str"><a class="header" href="#mapstringstringwrite_str">MapStringString.write_str</a></h4>
+<p><code>Buffer MapStringString.write_str(MapStringString map, Buffer out)</code></p>
+<p>Appends the typed-Map display text in bucket order.</p>
+<p>Source: <code>lib/typed-map.x:329</code></p>
+<h3 id="var"><a class="header" href="#var"><code>Var</code></a></h3>
+<p><a id="Var.mapintint"></a></p>
+<h4 id="varmapintint"><a class="header" href="#varmapintint">Var.mapintint</a></h4>
+<p><code>MapIntInt Var.mapintint(Var value)</code></p>
+<p>Returns the typed-map pointer carried by <code>value</code>.
+<code>value</code> must carry this family’s registered tag; the converter does
+not validate the tag before reading its pointer payload.</p>
+<p>Source: <code>lib/typed-map.x:289</code></p>
+<p><a id="Var.maplongdouble"></a></p>
+<h4 id="varmaplongdouble"><a class="header" href="#varmaplongdouble">Var.maplongdouble</a></h4>
+<p><code>MapLongDouble Var.maplongdouble(Var value)</code></p>
+<p>Returns the typed-map pointer carried by <code>value</code>.
+<code>value</code> must carry this family’s registered tag; the converter does
+not validate the tag before reading its pointer payload.</p>
+<p>Source: <code>lib/typed-map.x:309</code></p>
+<p><a id="Var.mapstringint"></a></p>
+<h4 id="varmapstringint"><a class="header" href="#varmapstringint">Var.mapstringint</a></h4>
+<p><code>MapStringInt Var.mapstringint(Var value)</code></p>
+<p>Returns the typed-map pointer carried by <code>value</code>.
+<code>value</code> must carry this family’s registered tag; the converter does
+not validate the tag before reading its pointer payload.</p>
+<p>Source: <code>lib/typed-map.x:383</code></p>
+<p><a id="Var.mapstringstring"></a></p>
+<h4 id="varmapstringstring"><a class="header" href="#varmapstringstring">Var.mapstringstring</a></h4>
+<p><code>MapStringString Var.mapstringstring(Var value)</code></p>
+<p>Returns the typed-map pointer carried by <code>value</code>.
+<code>value</code> must carry this family’s registered tag; the converter does
+not validate the tag before reading its pointer payload.</p>
+<p>Source: <code>lib/typed-map.x:346</code></p>
+<h2 id="public-types"><a class="header" href="#public-types">Public types</a></h2>
+<div class="table-wrapper">
+<table>
+<thead>
+<tr><th>Type</th><th>Kind</th><th>Summary</th></tr>
+</thead>
+<tbody>
+<tr><td><a href="#MapIntInt"><code>MapIntInt</code></a></td><td>struct</td><td>A mutable, <code>Scope</code>-owned map from native <code>int</code> keys to <code>int</code> values.</td></tr>
+<tr><td><a href="#MapLongDouble"><code>MapLongDouble</code></a></td><td>struct</td><td>A mutable, <code>Scope</code>-owned map from native <code>long</code> keys to <code>double</code> values.</td></tr>
+<tr><td><a href="#MapStringInt"><code>MapStringInt</code></a></td><td>struct</td><td>A mutable, <code>Scope</code>-owned map from canonical <code>String</code> keys to native <code>int</code> values.</td></tr>
+<tr><td><a href="#MapStringString"><code>MapStringString</code></a></td><td>struct</td><td>A mutable, <code>Scope</code>-owned map from canonical <code>String</code>s to canonical <code>String</code>s.</td></tr>
+</tbody>
+</table>
+</div>
+<p><a id="MapIntInt"></a></p>
+<h3 id="mapintint-1"><a class="header" href="#mapintint-1">MapIntInt</a></h3>
+<p><code>typedef struct MapIntInt { Scope scope, Bytes hashes, entries; unsigned used; unsigned capacity; unsigned mask; } *MapIntInt</code></p>
+<p>A mutable, <code>Scope</code>-owned map from native <code>int</code> keys to <code>int</code> values.
+Keys and values are copied into native entry fields; assignment shares the
+map, while <code>MapIntInt.copy</code> makes an independent table. Compound indexed
+updates support arithmetic, remainder, bitwise, and shift operators, plus
+postfix increment and decrement.</p>
+<p>Source: <code>lib/typed-map.x:25</code></p>
+<p><a id="MapLongDouble"></a></p>
+<h3 id="maplongdouble-1"><a class="header" href="#maplongdouble-1">MapLongDouble</a></h3>
+<p><code>typedef struct MapLongDouble { Scope scope, Bytes hashes, entries; unsigned used; unsigned capacity; unsigned mask; } *MapLongDouble</code></p>
+<p>A mutable, <code>Scope</code>-owned map from native <code>long</code> keys to <code>double</code> values.
+Keys and values are copied into native entry fields; assignment shares the
+map, while <code>MapLongDouble.copy</code> makes an independent table. Compound
+indexed updates support <code>+</code>, <code>-</code>, <code>*</code>, and <code>/</code>, plus postfix increment and
+decrement.</p>
+<p>Source: <code>lib/typed-map.x:38</code></p>
+<p><a id="MapStringInt"></a></p>
+<h3 id="mapstringint-1"><a class="header" href="#mapstringint-1">MapStringInt</a></h3>
+<p><code>typedef struct MapStringInt { Scope scope, Bytes hashes, entries; unsigned used; unsigned capacity; unsigned mask; } *MapStringInt</code></p>
+<p>A mutable, <code>Scope</code>-owned map from canonical <code>String</code> keys to native <code>int</code>
+values. Exporting an owned map rebuilds it with destination-canonical keys
+before replacing its storage. Compound indexed updates support arithmetic,
+remainder, bitwise, and shift operators, plus postfix increment and
+decrement.</p>
+<p>Source: <code>lib/typed-map.x:68</code></p>
+<p><a id="MapStringString"></a></p>
+<h3 id="mapstringstring-1"><a class="header" href="#mapstringstring-1">MapStringString</a></h3>
+<p><code>typedef struct MapStringString { Scope scope, Bytes hashes, entries; unsigned used; unsigned capacity; unsigned mask; } *MapStringString</code></p>
+<p>A mutable, <code>Scope</code>-owned map from canonical <code>String</code>s to canonical
+<code>String</code>s.
+The native entry fields borrow the supplied <code>String</code> pointers. Exporting a
+map owned by a <code>Context</code> recanonicalizes only <code>String</code>s owned by that
+<code>Context</code>
+in the destination pool before moving the map. Borrowed or outer-owned
+<code>String</code>s retain their existing pool lifetime, which must outlive the map.
+Compound indexed update supports only concatenation; postfix update is
+unsupported.</p>
+<p>Source: <code>lib/typed-map.x:55</code></p>
+<h2 id="design-notes"><a class="header" href="#design-notes">Design notes</a></h2>
+<p>These optional families store keys and values in native record fields.
+Their static operations do not box through <code>Var</code>. Separate methods provide
+<code>Var</code> conversion and <code>Iter</code> traversal.</p>
+<h2 id="tests-and-examples"><a class="header" href="#tests-and-examples">Tests and examples</a></h2>
+<p><code>make verify</code> (<code>unittest/test-typed-map.x</code>).</p>
+
+                    </main>
+
+                    <nav class="x2c-pager" aria-label="Page navigation">
+                        <a rel="prev" href="../../library/modules/typed-list.html" class="x2c-pager-prev" aria-keyshortcuts="Left">
+                            <span class="x2c-pager-label">previous</span>
+                            <span class="x2c-pager-title">lib/typed-list.x</span>
+                        </a>
+                        
+                        <a rel="next prefetch" href="../../library/modules/var.html" class="x2c-pager-next" aria-keyshortcuts="Right">
+                            <span class="x2c-pager-label">next</span>
+                            <span class="x2c-pager-title">lib/var.x</span>
+                        </a>
+                    </nav>
+                    <footer class="x2c-footer">
+                        &copy; 2025&ndash;2026
+                        <a href="https://flake.org">GWF</a>
+                        &middot;
+                        <a href="https://github.com/gwf/x2c/blob/c2a89d999e81f47a4422a26edf0033eb0b98c6c6/LICENSE">Apache 2.0</a>
+                        &middot;
+                        <a href="https://github.com/gwf/x2c/blob/c2a89d999e81f47a4422a26edf0033eb0b98c6c6/TRADEMARKS.md">Trademarks</a>
+                    </footer>
+                </div>
+            </div>
+
+
+        </div>
+
+        <template id=fa-eye><span class=fa-svg><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 576 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc. --><path d="M288 32c-80.8 0-145.5 36.8-192.6 80.6C48.6 156 17.3 208 2.5 243.7c-3.3 7.9-3.3 16.7 0 24.6C17.3 304 48.6 356 95.4 399.4C142.5 443.2 207.2 480 288 480s145.5-36.8 192.6-80.6c46.8-43.5 78.1-95.4 93-131.1c3.3-7.9 3.3-16.7 0-24.6c-14.9-35.7-46.2-87.7-93-131.1C433.5 68.8 368.8 32 288 32zM432 256c0 79.5-64.5 144-144 144s-144-64.5-144-144s64.5-144 144-144s144 64.5 144 144zM288 192c0 35.3-28.7 64-64 64c-11.5 0-22.3-3-31.6-8.4c-.2 2.8-.4 5.5-.4 8.4c0 53 43 96 96 96s96-43 96-96s-43-96-96-96c-2.8 0-5.6 .1-8.4 .4c5.3 9.3 8.4 20.1 8.4 31.6z"/></svg></span></template>
+        <template id=fa-eye-slash><span class=fa-svg><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 640 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc. --><path d="M38.8 5.1C28.4-3.1 13.3-1.2 5.1 9.2S-1.2 34.7 9.2 42.9l592 464c10.4 8.2 25.5 6.3 33.7-4.1s6.3-25.5-4.1-33.7L525.6 386.7c39.6-40.6 66.4-86.1 79.9-118.4c3.3-7.9 3.3-16.7 0-24.6c-14.9-35.7-46.2-87.7-93-131.1C465.5 68.8 400.8 32 320 32c-68.2 0-125 26.3-169.3 60.8L38.8 5.1zM223.1 149.5C248.6 126.2 282.7 112 320 112c79.5 0 144 64.5 144 144c0 24.9-6.3 48.3-17.4 68.7L408 294.5c5.2-11.8 8-24.8 8-38.5c0-53-43-96-96-96c-2.8 0-5.6 .1-8.4 .4c5.3 9.3 8.4 20.1 8.4 31.6c0 10.2-2.4 19.8-6.6 28.3l-90.3-70.8zm223.1 298L373 389.9c-16.4 6.5-34.3 10.1-53 10.1c-79.5 0-144-64.5-144-144c0-6.9 .5-13.6 1.4-20.2L83.1 161.5C60.3 191.2 44 220.8 34.5 243.7c-3.3 7.9-3.3 16.7 0 24.6c14.9 35.7 46.2 87.7 93 131.1C174.5 443.2 239.2 480 320 480c47.8 0 89.9-12.9 126.2-32.5z"/></svg></span></template>
+        <template id=fa-copy><span class=fa-svg><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc. --><path d="M502.6 70.63l-61.25-61.25C435.4 3.371 427.2 0 418.7 0H255.1c-35.35 0-64 28.66-64 64l.0195 256C192 355.4 220.7 384 256 384h192c35.2 0 64-28.8 64-64V93.25C512 84.77 508.6 76.63 502.6 70.63zM464 320c0 8.836-7.164 16-16 16H255.1c-8.838 0-16-7.164-16-16L239.1 64.13c0-8.836 7.164-16 16-16h128L384 96c0 17.67 14.33 32 32 32h47.1V320zM272 448c0 8.836-7.164 16-16 16H63.1c-8.838 0-16-7.164-16-16L47.98 192.1c0-8.836 7.164-16 16-16H160V128H63.99c-35.35 0-64 28.65-64 64l.0098 256C.002 483.3 28.66 512 64 512h192c35.2 0 64-28.8 64-64v-32h-47.1L272 448z"/></svg></span></template>
+        <template id=fa-play><span class=fa-svg><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 384 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc. --><path d="M73 39c-14.8-9.1-33.4-9.4-48.5-.9S0 62.6 0 80V432c0 17.4 9.4 33.4 24.5 41.9s33.7 8.1 48.5-.9L361 297c14.3-8.7 23-24.2 23-41s-8.7-32.2-23-41L73 39z"/></svg></span></template>
+        <template id=fa-clock-rotate-left><span class=fa-svg><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc. --><path d="M75 75L41 41C25.9 25.9 0 36.6 0 57.9V168c0 13.3 10.7 24 24 24H134.1c21.4 0 32.1-25.9 17-41l-30.8-30.8C155 85.5 203 64 256 64c106 0 192 86 192 192s-86 192-192 192c-40.8 0-78.6-12.7-109.7-34.4c-14.5-10.1-34.4-6.6-44.6 7.9s-6.6 34.4 7.9 44.6C151.2 495 201.7 512 256 512c141.4 0 256-114.6 256-256S397.4 0 256 0C185.3 0 121.3 28.7 75 75zm181 53c-13.3 0-24 10.7-24 24V256c0 6.4 2.5 12.5 7 17l72 72c9.4 9.4 24.6 9.4 33.9 0s9.4-24.6 0-33.9l-65-65V152c0-13.3-10.7-24-24-24z"/></svg></span></template>
+
+
+
+        <script>
+            window.playground_copyable = true;
+        </script>
+
+
+        <script src="../../elasticlunr-ef4e11c1.min.js"></script>
+        <script src="../../mark-09e88c2c.min.js"></script>
+        <script src="../../searcher-09f2665d.js"></script>
+
+        <script src="../../clipboard-1626706a.min.js"></script>
+        <script src="../../highlight-abc7f01d.js"></script>
+        <script src="../../book-609e4cb8.js"></script>
+
+        <script>
+            document.addEventListener('DOMContentLoaded', () => {
+                const sidebar = document.querySelector('#mdbook-sidebar');
+                sidebar.querySelectorAll('ol').forEach(list => {
+                    const numbers = list.querySelectorAll(
+                        ':scope > li > .chapter-link-wrapper > a > strong, :scope > li > a > strong');
+                    if (numbers.length) {
+                        const width = Math.max(...Array.from(numbers,
+                            number => number.textContent.trim().length));
+                        list.style.setProperty('--chapter-number-width', width + 'ch');
+                    }
+                });
+                const chapter = sidebar.querySelector('a.active');
+                const item = chapter?.closest('.chapter-item');
+                if (item?.querySelector(':scope > .on-this-page')) {
+                    const row = chapter.parentElement;
+                    if (!row.querySelector('.chapter-fold-toggle')) {
+                        const toggle = document.createElement('button');
+                        toggle.type = 'button';
+                        toggle.className = 'chapter-fold-toggle';
+                        toggle.appendChild(document.createElement('div'));
+                        toggle.addEventListener('click', () => {
+                            item.classList.toggle('expanded');
+                        });
+                        row.appendChild(toggle);
+                    }
+                }
+                sidebar.querySelectorAll('.chapter-fold-toggle').forEach(toggle => {
+                    const row = toggle.parentElement;
+                    const item = row.parentElement;
+                    const title = row.querySelector('a').textContent.trim();
+                    toggle.setAttribute('aria-label', 'Toggle ' + title);
+                    const update = () => toggle.setAttribute('aria-expanded',
+                        String(item.classList.contains('expanded')));
+                    update();
+                    toggle.addEventListener('click', update);
+                    if (toggle.tagName === 'A') {
+                        toggle.setAttribute('role', 'button');
+                        toggle.tabIndex = 0;
+                        toggle.addEventListener('keydown', event => {
+                            if (event.key === 'Enter' || event.key === ' ') {
+                                event.preventDefault();
+                                toggle.click();
+                            }
+                        });
+                    }
+                });
+            });
+        </script>
+
+        <!-- Custom JS scripts -->
+
+
+
+    </div>
+    </body>
+</html>

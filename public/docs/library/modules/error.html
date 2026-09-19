@@ -1,0 +1,802 @@
+<!DOCTYPE HTML>
+<html lang="en" class="light sidebar-visible" dir="ltr">
+    <head>
+        <!-- Book generated using mdBook -->
+        <meta charset="UTF-8">
+        <title>lib/error.x - The x2c Book</title>
+
+
+        <!-- Custom HTML head -->
+        <link rel="preconnect" href="https://fonts.googleapis.com">
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=Archivo:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">
+
+        <meta name="description" content="The x2c language, standard library, and compiler.">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <meta name="theme-color" content="#ffffff">
+
+        <link rel="icon" href="../../favicon-995a3c20.svg">
+        <link rel="stylesheet" href="../../css/variables-8adf115d.css">
+        <link rel="stylesheet" href="../../css/general-e96d0476.css">
+        <link rel="stylesheet" href="../../css/chrome-d279d366.css">
+        <link rel="stylesheet" href="../../css/print-9e4910d8.css" media="print">
+
+        <!-- Fonts -->
+        <link rel="stylesheet" href="../../fonts/fonts-9644e21d.css">
+
+        <!-- Highlight.js Stylesheets -->
+        <link rel="stylesheet" id="mdbook-highlight-css" href="../../highlight-493f70e1.css">
+        <link rel="stylesheet" id="mdbook-tomorrow-night-css" href="../../tomorrow-night-4c0ae647.css">
+        <link rel="stylesheet" id="mdbook-ayu-highlight-css" href="../../ayu-highlight-3fdfc3ac.css">
+
+        <!-- Custom theme stylesheets -->
+        <link rel="stylesheet" href="../../theme/header-2c1becca.css">
+        <link rel="stylesheet" href="../../theme/x2c-fd3d182e.css">
+
+
+        <!-- Provide site root and default themes to javascript -->
+        <script>
+            const path_to_root = "../../";
+            const default_light_theme = "light";
+            const default_dark_theme = "light";
+            window.path_to_searchindex_js = "../../searchindex-2643e100.js";
+        </script>
+        <!-- Start loading toc.js asap -->
+        <script src="../../toc-a71616d6.js"></script>
+        <!-- x2c publication metadata -->
+        <link rel="canonical" href="https://staging.x2c-lang.dev/docs/library/modules/error.html">
+        <meta property="og:type" content="website">
+        <meta property="og:title" content="lib/error.x - The x2c Book">
+        <meta property="og:description" content="The x2c language, standard library, and compiler.">
+        <meta property="og:url" content="https://staging.x2c-lang.dev/docs/library/modules/error.html">
+        <meta property="og:image" content="https://staging.x2c-lang.dev/x2c-social.png">
+        <meta property="og:image:width" content="1200">
+        <meta property="og:image:height" content="630">
+        <meta name="twitter:card" content="summary_large_image">
+        <meta name="twitter:title" content="lib/error.x - The x2c Book">
+        <meta name="twitter:description" content="The x2c language, standard library, and compiler.">
+        <meta name="twitter:image" content="https://staging.x2c-lang.dev/x2c-social.png">
+    </head>
+    <body><aside aria-label="Release candidate" style="padding:1rem;background:#fff1bf;color:#241c00;font:14px/1.5 monospace;overflow-wrap:anywhere"><strong>Public staging: candidate-c2a89d999e81f47a4422a26edf0033eb0b98c6c6-35470032964-1</strong><p>Source: c2a89d999e81f47a4422a26edf0033eb0b98c6c6. Use a fresh scratch installation and the explicit candidate index below. Bare x2c install commands and production URLs in the book refer to production.</p><pre style="overflow:auto">export X2C_PREFIX=&quot;$(mktemp -d)/x2c&quot;
+curl -fsSL https://staging.x2c-lang.dev/install.sh | sh
+export PATH=&quot;$X2C_PREFIX/bin:$PATH&quot;
+x2c run &quot;$X2C_PREFIX/examples/foreach.x&quot;
+x2c install pcre2 --index https://staging.x2c-lang.dev/packages/index.txt</pre></aside>
+    <div id="mdbook-help-container">
+        <div id="mdbook-help-popup">
+            <h2 class="mdbook-help-title">Keyboard shortcuts</h2>
+            <div>
+                <p>Press <kbd>←</kbd> or <kbd>→</kbd> to navigate between chapters</p>
+                <p>Press <kbd>S</kbd> or <kbd>/</kbd> to search in the book</p>
+                <p>Press <kbd>?</kbd> to show this help</p>
+                <p>Press <kbd>Esc</kbd> to hide this help</p>
+            </div>
+        </div>
+    </div>
+    <div id="mdbook-body-container">
+        <!-- Work around some values being stored in localStorage wrapped in quotes -->
+        <script>
+            try {
+                let theme = localStorage.getItem('mdbook-theme');
+                let sidebar = localStorage.getItem('mdbook-sidebar');
+
+                if (theme.startsWith('"') && theme.endsWith('"')) {
+                    localStorage.setItem('mdbook-theme', theme.slice(1, theme.length - 1));
+                }
+
+                if (sidebar.startsWith('"') && sidebar.endsWith('"')) {
+                    localStorage.setItem('mdbook-sidebar', sidebar.slice(1, sidebar.length - 1));
+                }
+            } catch (e) { }
+        </script>
+
+        <!-- Set the theme before any content is loaded, prevents flash -->
+        <script>
+            const default_theme = window.matchMedia("(prefers-color-scheme: dark)").matches ? default_dark_theme : default_light_theme;
+            let theme;
+            try { theme = localStorage.getItem('mdbook-theme'); } catch(e) { }
+            if (theme === null || theme === undefined) { theme = default_theme; }
+            const html = document.documentElement;
+            html.classList.remove('light')
+            html.classList.add(theme);
+            html.classList.add("js");
+        </script>
+
+        <input type="checkbox" id="mdbook-sidebar-toggle-anchor" class="hidden">
+
+        <!-- Hide / unhide sidebar before it is displayed -->
+        <script>
+            let sidebar = null;
+            const sidebar_toggle = document.getElementById("mdbook-sidebar-toggle-anchor");
+            if (document.body.clientWidth >= 1080) {
+                try { sidebar = localStorage.getItem('mdbook-sidebar'); } catch(e) { }
+                sidebar = sidebar || 'visible';
+            } else {
+                sidebar = 'hidden';
+                sidebar_toggle.checked = false;
+            }
+            if (sidebar === 'visible') {
+                sidebar_toggle.checked = true;
+            } else {
+                html.classList.remove('sidebar-visible');
+            }
+        </script>
+
+        <nav id="mdbook-sidebar" class="sidebar" aria-label="Table of contents">
+            <!-- populated by js -->
+            <mdbook-sidebar-scrollbox class="sidebar-scrollbox"></mdbook-sidebar-scrollbox>
+            <noscript>
+                <iframe class="sidebar-iframe-outer" src="../../toc.html"></iframe>
+            </noscript>
+            <div id="mdbook-sidebar-resize-handle" class="sidebar-resize-handle">
+                <div class="sidebar-resize-indicator"></div>
+            </div>
+        </nav>
+
+        <div id="mdbook-page-wrapper" class="page-wrapper">
+
+            <div class="page">
+                <div id="mdbook-menu-bar" class="hidden"></div>
+                <header class="landing-header x2c-header">
+                    <div class="landing-header-inner">
+                        <div class="landing-branding">
+                            <a class="landing-brand" href="../../../" aria-label="x2c home">
+                                <svg viewBox="0 0 100 100" width="22" height="22" aria-hidden="true"><g fill="none" stroke="#da291c" stroke-width="17" stroke-linecap="butt"><path d="M9 16 A34.5 34.5 0 0 1 9 84"></path><path d="M91 16 A34.5 34.5 0 0 0 91 84"></path></g></svg>
+                                <span class="x2c-wordmark landing-wordmark">x2c</span>
+                            </a>
+                            <span class="landing-tagline">The x2c Book</span>
+                        </div>
+                        <nav class="landing-nav" aria-label="x2c website">
+                            <div class="landing-page-nav">
+                                <a href="../../../#love">love</a>
+                                <a href="../../../#power">power</a>
+                                <a href="../../../#magic">magic</a>
+                            </div>
+                            <div class="landing-site-nav">
+                                <a href="../../../#install">install</a>
+                                <a href="../../../#packages">packages</a>
+                            </div>
+                            <div class="landing-reference-nav">
+                                <a href="../../../about/">about</a>
+                                <a href="../../" aria-current="page">docs</a>
+                                <a href="https://github.com/gwf/x2c">source</a>
+                            </div>
+                        </nav>
+                    </div>
+                    <div class="x2c-book-tools">
+                        <div class="x2c-header-tools">
+                            <label id="mdbook-sidebar-toggle" class="icon-button" for="mdbook-sidebar-toggle-anchor" title="Toggle Table of Contents" aria-label="Toggle Table of Contents" aria-controls="mdbook-sidebar">
+                                <span class=fa-svg><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc. --><path d="M0 96C0 78.3 14.3 64 32 64H416c17.7 0 32 14.3 32 32s-14.3 32-32 32H32C14.3 128 0 113.7 0 96zM0 256c0-17.7 14.3-32 32-32H416c17.7 0 32 14.3 32 32s-14.3 32-32 32H32c-17.7 0-32-14.3-32-32zM448 416c0 17.7-14.3 32-32 32H32c-17.7 0-32-14.3-32-32s14.3-32 32-32H416c17.7 0 32 14.3 32 32z"/></svg></span>
+                            </label>
+                        </div>
+                        <div class="x2c-header-tools x2c-header-tools-right">
+                            <button id="mdbook-search-toggle" class="icon-button" type="button" title="Search (`/`)" aria-label="Toggle Searchbar" aria-expanded="false" aria-keyshortcuts="/ s" aria-controls="mdbook-searchbar">
+                                <span class=fa-svg><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc. --><path d="M416 208c0 45.9-14.9 88.3-40 122.7L502.6 457.4c12.5 12.5 12.5 32.8 0 45.3s-32.8 12.5-45.3 0L330.7 376c-34.4 25.2-76.8 40-122.7 40C93.1 416 0 322.9 0 208S93.1 0 208 0S416 93.1 416 208zM208 352c79.5 0 144-64.5 144-144s-64.5-144-144-144S64 128.5 64 208s64.5 144 144 144z"/></svg></span>
+                            </button>
+                            <button id="mdbook-theme-toggle" class="icon-button" type="button" title="Change theme" aria-label="Change theme" aria-haspopup="true" aria-expanded="false" aria-controls="mdbook-theme-list">
+                                <span class=fa-svg><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc. --><path d="M448 256c0-106-86-192-192-192V448c106 0 192-86 192-192zm64 0c0 141.4-114.6 256-256 256S0 397.4 0 256S114.6 0 256 0S512 114.6 512 256z"/></svg></span>
+                            </button>
+                            <ul id="mdbook-theme-list" class="theme-popup" aria-label="Themes" role="menu">
+                                <li role="none"><button role="menuitem" class="theme" id="mdbook-theme-default_theme">Auto</button></li>
+                                <li role="none"><button role="menuitem" class="theme" id="mdbook-theme-light">Light</button></li>
+                                <li role="none"><button role="menuitem" class="theme" id="mdbook-theme-ayu">Dark</button></li>
+                            </ul>
+                            <a href="https://github.com/gwf/x2c/edit/main/docs/src/library/modules/error.md" title="Suggest an edit" aria-label="Suggest an edit" rel="edit" class="icon-button">
+                                <span class=fa-svg id="git-edit-button"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc. --><path d="M421.7 220.3l-11.3 11.3-22.6 22.6-205 205c-6.6 6.6-14.8 11.5-23.8 14.1L30.8 511c-8.4 2.5-17.5 .2-23.7-6.1S-1.5 489.7 1 481.2L38.7 353.1c2.6-9 7.5-17.2 14.1-23.8l205-205 22.6-22.6 11.3-11.3 33.9 33.9 62.1 62.1 33.9 33.9zM96 353.9l-9.3 9.3c-.9 .9-1.6 2.1-2 3.4l-25.3 86 86-25.3c1.3-.4 2.5-1.1 3.4-2l9.3-9.3H112c-8.8 0-16-7.2-16-16V353.9zM453.3 19.3l39.4 39.4c25 25 25 65.5 0 90.5l-14.5 14.5-22.6 22.6-11.3 11.3-33.9-33.9-62.1-62.1L314.3 67.7l11.3-11.3 22.6-22.6 14.5-14.5c25-25 65.5-25 90.5 0z"/></svg></span>
+                            </a>
+                        </div>
+                    </div>
+                </header>
+                <script>
+                    const bookHeader = document.querySelector('.x2c-header');
+                    new ResizeObserver(() => {
+                        document.documentElement.style.setProperty(
+                            '--menu-bar-height', `${bookHeader.getBoundingClientRect().height}px`);
+                    }).observe(bookHeader);
+                </script>
+
+                <div id="mdbook-search-wrapper" class="hidden">
+                    <form id="mdbook-searchbar-outer" class="searchbar-outer">
+                        <div class="search-wrapper">
+                            <input type="search" id="mdbook-searchbar" name="searchbar" placeholder="Search this book ..." aria-controls="mdbook-searchresults-outer" aria-describedby="searchresults-header">
+                            <div class="spinner-wrapper">
+                                <span class=fa-svg id="fa-spin"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc. --><path d="M304 48c0-26.5-21.5-48-48-48s-48 21.5-48 48s21.5 48 48 48s48-21.5 48-48zm0 416c0-26.5-21.5-48-48-48s-48 21.5-48 48s21.5 48 48 48s48-21.5 48-48zM48 304c26.5 0 48-21.5 48-48s-21.5-48-48-48s-48 21.5-48 48s21.5 48 48 48zm464-48c0-26.5-21.5-48-48-48s-48 21.5-48 48s21.5 48 48 48s48-21.5 48-48zM142.9 437c18.7-18.7 18.7-49.1 0-67.9s-49.1-18.7-67.9 0s-18.7 49.1 0 67.9s49.1 18.7 67.9 0zm0-294.2c18.7-18.7 18.7-49.1 0-67.9S93.7 56.2 75 75s-18.7 49.1 0 67.9s49.1 18.7 67.9 0zM369.1 437c18.7 18.7 49.1 18.7 67.9 0s18.7-49.1 0-67.9s-49.1-18.7-67.9 0s-18.7 49.1 0 67.9z"/></svg></span>
+                            </div>
+                        </div>
+                    </form>
+                    <div id="mdbook-searchresults-outer" class="searchresults-outer hidden">
+                        <div id="mdbook-searchresults-header" class="searchresults-header"></div>
+                        <ul id="mdbook-searchresults">
+                        </ul>
+                    </div>
+                </div>
+
+                <!-- Apply ARIA attributes after the sidebar and the sidebar toggle button are added to the DOM -->
+                <script>
+                    document.getElementById('mdbook-sidebar-toggle').setAttribute('aria-expanded', sidebar === 'visible');
+                    document.getElementById('mdbook-sidebar').setAttribute('aria-hidden', sidebar !== 'visible');
+                    Array.from(document.querySelectorAll('#mdbook-sidebar a')).forEach(function(link) {
+                        link.setAttribute('tabIndex', sidebar === 'visible' ? 0 : -1);
+                    });
+                </script>
+
+                <div id="mdbook-content" class="content">
+                    <main>
+                        <!-- Generated by `python3 tools/gen-api-reference.py --write` from
+     lib/*.x and the stage interfaces. Do not edit by hand. -->
+<h1 id="liberrorx"><a class="header" href="#liberrorx"><code>lib/error.x</code></a></h1>
+<p>Handler stack and accumulated errors.</p>
+<h2 id="advanced-and-interop-api"><a class="header" href="#advanced-and-interop-api">Advanced and interop API</a></h2>
+<div class="table-wrapper">
+<table>
+<thead>
+<tr><th>Function</th><th>Summary</th></tr>
+</thead>
+<tbody>
+<tr><td><a href="#x2c_error_catch_capture"><code>x2c_error_catch_capture</code></a></td><td>Returns one borrowed capture from a selected catch arm.</td></tr>
+<tr><td><a href="#x2c_error_catch_close"><code>x2c_error_catch_close</code></a></td><td>Closes and invalidates a transferring-catch handle.</td></tr>
+<tr><td><a href="#x2c_error_catch_detach"><code>x2c_error_catch_detach</code></a></td><td>Unregisters the top transferring catch before its arm runs.</td></tr>
+<tr><td><a href="#x2c_error_catch_push"><code>x2c_error_catch_push</code></a></td><td>Registers one transferring catch from patterns supplied per call.</td></tr>
+<tr><td><a href="#x2c_error_catch_selected"><code>x2c_error_catch_selected</code></a></td><td>Returns the selected zero-based catch arm, or -1 before selection or for a null handle.</td></tr>
+<tr><td><a href="#x2c_error_catch_site_pending"><code>x2c_error_catch_site_pending</code></a></td><td>Reports whether one catch site still needs its patterns at registration.</td></tr>
+<tr><td><a href="#x2c_error_catch_site_push"><code>x2c_error_catch_site_push</code></a></td><td>Registers one compiler-generated transferring catch through its site.</td></tr>
+<tr><td><a href="#x2c_error_raise"><code>x2c_error_raise</code></a></td><td>Raises one compiler-generated error from a prepared detail <code>List</code>.</td></tr>
+<tr><td><a href="#x2c_error_raise_n"><code>x2c_error_raise_n</code></a></td><td>Raises one compiler-generated error from native key-value arguments.</td></tr>
+<tr><td><a href="#Error.bound"><code>Error.bound</code></a></td><td>Returns the maximum number of errors that may remain accumulated.</td></tr>
+<tr><td><a href="#Error.bound_set"><code>Error.bound_set</code></a></td><td>Sets the accumulated-error bound when <code>bound</code> is positive.</td></tr>
+<tr><td><a href="#Error.count"><code>Error.count</code></a></td><td>Returns the number of errors currently accumulated.</td></tr>
+<tr><td><a href="#Error.depth"><code>Error.depth</code></a></td><td>Returns the current nested error-dispatch depth.</td></tr>
+<tr><td><a href="#Error.handler_depth"><code>Error.handler_depth</code></a></td><td>Returns the current thread’s number of registered <code>Error</code> handlers.</td></tr>
+<tr><td><a href="#Error.handler_head"><code>Error.handler_head</code></a></td><td>Returns the current thread’s borrowed top <code>Error</code>-handler pointer.</td></tr>
+<tr><td><a href="#Error.initialize_raw"><code>Error.initialize_raw</code></a></td><td>Initializes the current thread’s <code>Error</code> runtime without lifecycle insertion.</td></tr>
+<tr><td><a href="#Error.mark"><code>Error.mark</code></a></td><td>Captures the current error-stack position.</td></tr>
+<tr><td><a href="#Error.note_rendered"><code>Error.note_rendered</code></a></td><td>Marks the current nested error dispatch as already rendered by <code>Logger</code>.</td></tr>
+<tr><td><a href="#Error.policy_adopt"><code>Error.policy_adopt</code></a></td><td>Adopts a policy capture on the calling thread and releases it.</td></tr>
+<tr><td><a href="#Error.policy_capture"><code>Error.policy_capture</code></a></td><td>Captures the calling thread’s <code>Error</code> policy for another thread to adopt.</td></tr>
+<tr><td><a href="#Error.policy_get"><code>Error.policy_get</code></a></td><td>Returns the default disposition for <code>code</code>.</td></tr>
+<tr><td><a href="#Error.policy_release"><code>Error.policy_release</code></a></td><td>Releases a policy capture that no thread adopted.</td></tr>
+<tr><td><a href="#Error.policy_set"><code>Error.policy_set</code></a></td><td>Sets the default disposition for <code>code</code>.</td></tr>
+<tr><td><a href="#Error.pop"><code>Error.pop</code></a></td><td>Closes the most recently pushed observing handler.</td></tr>
+<tr><td><a href="#Error.push"><code>Error.push</code></a></td><td>Pushes an observing handler and returns its removal handle.</td></tr>
+<tr><td><a href="#Error.raise"><code>Error.raise</code></a></td><td>Raises one cause with optional structured detail.</td></tr>
+<tr><td><a href="#Error.ready"><code>Error.ready</code></a></td><td>Reports whether the rich <code>Error</code> runtime can currently accept raises.</td></tr>
+<tr><td><a href="#Error.restore"><code>Error.restore</code></a></td><td>Discards handler and record growth after one cleanup callback.</td></tr>
+<tr><td><a href="#Error.restore_landing"><code>Error.restore_landing</code></a></td><td>Restores <code>Error</code> state after an exception frame lands.</td></tr>
+<tr><td><a href="#Error.shutdown_raw"><code>Error.shutdown_raw</code></a></td><td>Releases the current thread’s <code>Error</code> storage without lifecycle insertion.</td></tr>
+<tr><td><a href="#Error.since"><code>Error.since</code></a></td><td>Returns the accumulated errors at and after <code>mark</code>, oldest first.</td></tr>
+<tr><td><a href="#Error.snapshot"><code>Error.snapshot</code></a></td><td>Copies one admissible error value into the caller’s ordinary owners.</td></tr>
+<tr><td><a href="#Error.trim"><code>Error.trim</code></a></td><td>Trims <code>Error</code> state while an exception frame leaves.</td></tr>
+<tr><td><a href="#Error.unwind_head"><code>Error.unwind_head</code></a></td><td>Returns the handler head retained for the current <code>Error</code> transfer.</td></tr>
+</tbody>
+</table>
+</div>
+<h3 id="functions"><a class="header" href="#functions">Functions</a></h3>
+<h4 id="x2c_error_catch_capture"><a class="header" href="#x2c_error_catch_capture">x2c_error_catch_capture</a></h4>
+<p><code>Var x2c_error_catch_capture(ErrorHandler handle, int index)</code></p>
+<p>Returns one borrowed capture from a selected catch arm.
+An invalid index, a null or unselected handle, or an unbound alternative
+returns <code>void</code>. The value remains valid until the handle is closed; use
+<code>Error.snapshot</code> to keep it longer.</p>
+<p>Source: <code>lib/error.x:206</code></p>
+<h4 id="x2c_error_catch_close"><a class="header" href="#x2c_error_catch_close">x2c_error_catch_close</a></h4>
+<p><code>void x2c_error_catch_close(ErrorHandler handle)</code></p>
+<p>Closes and invalidates a transferring-catch handle.
+The handle releases its plans, captures, and retained error records. A
+still-registered handle also leaves the handler stack and truncates
+records above its registration watermark; a detached one leaves the chain
+of running arms instead. Handles must close in stack order on whichever
+chain holds them; violating that order reaches the raw error floor. A null
+handle does nothing.</p>
+<p>Source: <code>lib/error.x:243</code></p>
+<h4 id="x2c_error_catch_detach"><a class="header" href="#x2c_error_catch_detach">x2c_error_catch_detach</a></h4>
+<p><code>void x2c_error_catch_detach(ErrorHandler handle)</code></p>
+<p>Unregisters the top transferring catch before its arm runs.
+The handler stack then holds only registrations that can still be
+selected, so the arm may raise outward without matching itself and may
+close handlers the <code>try</code> was nested inside. The handle moves to the
+thread’s chain of running arms, which owns the retained <code>Error</code> and
+captures the arm still reads until <code>x2c_error_catch_close</code>; <code>Error</code>
+shutdown walks that chain, so an <code>exit()</code> from inside an arm still
+reclaims them. Repeated detach and a null handle do nothing. Detaching out
+of stack order reaches the raw error floor.</p>
+<p>Source: <code>lib/error.x:224</code></p>
+<h4 id="x2c_error_catch_push"><a class="header" href="#x2c_error_catch_push">x2c_error_catch_push</a></h4>
+<p><code>ErrorHandler x2c_error_catch_push(void *target, unsigned arm_count, ...)</code></p>
+<p>Registers one transferring catch from patterns supplied per call.
+A hand-written caller that has no static site uses this form; <code>arm_count</code>
+<code>List</code> pattern <code>Var</code>s follow in source order, and one plan per arm is
+prepared for this registration alone. Results and failures follow
+<code>x2c_error_catch_site_push</code>.</p>
+<p>Source: <code>lib/error.x:174</code></p>
+<h4 id="x2c_error_catch_selected"><a class="header" href="#x2c_error_catch_selected">x2c_error_catch_selected</a></h4>
+<p><code>int x2c_error_catch_selected(ErrorHandler handle)</code></p>
+<p>Returns the selected zero-based catch arm, or -1 before selection or for a
+null handle.</p>
+<p>Source: <code>lib/error.x:198</code></p>
+<h4 id="x2c_error_catch_site_pending"><a class="header" href="#x2c_error_catch_site_pending">x2c_error_catch_site_pending</a></h4>
+<p><code>int x2c_error_catch_site_pending(ErrorCatchSite *site)</code></p>
+<p>Reports whether one catch site still needs its patterns at registration.
+A bound static site answers 0, so its caller can skip constructing them.</p>
+<p>Source: <code>lib/error.x:74</code></p>
+<h4 id="x2c_error_catch_site_push"><a class="header" href="#x2c_error_catch_site_push">x2c_error_catch_site_push</a></h4>
+<p><code>ErrorHandler x2c_error_catch_site_push( void *target, ErrorCatchSite *site, Var *patterns)</code></p>
+<p>Registers one compiler-generated transferring catch through its site.
+<code>target</code> names the <code>ExceptionFrame</code> that the caller pushes immediately
+afterward and <code>site</code> is the static site of this <code>try</code>, whose <code>patterns</code>
+are read in source order. A pending site reads <code>patterns</code>; a bound static
+site ignores them, so a caller may pass anything once
+<code>x2c_error_catch_site_pending</code> answers 0. The site borrows every
+referenced <code>List</code> graph, and those values and the target frame must
+outlive it.
+A null target or site, a zero arm count, or an unavailable <code>Error</code> runtime
+reaches the raw error floor.</p>
+<p><strong>Raises:</strong> <code>&lt;alloc-fail&gt;</code> when registration or fence-detail storage cannot be
+allocated, or <code>&lt;size-limit&gt;</code> when an arm’s pattern crosses a <code>Match</code>
+lowering fence. A fenced arm can never be selected. The registration is
+reclaimed and the error reaches the enclosing handler; the caller’s own
+frame is not yet pushed, so it never sees its own failure.</p>
+<p>Source: <code>lib/error.x:133</code></p>
+<h4 id="x2c_error_raise"><a class="header" href="#x2c_error_raise">x2c_error_raise</a></h4>
+<p><code>void x2c_error_raise(Symbol code, List detail)</code></p>
+<p>Raises one compiler-generated error from a prepared detail <code>List</code>.
+The runtime copies admissible detail before synchronous handler dispatch.
+Resumable causes may return after handling or policy; shared non-returning
+causes may transfer to a filtered catch but never return here. Invalid
+detail or unavailable, reentrant, or failed <code>Error</code> machinery reaches the
+raw error floor.</p>
+<p>Source: <code>lib/error.x:267</code></p>
+<h4 id="x2c_error_raise_n"><a class="header" href="#x2c_error_raise_n">x2c_error_raise_n</a></h4>
+<p><code>void x2c_error_raise_n( const X2CErrorSite *site, Symbol code, unsigned pair_count, ...)</code></p>
+<p>Raises one compiler-generated error from native key-value arguments.
+<code>pair_count</code> controls the following alternating <code>Var</code> keys and values;
+<code>site</code>
+may be NULL. The runtime copies admissible values and preserves pair order.
+Resumable causes may return after handling or policy; shared non-returning
+causes may transfer to a filtered catch but never return here. Invalid
+detail or unavailable, reentrant, or failed <code>Error</code> machinery reaches the
+raw error floor.</p>
+<p>Source: <code>lib/error.x:291</code></p>
+<h3 id="error"><a class="header" href="#error"><code>Error</code></a></h3>
+<p><a id="Error.bound"></a></p>
+<h4 id="errorbound"><a class="header" href="#errorbound">Error.bound</a></h4>
+<p><code>int Error.bound(void)</code></p>
+<p>Returns the maximum number of errors that may remain accumulated.</p>
+<p>Source: <code>lib/error.x:947</code></p>
+<p><a id="Error.bound_set"></a></p>
+<h4 id="errorbound_set"><a class="header" href="#errorbound_set">Error.bound_set</a></h4>
+<p><code>void Error.bound_set(int bound)</code></p>
+<p>Sets the accumulated-error bound when <code>bound</code> is positive.
+A zero or negative value leaves the current bound unchanged.</p>
+<p>Source: <code>lib/error.x:955</code></p>
+<p><a id="Error.count"></a></p>
+<h4 id="errorcount"><a class="header" href="#errorcount">Error.count</a></h4>
+<p><code>int Error.count(void)</code></p>
+<p>Returns the number of errors currently accumulated.
+Returns zero before <code>Error</code> initialization and after shutdown.</p>
+<p>Source: <code>lib/error.x:677</code></p>
+<p><a id="Error.depth"></a></p>
+<h4 id="errordepth"><a class="header" href="#errordepth">Error.depth</a></h4>
+<p><code>int Error.depth(void)</code></p>
+<p>Returns the current nested error-dispatch depth.
+This is the nesting depth of error dispatch. <code>Error.count</code> returns the
+number of accumulated errors.</p>
+<p>Source: <code>lib/error.x:672</code></p>
+<p><a id="Error.handler_depth"></a></p>
+<h4 id="errorhandler_depth"><a class="header" href="#errorhandler_depth">Error.handler_depth</a></h4>
+<p><code>int Error.handler_depth(void)</code></p>
+<p>Returns the current thread’s number of registered <code>Error</code> handlers.</p>
+<p>Source: <code>lib/error.x:306</code></p>
+<p><a id="Error.handler_head"></a></p>
+<h4 id="errorhandler_head"><a class="header" href="#errorhandler_head">Error.handler_head</a></h4>
+<p><code>void *Error.handler_head(void)</code></p>
+<p>Returns the current thread’s borrowed top <code>Error</code>-handler pointer.
+Exception frames use this opaque value as a restore watermark; it remains
+valid only while its registration remains live.</p>
+<p>Source: <code>lib/error.x:316</code></p>
+<p><a id="Error.initialize_raw"></a></p>
+<h4 id="errorinitialize_raw"><a class="header" href="#errorinitialize_raw">Error.initialize_raw</a></h4>
+<p><code>void Error.initialize_raw(void)</code></p>
+<p>Initializes the current thread’s <code>Error</code> runtime without lifecycle
+insertion.
+Repeated calls after successful initialization and calls after shutdown do
+nothing. Initialization owns a private <code>Scope</code>, record stack, and policy
+<code>Map</code>;
+failure before the <code>Error</code> runtime becomes ready reaches the raw error
+floor.</p>
+<p>Source: <code>lib/error.x:376</code></p>
+<p><a id="Error.mark"></a></p>
+<h4 id="errormark"><a class="header" href="#errormark">Error.mark</a></h4>
+<p><code>int Error.mark(void)</code></p>
+<p>Captures the current error-stack position.
+Pass the result to <code>Error.since</code> to inspect only later errors.</p>
+<p>Source: <code>lib/error.x:682</code></p>
+<p><a id="Error.note_rendered"></a></p>
+<h4 id="errornote_rendered"><a class="header" href="#errornote_rendered">Error.note_rendered</a></h4>
+<p><code>void Error.note_rendered(void)</code></p>
+<p>Marks the current nested error dispatch as already rendered by <code>Logger</code>.
+This suppresses only <code>Error</code>’s fallback report for a <code>&lt;log&gt;</code> policy.
+Calling
+outside dispatch has no effect.</p>
+<p>Source: <code>lib/error.x:276</code></p>
+<p><a id="Error.policy_adopt"></a></p>
+<h4 id="errorpolicy_adopt"><a class="header" href="#errorpolicy_adopt">Error.policy_adopt</a></h4>
+<p><code>void Error.policy_adopt(void *capture)</code></p>
+<p>Adopts a policy capture on the calling thread and releases it.
+Each captured code takes its captured disposition; codes the capture does
+not name keep the disposition this thread already has. A NULL capture, or
+one adopted while <code>Error</code> is unavailable, is released without effect.
+Failure to update <code>Error</code>-owned storage reaches the non-reentrant error
+floor.</p>
+<p>Source: <code>lib/error.x:924</code></p>
+<p><a id="Error.policy_capture"></a></p>
+<h4 id="errorpolicy_capture"><a class="header" href="#errorpolicy_capture">Error.policy_capture</a></h4>
+<p><code>void *Error.policy_capture(void)</code></p>
+<p>Captures the calling thread’s <code>Error</code> policy for another thread to adopt.
+Policy is per-thread state, so a worker starts with only the shared
+non-returning causes locked to <code>&lt;abort&gt;</code>; a capture carries the starting
+thread’s dispositions across. <code>Error.policy_adopt</code> consumes the capture and
+<code>Error.policy_release</code> discards one that no thread adopted. An unavailable
+<code>Error</code> runtime captures nothing and answers NULL.</p>
+<p><strong>Raises:</strong> <code>&lt;alloc-fail&gt;</code> when the capture cannot be allocated.</p>
+<p>Source: <code>lib/error.x:900</code></p>
+<p><a id="Error.policy_get"></a></p>
+<h4 id="errorpolicy_get"><a class="header" href="#errorpolicy_get">Error.policy_get</a></h4>
+<p><code>Symbol Error.policy_get(Symbol code)</code></p>
+<p>Returns the default disposition for <code>code</code>.
+Unknown codes and an unavailable <code>Error</code> runtime default to <code>&lt;abort&gt;</code>.</p>
+<p>Source: <code>lib/error.x:851</code></p>
+<p><a id="Error.policy_release"></a></p>
+<h4 id="errorpolicy_release"><a class="header" href="#errorpolicy_release">Error.policy_release</a></h4>
+<p><code>void Error.policy_release(void *capture)</code></p>
+<p>Releases a policy capture that no thread adopted. A NULL capture is
+accepted and does nothing.</p>
+<p>Source: <code>lib/error.x:944</code></p>
+<p><a id="Error.policy_set"></a></p>
+<h4 id="errorpolicy_set"><a class="header" href="#errorpolicy_set">Error.policy_set</a></h4>
+<p><code>void Error.policy_set(Symbol code, Symbol disposition)</code></p>
+<p>Sets the default disposition for <code>code</code>.
+Supported policy values are <code>&lt;abort&gt;</code>, <code>&lt;collect&gt;</code>, <code>&lt;log&gt;</code>, and
+<code>&lt;ignore&gt;</code>. Another value raises <code>&lt;bad-arg&gt;</code> and leaves the previous policy
+unchanged. Shared non-returning causes accept only <code>&lt;abort&gt;</code>; another
+disposition raises <code>&lt;bad-arg&gt;</code> and leaves their policy unchanged. The call
+is a no-op while <code>Error</code> is unavailable; failure to update <code>Error</code>-owned
+storage reaches the non-reentrant error floor.</p>
+<p>Source: <code>lib/error.x:830</code></p>
+<p><a id="Error.pop"></a></p>
+<h4 id="errorpop"><a class="header" href="#errorpop">Error.pop</a></h4>
+<p><code>void Error.pop(ErrorHandler handle)</code></p>
+<p>Closes the most recently pushed observing handler.
+Closing truncates and reclaims every error above the handler’s registration
+watermark, then unregisters it. <code>Error</code>s below the watermark remain.
+Handles
+must be popped in stack order. An out-of-order pop reaches the
+non-reentrant error floor; a null handle does nothing.</p>
+<p>Source: <code>lib/error.x:1069</code></p>
+<p><a id="Error.push"></a></p>
+<h4 id="errorpush"><a class="header" href="#errorpush">Error.push</a></h4>
+<p><code>ErrorHandler Error.push(ErrorHandlerFn fn, Var data)</code></p>
+<p>Pushes an observing handler and returns its removal handle.
+The handler sees a borrowed view of errors raised after this registration;
+the view is valid only during the callback. Use <code>Error.snapshot</code> for any
+value that must escape. Returning <code>&lt;handled&gt;</code> consumes that slice,
+<code>&lt;declined&gt;</code> leaves it for outer handlers, and <code>&lt;fatal&gt;</code> reaches the error
+floor. For a shared non-returning cause, <code>&lt;handled&gt;</code> also reaches the
+floor. A null callback or unavailable runtime returns NULL without
+registering. Raises <code>&lt;alloc-fail&gt;</code> if registration storage cannot be
+allocated. <code>data</code> is retained by value without copying its referent, so
+any referenced storage must outlive the registration.</p>
+<p>Source: <code>lib/error.x:973</code></p>
+<p><a id="Error.raise"></a></p>
+<h4 id="errorraise"><a class="header" href="#errorraise">Error.raise</a></h4>
+<p><code>Symbol Error.raise(Symbol code, List detail)</code></p>
+<p>Raises one cause with optional structured detail.
+This functional entry records and dispatches like the <code>raise</code> statement
+but has no source-location record. A handled resumable error
+returns <code>&lt;handled&gt;</code>; a collected or policy-consumed resumable error
+returns <code>&lt;declined&gt;</code>. Shared non-returning causes may transfer to a
+matching filtered catch but never return from this call.
+Detail is recursively restricted to null/<code>nil</code>, numeric values, enums,
+<code>Symbol</code>s/<code>Atom</code>s, <code>String</code>s, and <code>List</code>s of those values. An invalid
+dynamic
+detail, unhandled abort-policy error, unavailable runtime, or reentrant
+failure reaches the non-reentrant error floor.</p>
+<p>Prefer the <code>raise</code> statement in source so generated location detail is
+retained.</p>
+<p>Source: <code>lib/error.x:1303</code></p>
+<p><a id="Error.ready"></a></p>
+<h4 id="errorready"><a class="header" href="#errorready">Error.ready</a></h4>
+<p><code>int Error.ready(void)</code></p>
+<p>Reports whether the rich <code>Error</code> runtime can currently accept raises.
+This is per-thread state and is false before initialization and after
+shutdown.</p>
+<p>Source: <code>lib/error.x:1315</code></p>
+<p><a id="Error.restore"></a></p>
+<h4 id="errorrestore"><a class="header" href="#errorrestore">Error.restore</a></h4>
+<p><code>void Error.restore(int handler_depth, int stack_height)</code></p>
+<p>Discards handler and record growth after one cleanup callback.
+Registrations and records created by that callback are reclaimed toward
+the saved heights before the interrupted unwind continues. State the
+callback itself removed is not reconstructed.</p>
+<p>Source: <code>lib/error.x:362</code></p>
+<p><a id="Error.restore_landing"></a></p>
+<h4 id="errorrestore_landing"><a class="header" href="#errorrestore_landing">Error.restore_landing</a></h4>
+<p><code>void Error.restore_landing(void *saved_head, int saved_depth)</code></p>
+<p>Restores <code>Error</code> state after an exception frame lands.
+<code>saved_head</code> is a prior handler watermark and <code>saved_depth</code> is the dispatch
+depth captured when the frame was pushed. The saved head is restored only
+when the current handler head is still a suffix of its chain; dispatch
+bookkeeping is cleared.</p>
+<p>Source: <code>lib/error.x:335</code></p>
+<p><a id="Error.shutdown_raw"></a></p>
+<h4 id="errorshutdown_raw"><a class="header" href="#errorshutdown_raw">Error.shutdown_raw</a></h4>
+<p><code>void Error.shutdown_raw(void)</code></p>
+<p>Releases the current thread’s <code>Error</code> storage without lifecycle insertion.
+The call reclaims all registrations, records, policies, and private storage
+and makes <code>Error.ready</code> false. Repeated calls do nothing; later raises
+reach the raw error floor.</p>
+<p>Source: <code>lib/error.x:396</code></p>
+<p><a id="Error.since"></a></p>
+<h4 id="errorsince"><a class="header" href="#errorsince">Error.since</a></h4>
+<p><code>List Error.since(int mark)</code></p>
+<p>Returns the accumulated errors at and after <code>mark</code>, oldest first.
+Each entry has <code>code</code>, <code>detail</code>, and <code>location</code> fields. An invalid mark or
+an unavailable <code>Error</code> runtime returns <code>nil</code>. The snapshot enters the
+caller’s
+outermost <code>Scope</code> and canonical pools and remains live until those owners
+are
+released. Failure to materialize it reaches the non-reentrant error floor.</p>
+<p>Source: <code>lib/error.x:807</code></p>
+<p><a id="Error.snapshot"></a></p>
+<h4 id="errorsnapshot"><a class="header" href="#errorsnapshot">Error.snapshot</a></h4>
+<p><code>Var Error.snapshot(Var value)</code></p>
+<p>Copies one admissible error value into the caller’s ordinary owners.
+Handler slices and filtered-catch bindings are borrowed. Snapshot a value
+that must outlive its callback or selected arm; <code>String</code>s and <code>List</code>s enter
+the caller’s outermost canonical pools and wide scalar boxes enter its
+outermost <code>Scope</code>, so nested caller brackets may be released safely.
+Invalid or identity-bearing values and failures while copying reach the raw
+error floor; they never re-enter handler dispatch.</p>
+<p>Source: <code>lib/error.x:734</code></p>
+<p><a id="Error.trim"></a></p>
+<h4 id="errortrim"><a class="header" href="#errortrim">Error.trim</a></h4>
+<p><code>void Error.trim(void *saved_head, int stack_height)</code></p>
+<p>Trims <code>Error</code> state while an exception frame leaves.
+Handlers newer than <code>saved_head</code> are reclaimed. Records at and above
+<code>stack_height</code> are also reclaimed; pass the current height on normal frame
+exit to preserve collected errors.</p>
+<p>Source: <code>lib/error.x:349</code></p>
+<p><a id="Error.unwind_head"></a></p>
+<h4 id="errorunwind_head"><a class="header" href="#errorunwind_head">Error.unwind_head</a></h4>
+<p><code>void *Error.unwind_head(void)</code></p>
+<p>Returns the handler head retained for the current <code>Error</code> transfer.
+During handler dispatch this is the head saved by the outermost dispatch,
+even though the running callbacks are temporarily hidden from nested
+raises. Exception frames store the opaque result as their landing
+watermark.</p>
+<p>Source: <code>lib/error.x:324</code></p>
+<h2 id="runtime-internal-callables"><a class="header" href="#runtime-internal-callables">Runtime-internal callables</a></h2>
+<p>These callables connect runtime translation units. They are documented
+for source readers but are not supported as user API.</p>
+<div class="table-wrapper">
+<table>
+<thead>
+<tr><th>Function</th><th>Summary</th></tr>
+</thead>
+<tbody>
+<tr><td><a href="#Error.context_close"><code>Error.context_close</code></a></td><td>Closes one <code>Context</code> <code>Error</code> overlay.</td></tr>
+<tr><td><a href="#Error.context_open"><code>Error.context_open</code></a></td><td>Opens the <code>Error</code> state owned by one <code>Context</code>.</td></tr>
+<tr><td><a href="#Error.since_in"><code>Error.since_in</code></a></td><td>Copies errors at and after <code>mark</code> into explicit owners, oldest first.</td></tr>
+<tr><td><a href="#Error.snapshot_in"><code>Error.snapshot_in</code></a></td><td>Copies one admissible error value into explicit runtime owners.</td></tr>
+</tbody>
+</table>
+</div>
+<h3 id="error-1"><a class="header" href="#error-1"><code>Error</code></a></h3>
+<p><a id="Error.context_close"></a></p>
+<h4 id="errorcontext_close"><a class="header" href="#errorcontext_close">Error.context_close</a></h4>
+<p><code>void Error.context_close(void *token, int preserve_records)</code></p>
+<p>Closes one <code>Context</code> <code>Error</code> overlay.
+An exception unwinding out of the <code>Context</code> keeps its records for the outer
+handler; an ordinary close discards records accumulated inside it. In both
+cases handlers pushed inside the <code>Context</code> are reclaimed. Tokens must close
+in nesting order; an out-of-order close reaches the raw error floor. A null
+token does nothing and a closed token is invalid.</p>
+<p>Source: <code>lib/error.x:1105</code></p>
+<p><a id="Error.context_open"></a></p>
+<h4 id="errorcontext_open"><a class="header" href="#errorcontext_open">Error.context_open</a></h4>
+<p><code>void *Error.context_open(void)</code></p>
+<p>Opens the <code>Error</code> state owned by one <code>Context</code>.
+Policy and bound changes become local overlays; handlers and accumulated
+records are restored by <code>Error.context_close</code>. The returned opaque token is
+allocated in the current <code>Scope</code>, which must remain live through the
+matching
+close. An unavailable <code>Error</code> runtime returns NULL.</p>
+<p><strong>Raises:</strong> <code>&lt;alloc-fail&gt;</code> when the overlay cannot be allocated.</p>
+<p>Source: <code>lib/error.x:1087</code></p>
+<p><a id="Error.since_in"></a></p>
+<h4 id="errorsince_in"><a class="header" href="#errorsince_in">Error.since_in</a></h4>
+<p><code>List Error.since_in(int mark, Scope *values, Pool pool)</code></p>
+<p>Copies errors at and after <code>mark</code> into explicit owners, oldest first.
+<code>String</code>s and <code>List</code>s are canonicalized through <code>pool</code>’s chain and remain
+live
+until their actual owning pool is released. Wide scalar boxes enter
+<code>*values</code>, whose possibly updated <code>Scope</code> head is written back, and remain
+live until that <code>Scope</code> is destroyed. An unavailable runtime or negative
+mark
+returns <code>nil</code>. <code>Null</code> owners or failures while copying reach the raw floor.</p>
+<p>Source: <code>lib/error.x:773</code></p>
+<p><a id="Error.snapshot_in"></a></p>
+<h4 id="errorsnapshot_in"><a class="header" href="#errorsnapshot_in">Error.snapshot_in</a></h4>
+<p><code>Var Error.snapshot_in(Var value, Scope *values, Pool pool)</code></p>
+<p>Copies one admissible error value into explicit runtime owners.
+<code>String</code>s and <code>List</code>s are canonicalized through <code>pool</code>’s chain and remain
+live
+until their actual owning pool is released. Wide scalar boxes enter
+<code>*values</code>, whose possibly updated <code>Scope</code> head is written back, and remain
+live until that <code>Scope</code> is destroyed. <code>Null</code> owners, invalid or
+identity-bearing values, and failures while copying reach the raw floor.</p>
+<p>Source: <code>lib/error.x:750</code></p>
+<h2 id="public-types"><a class="header" href="#public-types">Public types</a></h2>
+<div class="table-wrapper">
+<table>
+<thead>
+<tr><th>Type</th><th>Kind</th><th>Summary</th></tr>
+</thead>
+<tbody>
+<tr><td><a href="#Error"><code>Error</code></a></td><td>struct</td><td>Names the structured-error runtime and its static operations.</td></tr>
+<tr><td><a href="#ErrorCatchSite"><code>ErrorCatchSite</code></a></td><td>struct</td><td>Holds the process-lifetime plans of one compiler-generated filtered catch.</td></tr>
+<tr><td><a href="#ErrorHandler"><code>ErrorHandler</code></a></td><td>struct</td><td>Identifies one <code>Error</code>-owned handler registration.</td></tr>
+<tr><td><a href="#ErrorHandlerFn"><code>ErrorHandlerFn</code></a></td><td>callback</td><td>Handles a borrowed oldest-first <code>List</code> of errors raised since registration.</td></tr>
+</tbody>
+</table>
+</div>
+<p><a id="Error"></a></p>
+<h3 id="error-2"><a class="header" href="#error-2">Error</a></h3>
+<p><code>typedef struct Error *Error</code></p>
+<p>Names the structured-error runtime and its static operations.
+Programs do not construct <code>Error</code> values; automatic runtime initialization
+owns the per-thread handler, record, policy, and dispatch state.</p>
+<p>Source: <code>lib/error.x:28</code></p>
+<p><a id="ErrorCatchSite"></a></p>
+<h3 id="errorcatchsite"><a class="header" href="#errorcatchsite">ErrorCatchSite</a></h3>
+<p><code>typedef struct ErrorCatchSite { MatchCaptureSite *arms; int default_arm, arm_count, state, fenced_arm; } ErrorCatchSite</code></p>
+<p>Holds the process-lifetime plans of one compiler-generated filtered catch.
+<code>arms</code> is a zero-initialized static array of <code>arm_count</code> <code>Match</code> sites and
+<code>default_arm</code> is the first unpatterned arm, or -1. <code>state</code> and <code>fenced_arm</code>
+belong to <code>Error</code>; a site must be static storage that the first
+registration binds to its patterns.</p>
+<p>Source: <code>lib/error.x:53</code></p>
+<p><a id="ErrorHandler"></a></p>
+<h3 id="errorhandler"><a class="header" href="#errorhandler">ErrorHandler</a></h3>
+<p><code>typedef struct ErrorHandler *ErrorHandler</code></p>
+<p>Identifies one <code>Error</code>-owned handler registration.
+An observing handle remains valid until <code>Error.pop</code>; a transferring-catch
+handle remains valid until <code>x2c_error_catch_close</code>. Enclosing frame or
+<code>Context</code> cleanup and <code>Error</code> shutdown may reclaim a registration first.</p>
+<p>Source: <code>lib/error.x:35</code></p>
+<p><a id="ErrorHandlerFn"></a></p>
+<h3 id="errorhandlerfn"><a class="header" href="#errorhandlerfn">ErrorHandlerFn</a></h3>
+<p><code>typedef Symbol (*ErrorHandlerFn)(List errors, Var data)</code></p>
+<p>Handles a borrowed oldest-first <code>List</code> of errors raised since registration.
+<code>Error</code> invokes callbacks synchronously from innermost registration
+outward.
+Return <code>&lt;handled&gt;</code>, <code>&lt;declined&gt;</code>, or <code>&lt;fatal&gt;</code>; <code>&lt;unwind&gt;</code> is reserved for
+compiler-generated catches. Any other result behaves as <code>&lt;declined&gt;</code> and
+continues outward or to policy. The <code>List</code> and its contents expire on
+return.</p>
+<p>Source: <code>lib/error.x:45</code></p>
+<h2 id="design-notes"><a class="header" href="#design-notes">Design notes</a></h2>
+<p>Raising an error records it and calls registered handlers, innermost first.
+Each handler sees the errors raised since it was registered and decides
+how to respond. The caller sets the policy for errors no handler accepts.</p>
+<p>Each accumulated record owns an independent <code>Scope</code> and
+canonical <code>List</code> and
+<code>String</code> pools. A handler watermark bounds those regions, so closing the
+handler reclaims its complete slice without touching application pools.
+Raising while the error path is itself failing uses the error floor,
+which allocates nothing.</p>
+
+                    </main>
+
+                    <nav class="x2c-pager" aria-label="Page navigation">
+                        <a rel="prev" href="../../library/modules/dispatch.html" class="x2c-pager-prev" aria-keyshortcuts="Left">
+                            <span class="x2c-pager-label">previous</span>
+                            <span class="x2c-pager-title">lib/dispatch.x</span>
+                        </a>
+                        
+                        <a rel="next prefetch" href="../../library/modules/exception.html" class="x2c-pager-next" aria-keyshortcuts="Right">
+                            <span class="x2c-pager-label">next</span>
+                            <span class="x2c-pager-title">lib/exception.x</span>
+                        </a>
+                    </nav>
+                    <footer class="x2c-footer">
+                        &copy; 2025&ndash;2026
+                        <a href="https://flake.org">GWF</a>
+                        &middot;
+                        <a href="https://github.com/gwf/x2c/blob/c2a89d999e81f47a4422a26edf0033eb0b98c6c6/LICENSE">Apache 2.0</a>
+                        &middot;
+                        <a href="https://github.com/gwf/x2c/blob/c2a89d999e81f47a4422a26edf0033eb0b98c6c6/TRADEMARKS.md">Trademarks</a>
+                    </footer>
+                </div>
+            </div>
+
+
+        </div>
+
+        <template id=fa-eye><span class=fa-svg><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 576 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc. --><path d="M288 32c-80.8 0-145.5 36.8-192.6 80.6C48.6 156 17.3 208 2.5 243.7c-3.3 7.9-3.3 16.7 0 24.6C17.3 304 48.6 356 95.4 399.4C142.5 443.2 207.2 480 288 480s145.5-36.8 192.6-80.6c46.8-43.5 78.1-95.4 93-131.1c3.3-7.9 3.3-16.7 0-24.6c-14.9-35.7-46.2-87.7-93-131.1C433.5 68.8 368.8 32 288 32zM432 256c0 79.5-64.5 144-144 144s-144-64.5-144-144s64.5-144 144-144s144 64.5 144 144zM288 192c0 35.3-28.7 64-64 64c-11.5 0-22.3-3-31.6-8.4c-.2 2.8-.4 5.5-.4 8.4c0 53 43 96 96 96s96-43 96-96s-43-96-96-96c-2.8 0-5.6 .1-8.4 .4c5.3 9.3 8.4 20.1 8.4 31.6z"/></svg></span></template>
+        <template id=fa-eye-slash><span class=fa-svg><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 640 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc. --><path d="M38.8 5.1C28.4-3.1 13.3-1.2 5.1 9.2S-1.2 34.7 9.2 42.9l592 464c10.4 8.2 25.5 6.3 33.7-4.1s6.3-25.5-4.1-33.7L525.6 386.7c39.6-40.6 66.4-86.1 79.9-118.4c3.3-7.9 3.3-16.7 0-24.6c-14.9-35.7-46.2-87.7-93-131.1C465.5 68.8 400.8 32 320 32c-68.2 0-125 26.3-169.3 60.8L38.8 5.1zM223.1 149.5C248.6 126.2 282.7 112 320 112c79.5 0 144 64.5 144 144c0 24.9-6.3 48.3-17.4 68.7L408 294.5c5.2-11.8 8-24.8 8-38.5c0-53-43-96-96-96c-2.8 0-5.6 .1-8.4 .4c5.3 9.3 8.4 20.1 8.4 31.6c0 10.2-2.4 19.8-6.6 28.3l-90.3-70.8zm223.1 298L373 389.9c-16.4 6.5-34.3 10.1-53 10.1c-79.5 0-144-64.5-144-144c0-6.9 .5-13.6 1.4-20.2L83.1 161.5C60.3 191.2 44 220.8 34.5 243.7c-3.3 7.9-3.3 16.7 0 24.6c14.9 35.7 46.2 87.7 93 131.1C174.5 443.2 239.2 480 320 480c47.8 0 89.9-12.9 126.2-32.5z"/></svg></span></template>
+        <template id=fa-copy><span class=fa-svg><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc. --><path d="M502.6 70.63l-61.25-61.25C435.4 3.371 427.2 0 418.7 0H255.1c-35.35 0-64 28.66-64 64l.0195 256C192 355.4 220.7 384 256 384h192c35.2 0 64-28.8 64-64V93.25C512 84.77 508.6 76.63 502.6 70.63zM464 320c0 8.836-7.164 16-16 16H255.1c-8.838 0-16-7.164-16-16L239.1 64.13c0-8.836 7.164-16 16-16h128L384 96c0 17.67 14.33 32 32 32h47.1V320zM272 448c0 8.836-7.164 16-16 16H63.1c-8.838 0-16-7.164-16-16L47.98 192.1c0-8.836 7.164-16 16-16H160V128H63.99c-35.35 0-64 28.65-64 64l.0098 256C.002 483.3 28.66 512 64 512h192c35.2 0 64-28.8 64-64v-32h-47.1L272 448z"/></svg></span></template>
+        <template id=fa-play><span class=fa-svg><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 384 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc. --><path d="M73 39c-14.8-9.1-33.4-9.4-48.5-.9S0 62.6 0 80V432c0 17.4 9.4 33.4 24.5 41.9s33.7 8.1 48.5-.9L361 297c14.3-8.7 23-24.2 23-41s-8.7-32.2-23-41L73 39z"/></svg></span></template>
+        <template id=fa-clock-rotate-left><span class=fa-svg><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc. --><path d="M75 75L41 41C25.9 25.9 0 36.6 0 57.9V168c0 13.3 10.7 24 24 24H134.1c21.4 0 32.1-25.9 17-41l-30.8-30.8C155 85.5 203 64 256 64c106 0 192 86 192 192s-86 192-192 192c-40.8 0-78.6-12.7-109.7-34.4c-14.5-10.1-34.4-6.6-44.6 7.9s-6.6 34.4 7.9 44.6C151.2 495 201.7 512 256 512c141.4 0 256-114.6 256-256S397.4 0 256 0C185.3 0 121.3 28.7 75 75zm181 53c-13.3 0-24 10.7-24 24V256c0 6.4 2.5 12.5 7 17l72 72c9.4 9.4 24.6 9.4 33.9 0s9.4-24.6 0-33.9l-65-65V152c0-13.3-10.7-24-24-24z"/></svg></span></template>
+
+
+
+        <script>
+            window.playground_copyable = true;
+        </script>
+
+
+        <script src="../../elasticlunr-ef4e11c1.min.js"></script>
+        <script src="../../mark-09e88c2c.min.js"></script>
+        <script src="../../searcher-09f2665d.js"></script>
+
+        <script src="../../clipboard-1626706a.min.js"></script>
+        <script src="../../highlight-abc7f01d.js"></script>
+        <script src="../../book-609e4cb8.js"></script>
+
+        <script>
+            document.addEventListener('DOMContentLoaded', () => {
+                const sidebar = document.querySelector('#mdbook-sidebar');
+                sidebar.querySelectorAll('ol').forEach(list => {
+                    const numbers = list.querySelectorAll(
+                        ':scope > li > .chapter-link-wrapper > a > strong, :scope > li > a > strong');
+                    if (numbers.length) {
+                        const width = Math.max(...Array.from(numbers,
+                            number => number.textContent.trim().length));
+                        list.style.setProperty('--chapter-number-width', width + 'ch');
+                    }
+                });
+                const chapter = sidebar.querySelector('a.active');
+                const item = chapter?.closest('.chapter-item');
+                if (item?.querySelector(':scope > .on-this-page')) {
+                    const row = chapter.parentElement;
+                    if (!row.querySelector('.chapter-fold-toggle')) {
+                        const toggle = document.createElement('button');
+                        toggle.type = 'button';
+                        toggle.className = 'chapter-fold-toggle';
+                        toggle.appendChild(document.createElement('div'));
+                        toggle.addEventListener('click', () => {
+                            item.classList.toggle('expanded');
+                        });
+                        row.appendChild(toggle);
+                    }
+                }
+                sidebar.querySelectorAll('.chapter-fold-toggle').forEach(toggle => {
+                    const row = toggle.parentElement;
+                    const item = row.parentElement;
+                    const title = row.querySelector('a').textContent.trim();
+                    toggle.setAttribute('aria-label', 'Toggle ' + title);
+                    const update = () => toggle.setAttribute('aria-expanded',
+                        String(item.classList.contains('expanded')));
+                    update();
+                    toggle.addEventListener('click', update);
+                    if (toggle.tagName === 'A') {
+                        toggle.setAttribute('role', 'button');
+                        toggle.tabIndex = 0;
+                        toggle.addEventListener('keydown', event => {
+                            if (event.key === 'Enter' || event.key === ' ') {
+                                event.preventDefault();
+                                toggle.click();
+                            }
+                        });
+                    }
+                });
+            });
+        </script>
+
+        <!-- Custom JS scripts -->
+
+
+
+    </div>
+    </body>
+</html>

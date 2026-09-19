@@ -1,0 +1,882 @@
+<!DOCTYPE HTML>
+<html lang="en" class="light sidebar-visible" dir="ltr">
+    <head>
+        <!-- Book generated using mdBook -->
+        <meta charset="UTF-8">
+        <title>Compiler Options - The x2c Book</title>
+
+
+        <!-- Custom HTML head -->
+        <link rel="preconnect" href="https://fonts.googleapis.com">
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=Archivo:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">
+
+        <meta name="description" content="The x2c language, standard library, and compiler.">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <meta name="theme-color" content="#ffffff">
+
+        <link rel="icon" href="../favicon-995a3c20.svg">
+        <link rel="stylesheet" href="../css/variables-8adf115d.css">
+        <link rel="stylesheet" href="../css/general-e96d0476.css">
+        <link rel="stylesheet" href="../css/chrome-d279d366.css">
+        <link rel="stylesheet" href="../css/print-9e4910d8.css" media="print">
+
+        <!-- Fonts -->
+        <link rel="stylesheet" href="../fonts/fonts-9644e21d.css">
+
+        <!-- Highlight.js Stylesheets -->
+        <link rel="stylesheet" id="mdbook-highlight-css" href="../highlight-493f70e1.css">
+        <link rel="stylesheet" id="mdbook-tomorrow-night-css" href="../tomorrow-night-4c0ae647.css">
+        <link rel="stylesheet" id="mdbook-ayu-highlight-css" href="../ayu-highlight-3fdfc3ac.css">
+
+        <!-- Custom theme stylesheets -->
+        <link rel="stylesheet" href="../theme/header-2c1becca.css">
+        <link rel="stylesheet" href="../theme/x2c-fd3d182e.css">
+
+
+        <!-- Provide site root and default themes to javascript -->
+        <script>
+            const path_to_root = "../";
+            const default_light_theme = "light";
+            const default_dark_theme = "light";
+            window.path_to_searchindex_js = "../searchindex-2643e100.js";
+        </script>
+        <!-- Start loading toc.js asap -->
+        <script src="../toc-a71616d6.js"></script>
+        <!-- x2c publication metadata -->
+        <link rel="canonical" href="https://staging.x2c-lang.dev/docs/reference/cli.html">
+        <meta property="og:type" content="website">
+        <meta property="og:title" content="Compiler Options - The x2c Book">
+        <meta property="og:description" content="The x2c language, standard library, and compiler.">
+        <meta property="og:url" content="https://staging.x2c-lang.dev/docs/reference/cli.html">
+        <meta property="og:image" content="https://staging.x2c-lang.dev/x2c-social.png">
+        <meta property="og:image:width" content="1200">
+        <meta property="og:image:height" content="630">
+        <meta name="twitter:card" content="summary_large_image">
+        <meta name="twitter:title" content="Compiler Options - The x2c Book">
+        <meta name="twitter:description" content="The x2c language, standard library, and compiler.">
+        <meta name="twitter:image" content="https://staging.x2c-lang.dev/x2c-social.png">
+    </head>
+    <body><aside aria-label="Release candidate" style="padding:1rem;background:#fff1bf;color:#241c00;font:14px/1.5 monospace;overflow-wrap:anywhere"><strong>Public staging: candidate-c2a89d999e81f47a4422a26edf0033eb0b98c6c6-35470032964-1</strong><p>Source: c2a89d999e81f47a4422a26edf0033eb0b98c6c6. Use a fresh scratch installation and the explicit candidate index below. Bare x2c install commands and production URLs in the book refer to production.</p><pre style="overflow:auto">export X2C_PREFIX=&quot;$(mktemp -d)/x2c&quot;
+curl -fsSL https://staging.x2c-lang.dev/install.sh | sh
+export PATH=&quot;$X2C_PREFIX/bin:$PATH&quot;
+x2c run &quot;$X2C_PREFIX/examples/foreach.x&quot;
+x2c install pcre2 --index https://staging.x2c-lang.dev/packages/index.txt</pre></aside>
+    <div id="mdbook-help-container">
+        <div id="mdbook-help-popup">
+            <h2 class="mdbook-help-title">Keyboard shortcuts</h2>
+            <div>
+                <p>Press <kbd>←</kbd> or <kbd>→</kbd> to navigate between chapters</p>
+                <p>Press <kbd>S</kbd> or <kbd>/</kbd> to search in the book</p>
+                <p>Press <kbd>?</kbd> to show this help</p>
+                <p>Press <kbd>Esc</kbd> to hide this help</p>
+            </div>
+        </div>
+    </div>
+    <div id="mdbook-body-container">
+        <!-- Work around some values being stored in localStorage wrapped in quotes -->
+        <script>
+            try {
+                let theme = localStorage.getItem('mdbook-theme');
+                let sidebar = localStorage.getItem('mdbook-sidebar');
+
+                if (theme.startsWith('"') && theme.endsWith('"')) {
+                    localStorage.setItem('mdbook-theme', theme.slice(1, theme.length - 1));
+                }
+
+                if (sidebar.startsWith('"') && sidebar.endsWith('"')) {
+                    localStorage.setItem('mdbook-sidebar', sidebar.slice(1, sidebar.length - 1));
+                }
+            } catch (e) { }
+        </script>
+
+        <!-- Set the theme before any content is loaded, prevents flash -->
+        <script>
+            const default_theme = window.matchMedia("(prefers-color-scheme: dark)").matches ? default_dark_theme : default_light_theme;
+            let theme;
+            try { theme = localStorage.getItem('mdbook-theme'); } catch(e) { }
+            if (theme === null || theme === undefined) { theme = default_theme; }
+            const html = document.documentElement;
+            html.classList.remove('light')
+            html.classList.add(theme);
+            html.classList.add("js");
+        </script>
+
+        <input type="checkbox" id="mdbook-sidebar-toggle-anchor" class="hidden">
+
+        <!-- Hide / unhide sidebar before it is displayed -->
+        <script>
+            let sidebar = null;
+            const sidebar_toggle = document.getElementById("mdbook-sidebar-toggle-anchor");
+            if (document.body.clientWidth >= 1080) {
+                try { sidebar = localStorage.getItem('mdbook-sidebar'); } catch(e) { }
+                sidebar = sidebar || 'visible';
+            } else {
+                sidebar = 'hidden';
+                sidebar_toggle.checked = false;
+            }
+            if (sidebar === 'visible') {
+                sidebar_toggle.checked = true;
+            } else {
+                html.classList.remove('sidebar-visible');
+            }
+        </script>
+
+        <nav id="mdbook-sidebar" class="sidebar" aria-label="Table of contents">
+            <!-- populated by js -->
+            <mdbook-sidebar-scrollbox class="sidebar-scrollbox"></mdbook-sidebar-scrollbox>
+            <noscript>
+                <iframe class="sidebar-iframe-outer" src="../toc.html"></iframe>
+            </noscript>
+            <div id="mdbook-sidebar-resize-handle" class="sidebar-resize-handle">
+                <div class="sidebar-resize-indicator"></div>
+            </div>
+        </nav>
+
+        <div id="mdbook-page-wrapper" class="page-wrapper">
+
+            <div class="page">
+                <div id="mdbook-menu-bar" class="hidden"></div>
+                <header class="landing-header x2c-header">
+                    <div class="landing-header-inner">
+                        <div class="landing-branding">
+                            <a class="landing-brand" href="../../" aria-label="x2c home">
+                                <svg viewBox="0 0 100 100" width="22" height="22" aria-hidden="true"><g fill="none" stroke="#da291c" stroke-width="17" stroke-linecap="butt"><path d="M9 16 A34.5 34.5 0 0 1 9 84"></path><path d="M91 16 A34.5 34.5 0 0 0 91 84"></path></g></svg>
+                                <span class="x2c-wordmark landing-wordmark">x2c</span>
+                            </a>
+                            <span class="landing-tagline">The x2c Book</span>
+                        </div>
+                        <nav class="landing-nav" aria-label="x2c website">
+                            <div class="landing-page-nav">
+                                <a href="../../#love">love</a>
+                                <a href="../../#power">power</a>
+                                <a href="../../#magic">magic</a>
+                            </div>
+                            <div class="landing-site-nav">
+                                <a href="../../#install">install</a>
+                                <a href="../../#packages">packages</a>
+                            </div>
+                            <div class="landing-reference-nav">
+                                <a href="../../about/">about</a>
+                                <a href="../" aria-current="page">docs</a>
+                                <a href="https://github.com/gwf/x2c">source</a>
+                            </div>
+                        </nav>
+                    </div>
+                    <div class="x2c-book-tools">
+                        <div class="x2c-header-tools">
+                            <label id="mdbook-sidebar-toggle" class="icon-button" for="mdbook-sidebar-toggle-anchor" title="Toggle Table of Contents" aria-label="Toggle Table of Contents" aria-controls="mdbook-sidebar">
+                                <span class=fa-svg><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc. --><path d="M0 96C0 78.3 14.3 64 32 64H416c17.7 0 32 14.3 32 32s-14.3 32-32 32H32C14.3 128 0 113.7 0 96zM0 256c0-17.7 14.3-32 32-32H416c17.7 0 32 14.3 32 32s-14.3 32-32 32H32c-17.7 0-32-14.3-32-32zM448 416c0 17.7-14.3 32-32 32H32c-17.7 0-32-14.3-32-32s14.3-32 32-32H416c17.7 0 32 14.3 32 32z"/></svg></span>
+                            </label>
+                        </div>
+                        <div class="x2c-header-tools x2c-header-tools-right">
+                            <button id="mdbook-search-toggle" class="icon-button" type="button" title="Search (`/`)" aria-label="Toggle Searchbar" aria-expanded="false" aria-keyshortcuts="/ s" aria-controls="mdbook-searchbar">
+                                <span class=fa-svg><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc. --><path d="M416 208c0 45.9-14.9 88.3-40 122.7L502.6 457.4c12.5 12.5 12.5 32.8 0 45.3s-32.8 12.5-45.3 0L330.7 376c-34.4 25.2-76.8 40-122.7 40C93.1 416 0 322.9 0 208S93.1 0 208 0S416 93.1 416 208zM208 352c79.5 0 144-64.5 144-144s-64.5-144-144-144S64 128.5 64 208s64.5 144 144 144z"/></svg></span>
+                            </button>
+                            <button id="mdbook-theme-toggle" class="icon-button" type="button" title="Change theme" aria-label="Change theme" aria-haspopup="true" aria-expanded="false" aria-controls="mdbook-theme-list">
+                                <span class=fa-svg><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc. --><path d="M448 256c0-106-86-192-192-192V448c106 0 192-86 192-192zm64 0c0 141.4-114.6 256-256 256S0 397.4 0 256S114.6 0 256 0S512 114.6 512 256z"/></svg></span>
+                            </button>
+                            <ul id="mdbook-theme-list" class="theme-popup" aria-label="Themes" role="menu">
+                                <li role="none"><button role="menuitem" class="theme" id="mdbook-theme-default_theme">Auto</button></li>
+                                <li role="none"><button role="menuitem" class="theme" id="mdbook-theme-light">Light</button></li>
+                                <li role="none"><button role="menuitem" class="theme" id="mdbook-theme-ayu">Dark</button></li>
+                            </ul>
+                            <a href="https://github.com/gwf/x2c/edit/main/docs/src/reference/cli.md" title="Suggest an edit" aria-label="Suggest an edit" rel="edit" class="icon-button">
+                                <span class=fa-svg id="git-edit-button"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc. --><path d="M421.7 220.3l-11.3 11.3-22.6 22.6-205 205c-6.6 6.6-14.8 11.5-23.8 14.1L30.8 511c-8.4 2.5-17.5 .2-23.7-6.1S-1.5 489.7 1 481.2L38.7 353.1c2.6-9 7.5-17.2 14.1-23.8l205-205 22.6-22.6 11.3-11.3 33.9 33.9 62.1 62.1 33.9 33.9zM96 353.9l-9.3 9.3c-.9 .9-1.6 2.1-2 3.4l-25.3 86 86-25.3c1.3-.4 2.5-1.1 3.4-2l9.3-9.3H112c-8.8 0-16-7.2-16-16V353.9zM453.3 19.3l39.4 39.4c25 25 25 65.5 0 90.5l-14.5 14.5-22.6 22.6-11.3 11.3-33.9-33.9-62.1-62.1L314.3 67.7l11.3-11.3 22.6-22.6 14.5-14.5c25-25 65.5-25 90.5 0z"/></svg></span>
+                            </a>
+                        </div>
+                    </div>
+                </header>
+                <script>
+                    const bookHeader = document.querySelector('.x2c-header');
+                    new ResizeObserver(() => {
+                        document.documentElement.style.setProperty(
+                            '--menu-bar-height', `${bookHeader.getBoundingClientRect().height}px`);
+                    }).observe(bookHeader);
+                </script>
+
+                <div id="mdbook-search-wrapper" class="hidden">
+                    <form id="mdbook-searchbar-outer" class="searchbar-outer">
+                        <div class="search-wrapper">
+                            <input type="search" id="mdbook-searchbar" name="searchbar" placeholder="Search this book ..." aria-controls="mdbook-searchresults-outer" aria-describedby="searchresults-header">
+                            <div class="spinner-wrapper">
+                                <span class=fa-svg id="fa-spin"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc. --><path d="M304 48c0-26.5-21.5-48-48-48s-48 21.5-48 48s21.5 48 48 48s48-21.5 48-48zm0 416c0-26.5-21.5-48-48-48s-48 21.5-48 48s21.5 48 48 48s48-21.5 48-48zM48 304c26.5 0 48-21.5 48-48s-21.5-48-48-48s-48 21.5-48 48s21.5 48 48 48zm464-48c0-26.5-21.5-48-48-48s-48 21.5-48 48s21.5 48 48 48s48-21.5 48-48zM142.9 437c18.7-18.7 18.7-49.1 0-67.9s-49.1-18.7-67.9 0s-18.7 49.1 0 67.9s49.1 18.7 67.9 0zm0-294.2c18.7-18.7 18.7-49.1 0-67.9S93.7 56.2 75 75s-18.7 49.1 0 67.9s49.1 18.7 67.9 0zM369.1 437c18.7 18.7 49.1 18.7 67.9 0s18.7-49.1 0-67.9s-49.1-18.7-67.9 0s-18.7 49.1 0 67.9z"/></svg></span>
+                            </div>
+                        </div>
+                    </form>
+                    <div id="mdbook-searchresults-outer" class="searchresults-outer hidden">
+                        <div id="mdbook-searchresults-header" class="searchresults-header"></div>
+                        <ul id="mdbook-searchresults">
+                        </ul>
+                    </div>
+                </div>
+
+                <!-- Apply ARIA attributes after the sidebar and the sidebar toggle button are added to the DOM -->
+                <script>
+                    document.getElementById('mdbook-sidebar-toggle').setAttribute('aria-expanded', sidebar === 'visible');
+                    document.getElementById('mdbook-sidebar').setAttribute('aria-hidden', sidebar !== 'visible');
+                    Array.from(document.querySelectorAll('#mdbook-sidebar a')).forEach(function(link) {
+                        link.setAttribute('tabIndex', sidebar === 'visible' ? 0 : -1);
+                    });
+                </script>
+
+                <div id="mdbook-content" class="content">
+                    <main>
+                        <h1 id="command-line-interface"><a class="header" href="#command-line-interface">Command-line interface</a></h1>
+<p>After building the repository, <code>./x2c</code> links to the development compiler;
+<code>./bin/x2c</code> is the bootstrap compiler until <code>make build-install</code> links it to
+a copy of the development compiler. Every invocation begins with a command:
+<code>translate</code>, <code>build</code>, <code>run</code>, <code>new</code>, <code>script</code>, <code>bootstrap</code>, <code>env</code>, <code>install</code>,
+<code>remove</code>, <code>list</code>, or <code>help</code>.</p>
+<p>The generated help is the short option reference:</p>
+<pre><code class="language-sh">./x2c --help
+./x2c help translate
+./x2c build --help
+./x2c run --help
+./x2c script --help
+./x2c bootstrap --help
+</code></pre>
+<h2 id="translate-to-c"><a class="header" href="#translate-to-c">Translate to C</a></h2>
+<p><code>translate</code> writes one matching <code>.c</code>, <code>.h</code>, <code>.xi</code>, and default <code>.d</code> file for
+each explicit <code>.x</code> input. The <code>.xi</code> file is the unit’s
+<a href="../internals/architecture.html">interface</a>, which later translations read in
+place of its source when it is current:</p>
+<pre><code class="language-sh">mkdir -p /tmp/x2c-generated
+./x2c translate --out-dir /tmp/x2c-generated \
+  src/main.x src/parse.x
+</code></pre>
+<p>Without <code>--out-dir</code>, output goes to the current directory. An explicitly
+selected directory must already exist. <span class="x2c-wordmark">x2c</span> validates all inputs, output
+stems, and output paths before translating the first unit. Inputs must be
+regular <code>.x</code> files; two inputs with the same basename would collide in the
+flat output directory and are rejected.</p>
+<p><code>--out-dir</code> is only the generated-C directory. Native artifacts use
+<code>build --output</code> or <code>run --output</code>.</p>
+<p><code>-j</code>, or <code>--jobs</code>, translates several units at once, in worker processes that
+inherit the collected declarations the parent already read:</p>
+<pre><code class="language-sh">./x2c translate -j 8 --out-dir /tmp/x2c-generated src/*.x
+</code></pre>
+<p>Each unit is translated by exactly one worker and writes only its own files,
+so the generated <code>.c</code> and <code>.h</code> are byte-identical to a serial run. A <code>.d</code> file
+may list more prerequisites than the serial run produces, and never fewer. A
+worker that parses a header records what that parse reads, where a serial run
+replays the header from its process cache. The default is one job. The
+inspection and dump modes stay serial; they write one ordered stream to
+standard output.</p>
+<p>The depfile options control that <code>.d</code> output. They belong to <code>translate</code>:</p>
+<pre><code class="language-text">--no-deps               Do not write x2c dependency files
+--dep-file &lt;file&gt;       Override the depfile path (one input only)
+--dep-target &lt;target&gt;   Override the depfile target (one input only)
+--no-phony-deps         Omit phony rules for included files
+</code></pre>
+<p>Symbol collection options apply to <code>translate</code>, <code>build</code>, and <code>run</code>:</p>
+<pre><code class="language-text">--no-cpp                Skip symbol collection and preprocessing
+--live-symbols          Collect symbols through the host preprocessor
+--cpp-symbols           Use CPP collection for this translation
+</code></pre>
+<p><code>--source-map</code> adds source locations to generated C for <code>translate</code>, <code>build</code>,
+and <code>run</code>. It is off by default. Combine it with native debug information to
+set breakpoints, step through statements, and read backtraces in the original
+<code>.x</code> files:</p>
+<pre><code class="language-sh">./x2c build --source-map -g -O0 --save-temps --output /tmp/example example.x
+lldb /tmp/example
+</code></pre>
+<p>With source mapping enabled, C <code>__FILE__</code> and <code>__LINE__</code> refer to the original
+<span class="x2c-wordmark">x2c</span> source. Macro expansions use their invocation locations; generated cleanup
+uses its owning source construct. Compiler scaffolding without a source origin
+retains a generated-file location. <code>-g</code> alone keeps generated-C locations, and
+<code>--source-map</code> alone does not add native debug information. Changing the option
+invalidates reused translation output. Optimized builds may combine or remove
+statements, so source mapping does not guarantee exact stepping or recovery of
+optimized-away values.</p>
+<p>On macOS, mapped executable builds with effective native debug information
+also produce <code>&lt;output&gt;.dSYM</code> before removing temporary objects. Move that
+companion directory with the executable to retain native debug information.
+Symbol assembly adds time only to these requested debug links. Its failure
+fails the build and retains intermediates for diagnosis. A later <code>-Xcc -g0</code>
+overrides an earlier <code>-g</code>, including one selected by a project profile.
+Linux keeps its existing debug output; <code>--build-dir</code> and <code>--save-temps</code> remain
+available for retaining intermediate files on either platform.</p>
+<p>Inspection modes print an intermediate result and stop translation:</p>
+<pre><code class="language-sh">./x2c translate --dump-tokens source.x
+</code></pre>
+<ul>
+<li><code>--dump-tokens</code> prints source tokens and stops.</li>
+<li><code>--dump-ast</code> prints the parsed AST and stops.</li>
+<li><code>--dump-transforms</code> prints the transformed AST and stops.</li>
+<li><code>--dump-code</code> prints unformatted generated code and stops.</li>
+<li><code>--dump-symbols</code> prints the source symbol table and stops.</li>
+<li><code>--dump-cpp</code> prints host-preprocessed text and stops.</li>
+<li><code>--dump-cpp-text</code> is an alias for <code>--dump-cpp</code>.</li>
+<li><code>--dump-cpp-tokens</code> prints host-preprocessed tokens and stops.</li>
+<li><code>--dump-cpp-symbols</code> prints the CPP symbol table and stops.</li>
+<li><code>--dump-cache</code> prints the compiler cache and stops.</li>
+<li><code>--dump-conformance</code> prints protocol conformance and stops.</li>
+</ul>
+<p>An inspection that does not write generated files does not need <code>--out-dir</code>.
+Only one inspection mode runs; the last option given wins.</p>
+<h2 id="build-native-artifacts"><a class="header" href="#build-native-artifacts">Build native artifacts</a></h2>
+<p><code>build</code> accepts explicit <code>.x</code>, <code>.c</code>, <code>.o</code>, and <code>.a</code> operands. It translates
+<span class="x2c-wordmark">x2c</span> source, compiles generated and native C, then links an executable. One
+input may include another through a directory, as in
+<code>#include "lib/inner.x"</code>, when both are operands:</p>
+<pre><code class="language-sh">./x2c build --output /tmp/foreach examples/foreach.x
+/tmp/foreach
+</code></pre>
+<p><code>build</code> and <code>run</code> default to the host’s online processor count for translation
+and native compilation. Detection failure falls back to one job. Under Make
+(<code>MAKELEVEL</code> greater than zero), the automatic default is one job so the
+outer build owns concurrency. An explicit <code>-j N</code> or <code>--jobs N</code> overrides either
+default; <code>translate</code> retains its one-job default. The online count does not
+account for Linux CPU affinity, container quotas, or memory limits; use <code>-j</code>
+to choose a smaller limit in those environments.</p>
+<p>Parallel builds translate each stale unit in its own worker and generated
+directory. Units with the same basename remain separate, and each unit records
+its own prerequisites for subsequent build reuse. Parallel translation preserves
+native header search and link order.</p>
+<p>The driver selects the runtime that matches the compiler and supplies that
+runtime’s platform libraries. It also derives one object and dependency path
+per C source. <code>--kind static-library</code> uses the selected archiver:</p>
+<pre><code class="language-sh">./x2c build --kind static-library \
+  --output /tmp/libwidget.a src/widget.x src/helper.c
+</code></pre>
+<p><code>-c</code>, or <code>--compile-only</code>, stops after compilation. One input may name its
+object with <code>--output</code>. Multiple compile-only inputs require <code>--build-dir</code>, so
+every object has an unambiguous path.</p>
+<p>Without <code>--build-dir</code>, a direct build uses a private temporary directory and
+removes intermediates after success. <code>--save-temps</code> retains intermediates;
+<code>--save-temps=&lt;dir&gt;</code> places them in a chosen directory. With a named build
+directory, later builds can reuse unchanged results.</p>
+<p><code>--compile-commands &lt;file&gt;</code> writes a native compilation database for C tools.
+It records the actual compiler argument arrays, working directory, source,
+and object output for every compilation, including reused objects. Manifest
+builds include the selected target and its dependency targets. The entries
+refer to generated C for <span class="x2c-wordmark">x2c</span> inputs, so the option also retains intermediates.</p>
+<pre><code class="language-sh">./x2c build --build-dir .x2c-build \
+  --compile-commands .x2c-build/compile_commands.json examples/foreach.x
+</code></pre>
+<p>The destination’s parent directory must exist when the build finishes. A
+successful build replaces the database atomically; a failed build preserves
+the previous file. <code>run</code> writes it before starting the program, and <code>-###</code>
+writes no database. This file describes native C compilation, not <span class="x2c-wordmark">x2c</span> syntax
+for an editor’s C parser.</p>
+<h3 id="vs-code-diagnostics-definitions-and-hover"><a class="header" href="#vs-code-diagnostics-definitions-and-hover">VS Code diagnostics, definitions, and hover</a></h3>
+<p>Install the VSIX built from <code>etc/vsc-extension</code> with <strong>Extensions: Install
+from VSIX</strong>. The extension uses the installed compiler directly; no separate
+worker build is required. Set an absolute compiler path when it is not on
+<code>PATH</code>:</p>
+<pre><code class="language-json">"x2c.semantic.compilerPath": "/path/to/x2c/bin/x2c"
+</code></pre>
+<p>Selection order is an explicit <code>x2c.semantic.compilerPath</code>, an explicit legacy
+<code>x2c.semantic.workerPath</code>, executable <code>./x2c</code> in the trusted workspace, then
+<code>x2c</code> on <code>PATH</code>. An explicit selection never silently switches to another
+compiler. A missing executable produces one setup message in the <strong><span class="x2c-wordmark">x2c</span></strong>
+Output channel, and discovery retries when you use the editor again. The
+extension does not build or install the compiler automatically.</p>
+<p>The default configuration discovers <code>x2c.toml</code> and its default target, or
+analyzes the current file directly when there is no project. Select a target
+or profile with ordinary compiler arguments:</p>
+<pre><code class="language-json">"x2c.semantic.arguments": ["build", "--target", "app", "--profile", "debug"]
+</code></pre>
+<p>The selected target must include the open source as an input. For a header or
+macro file outside that input list, open its owning source or configure a
+<code>translate</code> command with the needed include and package options. Unsaved
+included files still affect analysis of their owning source.</p>
+<p>Diagnostics, definition navigation, and type hover include unsaved source
+text. Each request runs in a fresh compiler process with snapshots of open
+files; editing cancels obsolete results without writing buffers to disk.
+Native CPP symbol modes cannot consume unsaved source snapshots and report
+that limitation. Macro-generated syntax may lack a physical definition or
+identifier location.</p>
+<p>Semantic execution requires a trusted local workspace because compilation can
+run macros. Untrusted and virtual workspaces retain syntax highlighting. Set
+<code>"x2c.semantic.enabled": false</code> to disable semantic execution. Completion,
+rename, workspace indexing, and general LSP support are separate features.
+The private <code>x2c editor</code> transport serves these providers; its argument and
+response formats are not a public compiler API.</p>
+<p>Shared libraries are unsupported. Supporting them requires platform-specific
+position-independent code, visibility, runtime linkage, library naming, and
+initialization rules.</p>
+<h2 id="bootstrap-a-native-installation"><a class="header" href="#bootstrap-a-native-installation">Bootstrap a native installation</a></h2>
+<p>The Cosmopolitan APE executable is an experiment for fun only. It can
+bootstrap a minimal native compiler and runtime without a repository checkout,
+but includes no examples, book, or optional packages. Use the full repository
+for normal development; this experiment is no substitute for it. Releases do
+not publish the APE; <code>make ape-build</code> in a checkout produces it.</p>
+<p>To try the experiment:</p>
+<pre><code class="language-sh">./x2c.com bootstrap --prefix "$HOME/.local/x2c"
+</code></pre>
+<p>The command verifies and extracts the source distribution stored in the APE
+ZIP, builds a native runtime archive first, then builds and installs the
+matching native compiler. The result includes the compiler, its runtime
+archive, headers, sources, unit interfaces, licenses, and a toolchain record.
+A running bootstrap locks <code>&lt;prefix&gt;/.x2c-bootstrap.lock</code>, and a second
+bootstrap into the same prefix stops with an error. The operating system
+releases the lock when the process exits, and the empty file stays in the
+prefix.</p>
+<p>Bootstrap selects tools in the same order as ordinary builds: <code>--cc</code>, <code>X2C_CC</code>,
+<code>CC</code>, then <code>cc</code>; and <code>--ar</code>, <code>X2C_AR</code>, <code>AR</code>, then <code>ar</code>. It uses <code>-O2</code> unless
+another supported optimization is explicit. The installed compiler and runtime
+are native to the host and do not depend on Cosmopolitan. For every C
+compilation it runs, <span class="x2c-wordmark">x2c</span> selects signed plain <code>char</code>. The runtime requires an
+eight-bit signed <code>char</code>, even on hosts whose C compiler defaults to unsigned
+plain <code>char</code>. Compile-time Lisp bindings keep working in the native result.
+They resolve against compiler-generated targets.</p>
+<h2 id="build-and-run"><a class="header" href="#build-and-run">Build and run</a></h2>
+<p><code>run</code> builds an executable and launches it after the build succeeds:</p>
+<pre><code class="language-sh">./x2c run examples/foreach.x -- first -second input.x
+</code></pre>
+<p>Use <code>-q</code> to suppress build progress and receipts while preserving program
+output. Use <code>--build-dir &lt;dir&gt;</code> to retain generated files and objects for
+inspection or reuse. Otherwise temporary intermediates are removed after the
+program finishes.</p>
+<p><code>--</code> ends build options. Every later value is passed as one program argument,
+including values that begin with <code>-</code> or end in <code>.x</code>. <span class="x2c-wordmark">x2c</span> returns the program’s
+exit status. <code>-###</code> prints the build and run actions without creating or
+launching anything. It reads no input file either, so it also prints the
+actions for an artifact a planned target would produce.</p>
+<p>The program inherits standard input, output, and error, so interactive prompts
+and terminal applications work as they do when launched directly. Shell pipes
+and redirections also apply to the program; its output is not held until exit.</p>
+<h2 id="run-a-script"><a class="header" href="#run-a-script">Run a script</a></h2>
+<p><code>script</code> runs one source file and builds it only when needed. The file name
+ends in <code>.x</code>, or may be any name when the first line is a shebang:</p>
+<pre><code class="language-sh">./x2c script tools/report.x -- first --second
+</code></pre>
+<p>The first run builds an executable into the per-user cache. Later runs
+start that executable directly, in a few milliseconds, until one of these
+changes: the script, a file it includes or imports, a header its generated C
+includes, a package archive it links, the compiler, the runtime archive, the
+C compiler, the script’s options, or the <code>CPATH</code>, <code>C_INCLUDE_PATH</code>,
+<code>LIBRARY_PATH</code>, and <code>SDKROOT</code> environment variables. The cache also records
+the directories the build searched: include directories, <code>-L</code> directories,
+the C compiler’s header and library search paths, and the directory of each
+file the build read. Adding or removing a file in one of them rebuilds the
+script. This covers a header that now shadows an included one, a
+<code>__has_include</code> whose result changed, and a <code>-l</code> library that now resolves
+elsewhere. <code>--rebuild</code> builds regardless.</p>
+<p>Options come before the script file, and every word after it is passed to
+the program unchanged, including <code>--</code> and words that begin with <code>-</code> or <code>@</code>.
+A response file given before the script supplies options. <code>script</code> accepts
+the include options <code>-I</code>, <code>--x-include-dir</code>, <code>--c-include-dir</code>,
+<code>--c-system-dir</code>, and <code>--package-dir</code>; the C compiler and linker options of
+<code>run</code>; and <code>-j</code>, <code>--source-map</code>, <code>--rebuild</code>, <code>--clean</code>, <code>-v</code>, <code>-###</code>,
+<code>--plain</code>, <code>--color</code>, <code>--debug</code>, <code>--max-errors</code>, and <code>--diagnostics-file</code>.
+<code>x2c help script</code> lists them. It does not read a project manifest.</p>
+<p>A successful build prints nothing, so the program’s output is all that
+appears; build diagnostics still print, and a failed build exits with its
+status. <code>-v</code> shows the build actions and the final run action. The program
+replaces the <code>x2c</code> process, so it receives signals and terminal input
+directly and its exit status is the command’s. Its <code>argv[0]</code> is the script’s
+absolute path. A <code>--source-map -g</code> build on macOS keeps its <code>run.dSYM</code> beside
+the cached executable.</p>
+<p>A script file can start with a shebang line and run directly:</p>
+<pre><code class="language-sh">#!/usr/bin/env -S x2c script
+</code></pre>
+<p>That line also makes the file a
+<a href="language.html#script-units">script unit</a>, which may put its statements at
+file scope instead of defining <code>main</code>.</p>
+<p>A script can split its code into local modules with ordinary includes, such
+as <code>#include "lib/report.x"</code>. <code>x2c script</code> translates, compiles, and links
+every local <code>.x</code> file the script includes, directly or through another
+module, and a change to any of them rebuilds the script. Runtime and package
+modules come from their archives instead.</p>
+<p><code>env -S</code> splits the line into words. Where <code>x2c</code> has a fixed location, the
+interpreter path works without it: <code>#!/usr/local/bin/x2c script</code>.</p>
+<p>Each script builds under <code>scripts/</code> in the cache root: <code>X2C_CACHE_DIR</code> when
+set, otherwise <code>$XDG_CACHE_HOME/x2c</code>, otherwise <code>~/.cache/x2c</code>.
+<code>x2c env cache_dir</code> prints the root. Concurrent runs of one script share its
+build and wait for each other. <code>x2c script --clean &lt;file&gt;</code> removes that
+script’s entry without running it, and every build removes the entries of
+scripts that no longer exist. Removing the cache is always safe.</p>
+<h2 id="selecting-inputs"><a class="header" href="#selecting-inputs">Selecting inputs</a></h2>
+<p>Shell wildcards work because the shell expands them into explicit operands:</p>
+<pre><code class="language-sh">./x2c build --output /tmp/tool src/*.x
+</code></pre>
+<p><span class="x2c-wordmark">x2c</span> does not expand wildcard operand text or recurse through directory
+operands. Naming a directory does not select the sources under it.</p>
+<p>Response files hold long explicit command lines:</p>
+<pre><code class="language-text">build
+--output
+build/tool
+-I
+include
+src/main.x
+src/parse.x
+</code></pre>
+<p>Invoke one as <code>./x2c @build.rsp</code>. Whitespace separates arguments;
+single and double quotes preserve whitespace; backslash quotes the next
+character. A first-non-whitespace <code>#</code> begins a comment. Response files may
+include other response files, but cycles are rejected. <code>@@name</code> passes the
+literal operand <code>@name</code>.</p>
+<h2 id="start-a-project"><a class="header" href="#start-a-project">Start a project</a></h2>
+<p><code>new</code> creates a project that builds and runs as written:</p>
+<pre><code class="language-sh">x2c new hello
+cd hello
+x2c run -q            # Hello, world!
+x2c run -q -- Gary    # Hello, Gary!
+</code></pre>
+<p>It writes <code>x2c.toml</code>, <code>src/main.x</code>, and <code>.gitignore</code>, which ignores the
+default build directory <code>.x2c-build/</code>. The manifest has one executable target
+named after the directory:</p>
+<pre><code class="language-toml">[target.hello]
+sources = ["src/*.x"]
+</code></pre>
+<p>The directory may be missing or empty; <code>x2c new .</code> fills the current empty
+directory. <code>new</code> refuses any other existing path and never overwrites a
+file. The target name is the directory’s last component and may contain
+letters, digits, <code>_</code>, and <code>-</code>. <code>-q</code> suppresses the <code>x2c: created &lt;dir&gt;</code>
+line.</p>
+<h2 id="project-manifests"><a class="header" href="#project-manifests">Project manifests</a></h2>
+<p>When <code>build</code> or <code>run</code> has no explicit input operands, <span class="x2c-wordmark">x2c</span> searches the current
+directory and its parents for the nearest <code>x2c.toml</code>. <code>--manifest-path</code> selects
+one exact file and disables discovery. Explicit input operands do not use a
+nearby manifest.</p>
+<pre><code class="language-toml">[project]
+name = "demo"
+default-target = "demo"
+build-dir = "build/x2c"
+
+[target.core]
+kind = "static-library"
+sources = ["src/core/*.x"]
+exclude = ["src/core/experimental.x"]
+include-dirs = ["include"]
+
+[target.demo]
+sources = ["src/main.x", "src/commands/**/*.x"]
+dependencies = ["core"]
+libraries = ["m"]
+
+[target.demo.profile.release]
+optimization = "O2"
+debug = false
+</code></pre>
+<p>The manifest lists the sources of each target and how the targets depend on
+each other. Relative paths start at the manifest directory. Its <code>*</code>, <code>?</code>,
+and bracket patterns stay within a path component; <code>**</code> recurses. As in a
+shell, a name that begins with a dot matches only where the pattern has a
+literal dot. Matches are deduplicated and bytewise sorted. Unmatched patterns,
+unknown targets, and dependency cycles are errors before any action runs.</p>
+<p>A target may also set defines, C flags, library directories, libraries, link
+flags, package directories, and an output. Command-line target, profile,
+kind, output, build directory, and tool options override the corresponding
+defaults. <code>--target &lt;name&gt;</code> builds the named manifest target and <code>--profile &lt;name&gt;</code> applies the named manifest build profile; both work with <code>build</code> and
+<code>run</code>. The selected target must define the named profile; a dependency target
+takes it when it defines one and builds with its own settings otherwise.
+<code>--manifest-path</code>, <code>--target</code>, and <code>--profile</code> describe a manifest build, so
+each conflicts with explicit input operands, and <code>-c</code> needs operands rather
+than a manifest.</p>
+<h3 id="pinned-packages"><a class="header" href="#pinned-packages">Pinned packages</a></h3>
+<p>A <code>[dependencies]</code> section pins packages by exact version. Each key is a
+package name in the index and each value is the version in that index
+row:</p>
+<pre><code class="language-toml">[dependencies]
+pcre2 = "10.48"
+</code></pre>
+<p>This is separate from a target’s <code>dependencies</code> field, which lists other
+targets in the same manifest.</p>
+<p><code>build</code> and <code>run</code> resolve the section once the manifest and the selected
+target are known good, and before planning. A pinned package
+missing from the <span class="x2c-wordmark">x2c</span> home at that version is installed through the
+index, the same way <a href="#packages"><code>x2c install &lt;name&gt;</code></a> does, and <code>--index</code>
+selects another index. The resolution is then written to <code>x2c.lock</code> beside
+the manifest, one <code>name version kind platform url sha256</code> row per package.
+Keep that file with the manifest so a later build reproduces the same
+packages. A manifest with no <code>[dependencies]</code> section pins nothing, so a
+lockfile left beside it is removed.</p>
+<p>A build whose lockfile already covers every pinned package, at the pinned
+version and installed in the home, reads no index and makes no network
+request. A pin the lockfile covers but the home does not hold is installed
+from the url and sha256 that lockfile recorded, not from the index, so the
+archive is the one the lockfile pinned however the index has changed. Only a
+pin the lockfile does not cover reaches the index. The lockfile is then
+rewritten to the manifest’s pins. A version the index cannot supply stops the
+build with an error that includes both versions. A dry run installs nothing
+and writes no lockfile, and the editor adapter never installs.</p>
+<h2 id="include-and-tool-ownership"><a class="header" href="#include-and-tool-ownership">Include and tool ownership</a></h2>
+<p><code>-I &lt;dir&gt;</code> is the shared include option. Repeated paths keep command order,
+and the first matching path wins in <span class="x2c-wordmark">x2c</span> quote-include collection, any
+requested <span class="x2c-wordmark">x2c</span> host preprocessing, and generated C compilation.</p>
+<p>The exceptions are:</p>
+<pre><code class="language-text">--x-include-dir &lt;dir&gt;  x2c collection and x2c preprocessing only
+--c-include-dir &lt;dir&gt;  C compilation only, ordinary include semantics
+--c-system-dir &lt;dir&gt;   C compilation only, system-header semantics
+</code></pre>
+<p><code>--package-dir &lt;dir&gt;</code> adds a directory of <span class="x2c-wordmark">x2c</span> packages. An <code>import</code> statement
+searches those directories for a package that is not beside the source. The
+option applies to <code>translate</code>, <code>build</code>, and <code>run</code>, and repeats like <code>-I</code>.
+After the explicit and manifest directories, every command also searches
+<code>&lt;home&gt;/packages</code> when that directory exists.</p>
+<h2 id="packages"><a class="header" href="#packages">Packages</a></h2>
+<p><code>install</code>, <code>remove</code>, and <code>list</code> manage <code>&lt;home&gt;/packages</code>; see
+<a href="../guide/packages.html#install-packages">install packages</a>. <code>install</code> takes
+one operand: a local directory, a local <code>.tar.gz</code>, a URL with <code>--sha256 &lt;hex&gt;</code>, or a name resolved through the index (<code>--index &lt;url-or-path&gt;</code>
+overrides the default). <code>--force</code> accepts a bundle built by another <span class="x2c-wordmark">x2c</span>
+version. <code>remove</code> takes one installed name; <code>list</code> prints <code>name version kind</code> lines on standard output, and the install and removal receipts go to
+standard error with the other action output. Refusals, including a package
+whose sources or install marker are damaged, exit with status 2 and leave
+the installed set as it was. One install or removal in a home runs at a
+time; the lock is released once the packages are in place, so a <code>run</code> that
+installed a dependency does not hold it while the program runs.</p>
+<p>A project manifest can pin packages instead of installing them by hand; see
+<a href="#pinned-packages">pinned packages</a>.</p>
+<h2 id="environment"><a class="header" href="#environment">Environment</a></h2>
+<p><code>x2c env</code> prints the resolved home, executable, include directory, runtime
+archive, prelude interface, package roots, C compiler, archiver, and script
+cache root as <code>name = value</code> lines. The prelude is the runtime <code>x2c.xi</code>
+interface the compiler replays for the runtime declarations; an empty value
+means the compiler reads <code>lib/x2c.x</code> from source once per process.
+<code>x2c env &lt;name&gt;</code> prints one value; <code>--package-dir</code>, <code>--cc</code>, and <code>--ar</code> show
+their effect on the report.</p>
+<pre><code class="language-sh">x2c env
+x2c env runtime_lib
+</code></pre>
+<p>The home is <code>X2C_HOME</code> when set. Otherwise the compiler walks up from its
+executable, then from the current directory, to the nearest directory holding
+<code>include/</code> and <code>etc/compiler-sdk.xlisp</code>. Either way the home is reported and
+compared as an absolute path with symbolic links resolved, so a relative or
+symlinked <code>X2C_HOME</code> selects the same stage, prelude, and runtime archive as
+its real path. A source checkout and an
+<a href="../guide/installation.html">installed prefix</a> are both homes. A stage compiler
+under <code>&lt;home&gt;/builds/&lt;n&gt;/</code> links that stage’s runtime archive. Any other
+compiler links <code>&lt;home&gt;/lib/libx2c.a</code> when it exists, and otherwise
+<code>&lt;home&gt;/builds/0/libx2c.a</code>, the stage 0 runtime whose headers a source
+checkout’s <code>include/x2c</code> names.</p>
+<p>There is no lowercase <code>-i</code>. <code>-D</code> and <code>-U</code> reach requested <span class="x2c-wordmark">x2c</span> preprocessing
+and C compilation. Optimization, debug, and <code>-Xcc</code> are compile-only; <code>-L</code>,
+<code>-l</code>, <code>--rpath</code>, <code>-Wl,</code>, <code>-Xlinker</code>, and <code>-framework</code> are link-only.
+<code>-pthread</code> reaches both the compile and the link. Unknown options are
+rejected. <code>--rpath &lt;dir&gt;</code> records <code>&lt;dir&gt;</code> in the program as a place to find
+shared libraries when it runs; a package bundle may include it.
+<code>-framework &lt;name&gt;</code> links a native framework on macOS.</p>
+<p>The C compiler selection order is <code>--cc</code>, <code>X2C_CC</code>, <code>CC</code>, the installed
+toolchain record, then <code>cc</code>. The archiver follows <code>--ar</code>, <code>X2C_AR</code>, <code>AR</code>, the
+installed record, then <code>ar</code>. Omitted optimization, debug, define, and undefine
+options preserve host defaults. <code>CFLAGS</code> and <code>LDFLAGS</code> are not shell-split or
+implicitly consumed.</p>
+<h2 id="compiler-diagnostics"><a class="header" href="#compiler-diagnostics">Compiler diagnostics</a></h2>
+<p>Translation reports each diagnostic on standard error as
+<code>file:line:column: code: message</code>, followed by the source line, a caret, and
+any notes. A unit stops after 20 errors. <code>--max-errors &lt;count&gt;</code> changes that
+bound for <code>translate</code>, <code>build</code>, <code>run</code>, and <code>script</code>, and <code>--max-errors 0</code>
+removes it. When the bound is greater than one, a unit that reaches it ends
+with <code>limit: too many errors, stopping</code>. With <code>--max-errors 1</code>, the unit’s
+output ends after its first error. The
+<a href="language.html#diagnostics">diagnostics section</a> of the language reference
+describes which errors are reported together.</p>
+<h3 id="warnings"><a class="header" href="#warnings">Warnings</a></h3>
+<p>Translation also reports warnings, which never stop a build: the unit
+compiles and the program runs. Warnings do not count against <code>--max-errors</code>,
+and there is no option to suppress or escalate one. A warning describes
+something the compiler can see and you may have arranged deliberately, so
+code that means what it says can be left as written.</p>
+<p>Six codes are reported as warnings:</p>
+<ul>
+<li><code>region</code> says a value allocated inside a region can still be reached after
+the region ends, and names how it leaves. Its note gives the line that
+opened the region.</li>
+<li><code>after-free</code> says a local was read after <code>Scope.free</code> or
+<code>Array.list_free</code> consumed it.</li>
+<li><code>unbalanced</code> says a region has no matching release in the block that
+opened it, a shape the <code>region</code> check cannot follow.</li>
+<li><code>literal</code> says a bare word inside a macro is a <code>Symbol</code> where a value was
+probably meant, and names the unquoted spelling that inserts the value.</li>
+<li><code>macro</code> carries what a macro reported through <code>x2c.diagnostic.warn</code>, at the
+invocation, with the notes the macro supplied.</li>
+<li><code>warning</code> covers the remaining cases: an unnecessary conversion, and a
+protocol binder that shadows a visible type name.</li>
+</ul>
+<p><a href="../guide/regions.html">The Region Model</a> explains what the first three cover
+and what they cannot see. <a href="../guide/memory.html">Scopes and Lifetime</a> shows
+the patterns that avoid them.</p>
+<p><code>--diagnostics-file &lt;file&gt;</code> writes the same diagnostics to <code>&lt;file&gt;</code> as JSON
+Lines instead of standard error:</p>
+<pre><code class="language-sh">./x2c build --diagnostics-file /tmp/app.jsonl --output /tmp/app app.x
+</code></pre>
+<p><span class="x2c-wordmark">x2c</span> creates or truncates the file when the command starts, so a command with
+no diagnostics leaves it empty. Each line is one JSON object:</p>
+<pre><code class="language-text">{"code":"type","message":"operator 'is' requires Var on the left","severity":"error","file":"app.x","line":9,"column":16,"length":2,"position":120,"notes":["operand type: (int)"]}
+</code></pre>
+<ul>
+<li><code>code</code> is the diagnostic category, such as <code>parse</code>, <code>type</code>, <code>macro</code>,
+<code>protocol</code>, <code>xform</code>, <code>region</code>, <code>warning</code>, or <code>limit</code>.</li>
+<li><code>severity</code> is <code>error</code>, <code>warning</code>, or <code>note</code>. It records how the report was
+submitted, so each entry in a category with both severities, such as
+<code>region</code>, <code>literal</code>, or <code>macro</code>, has its own severity. The <code>limit</code> notice
+is a <code>note</code>.</li>
+<li><code>file</code> is relative to the working directory for a source inside it and
+absolute otherwise. A pseudo-source such as <code>&lt;stdin&gt;</code> keeps its name.</li>
+<li><code>line</code> and <code>column</code> are one-based, <code>length</code> is the token width in bytes,
+and <code>position</code> is its zero-based byte offset. All five location fields are
+<code>null</code> for a diagnostic without a location.</li>
+<li><code>notes</code> holds the note line that standard error shows, the text notes
+joined with spaces, or nothing when the diagnostic has no notes.</li>
+</ul>
+<p>Compile-time Lisp and macros may print to standard output and standard error,
+so neither stream contains JSON. Parallel translation workers share the file;
+each diagnostic is one appended write, so lines never interleave. A diagnostic
+is written when it is reported, and the file is complete when the command
+exits, including after a failed unit. Command-line, host preprocessor, C
+compiler, and linker failures are not compiler diagnostics and remain on
+standard error; the exit status reports the failure.</p>
+<h2 id="progress-and-receipts"><a class="header" href="#progress-and-receipts">Progress and receipts</a></h2>
+<p>Commands report completed translation, C compilation, archive, and link
+phases on standard error. A final build receipt identifies the artifact,
+elapsed time, generated C and header size, host compiler and job count,
+intermediate directory, and output size. Manifest builds name each target.
+Warm builds mark reused translation, compilation, and static archives as up
+to date. Executables always relink so changed libraries and native linker
+inputs take effect.</p>
+<p>On a capable terminal, work lasting at least 125 ms may also use one transient
+progress line. <span class="x2c-wordmark">x2c</span> does not enter raw mode, switch screens, or read terminal
+input. Commands run from Make use stable receipts, since parallel recipes may
+share the terminal. Redirected standard error also uses stable
+newline-delimited receipts and no automatic color.</p>
+<p><code>--plain</code> selects stable receipts without terminal rendering or color. <code>-q</code>
+and <code>--quiet</code> suppress successful progress and receipts without suppressing
+diagnostics or a run program’s output.
+<code>--color=auto|always|never</code> controls color; <code>NO_COLOR</code> disables automatic
+color. <code>--debug</code> enables compiler debug logging; <code>translate</code>, <code>build</code>, and
+<code>run</code> accept it, and <code>bootstrap</code> does not.</p>
+<p><code>--verbose</code> prints each command as it runs. <code>-###</code> prints the same commands
+without running them. Use them first when checking runtime selection, include
+order, or which phase a flag reached. Neither prints completion receipts into
+that output, and the inspection modes keep progress out of their stdout data.</p>
+<h2 id="dependencies-and-external-builds"><a class="header" href="#dependencies-and-external-builds">Dependencies and external builds</a></h2>
+<p>Translation depfiles contain the primary source, transitive quote-includes,
+and the runtime, macro, Lisp, and embedded-text files that unit read. The
+native driver adds <code>-MMD -MP -MF -MT</code> per object and rejects conflicting
+dependency flags passed through <code>-Xcc</code>.</p>
+<p>Persistent direct and manifest builds use <span class="x2c-wordmark">x2c</span> depfiles for translation reuse.
+Before reusing a native object, the selected C compiler preprocesses its source
+with the current native flags and environment. Changed header search results
+and <code>__has_include</code> conditions therefore rebuild the object; unchanged native
+input reuses it. C depfiles remain available to external build tools. Missing
+artifacts and missing, corrupt, or old private state are cache misses rather
+than project errors.
+Manifest comments and whitespace do not invalidate reuse; changed effective
+settings still rebuild the affected actions.</p>
+<p>External Make builds are supported. They can call <code>translate --out-dir</code>,
+include its <code>.d</code> files, and set their own C compiler and linker flags. The
+compiler driver does not replace a project that runs its own native build.</p>
+<p>For example, from the repository directory you can translate an example and
+compile its C output yourself:</p>
+<pre><code class="language-sh">mkdir -p /tmp/x2c-example
+./x2c translate --out-dir /tmp/x2c-example examples/foreach.x
+cc -iquote include/x2c /tmp/x2c-example/foreach.c \
+  builds/0/libx2c.a -lm -o /tmp/x2c-example/foreach
+/tmp/x2c-example/foreach
+</code></pre>
+<h2 id="help-version-and-status"><a class="header" href="#help-version-and-status">Help, version, and status</a></h2>
+<p><code>--help</code> and <code>--version</code> write to standard output and return <code>0</code>. Source,
+host-tool, and link failures return <code>1</code>. Invalid commands, options, response
+files, manifests, and preflight state return <code>2</code>. After a successful <code>run</code>,
+the program’s status is returned. Diagnostics and action output use standard
+error; requested dumps and program output use standard output.</p>
+
+                    </main>
+
+                    <nav class="x2c-pager" aria-label="Page navigation">
+                        <a rel="prev" href="../reference/language.html" class="x2c-pager-prev" aria-keyshortcuts="Left">
+                            <span class="x2c-pager-label">previous</span>
+                            <span class="x2c-pager-title">Language Reference</span>
+                        </a>
+                        
+                        <a rel="next prefetch" href="../guide/installation.html" class="x2c-pager-next" aria-keyshortcuts="Right">
+                            <span class="x2c-pager-label">next</span>
+                            <span class="x2c-pager-title">Install a Native Compiler</span>
+                        </a>
+                    </nav>
+                    <footer class="x2c-footer">
+                        &copy; 2025&ndash;2026
+                        <a href="https://flake.org">GWF</a>
+                        &middot;
+                        <a href="https://github.com/gwf/x2c/blob/c2a89d999e81f47a4422a26edf0033eb0b98c6c6/LICENSE">Apache 2.0</a>
+                        &middot;
+                        <a href="https://github.com/gwf/x2c/blob/c2a89d999e81f47a4422a26edf0033eb0b98c6c6/TRADEMARKS.md">Trademarks</a>
+                    </footer>
+                </div>
+            </div>
+
+
+        </div>
+
+        <template id=fa-eye><span class=fa-svg><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 576 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc. --><path d="M288 32c-80.8 0-145.5 36.8-192.6 80.6C48.6 156 17.3 208 2.5 243.7c-3.3 7.9-3.3 16.7 0 24.6C17.3 304 48.6 356 95.4 399.4C142.5 443.2 207.2 480 288 480s145.5-36.8 192.6-80.6c46.8-43.5 78.1-95.4 93-131.1c3.3-7.9 3.3-16.7 0-24.6c-14.9-35.7-46.2-87.7-93-131.1C433.5 68.8 368.8 32 288 32zM432 256c0 79.5-64.5 144-144 144s-144-64.5-144-144s64.5-144 144-144s144 64.5 144 144zM288 192c0 35.3-28.7 64-64 64c-11.5 0-22.3-3-31.6-8.4c-.2 2.8-.4 5.5-.4 8.4c0 53 43 96 96 96s96-43 96-96s-43-96-96-96c-2.8 0-5.6 .1-8.4 .4c5.3 9.3 8.4 20.1 8.4 31.6z"/></svg></span></template>
+        <template id=fa-eye-slash><span class=fa-svg><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 640 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc. --><path d="M38.8 5.1C28.4-3.1 13.3-1.2 5.1 9.2S-1.2 34.7 9.2 42.9l592 464c10.4 8.2 25.5 6.3 33.7-4.1s6.3-25.5-4.1-33.7L525.6 386.7c39.6-40.6 66.4-86.1 79.9-118.4c3.3-7.9 3.3-16.7 0-24.6c-14.9-35.7-46.2-87.7-93-131.1C465.5 68.8 400.8 32 320 32c-68.2 0-125 26.3-169.3 60.8L38.8 5.1zM223.1 149.5C248.6 126.2 282.7 112 320 112c79.5 0 144 64.5 144 144c0 24.9-6.3 48.3-17.4 68.7L408 294.5c5.2-11.8 8-24.8 8-38.5c0-53-43-96-96-96c-2.8 0-5.6 .1-8.4 .4c5.3 9.3 8.4 20.1 8.4 31.6c0 10.2-2.4 19.8-6.6 28.3l-90.3-70.8zm223.1 298L373 389.9c-16.4 6.5-34.3 10.1-53 10.1c-79.5 0-144-64.5-144-144c0-6.9 .5-13.6 1.4-20.2L83.1 161.5C60.3 191.2 44 220.8 34.5 243.7c-3.3 7.9-3.3 16.7 0 24.6c14.9 35.7 46.2 87.7 93 131.1C174.5 443.2 239.2 480 320 480c47.8 0 89.9-12.9 126.2-32.5z"/></svg></span></template>
+        <template id=fa-copy><span class=fa-svg><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc. --><path d="M502.6 70.63l-61.25-61.25C435.4 3.371 427.2 0 418.7 0H255.1c-35.35 0-64 28.66-64 64l.0195 256C192 355.4 220.7 384 256 384h192c35.2 0 64-28.8 64-64V93.25C512 84.77 508.6 76.63 502.6 70.63zM464 320c0 8.836-7.164 16-16 16H255.1c-8.838 0-16-7.164-16-16L239.1 64.13c0-8.836 7.164-16 16-16h128L384 96c0 17.67 14.33 32 32 32h47.1V320zM272 448c0 8.836-7.164 16-16 16H63.1c-8.838 0-16-7.164-16-16L47.98 192.1c0-8.836 7.164-16 16-16H160V128H63.99c-35.35 0-64 28.65-64 64l.0098 256C.002 483.3 28.66 512 64 512h192c35.2 0 64-28.8 64-64v-32h-47.1L272 448z"/></svg></span></template>
+        <template id=fa-play><span class=fa-svg><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 384 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc. --><path d="M73 39c-14.8-9.1-33.4-9.4-48.5-.9S0 62.6 0 80V432c0 17.4 9.4 33.4 24.5 41.9s33.7 8.1 48.5-.9L361 297c14.3-8.7 23-24.2 23-41s-8.7-32.2-23-41L73 39z"/></svg></span></template>
+        <template id=fa-clock-rotate-left><span class=fa-svg><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc. --><path d="M75 75L41 41C25.9 25.9 0 36.6 0 57.9V168c0 13.3 10.7 24 24 24H134.1c21.4 0 32.1-25.9 17-41l-30.8-30.8C155 85.5 203 64 256 64c106 0 192 86 192 192s-86 192-192 192c-40.8 0-78.6-12.7-109.7-34.4c-14.5-10.1-34.4-6.6-44.6 7.9s-6.6 34.4 7.9 44.6C151.2 495 201.7 512 256 512c141.4 0 256-114.6 256-256S397.4 0 256 0C185.3 0 121.3 28.7 75 75zm181 53c-13.3 0-24 10.7-24 24V256c0 6.4 2.5 12.5 7 17l72 72c9.4 9.4 24.6 9.4 33.9 0s9.4-24.6 0-33.9l-65-65V152c0-13.3-10.7-24-24-24z"/></svg></span></template>
+
+
+
+        <script>
+            window.playground_copyable = true;
+        </script>
+
+
+        <script src="../elasticlunr-ef4e11c1.min.js"></script>
+        <script src="../mark-09e88c2c.min.js"></script>
+        <script src="../searcher-09f2665d.js"></script>
+
+        <script src="../clipboard-1626706a.min.js"></script>
+        <script src="../highlight-abc7f01d.js"></script>
+        <script src="../book-609e4cb8.js"></script>
+
+        <script>
+            document.addEventListener('DOMContentLoaded', () => {
+                const sidebar = document.querySelector('#mdbook-sidebar');
+                sidebar.querySelectorAll('ol').forEach(list => {
+                    const numbers = list.querySelectorAll(
+                        ':scope > li > .chapter-link-wrapper > a > strong, :scope > li > a > strong');
+                    if (numbers.length) {
+                        const width = Math.max(...Array.from(numbers,
+                            number => number.textContent.trim().length));
+                        list.style.setProperty('--chapter-number-width', width + 'ch');
+                    }
+                });
+                const chapter = sidebar.querySelector('a.active');
+                const item = chapter?.closest('.chapter-item');
+                if (item?.querySelector(':scope > .on-this-page')) {
+                    const row = chapter.parentElement;
+                    if (!row.querySelector('.chapter-fold-toggle')) {
+                        const toggle = document.createElement('button');
+                        toggle.type = 'button';
+                        toggle.className = 'chapter-fold-toggle';
+                        toggle.appendChild(document.createElement('div'));
+                        toggle.addEventListener('click', () => {
+                            item.classList.toggle('expanded');
+                        });
+                        row.appendChild(toggle);
+                    }
+                }
+                sidebar.querySelectorAll('.chapter-fold-toggle').forEach(toggle => {
+                    const row = toggle.parentElement;
+                    const item = row.parentElement;
+                    const title = row.querySelector('a').textContent.trim();
+                    toggle.setAttribute('aria-label', 'Toggle ' + title);
+                    const update = () => toggle.setAttribute('aria-expanded',
+                        String(item.classList.contains('expanded')));
+                    update();
+                    toggle.addEventListener('click', update);
+                    if (toggle.tagName === 'A') {
+                        toggle.setAttribute('role', 'button');
+                        toggle.tabIndex = 0;
+                        toggle.addEventListener('keydown', event => {
+                            if (event.key === 'Enter' || event.key === ' ') {
+                                event.preventDefault();
+                                toggle.click();
+                            }
+                        });
+                    }
+                });
+            });
+        </script>
+
+        <!-- Custom JS scripts -->
+
+
+
+    </div>
+    </body>
+</html>

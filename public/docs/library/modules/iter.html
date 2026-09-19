@@ -1,0 +1,836 @@
+<!DOCTYPE HTML>
+<html lang="en" class="light sidebar-visible" dir="ltr">
+    <head>
+        <!-- Book generated using mdBook -->
+        <meta charset="UTF-8">
+        <title>lib/iter.x - The x2c Book</title>
+
+
+        <!-- Custom HTML head -->
+        <link rel="preconnect" href="https://fonts.googleapis.com">
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=Archivo:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">
+
+        <meta name="description" content="The x2c language, standard library, and compiler.">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <meta name="theme-color" content="#ffffff">
+
+        <link rel="icon" href="../../favicon-995a3c20.svg">
+        <link rel="stylesheet" href="../../css/variables-8adf115d.css">
+        <link rel="stylesheet" href="../../css/general-e96d0476.css">
+        <link rel="stylesheet" href="../../css/chrome-d279d366.css">
+        <link rel="stylesheet" href="../../css/print-9e4910d8.css" media="print">
+
+        <!-- Fonts -->
+        <link rel="stylesheet" href="../../fonts/fonts-9644e21d.css">
+
+        <!-- Highlight.js Stylesheets -->
+        <link rel="stylesheet" id="mdbook-highlight-css" href="../../highlight-493f70e1.css">
+        <link rel="stylesheet" id="mdbook-tomorrow-night-css" href="../../tomorrow-night-4c0ae647.css">
+        <link rel="stylesheet" id="mdbook-ayu-highlight-css" href="../../ayu-highlight-3fdfc3ac.css">
+
+        <!-- Custom theme stylesheets -->
+        <link rel="stylesheet" href="../../theme/header-2c1becca.css">
+        <link rel="stylesheet" href="../../theme/x2c-fd3d182e.css">
+
+
+        <!-- Provide site root and default themes to javascript -->
+        <script>
+            const path_to_root = "../../";
+            const default_light_theme = "light";
+            const default_dark_theme = "light";
+            window.path_to_searchindex_js = "../../searchindex-2643e100.js";
+        </script>
+        <!-- Start loading toc.js asap -->
+        <script src="../../toc-a71616d6.js"></script>
+        <!-- x2c publication metadata -->
+        <link rel="canonical" href="https://staging.x2c-lang.dev/docs/library/modules/iter.html">
+        <meta property="og:type" content="website">
+        <meta property="og:title" content="lib/iter.x - The x2c Book">
+        <meta property="og:description" content="The x2c language, standard library, and compiler.">
+        <meta property="og:url" content="https://staging.x2c-lang.dev/docs/library/modules/iter.html">
+        <meta property="og:image" content="https://staging.x2c-lang.dev/x2c-social.png">
+        <meta property="og:image:width" content="1200">
+        <meta property="og:image:height" content="630">
+        <meta name="twitter:card" content="summary_large_image">
+        <meta name="twitter:title" content="lib/iter.x - The x2c Book">
+        <meta name="twitter:description" content="The x2c language, standard library, and compiler.">
+        <meta name="twitter:image" content="https://staging.x2c-lang.dev/x2c-social.png">
+    </head>
+    <body><aside aria-label="Release candidate" style="padding:1rem;background:#fff1bf;color:#241c00;font:14px/1.5 monospace;overflow-wrap:anywhere"><strong>Public staging: candidate-c2a89d999e81f47a4422a26edf0033eb0b98c6c6-35470032964-1</strong><p>Source: c2a89d999e81f47a4422a26edf0033eb0b98c6c6. Use a fresh scratch installation and the explicit candidate index below. Bare x2c install commands and production URLs in the book refer to production.</p><pre style="overflow:auto">export X2C_PREFIX=&quot;$(mktemp -d)/x2c&quot;
+curl -fsSL https://staging.x2c-lang.dev/install.sh | sh
+export PATH=&quot;$X2C_PREFIX/bin:$PATH&quot;
+x2c run &quot;$X2C_PREFIX/examples/foreach.x&quot;
+x2c install pcre2 --index https://staging.x2c-lang.dev/packages/index.txt</pre></aside>
+    <div id="mdbook-help-container">
+        <div id="mdbook-help-popup">
+            <h2 class="mdbook-help-title">Keyboard shortcuts</h2>
+            <div>
+                <p>Press <kbd>←</kbd> or <kbd>→</kbd> to navigate between chapters</p>
+                <p>Press <kbd>S</kbd> or <kbd>/</kbd> to search in the book</p>
+                <p>Press <kbd>?</kbd> to show this help</p>
+                <p>Press <kbd>Esc</kbd> to hide this help</p>
+            </div>
+        </div>
+    </div>
+    <div id="mdbook-body-container">
+        <!-- Work around some values being stored in localStorage wrapped in quotes -->
+        <script>
+            try {
+                let theme = localStorage.getItem('mdbook-theme');
+                let sidebar = localStorage.getItem('mdbook-sidebar');
+
+                if (theme.startsWith('"') && theme.endsWith('"')) {
+                    localStorage.setItem('mdbook-theme', theme.slice(1, theme.length - 1));
+                }
+
+                if (sidebar.startsWith('"') && sidebar.endsWith('"')) {
+                    localStorage.setItem('mdbook-sidebar', sidebar.slice(1, sidebar.length - 1));
+                }
+            } catch (e) { }
+        </script>
+
+        <!-- Set the theme before any content is loaded, prevents flash -->
+        <script>
+            const default_theme = window.matchMedia("(prefers-color-scheme: dark)").matches ? default_dark_theme : default_light_theme;
+            let theme;
+            try { theme = localStorage.getItem('mdbook-theme'); } catch(e) { }
+            if (theme === null || theme === undefined) { theme = default_theme; }
+            const html = document.documentElement;
+            html.classList.remove('light')
+            html.classList.add(theme);
+            html.classList.add("js");
+        </script>
+
+        <input type="checkbox" id="mdbook-sidebar-toggle-anchor" class="hidden">
+
+        <!-- Hide / unhide sidebar before it is displayed -->
+        <script>
+            let sidebar = null;
+            const sidebar_toggle = document.getElementById("mdbook-sidebar-toggle-anchor");
+            if (document.body.clientWidth >= 1080) {
+                try { sidebar = localStorage.getItem('mdbook-sidebar'); } catch(e) { }
+                sidebar = sidebar || 'visible';
+            } else {
+                sidebar = 'hidden';
+                sidebar_toggle.checked = false;
+            }
+            if (sidebar === 'visible') {
+                sidebar_toggle.checked = true;
+            } else {
+                html.classList.remove('sidebar-visible');
+            }
+        </script>
+
+        <nav id="mdbook-sidebar" class="sidebar" aria-label="Table of contents">
+            <!-- populated by js -->
+            <mdbook-sidebar-scrollbox class="sidebar-scrollbox"></mdbook-sidebar-scrollbox>
+            <noscript>
+                <iframe class="sidebar-iframe-outer" src="../../toc.html"></iframe>
+            </noscript>
+            <div id="mdbook-sidebar-resize-handle" class="sidebar-resize-handle">
+                <div class="sidebar-resize-indicator"></div>
+            </div>
+        </nav>
+
+        <div id="mdbook-page-wrapper" class="page-wrapper">
+
+            <div class="page">
+                <div id="mdbook-menu-bar" class="hidden"></div>
+                <header class="landing-header x2c-header">
+                    <div class="landing-header-inner">
+                        <div class="landing-branding">
+                            <a class="landing-brand" href="../../../" aria-label="x2c home">
+                                <svg viewBox="0 0 100 100" width="22" height="22" aria-hidden="true"><g fill="none" stroke="#da291c" stroke-width="17" stroke-linecap="butt"><path d="M9 16 A34.5 34.5 0 0 1 9 84"></path><path d="M91 16 A34.5 34.5 0 0 0 91 84"></path></g></svg>
+                                <span class="x2c-wordmark landing-wordmark">x2c</span>
+                            </a>
+                            <span class="landing-tagline">The x2c Book</span>
+                        </div>
+                        <nav class="landing-nav" aria-label="x2c website">
+                            <div class="landing-page-nav">
+                                <a href="../../../#love">love</a>
+                                <a href="../../../#power">power</a>
+                                <a href="../../../#magic">magic</a>
+                            </div>
+                            <div class="landing-site-nav">
+                                <a href="../../../#install">install</a>
+                                <a href="../../../#packages">packages</a>
+                            </div>
+                            <div class="landing-reference-nav">
+                                <a href="../../../about/">about</a>
+                                <a href="../../" aria-current="page">docs</a>
+                                <a href="https://github.com/gwf/x2c">source</a>
+                            </div>
+                        </nav>
+                    </div>
+                    <div class="x2c-book-tools">
+                        <div class="x2c-header-tools">
+                            <label id="mdbook-sidebar-toggle" class="icon-button" for="mdbook-sidebar-toggle-anchor" title="Toggle Table of Contents" aria-label="Toggle Table of Contents" aria-controls="mdbook-sidebar">
+                                <span class=fa-svg><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc. --><path d="M0 96C0 78.3 14.3 64 32 64H416c17.7 0 32 14.3 32 32s-14.3 32-32 32H32C14.3 128 0 113.7 0 96zM0 256c0-17.7 14.3-32 32-32H416c17.7 0 32 14.3 32 32s-14.3 32-32 32H32c-17.7 0-32-14.3-32-32zM448 416c0 17.7-14.3 32-32 32H32c-17.7 0-32-14.3-32-32s14.3-32 32-32H416c17.7 0 32 14.3 32 32z"/></svg></span>
+                            </label>
+                        </div>
+                        <div class="x2c-header-tools x2c-header-tools-right">
+                            <button id="mdbook-search-toggle" class="icon-button" type="button" title="Search (`/`)" aria-label="Toggle Searchbar" aria-expanded="false" aria-keyshortcuts="/ s" aria-controls="mdbook-searchbar">
+                                <span class=fa-svg><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc. --><path d="M416 208c0 45.9-14.9 88.3-40 122.7L502.6 457.4c12.5 12.5 12.5 32.8 0 45.3s-32.8 12.5-45.3 0L330.7 376c-34.4 25.2-76.8 40-122.7 40C93.1 416 0 322.9 0 208S93.1 0 208 0S416 93.1 416 208zM208 352c79.5 0 144-64.5 144-144s-64.5-144-144-144S64 128.5 64 208s64.5 144 144 144z"/></svg></span>
+                            </button>
+                            <button id="mdbook-theme-toggle" class="icon-button" type="button" title="Change theme" aria-label="Change theme" aria-haspopup="true" aria-expanded="false" aria-controls="mdbook-theme-list">
+                                <span class=fa-svg><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc. --><path d="M448 256c0-106-86-192-192-192V448c106 0 192-86 192-192zm64 0c0 141.4-114.6 256-256 256S0 397.4 0 256S114.6 0 256 0S512 114.6 512 256z"/></svg></span>
+                            </button>
+                            <ul id="mdbook-theme-list" class="theme-popup" aria-label="Themes" role="menu">
+                                <li role="none"><button role="menuitem" class="theme" id="mdbook-theme-default_theme">Auto</button></li>
+                                <li role="none"><button role="menuitem" class="theme" id="mdbook-theme-light">Light</button></li>
+                                <li role="none"><button role="menuitem" class="theme" id="mdbook-theme-ayu">Dark</button></li>
+                            </ul>
+                            <a href="https://github.com/gwf/x2c/edit/main/docs/src/library/modules/iter.md" title="Suggest an edit" aria-label="Suggest an edit" rel="edit" class="icon-button">
+                                <span class=fa-svg id="git-edit-button"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc. --><path d="M421.7 220.3l-11.3 11.3-22.6 22.6-205 205c-6.6 6.6-14.8 11.5-23.8 14.1L30.8 511c-8.4 2.5-17.5 .2-23.7-6.1S-1.5 489.7 1 481.2L38.7 353.1c2.6-9 7.5-17.2 14.1-23.8l205-205 22.6-22.6 11.3-11.3 33.9 33.9 62.1 62.1 33.9 33.9zM96 353.9l-9.3 9.3c-.9 .9-1.6 2.1-2 3.4l-25.3 86 86-25.3c1.3-.4 2.5-1.1 3.4-2l9.3-9.3H112c-8.8 0-16-7.2-16-16V353.9zM453.3 19.3l39.4 39.4c25 25 25 65.5 0 90.5l-14.5 14.5-22.6 22.6-11.3 11.3-33.9-33.9-62.1-62.1L314.3 67.7l11.3-11.3 22.6-22.6 14.5-14.5c25-25 65.5-25 90.5 0z"/></svg></span>
+                            </a>
+                        </div>
+                    </div>
+                </header>
+                <script>
+                    const bookHeader = document.querySelector('.x2c-header');
+                    new ResizeObserver(() => {
+                        document.documentElement.style.setProperty(
+                            '--menu-bar-height', `${bookHeader.getBoundingClientRect().height}px`);
+                    }).observe(bookHeader);
+                </script>
+
+                <div id="mdbook-search-wrapper" class="hidden">
+                    <form id="mdbook-searchbar-outer" class="searchbar-outer">
+                        <div class="search-wrapper">
+                            <input type="search" id="mdbook-searchbar" name="searchbar" placeholder="Search this book ..." aria-controls="mdbook-searchresults-outer" aria-describedby="searchresults-header">
+                            <div class="spinner-wrapper">
+                                <span class=fa-svg id="fa-spin"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc. --><path d="M304 48c0-26.5-21.5-48-48-48s-48 21.5-48 48s21.5 48 48 48s48-21.5 48-48zm0 416c0-26.5-21.5-48-48-48s-48 21.5-48 48s21.5 48 48 48s48-21.5 48-48zM48 304c26.5 0 48-21.5 48-48s-21.5-48-48-48s-48 21.5-48 48s21.5 48 48 48zm464-48c0-26.5-21.5-48-48-48s-48 21.5-48 48s21.5 48 48 48s48-21.5 48-48zM142.9 437c18.7-18.7 18.7-49.1 0-67.9s-49.1-18.7-67.9 0s-18.7 49.1 0 67.9s49.1 18.7 67.9 0zm0-294.2c18.7-18.7 18.7-49.1 0-67.9S93.7 56.2 75 75s-18.7 49.1 0 67.9s49.1 18.7 67.9 0zM369.1 437c18.7 18.7 49.1 18.7 67.9 0s18.7-49.1 0-67.9s-49.1-18.7-67.9 0s-18.7 49.1 0 67.9z"/></svg></span>
+                            </div>
+                        </div>
+                    </form>
+                    <div id="mdbook-searchresults-outer" class="searchresults-outer hidden">
+                        <div id="mdbook-searchresults-header" class="searchresults-header"></div>
+                        <ul id="mdbook-searchresults">
+                        </ul>
+                    </div>
+                </div>
+
+                <!-- Apply ARIA attributes after the sidebar and the sidebar toggle button are added to the DOM -->
+                <script>
+                    document.getElementById('mdbook-sidebar-toggle').setAttribute('aria-expanded', sidebar === 'visible');
+                    document.getElementById('mdbook-sidebar').setAttribute('aria-hidden', sidebar !== 'visible');
+                    Array.from(document.querySelectorAll('#mdbook-sidebar a')).forEach(function(link) {
+                        link.setAttribute('tabIndex', sidebar === 'visible' ? 0 : -1);
+                    });
+                </script>
+
+                <div id="mdbook-content" class="content">
+                    <main>
+                        <!-- Generated by `python3 tools/gen-api-reference.py --write` from
+     lib/*.x and the stage interfaces. Do not edit by hand. -->
+<h1 id="libiterx"><a class="header" href="#libiterx"><code>lib/iter.x</code></a></h1>
+<p>Single-pass pull iterators.</p>
+<h2 id="primary-api"><a class="header" href="#primary-api">Primary API</a></h2>
+<div class="table-wrapper">
+<table>
+<thead>
+<tr><th>Function</th><th>Summary</th></tr>
+</thead>
+<tbody>
+<tr><td><a href="#range"><code>range</code></a></td><td>Returns an inclusive integer range over caller-supplied <code>iter</code> storage.</td></tr>
+<tr><td><a href="#Iter.all"><code>Iter.all</code></a></td><td>Reports whether every remaining element satisfies <code>pred</code>.</td></tr>
+<tr><td><a href="#Iter.any"><code>Iter.any</code></a></td><td>Reports whether any remaining element satisfies <code>pred</code>.</td></tr>
+<tr><td><a href="#Iter.chain"><code>Iter.chain</code></a></td><td>Returns a lazy iterator over <code>first</code> followed by <code>second</code>.</td></tr>
+<tr><td><a href="#Iter.count"><code>Iter.count</code></a></td><td>Returns the number of remaining elements, consuming <code>iter</code>.</td></tr>
+<tr><td><a href="#Iter.enumerate"><code>Iter.enumerate</code></a></td><td>Returns a lazy iterator over <code>(index value)</code> <code>List</code>s starting at <code>start</code>.</td></tr>
+<tr><td><a href="#Iter.filter"><code>Iter.filter</code></a></td><td>Returns a lazy iterator over elements accepted by <code>func</code>’s <code>Var</code> truthiness.</td></tr>
+<tr><td><a href="#Iter.find"><code>Iter.find</code></a></td><td>Returns the first element accepted by <code>pred</code>’s <code>Var</code> truthiness, else <code>void</code>.</td></tr>
+<tr><td><a href="#Iter.foldl"><code>Iter.foldl</code></a></td><td>Folds <code>fn</code> over <code>iter</code> from <code>seed</code>, left to right, and returns the final accumulator.</td></tr>
+<tr><td><a href="#Iter.head"><code>Iter.head</code></a></td><td>Returns a lazy iterator over at most <code>count</code> leading source values.</td></tr>
+<tr><td><a href="#Iter.iter"><code>Iter.iter</code></a></td><td>Returns <code>iter</code> unchanged as its own iterator.</td></tr>
+<tr><td><a href="#Iter.map"><code>Iter.map</code></a></td><td>Returns a lazy iterator over <code>func</code> applied to each element of <code>iter</code>.</td></tr>
+<tr><td><a href="#Iter.map2"><code>Iter.map2</code></a></td><td>Returns a lazy iterator over <code>fn(left, right)</code>, requiring <code>fn</code>.</td></tr>
+<tr><td><a href="#Iter.max"><code>Iter.max</code></a></td><td>Returns the largest remaining element, or <code>void</code> when there is none.</td></tr>
+<tr><td><a href="#Iter.min"><code>Iter.min</code></a></td><td>Returns the smallest remaining element, or <code>void</code> when there is none.</td></tr>
+<tr><td><a href="#Iter.product"><code>Iter.product</code></a></td><td>Returns the product of the remaining elements, consuming <code>iter</code>.</td></tr>
+<tr><td><a href="#Iter.repeat"><code>Iter.repeat</code></a></td><td>Returns a lazy iterator that yields <code>value</code> at most <code>count</code> times.</td></tr>
+<tr><td><a href="#Iter.scan"><code>Iter.scan</code></a></td><td>Returns a lazy iterator over every new accumulator of <code>fn</code>.</td></tr>
+<tr><td><a href="#Iter.sum"><code>Iter.sum</code></a></td><td>Returns the sum of the remaining elements, consuming <code>iter</code>.</td></tr>
+<tr><td><a href="#Iter.try_next"><code>Iter.try_next</code></a></td><td>Advances <code>iter</code>, writing the next element through <code>out</code>.</td></tr>
+<tr><td><a href="#Iter.unique"><code>Iter.unique</code></a></td><td>Returns a lazy iterator that yields the first occurrence of each value.</td></tr>
+<tr><td><a href="#Iter.zip"><code>Iter.zip</code></a></td><td>Returns a lazy iterator over canonical <code>(left right)</code> <code>List</code>s.</td></tr>
+<tr><td><a href="#Iter.zip_with"><code>Iter.zip_with</code></a></td><td>Returns a lazy iterator over <code>fn(left, right)</code>, applied pairwise.</td></tr>
+</tbody>
+</table>
+</div>
+<h3 id="functions"><a class="header" href="#functions">Functions</a></h3>
+<h4 id="range"><a class="header" href="#range">range</a></h4>
+<p><code>Iter range(int start, int end, int step, Iter iter)</code></p>
+<p>Returns an inclusive integer range over caller-supplied <code>iter</code> storage.
+Both endpoints belong to the range when the step direction reaches them:
+<code>range(1, 4, 1, &amp;storage)</code> yields 1, 2, 3, 4, and <code>range(3, 1, -1, &amp;storage)</code> counts down 3, 2, 1. A step that would cross <code>end</code> stops short
+of it, so <code>range(0, 9, 2, &amp;storage)</code> yields 0, 2, 4, 6, 8. A range
+pointed against its step is empty. A range needs no state struct and no
+cleanup.</p>
+<p><strong>Raises:</strong> <code>&lt;bad-arg&gt;</code> when <code>step</code> is zero. A null <code>iter</code> returns NULL
+without raising.</p>
+<p>Source: <code>lib/iter.x:289</code></p>
+<h3 id="iter"><a class="header" href="#iter"><code>Iter</code></a></h3>
+<p><a id="Iter.all"></a></p>
+<h4 id="iterall"><a class="header" href="#iterall">Iter.all</a></h4>
+<p><code>int Iter.all(Iter iter, Func pred)</code></p>
+<p>Reports whether every remaining element satisfies <code>pred</code>.
+Vacuously true for an empty iterator, decided before <code>pred</code> is consulted.
+Otherwise it stops at the first element the predicate
+rejects and answers 0, leaving the rest unconsumed. Elements are passed as
+values and the result uses ordinary <code>Var</code> truthiness.</p>
+<p><strong>Raises:</strong> whatever the source, <code>Func.apply</code>, or <code>pred</code> raises. A null <code>pred</code>
+answers 1 for an empty iterator and 0 for any other.</p>
+<p>Source: <code>lib/iter.x:772</code></p>
+<p><a id="Iter.any"></a></p>
+<h4 id="iterany"><a class="header" href="#iterany">Iter.any</a></h4>
+<p><code>int Iter.any(Iter iter, Func pred)</code></p>
+<p>Reports whether any remaining element satisfies <code>pred</code>.
+Stops at the first element the predicate accepts, so the iterator is left
+positioned after it and the rest is never pulled. An empty iterator
+answers 0. Elements are passed as values and the result uses ordinary <code>Var</code>
+truthiness.</p>
+<p><strong>Raises:</strong> whatever the source, <code>Func.apply</code>, or <code>pred</code> raises. A null
+<code>pred</code> answers 0.</p>
+<p>Source: <code>lib/iter.x:756</code></p>
+<p><a id="Iter.chain"></a></p>
+<h4 id="iterchain"><a class="header" href="#iterchain">Iter.chain</a></h4>
+<p><code>Iter Iter.chain(Iter first, Iter second, Iter dest)</code></p>
+<p>Returns a lazy iterator over <code>first</code> followed by <code>second</code>.
+Pulls do not reach <code>second</code> until <code>first</code> is exhausted. Both sources and
+<code>dest</code> are borrowed and must outlive traversal. A null source contributes
+no elements, and a null <code>dest</code> returns NULL. Pulling may raise any cause
+raised by either source.</p>
+<p>Source: <code>lib/iter.x:471</code></p>
+<p><a id="Iter.count"></a></p>
+<h4 id="itercount"><a class="header" href="#itercount">Iter.count</a></h4>
+<p><code>int Iter.count(Iter iter)</code></p>
+<p>Returns the number of remaining elements, consuming <code>iter</code>.
+Counting drains the iterator, and an <code>Iter</code> cannot be rewound, so if you
+need the elements as well, collect them with <code>Iter.list</code> or <code>Iter.array</code>
+and ask the collection for its length. The remaining element count must
+fit in <code>int</code>.</p>
+<p><strong>Raises:</strong> <code>&lt;void-op&gt;</code> for a source callback that yields <code>void</code>, plus any
+cause raised by that callback.</p>
+<p>Source: <code>lib/iter.x:807</code></p>
+<p><a id="Iter.enumerate"></a></p>
+<h4 id="iterenumerate"><a class="header" href="#iterenumerate">Iter.enumerate</a></h4>
+<p><code>Iter Iter.enumerate(Iter iter, int start, Iter dest)</code></p>
+<p>Returns a lazy iterator over <code>(index value)</code> <code>List</code>s starting at <code>start</code>.
+The first pulled value is paired with exactly <code>start</code>, then the native
+<code>int</code> index increases by one for each source value. The source and <code>dest</code>
+are borrowed and must outlive traversal; <code>start</code> plus the number of
+successfully pulled values must remain within the <code>int</code> range.</p>
+<p><strong>Raises:</strong> <code>&lt;alloc-fail&gt;</code> or <code>&lt;size-limit&gt;</code> while interning a pair, plus any
+cause raised by the source. A null <code>dest</code> returns NULL.</p>
+<p>Source: <code>lib/iter.x:496</code></p>
+<p><a id="Iter.filter"></a></p>
+<h4 id="iterfilter"><a class="header" href="#iterfilter">Iter.filter</a></h4>
+<p><code>Iter Iter.filter(Iter iter, Func func, Iter dest)</code></p>
+<p>Returns a lazy iterator over elements accepted by <code>func</code>’s <code>Var</code>
+truthiness.
+The predicate fits in <code>dest</code>, so that storage is all you declare.
+Rejected elements are consumed without being yielded, so one request for
+an element can pull many from the source.</p>
+<p>Elements are passed as values. Both <code>iter</code> and its storage, <code>dest</code>, and any
+dynamic or captured <code>func</code> must remain valid while the result is used.</p>
+<p>A null <code>dest</code> returns NULL, and a null <code>func</code> yields an
+exhausted iterator. An empty source does not invoke or check <code>func</code>.</p>
+<p><strong>Raises:</strong> whatever the source, <code>Func.apply</code>, or <code>func</code> raises while pulling.</p>
+<p>Source: <code>lib/iter.x:339</code></p>
+<p><a id="Iter.find"></a></p>
+<h4 id="iterfind"><a class="header" href="#iterfind">Iter.find</a></h4>
+<p><code>Var Iter.find(Iter iter, Func pred)</code></p>
+<p>Returns the first element accepted by <code>pred</code>’s <code>Var</code> truthiness, else
+<code>void</code>.
+Stops as soon as it finds one, so the iterator can be pulled further for
+the elements after the match. <code>void</code> means “no element matched”, which is
+unambiguous because no iterator may yield <code>void</code>.
+Elements are passed as values. Raises: whatever the source, <code>Func.apply</code>,
+or <code>pred</code> raises. A null <code>pred</code> returns <code>void</code>.</p>
+<p>Source: <code>lib/iter.x:791</code></p>
+<p><a id="Iter.foldl"></a></p>
+<h4 id="iterfoldl"><a class="header" href="#iterfoldl">Iter.foldl</a></h4>
+<p><code>Var Iter.foldl(Iter iter, Var seed, Func fn)</code></p>
+<p>Folds <code>fn</code> over <code>iter</code> from <code>seed</code>, left to right, and returns the final
+accumulator.
+Consumes the whole iterator. A <code>void</code> <code>seed</code> means “use the first
+element as the seed”, so folding an empty iterator from <code>void</code> returns
+<code>void</code>; any other <code>seed</code> is returned unchanged when there is nothing to
+fold. A null <code>fn</code> drains the iterator and returns the seed.
+The accumulator and elements are passed as values. Empty input, or one
+element with a <code>void</code> seed, does not invoke or check <code>fn</code>.</p>
+<p><strong>Raises:</strong> whatever the source, <code>Func.apply</code>, or <code>fn</code> raises.</p>
+<p>Source: <code>lib/iter.x:729</code></p>
+<p><a id="Iter.head"></a></p>
+<h4 id="iterhead"><a class="header" href="#iterhead">Iter.head</a></h4>
+<p><code>Iter Iter.head(Iter iter, int count, Iter dest)</code></p>
+<p>Returns a lazy iterator over at most <code>count</code> leading source values.
+Construction consumes nothing. Pulling stops after <code>count</code> values or
+source exhaustion, whichever comes first, and leaves any later source
+values unconsumed. A nonpositive count yields nothing. The source and
+caller-owned <code>dest</code> must outlive traversal; a null <code>dest</code> returns NULL.
+Pulling may raise any cause raised by the source.</p>
+<p>Source: <code>lib/iter.x:535</code></p>
+<p><a id="Iter.iter"></a></p>
+<h4 id="iteriter"><a class="header" href="#iteriter">Iter.iter</a></h4>
+<p><code>Iter Iter.iter(Iter x, Iter dest)</code></p>
+<p>Returns <code>iter</code> unchanged as its own iterator.
+<code>dest</code> is ignored; ownership and remaining traversal state are unchanged.</p>
+<p>Source: <code>lib/iter.x:871</code></p>
+<p><a id="Iter.map"></a></p>
+<h4 id="itermap"><a class="header" href="#itermap">Iter.map</a></h4>
+<p><code>Iter Iter.map(Iter iter, Func func, Iter dest)</code></p>
+<p>Returns a lazy iterator over <code>func</code> applied to each element of <code>iter</code>.
+<code>dest</code> is caller-owned <code>struct Iter</code> storage. It and the source iterator’s
+storage, plus any dynamic or captured <code>func</code>, must remain valid while the
+result is used. Elements are passed as values. Nothing runs until an
+element is pulled, and each pull travels back up the chain for exactly one
+element per stage, so taking two elements from a map over a range calls
+<code>func</code> twice. A null <code>func</code> passes elements through unchanged.</p>
+<pre class="shiki shiki-themes x2c-light x2c-dark x2c-code" style="--shiki-light:#24292e;--shiki-dark:#e9e5df;--shiki-light-bg:#fff;--shiki-dark-bg:#101011" tabindex="0"><code class="language-x2c no-highlight"><span class="line boring"><span style="--shiki-light:#D73A49;--shiki-dark:#F0ADA1">static</span><span style="--shiki-light:#007C8A;--shiki-dark:#29D3E2"> Var</span><span style="--shiki-light:#6F42C1;--shiki-dark:#E9E5DF"> _square</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">(</span><span style="--shiki-light:#007C8A;--shiki-dark:#29D3E2">Var</span><span style="--shiki-light:#E36209;--shiki-dark:#E9E5DF"> value</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">) {</span>
+</span><span class="line boring"><span style="--shiki-light:#D73A49;--shiki-dark:#F0ADA1">  return</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF"> value </span><span style="--shiki-light:#D73A49;--shiki-dark:#E9E5DF">*</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF"> value;</span>
+</span><span class="line boring"><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">}</span>
+</span><span class="line boring">
+</span><span class="line boring"><span style="--shiki-light:#D73A49;--shiki-dark:#F0ADA1">int</span><span style="--shiki-light:#6F42C1;--shiki-dark:#E9E5DF"> main</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">(</span><span style="--shiki-light:#D73A49;--shiki-dark:#F0ADA1">void</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">) {</span>
+</span><span class="line"><span style="--shiki-light:#D73A49;--shiki-dark:#F0ADA1">struct</span><span style="--shiki-light:#007C8A;--shiki-dark:#29D3E2"> Iter</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF"> source_storage, map_storage;</span>
+</span><span class="line"><span style="--shiki-light:#007C8A;--shiki-dark:#29D3E2">Iter</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF"> squares </span><span style="--shiki-light:#D73A49;--shiki-dark:#E9E5DF">=</span><span style="--shiki-light:#6F42C1;--shiki-dark:#E9E5DF"> range</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">(</span><span style="--shiki-light:#005CC5;--shiki-dark:#A9C9F5">1</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">, </span><span style="--shiki-light:#005CC5;--shiki-dark:#A9C9F5">4</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">, </span><span style="--shiki-light:#005CC5;--shiki-dark:#A9C9F5">1</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">, </span><span style="--shiki-light:#D73A49;--shiki-dark:#E9E5DF">&amp;</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">source_storage).</span><span style="--shiki-light:#6F42C1;--shiki-dark:#E9E5DF">map</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">(_square,</span>
+</span><span class="line"><span style="--shiki-light:#D73A49;--shiki-dark:#E9E5DF">                                                  &amp;</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">map_storage);</span>
+</span><span class="line"><span style="--shiki-light:#6F42C1;--shiki-dark:#E9E5DF">printf</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">(</span><span style="--shiki-light:#032F62;--shiki-dark:#9EDFB8">"</span><span style="--shiki-light:#005CC5;--shiki-dark:#9EDFB8">%s\n</span><span style="--shiki-light:#032F62;--shiki-dark:#9EDFB8">"</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">, squares.</span><span style="--shiki-light:#6F42C1;--shiki-dark:#E9E5DF">list</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">().</span><span style="--shiki-light:#6F42C1;--shiki-dark:#E9E5DF">str</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">());</span>
+</span><span class="line boring"><span style="--shiki-light:#D73A49;--shiki-dark:#F0ADA1">  return</span><span style="--shiki-light:#005CC5;--shiki-dark:#A9C9F5"> 0</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">;</span>
+</span><span class="line boring"><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">}</span></span></code></pre>
+
+<p>A null <code>dest</code> returns NULL. An empty source does not invoke or check
+<code>func</code>. Raises: whatever the source, <code>Func.apply</code>, or <code>func</code> raises while
+pulling, including <code>&lt;bad-result&gt;</code> when <code>func</code> returns <code>void</code>.</p>
+<p>Source: <code>lib/iter.x:379</code></p>
+<p><a id="Iter.map2"></a></p>
+<h4 id="itermap2"><a class="header" href="#itermap2">Iter.map2</a></h4>
+<p><code>Iter Iter.map2(Iter left, Iter right, Func fn, Iter dest)</code></p>
+<p>Returns a lazy iterator over <code>fn(left, right)</code>, requiring <code>fn</code>.
+The strict form of <code>Iter.zip_with</code>. Behavior is identical, except that a
+null <code>fn</code> returns NULL instead of yielding pairs. Use it when a missing
+callback should fail at construction instead of changing the element
+type.</p>
+<p>The sources, destination, callback lifetime, value passing, and pull-time
+failures are those of <code>Iter.zip_with</code>. A null <code>fn</code> or <code>dest</code> returns NULL.</p>
+<p>Source: <code>lib/iter.x:451</code></p>
+<p><a id="Iter.max"></a></p>
+<h4 id="itermax"><a class="header" href="#itermax">Iter.max</a></h4>
+<p><code>Var Iter.max(Iter iter)</code></p>
+<p>Returns the largest remaining element, or <code>void</code> when there is none.
+Consumes the iterator, comparing with <code>Var</code> ordering, which is total
+across types. Equal values keep the earliest, so the result is the first
+of any tie.</p>
+<p><strong>Raises:</strong> <code>&lt;void-op&gt;</code> for a source callback that yields <code>void</code>, plus any
+cause from the source or <code>Var.compare</code>.</p>
+<p>Source: <code>lib/iter.x:847</code></p>
+<p><a id="Iter.min"></a></p>
+<h4 id="itermin"><a class="header" href="#itermin">Iter.min</a></h4>
+<p><code>Var Iter.min(Iter iter)</code></p>
+<p>Returns the smallest remaining element, or <code>void</code> when there is none.
+Consumes the iterator, comparing with <code>Var</code> ordering, which is total
+across types. Equal values keep the earliest, so the result is the first
+of any tie.</p>
+<p><strong>Raises:</strong> <code>&lt;void-op&gt;</code> for a source callback that yields <code>void</code>, plus any
+cause from the source or <code>Var.compare</code>.</p>
+<p>Source: <code>lib/iter.x:861</code></p>
+<p><a id="Iter.product"></a></p>
+<h4 id="iterproduct"><a class="header" href="#iterproduct">Iter.product</a></h4>
+<p><code>Var Iter.product(Iter iter)</code></p>
+<p>Returns the product of the remaining elements, consuming <code>iter</code>.
+Starts from the integer 1 and multiplies with ordinary <code>Var</code> arithmetic,
+so an empty iterator produces 1 and numeric types promote as they would in
+an expression. Integer results wrap to <code>Var.binary</code>’s promoted type width.</p>
+<p><strong>Raises:</strong> any cause from the source or <code>Var.binary</code> while multiplying an
+element into the running product.</p>
+<p>Source: <code>lib/iter.x:834</code></p>
+<p><a id="Iter.repeat"></a></p>
+<h4 id="iterrepeat"><a class="header" href="#iterrepeat">Iter.repeat</a></h4>
+<p><code>Iter Iter.repeat(Var value, int count, Iter dest)</code></p>
+<p>Returns a lazy iterator that yields <code>value</code> at most <code>count</code> times.
+A nonpositive count yields nothing. <code>dest</code> is caller-owned, and any
+storage referenced by <code>value</code> must outlive traversal. A null <code>dest</code>
+returns NULL. Pulling a repeated <code>void</code> raises <code>&lt;void-op&gt;</code>.</p>
+<p>Source: <code>lib/iter.x:514</code></p>
+<p><a id="Iter.scan"></a></p>
+<h4 id="iterscan"><a class="header" href="#iterscan">Iter.scan</a></h4>
+<p><code>Iter Iter.scan(Iter iter, Var seed, Func fn, Iter dest)</code></p>
+<p>Returns a lazy iterator over every new accumulator of <code>fn</code>.
+Each step computes <code>fn(accumulator, element)</code>, keeps the result as the new
+accumulator, and yields it. <code>seed</code> is the initial accumulator and is never
+yielded, so a scan produces exactly as many elements as its source. <code>fn</code>
+is required. The accumulator and each element are passed as values.</p>
+<pre class="shiki shiki-themes x2c-light x2c-dark x2c-code" style="--shiki-light:#24292e;--shiki-dark:#e9e5df;--shiki-light-bg:#fff;--shiki-dark-bg:#101011" tabindex="0"><code class="language-x2c no-highlight"><span class="line boring"><span style="--shiki-light:#D73A49;--shiki-dark:#F0ADA1">static</span><span style="--shiki-light:#007C8A;--shiki-dark:#29D3E2"> Var</span><span style="--shiki-light:#6F42C1;--shiki-dark:#E9E5DF"> _add</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">(</span><span style="--shiki-light:#007C8A;--shiki-dark:#29D3E2">Var</span><span style="--shiki-light:#E36209;--shiki-dark:#E9E5DF"> acc</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">, </span><span style="--shiki-light:#007C8A;--shiki-dark:#29D3E2">Var</span><span style="--shiki-light:#E36209;--shiki-dark:#E9E5DF"> item</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">) {</span>
+</span><span class="line boring"><span style="--shiki-light:#D73A49;--shiki-dark:#F0ADA1">  return</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF"> acc </span><span style="--shiki-light:#D73A49;--shiki-dark:#E9E5DF">+</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF"> item;</span>
+</span><span class="line boring"><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">}</span>
+</span><span class="line boring">
+</span><span class="line boring"><span style="--shiki-light:#D73A49;--shiki-dark:#F0ADA1">int</span><span style="--shiki-light:#6F42C1;--shiki-dark:#E9E5DF"> main</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">(</span><span style="--shiki-light:#D73A49;--shiki-dark:#F0ADA1">void</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">) {</span>
+</span><span class="line"><span style="--shiki-light:#D73A49;--shiki-dark:#F0ADA1">struct</span><span style="--shiki-light:#007C8A;--shiki-dark:#29D3E2"> Iter</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF"> source_storage, scan_storage;</span>
+</span><span class="line"><span style="--shiki-light:#007C8A;--shiki-dark:#29D3E2">Iter</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF"> running </span><span style="--shiki-light:#D73A49;--shiki-dark:#E9E5DF">=</span><span style="--shiki-light:#6F42C1;--shiki-dark:#E9E5DF"> range</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">(</span><span style="--shiki-light:#005CC5;--shiki-dark:#A9C9F5">1</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">, </span><span style="--shiki-light:#005CC5;--shiki-dark:#A9C9F5">4</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">, </span><span style="--shiki-light:#005CC5;--shiki-dark:#A9C9F5">1</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">, </span><span style="--shiki-light:#D73A49;--shiki-dark:#E9E5DF">&amp;</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">source_storage).</span><span style="--shiki-light:#6F42C1;--shiki-dark:#E9E5DF">scan</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">(</span><span style="--shiki-light:#005CC5;--shiki-dark:#A9C9F5">0</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">, _add,</span>
+</span><span class="line"><span style="--shiki-light:#D73A49;--shiki-dark:#E9E5DF">                                                   &amp;</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">scan_storage);</span>
+</span><span class="line"><span style="--shiki-light:#A626A4;--shiki-light-font-weight:bold;--shiki-dark:#FF4FD8;--shiki-dark-font-weight:bold">foreach</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF"> (</span><span style="--shiki-light:#D73A49;--shiki-dark:#F0ADA1">int</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF"> total, running) </span><span style="--shiki-light:#6F42C1;--shiki-dark:#E9E5DF">printf</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">(</span><span style="--shiki-light:#032F62;--shiki-dark:#9EDFB8">"</span><span style="--shiki-light:#005CC5;--shiki-dark:#9EDFB8">%d\n</span><span style="--shiki-light:#032F62;--shiki-dark:#9EDFB8">"</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">, total);</span>
+</span><span class="line boring"><span style="--shiki-light:#D73A49;--shiki-dark:#F0ADA1">  return</span><span style="--shiki-light:#005CC5;--shiki-dark:#A9C9F5"> 0</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">;</span>
+</span><span class="line boring"><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">}</span></span></code></pre>
+
+<p>That prints 1, 3, 6, and 10; the seed 0 never appears.</p>
+<p>The source and its storage, <code>dest</code>, and any dynamic or captured <code>fn</code> must
+remain valid while the result is used. Constructing the iterator does not
+invoke <code>fn</code>. Pulling may raise whatever <code>Func.apply</code>, the source, or <code>fn</code>
+raises, including <code>&lt;bad-result&gt;</code> when <code>fn</code> returns <code>void</code>. A null <code>fn</code> or
+<code>dest</code> returns NULL.</p>
+<p>Source: <code>lib/iter.x:605</code></p>
+<p><a id="Iter.sum"></a></p>
+<h4 id="itersum"><a class="header" href="#itersum">Iter.sum</a></h4>
+<p><code>Var Iter.sum(Iter iter)</code></p>
+<p>Returns the sum of the remaining elements, consuming <code>iter</code>.
+Starts from the integer 0 and adds with ordinary <code>Var</code> arithmetic, so
+numeric element types promote as they would in an expression and an empty
+iterator sums to 0. Use <code>Iter.accumulate</code> for the running totals.</p>
+<p><strong>Raises:</strong> any cause from the source or <code>Var.binary</code> while adding an element
+to the running total.</p>
+<p>Source: <code>lib/iter.x:821</code></p>
+<p><a id="Iter.try_next"></a></p>
+<h4 id="itertry_next"><a class="header" href="#itertry_next">Iter.try_next</a></h4>
+<p><code>int Iter.try_next(Iter iter, Var *out)</code></p>
+<p>Advances <code>iter</code>, writing the next element through <code>out</code>.
+Returns nonzero when it produced an element and zero once the iterator
+is exhausted, and writes <code>out</code> only in the nonzero case. Prefer this
+form. Status travels separately from the payload, so no value is reserved
+to mean “finished”.</p>
+<p>An <code>Iter</code> is single-pass. There is no rewind, so build a fresh iterator
+when you need a second traversal.</p>
+<pre class="shiki shiki-themes x2c-light x2c-dark x2c-code" style="--shiki-light:#24292e;--shiki-dark:#e9e5df;--shiki-light-bg:#fff;--shiki-dark-bg:#101011" tabindex="0"><code class="language-x2c no-highlight"><span class="line boring"><span style="--shiki-light:#D73A49;--shiki-dark:#F0ADA1">int</span><span style="--shiki-light:#6F42C1;--shiki-dark:#E9E5DF"> main</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">(</span><span style="--shiki-light:#D73A49;--shiki-dark:#F0ADA1">void</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">) {</span>
+</span><span class="line"><span style="--shiki-light:#D73A49;--shiki-dark:#F0ADA1">struct</span><span style="--shiki-light:#007C8A;--shiki-dark:#29D3E2"> Iter</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF"> storage;</span>
+</span><span class="line"><span style="--shiki-light:#007C8A;--shiki-dark:#29D3E2">Iter</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF"> counts </span><span style="--shiki-light:#D73A49;--shiki-dark:#E9E5DF">=</span><span style="--shiki-light:#6F42C1;--shiki-dark:#E9E5DF"> range</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">(</span><span style="--shiki-light:#005CC5;--shiki-dark:#A9C9F5">3</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">, </span><span style="--shiki-light:#005CC5;--shiki-dark:#A9C9F5">1</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">, </span><span style="--shiki-light:#D73A49;--shiki-dark:#E9E5DF">-</span><span style="--shiki-light:#005CC5;--shiki-dark:#A9C9F5">1</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">, </span><span style="--shiki-light:#D73A49;--shiki-dark:#E9E5DF">&amp;</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">storage);</span>
+</span><span class="line"><span style="--shiki-light:#007C8A;--shiki-dark:#29D3E2">Var</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF"> value;</span>
+</span><span class="line"><span style="--shiki-light:#D73A49;--shiki-dark:#F0ADA1">while</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF"> (counts.</span><span style="--shiki-light:#6F42C1;--shiki-dark:#E9E5DF">try_next</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">(</span><span style="--shiki-light:#D73A49;--shiki-dark:#E9E5DF">&amp;</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">value)) </span><span style="--shiki-light:#6F42C1;--shiki-dark:#E9E5DF">printf</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">(</span><span style="--shiki-light:#032F62;--shiki-dark:#9EDFB8">"</span><span style="--shiki-light:#005CC5;--shiki-dark:#9EDFB8">%d\n</span><span style="--shiki-light:#032F62;--shiki-dark:#9EDFB8">"</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">, value);</span>
+</span><span class="line boring"><span style="--shiki-light:#D73A49;--shiki-dark:#F0ADA1">  return</span><span style="--shiki-light:#005CC5;--shiki-dark:#A9C9F5"> 0</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">;</span>
+</span><span class="line boring"><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">}</span></span></code></pre>
+
+<p><strong>Raises:</strong> <code>&lt;void-op&gt;</code> when a source callback claims success with a <code>void</code>
+element, plus any cause raised by that callback. A null <code>iter</code> or <code>out</code>
+reads as exhausted without raising.</p>
+<p>Source: <code>lib/iter.x:201</code></p>
+<p><a id="Iter.unique"></a></p>
+<h4 id="iterunique"><a class="header" href="#iterunique">Iter.unique</a></h4>
+<p><code>Iter Iter.unique(Iter iter, Iter dest)</code></p>
+<p>Returns a lazy iterator that yields the first occurrence of each value.
+Equality and hashing follow <code>Map</code>, so source order decides which equal
+value survives. Construction allocates a <code>Scope</code>-owned seen table; pulls
+may
+grow it. The source, <code>dest</code>, and owning <code>Scope</code> must outlive traversal.</p>
+<p><strong>Raises:</strong> <code>&lt;alloc-fail&gt;</code>, <code>&lt;size-limit&gt;</code>, <code>&lt;invariant&gt;</code>, or a cause from the
+source, hashing, or equality while constructing or pulling. A null <code>dest</code>
+returns NULL without allocating.</p>
+<p>Source: <code>lib/iter.x:637</code></p>
+<p><a id="Iter.zip"></a></p>
+<h4 id="iterzip"><a class="header" href="#iterzip">Iter.zip</a></h4>
+<p><code>Iter Iter.zip(Iter left, Iter right, Iter dest)</code></p>
+<p>Returns a lazy iterator over canonical <code>(left right)</code> <code>List</code>s.
+Destructure each pair with <code>Var (a, b) = pair;</code>. Pairing
+ends as soon as either source does. Each pull advances the left side first:
+if the right side is exhausted, that unmatched left value is consumed; if
+the left side is exhausted, the right side is not pulled. Both sources and
+<code>dest</code> must outlive traversal. Each yielded pair follows the lifetime of
+the <code>List</code> pool owning its canonical match.</p>
+<p><strong>Raises:</strong> <code>&lt;alloc-fail&gt;</code> or <code>&lt;size-limit&gt;</code> while interning a pair, plus any
+cause raised by either source. A null <code>dest</code> returns NULL.</p>
+<p>Source: <code>lib/iter.x:406</code></p>
+<p><a id="Iter.zip_with"></a></p>
+<h4 id="iterzip_with"><a class="header" href="#iterzip_with">Iter.zip_with</a></h4>
+<p><code>Iter Iter.zip_with(Iter left, Iter right, Func fn, Iter dest)</code></p>
+<p>Returns a lazy iterator over <code>fn(left, right)</code>, applied pairwise.
+Like <code>Iter.zip</code>, but each pair is combined by <code>fn</code> instead of being
+built into a <code>List</code>, and the result likewise ends with the shorter side.
+<code>fn</code> is optional. A null <code>fn</code> yields two-element pair <code>List</code>s as <code>Iter.zip</code>
+does. <code>Iter.map2</code> is the same operation with the callback required.</p>
+<p>Both sources and their storage, <code>dest</code>, and any dynamic or captured <code>fn</code>
+must remain valid while the result is used. Values are passed, not aliases
+into either source. A null <code>dest</code> returns NULL. If either source is empty,
+pulling does not invoke or check <code>fn</code>.</p>
+<p><strong>Raises:</strong> whatever either source, <code>Func.apply</code>, or <code>fn</code> raises while
+pulling. With a null <code>fn</code>, pair interning may raise <code>&lt;alloc-fail&gt;</code> or
+<code>&lt;size-limit&gt;</code>.</p>
+<p>Source: <code>lib/iter.x:435</code></p>
+<h2 id="advanced-and-interop-api"><a class="header" href="#advanced-and-interop-api">Advanced and interop API</a></h2>
+<div class="table-wrapper">
+<table>
+<thead>
+<tr><th>Function</th><th>Summary</th></tr>
+</thead>
+<tbody>
+<tr><td><a href="#Iter.init"><code>Iter.init</code></a></td><td>Initializes caller-supplied iterator storage and returns it.</td></tr>
+<tr><td><a href="#Iter.unzip"><code>Iter.unzip</code></a></td><td>Returns an iterator over the two column iterators of paired elements.</td></tr>
+</tbody>
+</table>
+</div>
+<h3 id="iter-1"><a class="header" href="#iter-1"><code>Iter</code></a></h3>
+<p><a id="Iter.init"></a></p>
+<h4 id="iterinit"><a class="header" href="#iterinit">Iter.init</a></h4>
+<p><code>Self Iter.init(Self iter, Var obj, IterNextFn next, Var state)</code></p>
+<p>Initializes caller-supplied iterator storage and returns it.
+<code>iter</code> is caller-owned storage, normally a <code>struct Iter</code> local. This call
+writes <code>obj</code>, the <code>next</code> callback, and the initial <code>state</code>, clears the
+auxiliary callback slot, and returns <code>iter</code>. It allocates nothing; the
+iterator lives as long as the supplied storage.</p>
+<p>A callback fills <code>*out</code> and returns 1, or returns 0 to report
+exhaustion. It must never report success with <code>void</code>, which the element
+domain excludes. <code>Iter.try_next</code> raises <code>&lt;void-op&gt;</code> for that violation. A
+null <code>next</code> yields an already-exhausted iterator. Inside a callback, read
+the stored fields with <code>-&gt;</code>; <code>iter.next(...)</code> is receiver syntax and calls
+the method instead of the field.</p>
+<pre class="shiki shiki-themes x2c-light x2c-dark x2c-code" style="--shiki-light:#24292e;--shiki-dark:#e9e5df;--shiki-light-bg:#fff;--shiki-dark-bg:#101011" tabindex="0"><code class="language-x2c no-highlight"><span class="line boring"><span style="--shiki-light:#D73A49;--shiki-dark:#F0ADA1">static</span><span style="--shiki-light:#D73A49;--shiki-dark:#F0ADA1"> int</span><span style="--shiki-light:#6F42C1;--shiki-dark:#E9E5DF"> _evens_next</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">(</span><span style="--shiki-light:#007C8A;--shiki-dark:#29D3E2">Iter</span><span style="--shiki-light:#E36209;--shiki-dark:#E9E5DF"> iter</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">, </span><span style="--shiki-light:#007C8A;--shiki-dark:#29D3E2">Var</span><span style="--shiki-light:#D73A49;--shiki-dark:#E9E5DF"> *</span><span style="--shiki-light:#E36209;--shiki-dark:#E9E5DF">out</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">) {</span>
+</span><span class="line boring"><span style="--shiki-light:#D73A49;--shiki-dark:#F0ADA1">  long</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF"> value </span><span style="--shiki-light:#D73A49;--shiki-dark:#E9E5DF">=</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF"> iter.state.</span><span style="--shiki-light:#6F42C1;--shiki-dark:#E9E5DF">long</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">();</span>
+</span><span class="line boring"><span style="--shiki-light:#D73A49;--shiki-dark:#F0ADA1">  if</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF"> (value </span><span style="--shiki-light:#D73A49;--shiki-dark:#E9E5DF">&gt;</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF"> iter.obj.</span><span style="--shiki-light:#6F42C1;--shiki-dark:#E9E5DF">long</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">()) </span><span style="--shiki-light:#D73A49;--shiki-dark:#F0ADA1">return</span><span style="--shiki-light:#005CC5;--shiki-dark:#A9C9F5"> 0</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">;</span>
+</span><span class="line boring"><span style="--shiki-light:#D73A49;--shiki-dark:#E9E5DF">  *</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">out </span><span style="--shiki-light:#D73A49;--shiki-dark:#E9E5DF">=</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF"> (</span><span style="--shiki-light:#D73A49;--shiki-dark:#F0ADA1">int</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">) value;</span>
+</span><span class="line boring"><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">  iter.state </span><span style="--shiki-light:#D73A49;--shiki-dark:#E9E5DF">=</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF"> value </span><span style="--shiki-light:#D73A49;--shiki-dark:#E9E5DF">+</span><span style="--shiki-light:#005CC5;--shiki-dark:#A9C9F5"> 2</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">;</span>
+</span><span class="line boring"><span style="--shiki-light:#D73A49;--shiki-dark:#F0ADA1">  return</span><span style="--shiki-light:#005CC5;--shiki-dark:#A9C9F5"> 1</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">;</span>
+</span><span class="line boring"><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">}</span>
+</span><span class="line boring">
+</span><span class="line boring"><span style="--shiki-light:#D73A49;--shiki-dark:#F0ADA1">int</span><span style="--shiki-light:#6F42C1;--shiki-dark:#E9E5DF"> main</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">(</span><span style="--shiki-light:#D73A49;--shiki-dark:#F0ADA1">void</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">) {</span>
+</span><span class="line"><span style="--shiki-light:#D73A49;--shiki-dark:#F0ADA1">struct</span><span style="--shiki-light:#007C8A;--shiki-dark:#29D3E2"> Iter</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF"> storage;</span>
+</span><span class="line"><span style="--shiki-light:#007C8A;--shiki-dark:#29D3E2">Iter</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF"> evens </span><span style="--shiki-light:#D73A49;--shiki-dark:#E9E5DF">=</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF"> Iter.</span><span style="--shiki-light:#6F42C1;--shiki-dark:#E9E5DF">init</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">(</span><span style="--shiki-light:#D73A49;--shiki-dark:#E9E5DF">&amp;</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">storage, </span><span style="--shiki-light:#005CC5;--shiki-dark:#A9C9F5">6</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">, _evens_next, </span><span style="--shiki-light:#005CC5;--shiki-dark:#A9C9F5">0</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">);</span>
+</span><span class="line"><span style="--shiki-light:#007C8A;--shiki-dark:#29D3E2">Var</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF"> value;</span>
+</span><span class="line"><span style="--shiki-light:#D73A49;--shiki-dark:#F0ADA1">while</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF"> (evens.</span><span style="--shiki-light:#6F42C1;--shiki-dark:#E9E5DF">try_next</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">(</span><span style="--shiki-light:#D73A49;--shiki-dark:#E9E5DF">&amp;</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">value)) </span><span style="--shiki-light:#6F42C1;--shiki-dark:#E9E5DF">printf</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">(</span><span style="--shiki-light:#032F62;--shiki-dark:#9EDFB8">"</span><span style="--shiki-light:#005CC5;--shiki-dark:#9EDFB8">%d\n</span><span style="--shiki-light:#032F62;--shiki-dark:#9EDFB8">"</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">, value);</span>
+</span><span class="line boring"><span style="--shiki-light:#D73A49;--shiki-dark:#F0ADA1">  return</span><span style="--shiki-light:#005CC5;--shiki-dark:#A9C9F5"> 0</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">;</span>
+</span><span class="line boring"><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">}</span></span></code></pre>
+
+<p>Storage must outlive every iterator derived from it, because a pipeline
+stage keeps a pointer to its source. Never return an <code>Iter</code> built over
+locals, since the iterator would outlive the struct it names; return a
+collected <code>List</code> or <code>Array</code>, or take the storage as a parameter. One
+<code>struct Iter</code> is one live iterator, so reusing a single storage variable
+for two stages of a pipeline silently overwrites the first.</p>
+<p>A null <code>iter</code> returns NULL.</p>
+<p>Source: <code>lib/iter.x:136</code></p>
+<p><a id="Iter.unzip"></a></p>
+<h4 id="iterunzip"><a class="header" href="#iterunzip">Iter.unzip</a></h4>
+<p><code>Iter Iter.unzip(Iter iter, UnzipShared *shared, Iter dest)</code></p>
+<p>Returns an iterator over the two column iterators of paired elements.
+Every element of <code>iter</code> must be a two-element <code>List</code>. The result yields
+two elements, the left column and then the right one, and is exhausted
+after that. Each column arrives as a <code>Var</code> holding an iterator
+embedded in <code>shared</code>. Passing nonnull storage to <code>.iter(&amp;storage)</code> performs
+the <code>Var</code> conversion, but <code>Iter.iter</code> ignores that storage and returns the
+embedded column; <code>shared</code> remains its owner.</p>
+<p>The columns are independent, and only the lag between them is buffered.
+Draining one column holds every element the other has not reached yet, so
+interleaving the two costs little and front-loading one costs memory
+proportional to the source. <code>shared</code> owns those buffers and must outlive
+both columns.</p>
+<pre class="shiki shiki-themes x2c-light x2c-dark x2c-code" style="--shiki-light:#24292e;--shiki-dark:#e9e5df;--shiki-light-bg:#fff;--shiki-dark-bg:#101011" tabindex="0"><code class="language-x2c no-highlight"><span class="line boring"><span style="--shiki-light:#D73A49;--shiki-dark:#F0ADA1">int</span><span style="--shiki-light:#6F42C1;--shiki-dark:#E9E5DF"> main</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">(</span><span style="--shiki-light:#D73A49;--shiki-dark:#F0ADA1">void</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">) {</span>
+</span><span class="line"><span style="--shiki-light:#007C8A;--shiki-dark:#29D3E2">List</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF"> pairs </span><span style="--shiki-light:#D73A49;--shiki-dark:#E9E5DF">=</span><span style="--shiki-light:#24292E;--shiki-dark:#FF715A"> %((</span><span style="--shiki-light:#005CC5;--shiki-dark:#A9C9F5">1</span><span style="--shiki-light:#005CC5;--shiki-dark:#A9C9F5"> 10</span><span style="--shiki-light:#24292E;--shiki-dark:#FF715A">)</span><span style="--shiki-light:#24292E;--shiki-dark:#FF715A"> (</span><span style="--shiki-light:#005CC5;--shiki-dark:#A9C9F5">2</span><span style="--shiki-light:#005CC5;--shiki-dark:#A9C9F5"> 20</span><span style="--shiki-light:#24292E;--shiki-dark:#FF715A">))</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">;</span>
+</span><span class="line"><span style="--shiki-light:#D73A49;--shiki-dark:#F0ADA1">struct</span><span style="--shiki-light:#007C8A;--shiki-dark:#29D3E2"> Iter</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF"> source_storage, columns_storage, left_storage, right_storage;</span>
+</span><span class="line"><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">UnzipShared shared;</span>
+</span><span class="line"><span style="--shiki-light:#007C8A;--shiki-dark:#29D3E2">Iter</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF"> columns </span><span style="--shiki-light:#D73A49;--shiki-dark:#E9E5DF">=</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF"> pairs.</span><span style="--shiki-light:#6F42C1;--shiki-dark:#E9E5DF">iter</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">(</span><span style="--shiki-light:#D73A49;--shiki-dark:#E9E5DF">&amp;</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">source_storage).</span><span style="--shiki-light:#6F42C1;--shiki-dark:#E9E5DF">unzip</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">(</span><span style="--shiki-light:#D73A49;--shiki-dark:#E9E5DF">&amp;</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">shared,</span>
+</span><span class="line"><span style="--shiki-light:#D73A49;--shiki-dark:#E9E5DF">                                                &amp;</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">columns_storage);</span>
+</span><span class="line"><span style="--shiki-light:#007C8A;--shiki-dark:#29D3E2">Iter</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF"> lefts </span><span style="--shiki-light:#D73A49;--shiki-dark:#E9E5DF">=</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF"> columns.</span><span style="--shiki-light:#6F42C1;--shiki-dark:#E9E5DF">next</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">().</span><span style="--shiki-light:#6F42C1;--shiki-dark:#E9E5DF">iter</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">(</span><span style="--shiki-light:#D73A49;--shiki-dark:#E9E5DF">&amp;</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">left_storage);</span>
+</span><span class="line"><span style="--shiki-light:#007C8A;--shiki-dark:#29D3E2">Iter</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF"> rights </span><span style="--shiki-light:#D73A49;--shiki-dark:#E9E5DF">=</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF"> columns.</span><span style="--shiki-light:#6F42C1;--shiki-dark:#E9E5DF">next</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">().</span><span style="--shiki-light:#6F42C1;--shiki-dark:#E9E5DF">iter</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">(</span><span style="--shiki-light:#D73A49;--shiki-dark:#E9E5DF">&amp;</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">right_storage);</span>
+</span><span class="line"><span style="--shiki-light:#6F42C1;--shiki-dark:#E9E5DF">printf</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">(</span><span style="--shiki-light:#032F62;--shiki-dark:#9EDFB8">"</span><span style="--shiki-light:#005CC5;--shiki-dark:#9EDFB8">%s</span><span style="--shiki-light:#005CC5;--shiki-dark:#9EDFB8"> %s\n</span><span style="--shiki-light:#032F62;--shiki-dark:#9EDFB8">"</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">, lefts.</span><span style="--shiki-light:#6F42C1;--shiki-dark:#E9E5DF">list</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">().</span><span style="--shiki-light:#6F42C1;--shiki-dark:#E9E5DF">str</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">(), rights.</span><span style="--shiki-light:#6F42C1;--shiki-dark:#E9E5DF">list</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">().</span><span style="--shiki-light:#6F42C1;--shiki-dark:#E9E5DF">str</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">());</span>
+</span><span class="line boring"><span style="--shiki-light:#D73A49;--shiki-dark:#F0ADA1">  return</span><span style="--shiki-light:#005CC5;--shiki-dark:#A9C9F5"> 0</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">;</span>
+</span><span class="line boring"><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">}</span></span></code></pre>
+
+<p><strong>Raises:</strong> <code>&lt;bad-types&gt;</code> when an element is not a <code>List</code>, <code>&lt;bad-arg&gt;</code> when it
+is not a two-element <code>List</code>, or <code>&lt;alloc-fail&gt;</code> / <code>&lt;size-limit&gt;</code> while
+creating or growing the column buffers. A source may also raise while a
+column pulls. A null <code>shared</code> or <code>dest</code> returns NULL without raising or
+allocating.</p>
+<p>Source: <code>lib/iter.x:713</code></p>
+<h2 id="convenience-api"><a class="header" href="#convenience-api">Convenience API</a></h2>
+<div class="table-wrapper">
+<table>
+<thead>
+<tr><th>Function</th><th>Summary</th></tr>
+</thead>
+<tbody>
+<tr><td><a href="#Iter.accumulate"><code>Iter.accumulate</code></a></td><td>Returns a lazy iterator over the running numeric sum of <code>iter</code>.</td></tr>
+<tr><td><a href="#Iter.next"><code>Iter.next</code></a></td><td>Returns the next element, or <code>void</code> once <code>iter</code> is exhausted.</td></tr>
+</tbody>
+</table>
+</div>
+<h3 id="iter-2"><a class="header" href="#iter-2"><code>Iter</code></a></h3>
+<p><a id="Iter.accumulate"></a></p>
+<h4 id="iteraccumulate"><a class="header" href="#iteraccumulate">Iter.accumulate</a></h4>
+<p><code>Iter Iter.accumulate(Iter iter, Var initial, Iter dest)</code></p>
+<p>Returns a lazy iterator over the running numeric sum of <code>iter</code>.
+The numeric special case of <code>Iter.scan</code>. Each element is added through
+<code>Var.binary</code> with the same promotion and failure rules as <code>Iter.sum</code>, and
+the resulting <code>Var</code> is yielded without narrowing. A <code>void</code>
+<code>initial</code> starts the total at integer zero; any other <code>initial</code> seeds it,
+and the seed itself is never yielded. Prefer <code>Iter.scan</code> for a different
+operation and <code>Iter.sum</code> when only the final total matters.</p>
+<p><strong>Raises:</strong> any cause from the source or <code>Var.binary</code> while adding an element
+to the running total. A null <code>dest</code> returns NULL without raising.</p>
+<p>Source: <code>lib/iter.x:561</code></p>
+<p><a id="Iter.next"></a></p>
+<h4 id="iternext"><a class="header" href="#iternext">Iter.next</a></h4>
+<p><code>Var Iter.next(Iter iter)</code></p>
+<p>Returns the next element, or <code>void</code> once <code>iter</code> is exhausted.
+An adapter over <code>Iter.try_next</code>, unambiguous because no iterator may
+yield <code>void</code> as an element. Prefer <code>Iter.try_next</code> in new code; it reports
+exhaustion separately from the element.</p>
+<p><strong>Raises:</strong> <code>&lt;void-op&gt;</code> when the source callback claims success with <code>void</code>,
+plus any cause raised by that callback.</p>
+<p>Source: <code>lib/iter.x:220</code></p>
+<h2 id="public-types"><a class="header" href="#public-types">Public types</a></h2>
+<div class="table-wrapper">
+<table>
+<thead>
+<tr><th>Type</th><th>Kind</th><th>Summary</th></tr>
+</thead>
+<tbody>
+<tr><td><a href="#Iter"><code>Iter</code></a></td><td>struct</td><td>Caller-owned handle to single-pass iterator state.</td></tr>
+<tr><td><a href="#IterNextFn"><code>IterNextFn</code></a></td><td>callback</td><td>Advances an <code>Iter</code>, reporting success separately from the element.</td></tr>
+<tr><td><a href="#UnzipColumn"><code>UnzipColumn</code></a></td><td>struct</td><td>Internal column selector embedded in <code>UnzipShared</code>.</td></tr>
+<tr><td><a href="#UnzipShared"><code>UnzipShared</code></a></td><td>struct</td><td>Caller-owned buffering shared by the two iterators from <code>Iter.unzip</code>.</td></tr>
+</tbody>
+</table>
+</div>
+<p><a id="Iter"></a></p>
+<h3 id="iter-3"><a class="header" href="#iter-3">Iter</a></h3>
+<p><code>typedef struct Iter *Iter</code></p>
+<p>Caller-owned handle to single-pass iterator state.
+A valid handle points to storage initialized by <code>Iter.init</code> or a collection
+adapter. Its storage, borrowed sources, and stored callbacks must outlive
+traversal. The handle has no destructor; auxiliary <code>Map</code> or <code>Array</code> storage
+follows the lifetime of its owning <code>Scope</code>.</p>
+<p>Source: <code>lib/iter.x:22</code></p>
+<p><a id="IterNextFn"></a></p>
+<h3 id="iternextfn"><a class="header" href="#iternextfn">IterNextFn</a></h3>
+<p><code>typedef int (*IterNextFn)(Iter iter, Var *out)</code></p>
+<p>Advances an <code>Iter</code>, reporting success separately from the element.
+The iterator borrows the callback and invokes it synchronously. A nonzero
+result must write one non-<code>void</code> value through <code>out</code>; zero reports
+exhaustion and must leave <code>out</code> unchanged.</p>
+<p>Source: <code>lib/iter.x:29</code></p>
+<p><a id="UnzipColumn"></a></p>
+<h3 id="unzipcolumn"><a class="header" href="#unzipcolumn">UnzipColumn</a></h3>
+<p><code>typedef struct { UnzipShared *shared, int column; } UnzipColumn</code></p>
+<p>Internal column selector embedded in <code>UnzipShared</code>.
+Callers reserve it as part of that shared record and do not initialize or
+use it independently.</p>
+<p>Source: <code>lib/iter.x:53</code></p>
+<p><a id="UnzipShared"></a></p>
+<h3 id="unzipshared"><a class="header" href="#unzipshared">UnzipShared</a></h3>
+<p><code>typedef struct UnzipShared UnzipShared</code></p>
+<p>Caller-owned buffering shared by the two iterators from <code>Iter.unzip</code>.
+Its source and this record must outlive both columns. <code>Buffer</code> allocations
+belong to the <code>Scope</code> that owns the <code>Array</code>s created at
+initialization; that
+<code>Scope</code> must remain live through all column pulls and provides cleanup.</p>
+<p>Source: <code>lib/iter.x:47</code></p>
+<h2 id="design-notes"><a class="header" href="#design-notes">Design notes</a></h2>
+<p><code>Iter</code> advances one element at a time and reports exhaustion separately.
+Lazy operations borrow their source iterators and callbacks. The caller
+supplies iterator storage, which must outlive traversal. Iterators cannot
+yield <code>void</code>.</p>
+<h2 id="tests-and-examples"><a class="header" href="#tests-and-examples">Tests and examples</a></h2>
+<p><code>make verify</code> (<code>unittest/test-iter.x</code>) and <code>make examples</code> (<code>iter-examples</code>).</p>
+
+                    </main>
+
+                    <nav class="x2c-pager" aria-label="Page navigation">
+                        <a rel="prev" href="../../library/modules/func.html" class="x2c-pager-prev" aria-keyshortcuts="Left">
+                            <span class="x2c-pager-label">previous</span>
+                            <span class="x2c-pager-title">lib/func.x</span>
+                        </a>
+                        
+                        <a rel="next prefetch" href="../../library/modules/json.html" class="x2c-pager-next" aria-keyshortcuts="Right">
+                            <span class="x2c-pager-label">next</span>
+                            <span class="x2c-pager-title">lib/json.x</span>
+                        </a>
+                    </nav>
+                    <footer class="x2c-footer">
+                        &copy; 2025&ndash;2026
+                        <a href="https://flake.org">GWF</a>
+                        &middot;
+                        <a href="https://github.com/gwf/x2c/blob/c2a89d999e81f47a4422a26edf0033eb0b98c6c6/LICENSE">Apache 2.0</a>
+                        &middot;
+                        <a href="https://github.com/gwf/x2c/blob/c2a89d999e81f47a4422a26edf0033eb0b98c6c6/TRADEMARKS.md">Trademarks</a>
+                    </footer>
+                </div>
+            </div>
+
+
+        </div>
+
+        <template id=fa-eye><span class=fa-svg><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 576 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc. --><path d="M288 32c-80.8 0-145.5 36.8-192.6 80.6C48.6 156 17.3 208 2.5 243.7c-3.3 7.9-3.3 16.7 0 24.6C17.3 304 48.6 356 95.4 399.4C142.5 443.2 207.2 480 288 480s145.5-36.8 192.6-80.6c46.8-43.5 78.1-95.4 93-131.1c3.3-7.9 3.3-16.7 0-24.6c-14.9-35.7-46.2-87.7-93-131.1C433.5 68.8 368.8 32 288 32zM432 256c0 79.5-64.5 144-144 144s-144-64.5-144-144s64.5-144 144-144s144 64.5 144 144zM288 192c0 35.3-28.7 64-64 64c-11.5 0-22.3-3-31.6-8.4c-.2 2.8-.4 5.5-.4 8.4c0 53 43 96 96 96s96-43 96-96s-43-96-96-96c-2.8 0-5.6 .1-8.4 .4c5.3 9.3 8.4 20.1 8.4 31.6z"/></svg></span></template>
+        <template id=fa-eye-slash><span class=fa-svg><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 640 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc. --><path d="M38.8 5.1C28.4-3.1 13.3-1.2 5.1 9.2S-1.2 34.7 9.2 42.9l592 464c10.4 8.2 25.5 6.3 33.7-4.1s6.3-25.5-4.1-33.7L525.6 386.7c39.6-40.6 66.4-86.1 79.9-118.4c3.3-7.9 3.3-16.7 0-24.6c-14.9-35.7-46.2-87.7-93-131.1C465.5 68.8 400.8 32 320 32c-68.2 0-125 26.3-169.3 60.8L38.8 5.1zM223.1 149.5C248.6 126.2 282.7 112 320 112c79.5 0 144 64.5 144 144c0 24.9-6.3 48.3-17.4 68.7L408 294.5c5.2-11.8 8-24.8 8-38.5c0-53-43-96-96-96c-2.8 0-5.6 .1-8.4 .4c5.3 9.3 8.4 20.1 8.4 31.6c0 10.2-2.4 19.8-6.6 28.3l-90.3-70.8zm223.1 298L373 389.9c-16.4 6.5-34.3 10.1-53 10.1c-79.5 0-144-64.5-144-144c0-6.9 .5-13.6 1.4-20.2L83.1 161.5C60.3 191.2 44 220.8 34.5 243.7c-3.3 7.9-3.3 16.7 0 24.6c14.9 35.7 46.2 87.7 93 131.1C174.5 443.2 239.2 480 320 480c47.8 0 89.9-12.9 126.2-32.5z"/></svg></span></template>
+        <template id=fa-copy><span class=fa-svg><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc. --><path d="M502.6 70.63l-61.25-61.25C435.4 3.371 427.2 0 418.7 0H255.1c-35.35 0-64 28.66-64 64l.0195 256C192 355.4 220.7 384 256 384h192c35.2 0 64-28.8 64-64V93.25C512 84.77 508.6 76.63 502.6 70.63zM464 320c0 8.836-7.164 16-16 16H255.1c-8.838 0-16-7.164-16-16L239.1 64.13c0-8.836 7.164-16 16-16h128L384 96c0 17.67 14.33 32 32 32h47.1V320zM272 448c0 8.836-7.164 16-16 16H63.1c-8.838 0-16-7.164-16-16L47.98 192.1c0-8.836 7.164-16 16-16H160V128H63.99c-35.35 0-64 28.65-64 64l.0098 256C.002 483.3 28.66 512 64 512h192c35.2 0 64-28.8 64-64v-32h-47.1L272 448z"/></svg></span></template>
+        <template id=fa-play><span class=fa-svg><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 384 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc. --><path d="M73 39c-14.8-9.1-33.4-9.4-48.5-.9S0 62.6 0 80V432c0 17.4 9.4 33.4 24.5 41.9s33.7 8.1 48.5-.9L361 297c14.3-8.7 23-24.2 23-41s-8.7-32.2-23-41L73 39z"/></svg></span></template>
+        <template id=fa-clock-rotate-left><span class=fa-svg><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc. --><path d="M75 75L41 41C25.9 25.9 0 36.6 0 57.9V168c0 13.3 10.7 24 24 24H134.1c21.4 0 32.1-25.9 17-41l-30.8-30.8C155 85.5 203 64 256 64c106 0 192 86 192 192s-86 192-192 192c-40.8 0-78.6-12.7-109.7-34.4c-14.5-10.1-34.4-6.6-44.6 7.9s-6.6 34.4 7.9 44.6C151.2 495 201.7 512 256 512c141.4 0 256-114.6 256-256S397.4 0 256 0C185.3 0 121.3 28.7 75 75zm181 53c-13.3 0-24 10.7-24 24V256c0 6.4 2.5 12.5 7 17l72 72c9.4 9.4 24.6 9.4 33.9 0s9.4-24.6 0-33.9l-65-65V152c0-13.3-10.7-24-24-24z"/></svg></span></template>
+
+
+
+        <script>
+            window.playground_copyable = true;
+        </script>
+
+
+        <script src="../../elasticlunr-ef4e11c1.min.js"></script>
+        <script src="../../mark-09e88c2c.min.js"></script>
+        <script src="../../searcher-09f2665d.js"></script>
+
+        <script src="../../clipboard-1626706a.min.js"></script>
+        <script src="../../highlight-abc7f01d.js"></script>
+        <script src="../../book-609e4cb8.js"></script>
+
+        <script>
+            document.addEventListener('DOMContentLoaded', () => {
+                const sidebar = document.querySelector('#mdbook-sidebar');
+                sidebar.querySelectorAll('ol').forEach(list => {
+                    const numbers = list.querySelectorAll(
+                        ':scope > li > .chapter-link-wrapper > a > strong, :scope > li > a > strong');
+                    if (numbers.length) {
+                        const width = Math.max(...Array.from(numbers,
+                            number => number.textContent.trim().length));
+                        list.style.setProperty('--chapter-number-width', width + 'ch');
+                    }
+                });
+                const chapter = sidebar.querySelector('a.active');
+                const item = chapter?.closest('.chapter-item');
+                if (item?.querySelector(':scope > .on-this-page')) {
+                    const row = chapter.parentElement;
+                    if (!row.querySelector('.chapter-fold-toggle')) {
+                        const toggle = document.createElement('button');
+                        toggle.type = 'button';
+                        toggle.className = 'chapter-fold-toggle';
+                        toggle.appendChild(document.createElement('div'));
+                        toggle.addEventListener('click', () => {
+                            item.classList.toggle('expanded');
+                        });
+                        row.appendChild(toggle);
+                    }
+                }
+                sidebar.querySelectorAll('.chapter-fold-toggle').forEach(toggle => {
+                    const row = toggle.parentElement;
+                    const item = row.parentElement;
+                    const title = row.querySelector('a').textContent.trim();
+                    toggle.setAttribute('aria-label', 'Toggle ' + title);
+                    const update = () => toggle.setAttribute('aria-expanded',
+                        String(item.classList.contains('expanded')));
+                    update();
+                    toggle.addEventListener('click', update);
+                    if (toggle.tagName === 'A') {
+                        toggle.setAttribute('role', 'button');
+                        toggle.tabIndex = 0;
+                        toggle.addEventListener('keydown', event => {
+                            if (event.key === 'Enter' || event.key === ' ') {
+                                event.preventDefault();
+                                toggle.click();
+                            }
+                        });
+                    }
+                });
+            });
+        </script>
+
+        <!-- Custom JS scripts -->
+
+
+
+    </div>
+    </body>
+</html>

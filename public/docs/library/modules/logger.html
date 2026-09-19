@@ -1,0 +1,723 @@
+<!DOCTYPE HTML>
+<html lang="en" class="light sidebar-visible" dir="ltr">
+    <head>
+        <!-- Book generated using mdBook -->
+        <meta charset="UTF-8">
+        <title>lib/logger.x - The x2c Book</title>
+
+
+        <!-- Custom HTML head -->
+        <link rel="preconnect" href="https://fonts.googleapis.com">
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=Archivo:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">
+
+        <meta name="description" content="The x2c language, standard library, and compiler.">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <meta name="theme-color" content="#ffffff">
+
+        <link rel="icon" href="../../favicon-995a3c20.svg">
+        <link rel="stylesheet" href="../../css/variables-8adf115d.css">
+        <link rel="stylesheet" href="../../css/general-e96d0476.css">
+        <link rel="stylesheet" href="../../css/chrome-d279d366.css">
+        <link rel="stylesheet" href="../../css/print-9e4910d8.css" media="print">
+
+        <!-- Fonts -->
+        <link rel="stylesheet" href="../../fonts/fonts-9644e21d.css">
+
+        <!-- Highlight.js Stylesheets -->
+        <link rel="stylesheet" id="mdbook-highlight-css" href="../../highlight-493f70e1.css">
+        <link rel="stylesheet" id="mdbook-tomorrow-night-css" href="../../tomorrow-night-4c0ae647.css">
+        <link rel="stylesheet" id="mdbook-ayu-highlight-css" href="../../ayu-highlight-3fdfc3ac.css">
+
+        <!-- Custom theme stylesheets -->
+        <link rel="stylesheet" href="../../theme/header-2c1becca.css">
+        <link rel="stylesheet" href="../../theme/x2c-fd3d182e.css">
+
+
+        <!-- Provide site root and default themes to javascript -->
+        <script>
+            const path_to_root = "../../";
+            const default_light_theme = "light";
+            const default_dark_theme = "light";
+            window.path_to_searchindex_js = "../../searchindex-2643e100.js";
+        </script>
+        <!-- Start loading toc.js asap -->
+        <script src="../../toc-a71616d6.js"></script>
+        <!-- x2c publication metadata -->
+        <link rel="canonical" href="https://staging.x2c-lang.dev/docs/library/modules/logger.html">
+        <meta property="og:type" content="website">
+        <meta property="og:title" content="lib/logger.x - The x2c Book">
+        <meta property="og:description" content="The x2c language, standard library, and compiler.">
+        <meta property="og:url" content="https://staging.x2c-lang.dev/docs/library/modules/logger.html">
+        <meta property="og:image" content="https://staging.x2c-lang.dev/x2c-social.png">
+        <meta property="og:image:width" content="1200">
+        <meta property="og:image:height" content="630">
+        <meta name="twitter:card" content="summary_large_image">
+        <meta name="twitter:title" content="lib/logger.x - The x2c Book">
+        <meta name="twitter:description" content="The x2c language, standard library, and compiler.">
+        <meta name="twitter:image" content="https://staging.x2c-lang.dev/x2c-social.png">
+    </head>
+    <body><aside aria-label="Release candidate" style="padding:1rem;background:#fff1bf;color:#241c00;font:14px/1.5 monospace;overflow-wrap:anywhere"><strong>Public staging: candidate-c2a89d999e81f47a4422a26edf0033eb0b98c6c6-35470032964-1</strong><p>Source: c2a89d999e81f47a4422a26edf0033eb0b98c6c6. Use a fresh scratch installation and the explicit candidate index below. Bare x2c install commands and production URLs in the book refer to production.</p><pre style="overflow:auto">export X2C_PREFIX=&quot;$(mktemp -d)/x2c&quot;
+curl -fsSL https://staging.x2c-lang.dev/install.sh | sh
+export PATH=&quot;$X2C_PREFIX/bin:$PATH&quot;
+x2c run &quot;$X2C_PREFIX/examples/foreach.x&quot;
+x2c install pcre2 --index https://staging.x2c-lang.dev/packages/index.txt</pre></aside>
+    <div id="mdbook-help-container">
+        <div id="mdbook-help-popup">
+            <h2 class="mdbook-help-title">Keyboard shortcuts</h2>
+            <div>
+                <p>Press <kbd>←</kbd> or <kbd>→</kbd> to navigate between chapters</p>
+                <p>Press <kbd>S</kbd> or <kbd>/</kbd> to search in the book</p>
+                <p>Press <kbd>?</kbd> to show this help</p>
+                <p>Press <kbd>Esc</kbd> to hide this help</p>
+            </div>
+        </div>
+    </div>
+    <div id="mdbook-body-container">
+        <!-- Work around some values being stored in localStorage wrapped in quotes -->
+        <script>
+            try {
+                let theme = localStorage.getItem('mdbook-theme');
+                let sidebar = localStorage.getItem('mdbook-sidebar');
+
+                if (theme.startsWith('"') && theme.endsWith('"')) {
+                    localStorage.setItem('mdbook-theme', theme.slice(1, theme.length - 1));
+                }
+
+                if (sidebar.startsWith('"') && sidebar.endsWith('"')) {
+                    localStorage.setItem('mdbook-sidebar', sidebar.slice(1, sidebar.length - 1));
+                }
+            } catch (e) { }
+        </script>
+
+        <!-- Set the theme before any content is loaded, prevents flash -->
+        <script>
+            const default_theme = window.matchMedia("(prefers-color-scheme: dark)").matches ? default_dark_theme : default_light_theme;
+            let theme;
+            try { theme = localStorage.getItem('mdbook-theme'); } catch(e) { }
+            if (theme === null || theme === undefined) { theme = default_theme; }
+            const html = document.documentElement;
+            html.classList.remove('light')
+            html.classList.add(theme);
+            html.classList.add("js");
+        </script>
+
+        <input type="checkbox" id="mdbook-sidebar-toggle-anchor" class="hidden">
+
+        <!-- Hide / unhide sidebar before it is displayed -->
+        <script>
+            let sidebar = null;
+            const sidebar_toggle = document.getElementById("mdbook-sidebar-toggle-anchor");
+            if (document.body.clientWidth >= 1080) {
+                try { sidebar = localStorage.getItem('mdbook-sidebar'); } catch(e) { }
+                sidebar = sidebar || 'visible';
+            } else {
+                sidebar = 'hidden';
+                sidebar_toggle.checked = false;
+            }
+            if (sidebar === 'visible') {
+                sidebar_toggle.checked = true;
+            } else {
+                html.classList.remove('sidebar-visible');
+            }
+        </script>
+
+        <nav id="mdbook-sidebar" class="sidebar" aria-label="Table of contents">
+            <!-- populated by js -->
+            <mdbook-sidebar-scrollbox class="sidebar-scrollbox"></mdbook-sidebar-scrollbox>
+            <noscript>
+                <iframe class="sidebar-iframe-outer" src="../../toc.html"></iframe>
+            </noscript>
+            <div id="mdbook-sidebar-resize-handle" class="sidebar-resize-handle">
+                <div class="sidebar-resize-indicator"></div>
+            </div>
+        </nav>
+
+        <div id="mdbook-page-wrapper" class="page-wrapper">
+
+            <div class="page">
+                <div id="mdbook-menu-bar" class="hidden"></div>
+                <header class="landing-header x2c-header">
+                    <div class="landing-header-inner">
+                        <div class="landing-branding">
+                            <a class="landing-brand" href="../../../" aria-label="x2c home">
+                                <svg viewBox="0 0 100 100" width="22" height="22" aria-hidden="true"><g fill="none" stroke="#da291c" stroke-width="17" stroke-linecap="butt"><path d="M9 16 A34.5 34.5 0 0 1 9 84"></path><path d="M91 16 A34.5 34.5 0 0 0 91 84"></path></g></svg>
+                                <span class="x2c-wordmark landing-wordmark">x2c</span>
+                            </a>
+                            <span class="landing-tagline">The x2c Book</span>
+                        </div>
+                        <nav class="landing-nav" aria-label="x2c website">
+                            <div class="landing-page-nav">
+                                <a href="../../../#love">love</a>
+                                <a href="../../../#power">power</a>
+                                <a href="../../../#magic">magic</a>
+                            </div>
+                            <div class="landing-site-nav">
+                                <a href="../../../#install">install</a>
+                                <a href="../../../#packages">packages</a>
+                            </div>
+                            <div class="landing-reference-nav">
+                                <a href="../../../about/">about</a>
+                                <a href="../../" aria-current="page">docs</a>
+                                <a href="https://github.com/gwf/x2c">source</a>
+                            </div>
+                        </nav>
+                    </div>
+                    <div class="x2c-book-tools">
+                        <div class="x2c-header-tools">
+                            <label id="mdbook-sidebar-toggle" class="icon-button" for="mdbook-sidebar-toggle-anchor" title="Toggle Table of Contents" aria-label="Toggle Table of Contents" aria-controls="mdbook-sidebar">
+                                <span class=fa-svg><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc. --><path d="M0 96C0 78.3 14.3 64 32 64H416c17.7 0 32 14.3 32 32s-14.3 32-32 32H32C14.3 128 0 113.7 0 96zM0 256c0-17.7 14.3-32 32-32H416c17.7 0 32 14.3 32 32s-14.3 32-32 32H32c-17.7 0-32-14.3-32-32zM448 416c0 17.7-14.3 32-32 32H32c-17.7 0-32-14.3-32-32s14.3-32 32-32H416c17.7 0 32 14.3 32 32z"/></svg></span>
+                            </label>
+                        </div>
+                        <div class="x2c-header-tools x2c-header-tools-right">
+                            <button id="mdbook-search-toggle" class="icon-button" type="button" title="Search (`/`)" aria-label="Toggle Searchbar" aria-expanded="false" aria-keyshortcuts="/ s" aria-controls="mdbook-searchbar">
+                                <span class=fa-svg><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc. --><path d="M416 208c0 45.9-14.9 88.3-40 122.7L502.6 457.4c12.5 12.5 12.5 32.8 0 45.3s-32.8 12.5-45.3 0L330.7 376c-34.4 25.2-76.8 40-122.7 40C93.1 416 0 322.9 0 208S93.1 0 208 0S416 93.1 416 208zM208 352c79.5 0 144-64.5 144-144s-64.5-144-144-144S64 128.5 64 208s64.5 144 144 144z"/></svg></span>
+                            </button>
+                            <button id="mdbook-theme-toggle" class="icon-button" type="button" title="Change theme" aria-label="Change theme" aria-haspopup="true" aria-expanded="false" aria-controls="mdbook-theme-list">
+                                <span class=fa-svg><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc. --><path d="M448 256c0-106-86-192-192-192V448c106 0 192-86 192-192zm64 0c0 141.4-114.6 256-256 256S0 397.4 0 256S114.6 0 256 0S512 114.6 512 256z"/></svg></span>
+                            </button>
+                            <ul id="mdbook-theme-list" class="theme-popup" aria-label="Themes" role="menu">
+                                <li role="none"><button role="menuitem" class="theme" id="mdbook-theme-default_theme">Auto</button></li>
+                                <li role="none"><button role="menuitem" class="theme" id="mdbook-theme-light">Light</button></li>
+                                <li role="none"><button role="menuitem" class="theme" id="mdbook-theme-ayu">Dark</button></li>
+                            </ul>
+                            <a href="https://github.com/gwf/x2c/edit/main/docs/src/library/modules/logger.md" title="Suggest an edit" aria-label="Suggest an edit" rel="edit" class="icon-button">
+                                <span class=fa-svg id="git-edit-button"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc. --><path d="M421.7 220.3l-11.3 11.3-22.6 22.6-205 205c-6.6 6.6-14.8 11.5-23.8 14.1L30.8 511c-8.4 2.5-17.5 .2-23.7-6.1S-1.5 489.7 1 481.2L38.7 353.1c2.6-9 7.5-17.2 14.1-23.8l205-205 22.6-22.6 11.3-11.3 33.9 33.9 62.1 62.1 33.9 33.9zM96 353.9l-9.3 9.3c-.9 .9-1.6 2.1-2 3.4l-25.3 86 86-25.3c1.3-.4 2.5-1.1 3.4-2l9.3-9.3H112c-8.8 0-16-7.2-16-16V353.9zM453.3 19.3l39.4 39.4c25 25 25 65.5 0 90.5l-14.5 14.5-22.6 22.6-11.3 11.3-33.9-33.9-62.1-62.1L314.3 67.7l11.3-11.3 22.6-22.6 14.5-14.5c25-25 65.5-25 90.5 0z"/></svg></span>
+                            </a>
+                        </div>
+                    </div>
+                </header>
+                <script>
+                    const bookHeader = document.querySelector('.x2c-header');
+                    new ResizeObserver(() => {
+                        document.documentElement.style.setProperty(
+                            '--menu-bar-height', `${bookHeader.getBoundingClientRect().height}px`);
+                    }).observe(bookHeader);
+                </script>
+
+                <div id="mdbook-search-wrapper" class="hidden">
+                    <form id="mdbook-searchbar-outer" class="searchbar-outer">
+                        <div class="search-wrapper">
+                            <input type="search" id="mdbook-searchbar" name="searchbar" placeholder="Search this book ..." aria-controls="mdbook-searchresults-outer" aria-describedby="searchresults-header">
+                            <div class="spinner-wrapper">
+                                <span class=fa-svg id="fa-spin"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc. --><path d="M304 48c0-26.5-21.5-48-48-48s-48 21.5-48 48s21.5 48 48 48s48-21.5 48-48zm0 416c0-26.5-21.5-48-48-48s-48 21.5-48 48s21.5 48 48 48s48-21.5 48-48zM48 304c26.5 0 48-21.5 48-48s-21.5-48-48-48s-48 21.5-48 48s21.5 48 48 48zm464-48c0-26.5-21.5-48-48-48s-48 21.5-48 48s21.5 48 48 48s48-21.5 48-48zM142.9 437c18.7-18.7 18.7-49.1 0-67.9s-49.1-18.7-67.9 0s-18.7 49.1 0 67.9s49.1 18.7 67.9 0zm0-294.2c18.7-18.7 18.7-49.1 0-67.9S93.7 56.2 75 75s-18.7 49.1 0 67.9s49.1 18.7 67.9 0zM369.1 437c18.7 18.7 49.1 18.7 67.9 0s18.7-49.1 0-67.9s-49.1-18.7-67.9 0s-18.7 49.1 0 67.9z"/></svg></span>
+                            </div>
+                        </div>
+                    </form>
+                    <div id="mdbook-searchresults-outer" class="searchresults-outer hidden">
+                        <div id="mdbook-searchresults-header" class="searchresults-header"></div>
+                        <ul id="mdbook-searchresults">
+                        </ul>
+                    </div>
+                </div>
+
+                <!-- Apply ARIA attributes after the sidebar and the sidebar toggle button are added to the DOM -->
+                <script>
+                    document.getElementById('mdbook-sidebar-toggle').setAttribute('aria-expanded', sidebar === 'visible');
+                    document.getElementById('mdbook-sidebar').setAttribute('aria-hidden', sidebar !== 'visible');
+                    Array.from(document.querySelectorAll('#mdbook-sidebar a')).forEach(function(link) {
+                        link.setAttribute('tabIndex', sidebar === 'visible' ? 0 : -1);
+                    });
+                </script>
+
+                <div id="mdbook-content" class="content">
+                    <main>
+                        <!-- Generated by `python3 tools/gen-api-reference.py --write` from
+     lib/*.x and the stage interfaces. Do not edit by hand. -->
+<h1 id="libloggerx"><a class="header" href="#libloggerx"><code>lib/logger.x</code></a></h1>
+<p>Owned structured event delivery.</p>
+<h2 id="primary-api"><a class="header" href="#primary-api">Primary API</a></h2>
+<div class="table-wrapper">
+<table>
+<thead>
+<tr><th>Function</th><th>Summary</th></tr>
+</thead>
+<tbody>
+<tr><td><a href="#Logger.new"><code>Logger.new</code></a></td><td>Creates a <code>Logger</code> in the active <code>Scope</code>, filtering below <code>min_level</code>.</td></tr>
+</tbody>
+</table>
+</div>
+<h3 id="logger"><a class="header" href="#logger"><code>Logger</code></a></h3>
+<p><a id="Logger.new"></a></p>
+<h4 id="loggernew"><a class="header" href="#loggernew">Logger.new</a></h4>
+<p><code>Logger Logger.new(Symbol min_level)</code></p>
+<p>Creates a <code>Logger</code> in the active <code>Scope</code>, filtering below <code>min_level</code>.
+The <code>Logger</code> borrows the active canonical pool for any memory sinks and
+owns
+a private <code>Scope</code> for sink state. An invalid level returns NULL.</p>
+<p><strong>Raises:</strong> <code>&lt;alloc-fail&gt;</code> when the <code>Logger</code> or its private <code>Scope</code> cannot be
+allocated.</p>
+<p>Source: <code>lib/logger.x:647</code></p>
+<h2 id="advanced-and-interop-api"><a class="header" href="#advanced-and-interop-api">Advanced and interop API</a></h2>
+<div class="table-wrapper">
+<table>
+<thead>
+<tr><th>Function</th><th>Summary</th></tr>
+</thead>
+<tbody>
+<tr><td><a href="#log_debug"><code>log_debug</code></a></td><td>Logs borrowed <code>fields</code> globally at debug level under <code>category</code>.</td></tr>
+<tr><td><a href="#log_error"><code>log_error</code></a></td><td>Logs borrowed <code>fields</code> globally at error level under <code>category</code>.</td></tr>
+<tr><td><a href="#log_event"><code>log_event</code></a></td><td>Delivers one event synchronously through the current global <code>Logger</code>.</td></tr>
+<tr><td><a href="#log_fatal"><code>log_fatal</code></a></td><td>Logs borrowed <code>fields</code> globally at fatal level under <code>category</code>.</td></tr>
+<tr><td><a href="#log_get_global_logger"><code>log_get_global_logger</code></a></td><td>Returns the borrowed current global <code>Logger</code>, or NULL when none is set.</td></tr>
+<tr><td><a href="#log_info"><code>log_info</code></a></td><td>Logs borrowed <code>fields</code> globally at info level under <code>category</code>.</td></tr>
+<tr><td><a href="#log_set_global_logger"><code>log_set_global_logger</code></a></td><td>Installs a borrowed global <code>Logger</code> and returns the previous borrowed value.</td></tr>
+<tr><td><a href="#log_should_log"><code>log_should_log</code></a></td><td>Reports whether the current global <code>Logger</code> would deliver this event.</td></tr>
+<tr><td><a href="#log_trace"><code>log_trace</code></a></td><td>Logs borrowed <code>fields</code> globally at trace level under <code>category</code>.</td></tr>
+<tr><td><a href="#log_warn"><code>log_warn</code></a></td><td>Logs borrowed <code>fields</code> globally at warn level under <code>category</code>.</td></tr>
+<tr><td><a href="#Logger.add_file_sink"><code>Logger.add_file_sink</code></a></td><td>Adds a plain-text sink for borrowed <code>file</code> and returns its handle.</td></tr>
+<tr><td><a href="#Logger.add_memory_sink"><code>Logger.add_memory_sink</code></a></td><td>Adds a sink that prepends captured events to <code>destination</code>.</td></tr>
+<tr><td><a href="#Logger.add_sink"><code>Logger.add_sink</code></a></td><td>Appends a callback sink and returns its <code>Logger</code>-owned handle.</td></tr>
+<tr><td><a href="#Logger.add_stderr_sink"><code>Logger.add_stderr_sink</code></a></td><td>Adds a text sink for borrowed <code>stderr</code> and returns its <code>Logger</code>-owned handle.</td></tr>
+<tr><td><a href="#Logger.clear_sinks"><code>Logger.clear_sinks</code></a></td><td>Removes and invalidates every sink from <code>logger</code>.</td></tr>
+<tr><td><a href="#Logger.debug"><code>Logger.debug</code></a></td><td>Logs borrowed <code>fields</code> synchronously at debug level under <code>category</code>.</td></tr>
+<tr><td><a href="#Logger.error"><code>Logger.error</code></a></td><td>Logs borrowed <code>fields</code> synchronously at error level under <code>category</code>.</td></tr>
+<tr><td><a href="#Logger.fatal"><code>Logger.fatal</code></a></td><td>Logs borrowed <code>fields</code> synchronously at fatal level under <code>category</code>.</td></tr>
+<tr><td><a href="#Logger.flush"><code>Logger.flush</code></a></td><td>Calls configured flushers synchronously in registration order.</td></tr>
+<tr><td><a href="#Logger.free"><code>Logger.free</code></a></td><td>Flushes and retires every sink, then releases <code>logger</code> and its storage.</td></tr>
+<tr><td><a href="#Logger.info"><code>Logger.info</code></a></td><td>Logs borrowed <code>fields</code> synchronously at info level under <code>category</code>.</td></tr>
+<tr><td><a href="#Logger.initialize"><code>Logger.initialize</code></a></td><td>Installs the process-wide info-level <code>Logger</code> and stderr sink.</td></tr>
+<tr><td><a href="#Logger.level_priority"><code>Logger.level_priority</code></a></td><td>Returns the ordering priority of a built-in level, or -1 when invalid.</td></tr>
+<tr><td><a href="#Logger.log"><code>Logger.log</code></a></td><td>Delivers one event synchronously to eligible sinks in registration order.</td></tr>
+<tr><td><a href="#Logger.min_level"><code>Logger.min_level</code></a></td><td>Returns <code>logger</code>’s minimum enabled level, or the null <code>Symbol</code> for NULL.</td></tr>
+<tr><td><a href="#Logger.remove_sink"><code>Logger.remove_sink</code></a></td><td>Removes and invalidates <code>sink</code>, returning one when it belonged to <code>logger</code>.</td></tr>
+<tr><td><a href="#Logger.set_min_level"><code>Logger.set_min_level</code></a></td><td>Sets the minimum enabled level and returns one.</td></tr>
+<tr><td><a href="#Logger.should_log"><code>Logger.should_log</code></a></td><td>Reports whether an event would reach at least one sink.</td></tr>
+<tr><td><a href="#Logger.shutdown"><code>Logger.shutdown</code></a></td><td>Shuts down process-wide <code>Logger</code> integration.</td></tr>
+<tr><td><a href="#Logger.sink_count"><code>Logger.sink_count</code></a></td><td>Returns the number of configured sinks, or zero for a NULL <code>Logger</code>.</td></tr>
+<tr><td><a href="#Logger.trace"><code>Logger.trace</code></a></td><td>Logs borrowed <code>fields</code> synchronously at trace level under <code>category</code>.</td></tr>
+<tr><td><a href="#Logger.warn"><code>Logger.warn</code></a></td><td>Logs borrowed <code>fields</code> synchronously at warn level under <code>category</code>.</td></tr>
+</tbody>
+</table>
+</div>
+<h3 id="functions"><a class="header" href="#functions">Functions</a></h3>
+<h4 id="log_debug"><a class="header" href="#log_debug">log_debug</a></h4>
+<p><code>void log_debug(Symbol category, List fields)</code></p>
+<p>Logs borrowed <code>fields</code> globally at debug level under <code>category</code>.
+Delivery and failure behavior follow <code>log_event</code>.</p>
+<p>Source: <code>lib/logger.x:776</code></p>
+<h4 id="log_error"><a class="header" href="#log_error">log_error</a></h4>
+<p><code>void log_error(Symbol category, List fields)</code></p>
+<p>Logs borrowed <code>fields</code> globally at error level under <code>category</code>.
+Delivery and failure behavior follow <code>log_event</code>.</p>
+<p>Source: <code>lib/logger.x:779</code></p>
+<h4 id="log_event"><a class="header" href="#log_event">log_event</a></h4>
+<p><code>void log_event(Symbol level, Symbol category, List fields)</code></p>
+<p>Delivers one event synchronously through the current global <code>Logger</code>.
+With no global <code>Logger</code> this is a no-op; otherwise delivery and failures
+are
+those of <code>Logger.log</code>.</p>
+<p>Source: <code>lib/logger.x:762</code></p>
+<h4 id="log_fatal"><a class="header" href="#log_fatal">log_fatal</a></h4>
+<p><code>void log_fatal(Symbol category, List fields)</code></p>
+<p>Logs borrowed <code>fields</code> globally at fatal level under <code>category</code>.
+Delivery and failure behavior follow <code>log_event</code>.</p>
+<p>Source: <code>lib/logger.x:780</code></p>
+<h4 id="log_get_global_logger"><a class="header" href="#log_get_global_logger">log_get_global_logger</a></h4>
+<p><code>Logger log_get_global_logger(void)</code></p>
+<p>Returns the borrowed current global <code>Logger</code>, or NULL when none is set.</p>
+<p>Source: <code>lib/logger.x:754</code></p>
+<h4 id="log_info"><a class="header" href="#log_info">log_info</a></h4>
+<p><code>void log_info(Symbol category, List fields)</code></p>
+<p>Logs borrowed <code>fields</code> globally at info level under <code>category</code>.
+Delivery and failure behavior follow <code>log_event</code>.</p>
+<p>Source: <code>lib/logger.x:777</code></p>
+<h4 id="log_set_global_logger"><a class="header" href="#log_set_global_logger">log_set_global_logger</a></h4>
+<p><code>Logger log_set_global_logger(Logger logger)</code></p>
+<p>Installs a borrowed global <code>Logger</code> and returns the previous borrowed
+value.
+Neither <code>Logger</code> is flushed, freed, or otherwise retained by this call; the
+installed <code>Logger</code> must remain live until it is replaced or shutdown runs.</p>
+<p>Source: <code>lib/logger.x:746</code></p>
+<h4 id="log_should_log"><a class="header" href="#log_should_log">log_should_log</a></h4>
+<p><code>int log_should_log(Symbol level, Symbol category)</code></p>
+<p>Reports whether the current global <code>Logger</code> would deliver this event.</p>
+<p>Source: <code>lib/logger.x:218</code></p>
+<h4 id="log_trace"><a class="header" href="#log_trace">log_trace</a></h4>
+<p><code>void log_trace(Symbol category, List fields)</code></p>
+<p>Logs borrowed <code>fields</code> globally at trace level under <code>category</code>.
+Delivery and failure behavior follow <code>log_event</code>.</p>
+<p>Source: <code>lib/logger.x:775</code></p>
+<h4 id="log_warn"><a class="header" href="#log_warn">log_warn</a></h4>
+<p><code>void log_warn(Symbol category, List fields)</code></p>
+<p>Logs borrowed <code>fields</code> globally at warn level under <code>category</code>.
+Delivery and failure behavior follow <code>log_event</code>.</p>
+<p>Source: <code>lib/logger.x:778</code></p>
+<h3 id="logger-1"><a class="header" href="#logger-1"><code>Logger</code></a></h3>
+<p><a id="Logger.add_file_sink"></a></p>
+<h4 id="loggeradd_file_sink"><a class="header" href="#loggeradd_file_sink">Logger.add_file_sink</a></h4>
+<p><code>LogSink Logger.add_file_sink(Logger logger, File file)</code></p>
+<p>Adds a plain-text sink for borrowed <code>file</code> and returns its handle.
+The caller must keep <code>file</code> open until the sink is removed or the <code>Logger</code>
+is
+freed. Removing the sink flushes but never closes the <code>File</code>. A NULL
+argument
+returns NULL.</p>
+<p><strong>Raises:</strong> <code>&lt;alloc-fail&gt;</code> or <code>&lt;bad-enc&gt;</code> when sink state cannot be
+represented.</p>
+<p>Source: <code>lib/logger.x:529</code></p>
+<p><a id="Logger.add_memory_sink"></a></p>
+<h4 id="loggeradd_memory_sink"><a class="header" href="#loggeradd_memory_sink">Logger.add_memory_sink</a></h4>
+<p><code>LogSink Logger.add_memory_sink(Logger logger, List *destination)</code></p>
+<p>Adds a sink that prepends captured events to <code>destination</code>.
+The destination pointer is borrowed until the sink is retired. <code>Entry</code>
+<code>List</code>s,
+<code>String</code>s, and Lisp symbols are interned through the pool captured by
+<code>Logger.new</code>; a canonical hit may retain an ancestor pool’s lifetime. Wide
+values move to the <code>Logger</code>’s owning <code>Scope</code> on retirement, while other
+pointer-bearing values remain borrowed. Newest events appear first.
+A NULL <code>Logger</code> or destination returns NULL.
+Registration may raise <code>&lt;alloc-fail&gt;</code> or <code>&lt;bad-enc&gt;</code> while constructing
+sink state. Later event delivery may raise <code>&lt;alloc-fail&gt;</code>, <code>&lt;size-limit&gt;</code>,
+or <code>&lt;bad-enc&gt;</code> while retaining values.</p>
+<p>Source: <code>lib/logger.x:622</code></p>
+<p><a id="Logger.add_sink"></a></p>
+<h4 id="loggeradd_sink"><a class="header" href="#loggeradd_sink">Logger.add_sink</a></h4>
+<p><code>LogSink Logger.add_sink( Logger logger, LogEmitter emit, LogFlusher flush, Var data)</code></p>
+<p>Appends a callback sink and returns its <code>Logger</code>-owned handle.
+A NULL <code>Logger</code> returns NULL; a quiescent <code>Logger</code> also returns NULL for a
+NULL
+emitter. The <code>Logger</code> borrows <code>data</code> and both callbacks until the sink is
+removed, cleared, or the <code>Logger</code> is freed, so anything they reference must
+remain live. Emitters run synchronously in registration order.</p>
+<p><strong>Raises:</strong> <code>&lt;bad-state&gt;</code> during active sink delivery, or <code>&lt;alloc-fail&gt;</code> when
+the sink cannot be allocated.</p>
+<p>Source: <code>lib/logger.x:283</code></p>
+<p><a id="Logger.add_stderr_sink"></a></p>
+<h4 id="loggeradd_stderr_sink"><a class="header" href="#loggeradd_stderr_sink">Logger.add_stderr_sink</a></h4>
+<p><code>LogSink Logger.add_stderr_sink(Logger logger)</code></p>
+<p>Adds a text sink for borrowed <code>stderr</code> and returns its <code>Logger</code>-owned
+handle.
+The sink selects color from terminal state at registration and flushes
+after every event. A NULL <code>Logger</code> returns NULL.</p>
+<p><strong>Raises:</strong> <code>&lt;alloc-fail&gt;</code> or <code>&lt;bad-enc&gt;</code> when sink state cannot be
+represented.</p>
+<p>Source: <code>lib/logger.x:516</code></p>
+<p><a id="Logger.clear_sinks"></a></p>
+<h4 id="loggerclear_sinks"><a class="header" href="#loggerclear_sinks">Logger.clear_sinks</a></h4>
+<p><code>void Logger.clear_sinks(Logger logger)</code></p>
+<p>Removes and invalidates every sink from <code>logger</code>.
+A NULL <code>Logger</code> does nothing.</p>
+<p><strong>Raises:</strong> <code>&lt;bad-state&gt;</code> during active sink delivery.</p>
+<p>Source: <code>lib/logger.x:308</code></p>
+<p><a id="Logger.debug"></a></p>
+<h4 id="loggerdebug"><a class="header" href="#loggerdebug">Logger.debug</a></h4>
+<p><code>void Logger.debug( Logger logger, Symbol category, List fields)</code></p>
+<p>Logs borrowed <code>fields</code> synchronously at debug level under <code>category</code>.
+Delivery and failure behavior follow <code>Logger.log</code>.</p>
+<p>Source: <code>lib/logger.x:734</code></p>
+<p><a id="Logger.error"></a></p>
+<h4 id="loggererror"><a class="header" href="#loggererror">Logger.error</a></h4>
+<p><code>void Logger.error( Logger logger, Symbol category, List fields)</code></p>
+<p>Logs borrowed <code>fields</code> synchronously at error level under <code>category</code>.
+Delivery and failure behavior follow <code>Logger.log</code>.</p>
+<p>Source: <code>lib/logger.x:737</code></p>
+<p><a id="Logger.fatal"></a></p>
+<h4 id="loggerfatal"><a class="header" href="#loggerfatal">Logger.fatal</a></h4>
+<p><code>void Logger.fatal( Logger logger, Symbol category, List fields)</code></p>
+<p>Logs borrowed <code>fields</code> synchronously at fatal level under <code>category</code>.
+Delivery and failure behavior follow <code>Logger.log</code>.</p>
+<p>Source: <code>lib/logger.x:738</code></p>
+<p><a id="Logger.flush"></a></p>
+<h4 id="loggerflush"><a class="header" href="#loggerflush">Logger.flush</a></h4>
+<p><code>void Logger.flush(Logger logger)</code></p>
+<p>Calls configured flushers synchronously in registration order.
+A NULL <code>Logger</code> does nothing. A cause raised by a flusher transfers
+immediately, so later sinks are not flushed. A flusher must not mutate the
+sink list or free its <code>Logger</code>.</p>
+<p>Source: <code>lib/logger.x:326</code></p>
+<p><a id="Logger.free"></a></p>
+<h4 id="loggerfree"><a class="header" href="#loggerfree">Logger.free</a></h4>
+<p><code>void Logger.free(Logger logger)</code></p>
+<p>Flushes and retires every sink, then releases <code>logger</code> and its storage.
+Borrowed <code>File</code>s and callback data are not released. The global and default
+slots are cleared when they refer to this <code>Logger</code>. A NULL <code>Logger</code> does
+nothing.</p>
+<p><strong>Raises:</strong> <code>&lt;bad-state&gt;</code> during sink delivery, or any cause from a flusher.
+Either failure leaves the <code>Logger</code> and all sinks live; earlier flushers may
+already have run.</p>
+<p>Source: <code>lib/logger.x:665</code></p>
+<p><a id="Logger.info"></a></p>
+<h4 id="loggerinfo"><a class="header" href="#loggerinfo">Logger.info</a></h4>
+<p><code>void Logger.info( Logger logger, Symbol category, List fields)</code></p>
+<p>Logs borrowed <code>fields</code> synchronously at info level under <code>category</code>.
+Delivery and failure behavior follow <code>Logger.log</code>.</p>
+<p>Source: <code>lib/logger.x:735</code></p>
+<p><a id="Logger.initialize"></a></p>
+<h4 id="loggerinitialize"><a class="header" href="#loggerinitialize">Logger.initialize</a></h4>
+<p><code>void Logger.initialize(void)</code></p>
+<p>Installs the process-wide info-level <code>Logger</code> and stderr sink.
+<code>Error</code> initializes first, then this function records its handler watermark
+and installs an observing <code>Error</code> handler. Runtime initialization calls
+this
+once and later shutdown hooks invoke <code>Logger.shutdown</code> before <code>Error</code> shuts
+down.</p>
+<p><strong>Raises:</strong> any cause from <code>Error</code> or <code>Logger</code> initialization.</p>
+<p>Source: <code>lib/logger.x:855</code></p>
+<p><a id="Logger.level_priority"></a></p>
+<h4 id="loggerlevel_priority"><a class="header" href="#loggerlevel_priority">Logger.level_priority</a></h4>
+<p><code>int Logger.level_priority(Symbol level)</code></p>
+<p>Returns the ordering priority of a built-in level, or -1 when invalid.
+Priorities run from <code>&lt;trace&gt;</code> at zero through <code>&lt;off&gt;</code> at six.</p>
+<p>Source: <code>lib/logger.x:175</code></p>
+<p><a id="Logger.log"></a></p>
+<h4 id="loggerlog"><a class="header" href="#loggerlog">Logger.log</a></h4>
+<p><code>void Logger.log(Logger logger, Symbol level, Symbol category, List fields)</code></p>
+<p>Delivers one event synchronously to eligible sinks in registration order.
+<code>fields</code> is borrowed for the call. All sinks observe one immutable event,
+sequence numbers increase per <code>Logger</code>, and elapsed time starts with its
+first delivered event. NULL, filtered, invalid, sinkless, or category-less
+events do nothing. Fatal delivery flushes all sinks afterward.</p>
+<p><strong>Raises:</strong> any cause from an emitter or fatal-event flusher; later callbacks
+are then skipped.</p>
+<p>Source: <code>lib/logger.x:686</code></p>
+<p><a id="Logger.min_level"></a></p>
+<h4 id="loggermin_level"><a class="header" href="#loggermin_level">Logger.min_level</a></h4>
+<p><code>Symbol Logger.min_level(Logger logger)</code></p>
+<p>Returns <code>logger</code>’s minimum enabled level, or the null <code>Symbol</code> for NULL.</p>
+<p>Source: <code>lib/logger.x:179</code></p>
+<p><a id="Logger.remove_sink"></a></p>
+<h4 id="loggerremove_sink"><a class="header" href="#loggerremove_sink">Logger.remove_sink</a></h4>
+<p><code>int Logger.remove_sink(Logger logger, LogSink sink)</code></p>
+<p>Removes and invalidates <code>sink</code>, returning one when it belonged to <code>logger</code>.
+When quiescent, a NULL argument, foreign sink, or already retired sink
+returns zero.</p>
+<p><strong>Raises:</strong> <code>&lt;bad-state&gt;</code> during active sink delivery.</p>
+<p>Source: <code>lib/logger.x:295</code></p>
+<p><a id="Logger.set_min_level"></a></p>
+<h4 id="loggerset_min_level"><a class="header" href="#loggerset_min_level">Logger.set_min_level</a></h4>
+<p><code>int Logger.set_min_level(Logger logger, Symbol level)</code></p>
+<p>Sets the minimum enabled level and returns one.
+A NULL <code>Logger</code> or invalid level returns zero without changing anything.</p>
+<p>Source: <code>lib/logger.x:185</code></p>
+<p><a id="Logger.should_log"></a></p>
+<h4 id="loggershould_log"><a class="header" href="#loggershould_log">Logger.should_log</a></h4>
+<p><code>int Logger.should_log(Logger logger, Symbol level, Symbol category)</code></p>
+<p>Reports whether an event would reach at least one sink.
+A category names an event rather than filtering it. A NULL <code>Logger</code> or
+category, no sinks, <code>&lt;off&gt;</code>, an invalid level, or a filtered level returns
+zero.</p>
+<p>Source: <code>lib/logger.x:213</code></p>
+<p><a id="Logger.shutdown"></a></p>
+<h4 id="loggershutdown"><a class="header" href="#loggershutdown">Logger.shutdown</a></h4>
+<p><code>void Logger.shutdown(void)</code></p>
+<p>Shuts down process-wide <code>Logger</code> integration.
+Pending root <code>Error</code>s are offered to the active <code>Logger</code> before the
+observing
+handler is removed. The global slot is then cleared; a custom active
+<code>Logger</code>
+is flushed but remains caller-owned, while the default <code>Logger</code> is flushed,
+retired, and freed. A repeated call after shutdown is a no-op.</p>
+<p><strong>Raises:</strong> <code>&lt;alloc-fail&gt;</code> while opening the temporary canonical pool,
+<code>&lt;bad-state&gt;</code> when default-<code>Logger</code> delivery is active, or any cause from
+event delivery or a sink flusher. The failure may interrupt the remaining
+cleanup.</p>
+<p>Source: <code>lib/logger.x:820</code></p>
+<p><a id="Logger.sink_count"></a></p>
+<h4 id="loggersink_count"><a class="header" href="#loggersink_count">Logger.sink_count</a></h4>
+<p><code>int Logger.sink_count(Logger logger)</code></p>
+<p>Returns the number of configured sinks, or zero for a NULL <code>Logger</code>.</p>
+<p>Source: <code>lib/logger.x:193</code></p>
+<p><a id="Logger.trace"></a></p>
+<h4 id="loggertrace"><a class="header" href="#loggertrace">Logger.trace</a></h4>
+<p><code>void Logger.trace( Logger logger, Symbol category, List fields)</code></p>
+<p>Logs borrowed <code>fields</code> synchronously at trace level under <code>category</code>.
+Delivery and failure behavior follow <code>Logger.log</code>.</p>
+<p>Source: <code>lib/logger.x:733</code></p>
+<p><a id="Logger.warn"></a></p>
+<h4 id="loggerwarn"><a class="header" href="#loggerwarn">Logger.warn</a></h4>
+<p><code>void Logger.warn( Logger logger, Symbol category, List fields)</code></p>
+<p>Logs borrowed <code>fields</code> synchronously at warn level under <code>category</code>.
+Delivery and failure behavior follow <code>Logger.log</code>.</p>
+<p>Source: <code>lib/logger.x:736</code></p>
+<h2 id="runtime-internal-callables"><a class="header" href="#runtime-internal-callables">Runtime-internal callables</a></h2>
+<p>These callables connect runtime translation units. They are documented
+for source readers but are not supported as user API.</p>
+<div class="table-wrapper">
+<table>
+<thead>
+<tr><th>Function</th><th>Summary</th></tr>
+</thead>
+<tbody>
+<tr><td><a href="#Logger.error_handler"><code>Logger.error_handler</code></a></td><td>Offers the newest <code>Error</code> to the current global <code>Logger</code>.</td></tr>
+</tbody>
+</table>
+</div>
+<h3 id="logger-2"><a class="header" href="#logger-2"><code>Logger</code></a></h3>
+<p><a id="Logger.error_handler"></a></p>
+<h4 id="loggererror_handler"><a class="header" href="#loggererror_handler">Logger.error_handler</a></h4>
+<p><code>Symbol Logger.error_handler(List errors, Var data)</code></p>
+<p>Offers the newest <code>Error</code> to the current global <code>Logger</code>.
+A well-formed entry with <code>&lt;abort&gt;</code> or <code>&lt;log&gt;</code> policy is rendered as an
+<code>&lt;err-report&gt;</code> event; missing, malformed, <code>&lt;collect&gt;</code>, and <code>&lt;ignore&gt;</code> input
+produces no event. The borrowed input is never consumed, <code>data</code> is ignored,
+and the handler always returns <code>&lt;declined&gt;</code>, leaving transfer to <code>Error</code> or
+another handler.</p>
+<p><strong>Raises:</strong> any cause from <code>Logger</code> delivery.</p>
+<p>Source: <code>lib/logger.x:791</code></p>
+<h2 id="public-types"><a class="header" href="#public-types">Public types</a></h2>
+<div class="table-wrapper">
+<table>
+<thead>
+<tr><th>Type</th><th>Kind</th><th>Summary</th></tr>
+</thead>
+<tbody>
+<tr><td><a href="#LogEmitter"><code>LogEmitter</code></a></td><td>callback</td><td>Receives one borrowed event and the <code>data</code> supplied at registration.</td></tr>
+<tr><td><a href="#LogEvent"><code>LogEvent</code></a></td><td>struct</td><td>Describes one immutable event during synchronous sink delivery.</td></tr>
+<tr><td><a href="#LogFlusher"><code>LogFlusher</code></a></td><td>callback</td><td>Flushes one sink with its borrowed registration data.</td></tr>
+<tr><td><a href="#LogSink"><code>LogSink</code></a></td><td>struct</td><td>A borrowed handle to one <code>Logger</code>-owned sink registration.</td></tr>
+<tr><td><a href="#Logger"><code>Logger</code></a></td><td>struct</td><td>An ordered, reentrant sink dispatcher allocated in the active <code>Scope</code>.</td></tr>
+</tbody>
+</table>
+</div>
+<p><a id="LogEmitter"></a></p>
+<h3 id="logemitter"><a class="header" href="#logemitter">LogEmitter</a></h3>
+<p><code>typedef void (*LogEmitter)(Logger logger, const LogEvent *event, Var data)</code></p>
+<p>Receives one borrowed event and the <code>data</code> supplied at registration.
+The callback may log recursively, but it must not retain <code>event</code>, mutate
+the active sink list, or free <code>logger</code> during delivery.</p>
+<p>Source: <code>lib/logger.x:46</code></p>
+<p><a id="LogEvent"></a></p>
+<h3 id="logevent"><a class="header" href="#logevent">LogEvent</a></h3>
+<p><code>typedef struct LogEvent { unsigned long sequence; long long wall_time_us; long long elapsed_us; Symbol level, category, List fields; } LogEvent</code></p>
+<p>Describes one immutable event during synchronous sink delivery.
+The event pointer is valid only for the callback. <code>fields</code> is borrowed with
+its caller-provided lifetime, and every sink receives the same value.</p>
+<p>Source: <code>lib/logger.x:35</code></p>
+<p><a id="LogFlusher"></a></p>
+<h3 id="logflusher"><a class="header" href="#logflusher">LogFlusher</a></h3>
+<p><code>typedef void (*LogFlusher)(Logger logger, Var data)</code></p>
+<p>Flushes one sink with its borrowed registration data.
+The callback must not mutate the active sink list or free <code>logger</code>.</p>
+<p>Source: <code>lib/logger.x:51</code></p>
+<p><a id="LogSink"></a></p>
+<h3 id="logsink"><a class="header" href="#logsink">LogSink</a></h3>
+<p><code>typedef struct LogSink *LogSink</code></p>
+<p>A borrowed handle to one <code>Logger</code>-owned sink registration.
+Removal, clearing, or freeing its <code>Logger</code> invalidates the handle; callers
+never free it directly.</p>
+<p>Source: <code>lib/logger.x:29</code></p>
+<p><a id="Logger"></a></p>
+<h3 id="logger-3"><a class="header" href="#logger-3">Logger</a></h3>
+<p><code>typedef struct Logger *Logger</code></p>
+<p>An ordered, reentrant sink dispatcher allocated in the active <code>Scope</code>.
+<code>Logger.free</code> must run before that <code>Scope</code> is released. Memory sinks also
+require the canonical pool captured by <code>Logger.new</code> to remain live.</p>
+<p>Source: <code>lib/logger.x:23</code></p>
+<h2 id="design-notes"><a class="header" href="#design-notes">Design notes</a></h2>
+<p>Logger owns filtering, event timestamps, sink ordering, and sink lifetime.
+It is reentrant and serializes configuration, sequencing, and delivery.
+Expensive callers may query Logger.should_log before constructing
+canonical field <code>List</code>s.</p>
+<p>Events carry one wall-clock timestamp and one monotonic elapsed timestamp.
+Every sink for an event observes the same immutable LogEvent. Built-in text
+sinks render through <code>Buffer</code> and <code>Var.write_repr</code> without constructing
+canonical presentation <code>String</code>s.</p>
+<h2 id="tests-and-examples"><a class="header" href="#tests-and-examples">Tests and examples</a></h2>
+<p><code>make verify</code> (<code>unittest/test-logger.x</code>).</p>
+
+                    </main>
+
+                    <nav class="x2c-pager" aria-label="Page navigation">
+                        <a rel="prev" href="../../library/modules/list.html" class="x2c-pager-prev" aria-keyshortcuts="Left">
+                            <span class="x2c-pager-label">previous</span>
+                            <span class="x2c-pager-title">lib/list.x</span>
+                        </a>
+                        
+                        <a rel="next prefetch" href="../../library/modules/map.html" class="x2c-pager-next" aria-keyshortcuts="Right">
+                            <span class="x2c-pager-label">next</span>
+                            <span class="x2c-pager-title">lib/map.x</span>
+                        </a>
+                    </nav>
+                    <footer class="x2c-footer">
+                        &copy; 2025&ndash;2026
+                        <a href="https://flake.org">GWF</a>
+                        &middot;
+                        <a href="https://github.com/gwf/x2c/blob/c2a89d999e81f47a4422a26edf0033eb0b98c6c6/LICENSE">Apache 2.0</a>
+                        &middot;
+                        <a href="https://github.com/gwf/x2c/blob/c2a89d999e81f47a4422a26edf0033eb0b98c6c6/TRADEMARKS.md">Trademarks</a>
+                    </footer>
+                </div>
+            </div>
+
+
+        </div>
+
+        <template id=fa-eye><span class=fa-svg><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 576 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc. --><path d="M288 32c-80.8 0-145.5 36.8-192.6 80.6C48.6 156 17.3 208 2.5 243.7c-3.3 7.9-3.3 16.7 0 24.6C17.3 304 48.6 356 95.4 399.4C142.5 443.2 207.2 480 288 480s145.5-36.8 192.6-80.6c46.8-43.5 78.1-95.4 93-131.1c3.3-7.9 3.3-16.7 0-24.6c-14.9-35.7-46.2-87.7-93-131.1C433.5 68.8 368.8 32 288 32zM432 256c0 79.5-64.5 144-144 144s-144-64.5-144-144s64.5-144 144-144s144 64.5 144 144zM288 192c0 35.3-28.7 64-64 64c-11.5 0-22.3-3-31.6-8.4c-.2 2.8-.4 5.5-.4 8.4c0 53 43 96 96 96s96-43 96-96s-43-96-96-96c-2.8 0-5.6 .1-8.4 .4c5.3 9.3 8.4 20.1 8.4 31.6z"/></svg></span></template>
+        <template id=fa-eye-slash><span class=fa-svg><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 640 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc. --><path d="M38.8 5.1C28.4-3.1 13.3-1.2 5.1 9.2S-1.2 34.7 9.2 42.9l592 464c10.4 8.2 25.5 6.3 33.7-4.1s6.3-25.5-4.1-33.7L525.6 386.7c39.6-40.6 66.4-86.1 79.9-118.4c3.3-7.9 3.3-16.7 0-24.6c-14.9-35.7-46.2-87.7-93-131.1C465.5 68.8 400.8 32 320 32c-68.2 0-125 26.3-169.3 60.8L38.8 5.1zM223.1 149.5C248.6 126.2 282.7 112 320 112c79.5 0 144 64.5 144 144c0 24.9-6.3 48.3-17.4 68.7L408 294.5c5.2-11.8 8-24.8 8-38.5c0-53-43-96-96-96c-2.8 0-5.6 .1-8.4 .4c5.3 9.3 8.4 20.1 8.4 31.6c0 10.2-2.4 19.8-6.6 28.3l-90.3-70.8zm223.1 298L373 389.9c-16.4 6.5-34.3 10.1-53 10.1c-79.5 0-144-64.5-144-144c0-6.9 .5-13.6 1.4-20.2L83.1 161.5C60.3 191.2 44 220.8 34.5 243.7c-3.3 7.9-3.3 16.7 0 24.6c14.9 35.7 46.2 87.7 93 131.1C174.5 443.2 239.2 480 320 480c47.8 0 89.9-12.9 126.2-32.5z"/></svg></span></template>
+        <template id=fa-copy><span class=fa-svg><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc. --><path d="M502.6 70.63l-61.25-61.25C435.4 3.371 427.2 0 418.7 0H255.1c-35.35 0-64 28.66-64 64l.0195 256C192 355.4 220.7 384 256 384h192c35.2 0 64-28.8 64-64V93.25C512 84.77 508.6 76.63 502.6 70.63zM464 320c0 8.836-7.164 16-16 16H255.1c-8.838 0-16-7.164-16-16L239.1 64.13c0-8.836 7.164-16 16-16h128L384 96c0 17.67 14.33 32 32 32h47.1V320zM272 448c0 8.836-7.164 16-16 16H63.1c-8.838 0-16-7.164-16-16L47.98 192.1c0-8.836 7.164-16 16-16H160V128H63.99c-35.35 0-64 28.65-64 64l.0098 256C.002 483.3 28.66 512 64 512h192c35.2 0 64-28.8 64-64v-32h-47.1L272 448z"/></svg></span></template>
+        <template id=fa-play><span class=fa-svg><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 384 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc. --><path d="M73 39c-14.8-9.1-33.4-9.4-48.5-.9S0 62.6 0 80V432c0 17.4 9.4 33.4 24.5 41.9s33.7 8.1 48.5-.9L361 297c14.3-8.7 23-24.2 23-41s-8.7-32.2-23-41L73 39z"/></svg></span></template>
+        <template id=fa-clock-rotate-left><span class=fa-svg><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc. --><path d="M75 75L41 41C25.9 25.9 0 36.6 0 57.9V168c0 13.3 10.7 24 24 24H134.1c21.4 0 32.1-25.9 17-41l-30.8-30.8C155 85.5 203 64 256 64c106 0 192 86 192 192s-86 192-192 192c-40.8 0-78.6-12.7-109.7-34.4c-14.5-10.1-34.4-6.6-44.6 7.9s-6.6 34.4 7.9 44.6C151.2 495 201.7 512 256 512c141.4 0 256-114.6 256-256S397.4 0 256 0C185.3 0 121.3 28.7 75 75zm181 53c-13.3 0-24 10.7-24 24V256c0 6.4 2.5 12.5 7 17l72 72c9.4 9.4 24.6 9.4 33.9 0s9.4-24.6 0-33.9l-65-65V152c0-13.3-10.7-24-24-24z"/></svg></span></template>
+
+
+
+        <script>
+            window.playground_copyable = true;
+        </script>
+
+
+        <script src="../../elasticlunr-ef4e11c1.min.js"></script>
+        <script src="../../mark-09e88c2c.min.js"></script>
+        <script src="../../searcher-09f2665d.js"></script>
+
+        <script src="../../clipboard-1626706a.min.js"></script>
+        <script src="../../highlight-abc7f01d.js"></script>
+        <script src="../../book-609e4cb8.js"></script>
+
+        <script>
+            document.addEventListener('DOMContentLoaded', () => {
+                const sidebar = document.querySelector('#mdbook-sidebar');
+                sidebar.querySelectorAll('ol').forEach(list => {
+                    const numbers = list.querySelectorAll(
+                        ':scope > li > .chapter-link-wrapper > a > strong, :scope > li > a > strong');
+                    if (numbers.length) {
+                        const width = Math.max(...Array.from(numbers,
+                            number => number.textContent.trim().length));
+                        list.style.setProperty('--chapter-number-width', width + 'ch');
+                    }
+                });
+                const chapter = sidebar.querySelector('a.active');
+                const item = chapter?.closest('.chapter-item');
+                if (item?.querySelector(':scope > .on-this-page')) {
+                    const row = chapter.parentElement;
+                    if (!row.querySelector('.chapter-fold-toggle')) {
+                        const toggle = document.createElement('button');
+                        toggle.type = 'button';
+                        toggle.className = 'chapter-fold-toggle';
+                        toggle.appendChild(document.createElement('div'));
+                        toggle.addEventListener('click', () => {
+                            item.classList.toggle('expanded');
+                        });
+                        row.appendChild(toggle);
+                    }
+                }
+                sidebar.querySelectorAll('.chapter-fold-toggle').forEach(toggle => {
+                    const row = toggle.parentElement;
+                    const item = row.parentElement;
+                    const title = row.querySelector('a').textContent.trim();
+                    toggle.setAttribute('aria-label', 'Toggle ' + title);
+                    const update = () => toggle.setAttribute('aria-expanded',
+                        String(item.classList.contains('expanded')));
+                    update();
+                    toggle.addEventListener('click', update);
+                    if (toggle.tagName === 'A') {
+                        toggle.setAttribute('role', 'button');
+                        toggle.tabIndex = 0;
+                        toggle.addEventListener('keydown', event => {
+                            if (event.key === 'Enter' || event.key === ' ') {
+                                event.preventDefault();
+                                toggle.click();
+                            }
+                        });
+                    }
+                });
+            });
+        </script>
+
+        <!-- Custom JS scripts -->
+
+
+
+    </div>
+    </body>
+</html>

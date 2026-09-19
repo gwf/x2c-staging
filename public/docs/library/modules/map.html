@@ -1,0 +1,907 @@
+<!DOCTYPE HTML>
+<html lang="en" class="light sidebar-visible" dir="ltr">
+    <head>
+        <!-- Book generated using mdBook -->
+        <meta charset="UTF-8">
+        <title>lib/map.x - The x2c Book</title>
+
+
+        <!-- Custom HTML head -->
+        <link rel="preconnect" href="https://fonts.googleapis.com">
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=Archivo:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">
+
+        <meta name="description" content="The x2c language, standard library, and compiler.">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <meta name="theme-color" content="#ffffff">
+
+        <link rel="icon" href="../../favicon-995a3c20.svg">
+        <link rel="stylesheet" href="../../css/variables-8adf115d.css">
+        <link rel="stylesheet" href="../../css/general-e96d0476.css">
+        <link rel="stylesheet" href="../../css/chrome-d279d366.css">
+        <link rel="stylesheet" href="../../css/print-9e4910d8.css" media="print">
+
+        <!-- Fonts -->
+        <link rel="stylesheet" href="../../fonts/fonts-9644e21d.css">
+
+        <!-- Highlight.js Stylesheets -->
+        <link rel="stylesheet" id="mdbook-highlight-css" href="../../highlight-493f70e1.css">
+        <link rel="stylesheet" id="mdbook-tomorrow-night-css" href="../../tomorrow-night-4c0ae647.css">
+        <link rel="stylesheet" id="mdbook-ayu-highlight-css" href="../../ayu-highlight-3fdfc3ac.css">
+
+        <!-- Custom theme stylesheets -->
+        <link rel="stylesheet" href="../../theme/header-2c1becca.css">
+        <link rel="stylesheet" href="../../theme/x2c-fd3d182e.css">
+
+
+        <!-- Provide site root and default themes to javascript -->
+        <script>
+            const path_to_root = "../../";
+            const default_light_theme = "light";
+            const default_dark_theme = "light";
+            window.path_to_searchindex_js = "../../searchindex-2643e100.js";
+        </script>
+        <!-- Start loading toc.js asap -->
+        <script src="../../toc-a71616d6.js"></script>
+        <!-- x2c publication metadata -->
+        <link rel="canonical" href="https://staging.x2c-lang.dev/docs/library/modules/map.html">
+        <meta property="og:type" content="website">
+        <meta property="og:title" content="lib/map.x - The x2c Book">
+        <meta property="og:description" content="The x2c language, standard library, and compiler.">
+        <meta property="og:url" content="https://staging.x2c-lang.dev/docs/library/modules/map.html">
+        <meta property="og:image" content="https://staging.x2c-lang.dev/x2c-social.png">
+        <meta property="og:image:width" content="1200">
+        <meta property="og:image:height" content="630">
+        <meta name="twitter:card" content="summary_large_image">
+        <meta name="twitter:title" content="lib/map.x - The x2c Book">
+        <meta name="twitter:description" content="The x2c language, standard library, and compiler.">
+        <meta name="twitter:image" content="https://staging.x2c-lang.dev/x2c-social.png">
+    </head>
+    <body><aside aria-label="Release candidate" style="padding:1rem;background:#fff1bf;color:#241c00;font:14px/1.5 monospace;overflow-wrap:anywhere"><strong>Public staging: candidate-c2a89d999e81f47a4422a26edf0033eb0b98c6c6-35470032964-1</strong><p>Source: c2a89d999e81f47a4422a26edf0033eb0b98c6c6. Use a fresh scratch installation and the explicit candidate index below. Bare x2c install commands and production URLs in the book refer to production.</p><pre style="overflow:auto">export X2C_PREFIX=&quot;$(mktemp -d)/x2c&quot;
+curl -fsSL https://staging.x2c-lang.dev/install.sh | sh
+export PATH=&quot;$X2C_PREFIX/bin:$PATH&quot;
+x2c run &quot;$X2C_PREFIX/examples/foreach.x&quot;
+x2c install pcre2 --index https://staging.x2c-lang.dev/packages/index.txt</pre></aside>
+    <div id="mdbook-help-container">
+        <div id="mdbook-help-popup">
+            <h2 class="mdbook-help-title">Keyboard shortcuts</h2>
+            <div>
+                <p>Press <kbd>←</kbd> or <kbd>→</kbd> to navigate between chapters</p>
+                <p>Press <kbd>S</kbd> or <kbd>/</kbd> to search in the book</p>
+                <p>Press <kbd>?</kbd> to show this help</p>
+                <p>Press <kbd>Esc</kbd> to hide this help</p>
+            </div>
+        </div>
+    </div>
+    <div id="mdbook-body-container">
+        <!-- Work around some values being stored in localStorage wrapped in quotes -->
+        <script>
+            try {
+                let theme = localStorage.getItem('mdbook-theme');
+                let sidebar = localStorage.getItem('mdbook-sidebar');
+
+                if (theme.startsWith('"') && theme.endsWith('"')) {
+                    localStorage.setItem('mdbook-theme', theme.slice(1, theme.length - 1));
+                }
+
+                if (sidebar.startsWith('"') && sidebar.endsWith('"')) {
+                    localStorage.setItem('mdbook-sidebar', sidebar.slice(1, sidebar.length - 1));
+                }
+            } catch (e) { }
+        </script>
+
+        <!-- Set the theme before any content is loaded, prevents flash -->
+        <script>
+            const default_theme = window.matchMedia("(prefers-color-scheme: dark)").matches ? default_dark_theme : default_light_theme;
+            let theme;
+            try { theme = localStorage.getItem('mdbook-theme'); } catch(e) { }
+            if (theme === null || theme === undefined) { theme = default_theme; }
+            const html = document.documentElement;
+            html.classList.remove('light')
+            html.classList.add(theme);
+            html.classList.add("js");
+        </script>
+
+        <input type="checkbox" id="mdbook-sidebar-toggle-anchor" class="hidden">
+
+        <!-- Hide / unhide sidebar before it is displayed -->
+        <script>
+            let sidebar = null;
+            const sidebar_toggle = document.getElementById("mdbook-sidebar-toggle-anchor");
+            if (document.body.clientWidth >= 1080) {
+                try { sidebar = localStorage.getItem('mdbook-sidebar'); } catch(e) { }
+                sidebar = sidebar || 'visible';
+            } else {
+                sidebar = 'hidden';
+                sidebar_toggle.checked = false;
+            }
+            if (sidebar === 'visible') {
+                sidebar_toggle.checked = true;
+            } else {
+                html.classList.remove('sidebar-visible');
+            }
+        </script>
+
+        <nav id="mdbook-sidebar" class="sidebar" aria-label="Table of contents">
+            <!-- populated by js -->
+            <mdbook-sidebar-scrollbox class="sidebar-scrollbox"></mdbook-sidebar-scrollbox>
+            <noscript>
+                <iframe class="sidebar-iframe-outer" src="../../toc.html"></iframe>
+            </noscript>
+            <div id="mdbook-sidebar-resize-handle" class="sidebar-resize-handle">
+                <div class="sidebar-resize-indicator"></div>
+            </div>
+        </nav>
+
+        <div id="mdbook-page-wrapper" class="page-wrapper">
+
+            <div class="page">
+                <div id="mdbook-menu-bar" class="hidden"></div>
+                <header class="landing-header x2c-header">
+                    <div class="landing-header-inner">
+                        <div class="landing-branding">
+                            <a class="landing-brand" href="../../../" aria-label="x2c home">
+                                <svg viewBox="0 0 100 100" width="22" height="22" aria-hidden="true"><g fill="none" stroke="#da291c" stroke-width="17" stroke-linecap="butt"><path d="M9 16 A34.5 34.5 0 0 1 9 84"></path><path d="M91 16 A34.5 34.5 0 0 0 91 84"></path></g></svg>
+                                <span class="x2c-wordmark landing-wordmark">x2c</span>
+                            </a>
+                            <span class="landing-tagline">The x2c Book</span>
+                        </div>
+                        <nav class="landing-nav" aria-label="x2c website">
+                            <div class="landing-page-nav">
+                                <a href="../../../#love">love</a>
+                                <a href="../../../#power">power</a>
+                                <a href="../../../#magic">magic</a>
+                            </div>
+                            <div class="landing-site-nav">
+                                <a href="../../../#install">install</a>
+                                <a href="../../../#packages">packages</a>
+                            </div>
+                            <div class="landing-reference-nav">
+                                <a href="../../../about/">about</a>
+                                <a href="../../" aria-current="page">docs</a>
+                                <a href="https://github.com/gwf/x2c">source</a>
+                            </div>
+                        </nav>
+                    </div>
+                    <div class="x2c-book-tools">
+                        <div class="x2c-header-tools">
+                            <label id="mdbook-sidebar-toggle" class="icon-button" for="mdbook-sidebar-toggle-anchor" title="Toggle Table of Contents" aria-label="Toggle Table of Contents" aria-controls="mdbook-sidebar">
+                                <span class=fa-svg><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc. --><path d="M0 96C0 78.3 14.3 64 32 64H416c17.7 0 32 14.3 32 32s-14.3 32-32 32H32C14.3 128 0 113.7 0 96zM0 256c0-17.7 14.3-32 32-32H416c17.7 0 32 14.3 32 32s-14.3 32-32 32H32c-17.7 0-32-14.3-32-32zM448 416c0 17.7-14.3 32-32 32H32c-17.7 0-32-14.3-32-32s14.3-32 32-32H416c17.7 0 32 14.3 32 32z"/></svg></span>
+                            </label>
+                        </div>
+                        <div class="x2c-header-tools x2c-header-tools-right">
+                            <button id="mdbook-search-toggle" class="icon-button" type="button" title="Search (`/`)" aria-label="Toggle Searchbar" aria-expanded="false" aria-keyshortcuts="/ s" aria-controls="mdbook-searchbar">
+                                <span class=fa-svg><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc. --><path d="M416 208c0 45.9-14.9 88.3-40 122.7L502.6 457.4c12.5 12.5 12.5 32.8 0 45.3s-32.8 12.5-45.3 0L330.7 376c-34.4 25.2-76.8 40-122.7 40C93.1 416 0 322.9 0 208S93.1 0 208 0S416 93.1 416 208zM208 352c79.5 0 144-64.5 144-144s-64.5-144-144-144S64 128.5 64 208s64.5 144 144 144z"/></svg></span>
+                            </button>
+                            <button id="mdbook-theme-toggle" class="icon-button" type="button" title="Change theme" aria-label="Change theme" aria-haspopup="true" aria-expanded="false" aria-controls="mdbook-theme-list">
+                                <span class=fa-svg><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc. --><path d="M448 256c0-106-86-192-192-192V448c106 0 192-86 192-192zm64 0c0 141.4-114.6 256-256 256S0 397.4 0 256S114.6 0 256 0S512 114.6 512 256z"/></svg></span>
+                            </button>
+                            <ul id="mdbook-theme-list" class="theme-popup" aria-label="Themes" role="menu">
+                                <li role="none"><button role="menuitem" class="theme" id="mdbook-theme-default_theme">Auto</button></li>
+                                <li role="none"><button role="menuitem" class="theme" id="mdbook-theme-light">Light</button></li>
+                                <li role="none"><button role="menuitem" class="theme" id="mdbook-theme-ayu">Dark</button></li>
+                            </ul>
+                            <a href="https://github.com/gwf/x2c/edit/main/docs/src/library/modules/map.md" title="Suggest an edit" aria-label="Suggest an edit" rel="edit" class="icon-button">
+                                <span class=fa-svg id="git-edit-button"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc. --><path d="M421.7 220.3l-11.3 11.3-22.6 22.6-205 205c-6.6 6.6-14.8 11.5-23.8 14.1L30.8 511c-8.4 2.5-17.5 .2-23.7-6.1S-1.5 489.7 1 481.2L38.7 353.1c2.6-9 7.5-17.2 14.1-23.8l205-205 22.6-22.6 11.3-11.3 33.9 33.9 62.1 62.1 33.9 33.9zM96 353.9l-9.3 9.3c-.9 .9-1.6 2.1-2 3.4l-25.3 86 86-25.3c1.3-.4 2.5-1.1 3.4-2l9.3-9.3H112c-8.8 0-16-7.2-16-16V353.9zM453.3 19.3l39.4 39.4c25 25 25 65.5 0 90.5l-14.5 14.5-22.6 22.6-11.3 11.3-33.9-33.9-62.1-62.1L314.3 67.7l11.3-11.3 22.6-22.6 14.5-14.5c25-25 65.5-25 90.5 0z"/></svg></span>
+                            </a>
+                        </div>
+                    </div>
+                </header>
+                <script>
+                    const bookHeader = document.querySelector('.x2c-header');
+                    new ResizeObserver(() => {
+                        document.documentElement.style.setProperty(
+                            '--menu-bar-height', `${bookHeader.getBoundingClientRect().height}px`);
+                    }).observe(bookHeader);
+                </script>
+
+                <div id="mdbook-search-wrapper" class="hidden">
+                    <form id="mdbook-searchbar-outer" class="searchbar-outer">
+                        <div class="search-wrapper">
+                            <input type="search" id="mdbook-searchbar" name="searchbar" placeholder="Search this book ..." aria-controls="mdbook-searchresults-outer" aria-describedby="searchresults-header">
+                            <div class="spinner-wrapper">
+                                <span class=fa-svg id="fa-spin"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc. --><path d="M304 48c0-26.5-21.5-48-48-48s-48 21.5-48 48s21.5 48 48 48s48-21.5 48-48zm0 416c0-26.5-21.5-48-48-48s-48 21.5-48 48s21.5 48 48 48s48-21.5 48-48zM48 304c26.5 0 48-21.5 48-48s-21.5-48-48-48s-48 21.5-48 48s21.5 48 48 48zm464-48c0-26.5-21.5-48-48-48s-48 21.5-48 48s21.5 48 48 48s48-21.5 48-48zM142.9 437c18.7-18.7 18.7-49.1 0-67.9s-49.1-18.7-67.9 0s-18.7 49.1 0 67.9s49.1 18.7 67.9 0zm0-294.2c18.7-18.7 18.7-49.1 0-67.9S93.7 56.2 75 75s-18.7 49.1 0 67.9s49.1 18.7 67.9 0zM369.1 437c18.7 18.7 49.1 18.7 67.9 0s18.7-49.1 0-67.9s-49.1-18.7-67.9 0s-18.7 49.1 0 67.9z"/></svg></span>
+                            </div>
+                        </div>
+                    </form>
+                    <div id="mdbook-searchresults-outer" class="searchresults-outer hidden">
+                        <div id="mdbook-searchresults-header" class="searchresults-header"></div>
+                        <ul id="mdbook-searchresults">
+                        </ul>
+                    </div>
+                </div>
+
+                <!-- Apply ARIA attributes after the sidebar and the sidebar toggle button are added to the DOM -->
+                <script>
+                    document.getElementById('mdbook-sidebar-toggle').setAttribute('aria-expanded', sidebar === 'visible');
+                    document.getElementById('mdbook-sidebar').setAttribute('aria-hidden', sidebar !== 'visible');
+                    Array.from(document.querySelectorAll('#mdbook-sidebar a')).forEach(function(link) {
+                        link.setAttribute('tabIndex', sidebar === 'visible' ? 0 : -1);
+                    });
+                </script>
+
+                <div id="mdbook-content" class="content">
+                    <main>
+                        <!-- Generated by `python3 tools/gen-api-reference.py --write` from
+     lib/*.x and the stage interfaces. Do not edit by hand. -->
+<h1 id="libmapx"><a class="header" href="#libmapx"><code>lib/map.x</code></a></h1>
+<p>Hash table mapping <code>Var</code> keys to <code>Var</code> values.</p>
+<h2 id="primary-api"><a class="header" href="#primary-api">Primary API</a></h2>
+<div class="table-wrapper">
+<table>
+<thead>
+<tr><th>Function</th><th>Summary</th></tr>
+</thead>
+<tbody>
+<tr><td><a href="#Map.cleanup"><code>Map.cleanup</code></a></td><td>Releases this Map and both backing Blocks without freeing stored values.</td></tr>
+<tr><td><a href="#Map.contains"><code>Map.contains</code></a></td><td>Returns nonzero when <code>key</code> is present in <code>m</code>, whatever its value.</td></tr>
+<tr><td><a href="#Map.copy"><code>Map.copy</code></a></td><td>Returns a new <code>Map</code> holding shallow copies of <code>map</code>’s key/value pairs.</td></tr>
+<tr><td><a href="#Map.enumerate"><code>Map.enumerate</code></a></td><td>Initializes <code>dest</code> as an iterator over <code>x</code>, yielding each entry as a <code>(key value)</code> two-element <code>List</code>.</td></tr>
+<tr><td><a href="#Map.getdefault"><code>Map.getdefault</code></a></td><td>Returns the value stored under <code>key</code>, or <code>defval</code> when it is absent.</td></tr>
+<tr><td><a href="#Map.iter"><code>Map.iter</code></a></td><td>Initializes <code>dest</code> as an iterator over <code>x</code>, yielding each value.</td></tr>
+<tr><td><a href="#Map.keys"><code>Map.keys</code></a></td><td>Initializes <code>dest</code> as an iterator over <code>x</code>, yielding each key.</td></tr>
+<tr><td><a href="#Map.len"><code>Map.len</code></a></td><td>Returns the number of key/value pairs in <code>map</code>.</td></tr>
+<tr><td><a href="#Map.merge"><code>Map.merge</code></a></td><td>Copies every entry of <code>other</code> into <code>map</code> and returns <code>map</code>.</td></tr>
+<tr><td><a href="#Map.new"><code>Map.new</code></a></td><td>Returns a fresh empty <code>Map</code> in the current scope.</td></tr>
+<tr><td><a href="#Map.postfixindex"><code>Map.postfixindex</code></a></td><td>Applies postfix increment or decrement to one existing <code>Map</code> value.</td></tr>
+<tr><td><a href="#Map.set"><code>Map.set</code></a></td><td>Stores <code>val</code> under <code>key</code>, replacing any value already there.</td></tr>
+<tr><td><a href="#Map.setdefault"><code>Map.setdefault</code></a></td><td>Returns the value stored under <code>key</code>, inserting <code>defval</code> first when the key is absent.</td></tr>
+<tr><td><a href="#Map.setindex"><code>Map.setindex</code></a></td><td>Stores <code>val</code> under <code>key</code> and returns <code>val</code> as the expression result.</td></tr>
+<tr><td><a href="#Map.truth"><code>Map.truth</code></a></td><td>Returns nonzero when <code>map</code> contains at least one entry.</td></tr>
+<tr><td><a href="#Map.try_del"><code>Map.try_del</code></a></td><td>Removes <code>key</code>, writes the value it held to <code>out</code>, and returns nonzero when the key was present.</td></tr>
+<tr><td><a href="#Map.try_get"><code>Map.try_get</code></a></td><td>Writes the value stored under <code>key</code> to <code>out</code> and returns nonzero when the key is present.</td></tr>
+<tr><td><a href="#Map.try_next"><code>Map.try_next</code></a></td><td>Yields the next occupied entry at or after <code>cursor</code>, advances it, and returns nonzero while entries remain.</td></tr>
+<tr><td><a href="#Map.updateindex"><code>Map.updateindex</code></a></td><td>Updates one <code>Map</code> value in place.</td></tr>
+<tr><td><a href="#Map.write_str"><code>Map.write_str</code></a></td><td>Appends the <code>Map</code> display text to <code>out</code>, using each entry’s <code>write_str</code>.</td></tr>
+</tbody>
+</table>
+</div>
+<h3 id="map"><a class="header" href="#map"><code>Map</code></a></h3>
+<p><a id="Map.cleanup"></a></p>
+<h4 id="mapcleanup"><a class="header" href="#mapcleanup">Map.cleanup</a></h4>
+<p><code>void Map.cleanup(Map value)</code></p>
+<p>Releases this Map and both backing Blocks without freeing stored values.</p>
+<p>Source: <code>lib/map.x:707</code></p>
+<p><a id="Map.contains"></a></p>
+<h4 id="mapcontains"><a class="header" href="#mapcontains">Map.contains</a></h4>
+<p><code>int Map.contains(Map m, Var key)</code></p>
+<p>Returns nonzero when <code>key</code> is present in <code>m</code>, whatever its value.
+A null <code>m</code> reports absence rather than failing. Key comparison follows
+<code>Map.get</code>:
+<code>Array</code>s and <code>Map</code>s compare structurally but hash by identity, so only
+same-object lookup is reliable.</p>
+<p><strong>Raises:</strong> <code>&lt;void-op&gt;</code> when <code>key</code> is <code>void</code>, or a cause raised by custom key
+hashing or equality.</p>
+<p>Source: <code>lib/map.x:269</code></p>
+<p><a id="Map.copy"></a></p>
+<h4 id="mapcopy"><a class="header" href="#mapcopy">Map.copy</a></h4>
+<p><code>Self Map.copy(Self map)</code></p>
+<p>Returns a new <code>Map</code> holding shallow copies of <code>map</code>’s key/value pairs.
+The copy is shallow and independent: inserting into one does not affect
+the other, but the two share whatever objects their keys and values point
+at. Because <code>Map</code>s are identity-bearing, plain assignment aliases instead
+of copying, so copy before handing a <code>Map</code> to code that may mutate it.</p>
+<p>For a nonnull source, the result is <code>Map.equal</code> to the original and never
+<code>==</code> to it. A null source returns a fresh empty <code>Map</code>,
+which is not equal to
+NULL. Because the copy is built by re-inserting entries, its traversal
+order may differ.</p>
+<p><strong>Raises:</strong> <code>&lt;alloc-fail&gt;</code>, <code>&lt;size-limit&gt;</code>, or <code>&lt;invariant&gt;</code> while
+constructing the result, or a cause raised by custom key hashing or
+equality.</p>
+<p>Source: <code>lib/map.x:430</code></p>
+<p><a id="Map.enumerate"></a></p>
+<h4 id="mapenumerate"><a class="header" href="#mapenumerate">Map.enumerate</a></h4>
+<p><code>Iter Map.enumerate(Map x, Iter dest)</code></p>
+<p>Initializes <code>dest</code> as an iterator over <code>x</code>, yielding each entry as a
+<code>(key value)</code> two-element <code>List</code>. Destructure pairs with
+<code>foreach (Var (key, value), map.enumerate(&amp;storage))</code> and
+<code>Var (key, value) = pair;</code>.</p>
+<p>Each yielded pair is a canonical <code>List</code> under the active pool chain; it may
+reuse an equal pair owned by an ancestor. Pair interning is work that plain
+iteration does not perform. <code>foreach (Var (key, value), map)</code> reads both
+names straight from the cursor and allocates nothing; prefer it unless an
+<code>Iter</code> is needed. The iterator borrows <code>x</code>, and both <code>x</code> and <code>dest</code>
+must outlive every pull. A null <code>Map</code> produces an exhausted iterator.</p>
+<p>Constructing the iterator does not raise. Pulling may raise
+<code>&lt;alloc-fail&gt;</code> or <code>&lt;size-limit&gt;</code> while interning a pair.</p>
+<p>Source: <code>lib/map.x:633</code></p>
+<p><a id="Map.getdefault"></a></p>
+<h4 id="mapgetdefault"><a class="header" href="#mapgetdefault">Map.getdefault</a></h4>
+<p><code>Var Map.getdefault(Map map, Var key, Var defval)</code></p>
+<p>Returns the value stored under <code>key</code>, or <code>defval</code> when it is absent.
+Nothing is inserted and <code>Map.len</code> does not change, unlike <code>Map.setdefault</code>.
+For counting, numeric <code>map[k] += amount</code> initializes an absent key from
+<code>amount</code>; use <code>getdefault</code> when a read needs a fallback without mutation.</p>
+<p><strong>Raises:</strong> <code>&lt;void-op&gt;</code> when <code>key</code> is <code>void</code>, or a cause raised by custom key
+hashing or equality.</p>
+<p>Source: <code>lib/map.x:232</code></p>
+<p><a id="Map.iter"></a></p>
+<h4 id="mapiter"><a class="header" href="#mapiter">Map.iter</a></h4>
+<p><code>Iter Map.iter(Map x, Iter dest)</code></p>
+<p>Initializes <code>dest</code> as an iterator over <code>x</code>, yielding each value. Keys come
+from <code>Map.enumerate</code>, which pairs each one with its value the way
+<code>Iter.enumerate</code> pairs an index with an element.</p>
+<p>The caller owns the storage: declare a <code>struct Iter</code> and pass its address.
+The return value is that same <code>dest</code>, or <code>NULL</code> when <code>dest</code> is null. The
+iterator borrows <code>x</code>; both must outlive every pull. A null
+<code>Map</code> produces an
+exhausted iterator. Like a cursor, it is single-pass and is invalidated by
+any structural mutation.</p>
+<p>Neither constructing the iterator nor pulling from it raises.</p>
+<p>Source: <code>lib/map.x:598</code></p>
+<p><a id="Map.keys"></a></p>
+<h4 id="mapkeys"><a class="header" href="#mapkeys">Map.keys</a></h4>
+<p><code>Iter Map.keys(Map x, Iter dest)</code></p>
+<p>Initializes <code>dest</code> as an iterator over <code>x</code>, yielding each key. The mirror
+of <code>Map.iter</code>, and like it, it allocates nothing.</p>
+<p>The caller owns the storage and the iterator borrows <code>x</code>; both must outlive
+every pull. A null <code>Map</code> produces an exhausted iterator. The iterator is
+single-pass, and any structural mutation of <code>x</code> invalidates it, as for
+<code>Map.iter</code>.</p>
+<p>Neither constructing the iterator nor pulling from it raises.</p>
+<p>Source: <code>lib/map.x:613</code></p>
+<p><a id="Map.len"></a></p>
+<h4 id="maplen"><a class="header" href="#maplen">Map.len</a></h4>
+<p><code>unsigned Map.len(Map map)</code></p>
+<p>Returns the number of key/value pairs in <code>map</code>.
+O(1), and the emptiness test for a <code>Map</code>, because an empty <code>Map</code> is a
+nonnull
+object. This counts live entries. The table keeps more slots than
+entries to hold its load factor, so <code>Map.len</code> is not the allocation
+size. <code>map</code> must be nonnull.</p>
+<p>Source: <code>lib/map.x:148</code></p>
+<p><a id="Map.merge"></a></p>
+<h4 id="mapmerge"><a class="header" href="#mapmerge">Map.merge</a></h4>
+<p><code>Self Map.merge(Self map, Self other)</code></p>
+<p>Copies every entry of <code>other</code> into <code>map</code> and returns <code>map</code>.
+This mutates <code>map</code> in place, which is the difference from <code>Map.copy</code>. Keys
+already present are overwritten, so <code>other</code> wins every conflict. A null
+<code>other</code> is a no-op, and a null <code>map</code> is replaced by a fresh
+<code>Map</code>, so use the
+return value. A new key structurally mutates the destination and
+invalidates its active cursors; replacing only existing values does not.</p>
+<p><strong>Raises:</strong> <code>&lt;alloc-fail&gt;</code>, <code>&lt;size-limit&gt;</code>, or <code>&lt;invariant&gt;</code> while inserting,
+or a cause raised by custom key hashing or equality. A supplied destination
+is not rolled back; a newly created destination is discarded.</p>
+<p>Source: <code>lib/map.x:497</code></p>
+<p><a id="Map.new"></a></p>
+<h4 id="mapnew"><a class="header" href="#mapnew">Map.new</a></h4>
+<p><code>Map Map.new(void)</code></p>
+<p>Returns a fresh empty <code>Map</code> in the current scope.
+Every call allocates, so two <code>Map.new()</code> results are distinct objects
+even though both are empty. The literal <code>%{}</code> calls this constructor.
+The <code>Map</code> and its growing storage belong to the scope in which it was
+created. An empty <code>Map</code> is an allocated object, never a null pointer.
+A bare <code>if (...)</code> uses <code>Map.truth</code> and tests content; use an
+explicit <code>(void *) map != NULL</code> comparison when pointer presence matters.</p>
+<p>It starts with two buckets, the smallest table whose mask is nonzero, and
+doubles from there.</p>
+<p>Keys and values are both <code>Var</code>, so one <code>Map</code> may be heterogeneous. Key by
+<code>String</code>, <code>Symbol</code>, <code>Atom</code>, or number: those hash by content. <code>Array</code> and
+<code>Map</code> keys hash and compare by identity, so distinct objects remain
+distinct keys even when their contents are equal. A <code>List</code> key reaches as
+far as its elements do, which <code>Map.try_get</code> describes.</p>
+<p><strong>Raises:</strong> <code>&lt;alloc-fail&gt;</code> or <code>&lt;size-limit&gt;</code> when initial
+storage cannot be allocated.</p>
+<p>Source: <code>lib/map.x:139</code></p>
+<p><a id="Map.postfixindex"></a></p>
+<h4 id="mappostfixindex"><a class="header" href="#mappostfixindex">Map.postfixindex</a></h4>
+<p><code>Var Map.postfixindex(Map map, Var key, Symbol op)</code></p>
+<p>Applies postfix increment or decrement to one existing <code>Map</code> value.
+The key is looked up once and the original value is returned. A missing
+key is not inserted.</p>
+<p><strong>Raises:</strong> <code>&lt;bad-arg&gt;</code> for a null <code>Map</code> or missing key, <code>&lt;void-op&gt;</code> for a
+<code>void</code> key, a custom key callback cause, or any cause from <code>Var.postfix</code>.
+These failures leave the existing value unchanged.</p>
+<p>Source: <code>lib/map.x:360</code></p>
+<p><a id="Map.set"></a></p>
+<h4 id="mapset"><a class="header" href="#mapset">Map.set</a></h4>
+<p><code>void Map.set(Map map, Var key, Var val)</code></p>
+<p>Stores <code>val</code> under <code>key</code>, replacing any value already there.
+A <code>void</code> key or value raises. That refusal is what makes <code>void</code> usable
+as the missing-key answer everywhere else in this module. Raw <code>Null</code> is
+<code>Map</code> data on either side.</p>
+<p>Inserting a new key is structural and invalidates outstanding cursors and
+iterators even when no growth is needed. The table grows automatically to
+stay under its load factor; growth also rehashes every entry and may change
+traversal order. Replacing an existing value is non-structural.</p>
+<p>Keys hash by content for <code>String</code>s, <code>Symbol</code>s, <code>Atom</code>s, and numbers.
+<code>Array</code>s and <code>Map</code>s compare structurally but hash by identity, so an
+<code>Array</code> key
+can only be retrieved reliably through the very same object. <code>Map.get</code>
+shows what that looks like. A <code>List</code> key hashes its elements’ <code>Var</code> bits,
+so it reaches content only for elements the <code>Var</code> word holds; <code>Map.try_get</code>
+lists them. Allocation, validation, and callback failures
+do not install or replace a pair. If growth completed before a retrying
+custom key callback failed, capacity and traversal order may still have
+changed. An <code>&lt;invariant&gt;</code> raised after Robin Hood displacement begins does
+not promise rollback. Raises: <code>&lt;bad-arg&gt;</code> for a null <code>Map</code>,
+<code>&lt;void-op&gt;</code> when
+<code>key</code> or <code>val</code> is <code>void</code>; <code>&lt;size-limit&gt;</code>, <code>&lt;alloc-fail&gt;</code>, or <code>&lt;invariant&gt;</code>
+while inserting; or a cause raised by custom key hashing or equality.</p>
+<p>Source: <code>lib/map.x:301</code></p>
+<p><a id="Map.setdefault"></a></p>
+<h4 id="mapsetdefault"><a class="header" href="#mapsetdefault">Map.setdefault</a></h4>
+<p><code>Var Map.setdefault(Map map, Var key, Var defval)</code></p>
+<p>Returns the value stored under <code>key</code>, inserting <code>defval</code> first when the
+key is absent.
+Lookup and insertion share one Robin Hood probe. When insertion occurs,
+<code>Map.len</code> grows and an outstanding <code>Map.try_next</code> cursor is
+invalidated. <code>key</code> may not be <code>void</code>, and <code>defval</code> may not be <code>void</code> when
+it must be inserted; an existing-key read never stores or validates the
+fallback. Use <code>Map.getdefault</code> when the fallback should not be stored.
+Allocation, validation, and callback failures do not insert a pair,
+although capacity and traversal order may change if growth finished before
+a retrying key callback transferred. An <code>&lt;invariant&gt;</code> raised after Robin
+Hood displacement begins does not promise rollback.</p>
+<p><strong>Raises:</strong> <code>&lt;void-op&gt;</code> when <code>key</code> is <code>void</code>, or when the key is absent and
+<code>defval</code> is <code>void</code>; <code>&lt;bad-arg&gt;</code> for a null <code>Map</code>; <code>&lt;size-limit&gt;</code>,
+<code>&lt;alloc-fail&gt;</code>, or <code>&lt;invariant&gt;</code> while inserting; or a cause raised by
+custom key hashing or equality.</p>
+<p>Source: <code>lib/map.x:253</code></p>
+<p><a id="Map.setindex"></a></p>
+<h4 id="mapsetindex"><a class="header" href="#mapsetindex">Map.setindex</a></h4>
+<p><code>Var Map.setindex(Map map, Var key, Var val)</code></p>
+<p>Stores <code>val</code> under <code>key</code> and returns <code>val</code> as the expression result.
+This is what <code>map[key] = val</code> lowers to. The storing half is <code>Map.set</code>,
+including its rejection of a <code>void</code> key or value and its invalidation of
+outstanding cursors whenever a new key is inserted.</p>
+<p><strong>Raises:</strong> <code>&lt;bad-arg&gt;</code> for a null <code>Map</code>, <code>&lt;void-op&gt;</code> when <code>key</code> or <code>val</code> is
+<code>void</code>; <code>&lt;size-limit&gt;</code>, <code>&lt;alloc-fail&gt;</code>, or <code>&lt;invariant&gt;</code> while inserting;
+or a cause raised by custom key hashing or equality.</p>
+<p>Source: <code>lib/map.x:313</code></p>
+<p><a id="Map.truth"></a></p>
+<h4 id="maptruth"><a class="header" href="#maptruth">Map.truth</a></h4>
+<p><code>int Map.truth(Map map)</code></p>
+<p>Returns nonzero when <code>map</code> contains at least one entry.
+A null or empty <code>Map</code> returns zero.</p>
+<p>Source: <code>lib/map.x:535</code></p>
+<p><a id="Map.try_del"></a></p>
+<h4 id="maptry_del"><a class="header" href="#maptry_del">Map.try_del</a></h4>
+<p><code>int Map.try_del(Map map, Var key, Var *out)</code></p>
+<p>Removes <code>key</code>, writes the value it held to <code>out</code>, and returns nonzero
+when the key was present.
+Removal with a status result, symmetric with <code>Map.try_get</code>. <code>out</code> is
+untouched when the key is absent, and a null <code>map</code> or <code>out</code> reports
+absence rather than failing.</p>
+<p>Removal back-shifts adjacent hashes and entries to close the hole instead
+of leaving a tombstone. That keeps later probes short but rearranges the
+table, so it invalidates any outstanding <code>Map.try_next</code> cursor. <code>Map.len</code>
+drops but the allocation does not shrink. Raises: <code>&lt;void-op&gt;</code> when <code>key</code> is
+<code>void</code>, or a cause raised by custom key hashing or equality.</p>
+<p>Source: <code>lib/map.x:380</code></p>
+<p><a id="Map.try_get"></a></p>
+<h4 id="maptry_get"><a class="header" href="#maptry_get">Map.try_get</a></h4>
+<p><code>int Map.try_get(Map map, Var key, Var *out)</code></p>
+<p>Writes the value stored under <code>key</code> to <code>out</code> and returns nonzero when the
+key is present.
+Prefer this form. It reports presence separately from the payload, so it
+stays correct for every storable value, raw <code>Null</code> included. <code>out</code> is left
+untouched when the key is absent, and a null <code>map</code> or a null <code>out</code>
+reports absence rather than failing.</p>
+<p><code>Array</code> and <code>Map</code> keys hash and compare by identity; changing their
+contents preserves lookup through the same object. Other keys use <code>Var</code>
+equality after a hash probe. <code>String</code>s, <code>Symbol</code>s, <code>Atom</code>s, and numbers
+hash and compare by content.</p>
+<p>A <code>List</code> key hashes and compares its head’s exact <code>Var</code> bits and its
+tail’s identity. An element held inside the <code>Var</code> word therefore compares
+by content: a small number, a <code>Symbol</code>, an <code>Atom</code>, a canonical <code>String</code>,
+or a nested <code>List</code>. An element the word points at compares by identity: a
+wide number boxed in a <code>Scope</code> (<code>long</code>, <code>ulong</code>, <code>long long</code>,
+<code>long double</code>), an <code>Array</code>, or a <code>Map</code>. Two <code>List</code>s built from one <code>long</code>
+value hold two boxes and are two keys.</p>
+<pre class="shiki shiki-themes x2c-light x2c-dark x2c-code" style="--shiki-light:#24292e;--shiki-dark:#e9e5df;--shiki-light-bg:#fff;--shiki-dark-bg:#101011" tabindex="0"><code class="language-x2c no-highlight"><span class="line boring"><span style="--shiki-light:#007C8A;--shiki-dark:#29D3E2">Map</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF"> ages </span><span style="--shiki-light:#D73A49;--shiki-dark:#E9E5DF">=</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF"> {</span><span style="--shiki-light:#032F62;--shiki-dark:#9EDFB8">"ada"</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">: </span><span style="--shiki-light:#005CC5;--shiki-dark:#A9C9F5">36</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">, </span><span style="--shiki-light:#032F62;--shiki-dark:#9EDFB8">"grace"</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">: </span><span style="--shiki-light:#005CC5;--shiki-dark:#A9C9F5">45</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">};</span>
+</span><span class="line"><span style="--shiki-light:#007C8A;--shiki-dark:#29D3E2">Var</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF"> found;</span>
+</span><span class="line"><span style="--shiki-light:#D73A49;--shiki-dark:#F0ADA1">if</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF"> (ages.</span><span style="--shiki-light:#6F42C1;--shiki-dark:#E9E5DF">try_get</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">(</span><span style="--shiki-light:#032F62;--shiki-dark:#9EDFB8">"ada"</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">, </span><span style="--shiki-light:#D73A49;--shiki-dark:#E9E5DF">&amp;</span><span style="--shiki-light:#E36209;--shiki-dark:#E9E5DF">found</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">)) </span><span style="--shiki-light:#6F42C1;--shiki-dark:#E9E5DF">printf</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">(</span><span style="--shiki-light:#032F62;--shiki-dark:#9EDFB8">"</span><span style="--shiki-light:#005CC5;--shiki-dark:#9EDFB8">%s\n</span><span style="--shiki-light:#032F62;--shiki-dark:#9EDFB8">"</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">, found.</span><span style="--shiki-light:#6F42C1;--shiki-dark:#E9E5DF">repr</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">());</span>
+</span><span class="line"><span style="--shiki-light:#D73A49;--shiki-dark:#F0ADA1">if</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF"> (</span><span style="--shiki-light:#D73A49;--shiki-dark:#E9E5DF">!</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">ages.</span><span style="--shiki-light:#6F42C1;--shiki-dark:#E9E5DF">try_get</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">(</span><span style="--shiki-light:#032F62;--shiki-dark:#9EDFB8">"nobody"</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">, </span><span style="--shiki-light:#D73A49;--shiki-dark:#E9E5DF">&amp;</span><span style="--shiki-light:#E36209;--shiki-dark:#E9E5DF">found</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">)) </span><span style="--shiki-light:#6F42C1;--shiki-dark:#E9E5DF">printf</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">(</span><span style="--shiki-light:#032F62;--shiki-dark:#9EDFB8">"absent</span><span style="--shiki-light:#005CC5;--shiki-dark:#9EDFB8">\n</span><span style="--shiki-light:#032F62;--shiki-dark:#9EDFB8">"</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">);</span></span></code></pre>
+
+<p><strong>Raises:</strong> <code>&lt;void-op&gt;</code> when <code>key</code> is <code>void</code>, or a cause raised by custom key
+hashing or equality.</p>
+<p>Source: <code>lib/map.x:178</code></p>
+<p><a id="Map.try_next"></a></p>
+<h4 id="maptry_next"><a class="header" href="#maptry_next">Map.try_next</a></h4>
+<p><code>int Map.try_next(Map map, unsigned *cursor, Var *key, Var *val)</code></p>
+<p>Yields the next occupied entry at or after <code>cursor</code>, advances it, and
+returns nonzero while entries remain.
+The cursor belongs to the caller: declare an <code>unsigned</code>, initialize it
+to zero, and pass its address.
+Status comes back separately from <code>key</code> and <code>val</code>, so an entry may hold
+raw <code>Null</code> on either side without that looking like exhaustion, and the
+outputs are left untouched once the walk is done.</p>
+<p>Entries arrive in bucket order, not insertion or sorted order, and that
+order changes when the table grows. Any structural
+mutation of <code>map</code> invalidates an outstanding cursor, including an
+insertion that triggers a rehash and a removal that back-shifts entries:
+collect what you need into an <code>Array</code> or a <code>List</code> first, then mutate.</p>
+<p>A null <code>Map</code> or any null output pointer returns zero without changing the
+other outputs. Exhaustion leaves <code>key</code> and <code>val</code> untouched.</p>
+<p><code>foreach (Var (key, value), map)</code> reads both names out of this same cursor
+and is usually what you want. Use this loop when the traversal has to
+interleave with other work; for an <code>Iter</code> use <code>Map.iter</code>, <code>Map.keys</code>, or
+<code>Map.enumerate</code>.</p>
+<pre class="shiki shiki-themes x2c-light x2c-dark x2c-code" style="--shiki-light:#24292e;--shiki-dark:#e9e5df;--shiki-light-bg:#fff;--shiki-dark-bg:#101011" tabindex="0"><code class="language-x2c no-highlight"><span class="line boring"><span style="--shiki-light:#007C8A;--shiki-dark:#29D3E2">Map</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF"> ages </span><span style="--shiki-light:#D73A49;--shiki-dark:#E9E5DF">=</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF"> {</span><span style="--shiki-light:#032F62;--shiki-dark:#9EDFB8">"ada"</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">: </span><span style="--shiki-light:#005CC5;--shiki-dark:#A9C9F5">36</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">, </span><span style="--shiki-light:#032F62;--shiki-dark:#9EDFB8">"grace"</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">: </span><span style="--shiki-light:#005CC5;--shiki-dark:#A9C9F5">45</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">};</span>
+</span><span class="line"><span style="--shiki-light:#D73A49;--shiki-dark:#F0ADA1">unsigned</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF"> cursor </span><span style="--shiki-light:#D73A49;--shiki-dark:#E9E5DF">=</span><span style="--shiki-light:#005CC5;--shiki-dark:#A9C9F5"> 0</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">;</span>
+</span><span class="line"><span style="--shiki-light:#007C8A;--shiki-dark:#29D3E2">Var</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF"> key, val;</span>
+</span><span class="line"><span style="--shiki-light:#D73A49;--shiki-dark:#F0ADA1">while</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF"> (ages.</span><span style="--shiki-light:#6F42C1;--shiki-dark:#E9E5DF">try_next</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">(</span><span style="--shiki-light:#D73A49;--shiki-dark:#E9E5DF">&amp;</span><span style="--shiki-light:#E36209;--shiki-dark:#E9E5DF">cursor</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">, </span><span style="--shiki-light:#D73A49;--shiki-dark:#E9E5DF">&amp;</span><span style="--shiki-light:#E36209;--shiki-dark:#E9E5DF">key</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">, </span><span style="--shiki-light:#D73A49;--shiki-dark:#E9E5DF">&amp;</span><span style="--shiki-light:#E36209;--shiki-dark:#E9E5DF">val</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">))</span>
+</span><span class="line"><span style="--shiki-light:#6F42C1;--shiki-dark:#E9E5DF">  printf</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">(</span><span style="--shiki-light:#032F62;--shiki-dark:#9EDFB8">"</span><span style="--shiki-light:#005CC5;--shiki-dark:#9EDFB8">%s</span><span style="--shiki-light:#032F62;--shiki-dark:#9EDFB8"> -&gt; </span><span style="--shiki-light:#005CC5;--shiki-dark:#9EDFB8">%s\n</span><span style="--shiki-light:#032F62;--shiki-dark:#9EDFB8">"</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">, key, val.</span><span style="--shiki-light:#6F42C1;--shiki-dark:#E9E5DF">repr</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">());</span></span></code></pre>
+
+<p>Source: <code>lib/map.x:529</code></p>
+<p><a id="Map.updateindex"></a></p>
+<h4 id="mapupdateindex"><a class="header" href="#mapupdateindex">Map.updateindex</a></h4>
+<p><code>Var Map.updateindex(Map map, Var key, Symbol op, Var rhs)</code></p>
+<p>Updates one <code>Map</code> value in place.
+The key is looked up once and an existing record-value slot is delegated
+to <code>Var.update</code>. Numeric <code>+</code> inserts a missing key with <code>rhs</code> as its
+initial value, equivalent to adding it to zero; the inserted value keeps
+the right-hand side’s numeric tag. Other operations require an existing
+key.</p>
+<p>Successful insertion is structural and may invalidate traversal.
+Existing-key updates are non-structural and do not invalidate traversal.
+Allocation, validation, and callback failures during a missing-key insert
+install no pair, although completed growth may still change capacity and
+traversal order. An <code>&lt;invariant&gt;</code> after displacement begins does not
+promise rollback. A failed existing-key update leaves its value unchanged.</p>
+<p><strong>Raises:</strong> <code>&lt;bad-arg&gt;</code> for a null <code>Map</code> or missing required key, <code>&lt;void-op&gt;</code>
+for a <code>void</code> key or right operand, <code>&lt;size-limit&gt;</code>, <code>&lt;alloc-fail&gt;</code>, or
+<code>&lt;invariant&gt;</code> while inserting for numeric <code>+</code>, a custom key callback
+cause, or any cause from <code>Var.update</code>.</p>
+<p>Source: <code>lib/map.x:336</code></p>
+<p><a id="Map.write_str"></a></p>
+<h4 id="mapwrite_str"><a class="header" href="#mapwrite_str">Map.write_str</a></h4>
+<p><code>Buffer Map.write_str(Map map, Buffer out)</code></p>
+<p>Appends the <code>Map</code> display text to <code>out</code>, using each entry’s <code>write_str</code>.
+<code>Map.str</code> calls this to build its result. An empty <code>Map</code> displays as <code>{ }</code>,
+including when nested in another container. Nonempty entries appear in
+bucket order. <code>out</code> must be nonnull.</p>
+<p><strong>Raises:</strong> <code>&lt;alloc-fail&gt;</code> or <code>&lt;size-limit&gt;</code> while growing <code>out</code>, or a cause
+raised while rendering an entry. A failure leaves any prefix already
+appended.</p>
+<p>Source: <code>lib/map.x:667</code></p>
+<h2 id="advanced-and-interop-api"><a class="header" href="#advanced-and-interop-api">Advanced and interop API</a></h2>
+<div class="table-wrapper">
+<table>
+<thead>
+<tr><th>Function</th><th>Summary</th></tr>
+</thead>
+<tbody>
+<tr><td><a href="#Map.compare"><code>Map.compare</code></a></td><td>Compares <code>Map</code>s by size and then by sorted key/value contents.</td></tr>
+<tr><td><a href="#Map.equal"><code>Map.equal</code></a></td><td>Returns nonzero when <code>map1</code> and <code>map2</code> hold the same key/value pairs.</td></tr>
+<tr><td><a href="#Map.repr"><code>Map.repr</code></a></td><td>Returns the readable <code>{ key: value, ... }</code> representation of <code>map</code>.</td></tr>
+<tr><td><a href="#Map.str"><code>Map.str</code></a></td><td>Returns the display <code>String</code> of <code>map</code>.</td></tr>
+<tr><td><a href="#Map.update_n"><code>Map.update_n</code></a></td><td>Adds exactly <code>pair_count</code> key/value pairs to <code>map</code> in argument order.</td></tr>
+<tr><td><a href="#Map.write_repr"><code>Map.write_repr</code></a></td><td>Appends the readable representation of <code>map</code> to <code>out</code> in bucket order.</td></tr>
+</tbody>
+</table>
+</div>
+<h3 id="map-1"><a class="header" href="#map-1"><code>Map</code></a></h3>
+<p><a id="Map.compare"></a></p>
+<h4 id="mapcompare"><a class="header" href="#mapcompare">Map.compare</a></h4>
+<p><code>int Map.compare(Map a, Map b)</code></p>
+<p>Compares <code>Map</code>s by size and then by sorted key/value contents.
+Identical handles compare equal; NULL sorts before a nonnull <code>Map</code>.
+Equal-size <code>Map</code>s are copied and sorted by <code>(key, value)</code>, then the sorted
+arrays are compared lexicographically. Key and value comparisons use
+<code>Var.compare</code>; neither <code>Map</code> is mutated.</p>
+<p><strong>Raises:</strong> <code>&lt;alloc-fail&gt;</code> while creating temporary storage, or any cause from
+key or value comparison.</p>
+<p>Source: <code>lib/map.x:550</code></p>
+<p><a id="Map.equal"></a></p>
+<h4 id="mapequal"><a class="header" href="#mapequal">Map.equal</a></h4>
+<p><code>int Map.equal(Map map1, Map map2)</code></p>
+<p>Returns nonzero when <code>map1</code> and <code>map2</code> hold the same key/value pairs.
+A structural comparison, independent of insertion order and of table
+layout, so two <code>Map</code>s built by different routes still compare equal. <code>==</code>
+uses this operation; <code>===</code> remains the identity test. When used as keys
+of another <code>Map</code>, separately built equal <code>Map</code>s remain distinct keys.</p>
+<p>Values are compared with <code>Var</code> equality, so nested <code>Array</code>s and <code>Map</code>s also
+compare structurally. Two null handles compare equal; exactly one null
+handle compares unequal. Raises: a cause raised by key hashing, key
+equality, or value equality.</p>
+<p>Source: <code>lib/map.x:648</code></p>
+<p><a id="Map.repr"></a></p>
+<h4 id="maprepr"><a class="header" href="#maprepr">Map.repr</a></h4>
+<p><code>String Map.repr(Map map)</code></p>
+<p>Returns the readable <code>{ key: value, ... }</code> representation of <code>map</code>.
+Keys and values are rendered with their own <code>repr</code>, so <code>String</code>s appear
+quoted and <code>Symbol</code>s in angle brackets. Entries appear in hash-slot order,
+which keeps the entry order stable only while that table remains unchanged;
+separately built <code>Map</code>s may use a different order. Use <code>Map.equal</code> to
+compare
+contents. An empty <code>Map</code> renders as <code>{  }</code>.</p>
+<p><code>Map.str</code> has the same shape but uses each element’s <code>str</code> form.
+<code>Map.write_repr</code> and <code>Map.write_str</code> append to a <code>Buffer</code> instead of
+allocating a <code>String</code>, and are what the two <code>String</code> forms materialize.</p>
+<p><strong>Raises:</strong> <code>&lt;alloc-fail&gt;</code> or <code>&lt;size-limit&gt;</code> while constructing the result, or a cause
+raised while rendering an entry.</p>
+<p>Source: <code>lib/map.x:700</code></p>
+<p><a id="Map.str"></a></p>
+<h4 id="mapstr"><a class="header" href="#mapstr">Map.str</a></h4>
+<p><code>String Map.str(Map map)</code></p>
+<p>Returns the display <code>String</code> of <code>map</code>.
+Any empty <code>Map</code> renders as <code>{ }</code>, one space narrower than the <code>{  }</code> that
+<code>Map.repr</code> gives for the same <code>Map</code>. The test is <code>Map.truth</code>, so emptiness
+selects it, not null. Nonempty entries appear in
+bucket order and use their display forms.</p>
+<p><strong>Raises:</strong> <code>&lt;alloc-fail&gt;</code> or <code>&lt;size-limit&gt;</code> while constructing the result, or
+a cause raised while rendering an entry.</p>
+<p>Source: <code>lib/map.x:680</code></p>
+<p><a id="Map.update_n"></a></p>
+<h4 id="mapupdate_n"><a class="header" href="#mapupdate_n">Map.update_n</a></h4>
+<p><code>Self Map.update_n(Self map, unsigned pair_count, ...)</code></p>
+<p>Adds exactly <code>pair_count</code> key/value pairs to <code>map</code> in argument order.
+Arguments alternate <code>Var</code> keys and values. A null <code>Map</code> returns NULL
+without
+reading them. Each completed pair remains if a later pair fails. Inserting
+a new key invalidates active traversal; replacing an existing value does
+not.</p>
+<p><strong>Raises:</strong> the same causes as <code>Map.set</code>.</p>
+<p>Source: <code>lib/map.x:403</code></p>
+<p><a id="Map.write_repr"></a></p>
+<h4 id="mapwrite_repr"><a class="header" href="#mapwrite_repr">Map.write_repr</a></h4>
+<p><code>Buffer Map.write_repr(Map map, Buffer out)</code></p>
+<p>Appends the readable representation of <code>map</code> to <code>out</code> in bucket order.
+Keys and values use <code>write_repr</code>; a null or empty <code>Map</code> appends <code>{  }</code>.
+<code>out</code> must be nonnull.</p>
+<p><strong>Raises:</strong> <code>&lt;alloc-fail&gt;</code> or <code>&lt;size-limit&gt;</code> while growing <code>out</code>, or a cause
+raised while rendering an entry. A failure leaves any prefix already
+appended.</p>
+<p>Source: <code>lib/map.x:657</code></p>
+<h2 id="convenience-api"><a class="header" href="#convenience-api">Convenience API</a></h2>
+<div class="table-wrapper">
+<table>
+<thead>
+<tr><th>Function</th><th>Summary</th></tr>
+</thead>
+<tbody>
+<tr><td><a href="#Map.del"><code>Map.del</code></a></td><td>Removes <code>key</code> and returns its value, or <code>void</code> when absent.</td></tr>
+<tr><td><a href="#Map.get"><code>Map.get</code></a></td><td>Returns the value stored under <code>key</code>, or <code>void</code> when absent.</td></tr>
+<tr><td><a href="#Map.getindex"><code>Map.getindex</code></a></td><td>Returns the value selected by bracket indexing.</td></tr>
+</tbody>
+</table>
+</div>
+<h3 id="map-2"><a class="header" href="#map-2"><code>Map</code></a></h3>
+<p><a id="Map.del"></a></p>
+<h4 id="mapdel"><a class="header" href="#mapdel">Map.del</a></h4>
+<p><code>Var Map.del(Map map, Var key)</code></p>
+<p>Removes <code>key</code> and returns its value, or <code>void</code> when absent.
+A convenience over <code>Map.try_del</code>, useful when the removed value is all
+you want and a missing key is unremarkable. It is
+otherwise identical, cursor invalidation included. Because <code>void</code> is not
+storable, the absence result is unambiguous. Prefer <code>Map.try_del</code> when the
+status should be explicit or the output must remain unchanged on absence.</p>
+<p><strong>Raises:</strong> the same causes as <code>Map.try_del</code>.</p>
+<p>Source: <code>lib/map.x:390</code></p>
+<p><a id="Map.get"></a></p>
+<h4 id="mapget"><a class="header" href="#mapget">Map.get</a></h4>
+<p><code>Var Map.get(Map map, Var key)</code></p>
+<p>Returns the value stored under <code>key</code>, or <code>void</code> when absent.
+A convenience over <code>Map.try_get</code>, kept because it reads well inside a
+larger expression. <code>void</code> as the missing-key answer is unambiguous
+because <code>Map.set</code> refuses to store <code>void</code>. It says nothing else about
+the miss, so prefer <code>Map.try_get</code> where absence has to be handled.</p>
+<p><code>Array</code> and <code>Map</code> keys hash and compare by identity, so a fresh object
+with equal contents is a different key. Other keys use <code>Var</code> equality:
+<code>List</code>, <code>String</code>, <code>Symbol</code>, <code>Atom</code>, and numeric keys hash and compare by
+content.</p>
+<pre class="shiki shiki-themes x2c-light x2c-dark x2c-code" style="--shiki-light:#24292e;--shiki-dark:#e9e5df;--shiki-light-bg:#fff;--shiki-dark-bg:#101011" tabindex="0"><code class="language-x2c no-highlight"><span class="line boring"><span style="--shiki-light:#007C8A;--shiki-dark:#29D3E2">Map</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF"> by_list </span><span style="--shiki-light:#D73A49;--shiki-dark:#E9E5DF">=</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF"> {};</span>
+</span><span class="line boring"><span style="--shiki-light:#007C8A;--shiki-dark:#29D3E2">Map</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF"> by_array </span><span style="--shiki-light:#D73A49;--shiki-dark:#E9E5DF">=</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF"> {};</span>
+</span><span class="line"><span style="--shiki-light:#E36209;--shiki-dark:#E9E5DF">by_list</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">[</span><span style="--shiki-light:#24292E;--shiki-dark:#FF715A">%(</span><span style="--shiki-light:#005CC5;--shiki-dark:#A9C9F5">1</span><span style="--shiki-light:#005CC5;--shiki-dark:#A9C9F5"> 2</span><span style="--shiki-light:#24292E;--shiki-dark:#FF715A">)</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">] </span><span style="--shiki-light:#D73A49;--shiki-dark:#E9E5DF">=</span><span style="--shiki-light:#032F62;--shiki-dark:#9EDFB8"> "found"</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">;</span>
+</span><span class="line"><span style="--shiki-light:#E36209;--shiki-dark:#E9E5DF">by_array</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">[[</span><span style="--shiki-light:#005CC5;--shiki-dark:#A9C9F5">1</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">, </span><span style="--shiki-light:#005CC5;--shiki-dark:#A9C9F5">2</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">]] </span><span style="--shiki-light:#D73A49;--shiki-dark:#E9E5DF">=</span><span style="--shiki-light:#032F62;--shiki-dark:#9EDFB8"> "found"</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">;</span>
+</span><span class="line"><span style="--shiki-light:#6F42C1;--shiki-dark:#E9E5DF">printf</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">(</span><span style="--shiki-light:#032F62;--shiki-dark:#9EDFB8">"list key: </span><span style="--shiki-light:#005CC5;--shiki-dark:#9EDFB8">%s\n</span><span style="--shiki-light:#032F62;--shiki-dark:#9EDFB8">"</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">, </span><span style="--shiki-light:#E36209;--shiki-dark:#E9E5DF">by_list</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">[</span><span style="--shiki-light:#24292E;--shiki-dark:#FF715A">%(</span><span style="--shiki-light:#005CC5;--shiki-dark:#A9C9F5">1</span><span style="--shiki-light:#005CC5;--shiki-dark:#A9C9F5"> 2</span><span style="--shiki-light:#24292E;--shiki-dark:#FF715A">)</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">].</span><span style="--shiki-light:#6F42C1;--shiki-dark:#E9E5DF">repr</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">());</span>
+</span><span class="line"><span style="--shiki-light:#6F42C1;--shiki-dark:#E9E5DF">printf</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">(</span><span style="--shiki-light:#032F62;--shiki-dark:#9EDFB8">"array key: </span><span style="--shiki-light:#005CC5;--shiki-dark:#9EDFB8">%s\n</span><span style="--shiki-light:#032F62;--shiki-dark:#9EDFB8">"</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">, </span><span style="--shiki-light:#E36209;--shiki-dark:#E9E5DF">by_array</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">[[</span><span style="--shiki-light:#005CC5;--shiki-dark:#A9C9F5">1</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">, </span><span style="--shiki-light:#005CC5;--shiki-dark:#A9C9F5">2</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">]].</span><span style="--shiki-light:#6F42C1;--shiki-dark:#E9E5DF">repr</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">());</span></span></code></pre>
+
+<p>That prints <code>"found"</code> for the <code>List</code> key and <code>void</code> for the <code>Array</code> key. An
+<code>Array</code> or <code>Map</code> key can only be found again through the very same object.</p>
+<p><strong>Raises:</strong> <code>&lt;void-op&gt;</code> when <code>key</code> is <code>void</code>, or a cause raised by custom key
+hashing or equality.</p>
+<p>Source: <code>lib/map.x:204</code></p>
+<p><a id="Map.getindex"></a></p>
+<h4 id="mapgetindex"><a class="header" href="#mapgetindex">Map.getindex</a></h4>
+<p><code>Var Map.getindex(Map map, Var key)</code></p>
+<p>Returns the value selected by bracket indexing.
+This is what <code>map[key]</code> lowers to, and it is <code>Map.get</code> in every respect,
+including identity comparison for <code>Array</code> and <code>Map</code> keys.
+Bracket reads do not report status; prefer <code>Map.try_get</code> when an absent
+key and a <code>void</code> result must be told apart.</p>
+<p>Indexed compound assignment and increment/decrement use
+<code>Map.updateindex</code> and <code>Map.postfixindex</code>, which look up the key
+once. Numeric <code>+=</code> inserts a missing key from its right-hand side; other
+compounds and increment/decrement require an existing key. The read,
+modify, and write happen in one call. That is not thread-safe
+synchronization.</p>
+<p><strong>Raises:</strong> the same causes as <code>Map.get</code>.</p>
+<p>Source: <code>lib/map.x:223</code></p>
+<h2 id="runtime-internal-callables"><a class="header" href="#runtime-internal-callables">Runtime-internal callables</a></h2>
+<p>These callables connect runtime translation units. They are documented
+for source readers but are not supported as user API.</p>
+<div class="table-wrapper">
+<table>
+<thead>
+<tr><th>Function</th><th>Summary</th></tr>
+</thead>
+<tbody>
+<tr><td><a href="#Map.export_to"><code>Map.export_to</code></a></td><td>Exports every key and value, rebuilds the table, then moves its <code>Block</code>s.</td></tr>
+<tr><td><a href="#Map.new_capacity"><code>Map.new_capacity</code></a></td><td>Returns a fresh empty <code>Map</code> with exactly <code>capacity</code> slots.</td></tr>
+</tbody>
+</table>
+</div>
+<h3 id="map-3"><a class="header" href="#map-3"><code>Map</code></a></h3>
+<p><a id="Map.export_to"></a></p>
+<h4 id="mapexport_to"><a class="header" href="#mapexport_to">Map.export_to</a></h4>
+<p><code>void Map.export_to( Map map, Context source, VarExportContextFn export_value, Scope *scope)</code></p>
+<p>Exports every key and value, rebuilds the table, then moves its <code>Block</code>s.
+The borrowed <code>export_value</code> callback runs synchronously for each stored
+key and value and may return replacement <code>Var</code>s. Rebuilding is required
+because an exported key may hash differently. On success the old backing
+<code>Block</code>s are freed, the rebuilt <code>Block</code>s move into <code>scope</code>, and the <code>Map</code>
+identity remains unchanged. <code>Context</code> moves that identity before this call
+to break cycles.</p>
+<p>A failure while staging leaves the <code>Map</code>’s original records, backing
+storage,
+and recorded <code>Scope</code> unchanged. Effects of callbacks that already
+completed,
+including nested exports, are not rolled back. Any failure while moving the
+rebuilt <code>Block</code>s occurs after the table has replaced the original. A null
+<code>Map</code>, callback, or <code>Scope</code> pointer does nothing. Raises: <code>&lt;alloc-fail&gt;</code>,
+<code>&lt;size-limit&gt;</code>, or <code>&lt;invariant&gt;</code> while rebuilding, or any cause from
+export, key hashing, or moving the rebuilt <code>Block</code>s.</p>
+<p>Source: <code>lib/map.x:449</code></p>
+<p><a id="Map.new_capacity"></a></p>
+<h4 id="mapnew_capacity"><a class="header" href="#mapnew_capacity">Map.new_capacity</a></h4>
+<p><code>Map Map.new_capacity(unsigned capacity)</code></p>
+<p>Returns a fresh empty <code>Map</code> with exactly <code>capacity</code> slots.
+<code>Pool</code> uses this internal constructor to reuse a previous child’s proven
+power-of-two table size. <code>capacity</code> must be a power of two of at least
+two. The public constructor is <code>Map.new</code>.</p>
+<p><strong>Raises:</strong> <code>&lt;bad-arg&gt;</code> when <code>capacity</code> is not a valid table capacity, or
+<code>&lt;alloc-fail&gt;</code> / <code>&lt;size-limit&gt;</code> when initial storage cannot be allocated.</p>
+<p>Source: <code>lib/map.x:114</code></p>
+<h2 id="public-types"><a class="header" href="#public-types">Public types</a></h2>
+<div class="table-wrapper">
+<table>
+<thead>
+<tr><th>Type</th><th>Kind</th><th>Summary</th></tr>
+</thead>
+<tbody>
+<tr><td><a href="#Map"><code>Map</code></a></td><td>struct</td><td><code>Scope</code>-backed mutable hash table from <code>Var</code> keys to <code>Var</code> values.</td></tr>
+</tbody>
+</table>
+</div>
+<p><a id="Map"></a></p>
+<h3 id="map-4"><a class="header" href="#map-4">Map</a></h3>
+<p><code>typedef struct Map { Scope scope, Bytes hashes, entries; unsigned used; unsigned capacity; unsigned mask; } *Map</code></p>
+<p><code>Scope</code>-backed mutable hash table from <code>Var</code> keys to <code>Var</code> values.
+The <code>Map</code> records the <code>Scope</code> used for its two backing <code>Block</code>s. <code>Context</code>
+moves
+the <code>Map</code> allocation itself before recursively exporting those <code>Block</code>s.
+Stored <code>Var</code> bits are shallow and retain no pointee; those values must
+remain
+valid while the <code>Map</code> can read, compare, hash, or return them. A valid
+empty
+<code>Map</code> is allocated and distinct from NULL.</p>
+<p>Source: <code>lib/map.x:40</code></p>
+<h2 id="design-notes"><a class="header" href="#design-notes">Design notes</a></h2>
+<p><code>Map</code> uses Robin Hood hashing split across two scope-owned <code>Block</code>s. The
+hash
+<code>Block</code> holds one 32-bit hash per bucket; the entry <code>Block</code> holds the <code>Var</code>
+key
+and value at the same bucket index. Lookups probe the compact hash <code>Block</code>
+and touch an entry only when its hash matches. Capacity is always a power
+of two and probe distances are computed as needed.</p>
+<p>Bucket state   hash</p>
+<hr>
+<p>empty          0
+occupied       &gt;0</p>
+<p>Deletion back-shifts hashes and entries together to close holes.
+Structural mutation invalidates traversal state. Keys and values are
+stored as <code>Var</code> bits; the <code>Map</code> does not free pointer-bearing payloads or
+canonical values reachable through them.</p>
+<h2 id="tests-and-examples"><a class="header" href="#tests-and-examples">Tests and examples</a></h2>
+<p><code>make verify</code> (<code>unittest/test-map.x</code>) and <code>make examples</code> (<code>docs-word-count</code>).</p>
+
+                    </main>
+
+                    <nav class="x2c-pager" aria-label="Page navigation">
+                        <a rel="prev" href="../../library/modules/logger.html" class="x2c-pager-prev" aria-keyshortcuts="Left">
+                            <span class="x2c-pager-label">previous</span>
+                            <span class="x2c-pager-title">lib/logger.x</span>
+                        </a>
+                        
+                        <a rel="next prefetch" href="../../library/modules/match-recursive.html" class="x2c-pager-next" aria-keyshortcuts="Right">
+                            <span class="x2c-pager-label">next</span>
+                            <span class="x2c-pager-title">lib/match-recursive.x</span>
+                        </a>
+                    </nav>
+                    <footer class="x2c-footer">
+                        &copy; 2025&ndash;2026
+                        <a href="https://flake.org">GWF</a>
+                        &middot;
+                        <a href="https://github.com/gwf/x2c/blob/c2a89d999e81f47a4422a26edf0033eb0b98c6c6/LICENSE">Apache 2.0</a>
+                        &middot;
+                        <a href="https://github.com/gwf/x2c/blob/c2a89d999e81f47a4422a26edf0033eb0b98c6c6/TRADEMARKS.md">Trademarks</a>
+                    </footer>
+                </div>
+            </div>
+
+
+        </div>
+
+        <template id=fa-eye><span class=fa-svg><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 576 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc. --><path d="M288 32c-80.8 0-145.5 36.8-192.6 80.6C48.6 156 17.3 208 2.5 243.7c-3.3 7.9-3.3 16.7 0 24.6C17.3 304 48.6 356 95.4 399.4C142.5 443.2 207.2 480 288 480s145.5-36.8 192.6-80.6c46.8-43.5 78.1-95.4 93-131.1c3.3-7.9 3.3-16.7 0-24.6c-14.9-35.7-46.2-87.7-93-131.1C433.5 68.8 368.8 32 288 32zM432 256c0 79.5-64.5 144-144 144s-144-64.5-144-144s64.5-144 144-144s144 64.5 144 144zM288 192c0 35.3-28.7 64-64 64c-11.5 0-22.3-3-31.6-8.4c-.2 2.8-.4 5.5-.4 8.4c0 53 43 96 96 96s96-43 96-96s-43-96-96-96c-2.8 0-5.6 .1-8.4 .4c5.3 9.3 8.4 20.1 8.4 31.6z"/></svg></span></template>
+        <template id=fa-eye-slash><span class=fa-svg><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 640 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc. --><path d="M38.8 5.1C28.4-3.1 13.3-1.2 5.1 9.2S-1.2 34.7 9.2 42.9l592 464c10.4 8.2 25.5 6.3 33.7-4.1s6.3-25.5-4.1-33.7L525.6 386.7c39.6-40.6 66.4-86.1 79.9-118.4c3.3-7.9 3.3-16.7 0-24.6c-14.9-35.7-46.2-87.7-93-131.1C465.5 68.8 400.8 32 320 32c-68.2 0-125 26.3-169.3 60.8L38.8 5.1zM223.1 149.5C248.6 126.2 282.7 112 320 112c79.5 0 144 64.5 144 144c0 24.9-6.3 48.3-17.4 68.7L408 294.5c5.2-11.8 8-24.8 8-38.5c0-53-43-96-96-96c-2.8 0-5.6 .1-8.4 .4c5.3 9.3 8.4 20.1 8.4 31.6c0 10.2-2.4 19.8-6.6 28.3l-90.3-70.8zm223.1 298L373 389.9c-16.4 6.5-34.3 10.1-53 10.1c-79.5 0-144-64.5-144-144c0-6.9 .5-13.6 1.4-20.2L83.1 161.5C60.3 191.2 44 220.8 34.5 243.7c-3.3 7.9-3.3 16.7 0 24.6c14.9 35.7 46.2 87.7 93 131.1C174.5 443.2 239.2 480 320 480c47.8 0 89.9-12.9 126.2-32.5z"/></svg></span></template>
+        <template id=fa-copy><span class=fa-svg><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc. --><path d="M502.6 70.63l-61.25-61.25C435.4 3.371 427.2 0 418.7 0H255.1c-35.35 0-64 28.66-64 64l.0195 256C192 355.4 220.7 384 256 384h192c35.2 0 64-28.8 64-64V93.25C512 84.77 508.6 76.63 502.6 70.63zM464 320c0 8.836-7.164 16-16 16H255.1c-8.838 0-16-7.164-16-16L239.1 64.13c0-8.836 7.164-16 16-16h128L384 96c0 17.67 14.33 32 32 32h47.1V320zM272 448c0 8.836-7.164 16-16 16H63.1c-8.838 0-16-7.164-16-16L47.98 192.1c0-8.836 7.164-16 16-16H160V128H63.99c-35.35 0-64 28.65-64 64l.0098 256C.002 483.3 28.66 512 64 512h192c35.2 0 64-28.8 64-64v-32h-47.1L272 448z"/></svg></span></template>
+        <template id=fa-play><span class=fa-svg><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 384 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc. --><path d="M73 39c-14.8-9.1-33.4-9.4-48.5-.9S0 62.6 0 80V432c0 17.4 9.4 33.4 24.5 41.9s33.7 8.1 48.5-.9L361 297c14.3-8.7 23-24.2 23-41s-8.7-32.2-23-41L73 39z"/></svg></span></template>
+        <template id=fa-clock-rotate-left><span class=fa-svg><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc. --><path d="M75 75L41 41C25.9 25.9 0 36.6 0 57.9V168c0 13.3 10.7 24 24 24H134.1c21.4 0 32.1-25.9 17-41l-30.8-30.8C155 85.5 203 64 256 64c106 0 192 86 192 192s-86 192-192 192c-40.8 0-78.6-12.7-109.7-34.4c-14.5-10.1-34.4-6.6-44.6 7.9s-6.6 34.4 7.9 44.6C151.2 495 201.7 512 256 512c141.4 0 256-114.6 256-256S397.4 0 256 0C185.3 0 121.3 28.7 75 75zm181 53c-13.3 0-24 10.7-24 24V256c0 6.4 2.5 12.5 7 17l72 72c9.4 9.4 24.6 9.4 33.9 0s9.4-24.6 0-33.9l-65-65V152c0-13.3-10.7-24-24-24z"/></svg></span></template>
+
+
+
+        <script>
+            window.playground_copyable = true;
+        </script>
+
+
+        <script src="../../elasticlunr-ef4e11c1.min.js"></script>
+        <script src="../../mark-09e88c2c.min.js"></script>
+        <script src="../../searcher-09f2665d.js"></script>
+
+        <script src="../../clipboard-1626706a.min.js"></script>
+        <script src="../../highlight-abc7f01d.js"></script>
+        <script src="../../book-609e4cb8.js"></script>
+
+        <script>
+            document.addEventListener('DOMContentLoaded', () => {
+                const sidebar = document.querySelector('#mdbook-sidebar');
+                sidebar.querySelectorAll('ol').forEach(list => {
+                    const numbers = list.querySelectorAll(
+                        ':scope > li > .chapter-link-wrapper > a > strong, :scope > li > a > strong');
+                    if (numbers.length) {
+                        const width = Math.max(...Array.from(numbers,
+                            number => number.textContent.trim().length));
+                        list.style.setProperty('--chapter-number-width', width + 'ch');
+                    }
+                });
+                const chapter = sidebar.querySelector('a.active');
+                const item = chapter?.closest('.chapter-item');
+                if (item?.querySelector(':scope > .on-this-page')) {
+                    const row = chapter.parentElement;
+                    if (!row.querySelector('.chapter-fold-toggle')) {
+                        const toggle = document.createElement('button');
+                        toggle.type = 'button';
+                        toggle.className = 'chapter-fold-toggle';
+                        toggle.appendChild(document.createElement('div'));
+                        toggle.addEventListener('click', () => {
+                            item.classList.toggle('expanded');
+                        });
+                        row.appendChild(toggle);
+                    }
+                }
+                sidebar.querySelectorAll('.chapter-fold-toggle').forEach(toggle => {
+                    const row = toggle.parentElement;
+                    const item = row.parentElement;
+                    const title = row.querySelector('a').textContent.trim();
+                    toggle.setAttribute('aria-label', 'Toggle ' + title);
+                    const update = () => toggle.setAttribute('aria-expanded',
+                        String(item.classList.contains('expanded')));
+                    update();
+                    toggle.addEventListener('click', update);
+                    if (toggle.tagName === 'A') {
+                        toggle.setAttribute('role', 'button');
+                        toggle.tabIndex = 0;
+                        toggle.addEventListener('keydown', event => {
+                            if (event.key === 'Enter' || event.key === ' ') {
+                                event.preventDefault();
+                                toggle.click();
+                            }
+                        });
+                    }
+                });
+            });
+        </script>
+
+        <!-- Custom JS scripts -->
+
+
+
+    </div>
+    </body>
+</html>

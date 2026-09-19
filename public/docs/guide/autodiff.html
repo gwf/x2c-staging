@@ -1,0 +1,649 @@
+<!DOCTYPE HTML>
+<html lang="en" class="light sidebar-visible" dir="ltr">
+    <head>
+        <!-- Book generated using mdBook -->
+        <meta charset="UTF-8">
+        <title>Automatic Differentiation - The x2c Book</title>
+
+
+        <!-- Custom HTML head -->
+        <link rel="preconnect" href="https://fonts.googleapis.com">
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=Archivo:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">
+
+        <meta name="description" content="The x2c language, standard library, and compiler.">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <meta name="theme-color" content="#ffffff">
+
+        <link rel="icon" href="../favicon-995a3c20.svg">
+        <link rel="stylesheet" href="../css/variables-8adf115d.css">
+        <link rel="stylesheet" href="../css/general-e96d0476.css">
+        <link rel="stylesheet" href="../css/chrome-d279d366.css">
+        <link rel="stylesheet" href="../css/print-9e4910d8.css" media="print">
+
+        <!-- Fonts -->
+        <link rel="stylesheet" href="../fonts/fonts-9644e21d.css">
+
+        <!-- Highlight.js Stylesheets -->
+        <link rel="stylesheet" id="mdbook-highlight-css" href="../highlight-493f70e1.css">
+        <link rel="stylesheet" id="mdbook-tomorrow-night-css" href="../tomorrow-night-4c0ae647.css">
+        <link rel="stylesheet" id="mdbook-ayu-highlight-css" href="../ayu-highlight-3fdfc3ac.css">
+
+        <!-- Custom theme stylesheets -->
+        <link rel="stylesheet" href="../theme/header-2c1becca.css">
+        <link rel="stylesheet" href="../theme/x2c-fd3d182e.css">
+
+
+        <!-- Provide site root and default themes to javascript -->
+        <script>
+            const path_to_root = "../";
+            const default_light_theme = "light";
+            const default_dark_theme = "light";
+            window.path_to_searchindex_js = "../searchindex-2643e100.js";
+        </script>
+        <!-- Start loading toc.js asap -->
+        <script src="../toc-a71616d6.js"></script>
+        <!-- x2c publication metadata -->
+        <link rel="canonical" href="https://staging.x2c-lang.dev/docs/guide/autodiff.html">
+        <meta property="og:type" content="website">
+        <meta property="og:title" content="Automatic Differentiation - The x2c Book">
+        <meta property="og:description" content="The x2c language, standard library, and compiler.">
+        <meta property="og:url" content="https://staging.x2c-lang.dev/docs/guide/autodiff.html">
+        <meta property="og:image" content="https://staging.x2c-lang.dev/x2c-social.png">
+        <meta property="og:image:width" content="1200">
+        <meta property="og:image:height" content="630">
+        <meta name="twitter:card" content="summary_large_image">
+        <meta name="twitter:title" content="Automatic Differentiation - The x2c Book">
+        <meta name="twitter:description" content="The x2c language, standard library, and compiler.">
+        <meta name="twitter:image" content="https://staging.x2c-lang.dev/x2c-social.png">
+    </head>
+    <body><aside aria-label="Release candidate" style="padding:1rem;background:#fff1bf;color:#241c00;font:14px/1.5 monospace;overflow-wrap:anywhere"><strong>Public staging: candidate-c2a89d999e81f47a4422a26edf0033eb0b98c6c6-35470032964-1</strong><p>Source: c2a89d999e81f47a4422a26edf0033eb0b98c6c6. Use a fresh scratch installation and the explicit candidate index below. Bare x2c install commands and production URLs in the book refer to production.</p><pre style="overflow:auto">export X2C_PREFIX=&quot;$(mktemp -d)/x2c&quot;
+curl -fsSL https://staging.x2c-lang.dev/install.sh | sh
+export PATH=&quot;$X2C_PREFIX/bin:$PATH&quot;
+x2c run &quot;$X2C_PREFIX/examples/foreach.x&quot;
+x2c install pcre2 --index https://staging.x2c-lang.dev/packages/index.txt</pre></aside>
+    <div id="mdbook-help-container">
+        <div id="mdbook-help-popup">
+            <h2 class="mdbook-help-title">Keyboard shortcuts</h2>
+            <div>
+                <p>Press <kbd>←</kbd> or <kbd>→</kbd> to navigate between chapters</p>
+                <p>Press <kbd>S</kbd> or <kbd>/</kbd> to search in the book</p>
+                <p>Press <kbd>?</kbd> to show this help</p>
+                <p>Press <kbd>Esc</kbd> to hide this help</p>
+            </div>
+        </div>
+    </div>
+    <div id="mdbook-body-container">
+        <!-- Work around some values being stored in localStorage wrapped in quotes -->
+        <script>
+            try {
+                let theme = localStorage.getItem('mdbook-theme');
+                let sidebar = localStorage.getItem('mdbook-sidebar');
+
+                if (theme.startsWith('"') && theme.endsWith('"')) {
+                    localStorage.setItem('mdbook-theme', theme.slice(1, theme.length - 1));
+                }
+
+                if (sidebar.startsWith('"') && sidebar.endsWith('"')) {
+                    localStorage.setItem('mdbook-sidebar', sidebar.slice(1, sidebar.length - 1));
+                }
+            } catch (e) { }
+        </script>
+
+        <!-- Set the theme before any content is loaded, prevents flash -->
+        <script>
+            const default_theme = window.matchMedia("(prefers-color-scheme: dark)").matches ? default_dark_theme : default_light_theme;
+            let theme;
+            try { theme = localStorage.getItem('mdbook-theme'); } catch(e) { }
+            if (theme === null || theme === undefined) { theme = default_theme; }
+            const html = document.documentElement;
+            html.classList.remove('light')
+            html.classList.add(theme);
+            html.classList.add("js");
+        </script>
+
+        <input type="checkbox" id="mdbook-sidebar-toggle-anchor" class="hidden">
+
+        <!-- Hide / unhide sidebar before it is displayed -->
+        <script>
+            let sidebar = null;
+            const sidebar_toggle = document.getElementById("mdbook-sidebar-toggle-anchor");
+            if (document.body.clientWidth >= 1080) {
+                try { sidebar = localStorage.getItem('mdbook-sidebar'); } catch(e) { }
+                sidebar = sidebar || 'visible';
+            } else {
+                sidebar = 'hidden';
+                sidebar_toggle.checked = false;
+            }
+            if (sidebar === 'visible') {
+                sidebar_toggle.checked = true;
+            } else {
+                html.classList.remove('sidebar-visible');
+            }
+        </script>
+
+        <nav id="mdbook-sidebar" class="sidebar" aria-label="Table of contents">
+            <!-- populated by js -->
+            <mdbook-sidebar-scrollbox class="sidebar-scrollbox"></mdbook-sidebar-scrollbox>
+            <noscript>
+                <iframe class="sidebar-iframe-outer" src="../toc.html"></iframe>
+            </noscript>
+            <div id="mdbook-sidebar-resize-handle" class="sidebar-resize-handle">
+                <div class="sidebar-resize-indicator"></div>
+            </div>
+        </nav>
+
+        <div id="mdbook-page-wrapper" class="page-wrapper">
+
+            <div class="page">
+                <div id="mdbook-menu-bar" class="hidden"></div>
+                <header class="landing-header x2c-header">
+                    <div class="landing-header-inner">
+                        <div class="landing-branding">
+                            <a class="landing-brand" href="../../" aria-label="x2c home">
+                                <svg viewBox="0 0 100 100" width="22" height="22" aria-hidden="true"><g fill="none" stroke="#da291c" stroke-width="17" stroke-linecap="butt"><path d="M9 16 A34.5 34.5 0 0 1 9 84"></path><path d="M91 16 A34.5 34.5 0 0 0 91 84"></path></g></svg>
+                                <span class="x2c-wordmark landing-wordmark">x2c</span>
+                            </a>
+                            <span class="landing-tagline">The x2c Book</span>
+                        </div>
+                        <nav class="landing-nav" aria-label="x2c website">
+                            <div class="landing-page-nav">
+                                <a href="../../#love">love</a>
+                                <a href="../../#power">power</a>
+                                <a href="../../#magic">magic</a>
+                            </div>
+                            <div class="landing-site-nav">
+                                <a href="../../#install">install</a>
+                                <a href="../../#packages">packages</a>
+                            </div>
+                            <div class="landing-reference-nav">
+                                <a href="../../about/">about</a>
+                                <a href="../" aria-current="page">docs</a>
+                                <a href="https://github.com/gwf/x2c">source</a>
+                            </div>
+                        </nav>
+                    </div>
+                    <div class="x2c-book-tools">
+                        <div class="x2c-header-tools">
+                            <label id="mdbook-sidebar-toggle" class="icon-button" for="mdbook-sidebar-toggle-anchor" title="Toggle Table of Contents" aria-label="Toggle Table of Contents" aria-controls="mdbook-sidebar">
+                                <span class=fa-svg><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc. --><path d="M0 96C0 78.3 14.3 64 32 64H416c17.7 0 32 14.3 32 32s-14.3 32-32 32H32C14.3 128 0 113.7 0 96zM0 256c0-17.7 14.3-32 32-32H416c17.7 0 32 14.3 32 32s-14.3 32-32 32H32c-17.7 0-32-14.3-32-32zM448 416c0 17.7-14.3 32-32 32H32c-17.7 0-32-14.3-32-32s14.3-32 32-32H416c17.7 0 32 14.3 32 32z"/></svg></span>
+                            </label>
+                        </div>
+                        <div class="x2c-header-tools x2c-header-tools-right">
+                            <button id="mdbook-search-toggle" class="icon-button" type="button" title="Search (`/`)" aria-label="Toggle Searchbar" aria-expanded="false" aria-keyshortcuts="/ s" aria-controls="mdbook-searchbar">
+                                <span class=fa-svg><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc. --><path d="M416 208c0 45.9-14.9 88.3-40 122.7L502.6 457.4c12.5 12.5 12.5 32.8 0 45.3s-32.8 12.5-45.3 0L330.7 376c-34.4 25.2-76.8 40-122.7 40C93.1 416 0 322.9 0 208S93.1 0 208 0S416 93.1 416 208zM208 352c79.5 0 144-64.5 144-144s-64.5-144-144-144S64 128.5 64 208s64.5 144 144 144z"/></svg></span>
+                            </button>
+                            <button id="mdbook-theme-toggle" class="icon-button" type="button" title="Change theme" aria-label="Change theme" aria-haspopup="true" aria-expanded="false" aria-controls="mdbook-theme-list">
+                                <span class=fa-svg><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc. --><path d="M448 256c0-106-86-192-192-192V448c106 0 192-86 192-192zm64 0c0 141.4-114.6 256-256 256S0 397.4 0 256S114.6 0 256 0S512 114.6 512 256z"/></svg></span>
+                            </button>
+                            <ul id="mdbook-theme-list" class="theme-popup" aria-label="Themes" role="menu">
+                                <li role="none"><button role="menuitem" class="theme" id="mdbook-theme-default_theme">Auto</button></li>
+                                <li role="none"><button role="menuitem" class="theme" id="mdbook-theme-light">Light</button></li>
+                                <li role="none"><button role="menuitem" class="theme" id="mdbook-theme-ayu">Dark</button></li>
+                            </ul>
+                            <a href="https://github.com/gwf/x2c/edit/main/docs/src/guide/autodiff.md" title="Suggest an edit" aria-label="Suggest an edit" rel="edit" class="icon-button">
+                                <span class=fa-svg id="git-edit-button"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc. --><path d="M421.7 220.3l-11.3 11.3-22.6 22.6-205 205c-6.6 6.6-14.8 11.5-23.8 14.1L30.8 511c-8.4 2.5-17.5 .2-23.7-6.1S-1.5 489.7 1 481.2L38.7 353.1c2.6-9 7.5-17.2 14.1-23.8l205-205 22.6-22.6 11.3-11.3 33.9 33.9 62.1 62.1 33.9 33.9zM96 353.9l-9.3 9.3c-.9 .9-1.6 2.1-2 3.4l-25.3 86 86-25.3c1.3-.4 2.5-1.1 3.4-2l9.3-9.3H112c-8.8 0-16-7.2-16-16V353.9zM453.3 19.3l39.4 39.4c25 25 25 65.5 0 90.5l-14.5 14.5-22.6 22.6-11.3 11.3-33.9-33.9-62.1-62.1L314.3 67.7l11.3-11.3 22.6-22.6 14.5-14.5c25-25 65.5-25 90.5 0z"/></svg></span>
+                            </a>
+                        </div>
+                    </div>
+                </header>
+                <script>
+                    const bookHeader = document.querySelector('.x2c-header');
+                    new ResizeObserver(() => {
+                        document.documentElement.style.setProperty(
+                            '--menu-bar-height', `${bookHeader.getBoundingClientRect().height}px`);
+                    }).observe(bookHeader);
+                </script>
+
+                <div id="mdbook-search-wrapper" class="hidden">
+                    <form id="mdbook-searchbar-outer" class="searchbar-outer">
+                        <div class="search-wrapper">
+                            <input type="search" id="mdbook-searchbar" name="searchbar" placeholder="Search this book ..." aria-controls="mdbook-searchresults-outer" aria-describedby="searchresults-header">
+                            <div class="spinner-wrapper">
+                                <span class=fa-svg id="fa-spin"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc. --><path d="M304 48c0-26.5-21.5-48-48-48s-48 21.5-48 48s21.5 48 48 48s48-21.5 48-48zm0 416c0-26.5-21.5-48-48-48s-48 21.5-48 48s21.5 48 48 48s48-21.5 48-48zM48 304c26.5 0 48-21.5 48-48s-21.5-48-48-48s-48 21.5-48 48s21.5 48 48 48zm464-48c0-26.5-21.5-48-48-48s-48 21.5-48 48s21.5 48 48 48s48-21.5 48-48zM142.9 437c18.7-18.7 18.7-49.1 0-67.9s-49.1-18.7-67.9 0s-18.7 49.1 0 67.9s49.1 18.7 67.9 0zm0-294.2c18.7-18.7 18.7-49.1 0-67.9S93.7 56.2 75 75s-18.7 49.1 0 67.9s49.1 18.7 67.9 0zM369.1 437c18.7 18.7 49.1 18.7 67.9 0s18.7-49.1 0-67.9s-49.1-18.7-67.9 0s-18.7 49.1 0 67.9z"/></svg></span>
+                            </div>
+                        </div>
+                    </form>
+                    <div id="mdbook-searchresults-outer" class="searchresults-outer hidden">
+                        <div id="mdbook-searchresults-header" class="searchresults-header"></div>
+                        <ul id="mdbook-searchresults">
+                        </ul>
+                    </div>
+                </div>
+
+                <!-- Apply ARIA attributes after the sidebar and the sidebar toggle button are added to the DOM -->
+                <script>
+                    document.getElementById('mdbook-sidebar-toggle').setAttribute('aria-expanded', sidebar === 'visible');
+                    document.getElementById('mdbook-sidebar').setAttribute('aria-hidden', sidebar !== 'visible');
+                    Array.from(document.querySelectorAll('#mdbook-sidebar a')).forEach(function(link) {
+                        link.setAttribute('tabIndex', sidebar === 'visible' ? 0 : -1);
+                    });
+                </script>
+
+                <div id="mdbook-content" class="content">
+                    <main>
+                        <h1 id="automatic-differentiation"><a class="header" href="#automatic-differentiation">Automatic Differentiation</a></h1>
+<p><code>autodiff.xmacro</code> differentiates ordinary <code>double</code> code four ways:</p>
+<ul>
+<li><strong>Dual numbers</strong> carry a derivative through operators at runtime.</li>
+<li><strong><code>$ad.forward()</code></strong> generates a tangent function beside a decorated
+function, at compile time, from the typed AST.</li>
+<li><strong><code>$ad.reverse()</code></strong> generates a gradient function the same way, recording
+a tape during the forward sweep. <strong><code>$ad.checkpoint(K)</code></strong> is the same
+gradient with the tape shrunk by a factor of about <code>K</code>.</li>
+<li><strong><code>autodiff.x</code></strong> records a runtime tape for code whose shape the
+decorators cannot see.</li>
+</ul>
+<p>All four are ordinary <span class="x2c-wordmark">x2c</span>: a macro file, an optional module, and the
+existing protocol and decorator machinery. Nothing in the compiler knows
+about derivatives.</p>
+<p>The <a href="../library/modules/autodiff.html">runtime module reference</a> documents
+<code>AdTape</code> and <code>AdNode</code>. For other specialized capabilities, see
+<a href="../library/advanced-topics.html">Advanced Topics</a>.</p>
+<h2 id="dual-numbers"><a class="header" href="#dual-numbers">Dual numbers</a></h2>
+<p>Declare a struct with <code>value</code> and <code>tangent</code> fields and let <code>$ad.dual</code>
+generate its arithmetic. The scalar type and the primitives it lifts are
+holes, so the same family nests:</p>
+<pre class="shiki shiki-themes x2c-light x2c-dark x2c-code" style="--shiki-light:#24292e;--shiki-dark:#e9e5df;--shiki-light-bg:#fff;--shiki-dark-bg:#101011" tabindex="0"><code class="language-x2c no-highlight"><span class="line boring"><span style="--shiki-light:#D73A49;--shiki-dark:#F0ADA1">#include</span><span style="--shiki-light:#032F62;--shiki-dark:#9EDFB8"> &lt;math.h&gt;</span>
+</span><span class="line"><span style="--shiki-light:#24292E;--shiki-dark:#FF715A">$(</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">import </span><span style="--shiki-light:#032F62;--shiki-dark:#9EDFB8">"autodiff.xmacro"</span><span style="--shiki-light:#24292E;--shiki-dark:#FF715A">)</span>
+</span><span class="line">
+</span><span class="line"><span style="--shiki-light:#D73A49;--shiki-dark:#E9E5DF">typedef</span><span style="--shiki-light:#D73A49;--shiki-dark:#F0ADA1"> struct</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF"> Dual { </span><span style="--shiki-light:#D73A49;--shiki-dark:#F0ADA1">double</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF"> value; </span><span style="--shiki-light:#D73A49;--shiki-dark:#F0ADA1">double</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF"> tangent; } Dual;</span>
+</span><span class="line"><span style="--shiki-light:#D73A49;--shiki-dark:#E9E5DF">typedef</span><span style="--shiki-light:#D73A49;--shiki-dark:#F0ADA1"> struct</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF"> Dual2 { Dual value; Dual tangent; } Dual2;</span>
+</span><span class="line">
+</span><span class="line"><span style="--shiki-light:#24292E;--shiki-dark:#FF715A">$</span><span style="--shiki-light:#6F42C1;--shiki-dark:#FF715A">ad.dual</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">(Dual, dual, </span><span style="--shiki-light:#24292E;--shiki-dark:#FF715A">&lt;</span><span style="--shiki-light:#005CC5;--shiki-dark:#E9E5DF">dual</span><span style="--shiki-light:#24292E;--shiki-dark:#FF715A">&gt;</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">, </span><span style="--shiki-light:#D73A49;--shiki-dark:#F0ADA1">double</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">, sin, cos, exp, log, sqrt, tanh);</span>
+</span><span class="line"><span style="--shiki-light:#24292E;--shiki-dark:#FF715A">$</span><span style="--shiki-light:#6F42C1;--shiki-dark:#FF715A">ad.dual</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">(Dual2, dual2, </span><span style="--shiki-light:#24292E;--shiki-dark:#FF715A">&lt;</span><span style="--shiki-light:#005CC5;--shiki-dark:#E9E5DF">dual2</span><span style="--shiki-light:#24292E;--shiki-dark:#FF715A">&gt;</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">, Dual,</span>
+</span><span class="line"><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">         Dual.sin, Dual.cos, Dual.exp, Dual.log, Dual.sqrt, Dual.tanh);</span>
+</span><span class="line">
+</span><span class="line"><span style="--shiki-light:#D73A49;--shiki-dark:#F0ADA1">static</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF"> Dual2 </span><span style="--shiki-light:#6F42C1;--shiki-dark:#E9E5DF">cube</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">(Dual2 </span><span style="--shiki-light:#E36209;--shiki-dark:#E9E5DF">x</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">) </span><span style="--shiki-light:#A626A4;--shiki-light-font-weight:bold;--shiki-dark:#FF4FD8;--shiki-dark-font-weight:bold">=&gt;</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF"> x </span><span style="--shiki-light:#D73A49;--shiki-dark:#E9E5DF">*</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF"> x </span><span style="--shiki-light:#D73A49;--shiki-dark:#E9E5DF">*</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF"> x;</span>
+</span><span class="line">
+</span><span class="line"><span style="--shiki-light:#D73A49;--shiki-dark:#F0ADA1">int</span><span style="--shiki-light:#6F42C1;--shiki-dark:#E9E5DF"> main</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">(</span><span style="--shiki-light:#D73A49;--shiki-dark:#F0ADA1">void</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">) {</span>
+</span><span class="line"><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">  Dual x </span><span style="--shiki-light:#D73A49;--shiki-dark:#E9E5DF">=</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF"> { </span><span style="--shiki-light:#005CC5;--shiki-dark:#A9C9F5">2.0</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">, </span><span style="--shiki-light:#005CC5;--shiki-dark:#A9C9F5">1.0</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF"> };</span>
+</span><span class="line"><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">  Dual y </span><span style="--shiki-light:#D73A49;--shiki-dark:#E9E5DF">=</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF"> x </span><span style="--shiki-light:#D73A49;--shiki-dark:#E9E5DF">*</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF"> x </span><span style="--shiki-light:#D73A49;--shiki-dark:#E9E5DF">*</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF"> x </span><span style="--shiki-light:#D73A49;--shiki-dark:#E9E5DF">-</span><span style="--shiki-light:#005CC5;--shiki-dark:#A9C9F5"> 2.0</span><span style="--shiki-light:#D73A49;--shiki-dark:#E9E5DF"> *</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF"> x;</span>
+</span><span class="line"><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">  Dual2 z </span><span style="--shiki-light:#D73A49;--shiki-dark:#E9E5DF">=</span><span style="--shiki-light:#6F42C1;--shiki-dark:#E9E5DF"> cube</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">((Dual2) { { </span><span style="--shiki-light:#005CC5;--shiki-dark:#A9C9F5">2.0</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">, </span><span style="--shiki-light:#005CC5;--shiki-dark:#A9C9F5">1.0</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF"> }, { </span><span style="--shiki-light:#005CC5;--shiki-dark:#A9C9F5">1.0</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">, </span><span style="--shiki-light:#005CC5;--shiki-dark:#A9C9F5">0.0</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF"> } });</span>
+</span><span class="line"><span style="--shiki-light:#D73A49;--shiki-dark:#F0ADA1">  return</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF"> y.tangent </span><span style="--shiki-light:#D73A49;--shiki-dark:#E9E5DF">==</span><span style="--shiki-light:#005CC5;--shiki-dark:#A9C9F5"> 10.0</span><span style="--shiki-light:#D73A49;--shiki-dark:#E9E5DF"> &amp;&amp;</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF"> z.tangent.tangent </span><span style="--shiki-light:#D73A49;--shiki-dark:#E9E5DF">==</span><span style="--shiki-light:#005CC5;--shiki-dark:#A9C9F5"> 12.0</span><span style="--shiki-light:#D73A49;--shiki-dark:#E9E5DF"> ?</span><span style="--shiki-light:#005CC5;--shiki-dark:#A9C9F5"> 0</span><span style="--shiki-light:#D73A49;--shiki-dark:#E9E5DF"> :</span><span style="--shiki-light:#005CC5;--shiki-dark:#A9C9F5"> 1</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">;</span>
+</span><span class="line"><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">}</span></span></code></pre>
+
+<p>The holes are the struct type, the converter name, a fresh <code>Var</code> tag, the
+scalar type, and the scalar spellings of <code>sin</code>, <code>cos</code>, <code>exp</code>, <code>log</code>,
+<code>sqrt</code>, and <code>tanh</code>. Declare every struct of the family before the first
+invocation. Each instantiation adopts <code>protocol Var</code>, so <code>+ - * /</code>, unary
+<code>-</code>, comparisons, and dotted calls such as <code>x.sin()</code>, <code>x.fabs()</code>, and
+<code>x.pow(y)</code> resolve to the generated methods. A <code>double</code> beside a dual
+operand converts through the generated converter, so <code>2.0 * x</code> and
+<code>x &gt; 1.0</code> read as they would on scalars.</p>
+<p>Each depth of nesting is a distinct C type. A derivative taken inside a
+function that is itself being differentiated must use the next type in
+the family; mixing a <code>Dual</code> into a <code>Dual2</code> expression is a type error.
+That is a weaker guarantee than tagged perturbations give a dynamically
+typed implementation: the types make an inner and an outer perturbation
+distinct only when the author instantiates one type per level, and a
+nested derivative written with a single <code>Dual</code> type exhibits the classic
+perturbation confusion silently.</p>
+<h2 id="forward-mode-by-transformation"><a class="header" href="#forward-mode-by-transformation">Forward mode by transformation</a></h2>
+<p><code>$ad.forward()</code> decorates a file-scope function that returns <code>double</code> and
+emits <code>NAME_dot</code> beside it. Every <code>double</code> parameter <code>p</code> is followed by a
+tangent parameter <code>p_dot</code>, and the result is the directional derivative:</p>
+<pre class="shiki shiki-themes x2c-light x2c-dark x2c-code" style="--shiki-light:#24292e;--shiki-dark:#e9e5df;--shiki-light-bg:#fff;--shiki-dark-bg:#101011" tabindex="0"><code class="language-x2c no-highlight"><span class="line boring"><span style="--shiki-light:#D73A49;--shiki-dark:#F0ADA1">#include</span><span style="--shiki-light:#032F62;--shiki-dark:#9EDFB8"> &lt;math.h&gt;</span>
+</span><span class="line"><span style="--shiki-light:#24292E;--shiki-dark:#FF715A">$(</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">import </span><span style="--shiki-light:#032F62;--shiki-dark:#9EDFB8">"autodiff.xmacro"</span><span style="--shiki-light:#24292E;--shiki-dark:#FF715A">)</span>
+</span><span class="line">
+</span><span class="line"><span style="--shiki-light:#24292E;--shiki-dark:#FF715A">$</span><span style="--shiki-light:#6F42C1;--shiki-dark:#FF715A">ad.forward</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">()</span>
+</span><span class="line"><span style="--shiki-light:#D73A49;--shiki-dark:#F0ADA1">static</span><span style="--shiki-light:#D73A49;--shiki-dark:#F0ADA1"> double</span><span style="--shiki-light:#6F42C1;--shiki-dark:#E9E5DF"> scale</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">(</span><span style="--shiki-light:#D73A49;--shiki-dark:#F0ADA1">double</span><span style="--shiki-light:#E36209;--shiki-dark:#E9E5DF"> a</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">, </span><span style="--shiki-light:#D73A49;--shiki-dark:#F0ADA1">int</span><span style="--shiki-light:#E36209;--shiki-dark:#E9E5DF"> k</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">) </span><span style="--shiki-light:#A626A4;--shiki-light-font-weight:bold;--shiki-dark:#FF4FD8;--shiki-dark-font-weight:bold">=&gt;</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF"> a </span><span style="--shiki-light:#D73A49;--shiki-dark:#E9E5DF">*</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF"> (</span><span style="--shiki-light:#D73A49;--shiki-dark:#F0ADA1">double</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">) k;</span>
+</span><span class="line">
+</span><span class="line"><span style="--shiki-light:#24292E;--shiki-dark:#FF715A">$</span><span style="--shiki-light:#6F42C1;--shiki-dark:#FF715A">ad.forward</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">()</span>
+</span><span class="line"><span style="--shiki-light:#D73A49;--shiki-dark:#F0ADA1">static</span><span style="--shiki-light:#D73A49;--shiki-dark:#F0ADA1"> double</span><span style="--shiki-light:#6F42C1;--shiki-dark:#E9E5DF"> model</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">(</span><span style="--shiki-light:#D73A49;--shiki-dark:#F0ADA1">double</span><span style="--shiki-light:#E36209;--shiki-dark:#E9E5DF"> x</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">, </span><span style="--shiki-light:#D73A49;--shiki-dark:#F0ADA1">double</span><span style="--shiki-light:#E36209;--shiki-dark:#E9E5DF"> y</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">, </span><span style="--shiki-light:#D73A49;--shiki-dark:#F0ADA1">int</span><span style="--shiki-light:#E36209;--shiki-dark:#E9E5DF"> n</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">) {</span>
+</span><span class="line"><span style="--shiki-light:#D73A49;--shiki-dark:#F0ADA1">  double</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF"> s </span><span style="--shiki-light:#D73A49;--shiki-dark:#E9E5DF">=</span><span style="--shiki-light:#005CC5;--shiki-dark:#A9C9F5"> 0.0</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">;</span>
+</span><span class="line"><span style="--shiki-light:#D73A49;--shiki-dark:#F0ADA1">  for</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF"> (</span><span style="--shiki-light:#D73A49;--shiki-dark:#F0ADA1">int</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF"> i </span><span style="--shiki-light:#D73A49;--shiki-dark:#E9E5DF">=</span><span style="--shiki-light:#005CC5;--shiki-dark:#A9C9F5"> 1</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">; i </span><span style="--shiki-light:#D73A49;--shiki-dark:#E9E5DF">&lt;=</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF"> n; i</span><span style="--shiki-light:#D73A49;--shiki-dark:#E9E5DF">++</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">) s </span><span style="--shiki-light:#D73A49;--shiki-dark:#E9E5DF">+=</span><span style="--shiki-light:#6F42C1;--shiki-dark:#E9E5DF"> scale</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">(x, i) </span><span style="--shiki-light:#D73A49;--shiki-dark:#E9E5DF">/</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF"> y;</span>
+</span><span class="line"><span style="--shiki-light:#D73A49;--shiki-dark:#F0ADA1">  double</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF"> t </span><span style="--shiki-light:#D73A49;--shiki-dark:#E9E5DF">=</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF"> x </span><span style="--shiki-light:#D73A49;--shiki-dark:#E9E5DF">*</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF"> y </span><span style="--shiki-light:#D73A49;--shiki-dark:#E9E5DF">+</span><span style="--shiki-light:#005CC5;--shiki-dark:#A9C9F5"> 3.0</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">;</span>
+</span><span class="line"><span style="--shiki-light:#D73A49;--shiki-dark:#F0ADA1">  if</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF"> (t </span><span style="--shiki-light:#D73A49;--shiki-dark:#E9E5DF">&gt;</span><span style="--shiki-light:#005CC5;--shiki-dark:#A9C9F5"> 1.0</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">) t </span><span style="--shiki-light:#D73A49;--shiki-dark:#E9E5DF">*=</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF"> t;</span>
+</span><span class="line"><span style="--shiki-light:#D73A49;--shiki-dark:#F0ADA1">  else</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF"> t </span><span style="--shiki-light:#D73A49;--shiki-dark:#E9E5DF">=</span><span style="--shiki-light:#D73A49;--shiki-dark:#E9E5DF"> -</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">t;</span>
+</span><span class="line"><span style="--shiki-light:#D73A49;--shiki-dark:#F0ADA1">  return</span><span style="--shiki-light:#6F42C1;--shiki-dark:#E9E5DF"> sin</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">(t) </span><span style="--shiki-light:#D73A49;--shiki-dark:#E9E5DF">/</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF"> x </span><span style="--shiki-light:#D73A49;--shiki-dark:#E9E5DF">-</span><span style="--shiki-light:#005CC5;--shiki-dark:#A9C9F5"> 2.0</span><span style="--shiki-light:#D73A49;--shiki-dark:#E9E5DF"> *</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF"> y </span><span style="--shiki-light:#D73A49;--shiki-dark:#E9E5DF">+</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF"> s;</span>
+</span><span class="line"><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">}</span>
+</span><span class="line">
+</span><span class="line"><span style="--shiki-light:#D73A49;--shiki-dark:#F0ADA1">int</span><span style="--shiki-light:#6F42C1;--shiki-dark:#E9E5DF"> main</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">(</span><span style="--shiki-light:#D73A49;--shiki-dark:#F0ADA1">void</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">) {</span>
+</span><span class="line"><span style="--shiki-light:#D73A49;--shiki-dark:#F0ADA1">  double</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF"> df_dx </span><span style="--shiki-light:#D73A49;--shiki-dark:#E9E5DF">=</span><span style="--shiki-light:#6F42C1;--shiki-dark:#E9E5DF"> model_dot</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">(</span><span style="--shiki-light:#005CC5;--shiki-dark:#A9C9F5">1.0</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">, </span><span style="--shiki-light:#005CC5;--shiki-dark:#A9C9F5">1.0</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">, </span><span style="--shiki-light:#005CC5;--shiki-dark:#A9C9F5">2.0</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">, </span><span style="--shiki-light:#005CC5;--shiki-dark:#A9C9F5">0.0</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">, </span><span style="--shiki-light:#005CC5;--shiki-dark:#A9C9F5">3</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">);</span>
+</span><span class="line"><span style="--shiki-light:#D73A49;--shiki-dark:#F0ADA1">  double</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF"> df_dy </span><span style="--shiki-light:#D73A49;--shiki-dark:#E9E5DF">=</span><span style="--shiki-light:#6F42C1;--shiki-dark:#E9E5DF"> model_dot</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">(</span><span style="--shiki-light:#005CC5;--shiki-dark:#A9C9F5">1.0</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">, </span><span style="--shiki-light:#005CC5;--shiki-dark:#A9C9F5">0.0</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">, </span><span style="--shiki-light:#005CC5;--shiki-dark:#A9C9F5">2.0</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">, </span><span style="--shiki-light:#005CC5;--shiki-dark:#A9C9F5">1.0</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">, </span><span style="--shiki-light:#005CC5;--shiki-dark:#A9C9F5">3</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">);</span>
+</span><span class="line"><span style="--shiki-light:#D73A49;--shiki-dark:#F0ADA1">  return</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF"> df_dx </span><span style="--shiki-light:#D73A49;--shiki-dark:#E9E5DF">&gt;</span><span style="--shiki-light:#005CC5;--shiki-dark:#A9C9F5"> 22.9</span><span style="--shiki-light:#D73A49;--shiki-dark:#E9E5DF"> &amp;&amp;</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF"> df_dx </span><span style="--shiki-light:#D73A49;--shiki-dark:#E9E5DF">&lt;</span><span style="--shiki-light:#005CC5;--shiki-dark:#A9C9F5"> 23.0</span><span style="--shiki-light:#D73A49;--shiki-dark:#E9E5DF"> &amp;&amp;</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF"> df_dy </span><span style="--shiki-light:#D73A49;--shiki-dark:#E9E5DF">&gt;</span><span style="--shiki-light:#005CC5;--shiki-dark:#A9C9F5"> 6.4</span><span style="--shiki-light:#D73A49;--shiki-dark:#E9E5DF"> &amp;&amp;</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF"> df_dy </span><span style="--shiki-light:#D73A49;--shiki-dark:#E9E5DF">&lt;</span><span style="--shiki-light:#005CC5;--shiki-dark:#A9C9F5"> 6.5</span><span style="--shiki-light:#D73A49;--shiki-dark:#E9E5DF"> ?</span><span style="--shiki-light:#005CC5;--shiki-dark:#A9C9F5"> 0</span><span style="--shiki-light:#D73A49;--shiki-dark:#E9E5DF"> :</span><span style="--shiki-light:#005CC5;--shiki-dark:#A9C9F5"> 1</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">;</span>
+</span><span class="line"><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">}</span></span></code></pre>
+
+<p>The transformation reads the typed AST. <code>double</code> parameters and plain
+<code>double</code> locals carry tangents; other <code>double</code> expressions are constants,
+and <code>int</code> control flow is copied unchanged. Supported statements are
+declarations, assignment including compound assignment and increments,
+<code>if</code>, <code>while</code>, <code>do</code>, <code>for</code>, <code>break</code>, <code>continue</code>, and <code>return</code>. Supported
+expressions are literals, identifiers, parentheses, casts, <code>+ - * /</code>,
+unary <code>-</code>, the conditional operator, the primitives listed below, and
+calls to functions decorated with <code>$ad.forward()</code> earlier in the same
+unit, which become calls to their <code>_dot</code> siblings. Anything else is a
+diagnostic at the invocation that names the statement or expression.</p>
+<p>The generated function is plain scalar C. Zero and unit factors are
+folded at generation time, so <code>t_dot = x_dot * y + x * y_dot</code> is what
+appears in the output. A primitive term tests its tangent against zero
+before multiplying, so an infinite partial such as <code>sqrt</code> at 0 does not
+turn a zero tangent into NaN.</p>
+<h2 id="reverse-mode-by-transformation"><a class="header" href="#reverse-mode-by-transformation">Reverse mode by transformation</a></h2>
+<p><code>$ad.reverse()</code> emits <code>NAME_grad</code>. The original parameters are followed by
+one <code>double *p_grad</code> per <code>double</code> parameter; the result is the primal
+value, and each slot receives the partial derivative of that result. The
+unit must include <code>typed-array.x</code> because the generated function records
+a tape on an <code>ArrayDbl</code>:</p>
+<pre class="shiki shiki-themes x2c-light x2c-dark x2c-code" style="--shiki-light:#24292e;--shiki-dark:#e9e5df;--shiki-light-bg:#fff;--shiki-dark-bg:#101011" tabindex="0"><code class="language-x2c no-highlight"><span class="line boring"><span style="--shiki-light:#D73A49;--shiki-dark:#F0ADA1">#include</span><span style="--shiki-light:#032F62;--shiki-dark:#9EDFB8"> "typed-array.x"</span>
+</span><span class="line boring"><span style="--shiki-light:#D73A49;--shiki-dark:#F0ADA1">#include</span><span style="--shiki-light:#032F62;--shiki-dark:#9EDFB8"> &lt;math.h&gt;</span>
+</span><span class="line"><span style="--shiki-light:#24292E;--shiki-dark:#FF715A">$(</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">import </span><span style="--shiki-light:#032F62;--shiki-dark:#9EDFB8">"autodiff.xmacro"</span><span style="--shiki-light:#24292E;--shiki-dark:#FF715A">)</span>
+</span><span class="line">
+</span><span class="line"><span style="--shiki-light:#24292E;--shiki-dark:#FF715A">$</span><span style="--shiki-light:#6F42C1;--shiki-dark:#FF715A">ad.reverse</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">()</span>
+</span><span class="line"><span style="--shiki-light:#D73A49;--shiki-dark:#F0ADA1">static</span><span style="--shiki-light:#D73A49;--shiki-dark:#F0ADA1"> double</span><span style="--shiki-light:#6F42C1;--shiki-dark:#E9E5DF"> model</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">(</span><span style="--shiki-light:#D73A49;--shiki-dark:#F0ADA1">double</span><span style="--shiki-light:#E36209;--shiki-dark:#E9E5DF"> x</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">, </span><span style="--shiki-light:#D73A49;--shiki-dark:#F0ADA1">double</span><span style="--shiki-light:#E36209;--shiki-dark:#E9E5DF"> y</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">, </span><span style="--shiki-light:#D73A49;--shiki-dark:#F0ADA1">int</span><span style="--shiki-light:#E36209;--shiki-dark:#E9E5DF"> n</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">) {</span>
+</span><span class="line"><span style="--shiki-light:#D73A49;--shiki-dark:#F0ADA1">  double</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF"> s </span><span style="--shiki-light:#D73A49;--shiki-dark:#E9E5DF">=</span><span style="--shiki-light:#005CC5;--shiki-dark:#A9C9F5"> 0.0</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">;</span>
+</span><span class="line"><span style="--shiki-light:#D73A49;--shiki-dark:#F0ADA1">  for</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF"> (</span><span style="--shiki-light:#D73A49;--shiki-dark:#F0ADA1">int</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF"> i </span><span style="--shiki-light:#D73A49;--shiki-dark:#E9E5DF">=</span><span style="--shiki-light:#005CC5;--shiki-dark:#A9C9F5"> 0</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">; i </span><span style="--shiki-light:#D73A49;--shiki-dark:#E9E5DF">&lt;</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF"> n; i</span><span style="--shiki-light:#D73A49;--shiki-dark:#E9E5DF">++</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">) {</span>
+</span><span class="line"><span style="--shiki-light:#D73A49;--shiki-dark:#F0ADA1">    if</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF"> (i </span><span style="--shiki-light:#D73A49;--shiki-dark:#E9E5DF">==</span><span style="--shiki-light:#005CC5;--shiki-dark:#A9C9F5"> 1</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">) </span><span style="--shiki-light:#D73A49;--shiki-dark:#F0ADA1">continue</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">;</span>
+</span><span class="line"><span style="--shiki-light:#D73A49;--shiki-dark:#F0ADA1">    if</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF"> (s </span><span style="--shiki-light:#D73A49;--shiki-dark:#E9E5DF">&gt;</span><span style="--shiki-light:#005CC5;--shiki-dark:#A9C9F5"> 40.0</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">) </span><span style="--shiki-light:#D73A49;--shiki-dark:#F0ADA1">break</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">;</span>
+</span><span class="line"><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">    s </span><span style="--shiki-light:#D73A49;--shiki-dark:#E9E5DF">+=</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF"> x </span><span style="--shiki-light:#D73A49;--shiki-dark:#E9E5DF">*</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF"> x </span><span style="--shiki-light:#D73A49;--shiki-dark:#E9E5DF">*</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF"> (</span><span style="--shiki-light:#D73A49;--shiki-dark:#F0ADA1">double</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">) i;</span>
+</span><span class="line"><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">  }</span>
+</span><span class="line"><span style="--shiki-light:#D73A49;--shiki-dark:#F0ADA1">  double</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF"> t </span><span style="--shiki-light:#D73A49;--shiki-dark:#E9E5DF">=</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF"> x </span><span style="--shiki-light:#D73A49;--shiki-dark:#E9E5DF">*</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF"> y </span><span style="--shiki-light:#D73A49;--shiki-dark:#E9E5DF">+</span><span style="--shiki-light:#005CC5;--shiki-dark:#A9C9F5"> 3.0</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">;</span>
+</span><span class="line"><span style="--shiki-light:#D73A49;--shiki-dark:#F0ADA1">  if</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF"> (t </span><span style="--shiki-light:#D73A49;--shiki-dark:#E9E5DF">&gt;</span><span style="--shiki-light:#005CC5;--shiki-dark:#A9C9F5"> 100.0</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">) </span><span style="--shiki-light:#D73A49;--shiki-dark:#F0ADA1">return</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF"> t </span><span style="--shiki-light:#D73A49;--shiki-dark:#E9E5DF">*</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF"> s;</span>
+</span><span class="line"><span style="--shiki-light:#D73A49;--shiki-dark:#F0ADA1">  return</span><span style="--shiki-light:#6F42C1;--shiki-dark:#E9E5DF"> sin</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">(t) </span><span style="--shiki-light:#D73A49;--shiki-dark:#E9E5DF">/</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF"> x </span><span style="--shiki-light:#D73A49;--shiki-dark:#E9E5DF">-</span><span style="--shiki-light:#005CC5;--shiki-dark:#A9C9F5"> 2.0</span><span style="--shiki-light:#D73A49;--shiki-dark:#E9E5DF"> *</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF"> y </span><span style="--shiki-light:#D73A49;--shiki-dark:#E9E5DF">+</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF"> s;</span>
+</span><span class="line"><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">}</span>
+</span><span class="line">
+</span><span class="line"><span style="--shiki-light:#D73A49;--shiki-dark:#F0ADA1">int</span><span style="--shiki-light:#6F42C1;--shiki-dark:#E9E5DF"> main</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">(</span><span style="--shiki-light:#D73A49;--shiki-dark:#F0ADA1">void</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">) {</span>
+</span><span class="line"><span style="--shiki-light:#D73A49;--shiki-dark:#F0ADA1">  double</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF"> x_grad, y_grad;</span>
+</span><span class="line"><span style="--shiki-light:#D73A49;--shiki-dark:#F0ADA1">  double</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF"> value </span><span style="--shiki-light:#D73A49;--shiki-dark:#E9E5DF">=</span><span style="--shiki-light:#6F42C1;--shiki-dark:#E9E5DF"> model_grad</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">(</span><span style="--shiki-light:#005CC5;--shiki-dark:#A9C9F5">1.0</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">, </span><span style="--shiki-light:#005CC5;--shiki-dark:#A9C9F5">2.0</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">, </span><span style="--shiki-light:#005CC5;--shiki-dark:#A9C9F5">6</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">, </span><span style="--shiki-light:#D73A49;--shiki-dark:#E9E5DF">&amp;</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">x_grad, </span><span style="--shiki-light:#D73A49;--shiki-dark:#E9E5DF">&amp;</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">y_grad);</span>
+</span><span class="line"><span style="--shiki-light:#D73A49;--shiki-dark:#F0ADA1">  return</span><span style="--shiki-light:#6F42C1;--shiki-dark:#E9E5DF"> fabs</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">(value </span><span style="--shiki-light:#D73A49;--shiki-dark:#E9E5DF">-</span><span style="--shiki-light:#005CC5;--shiki-dark:#A9C9F5"> 9.041076</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">) </span><span style="--shiki-light:#D73A49;--shiki-dark:#E9E5DF">&lt;</span><span style="--shiki-light:#005CC5;--shiki-dark:#A9C9F5"> 1</span><span style="--shiki-light:#D73A49;--shiki-dark:#E9E5DF">e-</span><span style="--shiki-light:#005CC5;--shiki-dark:#A9C9F5">6</span><span style="--shiki-light:#D73A49;--shiki-dark:#E9E5DF"> &amp;&amp;</span><span style="--shiki-light:#6F42C1;--shiki-dark:#E9E5DF"> fabs</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">(x_grad </span><span style="--shiki-light:#D73A49;--shiki-dark:#E9E5DF">-</span><span style="--shiki-light:#005CC5;--shiki-dark:#A9C9F5"> 29.526249</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">) </span><span style="--shiki-light:#D73A49;--shiki-dark:#E9E5DF">&lt;</span><span style="--shiki-light:#005CC5;--shiki-dark:#A9C9F5"> 1</span><span style="--shiki-light:#D73A49;--shiki-dark:#E9E5DF">e-</span><span style="--shiki-light:#005CC5;--shiki-dark:#A9C9F5">6</span>
+</span><span class="line"><span style="--shiki-light:#D73A49;--shiki-dark:#E9E5DF">      &amp;&amp;</span><span style="--shiki-light:#6F42C1;--shiki-dark:#E9E5DF"> fabs</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">(y_grad </span><span style="--shiki-light:#D73A49;--shiki-dark:#E9E5DF">+</span><span style="--shiki-light:#005CC5;--shiki-dark:#A9C9F5"> 1.716338</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">) </span><span style="--shiki-light:#D73A49;--shiki-dark:#E9E5DF">&lt;</span><span style="--shiki-light:#005CC5;--shiki-dark:#A9C9F5"> 1</span><span style="--shiki-light:#D73A49;--shiki-dark:#E9E5DF">e-</span><span style="--shiki-light:#005CC5;--shiki-dark:#A9C9F5">6</span><span style="--shiki-light:#D73A49;--shiki-dark:#E9E5DF"> ?</span><span style="--shiki-light:#005CC5;--shiki-dark:#A9C9F5"> 0</span><span style="--shiki-light:#D73A49;--shiki-dark:#E9E5DF"> :</span><span style="--shiki-light:#005CC5;--shiki-dark:#A9C9F5"> 1</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">;</span>
+</span><span class="line"><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">}</span></span></code></pre>
+
+<p>The forward sweep runs the original statements. Every assignment first
+pushes the value it overwrites, an <code>if</code> pushes which branch ran, and each
+loop iteration ends by pushing an exit code: zero when the body completed,
+or the code of the <code>break</code> or <code>continue</code> that left it. A <code>return</code> pushes
+its own code and jumps to the reverse sweep. The reverse sweep pops in
+mirror order, restoring each overwritten value before accumulating the
+adjoints of the assignment that produced it, so every partial derivative
+is evaluated at the values the forward sweep saw. There is no renaming
+into single-assignment form; restoring values makes it unnecessary.</p>
+<p>For every exit the transformation knows statically which statements ran
+before it, and it generates the reverse of exactly that prefix. A loop’s
+reverse pops the trip count and then, per iteration, the exit code that
+selects among those prefixes. Loops nest, <code>do</code> becomes a <code>while</code> with a
+first-iteration flag, and a <code>return</code> inside a loop reverses the partial
+iteration and then the completed ones. Every local is hoisted to the
+function head, so names must be unique within the function. <code>goto</code>,
+<code>switch</code>, and assignment inside a larger expression are diagnostics.</p>
+<p>Calls to functions decorated with <code>$ad.reverse()</code> earlier in the unit call
+their <code>_grad</code> siblings, which recompute the callee’s primal and return its
+partials. <code>$ad.both()</code> emits both siblings; two decorators cannot stack when
+each produces several items.</p>
+<h2 id="checkpointing"><a class="header" href="#checkpointing">Checkpointing</a></h2>
+<p>A recorded loop stores every overwritten value for every iteration, so tape
+memory grows with the trip count. <code>$ad.checkpoint(K)</code> is <code>$ad.reverse()</code>
+with every loop run twice instead: the forward sweep runs the loop without
+recording and pushes a snapshot of the variables the loop assigns once
+every <code>K</code> iterations; the reverse sweep restores each block from its
+snapshot, replays it with recording, and reverses the replay. Tape memory
+is one block’s tape plus one snapshot per block, so it still grows with
+the trip count, divided by <code>K</code>. <code>break</code> and <code>continue</code> replay exactly as
+before; a checkpointed loop cannot contain <code>return</code>.</p>
+<pre class="shiki shiki-themes x2c-light x2c-dark x2c-code" style="--shiki-light:#24292e;--shiki-dark:#e9e5df;--shiki-light-bg:#fff;--shiki-dark-bg:#101011" tabindex="0"><code class="language-x2c no-highlight"><span class="line boring"><span style="--shiki-light:#D73A49;--shiki-dark:#F0ADA1">#include</span><span style="--shiki-light:#032F62;--shiki-dark:#9EDFB8"> "typed-array.x"</span>
+</span><span class="line boring"><span style="--shiki-light:#D73A49;--shiki-dark:#F0ADA1">#include</span><span style="--shiki-light:#032F62;--shiki-dark:#9EDFB8"> &lt;math.h&gt;</span>
+</span><span class="line"><span style="--shiki-light:#24292E;--shiki-dark:#FF715A">$(</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">import </span><span style="--shiki-light:#032F62;--shiki-dark:#9EDFB8">"autodiff.xmacro"</span><span style="--shiki-light:#24292E;--shiki-dark:#FF715A">)</span>
+</span><span class="line">
+</span><span class="line"><span style="--shiki-light:#24292E;--shiki-dark:#FF715A">$</span><span style="--shiki-light:#6F42C1;--shiki-dark:#FF715A">ad.checkpoint</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">(</span><span style="--shiki-light:#005CC5;--shiki-dark:#A9C9F5">64</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">)</span>
+</span><span class="line"><span style="--shiki-light:#D73A49;--shiki-dark:#F0ADA1">static</span><span style="--shiki-light:#D73A49;--shiki-dark:#F0ADA1"> double</span><span style="--shiki-light:#6F42C1;--shiki-dark:#E9E5DF"> relax</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">(</span><span style="--shiki-light:#D73A49;--shiki-dark:#F0ADA1">double</span><span style="--shiki-light:#E36209;--shiki-dark:#E9E5DF"> x</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">, </span><span style="--shiki-light:#D73A49;--shiki-dark:#F0ADA1">double</span><span style="--shiki-light:#E36209;--shiki-dark:#E9E5DF"> y</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">, </span><span style="--shiki-light:#D73A49;--shiki-dark:#F0ADA1">int</span><span style="--shiki-light:#E36209;--shiki-dark:#E9E5DF"> steps</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">) {</span>
+</span><span class="line"><span style="--shiki-light:#D73A49;--shiki-dark:#F0ADA1">  double</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF"> s </span><span style="--shiki-light:#D73A49;--shiki-dark:#E9E5DF">=</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF"> x;</span>
+</span><span class="line"><span style="--shiki-light:#D73A49;--shiki-dark:#F0ADA1">  for</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF"> (</span><span style="--shiki-light:#D73A49;--shiki-dark:#F0ADA1">int</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF"> i </span><span style="--shiki-light:#D73A49;--shiki-dark:#E9E5DF">=</span><span style="--shiki-light:#005CC5;--shiki-dark:#A9C9F5"> 0</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">; i </span><span style="--shiki-light:#D73A49;--shiki-dark:#E9E5DF">&lt;</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF"> steps; i</span><span style="--shiki-light:#D73A49;--shiki-dark:#E9E5DF">++</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">) s </span><span style="--shiki-light:#D73A49;--shiki-dark:#E9E5DF">+=</span><span style="--shiki-light:#005CC5;--shiki-dark:#A9C9F5"> 0.001</span><span style="--shiki-light:#D73A49;--shiki-dark:#E9E5DF"> *</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF"> (y </span><span style="--shiki-light:#D73A49;--shiki-dark:#E9E5DF">-</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF"> s) </span><span style="--shiki-light:#D73A49;--shiki-dark:#E9E5DF">*</span><span style="--shiki-light:#6F42C1;--shiki-dark:#E9E5DF"> cos</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">(s </span><span style="--shiki-light:#D73A49;--shiki-dark:#E9E5DF">*</span><span style="--shiki-light:#005CC5;--shiki-dark:#A9C9F5"> 0.01</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">);</span>
+</span><span class="line"><span style="--shiki-light:#D73A49;--shiki-dark:#F0ADA1">  return</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF"> s;</span>
+</span><span class="line"><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">}</span>
+</span><span class="line">
+</span><span class="line"><span style="--shiki-light:#D73A49;--shiki-dark:#F0ADA1">int</span><span style="--shiki-light:#6F42C1;--shiki-dark:#E9E5DF"> main</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">(</span><span style="--shiki-light:#D73A49;--shiki-dark:#F0ADA1">void</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">) {</span>
+</span><span class="line"><span style="--shiki-light:#D73A49;--shiki-dark:#F0ADA1">  double</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF"> x_grad, y_grad;</span>
+</span><span class="line"><span style="--shiki-light:#D73A49;--shiki-dark:#F0ADA1">  double</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF"> value </span><span style="--shiki-light:#D73A49;--shiki-dark:#E9E5DF">=</span><span style="--shiki-light:#6F42C1;--shiki-dark:#E9E5DF"> relax_grad</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">(</span><span style="--shiki-light:#005CC5;--shiki-dark:#A9C9F5">1.0</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">, </span><span style="--shiki-light:#005CC5;--shiki-dark:#A9C9F5">3.0</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">, </span><span style="--shiki-light:#005CC5;--shiki-dark:#A9C9F5">100000</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">, </span><span style="--shiki-light:#D73A49;--shiki-dark:#E9E5DF">&amp;</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">x_grad, </span><span style="--shiki-light:#D73A49;--shiki-dark:#E9E5DF">&amp;</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">y_grad);</span>
+</span><span class="line"><span style="--shiki-light:#D73A49;--shiki-dark:#F0ADA1">  return</span><span style="--shiki-light:#6F42C1;--shiki-dark:#E9E5DF"> fabs</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">(value </span><span style="--shiki-light:#D73A49;--shiki-dark:#E9E5DF">-</span><span style="--shiki-light:#005CC5;--shiki-dark:#A9C9F5"> 3.0</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">) </span><span style="--shiki-light:#D73A49;--shiki-dark:#E9E5DF">&lt;</span><span style="--shiki-light:#005CC5;--shiki-dark:#A9C9F5"> 1</span><span style="--shiki-light:#D73A49;--shiki-dark:#E9E5DF">e-</span><span style="--shiki-light:#005CC5;--shiki-dark:#A9C9F5">9</span><span style="--shiki-light:#D73A49;--shiki-dark:#E9E5DF"> &amp;&amp;</span><span style="--shiki-light:#6F42C1;--shiki-dark:#E9E5DF"> fabs</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">(y_grad </span><span style="--shiki-light:#D73A49;--shiki-dark:#E9E5DF">-</span><span style="--shiki-light:#005CC5;--shiki-dark:#A9C9F5"> 1.0</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">) </span><span style="--shiki-light:#D73A49;--shiki-dark:#E9E5DF">&lt;</span><span style="--shiki-light:#005CC5;--shiki-dark:#A9C9F5"> 1</span><span style="--shiki-light:#D73A49;--shiki-dark:#E9E5DF">e-</span><span style="--shiki-light:#005CC5;--shiki-dark:#A9C9F5">9</span><span style="--shiki-light:#D73A49;--shiki-dark:#E9E5DF"> ?</span><span style="--shiki-light:#005CC5;--shiki-dark:#A9C9F5"> 0</span><span style="--shiki-light:#D73A49;--shiki-dark:#E9E5DF"> :</span><span style="--shiki-light:#005CC5;--shiki-dark:#A9C9F5"> 1</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">;</span>
+</span><span class="line"><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">}</span></span></code></pre>
+
+<p>Measured on one 2,000,000-step relaxation loop (the benchmark
+<code>unittest/benchmarks/autodiff-checkpoint.x</code>, one process per variant,
+Apple M-series, <code>-O2</code>):</p>
+<div class="table-wrapper">
+<table>
+<thead>
+<tr><th>Variant</th><th>Peak memory</th><th>Time</th></tr>
+</thead>
+<tbody>
+<tr><td>primal only</td><td>1.6 MB</td><td>0.033 s</td></tr>
+<tr><td><code>$ad.reverse()</code></td><td>51.5 MB</td><td>0.053 s</td></tr>
+<tr><td><code>$ad.checkpoint(16)</code></td><td>3.6 MB</td><td>0.068 s</td></tr>
+<tr><td><code>$ad.checkpoint(64)</code></td><td>2.1 MB</td><td>0.065 s</td></tr>
+<tr><td><code>$ad.checkpoint(256)</code></td><td>1.8 MB</td><td>0.066 s</td></tr>
+<tr><td><code>$ad.checkpoint(1024)</code></td><td>1.7 MB</td><td>0.065 s</td></tr>
+</tbody>
+</table>
+</div>
+<p>Full recording stores three doubles per iteration; checkpointing pays about
+a quarter more time for running the loop twice, and its memory is
+dominated by the snapshots at small <code>K</code> and by the block tape at large
+<code>K</code>.</p>
+<p>This is two-level checkpointing with a fixed block size. The
+divide-and-conquer schedule of Siskind and Pearlmutter (2018), which needs
+no block size and achieves logarithmic growth, is not implemented; a
+program whose loops outgrow a fixed block can nest the decorated function
+in a caller that is itself decorated.</p>
+<h2 id="a-worked-example"><a class="header" href="#a-worked-example">A worked example</a></h2>
+<p><code>examples/magic/autodiff-fit.x</code> fits the rate and capacity of a logistic
+growth model to observations. The loss integrates the model with 4,000
+Euler steps and accumulates squared residuals at ten sample times inside
+the loop, so the gradient runs through a long loop with a branch in it.
+The example prints the gradient beside a central finite difference, then
+takes gradient-descent steps:</p>
+<pre><code class="language-text">loss 4702.386283
+d/drate     -15650.816053  finite difference -15650.816049
+d/dcapacity -118.848124  finite difference -118.848118
+step 50  loss   2.373136  rate 0.9140  capacity 49.1688
+step 100  loss   0.014606  rate 0.9016  capacity 49.9274
+...
+</code></pre>
+<p>The parameters recover the true values 0.9 and 50 to three digits; the
+remaining loss is the Euler discretization error of the model itself.</p>
+<h2 id="primitives"><a class="header" href="#primitives">Primitives</a></h2>
+<p>Both transformations differentiate calls to these <code>&lt;math.h&gt;</code> functions,
+whose derivatives are closed forms in the same primitives:</p>
+<div class="table-wrapper">
+<table>
+<thead>
+<tr><th>Family</th><th>Functions</th></tr>
+</thead>
+<tbody>
+<tr><td>Trigonometric</td><td><code>sin cos tan asin acos atan atan2</code></td></tr>
+<tr><td>Hyperbolic</td><td><code>sinh cosh tanh asinh acosh atanh</code></td></tr>
+<tr><td>Exponential</td><td><code>exp exp2 expm1 log log2 log10 log1p pow</code></td></tr>
+<tr><td>Roots and norms</td><td><code>sqrt cbrt hypot</code></td></tr>
+<tr><td>Piecewise</td><td><code>fabs fmin fmax</code></td></tr>
+</tbody>
+</table>
+</div>
+<p><code>fabs</code>, <code>fmin</code>, and <code>fmax</code> differentiate as the branch that was taken;
+at a tie the derivative follows the first argument. The dual family
+provides the subset its holes name, plus <code>fabs</code> and a <code>pow</code> computed as
+<code>exp(b log a)</code>, which unlike C <code>pow</code> needs a positive base.</p>
+<h2 id="runtime-tape"><a class="header" href="#runtime-tape">Runtime tape</a></h2>
+<p>When the shape of the computation depends on data in ways the decorators
+reject, include <code>autodiff.x</code> and record it:</p>
+<pre class="shiki shiki-themes x2c-light x2c-dark x2c-code" style="--shiki-light:#24292e;--shiki-dark:#e9e5df;--shiki-light-bg:#fff;--shiki-dark-bg:#101011" tabindex="0"><code class="language-x2c no-highlight"><span class="line boring"><span style="--shiki-light:#D73A49;--shiki-dark:#F0ADA1">#include</span><span style="--shiki-light:#032F62;--shiki-dark:#9EDFB8"> "autodiff.x"</span>
+</span><span class="line"><span style="--shiki-light:#D73A49;--shiki-dark:#F0ADA1">int</span><span style="--shiki-light:#6F42C1;--shiki-dark:#E9E5DF"> main</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">(</span><span style="--shiki-light:#D73A49;--shiki-dark:#F0ADA1">void</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">) {</span>
+</span><span class="line"><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">  AdTape tape </span><span style="--shiki-light:#D73A49;--shiki-dark:#E9E5DF">=</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF"> AdTape.</span><span style="--shiki-light:#6F42C1;--shiki-dark:#E9E5DF">new</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">();</span>
+</span><span class="line"><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">  AdNode x </span><span style="--shiki-light:#D73A49;--shiki-dark:#E9E5DF">=</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF"> tape.</span><span style="--shiki-light:#6F42C1;--shiki-dark:#E9E5DF">input</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">(</span><span style="--shiki-light:#005CC5;--shiki-dark:#A9C9F5">1.5</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">), y </span><span style="--shiki-light:#D73A49;--shiki-dark:#E9E5DF">=</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF"> tape.</span><span style="--shiki-light:#6F42C1;--shiki-dark:#E9E5DF">input</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">(</span><span style="--shiki-light:#005CC5;--shiki-dark:#A9C9F5">2.0</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">);</span>
+</span><span class="line"><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">  AdNode t </span><span style="--shiki-light:#D73A49;--shiki-dark:#E9E5DF">=</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF"> x </span><span style="--shiki-light:#D73A49;--shiki-dark:#E9E5DF">*</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF"> y, limit </span><span style="--shiki-light:#D73A49;--shiki-dark:#E9E5DF">=</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF"> tape.</span><span style="--shiki-light:#6F42C1;--shiki-dark:#E9E5DF">input</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">(</span><span style="--shiki-light:#005CC5;--shiki-dark:#A9C9F5">100.0</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">);</span>
+</span><span class="line"><span style="--shiki-light:#D73A49;--shiki-dark:#F0ADA1">  while</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF"> (t </span><span style="--shiki-light:#D73A49;--shiki-dark:#E9E5DF">&lt;</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF"> limit) t </span><span style="--shiki-light:#D73A49;--shiki-dark:#E9E5DF">=</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF"> t </span><span style="--shiki-light:#D73A49;--shiki-dark:#E9E5DF">*</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF"> t;</span>
+</span><span class="line"><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">  AdNode r </span><span style="--shiki-light:#D73A49;--shiki-dark:#E9E5DF">=</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF"> t.</span><span style="--shiki-light:#6F42C1;--shiki-dark:#E9E5DF">log</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">() </span><span style="--shiki-light:#D73A49;--shiki-dark:#E9E5DF">-</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF"> y.</span><span style="--shiki-light:#6F42C1;--shiki-dark:#E9E5DF">exp</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">();</span>
+</span><span class="line"><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">  tape.</span><span style="--shiki-light:#6F42C1;--shiki-dark:#E9E5DF">backward</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">(r);</span>
+</span><span class="line"><span style="--shiki-light:#D73A49;--shiki-dark:#F0ADA1">  return</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF"> x.adjoint </span><span style="--shiki-light:#D73A49;--shiki-dark:#E9E5DF">&gt;</span><span style="--shiki-light:#005CC5;--shiki-dark:#A9C9F5"> 0.0</span><span style="--shiki-light:#D73A49;--shiki-dark:#E9E5DF"> &amp;&amp;</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF"> y.adjoint </span><span style="--shiki-light:#D73A49;--shiki-dark:#E9E5DF">&lt;</span><span style="--shiki-light:#005CC5;--shiki-dark:#A9C9F5"> 0.0</span><span style="--shiki-light:#D73A49;--shiki-dark:#E9E5DF"> ?</span><span style="--shiki-light:#005CC5;--shiki-dark:#A9C9F5"> 0</span><span style="--shiki-light:#D73A49;--shiki-dark:#E9E5DF"> :</span><span style="--shiki-light:#005CC5;--shiki-dark:#A9C9F5"> 1</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">;</span>
+</span><span class="line"><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">}</span></span></code></pre>
+
+<p>Every operation records a closure that propagates its adjoint to its
+operands; <code>AdTape.backward</code> seeds the result and replays the tape in
+reverse, skipping callbacks whose adjoints are zero. An unused singular
+operation therefore does not contaminate the requested gradient. Repeating
+<code>backward</code> clears the previous adjoints before seeding the new result.
+Values box through <code>Var</code> and each operation allocates a node in
+the active <code>Scope</code>, so this is the slow path.</p>
+<h2 id="choosing"><a class="header" href="#choosing">Choosing</a></h2>
+<p>Use dual numbers for a few derivatives of small functions, or for
+higher-order derivatives through nesting. Use <code>$ad.forward()</code> when the
+generated scalar C should be readable or when the function has few inputs.
+Use <code>$ad.reverse()</code> for gradients with many inputs, and
+<code>$ad.checkpoint(K)</code> when its loops run long. Use the tape when the
+decorators reject the code. For gradients over tensors rather than
+scalars, the <a href="torch.html">torch package</a> reaches libtorch’s autograd
+through the same operator protocols.</p>
+<h2 id="background"><a class="header" href="#background">Background</a></h2>
+<p>Forward-mode accumulation over a program’s elementary operations goes
+back to Wengert (1964); Baydin et al. (2018) survey the field and its
+vocabulary. The transformation route follows the standard formulation of
+forward and reverse mode over a program’s statements (Griewank and
+Walther, 2008): recording overwritten values rather than renaming into
+single-assignment form is the classic tape discipline, and the exit-code
+treatment of control flow makes the replay exact for <code>break</code>, <code>continue</code>,
+and early <code>return</code>. Two-level checkpointing is the simplest member of the
+family that Griewank (1992) made logarithmic and that Siskind and
+Pearlmutter (2018) freed from user annotation.</p>
+<p>Perturbation confusion is the failure analyzed by Siskind and Pearlmutter
+(2005) and, for higher-order functions, by Manzyuk et al. (2019). The dual
+family here does not tag perturbations; it offers one distinct type per
+nesting level and relies on the author to use them, as described above.
+The runtime tape records closures that push adjoints to their operands,
+which is a Wengert tape with a closure in place of an opcode; it is in
+the spirit of, but not the same construction as, the backpropagators of
+Pearlmutter and Siskind (2008), which are returned functions composed
+without any tape. What that line of work adds beyond this chapter,
+first-class derivative operators applied to arbitrary closures with the
+overhead removed by program analysis, is a compiler feature rather than a
+macro and is not attempted here.</p>
+<ul>
+<li>R. E. Wengert. A simple automatic derivative evaluation program.
+<em>Communications of the ACM</em> 7(8), 1964.</li>
+<li>A. Griewank. Achieving logarithmic growth of temporal and spatial
+complexity in reverse automatic differentiation. <em>Optimization Methods
+and Software</em> 1(1), 1992.</li>
+<li>J. M. Siskind and B. A. Pearlmutter. Perturbation confusion and
+referential transparency: correct functional implementation of
+forward-mode AD. <em>Implementation and Application of Functional
+Languages</em>, 2005.</li>
+<li>B. A. Pearlmutter and J. M. Siskind. Reverse-mode AD in a functional
+framework: Lambda the ultimate backpropagator. <em>ACM Transactions on
+Programming Languages and Systems</em> 30(2), 2008.</li>
+<li>A. Griewank and A. Walther. <em>Evaluating Derivatives: Principles and
+Techniques of Algorithmic Differentiation</em>, 2nd ed. SIAM, 2008.</li>
+<li>A. G. Baydin, B. A. Pearlmutter, A. A. Radul, and J. M. Siskind.
+Automatic differentiation in machine learning: a survey. <em>Journal of
+Machine Learning Research</em> 18, 2018.</li>
+<li>J. M. Siskind and B. A. Pearlmutter. Divide-and-conquer checkpointing
+for arbitrary programs with no user annotation. <em>Optimization Methods
+and Software</em> 33(4-6), 2018.</li>
+<li>O. Manzyuk, B. A. Pearlmutter, A. A. Radul, D. R. Rush, and
+J. M. Siskind. Perturbation confusion in forward automatic
+differentiation of higher-order functions. <em>Journal of Functional
+Programming</em> 29, 2019.</li>
+</ul>
+
+                    </main>
+
+                    <nav class="x2c-pager" aria-label="Page navigation">
+                        <a rel="prev" href="../library/advanced-topics.html" class="x2c-pager-prev" aria-keyshortcuts="Left">
+                            <span class="x2c-pager-label">previous</span>
+                            <span class="x2c-pager-title">Advanced Topics</span>
+                        </a>
+                        
+                        <a rel="next prefetch" href="../guide/verification.html" class="x2c-pager-next" aria-keyshortcuts="Right">
+                            <span class="x2c-pager-label">next</span>
+                            <span class="x2c-pager-title">Verifying Functions with C*</span>
+                        </a>
+                    </nav>
+                    <footer class="x2c-footer">
+                        &copy; 2025&ndash;2026
+                        <a href="https://flake.org">GWF</a>
+                        &middot;
+                        <a href="https://github.com/gwf/x2c/blob/c2a89d999e81f47a4422a26edf0033eb0b98c6c6/LICENSE">Apache 2.0</a>
+                        &middot;
+                        <a href="https://github.com/gwf/x2c/blob/c2a89d999e81f47a4422a26edf0033eb0b98c6c6/TRADEMARKS.md">Trademarks</a>
+                    </footer>
+                </div>
+            </div>
+
+
+        </div>
+
+        <template id=fa-eye><span class=fa-svg><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 576 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc. --><path d="M288 32c-80.8 0-145.5 36.8-192.6 80.6C48.6 156 17.3 208 2.5 243.7c-3.3 7.9-3.3 16.7 0 24.6C17.3 304 48.6 356 95.4 399.4C142.5 443.2 207.2 480 288 480s145.5-36.8 192.6-80.6c46.8-43.5 78.1-95.4 93-131.1c3.3-7.9 3.3-16.7 0-24.6c-14.9-35.7-46.2-87.7-93-131.1C433.5 68.8 368.8 32 288 32zM432 256c0 79.5-64.5 144-144 144s-144-64.5-144-144s64.5-144 144-144s144 64.5 144 144zM288 192c0 35.3-28.7 64-64 64c-11.5 0-22.3-3-31.6-8.4c-.2 2.8-.4 5.5-.4 8.4c0 53 43 96 96 96s96-43 96-96s-43-96-96-96c-2.8 0-5.6 .1-8.4 .4c5.3 9.3 8.4 20.1 8.4 31.6z"/></svg></span></template>
+        <template id=fa-eye-slash><span class=fa-svg><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 640 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc. --><path d="M38.8 5.1C28.4-3.1 13.3-1.2 5.1 9.2S-1.2 34.7 9.2 42.9l592 464c10.4 8.2 25.5 6.3 33.7-4.1s6.3-25.5-4.1-33.7L525.6 386.7c39.6-40.6 66.4-86.1 79.9-118.4c3.3-7.9 3.3-16.7 0-24.6c-14.9-35.7-46.2-87.7-93-131.1C465.5 68.8 400.8 32 320 32c-68.2 0-125 26.3-169.3 60.8L38.8 5.1zM223.1 149.5C248.6 126.2 282.7 112 320 112c79.5 0 144 64.5 144 144c0 24.9-6.3 48.3-17.4 68.7L408 294.5c5.2-11.8 8-24.8 8-38.5c0-53-43-96-96-96c-2.8 0-5.6 .1-8.4 .4c5.3 9.3 8.4 20.1 8.4 31.6c0 10.2-2.4 19.8-6.6 28.3l-90.3-70.8zm223.1 298L373 389.9c-16.4 6.5-34.3 10.1-53 10.1c-79.5 0-144-64.5-144-144c0-6.9 .5-13.6 1.4-20.2L83.1 161.5C60.3 191.2 44 220.8 34.5 243.7c-3.3 7.9-3.3 16.7 0 24.6c14.9 35.7 46.2 87.7 93 131.1C174.5 443.2 239.2 480 320 480c47.8 0 89.9-12.9 126.2-32.5z"/></svg></span></template>
+        <template id=fa-copy><span class=fa-svg><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc. --><path d="M502.6 70.63l-61.25-61.25C435.4 3.371 427.2 0 418.7 0H255.1c-35.35 0-64 28.66-64 64l.0195 256C192 355.4 220.7 384 256 384h192c35.2 0 64-28.8 64-64V93.25C512 84.77 508.6 76.63 502.6 70.63zM464 320c0 8.836-7.164 16-16 16H255.1c-8.838 0-16-7.164-16-16L239.1 64.13c0-8.836 7.164-16 16-16h128L384 96c0 17.67 14.33 32 32 32h47.1V320zM272 448c0 8.836-7.164 16-16 16H63.1c-8.838 0-16-7.164-16-16L47.98 192.1c0-8.836 7.164-16 16-16H160V128H63.99c-35.35 0-64 28.65-64 64l.0098 256C.002 483.3 28.66 512 64 512h192c35.2 0 64-28.8 64-64v-32h-47.1L272 448z"/></svg></span></template>
+        <template id=fa-play><span class=fa-svg><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 384 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc. --><path d="M73 39c-14.8-9.1-33.4-9.4-48.5-.9S0 62.6 0 80V432c0 17.4 9.4 33.4 24.5 41.9s33.7 8.1 48.5-.9L361 297c14.3-8.7 23-24.2 23-41s-8.7-32.2-23-41L73 39z"/></svg></span></template>
+        <template id=fa-clock-rotate-left><span class=fa-svg><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc. --><path d="M75 75L41 41C25.9 25.9 0 36.6 0 57.9V168c0 13.3 10.7 24 24 24H134.1c21.4 0 32.1-25.9 17-41l-30.8-30.8C155 85.5 203 64 256 64c106 0 192 86 192 192s-86 192-192 192c-40.8 0-78.6-12.7-109.7-34.4c-14.5-10.1-34.4-6.6-44.6 7.9s-6.6 34.4 7.9 44.6C151.2 495 201.7 512 256 512c141.4 0 256-114.6 256-256S397.4 0 256 0C185.3 0 121.3 28.7 75 75zm181 53c-13.3 0-24 10.7-24 24V256c0 6.4 2.5 12.5 7 17l72 72c9.4 9.4 24.6 9.4 33.9 0s9.4-24.6 0-33.9l-65-65V152c0-13.3-10.7-24-24-24z"/></svg></span></template>
+
+
+
+        <script>
+            window.playground_copyable = true;
+        </script>
+
+
+        <script src="../elasticlunr-ef4e11c1.min.js"></script>
+        <script src="../mark-09e88c2c.min.js"></script>
+        <script src="../searcher-09f2665d.js"></script>
+
+        <script src="../clipboard-1626706a.min.js"></script>
+        <script src="../highlight-abc7f01d.js"></script>
+        <script src="../book-609e4cb8.js"></script>
+
+        <script>
+            document.addEventListener('DOMContentLoaded', () => {
+                const sidebar = document.querySelector('#mdbook-sidebar');
+                sidebar.querySelectorAll('ol').forEach(list => {
+                    const numbers = list.querySelectorAll(
+                        ':scope > li > .chapter-link-wrapper > a > strong, :scope > li > a > strong');
+                    if (numbers.length) {
+                        const width = Math.max(...Array.from(numbers,
+                            number => number.textContent.trim().length));
+                        list.style.setProperty('--chapter-number-width', width + 'ch');
+                    }
+                });
+                const chapter = sidebar.querySelector('a.active');
+                const item = chapter?.closest('.chapter-item');
+                if (item?.querySelector(':scope > .on-this-page')) {
+                    const row = chapter.parentElement;
+                    if (!row.querySelector('.chapter-fold-toggle')) {
+                        const toggle = document.createElement('button');
+                        toggle.type = 'button';
+                        toggle.className = 'chapter-fold-toggle';
+                        toggle.appendChild(document.createElement('div'));
+                        toggle.addEventListener('click', () => {
+                            item.classList.toggle('expanded');
+                        });
+                        row.appendChild(toggle);
+                    }
+                }
+                sidebar.querySelectorAll('.chapter-fold-toggle').forEach(toggle => {
+                    const row = toggle.parentElement;
+                    const item = row.parentElement;
+                    const title = row.querySelector('a').textContent.trim();
+                    toggle.setAttribute('aria-label', 'Toggle ' + title);
+                    const update = () => toggle.setAttribute('aria-expanded',
+                        String(item.classList.contains('expanded')));
+                    update();
+                    toggle.addEventListener('click', update);
+                    if (toggle.tagName === 'A') {
+                        toggle.setAttribute('role', 'button');
+                        toggle.tabIndex = 0;
+                        toggle.addEventListener('keydown', event => {
+                            if (event.key === 'Enter' || event.key === ' ') {
+                                event.preventDefault();
+                                toggle.click();
+                            }
+                        });
+                    }
+                });
+            });
+        </script>
+
+        <!-- Custom JS scripts -->
+
+
+
+    </div>
+    </body>
+</html>

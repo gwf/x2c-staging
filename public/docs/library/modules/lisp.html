@@ -1,0 +1,873 @@
+<!DOCTYPE HTML>
+<html lang="en" class="light sidebar-visible" dir="ltr">
+    <head>
+        <!-- Book generated using mdBook -->
+        <meta charset="UTF-8">
+        <title>lib/lisp.x - The x2c Book</title>
+
+
+        <!-- Custom HTML head -->
+        <link rel="preconnect" href="https://fonts.googleapis.com">
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=Archivo:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">
+
+        <meta name="description" content="The x2c language, standard library, and compiler.">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <meta name="theme-color" content="#ffffff">
+
+        <link rel="icon" href="../../favicon-995a3c20.svg">
+        <link rel="stylesheet" href="../../css/variables-8adf115d.css">
+        <link rel="stylesheet" href="../../css/general-e96d0476.css">
+        <link rel="stylesheet" href="../../css/chrome-d279d366.css">
+        <link rel="stylesheet" href="../../css/print-9e4910d8.css" media="print">
+
+        <!-- Fonts -->
+        <link rel="stylesheet" href="../../fonts/fonts-9644e21d.css">
+
+        <!-- Highlight.js Stylesheets -->
+        <link rel="stylesheet" id="mdbook-highlight-css" href="../../highlight-493f70e1.css">
+        <link rel="stylesheet" id="mdbook-tomorrow-night-css" href="../../tomorrow-night-4c0ae647.css">
+        <link rel="stylesheet" id="mdbook-ayu-highlight-css" href="../../ayu-highlight-3fdfc3ac.css">
+
+        <!-- Custom theme stylesheets -->
+        <link rel="stylesheet" href="../../theme/header-2c1becca.css">
+        <link rel="stylesheet" href="../../theme/x2c-fd3d182e.css">
+
+
+        <!-- Provide site root and default themes to javascript -->
+        <script>
+            const path_to_root = "../../";
+            const default_light_theme = "light";
+            const default_dark_theme = "light";
+            window.path_to_searchindex_js = "../../searchindex-2643e100.js";
+        </script>
+        <!-- Start loading toc.js asap -->
+        <script src="../../toc-a71616d6.js"></script>
+        <!-- x2c publication metadata -->
+        <link rel="canonical" href="https://staging.x2c-lang.dev/docs/library/modules/lisp.html">
+        <meta property="og:type" content="website">
+        <meta property="og:title" content="lib/lisp.x - The x2c Book">
+        <meta property="og:description" content="The x2c language, standard library, and compiler.">
+        <meta property="og:url" content="https://staging.x2c-lang.dev/docs/library/modules/lisp.html">
+        <meta property="og:image" content="https://staging.x2c-lang.dev/x2c-social.png">
+        <meta property="og:image:width" content="1200">
+        <meta property="og:image:height" content="630">
+        <meta name="twitter:card" content="summary_large_image">
+        <meta name="twitter:title" content="lib/lisp.x - The x2c Book">
+        <meta name="twitter:description" content="The x2c language, standard library, and compiler.">
+        <meta name="twitter:image" content="https://staging.x2c-lang.dev/x2c-social.png">
+    </head>
+    <body><aside aria-label="Release candidate" style="padding:1rem;background:#fff1bf;color:#241c00;font:14px/1.5 monospace;overflow-wrap:anywhere"><strong>Public staging: candidate-c2a89d999e81f47a4422a26edf0033eb0b98c6c6-35470032964-1</strong><p>Source: c2a89d999e81f47a4422a26edf0033eb0b98c6c6. Use a fresh scratch installation and the explicit candidate index below. Bare x2c install commands and production URLs in the book refer to production.</p><pre style="overflow:auto">export X2C_PREFIX=&quot;$(mktemp -d)/x2c&quot;
+curl -fsSL https://staging.x2c-lang.dev/install.sh | sh
+export PATH=&quot;$X2C_PREFIX/bin:$PATH&quot;
+x2c run &quot;$X2C_PREFIX/examples/foreach.x&quot;
+x2c install pcre2 --index https://staging.x2c-lang.dev/packages/index.txt</pre></aside>
+    <div id="mdbook-help-container">
+        <div id="mdbook-help-popup">
+            <h2 class="mdbook-help-title">Keyboard shortcuts</h2>
+            <div>
+                <p>Press <kbd>←</kbd> or <kbd>→</kbd> to navigate between chapters</p>
+                <p>Press <kbd>S</kbd> or <kbd>/</kbd> to search in the book</p>
+                <p>Press <kbd>?</kbd> to show this help</p>
+                <p>Press <kbd>Esc</kbd> to hide this help</p>
+            </div>
+        </div>
+    </div>
+    <div id="mdbook-body-container">
+        <!-- Work around some values being stored in localStorage wrapped in quotes -->
+        <script>
+            try {
+                let theme = localStorage.getItem('mdbook-theme');
+                let sidebar = localStorage.getItem('mdbook-sidebar');
+
+                if (theme.startsWith('"') && theme.endsWith('"')) {
+                    localStorage.setItem('mdbook-theme', theme.slice(1, theme.length - 1));
+                }
+
+                if (sidebar.startsWith('"') && sidebar.endsWith('"')) {
+                    localStorage.setItem('mdbook-sidebar', sidebar.slice(1, sidebar.length - 1));
+                }
+            } catch (e) { }
+        </script>
+
+        <!-- Set the theme before any content is loaded, prevents flash -->
+        <script>
+            const default_theme = window.matchMedia("(prefers-color-scheme: dark)").matches ? default_dark_theme : default_light_theme;
+            let theme;
+            try { theme = localStorage.getItem('mdbook-theme'); } catch(e) { }
+            if (theme === null || theme === undefined) { theme = default_theme; }
+            const html = document.documentElement;
+            html.classList.remove('light')
+            html.classList.add(theme);
+            html.classList.add("js");
+        </script>
+
+        <input type="checkbox" id="mdbook-sidebar-toggle-anchor" class="hidden">
+
+        <!-- Hide / unhide sidebar before it is displayed -->
+        <script>
+            let sidebar = null;
+            const sidebar_toggle = document.getElementById("mdbook-sidebar-toggle-anchor");
+            if (document.body.clientWidth >= 1080) {
+                try { sidebar = localStorage.getItem('mdbook-sidebar'); } catch(e) { }
+                sidebar = sidebar || 'visible';
+            } else {
+                sidebar = 'hidden';
+                sidebar_toggle.checked = false;
+            }
+            if (sidebar === 'visible') {
+                sidebar_toggle.checked = true;
+            } else {
+                html.classList.remove('sidebar-visible');
+            }
+        </script>
+
+        <nav id="mdbook-sidebar" class="sidebar" aria-label="Table of contents">
+            <!-- populated by js -->
+            <mdbook-sidebar-scrollbox class="sidebar-scrollbox"></mdbook-sidebar-scrollbox>
+            <noscript>
+                <iframe class="sidebar-iframe-outer" src="../../toc.html"></iframe>
+            </noscript>
+            <div id="mdbook-sidebar-resize-handle" class="sidebar-resize-handle">
+                <div class="sidebar-resize-indicator"></div>
+            </div>
+        </nav>
+
+        <div id="mdbook-page-wrapper" class="page-wrapper">
+
+            <div class="page">
+                <div id="mdbook-menu-bar" class="hidden"></div>
+                <header class="landing-header x2c-header">
+                    <div class="landing-header-inner">
+                        <div class="landing-branding">
+                            <a class="landing-brand" href="../../../" aria-label="x2c home">
+                                <svg viewBox="0 0 100 100" width="22" height="22" aria-hidden="true"><g fill="none" stroke="#da291c" stroke-width="17" stroke-linecap="butt"><path d="M9 16 A34.5 34.5 0 0 1 9 84"></path><path d="M91 16 A34.5 34.5 0 0 0 91 84"></path></g></svg>
+                                <span class="x2c-wordmark landing-wordmark">x2c</span>
+                            </a>
+                            <span class="landing-tagline">The x2c Book</span>
+                        </div>
+                        <nav class="landing-nav" aria-label="x2c website">
+                            <div class="landing-page-nav">
+                                <a href="../../../#love">love</a>
+                                <a href="../../../#power">power</a>
+                                <a href="../../../#magic">magic</a>
+                            </div>
+                            <div class="landing-site-nav">
+                                <a href="../../../#install">install</a>
+                                <a href="../../../#packages">packages</a>
+                            </div>
+                            <div class="landing-reference-nav">
+                                <a href="../../../about/">about</a>
+                                <a href="../../" aria-current="page">docs</a>
+                                <a href="https://github.com/gwf/x2c">source</a>
+                            </div>
+                        </nav>
+                    </div>
+                    <div class="x2c-book-tools">
+                        <div class="x2c-header-tools">
+                            <label id="mdbook-sidebar-toggle" class="icon-button" for="mdbook-sidebar-toggle-anchor" title="Toggle Table of Contents" aria-label="Toggle Table of Contents" aria-controls="mdbook-sidebar">
+                                <span class=fa-svg><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc. --><path d="M0 96C0 78.3 14.3 64 32 64H416c17.7 0 32 14.3 32 32s-14.3 32-32 32H32C14.3 128 0 113.7 0 96zM0 256c0-17.7 14.3-32 32-32H416c17.7 0 32 14.3 32 32s-14.3 32-32 32H32c-17.7 0-32-14.3-32-32zM448 416c0 17.7-14.3 32-32 32H32c-17.7 0-32-14.3-32-32s14.3-32 32-32H416c17.7 0 32 14.3 32 32z"/></svg></span>
+                            </label>
+                        </div>
+                        <div class="x2c-header-tools x2c-header-tools-right">
+                            <button id="mdbook-search-toggle" class="icon-button" type="button" title="Search (`/`)" aria-label="Toggle Searchbar" aria-expanded="false" aria-keyshortcuts="/ s" aria-controls="mdbook-searchbar">
+                                <span class=fa-svg><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc. --><path d="M416 208c0 45.9-14.9 88.3-40 122.7L502.6 457.4c12.5 12.5 12.5 32.8 0 45.3s-32.8 12.5-45.3 0L330.7 376c-34.4 25.2-76.8 40-122.7 40C93.1 416 0 322.9 0 208S93.1 0 208 0S416 93.1 416 208zM208 352c79.5 0 144-64.5 144-144s-64.5-144-144-144S64 128.5 64 208s64.5 144 144 144z"/></svg></span>
+                            </button>
+                            <button id="mdbook-theme-toggle" class="icon-button" type="button" title="Change theme" aria-label="Change theme" aria-haspopup="true" aria-expanded="false" aria-controls="mdbook-theme-list">
+                                <span class=fa-svg><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc. --><path d="M448 256c0-106-86-192-192-192V448c106 0 192-86 192-192zm64 0c0 141.4-114.6 256-256 256S0 397.4 0 256S114.6 0 256 0S512 114.6 512 256z"/></svg></span>
+                            </button>
+                            <ul id="mdbook-theme-list" class="theme-popup" aria-label="Themes" role="menu">
+                                <li role="none"><button role="menuitem" class="theme" id="mdbook-theme-default_theme">Auto</button></li>
+                                <li role="none"><button role="menuitem" class="theme" id="mdbook-theme-light">Light</button></li>
+                                <li role="none"><button role="menuitem" class="theme" id="mdbook-theme-ayu">Dark</button></li>
+                            </ul>
+                            <a href="https://github.com/gwf/x2c/edit/main/docs/src/library/modules/lisp.md" title="Suggest an edit" aria-label="Suggest an edit" rel="edit" class="icon-button">
+                                <span class=fa-svg id="git-edit-button"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc. --><path d="M421.7 220.3l-11.3 11.3-22.6 22.6-205 205c-6.6 6.6-14.8 11.5-23.8 14.1L30.8 511c-8.4 2.5-17.5 .2-23.7-6.1S-1.5 489.7 1 481.2L38.7 353.1c2.6-9 7.5-17.2 14.1-23.8l205-205 22.6-22.6 11.3-11.3 33.9 33.9 62.1 62.1 33.9 33.9zM96 353.9l-9.3 9.3c-.9 .9-1.6 2.1-2 3.4l-25.3 86 86-25.3c1.3-.4 2.5-1.1 3.4-2l9.3-9.3H112c-8.8 0-16-7.2-16-16V353.9zM453.3 19.3l39.4 39.4c25 25 25 65.5 0 90.5l-14.5 14.5-22.6 22.6-11.3 11.3-33.9-33.9-62.1-62.1L314.3 67.7l11.3-11.3 22.6-22.6 14.5-14.5c25-25 65.5-25 90.5 0z"/></svg></span>
+                            </a>
+                        </div>
+                    </div>
+                </header>
+                <script>
+                    const bookHeader = document.querySelector('.x2c-header');
+                    new ResizeObserver(() => {
+                        document.documentElement.style.setProperty(
+                            '--menu-bar-height', `${bookHeader.getBoundingClientRect().height}px`);
+                    }).observe(bookHeader);
+                </script>
+
+                <div id="mdbook-search-wrapper" class="hidden">
+                    <form id="mdbook-searchbar-outer" class="searchbar-outer">
+                        <div class="search-wrapper">
+                            <input type="search" id="mdbook-searchbar" name="searchbar" placeholder="Search this book ..." aria-controls="mdbook-searchresults-outer" aria-describedby="searchresults-header">
+                            <div class="spinner-wrapper">
+                                <span class=fa-svg id="fa-spin"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc. --><path d="M304 48c0-26.5-21.5-48-48-48s-48 21.5-48 48s21.5 48 48 48s48-21.5 48-48zm0 416c0-26.5-21.5-48-48-48s-48 21.5-48 48s21.5 48 48 48s48-21.5 48-48zM48 304c26.5 0 48-21.5 48-48s-21.5-48-48-48s-48 21.5-48 48s21.5 48 48 48zm464-48c0-26.5-21.5-48-48-48s-48 21.5-48 48s21.5 48 48 48s48-21.5 48-48zM142.9 437c18.7-18.7 18.7-49.1 0-67.9s-49.1-18.7-67.9 0s-18.7 49.1 0 67.9s49.1 18.7 67.9 0zm0-294.2c18.7-18.7 18.7-49.1 0-67.9S93.7 56.2 75 75s-18.7 49.1 0 67.9s49.1 18.7 67.9 0zM369.1 437c18.7 18.7 49.1 18.7 67.9 0s18.7-49.1 0-67.9s-49.1-18.7-67.9 0s-18.7 49.1 0 67.9z"/></svg></span>
+                            </div>
+                        </div>
+                    </form>
+                    <div id="mdbook-searchresults-outer" class="searchresults-outer hidden">
+                        <div id="mdbook-searchresults-header" class="searchresults-header"></div>
+                        <ul id="mdbook-searchresults">
+                        </ul>
+                    </div>
+                </div>
+
+                <!-- Apply ARIA attributes after the sidebar and the sidebar toggle button are added to the DOM -->
+                <script>
+                    document.getElementById('mdbook-sidebar-toggle').setAttribute('aria-expanded', sidebar === 'visible');
+                    document.getElementById('mdbook-sidebar').setAttribute('aria-hidden', sidebar !== 'visible');
+                    Array.from(document.querySelectorAll('#mdbook-sidebar a')).forEach(function(link) {
+                        link.setAttribute('tabIndex', sidebar === 'visible' ? 0 : -1);
+                    });
+                </script>
+
+                <div id="mdbook-content" class="content">
+                    <main>
+                        <!-- Generated by `python3 tools/gen-api-reference.py --write` from
+     lib/*.x and the stage interfaces. Do not edit by hand. -->
+<h1 id="liblispx"><a class="header" href="#liblispx"><code>lib/lisp.x</code></a></h1>
+<p>The Lisp runtime: reader, session, and evaluator.</p>
+<h2 id="primary-api"><a class="header" href="#primary-api">Primary API</a></h2>
+<div class="table-wrapper">
+<table>
+<thead>
+<tr><th>Function</th><th>Summary</th></tr>
+</thead>
+<tbody>
+<tr><td><a href="#lisp_car"><code>lisp_car</code></a></td><td>Returns the first element of <code>value</code>, or <code>void</code> when it is <code>nil</code>.</td></tr>
+<tr><td><a href="#lisp_cdr"><code>lisp_cdr</code></a></td><td>Returns the tail of <code>value</code>, or <code>nil</code> when it is <code>nil</code>.</td></tr>
+<tr><td><a href="#lisp_match_replace"><code>lisp_match_replace</code></a></td><td>Returns the instantiated <code>template</code> when <code>input</code> matches <code>pat</code>.</td></tr>
+<tr><td><a href="#Lisp.apply"><code>Lisp.apply</code></a></td><td>Applies <code>callable</code> to already evaluated <code>values</code>.</td></tr>
+<tr><td><a href="#Lisp.bind"><code>Lisp.bind</code></a></td><td>Installs <code>function</code> as <code>name</code> and transfers its storage to <code>lisp</code>.</td></tr>
+<tr><td><a href="#Lisp.eval"><code>Lisp.eval</code></a></td><td>Evaluates one Lisp form in <code>lisp</code>.</td></tr>
+<tr><td><a href="#Lisp.eval_file"><code>Lisp.eval_file</code></a></td><td>Reads and evaluates every form from <code>file</code>.</td></tr>
+<tr><td><a href="#Lisp.eval_string"><code>Lisp.eval_string</code></a></td><td>Reads and evaluates every form in <code>source</code>.</td></tr>
+<tr><td><a href="#Lisp.kernel"><code>Lisp.kernel</code></a></td><td>Creates an isolated embedded <code>Lisp</code> session with only evaluator primitives.</td></tr>
+<tr><td><a href="#Lisp.new"><code>Lisp.new</code></a></td><td>Creates an isolated session with the standard Lisp environment loaded.</td></tr>
+<tr><td><a href="#Lisp.try_get"><code>Lisp.try_get</code></a></td><td>Writes the global binding for <code>name</code> to <code>out</code> when present.</td></tr>
+</tbody>
+</table>
+</div>
+<h3 id="functions"><a class="header" href="#functions">Functions</a></h3>
+<h4 id="lisp_car"><a class="header" href="#lisp_car">lisp_car</a></h4>
+<p><code>Var lisp_car(Var value)</code></p>
+<p>Returns the first element of <code>value</code>, or <code>void</code> when it is <code>nil</code>.
+A nonlist operand raises <code>&lt;bad-types&gt;</code>.</p>
+<p>Source: <code>lib/lisp.x:602</code></p>
+<h4 id="lisp_cdr"><a class="header" href="#lisp_cdr">lisp_cdr</a></h4>
+<p><code>Var lisp_cdr(Var value)</code></p>
+<p>Returns the tail of <code>value</code>, or <code>nil</code> when it is <code>nil</code>.
+A nonlist operand raises <code>&lt;bad-types&gt;</code>.</p>
+<p>Source: <code>lib/lisp.x:611</code></p>
+<h4 id="lisp_match_replace"><a class="header" href="#lisp_match_replace">lisp_match_replace</a></h4>
+<p><code>Var lisp_match_replace(List input, Var pat, Var template)</code></p>
+<p>Returns the instantiated <code>template</code> when <code>input</code> matches <code>pat</code>.
+<code>List.match_replace</code> returns a <code>List</code>, so a template that is a bare binder
+loses a scalar result. Lisp sees the replacement itself. A miss, malformed
+pattern, cache pressure, or machine error returns <code>input</code> unchanged.</p>
+<p>Source: <code>lib/lisp.x:807</code></p>
+<h3 id="lisp"><a class="header" href="#lisp"><code>Lisp</code></a></h3>
+<p><a id="Lisp.apply"></a></p>
+<h4 id="lispapply"><a class="header" href="#lispapply">Lisp.apply</a></h4>
+<p><code>Var Lisp.apply(Lisp lisp, Var callable, List values)</code></p>
+<p>Applies <code>callable</code> to already evaluated <code>values</code>.
+Macros and evaluator special forms other than the built-in <code>apply</code> are not
+procedures and are rejected. The built-in accepts a callable
+and a <code>List</code> and
+recursively applies those already evaluated values. The Lisp session owns
+<code>Scope</code> allocations made by the call; returned canonical or caller-supplied
+values keep their existing owners. The caller retains responsibility for
+<code>callable</code>, <code>values</code>, and their referents.</p>
+<p><strong>Raises:</strong> <code>&lt;bad-arg&gt;</code> for a null session, <code>&lt;not-call&gt;</code> for a non-procedure or
+evaluator-only callable, <code>&lt;bad-arity&gt;</code> or <code>&lt;bad-types&gt;</code> at the call
+boundary, or a cause raised by the called procedure.</p>
+<p>Source: <code>lib/lisp.x:1924</code></p>
+<p><a id="Lisp.bind"></a></p>
+<h4 id="lispbind"><a class="header" href="#lispbind">Lisp.bind</a></h4>
+<p><code>void Lisp.bind(Lisp lisp, String name, Func function)</code></p>
+<p>Installs <code>function</code> as <code>name</code> and transfers its storage to <code>lisp</code>.
+Invalid arguments raise <code>&lt;bad-arg&gt;</code> without transferring ownership. Once
+validation succeeds, the <code>Func</code> moves before the global insertion. The
+caller relinquishes ownership even if name canonicalization or <code>Map</code> growth
+then raises <code>&lt;alloc-fail&gt;</code>, <code>&lt;size-limit&gt;</code>, or <code>&lt;bad-enc&gt;</code>, but may borrow
+the pointer while the session lives. Values inside the <code>Func</code>, including
+its
+signature graph, retain their existing owners.</p>
+<p>Source: <code>lib/lisp.x:2016</code></p>
+<p><a id="Lisp.eval"></a></p>
+<h4 id="lispeval"><a class="header" href="#lispeval">Lisp.eval</a></h4>
+<p><code>Var Lisp.eval(Lisp lisp, Var expression)</code></p>
+<p>Evaluates one Lisp form in <code>lisp</code>.
+Evaluation is synchronous and may retain the expression or values it
+reaches in session globals, Lambdas, or captures as described by the module
+ownership rule. Effects completed before a later failure are not rolled
+back. Raises: <code>&lt;bad-arg&gt;</code> for a null session, or any evaluator, imported
+operation, or called-procedure cause.</p>
+<p>Source: <code>lib/lisp.x:1909</code></p>
+<p><a id="Lisp.eval_file"></a></p>
+<h4 id="lispeval_file"><a class="header" href="#lispeval_file">Lisp.eval_file</a></h4>
+<p><code>Var Lisp.eval_file(Lisp lisp, File source)</code></p>
+<p>Reads and evaluates every form from <code>file</code>.
+Reading starts at the current stream position, consumes through EOF, and
+leaves the borrowed stream open. Forms run in order, so effects from forms
+completed before a later read or evaluation failure are not rolled back.
+A null <code>Lisp</code> session is rejected by <code>Lisp.eval_string</code> only after the
+stream
+has been consumed.</p>
+<p><strong>Raises:</strong> <code>&lt;bad-arg&gt;</code> for a null stream or embedded NUL, <code>&lt;io-fail&gt;</code>,
+<code>&lt;size-limit&gt;</code>, or <code>&lt;alloc-fail&gt;</code> while reading, or any cause from
+<code>Lisp.eval_string</code>.</p>
+<p>Source: <code>lib/lisp.x:1961</code></p>
+<p><a id="Lisp.eval_string"></a></p>
+<h4 id="lispeval_string"><a class="header" href="#lispeval_string">Lisp.eval_string</a></h4>
+<p><code>Var Lisp.eval_string(Lisp lisp, String source)</code></p>
+<p>Reads and evaluates every form in <code>source</code>.
+Forms run in source order and the return value is the last result, or Lisp
+<code>nil</code> for a null, empty, or comment-only source. Globals and other effects
+completed before a later reader or evaluator failure remain installed.</p>
+<p><strong>Raises:</strong> <code>&lt;bad-arg&gt;</code> for a null session, <code>&lt;incomplete&gt;</code> or <code>&lt;malformed&gt;</code>
+while reading, or any cause from <code>Lisp.eval</code>.</p>
+<p>Source: <code>lib/lisp.x:1935</code></p>
+<p><a id="Lisp.kernel"></a></p>
+<h4 id="lispkernel"><a class="header" href="#lispkernel">Lisp.kernel</a></h4>
+<p><code>Lisp Lisp.kernel(void)</code></p>
+<p>Creates an isolated embedded <code>Lisp</code> session with only evaluator primitives.
+The caller owns a successful session and must pass it to <code>Lisp.destroy</code>.
+Returns NULL if a long shared name cannot be owned by the active pool
+chain. Failure of native once initialization writes a diagnostic and
+aborts the process.</p>
+<p><strong>Raises:</strong> <code>&lt;alloc-fail&gt;</code> or <code>&lt;size-limit&gt;</code> while creating session storage, or
+<code>&lt;bad-enc&gt;</code> while interning shared or special-form names.</p>
+<p>Source: <code>lib/lisp.x:516</code></p>
+<p><a id="Lisp.new"></a></p>
+<h4 id="lispnew"><a class="header" href="#lispnew">Lisp.new</a></h4>
+<p><code>Lisp Lisp.new(void)</code></p>
+<p>Creates an isolated session with the standard Lisp environment loaded.
+The caller owns the result and must pass it to <code>Lisp.destroy</code>.
+If standard-source evaluation transfers, no handle is returned and the
+constructed session remains allocated.
+Raises any cause from <code>Lisp.kernel</code> or <code>Lisp.eval_string</code>.</p>
+<p>Source: <code>lib/lisp.x:542</code></p>
+<p><a id="Lisp.try_get"></a></p>
+<h4 id="lisptry_get"><a class="header" href="#lisptry_get">Lisp.try_get</a></h4>
+<p><code>int Lisp.try_get(Lisp lisp, String name, Var *out)</code></p>
+<p>Writes the global binding for <code>name</code> to <code>out</code> when present.
+Returns 1 only after writing the borrowed value. A null session, name, or
+output, or an absent name returns 0 and leaves <code>out</code> unchanged. Raises
+<code>&lt;alloc-fail&gt;</code> or <code>&lt;bad-enc&gt;</code> when a nonempty lookup name cannot be
+canonicalized.</p>
+<p>Source: <code>lib/lisp.x:1983</code></p>
+<h2 id="advanced-and-interop-api"><a class="header" href="#advanced-and-interop-api">Advanced and interop API</a></h2>
+<div class="table-wrapper">
+<table>
+<thead>
+<tr><th>Function</th><th>Summary</th></tr>
+</thead>
+<tbody>
+<tr><td><a href="#Lisp.apply_values"><code>Lisp.apply_values</code></a></td><td>Applies a Lisp callable to already evaluated shared-machine values.</td></tr>
+<tr><td><a href="#Lisp.auto_disable"><code>Lisp.auto_disable</code></a></td><td>Forces calls through the recursive evaluator when <code>disabled</code> is nonzero.</td></tr>
+<tr><td><a href="#Lisp.auto_instrument"><code>Lisp.auto_instrument</code></a></td><td>Selects optional detailed machine statistics for later AUTO executions.</td></tr>
+<tr><td><a href="#Lisp.auto_stats"><code>Lisp.auto_stats</code></a></td><td>Returns the current cumulative automatic-evaluator statistics for <code>lisp</code>.</td></tr>
+<tr><td><a href="#Lisp.cleanup"><code>Lisp.cleanup</code></a></td><td>Ends the owned lifetime when a managed local leaves its block.</td></tr>
+<tr><td><a href="#Lisp.destroy"><code>Lisp.destroy</code></a></td><td>Releases a <code>Lisp</code> session and invalidates all session-owned state.</td></tr>
+<tr><td><a href="#Lisp.enter"><code>Lisp.enter</code></a></td><td>Pushes one prepared-Lambda environment for the shared machine.</td></tr>
+<tr><td><a href="#Lisp.leave"><code>Lisp.leave</code></a></td><td>Pops the innermost environment installed by <code>Lisp.enter</code>.</td></tr>
+<tr><td><a href="#Lisp.precall"><code>Lisp.precall</code></a></td><td>Handles a callable that cannot continue through prepared machine dispatch.</td></tr>
+<tr><td><a href="#Lisp.program"><code>Lisp.program</code></a></td><td>Returns the prepared AUTO program for an eligible Lisp Lambda.</td></tr>
+<tr><td><a href="#Lisp.read"><code>Lisp.read</code></a></td><td>Reads one Lisp form and returns <code>&lt;value&gt;</code> or <code>&lt;eof&gt;</code>.</td></tr>
+<tr><td><a href="#Lisp.resolve"><code>Lisp.resolve</code></a></td><td>Resolves one Lisp name for the active shared-machine environment.</td></tr>
+<tr><td><a href="#Lisp.retarget"><code>Lisp.retarget</code></a></td><td>Replaces the current shared-machine environment for a self tail call.</td></tr>
+<tr><td><a href="#Lisp.set_global"><code>Lisp.set_global</code></a></td><td>Binds <code>name</code> to <code>value</code> in the embedded Lisp global environment.</td></tr>
+</tbody>
+</table>
+</div>
+<h3 id="lisp-1"><a class="header" href="#lisp-1"><code>Lisp</code></a></h3>
+<p><a id="Lisp.apply_values"></a></p>
+<h4 id="lispapply_values"><a class="header" href="#lispapply_values">Lisp.apply_values</a></h4>
+<p><code>Var Lisp.apply_values( void *storage, Var callable, const Var *values, int count)</code></p>
+<p>Applies a Lisp callable to already evaluated shared-machine values.
+<code>storage</code> names the running context; <code>values</code> may be null only when <code>count</code>
+is zero, <code>count</code> must not be negative, and the array is borrowed for the
+call. The active <code>Lisp</code> session owns new <code>Scope</code> allocations; other
+returned
+<code>Var</code>s keep their ordinary owners.
+Raises any cause from argument materialization or the callable.</p>
+<p>Source: <code>lib/lisp.x:135</code></p>
+<p><a id="Lisp.auto_disable"></a></p>
+<h4 id="lispauto_disable"><a class="header" href="#lispauto_disable">Lisp.auto_disable</a></h4>
+<p><code>void Lisp.auto_disable(Lisp lisp, int disabled)</code></p>
+<p>Forces calls through the recursive evaluator when <code>disabled</code> is nonzero.
+<code>lisp</code> must be a live session.
+Re-enabling AUTO preserves published programs, thresholds, statistics, and
+the instrumentation pointer.</p>
+<p>Source: <code>lib/lisp.x:1806</code></p>
+<p><a id="Lisp.auto_instrument"></a></p>
+<h4 id="lispauto_instrument"><a class="header" href="#lispauto_instrument">Lisp.auto_instrument</a></h4>
+<p><code>void Lisp.auto_instrument(Lisp lisp, MachineStats *stats)</code></p>
+<p>Selects optional detailed machine statistics for later AUTO executions.
+<code>lisp</code> must be a live session.
+<code>stats</code> is borrowed, retained without initialization, and updated in place;
+it must outlive every evaluation until replaced or cleared with NULL.</p>
+<p>Source: <code>lib/lisp.x:1795</code></p>
+<p><a id="Lisp.auto_stats"></a></p>
+<h4 id="lispauto_stats"><a class="header" href="#lispauto_stats">Lisp.auto_stats</a></h4>
+<p><code>LispAutoStats Lisp.auto_stats(Lisp lisp)</code></p>
+<p>Returns the current cumulative automatic-evaluator statistics for <code>lisp</code>.
+<code>lisp</code> must be a live session. The returned structure is a value snapshot
+and does not reset any counter.</p>
+<p>Source: <code>lib/lisp.x:1788</code></p>
+<p><a id="Lisp.cleanup"></a></p>
+<h4 id="lispcleanup"><a class="header" href="#lispcleanup">Lisp.cleanup</a></h4>
+<p><code>void Lisp.cleanup(Lisp value)</code></p>
+<p>Ends the owned lifetime when a managed local leaves its block.</p>
+<p>Source: <code>lib/lisp.x:2024</code></p>
+<p><a id="Lisp.destroy"></a></p>
+<h4 id="lispdestroy"><a class="header" href="#lispdestroy">Lisp.destroy</a></h4>
+<p><code>void Lisp.destroy(Lisp lisp)</code></p>
+<p>Releases a <code>Lisp</code> session and invalidates all session-owned state.
+This includes its global and reserved <code>Map</code>s, Lambdas, transferred <code>Func</code>s,
+prepared programs, and machine slots. Borrowed values are not released. A
+null session does nothing; no evaluation or machine call may remain active.
+Destroying its still-active <code>Scope</code> raises <code>&lt;bad-state&gt;</code>.</p>
+<p>Source: <code>lib/lisp.x:554</code></p>
+<p><a id="Lisp.enter"></a></p>
+<h4 id="lispenter"><a class="header" href="#lispenter">Lisp.enter</a></h4>
+<p><code>void Lisp.enter(void *storage, Var callable, const Var *values, int count)</code></p>
+<p>Pushes one prepared-Lambda environment for the shared machine.
+<code>storage</code> names a running LispMachine context, <code>callable</code> is a prepared
+Lambda, and <code>values</code> supplies the Lambda’s <code>count</code> borrowed arguments. The
+array and its values must remain live until the matching <code>Lisp.leave</code>.</p>
+<p>Source: <code>lib/lisp.x:92</code></p>
+<p><a id="Lisp.leave"></a></p>
+<h4 id="lispleave"><a class="header" href="#lispleave">Lisp.leave</a></h4>
+<p><code>void Lisp.leave(void *storage)</code></p>
+<p>Pops the innermost environment installed by <code>Lisp.enter</code>.
+Calls must balance in last-in, first-out order; the borrowed argument array
+is no longer retained afterward.</p>
+<p>Source: <code>lib/lisp.x:108</code></p>
+<p><a id="Lisp.precall"></a></p>
+<h4 id="lispprecall"><a class="header" href="#lispprecall">Lisp.precall</a></h4>
+<p><code>int Lisp.precall(void *storage, Var callable, List raw, Var *value)</code></p>
+<p>Handles a callable that cannot continue through prepared machine dispatch.
+Returns 0 and leaves <code>value</code> unchanged when the machine may proceed.
+Otherwise it applies the callable to borrowed raw forms, writes <code>value</code>,
+and returns 1. <code>storage</code> and <code>value</code> must be nonnull and belong to the
+running LispMachine invocation.</p>
+<p>Source: <code>lib/lisp.x:149</code></p>
+<p><a id="Lisp.program"></a></p>
+<h4 id="lispprogram"><a class="header" href="#lispprogram">Lisp.program</a></h4>
+<p><code>int Lisp.program(Var callable, MachineView *view, int *nparam, Var *body)</code></p>
+<p>Returns the prepared AUTO program for an eligible Lisp Lambda.
+On success, writes all three nonnull outputs and returns 1. Otherwise it
+returns 0 and leaves them unchanged. The view and body are borrowed from
+the Lambda and remain valid only while its owning <code>Lisp</code> session lives.</p>
+<p>Source: <code>lib/lisp.x:65</code></p>
+<p><a id="Lisp.read"></a></p>
+<h4 id="lispread"><a class="header" href="#lispread">Lisp.read</a></h4>
+<p><code>Symbol Lisp.read(Lisp lisp, String source, unsigned *cursor, Var *out)</code></p>
+<p>Reads one Lisp form and returns <code>&lt;value&gt;</code> or <code>&lt;eof&gt;</code>.
+A nonnull <code>out</code> receives the form only for <code>&lt;value&gt;</code>; it is otherwise
+unchanged. New result storage uses the caller’s active <code>Scope</code> and
+canonical
+pools, not the temporary token <code>Scope</code>, and remains valid until those
+owners
+are released. On success <code>cursor</code> advances past the form, at EOF it becomes
+the source length, and on a reader error it identifies the failing form’s
+first token. A null source or cursor returns <code>&lt;eof&gt;</code> without raising. A
+nonnull cursor must initially hold a byte offset no greater than the source
+length. A successful session construction must first initialize the shared
+reader names; afterward <code>lisp</code> is not consulted and may be null.</p>
+<p><strong>Raises:</strong> <code>&lt;incomplete&gt;</code> for a truncated form, <code>&lt;malformed&gt;</code> for invalid
+reader syntax, or <code>&lt;alloc-fail&gt;</code>, <code>&lt;size-limit&gt;</code>, or <code>&lt;bad-enc&gt;</code> while
+tokenizing, constructing, interning, or boxing the form.</p>
+<p>Source: <code>lib/lisp.x:572</code></p>
+<p><a id="Lisp.resolve"></a></p>
+<h4 id="lispresolve"><a class="header" href="#lispresolve">Lisp.resolve</a></h4>
+<p><code>int Lisp.resolve(void *storage, Var name, Var *value)</code></p>
+<p>Resolves one Lisp name for the active shared-machine environment.
+<code>storage</code> must be the context of a running LispMachine and <code>value</code> must be
+nonnull. Returns 1 and writes the borrowed binding, or returns 0 and leaves
+the output unchanged.</p>
+<p>Source: <code>lib/lisp.x:82</code></p>
+<p><a id="Lisp.retarget"></a></p>
+<h4 id="lispretarget"><a class="header" href="#lispretarget">Lisp.retarget</a></h4>
+<p><code>void Lisp.retarget(void *storage, Var callable, const Var *values, int count)</code></p>
+<p>Replaces the current shared-machine environment for a self tail call.
+The parent environment is preserved. <code>callable</code> must be its prepared
+Lambda, <code>count</code> must match its parameters, and the borrowed <code>values</code> remain
+live until another retarget or the environment is left.</p>
+<p>Source: <code>lib/lisp.x:120</code></p>
+<p><a id="Lisp.set_global"></a></p>
+<h4 id="lispset_global"><a class="header" href="#lispset_global">Lisp.set_global</a></h4>
+<p><code>void Lisp.set_global(Lisp lisp, String name, Var value)</code></p>
+<p>Binds <code>name</code> to <code>value</code> in the embedded Lisp global environment.
+The <code>Map</code> retains the canonicalized name and <code>Var</code> value without taking
+ownership of their referents; their canonical graphs or other owners must
+outlive the binding or session. Binding an <code>x2c.</code> name protects that
+namespace from later Lisp <code>def</code> forms, but direct calls to this function
+may replace such a binding.</p>
+<p><strong>Raises:</strong> <code>&lt;bad-arg&gt;</code> for a null session or name, <code>&lt;void-op&gt;</code> for a <code>void</code>
+value, or <code>&lt;alloc-fail&gt;</code>, <code>&lt;size-limit&gt;</code>, or <code>&lt;bad-enc&gt;</code> while
+canonicalizing or storing the binding.</p>
+<p>Source: <code>lib/lisp.x:1996</code></p>
+<h2 id="runtime-internal-callables"><a class="header" href="#runtime-internal-callables">Runtime-internal callables</a></h2>
+<p>These callables connect runtime translation units. They are documented
+for source readers but are not supported as user API.</p>
+<div class="table-wrapper">
+<table>
+<thead>
+<tr><th>Function</th><th>Summary</th></tr>
+</thead>
+<tbody>
+<tr><td><a href="#lisp_add"><code>lisp_add</code></a></td><td>Concatenates when either operand is <code>String</code>, otherwise adds dynamically.</td></tr>
+<tr><td><a href="#lisp_atom"><code>lisp_atom</code></a></td><td>Returns Lisp true unless <code>value</code> is a nonempty <code>List</code>.</td></tr>
+<tr><td><a href="#lisp_compare"><code>lisp_compare</code></a></td><td>Compares Lisp numbers by value and returns a boxed negative, zero, or positive.</td></tr>
+<tr><td><a href="#lisp_divide"><code>lisp_divide</code></a></td><td>Divides the first value by each later one; one value reciprocates it.</td></tr>
+<tr><td><a href="#lisp_eq"><code>lisp_eq</code></a></td><td>Returns Lisp true when <code>a</code> and <code>b</code> are equal by <code>Var.equal</code>.</td></tr>
+<tr><td><a href="#lisp_eq_chain"><code>lisp_eq_chain</code></a></td><td>Reports whether every neighbouring pair of numbers compares equal.</td></tr>
+<tr><td><a href="#lisp_ge_chain"><code>lisp_ge_chain</code></a></td><td>Reports whether two or more numbers never increase.</td></tr>
+<tr><td><a href="#lisp_gt_chain"><code>lisp_gt_chain</code></a></td><td>Reports whether two or more numbers strictly decrease.</td></tr>
+<tr><td><a href="#lisp_le_chain"><code>lisp_le_chain</code></a></td><td>Reports whether two or more numbers never decrease.</td></tr>
+<tr><td><a href="#lisp_list"><code>lisp_list</code></a></td><td>Returns Lisp true when <code>value</code> is <code>List</code>-typed, including <code>nil</code>.</td></tr>
+<tr><td><a href="#lisp_lt_chain"><code>lisp_lt_chain</code></a></td><td>Reports whether two or more numbers strictly increase.</td></tr>
+<tr><td><a href="#lisp_minus"><code>lisp_minus</code></a></td><td>Subtracts each later value from the first; one value negates it.</td></tr>
+<tr><td><a href="#lisp_number"><code>lisp_number</code></a></td><td>Returns Lisp true when <code>value</code> has an integer or floating kind.</td></tr>
+<tr><td><a href="#lisp_pair"><code>lisp_pair</code></a></td><td>Returns Lisp true when <code>value</code> is a nonempty <code>List</code>.</td></tr>
+<tr><td><a href="#lisp_plus"><code>lisp_plus</code></a></td><td>Adds or concatenates every value left to right; no values gives 0.</td></tr>
+<tr><td><a href="#lisp_procedure"><code>lisp_procedure</code></a></td><td>Returns Lisp true when <code>value</code> is a native function or Lambda.</td></tr>
+<tr><td><a href="#lisp_read_file"><code>lisp_read_file</code></a></td><td>Reads <code>path</code> completely, closes it, and returns its boxed <code>String</code> contents.</td></tr>
+<tr><td><a href="#lisp_repr"><code>lisp_repr</code></a></td><td>Boxes the readable representation of <code>value</code>.</td></tr>
+<tr><td><a href="#lisp_str"><code>lisp_str</code></a></td><td>Boxes the display <code>String</code> of <code>value</code>.</td></tr>
+<tr><td><a href="#lisp_string"><code>lisp_string</code></a></td><td>Returns Lisp true when <code>value</code> is a <code>String</code>.</td></tr>
+<tr><td><a href="#lisp_string_append"><code>lisp_string_append</code></a></td><td>Returns the boxed concatenation of <code>left</code> and <code>right</code>.</td></tr>
+<tr><td><a href="#lisp_string_downcase"><code>lisp_string_downcase</code></a></td><td>Returns a boxed lower-case copy of <code>string</code>.</td></tr>
+<tr><td><a href="#lisp_substring"><code>lisp_substring</code></a></td><td>Returns the boxed unit-step slice <code>string[start:stop]</code>.</td></tr>
+<tr><td><a href="#lisp_symbol"><code>lisp_symbol</code></a></td><td>Returns Lisp true when <code>value</code> has <code>Symbol</code> kind.</td></tr>
+<tr><td><a href="#lisp_times"><code>lisp_times</code></a></td><td>Multiplies every value; no values gives 1.</td></tr>
+<tr><td><a href="#lisp_type"><code>lisp_type</code></a></td><td>Returns the runtime tag of <code>value</code>.</td></tr>
+<tr><td><a href="#lisp_write_file"><code>lisp_write_file</code></a></td><td>Replaces <code>path</code> with <code>text</code> and reports Lisp success.</td></tr>
+<tr><td><a href="#Lisp.evaluate"><code>Lisp.evaluate</code></a></td><td>Evaluates one borrowed form in the running machine’s environment.</td></tr>
+<tr><td><a href="#Lisp.expanded"><code>Lisp.expanded</code></a></td><td>Checks a lowered form after preceding effects have run.</td></tr>
+<tr><td><a href="#Lisp.immediate"><code>Lisp.immediate</code></a></td><td>Resolves a prepared immediate lambda in the running machine context.</td></tr>
+</tbody>
+</table>
+</div>
+<h3 id="functions-1"><a class="header" href="#functions-1">Functions</a></h3>
+<h4 id="lisp_add"><a class="header" href="#lisp_add">lisp_add</a></h4>
+<p><code>Var lisp_add(Var a, Var b)</code></p>
+<p>Concatenates when either operand is <code>String</code>, otherwise adds dynamically.</p>
+<p>Source: <code>lib/lisp.x:688</code></p>
+<h4 id="lisp_atom"><a class="header" href="#lisp_atom">lisp_atom</a></h4>
+<p><code>Var lisp_atom(Var value)</code></p>
+<p>Returns Lisp true unless <code>value</code> is a nonempty <code>List</code>.</p>
+<p>Source: <code>lib/lisp.x:593</code></p>
+<h4 id="lisp_compare"><a class="header" href="#lisp_compare">lisp_compare</a></h4>
+<p><code>Var lisp_compare(Var a, Var b)</code></p>
+<p>Compares Lisp numbers by value and returns a boxed negative, zero, or
+positive. Integer and floating encodings of one number compare equal.
+A nonnumeric operand raises <code>&lt;bad-types&gt;</code>.</p>
+<p>Source: <code>lib/lisp.x:676</code></p>
+<h4 id="lisp_divide"><a class="header" href="#lisp_divide">lisp_divide</a></h4>
+<p><code>Var lisp_divide(List values)</code></p>
+<p>Divides the first value by each later one; one value reciprocates it.
+An empty input raises <code>&lt;bad-arity&gt;</code>.</p>
+<p>Source: <code>lib/lisp.x:730</code></p>
+<h4 id="lisp_eq"><a class="header" href="#lisp_eq">lisp_eq</a></h4>
+<p><code>Var lisp_eq(Var a, Var b)</code></p>
+<p>Returns Lisp true when <code>a</code> and <code>b</code> are equal by <code>Var.equal</code>.</p>
+<p>Source: <code>lib/lisp.x:618</code></p>
+<h4 id="lisp_eq_chain"><a class="header" href="#lisp_eq_chain">lisp_eq_chain</a></h4>
+<p><code>Var lisp_eq_chain(List values)</code></p>
+<p>Reports whether every neighbouring pair of numbers compares equal.
+Fewer than two values raise <code>&lt;bad-arity&gt;</code>; a nonnumber raises
+<code>&lt;bad-types&gt;</code>.</p>
+<p>Source: <code>lib/lisp.x:760</code></p>
+<h4 id="lisp_ge_chain"><a class="header" href="#lisp_ge_chain">lisp_ge_chain</a></h4>
+<p><code>Var lisp_ge_chain(List values)</code></p>
+<p>Reports whether two or more numbers never increase.
+Fewer than two values raise <code>&lt;bad-arity&gt;</code>; a nonnumber raises
+<code>&lt;bad-types&gt;</code>.</p>
+<p>Source: <code>lib/lisp.x:784</code></p>
+<h4 id="lisp_gt_chain"><a class="header" href="#lisp_gt_chain">lisp_gt_chain</a></h4>
+<p><code>Var lisp_gt_chain(List values)</code></p>
+<p>Reports whether two or more numbers strictly decrease.
+Fewer than two values raise <code>&lt;bad-arity&gt;</code>; a nonnumber raises
+<code>&lt;bad-types&gt;</code>.</p>
+<p>Source: <code>lib/lisp.x:778</code></p>
+<h4 id="lisp_le_chain"><a class="header" href="#lisp_le_chain">lisp_le_chain</a></h4>
+<p><code>Var lisp_le_chain(List values)</code></p>
+<p>Reports whether two or more numbers never decrease.
+Fewer than two values raise <code>&lt;bad-arity&gt;</code>; a nonnumber raises
+<code>&lt;bad-types&gt;</code>.</p>
+<p>Source: <code>lib/lisp.x:772</code></p>
+<h4 id="lisp_list"><a class="header" href="#lisp_list">lisp_list</a></h4>
+<p><code>Var lisp_list(Var value)</code></p>
+<p>Returns Lisp true when <code>value</code> is <code>List</code>-typed, including <code>nil</code>.</p>
+<p>Source: <code>lib/lisp.x:624</code></p>
+<h4 id="lisp_lt_chain"><a class="header" href="#lisp_lt_chain">lisp_lt_chain</a></h4>
+<p><code>Var lisp_lt_chain(List values)</code></p>
+<p>Reports whether two or more numbers strictly increase.
+Fewer than two values raise <code>&lt;bad-arity&gt;</code>; a nonnumber raises
+<code>&lt;bad-types&gt;</code>.</p>
+<p>Source: <code>lib/lisp.x:766</code></p>
+<h4 id="lisp_minus"><a class="header" href="#lisp_minus">lisp_minus</a></h4>
+<p><code>Var lisp_minus(List values)</code></p>
+<p>Subtracts each later value from the first; one value negates it.
+An empty input raises <code>&lt;bad-arity&gt;</code>.</p>
+<p>Source: <code>lib/lisp.x:709</code></p>
+<h4 id="lisp_number"><a class="header" href="#lisp_number">lisp_number</a></h4>
+<p><code>Var lisp_number(Var value)</code></p>
+<p>Returns Lisp true when <code>value</code> has an integer or floating kind.</p>
+<p>Source: <code>lib/lisp.x:632</code></p>
+<h4 id="lisp_pair"><a class="header" href="#lisp_pair">lisp_pair</a></h4>
+<p><code>Var lisp_pair(Var value)</code></p>
+<p>Returns Lisp true when <code>value</code> is a nonempty <code>List</code>.</p>
+<p>Source: <code>lib/lisp.x:621</code></p>
+<h4 id="lisp_plus"><a class="header" href="#lisp_plus">lisp_plus</a></h4>
+<p><code>Var lisp_plus(List values)</code></p>
+<p>Adds or concatenates every value left to right; no values gives 0.</p>
+<p>Source: <code>lib/lisp.x:699</code></p>
+<h4 id="lisp_procedure"><a class="header" href="#lisp_procedure">lisp_procedure</a></h4>
+<p><code>Var lisp_procedure(Var value)</code></p>
+<p>Returns Lisp true when <code>value</code> is a native function or Lambda.</p>
+<p>Source: <code>lib/lisp.x:641</code></p>
+<h4 id="lisp_read_file"><a class="header" href="#lisp_read_file">lisp_read_file</a></h4>
+<p><code>Var lisp_read_file(String path)</code></p>
+<p>Reads <code>path</code> completely, closes it, and returns its boxed <code>String</code>
+contents.
+Raises the open, read, size, or allocation cause reported by <code>File</code>. An
+opened stream is still closed on transfer.</p>
+<p>Source: <code>lib/lisp.x:818</code></p>
+<h4 id="lisp_repr"><a class="header" href="#lisp_repr">lisp_repr</a></h4>
+<p><code>Var lisp_repr(Var value)</code></p>
+<p>Boxes the readable representation of <code>value</code>.</p>
+<p>Source: <code>lib/lisp.x:790</code></p>
+<h4 id="lisp_str"><a class="header" href="#lisp_str">lisp_str</a></h4>
+<p><code>Var lisp_str(Var value)</code></p>
+<p>Boxes the display <code>String</code> of <code>value</code>.</p>
+<p>Source: <code>lib/lisp.x:787</code></p>
+<h4 id="lisp_string"><a class="header" href="#lisp_string">lisp_string</a></h4>
+<p><code>Var lisp_string(Var value)</code></p>
+<p>Returns Lisp true when <code>value</code> is a <code>String</code>.</p>
+<p>Source: <code>lib/lisp.x:635</code></p>
+<h4 id="lisp_string_append"><a class="header" href="#lisp_string_append">lisp_string_append</a></h4>
+<p><code>Var lisp_string_append(String left, String right)</code></p>
+<p>Returns the boxed concatenation of <code>left</code> and <code>right</code>.</p>
+<p>Source: <code>lib/lisp.x:793</code></p>
+<h4 id="lisp_string_downcase"><a class="header" href="#lisp_string_downcase">lisp_string_downcase</a></h4>
+<p><code>Var lisp_string_downcase(String string)</code></p>
+<p>Returns a boxed lower-case copy of <code>string</code>.</p>
+<p>Source: <code>lib/lisp.x:800</code></p>
+<h4 id="lisp_substring"><a class="header" href="#lisp_substring">lisp_substring</a></h4>
+<p><code>Var lisp_substring(String string, int start, int stop)</code></p>
+<p>Returns the boxed unit-step slice <code>string[start:stop]</code>.</p>
+<p>Source: <code>lib/lisp.x:796</code></p>
+<h4 id="lisp_symbol"><a class="header" href="#lisp_symbol">lisp_symbol</a></h4>
+<p><code>Var lisp_symbol(Var value)</code></p>
+<p>Returns Lisp true when <code>value</code> has <code>Symbol</code> kind.</p>
+<p>Source: <code>lib/lisp.x:638</code></p>
+<h4 id="lisp_times"><a class="header" href="#lisp_times">lisp_times</a></h4>
+<p><code>Var lisp_times(List values)</code></p>
+<p>Multiplies every value; no values gives 1.</p>
+<p>Source: <code>lib/lisp.x:721</code></p>
+<h4 id="lisp_type"><a class="header" href="#lisp_type">lisp_type</a></h4>
+<p><code>Symbol lisp_type(Var value)</code></p>
+<p>Returns the runtime tag of <code>value</code>.</p>
+<p>Source: <code>lib/lisp.x:684</code></p>
+<h4 id="lisp_write_file"><a class="header" href="#lisp_write_file">lisp_write_file</a></h4>
+<p><code>Var lisp_write_file(String path, String text)</code></p>
+<p>Replaces <code>path</code> with <code>text</code> and reports Lisp success.
+The file is opened with truncation and always closed. A write or close
+failure returns <code>nil</code> after any accepted bytes; this operation is not
+atomic.
+An open failure transfers its <code>File</code> cause. <code>Null</code> text writes an empty
+file.</p>
+<p>Source: <code>lib/lisp.x:827</code></p>
+<h3 id="lisp-2"><a class="header" href="#lisp-2"><code>Lisp</code></a></h3>
+<p><a id="Lisp.evaluate"></a></p>
+<h4 id="lispevaluate"><a class="header" href="#lispevaluate">Lisp.evaluate</a></h4>
+<p><code>Var Lisp.evaluate(void *storage, Var form)</code></p>
+<p>Evaluates one borrowed form in the running machine’s environment.
+<code>storage</code> must name a running LispMachine context. The form is interpreted
+by the ordinary evaluator with the machine frame’s parameters and captures
+visible, so a form the lowering does not cover behaves exactly as it does
+outside a prepared program. Results keep their ordinary session or value
+owners.
+Raises any cause the form raises.</p>
+<p>Source: <code>lib/lisp.x:191</code></p>
+<p><a id="Lisp.expanded"></a></p>
+<h4 id="lispexpanded"><a class="header" href="#lispexpanded">Lisp.expanded</a></h4>
+<p><code>int Lisp.expanded(void *storage, List site, Var *out)</code></p>
+<p>Checks a lowered form after preceding effects have run.
+Returns 0 when its dependencies match. Otherwise evaluates the original
+call into <code>out</code> and returns 1. <code>storage</code> must name the running context,
+<code>site</code> must contain the original form and dependency pairs, and <code>out</code>
+must be nonnull. Results retain their ordinary session or value owners.</p>
+<p>Source: <code>lib/lisp.x:202</code></p>
+<p><a id="Lisp.immediate"></a></p>
+<h4 id="lispimmediate"><a class="header" href="#lispimmediate">Lisp.immediate</a></h4>
+<p><code>Var Lisp.immediate(void *storage, Var callable)</code></p>
+<p>Resolves a prepared immediate lambda in the running machine context.
+Returns <code>callable</code> while the lambda constructor is unchanged; otherwise
+evaluates its original literal. The caller environment stays live and is
+borrowed by the prepared body. <code>storage</code> must name the running context,
+and <code>callable</code> must be its prepared immediate Lambda.</p>
+<p>Source: <code>lib/lisp.x:171</code></p>
+<h2 id="public-types"><a class="header" href="#public-types">Public types</a></h2>
+<div class="table-wrapper">
+<table>
+<thead>
+<tr><th>Type</th><th>Kind</th><th>Summary</th></tr>
+</thead>
+<tbody>
+<tr><td><a href="#Lisp"><code>Lisp</code></a></td><td>struct</td><td>Represents one isolated embedded <code>Lisp</code> session.</td></tr>
+<tr><td><a href="#LispAutoStats"><code>LispAutoStats</code></a></td><td>struct</td><td>Reports cumulative automatic-evaluator activity for one <code>Lisp</code> session.</td></tr>
+</tbody>
+</table>
+</div>
+<p><a id="Lisp"></a></p>
+<h3 id="lisp-3"><a class="header" href="#lisp-3">Lisp</a></h3>
+<p><code>typedef struct Lisp *Lisp</code></p>
+<p>Represents one isolated embedded <code>Lisp</code> session.
+Create it with <code>Lisp.new</code> or <code>Lisp.kernel</code> and end it with
+<code>Lisp.destroy</code>. The module header describes its owned and borrowed state.
+A session is mutable and requires caller serialization.</p>
+<p>Source: <code>lib/lisp.x:42</code></p>
+<p><a id="LispAutoStats"></a></p>
+<h3 id="lispautostats"><a class="header" href="#lispautostats">LispAutoStats</a></h3>
+<p><code>typedef struct LispAutoStats { long invocations, machine_entries, machine_errors; long analyses, published, ineligible; long guard_failures, remembered_fallbacks; long program_bytes; } LispAutoStats</code></p>
+<p>Reports cumulative automatic-evaluator activity for one <code>Lisp</code> session.
+Counter values are snapshots since session creation. <code>program_bytes</code>
+counts published programs still owned by the session; detailed machine
+counters are collected separately through <code>Lisp.auto_instrument</code>.</p>
+<p>Source: <code>lib/lisp.x:53</code></p>
+<h2 id="design-notes"><a class="header" href="#design-notes">Design notes</a></h2>
+<p>Each <code>Lisp</code> session owns a <code>Scope</code> holding its global environment.
+Evaluation uses eager left-to-right
+arguments for lambdas and natives, raw arguments for macros and
+special forms, macro expansion evaluated once in the caller’s
+environment, globals able to shadow reserved forms, <code>nil</code> as the only
+false value, and by-value capture of free locals through body flattening.</p>
+<p>Identifiers use canonical <code>Atom</code>s: compact <span class="x2c-wordmark">x2c</span> <code>Symbol</code>s when their
+spelling
+round-trips exactly, with direct canonical-<code>String</code> <code>&lt;lsym&gt;</code> <code>Var</code>s as the
+arbitrary-length, case-sensitive fallback. The reader converts shared
+Tokenizer output into <code>Var</code> and <code>List</code> forms.</p>
+<p>The session <code>Scope</code> owns the Lisp record, <code>Map</code>s, Lambdas, bound <code>Func</code>
+storage,
+prepared programs, and reusable machine slots. The internal
+<code>lisp-machine.x</code> decoder executes eligible prepared programs. <code>Map</code>s,
+Lambda
+bodies, and captures retain <code>Var</code>s by value without cloning their
+referents.
+Canonical graphs and identity-bearing values therefore keep their pool or
+caller ownership and must outlive every session entry that refers to
+them. A session is not synchronized; its caller serializes evaluation
+and mutation and destroys it only after every call has returned.</p>
+<h2 id="tests-and-examples"><a class="header" href="#tests-and-examples">Tests and examples</a></h2>
+<p><code>make verify</code> (<code>unittest/test-lisp.x</code>) and <code>make examples</code>.</p>
+
+                    </main>
+
+                    <nav class="x2c-pager" aria-label="Page navigation">
+                        <a rel="prev" href="../../library/modules/lib.html" class="x2c-pager-prev" aria-keyshortcuts="Left">
+                            <span class="x2c-pager-label">previous</span>
+                            <span class="x2c-pager-title">lib/lib.x</span>
+                        </a>
+                        
+                        <a rel="next prefetch" href="../../library/modules/list-selectors.html" class="x2c-pager-next" aria-keyshortcuts="Right">
+                            <span class="x2c-pager-label">next</span>
+                            <span class="x2c-pager-title">lib/list-selectors.x</span>
+                        </a>
+                    </nav>
+                    <footer class="x2c-footer">
+                        &copy; 2025&ndash;2026
+                        <a href="https://flake.org">GWF</a>
+                        &middot;
+                        <a href="https://github.com/gwf/x2c/blob/c2a89d999e81f47a4422a26edf0033eb0b98c6c6/LICENSE">Apache 2.0</a>
+                        &middot;
+                        <a href="https://github.com/gwf/x2c/blob/c2a89d999e81f47a4422a26edf0033eb0b98c6c6/TRADEMARKS.md">Trademarks</a>
+                    </footer>
+                </div>
+            </div>
+
+
+        </div>
+
+        <template id=fa-eye><span class=fa-svg><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 576 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc. --><path d="M288 32c-80.8 0-145.5 36.8-192.6 80.6C48.6 156 17.3 208 2.5 243.7c-3.3 7.9-3.3 16.7 0 24.6C17.3 304 48.6 356 95.4 399.4C142.5 443.2 207.2 480 288 480s145.5-36.8 192.6-80.6c46.8-43.5 78.1-95.4 93-131.1c3.3-7.9 3.3-16.7 0-24.6c-14.9-35.7-46.2-87.7-93-131.1C433.5 68.8 368.8 32 288 32zM432 256c0 79.5-64.5 144-144 144s-144-64.5-144-144s64.5-144 144-144s144 64.5 144 144zM288 192c0 35.3-28.7 64-64 64c-11.5 0-22.3-3-31.6-8.4c-.2 2.8-.4 5.5-.4 8.4c0 53 43 96 96 96s96-43 96-96s-43-96-96-96c-2.8 0-5.6 .1-8.4 .4c5.3 9.3 8.4 20.1 8.4 31.6z"/></svg></span></template>
+        <template id=fa-eye-slash><span class=fa-svg><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 640 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc. --><path d="M38.8 5.1C28.4-3.1 13.3-1.2 5.1 9.2S-1.2 34.7 9.2 42.9l592 464c10.4 8.2 25.5 6.3 33.7-4.1s6.3-25.5-4.1-33.7L525.6 386.7c39.6-40.6 66.4-86.1 79.9-118.4c3.3-7.9 3.3-16.7 0-24.6c-14.9-35.7-46.2-87.7-93-131.1C465.5 68.8 400.8 32 320 32c-68.2 0-125 26.3-169.3 60.8L38.8 5.1zM223.1 149.5C248.6 126.2 282.7 112 320 112c79.5 0 144 64.5 144 144c0 24.9-6.3 48.3-17.4 68.7L408 294.5c5.2-11.8 8-24.8 8-38.5c0-53-43-96-96-96c-2.8 0-5.6 .1-8.4 .4c5.3 9.3 8.4 20.1 8.4 31.6c0 10.2-2.4 19.8-6.6 28.3l-90.3-70.8zm223.1 298L373 389.9c-16.4 6.5-34.3 10.1-53 10.1c-79.5 0-144-64.5-144-144c0-6.9 .5-13.6 1.4-20.2L83.1 161.5C60.3 191.2 44 220.8 34.5 243.7c-3.3 7.9-3.3 16.7 0 24.6c14.9 35.7 46.2 87.7 93 131.1C174.5 443.2 239.2 480 320 480c47.8 0 89.9-12.9 126.2-32.5z"/></svg></span></template>
+        <template id=fa-copy><span class=fa-svg><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc. --><path d="M502.6 70.63l-61.25-61.25C435.4 3.371 427.2 0 418.7 0H255.1c-35.35 0-64 28.66-64 64l.0195 256C192 355.4 220.7 384 256 384h192c35.2 0 64-28.8 64-64V93.25C512 84.77 508.6 76.63 502.6 70.63zM464 320c0 8.836-7.164 16-16 16H255.1c-8.838 0-16-7.164-16-16L239.1 64.13c0-8.836 7.164-16 16-16h128L384 96c0 17.67 14.33 32 32 32h47.1V320zM272 448c0 8.836-7.164 16-16 16H63.1c-8.838 0-16-7.164-16-16L47.98 192.1c0-8.836 7.164-16 16-16H160V128H63.99c-35.35 0-64 28.65-64 64l.0098 256C.002 483.3 28.66 512 64 512h192c35.2 0 64-28.8 64-64v-32h-47.1L272 448z"/></svg></span></template>
+        <template id=fa-play><span class=fa-svg><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 384 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc. --><path d="M73 39c-14.8-9.1-33.4-9.4-48.5-.9S0 62.6 0 80V432c0 17.4 9.4 33.4 24.5 41.9s33.7 8.1 48.5-.9L361 297c14.3-8.7 23-24.2 23-41s-8.7-32.2-23-41L73 39z"/></svg></span></template>
+        <template id=fa-clock-rotate-left><span class=fa-svg><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc. --><path d="M75 75L41 41C25.9 25.9 0 36.6 0 57.9V168c0 13.3 10.7 24 24 24H134.1c21.4 0 32.1-25.9 17-41l-30.8-30.8C155 85.5 203 64 256 64c106 0 192 86 192 192s-86 192-192 192c-40.8 0-78.6-12.7-109.7-34.4c-14.5-10.1-34.4-6.6-44.6 7.9s-6.6 34.4 7.9 44.6C151.2 495 201.7 512 256 512c141.4 0 256-114.6 256-256S397.4 0 256 0C185.3 0 121.3 28.7 75 75zm181 53c-13.3 0-24 10.7-24 24V256c0 6.4 2.5 12.5 7 17l72 72c9.4 9.4 24.6 9.4 33.9 0s9.4-24.6 0-33.9l-65-65V152c0-13.3-10.7-24-24-24z"/></svg></span></template>
+
+
+
+        <script>
+            window.playground_copyable = true;
+        </script>
+
+
+        <script src="../../elasticlunr-ef4e11c1.min.js"></script>
+        <script src="../../mark-09e88c2c.min.js"></script>
+        <script src="../../searcher-09f2665d.js"></script>
+
+        <script src="../../clipboard-1626706a.min.js"></script>
+        <script src="../../highlight-abc7f01d.js"></script>
+        <script src="../../book-609e4cb8.js"></script>
+
+        <script>
+            document.addEventListener('DOMContentLoaded', () => {
+                const sidebar = document.querySelector('#mdbook-sidebar');
+                sidebar.querySelectorAll('ol').forEach(list => {
+                    const numbers = list.querySelectorAll(
+                        ':scope > li > .chapter-link-wrapper > a > strong, :scope > li > a > strong');
+                    if (numbers.length) {
+                        const width = Math.max(...Array.from(numbers,
+                            number => number.textContent.trim().length));
+                        list.style.setProperty('--chapter-number-width', width + 'ch');
+                    }
+                });
+                const chapter = sidebar.querySelector('a.active');
+                const item = chapter?.closest('.chapter-item');
+                if (item?.querySelector(':scope > .on-this-page')) {
+                    const row = chapter.parentElement;
+                    if (!row.querySelector('.chapter-fold-toggle')) {
+                        const toggle = document.createElement('button');
+                        toggle.type = 'button';
+                        toggle.className = 'chapter-fold-toggle';
+                        toggle.appendChild(document.createElement('div'));
+                        toggle.addEventListener('click', () => {
+                            item.classList.toggle('expanded');
+                        });
+                        row.appendChild(toggle);
+                    }
+                }
+                sidebar.querySelectorAll('.chapter-fold-toggle').forEach(toggle => {
+                    const row = toggle.parentElement;
+                    const item = row.parentElement;
+                    const title = row.querySelector('a').textContent.trim();
+                    toggle.setAttribute('aria-label', 'Toggle ' + title);
+                    const update = () => toggle.setAttribute('aria-expanded',
+                        String(item.classList.contains('expanded')));
+                    update();
+                    toggle.addEventListener('click', update);
+                    if (toggle.tagName === 'A') {
+                        toggle.setAttribute('role', 'button');
+                        toggle.tabIndex = 0;
+                        toggle.addEventListener('keydown', event => {
+                            if (event.key === 'Enter' || event.key === ' ') {
+                                event.preventDefault();
+                                toggle.click();
+                            }
+                        });
+                    }
+                });
+            });
+        </script>
+
+        <!-- Custom JS scripts -->
+
+
+
+    </div>
+    </body>
+</html>

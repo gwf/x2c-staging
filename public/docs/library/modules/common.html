@@ -1,0 +1,1230 @@
+<!DOCTYPE HTML>
+<html lang="en" class="light sidebar-visible" dir="ltr">
+    <head>
+        <!-- Book generated using mdBook -->
+        <meta charset="UTF-8">
+        <title>lib/common.x - The x2c Book</title>
+
+
+        <!-- Custom HTML head -->
+        <link rel="preconnect" href="https://fonts.googleapis.com">
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=Archivo:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">
+
+        <meta name="description" content="The x2c language, standard library, and compiler.">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <meta name="theme-color" content="#ffffff">
+
+        <link rel="icon" href="../../favicon-995a3c20.svg">
+        <link rel="stylesheet" href="../../css/variables-8adf115d.css">
+        <link rel="stylesheet" href="../../css/general-e96d0476.css">
+        <link rel="stylesheet" href="../../css/chrome-d279d366.css">
+        <link rel="stylesheet" href="../../css/print-9e4910d8.css" media="print">
+
+        <!-- Fonts -->
+        <link rel="stylesheet" href="../../fonts/fonts-9644e21d.css">
+
+        <!-- Highlight.js Stylesheets -->
+        <link rel="stylesheet" id="mdbook-highlight-css" href="../../highlight-493f70e1.css">
+        <link rel="stylesheet" id="mdbook-tomorrow-night-css" href="../../tomorrow-night-4c0ae647.css">
+        <link rel="stylesheet" id="mdbook-ayu-highlight-css" href="../../ayu-highlight-3fdfc3ac.css">
+
+        <!-- Custom theme stylesheets -->
+        <link rel="stylesheet" href="../../theme/header-2c1becca.css">
+        <link rel="stylesheet" href="../../theme/x2c-fd3d182e.css">
+
+
+        <!-- Provide site root and default themes to javascript -->
+        <script>
+            const path_to_root = "../../";
+            const default_light_theme = "light";
+            const default_dark_theme = "light";
+            window.path_to_searchindex_js = "../../searchindex-2643e100.js";
+        </script>
+        <!-- Start loading toc.js asap -->
+        <script src="../../toc-a71616d6.js"></script>
+        <!-- x2c publication metadata -->
+        <link rel="canonical" href="https://staging.x2c-lang.dev/docs/library/modules/common.html">
+        <meta property="og:type" content="website">
+        <meta property="og:title" content="lib/common.x - The x2c Book">
+        <meta property="og:description" content="The x2c language, standard library, and compiler.">
+        <meta property="og:url" content="https://staging.x2c-lang.dev/docs/library/modules/common.html">
+        <meta property="og:image" content="https://staging.x2c-lang.dev/x2c-social.png">
+        <meta property="og:image:width" content="1200">
+        <meta property="og:image:height" content="630">
+        <meta name="twitter:card" content="summary_large_image">
+        <meta name="twitter:title" content="lib/common.x - The x2c Book">
+        <meta name="twitter:description" content="The x2c language, standard library, and compiler.">
+        <meta name="twitter:image" content="https://staging.x2c-lang.dev/x2c-social.png">
+    </head>
+    <body><aside aria-label="Release candidate" style="padding:1rem;background:#fff1bf;color:#241c00;font:14px/1.5 monospace;overflow-wrap:anywhere"><strong>Public staging: candidate-c2a89d999e81f47a4422a26edf0033eb0b98c6c6-35470032964-1</strong><p>Source: c2a89d999e81f47a4422a26edf0033eb0b98c6c6. Use a fresh scratch installation and the explicit candidate index below. Bare x2c install commands and production URLs in the book refer to production.</p><pre style="overflow:auto">export X2C_PREFIX=&quot;$(mktemp -d)/x2c&quot;
+curl -fsSL https://staging.x2c-lang.dev/install.sh | sh
+export PATH=&quot;$X2C_PREFIX/bin:$PATH&quot;
+x2c run &quot;$X2C_PREFIX/examples/foreach.x&quot;
+x2c install pcre2 --index https://staging.x2c-lang.dev/packages/index.txt</pre></aside>
+    <div id="mdbook-help-container">
+        <div id="mdbook-help-popup">
+            <h2 class="mdbook-help-title">Keyboard shortcuts</h2>
+            <div>
+                <p>Press <kbd>←</kbd> or <kbd>→</kbd> to navigate between chapters</p>
+                <p>Press <kbd>S</kbd> or <kbd>/</kbd> to search in the book</p>
+                <p>Press <kbd>?</kbd> to show this help</p>
+                <p>Press <kbd>Esc</kbd> to hide this help</p>
+            </div>
+        </div>
+    </div>
+    <div id="mdbook-body-container">
+        <!-- Work around some values being stored in localStorage wrapped in quotes -->
+        <script>
+            try {
+                let theme = localStorage.getItem('mdbook-theme');
+                let sidebar = localStorage.getItem('mdbook-sidebar');
+
+                if (theme.startsWith('"') && theme.endsWith('"')) {
+                    localStorage.setItem('mdbook-theme', theme.slice(1, theme.length - 1));
+                }
+
+                if (sidebar.startsWith('"') && sidebar.endsWith('"')) {
+                    localStorage.setItem('mdbook-sidebar', sidebar.slice(1, sidebar.length - 1));
+                }
+            } catch (e) { }
+        </script>
+
+        <!-- Set the theme before any content is loaded, prevents flash -->
+        <script>
+            const default_theme = window.matchMedia("(prefers-color-scheme: dark)").matches ? default_dark_theme : default_light_theme;
+            let theme;
+            try { theme = localStorage.getItem('mdbook-theme'); } catch(e) { }
+            if (theme === null || theme === undefined) { theme = default_theme; }
+            const html = document.documentElement;
+            html.classList.remove('light')
+            html.classList.add(theme);
+            html.classList.add("js");
+        </script>
+
+        <input type="checkbox" id="mdbook-sidebar-toggle-anchor" class="hidden">
+
+        <!-- Hide / unhide sidebar before it is displayed -->
+        <script>
+            let sidebar = null;
+            const sidebar_toggle = document.getElementById("mdbook-sidebar-toggle-anchor");
+            if (document.body.clientWidth >= 1080) {
+                try { sidebar = localStorage.getItem('mdbook-sidebar'); } catch(e) { }
+                sidebar = sidebar || 'visible';
+            } else {
+                sidebar = 'hidden';
+                sidebar_toggle.checked = false;
+            }
+            if (sidebar === 'visible') {
+                sidebar_toggle.checked = true;
+            } else {
+                html.classList.remove('sidebar-visible');
+            }
+        </script>
+
+        <nav id="mdbook-sidebar" class="sidebar" aria-label="Table of contents">
+            <!-- populated by js -->
+            <mdbook-sidebar-scrollbox class="sidebar-scrollbox"></mdbook-sidebar-scrollbox>
+            <noscript>
+                <iframe class="sidebar-iframe-outer" src="../../toc.html"></iframe>
+            </noscript>
+            <div id="mdbook-sidebar-resize-handle" class="sidebar-resize-handle">
+                <div class="sidebar-resize-indicator"></div>
+            </div>
+        </nav>
+
+        <div id="mdbook-page-wrapper" class="page-wrapper">
+
+            <div class="page">
+                <div id="mdbook-menu-bar" class="hidden"></div>
+                <header class="landing-header x2c-header">
+                    <div class="landing-header-inner">
+                        <div class="landing-branding">
+                            <a class="landing-brand" href="../../../" aria-label="x2c home">
+                                <svg viewBox="0 0 100 100" width="22" height="22" aria-hidden="true"><g fill="none" stroke="#da291c" stroke-width="17" stroke-linecap="butt"><path d="M9 16 A34.5 34.5 0 0 1 9 84"></path><path d="M91 16 A34.5 34.5 0 0 0 91 84"></path></g></svg>
+                                <span class="x2c-wordmark landing-wordmark">x2c</span>
+                            </a>
+                            <span class="landing-tagline">The x2c Book</span>
+                        </div>
+                        <nav class="landing-nav" aria-label="x2c website">
+                            <div class="landing-page-nav">
+                                <a href="../../../#love">love</a>
+                                <a href="../../../#power">power</a>
+                                <a href="../../../#magic">magic</a>
+                            </div>
+                            <div class="landing-site-nav">
+                                <a href="../../../#install">install</a>
+                                <a href="../../../#packages">packages</a>
+                            </div>
+                            <div class="landing-reference-nav">
+                                <a href="../../../about/">about</a>
+                                <a href="../../" aria-current="page">docs</a>
+                                <a href="https://github.com/gwf/x2c">source</a>
+                            </div>
+                        </nav>
+                    </div>
+                    <div class="x2c-book-tools">
+                        <div class="x2c-header-tools">
+                            <label id="mdbook-sidebar-toggle" class="icon-button" for="mdbook-sidebar-toggle-anchor" title="Toggle Table of Contents" aria-label="Toggle Table of Contents" aria-controls="mdbook-sidebar">
+                                <span class=fa-svg><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc. --><path d="M0 96C0 78.3 14.3 64 32 64H416c17.7 0 32 14.3 32 32s-14.3 32-32 32H32C14.3 128 0 113.7 0 96zM0 256c0-17.7 14.3-32 32-32H416c17.7 0 32 14.3 32 32s-14.3 32-32 32H32c-17.7 0-32-14.3-32-32zM448 416c0 17.7-14.3 32-32 32H32c-17.7 0-32-14.3-32-32s14.3-32 32-32H416c17.7 0 32 14.3 32 32z"/></svg></span>
+                            </label>
+                        </div>
+                        <div class="x2c-header-tools x2c-header-tools-right">
+                            <button id="mdbook-search-toggle" class="icon-button" type="button" title="Search (`/`)" aria-label="Toggle Searchbar" aria-expanded="false" aria-keyshortcuts="/ s" aria-controls="mdbook-searchbar">
+                                <span class=fa-svg><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc. --><path d="M416 208c0 45.9-14.9 88.3-40 122.7L502.6 457.4c12.5 12.5 12.5 32.8 0 45.3s-32.8 12.5-45.3 0L330.7 376c-34.4 25.2-76.8 40-122.7 40C93.1 416 0 322.9 0 208S93.1 0 208 0S416 93.1 416 208zM208 352c79.5 0 144-64.5 144-144s-64.5-144-144-144S64 128.5 64 208s64.5 144 144 144z"/></svg></span>
+                            </button>
+                            <button id="mdbook-theme-toggle" class="icon-button" type="button" title="Change theme" aria-label="Change theme" aria-haspopup="true" aria-expanded="false" aria-controls="mdbook-theme-list">
+                                <span class=fa-svg><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc. --><path d="M448 256c0-106-86-192-192-192V448c106 0 192-86 192-192zm64 0c0 141.4-114.6 256-256 256S0 397.4 0 256S114.6 0 256 0S512 114.6 512 256z"/></svg></span>
+                            </button>
+                            <ul id="mdbook-theme-list" class="theme-popup" aria-label="Themes" role="menu">
+                                <li role="none"><button role="menuitem" class="theme" id="mdbook-theme-default_theme">Auto</button></li>
+                                <li role="none"><button role="menuitem" class="theme" id="mdbook-theme-light">Light</button></li>
+                                <li role="none"><button role="menuitem" class="theme" id="mdbook-theme-ayu">Dark</button></li>
+                            </ul>
+                            <a href="https://github.com/gwf/x2c/edit/main/docs/src/library/modules/common.md" title="Suggest an edit" aria-label="Suggest an edit" rel="edit" class="icon-button">
+                                <span class=fa-svg id="git-edit-button"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc. --><path d="M421.7 220.3l-11.3 11.3-22.6 22.6-205 205c-6.6 6.6-14.8 11.5-23.8 14.1L30.8 511c-8.4 2.5-17.5 .2-23.7-6.1S-1.5 489.7 1 481.2L38.7 353.1c2.6-9 7.5-17.2 14.1-23.8l205-205 22.6-22.6 11.3-11.3 33.9 33.9 62.1 62.1 33.9 33.9zM96 353.9l-9.3 9.3c-.9 .9-1.6 2.1-2 3.4l-25.3 86 86-25.3c1.3-.4 2.5-1.1 3.4-2l9.3-9.3H112c-8.8 0-16-7.2-16-16V353.9zM453.3 19.3l39.4 39.4c25 25 25 65.5 0 90.5l-14.5 14.5-22.6 22.6-11.3 11.3-33.9-33.9-62.1-62.1L314.3 67.7l11.3-11.3 22.6-22.6 14.5-14.5c25-25 65.5-25 90.5 0z"/></svg></span>
+                            </a>
+                        </div>
+                    </div>
+                </header>
+                <script>
+                    const bookHeader = document.querySelector('.x2c-header');
+                    new ResizeObserver(() => {
+                        document.documentElement.style.setProperty(
+                            '--menu-bar-height', `${bookHeader.getBoundingClientRect().height}px`);
+                    }).observe(bookHeader);
+                </script>
+
+                <div id="mdbook-search-wrapper" class="hidden">
+                    <form id="mdbook-searchbar-outer" class="searchbar-outer">
+                        <div class="search-wrapper">
+                            <input type="search" id="mdbook-searchbar" name="searchbar" placeholder="Search this book ..." aria-controls="mdbook-searchresults-outer" aria-describedby="searchresults-header">
+                            <div class="spinner-wrapper">
+                                <span class=fa-svg id="fa-spin"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc. --><path d="M304 48c0-26.5-21.5-48-48-48s-48 21.5-48 48s21.5 48 48 48s48-21.5 48-48zm0 416c0-26.5-21.5-48-48-48s-48 21.5-48 48s21.5 48 48 48s48-21.5 48-48zM48 304c26.5 0 48-21.5 48-48s-21.5-48-48-48s-48 21.5-48 48s21.5 48 48 48zm464-48c0-26.5-21.5-48-48-48s-48 21.5-48 48s21.5 48 48 48s48-21.5 48-48zM142.9 437c18.7-18.7 18.7-49.1 0-67.9s-49.1-18.7-67.9 0s-18.7 49.1 0 67.9s49.1 18.7 67.9 0zm0-294.2c18.7-18.7 18.7-49.1 0-67.9S93.7 56.2 75 75s-18.7 49.1 0 67.9s49.1 18.7 67.9 0zM369.1 437c18.7 18.7 49.1 18.7 67.9 0s18.7-49.1 0-67.9s-49.1-18.7-67.9 0s-18.7 49.1 0 67.9z"/></svg></span>
+                            </div>
+                        </div>
+                    </form>
+                    <div id="mdbook-searchresults-outer" class="searchresults-outer hidden">
+                        <div id="mdbook-searchresults-header" class="searchresults-header"></div>
+                        <ul id="mdbook-searchresults">
+                        </ul>
+                    </div>
+                </div>
+
+                <!-- Apply ARIA attributes after the sidebar and the sidebar toggle button are added to the DOM -->
+                <script>
+                    document.getElementById('mdbook-sidebar-toggle').setAttribute('aria-expanded', sidebar === 'visible');
+                    document.getElementById('mdbook-sidebar').setAttribute('aria-hidden', sidebar !== 'visible');
+                    Array.from(document.querySelectorAll('#mdbook-sidebar a')).forEach(function(link) {
+                        link.setAttribute('tabIndex', sidebar === 'visible' ? 0 : -1);
+                    });
+                </script>
+
+                <div id="mdbook-content" class="content">
+                    <main>
+                        <!-- Generated by `python3 tools/gen-api-reference.py --write` from
+     lib/*.x and the stage interfaces. Do not edit by hand. -->
+<h1 id="libcommonx"><a class="header" href="#libcommonx"><code>lib/common.x</code></a></h1>
+<p>The shared <code>Var</code> union and operations used by every module.</p>
+<h2 id="advanced-and-interop-api"><a class="header" href="#advanced-and-interop-api">Advanced and interop API</a></h2>
+<div class="table-wrapper">
+<table>
+<thead>
+<tr><th>Function</th><th>Summary</th></tr>
+</thead>
+<tbody>
+<tr><td><a href="#x2c_initialize"><code>x2c_initialize</code></a></td><td>Initializes the <span class="x2c-wordmark">x2c</span> runtime once for the current process.</td></tr>
+<tr><td><a href="#x2c_initialize_protocols"><code>x2c_initialize_protocols</code></a></td><td>Runs compiler-generated runtime protocol registration.</td></tr>
+<tr><td><a href="#x2c_normalize_index"><code>x2c_normalize_index</code></a></td><td>Normalizes one element index against <code>length</code>.</td></tr>
+<tr><td><a href="#x2c_normalize_slice"><code>x2c_normalize_slice</code></a></td><td>Normalizes slice bounds and returns the resulting element count.</td></tr>
+<tr><td><a href="#Array.var"><code>Array.var</code></a></td><td>Boxes an <code>Array</code> value as <code>Var</code>.</td></tr>
+<tr><td><a href="#Block.var"><code>Block.var</code></a></td><td>Boxes a <code>Block</code> value as <code>Var</code>.</td></tr>
+<tr><td><a href="#Buffer.var"><code>Buffer.var</code></a></td><td>Boxes a <code>Buffer</code> value as <code>Var</code>.</td></tr>
+<tr><td><a href="#Bytes.var"><code>Bytes.var</code></a></td><td>Boxes a <code>Bytes</code> value as <code>Var</code>.</td></tr>
+<tr><td><a href="#File.var"><code>File.var</code></a></td><td>Boxes a <code>File</code> value as <code>Var</code>.</td></tr>
+<tr><td><a href="#Iter.truth"><code>Iter.truth</code></a></td><td>Returns nonzero when <code>iter</code> is not null.</td></tr>
+<tr><td><a href="#Iter.var"><code>Iter.var</code></a></td><td>Boxes an <code>Iter</code> value as <code>Var</code>.</td></tr>
+<tr><td><a href="#List.truth"><code>List.truth</code></a></td><td>Returns nonzero when <code>list</code> is not <code>nil</code>, the null empty List.</td></tr>
+<tr><td><a href="#List.var"><code>List.var</code></a></td><td>Boxes a <code>List</code> value as <code>Var</code>.</td></tr>
+<tr><td><a href="#Map.var"><code>Map.var</code></a></td><td>Boxes a <code>Map</code> value as <code>Var</code>.</td></tr>
+<tr><td><a href="#String.truth"><code>String.truth</code></a></td><td>Returns nonzero when <code>string</code> contains at least one byte.</td></tr>
+<tr><td><a href="#String.var"><code>String.var</code></a></td><td>Boxes a <code>String</code> value as <code>Var</code>.</td></tr>
+<tr><td><a href="#Symbol.var"><code>Symbol.var</code></a></td><td>Boxes a <code>Symbol</code> value as <code>Var</code>.</td></tr>
+<tr><td><a href="#Var.array"><code>Var.array</code></a></td><td>Extracts the <code>Array</code> payload of <code>value</code>, or NULL for another tag.</td></tr>
+<tr><td><a href="#Var.as_iter"><code>Var.as_iter</code></a></td><td>Extracts the <code>Iter</code> payload of <code>value</code>, or NULL for another tag.</td></tr>
+<tr><td><a href="#Var.block"><code>Var.block</code></a></td><td>Extracts the <code>Block</code> payload of <code>value</code>, or NULL for another tag.</td></tr>
+<tr><td><a href="#Var.box_f32"><code>Var.box_f32</code></a></td><td>Boxes a native <code>float</code> as an immediate <code>&lt;f32&gt;</code> <code>Var</code>.</td></tr>
+<tr><td><a href="#Var.box_f64"><code>Var.box_f64</code></a></td><td>Boxes a native <code>double</code> as an immediate <code>&lt;f64&gt;</code> <code>Var</code>.</td></tr>
+<tr><td><a href="#Var.box_i16"><code>Var.box_i16</code></a></td><td>Boxes a native <code>short</code> as an immediate <code>&lt;i16&gt;</code> <code>Var</code>.</td></tr>
+<tr><td><a href="#Var.box_i32_bits"><code>Var.box_i32_bits</code></a></td><td>Boxes an unsigned 32-bit pattern as an immediate <code>&lt;i32&gt;</code> <code>Var</code>.</td></tr>
+<tr><td><a href="#Var.box_i8"><code>Var.box_i8</code></a></td><td>Boxes a native <code>char</code> as an immediate <code>&lt;i8&gt;</code> <code>Var</code>.</td></tr>
+<tr><td><a href="#Var.box_u16"><code>Var.box_u16</code></a></td><td>Boxes a native <code>ushort</code> as an immediate <code>&lt;u16&gt;</code> <code>Var</code>.</td></tr>
+<tr><td><a href="#Var.box_u32"><code>Var.box_u32</code></a></td><td>Boxes a native <code>uint</code> as an immediate <code>&lt;u32&gt;</code> <code>Var</code>.</td></tr>
+<tr><td><a href="#Var.box_u8"><code>Var.box_u8</code></a></td><td>Boxes a native <code>uchar</code> as an immediate <code>&lt;u8&gt;</code> <code>Var</code>.</td></tr>
+<tr><td><a href="#Var.buffer"><code>Var.buffer</code></a></td><td>Extracts the <code>Buffer</code> payload of <code>value</code>, or NULL for another tag.</td></tr>
+<tr><td><a href="#Var.bytes"><code>Var.bytes</code></a></td><td>Extracts the <code>Bytes</code> payload of <code>value</code>, or NULL for another tag.</td></tr>
+<tr><td><a href="#Var.char"><code>Var.char</code></a></td><td>Returns <code>x</code> as a native <code>char</code> under the <code>Var.convert</code> rules.</td></tr>
+<tr><td><a href="#Var.decode_f32"><code>Var.decode_f32</code></a></td><td>Decodes an immediate <code>&lt;f32&gt;</code> <code>Var</code>.</td></tr>
+<tr><td><a href="#Var.decode_f64"><code>Var.decode_f64</code></a></td><td>Decodes an immediate <code>&lt;f64&gt;</code> <code>Var</code>.</td></tr>
+<tr><td><a href="#Var.double"><code>Var.double</code></a></td><td>Returns <code>x</code> as a native <code>double</code> under the <code>Var.convert</code> rules.</td></tr>
+<tr><td><a href="#Var.file"><code>Var.file</code></a></td><td>Extracts the <code>File</code> payload of <code>value</code>, or NULL for another tag.</td></tr>
+<tr><td><a href="#Var.float"><code>Var.float</code></a></td><td>Returns <code>x</code> as a native <code>float</code> under the <code>Var.convert</code> rules.</td></tr>
+<tr><td><a href="#Var.int"><code>Var.int</code></a></td><td>Returns <code>x</code> as a native <code>int</code> under the <code>Var.convert</code> rules.</td></tr>
+<tr><td><a href="#Var.is_row"><code>Var.is_row</code></a></td><td>Reports whether <code>value</code> occupies the encoding row at <code>top</code>/<code>bottom</code>.</td></tr>
+<tr><td><a href="#Var.is_wide"><code>Var.is_wide</code></a></td><td>Reports whether <code>v</code> uses a scope-owned wide numeric box.</td></tr>
+<tr><td><a href="#Var.list"><code>Var.list</code></a></td><td>Extracts the <code>List</code> payload of <code>value</code>, or NULL for another tag.</td></tr>
+<tr><td><a href="#Var.long"><code>Var.long</code></a></td><td>Returns <code>x</code> as a native <code>long</code> under the <code>Var.convert</code> rules.</td></tr>
+<tr><td><a href="#Var.long_double"><code>Var.long_double</code></a></td><td>Returns <code>x</code> as a native <code>long double</code> under the <code>Var.convert</code> rules.</td></tr>
+<tr><td><a href="#Var.long_long"><code>Var.long_long</code></a></td><td>Returns <code>x</code> as a native <code>long long</code> under the <code>Var.convert</code> rules.</td></tr>
+<tr><td><a href="#Var.map"><code>Var.map</code></a></td><td>Extracts the <code>Map</code> payload of <code>value</code>, or NULL for another tag.</td></tr>
+<tr><td><a href="#Var.payload32"><code>Var.payload32</code></a></td><td>Returns the low 32 payload bits of an immediate <code>Var</code>.</td></tr>
+<tr><td><a href="#Var.short"><code>Var.short</code></a></td><td>Returns <code>x</code> as a native <code>short</code> under the <code>Var.convert</code> rules.</td></tr>
+<tr><td><a href="#Var.string"><code>Var.string</code></a></td><td>Extracts the <code>String</code> payload of <code>value</code>, or NULL for another tag.</td></tr>
+<tr><td><a href="#Var.symbol"><code>Var.symbol</code></a></td><td>Extracts the <code>symbol</code> payload after the caller establishes the matching <code>Var</code> kind.</td></tr>
+<tr><td><a href="#Var.uchar"><code>Var.uchar</code></a></td><td>Returns <code>x</code> as a native <code>uchar</code> under the <code>Var.convert</code> rules.</td></tr>
+<tr><td><a href="#Var.uint"><code>Var.uint</code></a></td><td>Returns <code>x</code> as a native <code>uint</code> under the <code>Var.convert</code> rules.</td></tr>
+<tr><td><a href="#Var.ulong"><code>Var.ulong</code></a></td><td>Returns <code>x</code> as a native <code>ulong</code> under the <code>Var.convert</code> rules.</td></tr>
+<tr><td><a href="#Var.ulong_long"><code>Var.ulong_long</code></a></td><td>Returns <code>x</code> as a native <code>unsigned long long</code> under the <code>Var.convert</code> rules.</td></tr>
+<tr><td><a href="#Var.unsigned"><code>Var.unsigned</code></a></td><td>Returns <code>x</code> as a native <code>unsigned</code> under the <code>Var.convert</code> rules.</td></tr>
+<tr><td><a href="#Var.ushort"><code>Var.ushort</code></a></td><td>Returns <code>x</code> as a native <code>ushort</code> under the <code>Var.convert</code> rules.</td></tr>
+<tr><td><a href="#char.repr"><code>char.repr</code></a></td><td>Returns the readable representation of <code>char</code>.</td></tr>
+<tr><td><a href="#char.str"><code>char.str</code></a></td><td>Returns the display <code>String</code> of <code>char</code>.</td></tr>
+<tr><td><a href="#char.var"><code>char.var</code></a></td><td>Boxes a native <code>char</code> value as <code>Var</code>.</td></tr>
+<tr><td><a href="#double.repr"><code>double.repr</code></a></td><td>Returns the readable representation of <code>double</code>.</td></tr>
+<tr><td><a href="#double.str"><code>double.str</code></a></td><td>Returns the display <code>String</code> of <code>double</code>.</td></tr>
+<tr><td><a href="#double.var"><code>double.var</code></a></td><td>Boxes a native <code>double</code> value as <code>Var</code>.</td></tr>
+<tr><td><a href="#float.repr"><code>float.repr</code></a></td><td>Returns the readable representation of <code>float</code>.</td></tr>
+<tr><td><a href="#float.str"><code>float.str</code></a></td><td>Returns the display <code>String</code> of <code>float</code>.</td></tr>
+<tr><td><a href="#float.var"><code>float.var</code></a></td><td>Boxes a native <code>float</code> value as <code>Var</code>.</td></tr>
+<tr><td><a href="#int.repr"><code>int.repr</code></a></td><td>Returns the readable representation of <code>int</code>.</td></tr>
+<tr><td><a href="#int.str"><code>int.str</code></a></td><td>Returns the display <code>String</code> of <code>int</code>.</td></tr>
+<tr><td><a href="#int.var"><code>int.var</code></a></td><td>Boxes a native <code>int</code> value as <code>Var</code>.</td></tr>
+<tr><td><a href="#long.repr"><code>long.repr</code></a></td><td>Returns the readable representation of <code>long</code>.</td></tr>
+<tr><td><a href="#long.str"><code>long.str</code></a></td><td>Returns the display <code>String</code> of <code>long</code>.</td></tr>
+<tr><td><a href="#long.var"><code>long.var</code></a></td><td>Boxes a long value as <code>Var</code>.</td></tr>
+<tr><td><a href="#short.repr"><code>short.repr</code></a></td><td>Returns the readable representation of <code>short</code>.</td></tr>
+<tr><td><a href="#short.str"><code>short.str</code></a></td><td>Returns the display <code>String</code> of <code>short</code>.</td></tr>
+<tr><td><a href="#short.var"><code>short.var</code></a></td><td>Boxes a native <code>short</code> value as <code>Var</code>.</td></tr>
+<tr><td><a href="#uchar.repr"><code>uchar.repr</code></a></td><td>Returns the readable representation of <code>uchar</code>.</td></tr>
+<tr><td><a href="#uchar.str"><code>uchar.str</code></a></td><td>Returns the display <code>String</code> of <code>uchar</code>.</td></tr>
+<tr><td><a href="#uchar.var"><code>uchar.var</code></a></td><td>Boxes a native <code>uchar</code> value as <code>Var</code>.</td></tr>
+<tr><td><a href="#uint.repr"><code>uint.repr</code></a></td><td>Returns the readable representation of <code>uint</code>.</td></tr>
+<tr><td><a href="#uint.str"><code>uint.str</code></a></td><td>Returns the display <code>String</code> of <code>uint</code>.</td></tr>
+<tr><td><a href="#uint.var"><code>uint.var</code></a></td><td>Boxes a native <code>uint</code> value as <code>Var</code>.</td></tr>
+<tr><td><a href="#ulong.var"><code>ulong.var</code></a></td><td>Boxes a <code>ulong</code> value as <code>Var</code>.</td></tr>
+<tr><td><a href="#unsigned.repr"><code>unsigned.repr</code></a></td><td>Returns the readable representation of <code>unsigned</code>.</td></tr>
+<tr><td><a href="#unsigned.str"><code>unsigned.str</code></a></td><td>Returns the display <code>String</code> of <code>unsigned</code>.</td></tr>
+<tr><td><a href="#unsigned.var"><code>unsigned.var</code></a></td><td>Boxes a native <code>unsigned</code> value as <code>Var</code>.</td></tr>
+<tr><td><a href="#ushort.repr"><code>ushort.repr</code></a></td><td>Returns the readable representation of <code>ushort</code>.</td></tr>
+<tr><td><a href="#ushort.str"><code>ushort.str</code></a></td><td>Returns the display <code>String</code> of <code>ushort</code>.</td></tr>
+<tr><td><a href="#ushort.var"><code>ushort.var</code></a></td><td>Boxes a native <code>ushort</code> value as <code>Var</code>.</td></tr>
+</tbody>
+</table>
+</div>
+<h3 id="functions"><a class="header" href="#functions">Functions</a></h3>
+<h4 id="x2c_initialize"><a class="header" href="#x2c_initialize">x2c_initialize</a></h4>
+<p><code>void x2c_initialize(void)</code></p>
+<p>Initializes the <span class="x2c-wordmark">x2c</span> runtime once for the current process.</p>
+<p>Source: <code>lib/common.x:790</code></p>
+<h4 id="x2c_initialize_protocols"><a class="header" href="#x2c_initialize_protocols">x2c_initialize_protocols</a></h4>
+<p><code>void x2c_initialize_protocols(void)</code></p>
+<p>Runs compiler-generated runtime protocol registration.</p>
+<p>Source: <code>lib/common.x:786</code></p>
+<h4 id="x2c_normalize_index"><a class="header" href="#x2c_normalize_index">x2c_normalize_index</a></h4>
+<p><code>int x2c_normalize_index(int index, int length)</code></p>
+<p>Normalizes one element index against <code>length</code>.</p>
+<p>Source: <code>lib/common.x:814</code></p>
+<h4 id="x2c_normalize_slice"><a class="header" href="#x2c_normalize_slice">x2c_normalize_slice</a></h4>
+<p><code>int x2c_normalize_slice(int *start, int *stop, int step, int length)</code></p>
+<p>Normalizes slice bounds and returns the resulting element count.</p>
+<p>Source: <code>lib/common.x:834</code></p>
+<h3 id="array"><a class="header" href="#array"><code>Array</code></a></h3>
+<p><a id="Array.var"></a></p>
+<h4 id="arrayvar"><a class="header" href="#arrayvar">Array.var</a></h4>
+<p><code>inline Var Array.var(Array x)</code></p>
+<p>Boxes an <code>Array</code> value as <code>Var</code>.</p>
+<p>Source: <code>lib/common.x:526</code></p>
+<h3 id="block"><a class="header" href="#block"><code>Block</code></a></h3>
+<p><a id="Block.var"></a></p>
+<h4 id="blockvar"><a class="header" href="#blockvar">Block.var</a></h4>
+<p><code>inline Var Block.var(Block x)</code></p>
+<p>Boxes a <code>Block</code> value as <code>Var</code>.</p>
+<p>Source: <code>lib/common.x:528</code></p>
+<h3 id="buffer"><a class="header" href="#buffer"><code>Buffer</code></a></h3>
+<p><a id="Buffer.var"></a></p>
+<h4 id="buffervar"><a class="header" href="#buffervar">Buffer.var</a></h4>
+<p><code>inline Var Buffer.var(Buffer x)</code></p>
+<p>Boxes a <code>Buffer</code> value as <code>Var</code>.</p>
+<p>Source: <code>lib/common.x:530</code></p>
+<h3 id="bytes"><a class="header" href="#bytes"><code>Bytes</code></a></h3>
+<p><a id="Bytes.var"></a></p>
+<h4 id="bytesvar"><a class="header" href="#bytesvar">Bytes.var</a></h4>
+<p><code>inline Var Bytes.var(Bytes x)</code></p>
+<p>Boxes a <code>Bytes</code> value as <code>Var</code>.</p>
+<p>Source: <code>lib/common.x:532</code></p>
+<h3 id="file"><a class="header" href="#file"><code>File</code></a></h3>
+<p><a id="File.var"></a></p>
+<h4 id="filevar"><a class="header" href="#filevar">File.var</a></h4>
+<p><code>inline Var File.var(File x)</code></p>
+<p>Boxes a <code>File</code> value as <code>Var</code>.</p>
+<p>Source: <code>lib/common.x:537</code></p>
+<h3 id="iter"><a class="header" href="#iter"><code>Iter</code></a></h3>
+<p><a id="Iter.truth"></a></p>
+<h4 id="itertruth"><a class="header" href="#itertruth">Iter.truth</a></h4>
+<p><code>inline int Iter.truth(Iter iter)</code></p>
+<p>Returns nonzero when <code>iter</code> is not null.</p>
+<p>Source: <code>lib/common.x:395</code></p>
+<p><a id="Iter.var"></a></p>
+<h4 id="itervar"><a class="header" href="#itervar">Iter.var</a></h4>
+<p><code>inline Var Iter.var(Iter x)</code></p>
+<p>Boxes an <code>Iter</code> value as <code>Var</code>.</p>
+<p>Source: <code>lib/common.x:547</code></p>
+<h3 id="list"><a class="header" href="#list"><code>List</code></a></h3>
+<p><a id="List.truth"></a></p>
+<h4 id="listtruth"><a class="header" href="#listtruth">List.truth</a></h4>
+<p><code>inline int List.truth(List list)</code></p>
+<p>Returns nonzero when <code>list</code> is not <code>nil</code>, the null empty List.</p>
+<p>Source: <code>lib/common.x:398</code></p>
+<p><a id="List.var"></a></p>
+<h4 id="listvar"><a class="header" href="#listvar">List.var</a></h4>
+<p><code>inline Var List.var(List x)</code></p>
+<p>Boxes a <code>List</code> value as <code>Var</code>.</p>
+<p>Source: <code>lib/common.x:534</code></p>
+<h3 id="map"><a class="header" href="#map"><code>Map</code></a></h3>
+<p><a id="Map.var"></a></p>
+<h4 id="mapvar"><a class="header" href="#mapvar">Map.var</a></h4>
+<p><code>inline Var Map.var(Map x)</code></p>
+<p>Boxes a <code>Map</code> value as <code>Var</code>.</p>
+<p>Source: <code>lib/common.x:539</code></p>
+<h3 id="string"><a class="header" href="#string"><code>String</code></a></h3>
+<p><a id="String.truth"></a></p>
+<h4 id="stringtruth"><a class="header" href="#stringtruth">String.truth</a></h4>
+<p><code>inline int String.truth(String string)</code></p>
+<p>Returns nonzero when <code>string</code> contains at least one byte.
+The canonical empty String is null, with no allocated storage.</p>
+<p>Source: <code>lib/common.x:402</code></p>
+<p><a id="String.var"></a></p>
+<h4 id="stringvar"><a class="header" href="#stringvar">String.var</a></h4>
+<p><code>inline Var String.var(String x)</code></p>
+<p>Boxes a <code>String</code> value as <code>Var</code>.</p>
+<p>Source: <code>lib/common.x:541</code></p>
+<h3 id="symbol"><a class="header" href="#symbol"><code>Symbol</code></a></h3>
+<p><a id="Symbol.var"></a></p>
+<h4 id="symbolvar"><a class="header" href="#symbolvar">Symbol.var</a></h4>
+<p><code>inline Var Symbol.var(Symbol x)</code></p>
+<p>Boxes a <code>Symbol</code> value as <code>Var</code>.</p>
+<p>Source: <code>lib/common.x:544</code></p>
+<h3 id="var"><a class="header" href="#var"><code>Var</code></a></h3>
+<p><a id="Var.array"></a></p>
+<h4 id="vararray"><a class="header" href="#vararray">Var.array</a></h4>
+<p><code>inline Array Var.array(Var value)</code></p>
+<p>Extracts the <code>Array</code> payload of <code>value</code>, or NULL for another tag.</p>
+<p>Source: <code>lib/common.x:615</code></p>
+<p><a id="Var.as_iter"></a></p>
+<h4 id="varas_iter"><a class="header" href="#varas_iter">Var.as_iter</a></h4>
+<p><code>inline Iter Var.as_iter(Var value)</code></p>
+<p>Extracts the <code>Iter</code> payload of <code>value</code>, or NULL for another tag.</p>
+<p>Source: <code>lib/common.x:620</code></p>
+<p><a id="Var.block"></a></p>
+<h4 id="varblock"><a class="header" href="#varblock">Var.block</a></h4>
+<p><code>inline Block Var.block(Var value)</code></p>
+<p>Extracts the <code>Block</code> payload of <code>value</code>, or NULL for another tag.</p>
+<p>Source: <code>lib/common.x:616</code></p>
+<p><a id="Var.box_f32"></a></p>
+<h4 id="varbox_f32"><a class="header" href="#varbox_f32">Var.box_f32</a></h4>
+<p><code>inline Var Var.box_f32(float value)</code></p>
+<p>Boxes a native <code>float</code> as an immediate <code>&lt;f32&gt;</code> <code>Var</code>.</p>
+<p>Source: <code>lib/common.x:508</code></p>
+<p><a id="Var.box_f64"></a></p>
+<h4 id="varbox_f64"><a class="header" href="#varbox_f64">Var.box_f64</a></h4>
+<p><code>inline Var Var.box_f64(double value)</code></p>
+<p>Boxes a native <code>double</code> as an immediate <code>&lt;f64&gt;</code> <code>Var</code>.</p>
+<p>Source: <code>lib/common.x:515</code></p>
+<p><a id="Var.box_i16"></a></p>
+<h4 id="varbox_i16"><a class="header" href="#varbox_i16">Var.box_i16</a></h4>
+<p><code>inline Var Var.box_i16(short value)</code></p>
+<p>Boxes a native <code>short</code> as an immediate <code>&lt;i16&gt;</code> <code>Var</code>.</p>
+<p>Source: <code>lib/common.x:499</code></p>
+<p><a id="Var.box_i32_bits"></a></p>
+<h4 id="varbox_i32_bits"><a class="header" href="#varbox_i32_bits">Var.box_i32_bits</a></h4>
+<p><code>inline Var Var.box_i32_bits(unsigned value)</code></p>
+<p>Boxes an unsigned 32-bit pattern as an immediate <code>&lt;i32&gt;</code> <code>Var</code>.</p>
+<p>Source: <code>lib/common.x:503</code></p>
+<p><a id="Var.box_i8"></a></p>
+<h4 id="varbox_i8"><a class="header" href="#varbox_i8">Var.box_i8</a></h4>
+<p><code>inline Var Var.box_i8(char value)</code></p>
+<p>Boxes a native <code>char</code> as an immediate <code>&lt;i8&gt;</code> <code>Var</code>.</p>
+<p>Source: <code>lib/common.x:495</code></p>
+<p><a id="Var.box_u16"></a></p>
+<h4 id="varbox_u16"><a class="header" href="#varbox_u16">Var.box_u16</a></h4>
+<p><code>inline Var Var.box_u16(ushort value)</code></p>
+<p>Boxes a native <code>ushort</code> as an immediate <code>&lt;u16&gt;</code> <code>Var</code>.</p>
+<p>Source: <code>lib/common.x:501</code></p>
+<p><a id="Var.box_u32"></a></p>
+<h4 id="varbox_u32"><a class="header" href="#varbox_u32">Var.box_u32</a></h4>
+<p><code>inline Var Var.box_u32(unsigned value)</code></p>
+<p>Boxes a native <code>uint</code> as an immediate <code>&lt;u32&gt;</code> <code>Var</code>.</p>
+<p>Source: <code>lib/common.x:505</code></p>
+<p><a id="Var.box_u8"></a></p>
+<h4 id="varbox_u8"><a class="header" href="#varbox_u8">Var.box_u8</a></h4>
+<p><code>inline Var Var.box_u8(uchar value)</code></p>
+<p>Boxes a native <code>uchar</code> as an immediate <code>&lt;u8&gt;</code> <code>Var</code>.</p>
+<p>Source: <code>lib/common.x:497</code></p>
+<p><a id="Var.buffer"></a></p>
+<h4 id="varbuffer"><a class="header" href="#varbuffer">Var.buffer</a></h4>
+<p><code>inline Buffer Var.buffer(Var value)</code></p>
+<p>Extracts the <code>Buffer</code> payload of <code>value</code>, or NULL for another tag.</p>
+<p>Source: <code>lib/common.x:617</code></p>
+<p><a id="Var.bytes"></a></p>
+<h4 id="varbytes"><a class="header" href="#varbytes">Var.bytes</a></h4>
+<p><code>inline Bytes Var.bytes(Var value)</code></p>
+<p>Extracts the <code>Bytes</code> payload of <code>value</code>, or NULL for another tag.</p>
+<p>Source: <code>lib/common.x:618</code></p>
+<p><a id="Var.char"></a></p>
+<h4 id="varchar"><a class="header" href="#varchar">Var.char</a></h4>
+<p><code>char Var.char(Var x)</code></p>
+<p>Returns <code>x</code> as a native <code>char</code> under the <code>Var.convert</code> rules.</p>
+<p><strong>Raises:</strong> <code>Var.convert</code>’s causes when the source is nonnumeric, <code>void</code>, out
+of floating range, or invalidly encoded.</p>
+<p>Source: <code>lib/common.x:642</code></p>
+<p><a id="Var.decode_f32"></a></p>
+<h4 id="vardecode_f32"><a class="header" href="#vardecode_f32">Var.decode_f32</a></h4>
+<p><code>inline float Var.decode_f32(Var value)</code></p>
+<p>Decodes an immediate <code>&lt;f32&gt;</code> <code>Var</code>.</p>
+<p>Source: <code>lib/common.x:462</code></p>
+<p><a id="Var.decode_f64"></a></p>
+<h4 id="vardecode_f64"><a class="header" href="#vardecode_f64">Var.decode_f64</a></h4>
+<p><code>inline double Var.decode_f64(Var value)</code></p>
+<p>Decodes an immediate <code>&lt;f64&gt;</code> <code>Var</code>.</p>
+<p>Source: <code>lib/common.x:470</code></p>
+<p><a id="Var.double"></a></p>
+<h4 id="vardouble"><a class="header" href="#vardouble">Var.double</a></h4>
+<p><code>double Var.double(Var x)</code></p>
+<p>Returns <code>x</code> as a native <code>double</code> under the <code>Var.convert</code> rules.</p>
+<p><strong>Raises:</strong> <code>Var.convert</code>’s causes when the source is nonnumeric, <code>void</code>, or
+invalidly encoded.</p>
+<p>Source: <code>lib/common.x:771</code></p>
+<p><a id="Var.file"></a></p>
+<h4 id="varfile"><a class="header" href="#varfile">Var.file</a></h4>
+<p><code>inline File Var.file(Var value)</code></p>
+<p>Extracts the <code>File</code> payload of <code>value</code>, or NULL for another tag.</p>
+<p>Source: <code>lib/common.x:619</code></p>
+<p><a id="Var.float"></a></p>
+<h4 id="varfloat"><a class="header" href="#varfloat">Var.float</a></h4>
+<p><code>float Var.float(Var x)</code></p>
+<p>Returns <code>x</code> as a native <code>float</code> under the <code>Var.convert</code> rules.</p>
+<p><strong>Raises:</strong> <code>Var.convert</code>’s causes when the source is nonnumeric, <code>void</code>, or
+invalidly encoded.</p>
+<p>Source: <code>lib/common.x:762</code></p>
+<p><a id="Var.int"></a></p>
+<h4 id="varint"><a class="header" href="#varint">Var.int</a></h4>
+<p><code>int Var.int(Var x)</code></p>
+<p>Returns <code>x</code> as a native <code>int</code> under the <code>Var.convert</code> rules.</p>
+<p><strong>Raises:</strong> <code>Var.convert</code>’s causes when the source is nonnumeric, <code>void</code>, out
+of floating range, or invalidly encoded.</p>
+<p>Source: <code>lib/common.x:678</code></p>
+<p><a id="Var.is_row"></a></p>
+<h4 id="varis_row"><a class="header" href="#varis_row">Var.is_row</a></h4>
+<p><code>inline int Var.is_row( Var value, unsigned top, unsigned long mask, unsigned long bottom)</code></p>
+<p>Reports whether <code>value</code> occupies the encoding row at <code>top</code>/<code>bottom</code>.
+<code>mask</code> selects the bits the decoder discriminates on within <code>top</code>’s
+group, so a caller that already knows the row tests it with two
+compares instead of a decode. <code>var-tags.xmacro</code> projects the rows that
+qualify; a row whose decoded form carries a validity clause is not one
+of them and must ask <code>Var.is</code>.</p>
+<p>Source: <code>lib/common.x:611</code></p>
+<p><a id="Var.is_wide"></a></p>
+<h4 id="varis_wide"><a class="header" href="#varis_wide">Var.is_wide</a></h4>
+<p><code>inline int Var.is_wide(Var v)</code></p>
+<p>Reports whether <code>v</code> uses a scope-owned wide numeric box.</p>
+<p>Source: <code>lib/common.x:453</code></p>
+<p><a id="Var.list"></a></p>
+<h4 id="varlist"><a class="header" href="#varlist">Var.list</a></h4>
+<p><code>inline List Var.list(Var value)</code></p>
+<p>Extracts the <code>List</code> payload of <code>value</code>, or NULL for another tag.</p>
+<p>Source: <code>lib/common.x:621</code></p>
+<p><a id="Var.long"></a></p>
+<h4 id="varlong"><a class="header" href="#varlong">Var.long</a></h4>
+<p><code>long Var.long(Var x)</code></p>
+<p>Returns <code>x</code> as a native <code>long</code> under the <code>Var.convert</code> rules.</p>
+<p><strong>Raises:</strong> <code>Var.convert</code>’s causes when the source is nonnumeric, <code>void</code>, out
+of floating range, or invalidly encoded.</p>
+<p>Source: <code>lib/common.x:705</code></p>
+<p><a id="Var.long_double"></a></p>
+<h4 id="varlong_double"><a class="header" href="#varlong_double">Var.long_double</a></h4>
+<p><code>long double Var.long_double(Var x)</code></p>
+<p>Returns <code>x</code> as a native <code>long double</code> under the <code>Var.convert</code> rules.</p>
+<p><strong>Raises:</strong> <code>Var.convert</code>’s causes when the source is nonnumeric, <code>void</code>, or
+invalidly encoded.</p>
+<p>Source: <code>lib/common.x:752</code></p>
+<p><a id="Var.long_long"></a></p>
+<h4 id="varlong_long"><a class="header" href="#varlong_long">Var.long_long</a></h4>
+<p><code>long long Var.long_long(Var x)</code></p>
+<p>Returns <code>x</code> as a native <code>long long</code> under the <code>Var.convert</code> rules.</p>
+<p><strong>Raises:</strong> <code>Var.convert</code>’s causes when the source is nonnumeric, <code>void</code>, out
+of floating range, or invalidly encoded.</p>
+<p>Source: <code>lib/common.x:728</code></p>
+<p><a id="Var.map"></a></p>
+<h4 id="varmap"><a class="header" href="#varmap">Var.map</a></h4>
+<p><code>inline Map Var.map(Var value)</code></p>
+<p>Extracts the <code>Map</code> payload of <code>value</code>, or NULL for another tag.</p>
+<p>Source: <code>lib/common.x:622</code></p>
+<p><a id="Var.payload32"></a></p>
+<h4 id="varpayload32"><a class="header" href="#varpayload32">Var.payload32</a></h4>
+<p><code>inline unsigned Var.payload32(Var value)</code></p>
+<p>Returns the low 32 payload bits of an immediate <code>Var</code>.</p>
+<p>Source: <code>lib/common.x:459</code></p>
+<p><a id="Var.short"></a></p>
+<h4 id="varshort"><a class="header" href="#varshort">Var.short</a></h4>
+<p><code>short Var.short(Var x)</code></p>
+<p>Returns <code>x</code> as a native <code>short</code> under the <code>Var.convert</code> rules.</p>
+<p><strong>Raises:</strong> <code>Var.convert</code>’s causes when the source is nonnumeric, <code>void</code>, out
+of floating range, or invalidly encoded.</p>
+<p>Source: <code>lib/common.x:660</code></p>
+<p><a id="Var.string"></a></p>
+<h4 id="varstring"><a class="header" href="#varstring">Var.string</a></h4>
+<p><code>inline String Var.string(Var value)</code></p>
+<p>Extracts the <code>String</code> payload of <code>value</code>, or NULL for another tag.</p>
+<p>Source: <code>lib/common.x:623</code></p>
+<p><a id="Var.symbol"></a></p>
+<h4 id="varsymbol"><a class="header" href="#varsymbol">Var.symbol</a></h4>
+<p><code>inline Symbol Var.symbol(Var x)</code></p>
+<p>Extracts the <code>symbol</code> payload after the caller establishes the matching
+<code>Var</code> kind.</p>
+<p>Source: <code>lib/common.x:628</code></p>
+<p><a id="Var.uchar"></a></p>
+<h4 id="varuchar"><a class="header" href="#varuchar">Var.uchar</a></h4>
+<p><code>uchar Var.uchar(Var x)</code></p>
+<p>Returns <code>x</code> as a native <code>uchar</code> under the <code>Var.convert</code> rules.</p>
+<p><strong>Raises:</strong> <code>Var.convert</code>’s causes when the source is nonnumeric, <code>void</code>, out
+of floating range, or invalidly encoded.</p>
+<p>Source: <code>lib/common.x:651</code></p>
+<p><a id="Var.uint"></a></p>
+<h4 id="varuint"><a class="header" href="#varuint">Var.uint</a></h4>
+<p><code>uint Var.uint(Var x)</code></p>
+<p>Returns <code>x</code> as a native <code>uint</code> under the <code>Var.convert</code> rules.</p>
+<p><strong>Raises:</strong> <code>Var.convert</code>’s causes when the source is nonnumeric, <code>void</code>, out
+of floating range, or invalidly encoded.</p>
+<p>Source: <code>lib/common.x:687</code></p>
+<p><a id="Var.ulong"></a></p>
+<h4 id="varulong"><a class="header" href="#varulong">Var.ulong</a></h4>
+<p><code>ulong Var.ulong(Var x)</code></p>
+<p>Returns <code>x</code> as a native <code>ulong</code> under the <code>Var.convert</code> rules.</p>
+<p><strong>Raises:</strong> <code>Var.convert</code>’s causes when the source is nonnumeric, <code>void</code>, out
+of floating range, or invalidly encoded.</p>
+<p>Source: <code>lib/common.x:717</code></p>
+<p><a id="Var.ulong_long"></a></p>
+<h4 id="varulong_long"><a class="header" href="#varulong_long">Var.ulong_long</a></h4>
+<p><code>unsigned long long Var.ulong_long(Var x)</code></p>
+<p>Returns <code>x</code> as a native <code>unsigned long long</code> under the <code>Var.convert</code>
+rules.</p>
+<p><strong>Raises:</strong> <code>Var.convert</code>’s causes when the source is nonnumeric, <code>void</code>, out
+of floating range, or invalidly encoded.</p>
+<p>Source: <code>lib/common.x:740</code></p>
+<p><a id="Var.unsigned"></a></p>
+<h4 id="varunsigned"><a class="header" href="#varunsigned">Var.unsigned</a></h4>
+<p><code>unsigned Var.unsigned(Var x)</code></p>
+<p>Returns <code>x</code> as a native <code>unsigned</code> under the <code>Var.convert</code> rules.</p>
+<p><strong>Raises:</strong> <code>Var.convert</code>’s causes when the source is nonnumeric, <code>void</code>, out
+of floating range, or invalidly encoded.</p>
+<p>Source: <code>lib/common.x:696</code></p>
+<p><a id="Var.ushort"></a></p>
+<h4 id="varushort"><a class="header" href="#varushort">Var.ushort</a></h4>
+<p><code>ushort Var.ushort(Var x)</code></p>
+<p>Returns <code>x</code> as a native <code>ushort</code> under the <code>Var.convert</code> rules.</p>
+<p><strong>Raises:</strong> <code>Var.convert</code>’s causes when the source is nonnumeric, <code>void</code>, out
+of floating range, or invalidly encoded.</p>
+<p>Source: <code>lib/common.x:669</code></p>
+<h3 id="char"><a class="header" href="#char"><code>char</code></a></h3>
+<p><a id="char.repr"></a></p>
+<h4 id="charrepr"><a class="header" href="#charrepr">char.repr</a></h4>
+<p><code>inline String char.repr(char x)</code></p>
+<p>Returns the readable representation of <code>char</code>.</p>
+<p>Source: <code>lib/common.x:581</code></p>
+<p><a id="char.str"></a></p>
+<h4 id="charstr"><a class="header" href="#charstr">char.str</a></h4>
+<p><code>inline String char.str(char x)</code></p>
+<p>Returns the display <code>String</code> of <code>char</code>.</p>
+<p>Source: <code>lib/common.x:581</code></p>
+<p><a id="char.var"></a></p>
+<h4 id="charvar"><a class="header" href="#charvar">char.var</a></h4>
+<p><code>inline Var char.var(char x)</code></p>
+<p>Boxes a native <code>char</code> value as <code>Var</code>.</p>
+<p>Source: <code>lib/common.x:581</code></p>
+<h3 id="double"><a class="header" href="#double"><code>double</code></a></h3>
+<p><a id="double.repr"></a></p>
+<h4 id="doublerepr"><a class="header" href="#doublerepr">double.repr</a></h4>
+<p><code>inline String double.repr(double x)</code></p>
+<p>Returns the readable representation of <code>double</code>.</p>
+<p>Source: <code>lib/common.x:589</code></p>
+<p><a id="double.str"></a></p>
+<h4 id="doublestr"><a class="header" href="#doublestr">double.str</a></h4>
+<p><code>inline String double.str(double x)</code></p>
+<p>Returns the display <code>String</code> of <code>double</code>.</p>
+<p>Source: <code>lib/common.x:589</code></p>
+<p><a id="double.var"></a></p>
+<h4 id="doublevar"><a class="header" href="#doublevar">double.var</a></h4>
+<p><code>inline Var double.var(double x)</code></p>
+<p>Boxes a native <code>double</code> value as <code>Var</code>.</p>
+<p>Source: <code>lib/common.x:589</code></p>
+<h3 id="float"><a class="header" href="#float"><code>float</code></a></h3>
+<p><a id="float.repr"></a></p>
+<h4 id="floatrepr"><a class="header" href="#floatrepr">float.repr</a></h4>
+<p><code>inline String float.repr(float x)</code></p>
+<p>Returns the readable representation of <code>float</code>.</p>
+<p>Source: <code>lib/common.x:588</code></p>
+<p><a id="float.str"></a></p>
+<h4 id="floatstr"><a class="header" href="#floatstr">float.str</a></h4>
+<p><code>inline String float.str(float x)</code></p>
+<p>Returns the display <code>String</code> of <code>float</code>.</p>
+<p>Source: <code>lib/common.x:588</code></p>
+<p><a id="float.var"></a></p>
+<h4 id="floatvar"><a class="header" href="#floatvar">float.var</a></h4>
+<p><code>inline Var float.var(float x)</code></p>
+<p>Boxes a native <code>float</code> value as <code>Var</code>.</p>
+<p>Source: <code>lib/common.x:588</code></p>
+<h3 id="int"><a class="header" href="#int"><code>int</code></a></h3>
+<p><a id="int.repr"></a></p>
+<h4 id="intrepr"><a class="header" href="#intrepr">int.repr</a></h4>
+<p><code>inline String int.repr(int x)</code></p>
+<p>Returns the readable representation of <code>int</code>.</p>
+<p>Source: <code>lib/common.x:585</code></p>
+<p><a id="int.str"></a></p>
+<h4 id="intstr"><a class="header" href="#intstr">int.str</a></h4>
+<p><code>inline String int.str(int x)</code></p>
+<p>Returns the display <code>String</code> of <code>int</code>.</p>
+<p>Source: <code>lib/common.x:585</code></p>
+<p><a id="int.var"></a></p>
+<h4 id="intvar"><a class="header" href="#intvar">int.var</a></h4>
+<p><code>inline Var int.var(int x)</code></p>
+<p>Boxes a native <code>int</code> value as <code>Var</code>.</p>
+<p>Source: <code>lib/common.x:585</code></p>
+<h3 id="long"><a class="header" href="#long"><code>long</code></a></h3>
+<p><a id="long.repr"></a></p>
+<h4 id="longrepr"><a class="header" href="#longrepr">long.repr</a></h4>
+<p><code>inline String long.repr(long l)</code></p>
+<p>Returns the readable representation of <code>long</code>.</p>
+<p>Source: <code>lib/common.x:600</code></p>
+<p><a id="long.str"></a></p>
+<h4 id="longstr"><a class="header" href="#longstr">long.str</a></h4>
+<p><code>inline String long.str(long l)</code></p>
+<p>Returns the display <code>String</code> of <code>long</code>.</p>
+<p>Source: <code>lib/common.x:598</code></p>
+<p><a id="long.var"></a></p>
+<h4 id="longvar"><a class="header" href="#longvar">long.var</a></h4>
+<p><code>inline Var long.var(long x)</code></p>
+<p>Boxes a long value as <code>Var</code>.</p>
+<p>Source: <code>lib/common.x:594</code></p>
+<h3 id="short"><a class="header" href="#short"><code>short</code></a></h3>
+<p><a id="short.repr"></a></p>
+<h4 id="shortrepr"><a class="header" href="#shortrepr">short.repr</a></h4>
+<p><code>inline String short.repr(short x)</code></p>
+<p>Returns the readable representation of <code>short</code>.</p>
+<p>Source: <code>lib/common.x:583</code></p>
+<p><a id="short.str"></a></p>
+<h4 id="shortstr"><a class="header" href="#shortstr">short.str</a></h4>
+<p><code>inline String short.str(short x)</code></p>
+<p>Returns the display <code>String</code> of <code>short</code>.</p>
+<p>Source: <code>lib/common.x:583</code></p>
+<p><a id="short.var"></a></p>
+<h4 id="shortvar"><a class="header" href="#shortvar">short.var</a></h4>
+<p><code>inline Var short.var(short x)</code></p>
+<p>Boxes a native <code>short</code> value as <code>Var</code>.</p>
+<p>Source: <code>lib/common.x:583</code></p>
+<h3 id="uchar"><a class="header" href="#uchar"><code>uchar</code></a></h3>
+<p><a id="uchar.repr"></a></p>
+<h4 id="ucharrepr"><a class="header" href="#ucharrepr">uchar.repr</a></h4>
+<p><code>inline String uchar.repr(uchar x)</code></p>
+<p>Returns the readable representation of <code>uchar</code>.</p>
+<p>Source: <code>lib/common.x:582</code></p>
+<p><a id="uchar.str"></a></p>
+<h4 id="ucharstr"><a class="header" href="#ucharstr">uchar.str</a></h4>
+<p><code>inline String uchar.str(uchar x)</code></p>
+<p>Returns the display <code>String</code> of <code>uchar</code>.</p>
+<p>Source: <code>lib/common.x:582</code></p>
+<p><a id="uchar.var"></a></p>
+<h4 id="ucharvar"><a class="header" href="#ucharvar">uchar.var</a></h4>
+<p><code>inline Var uchar.var(uchar x)</code></p>
+<p>Boxes a native <code>uchar</code> value as <code>Var</code>.</p>
+<p>Source: <code>lib/common.x:582</code></p>
+<h3 id="uint"><a class="header" href="#uint"><code>uint</code></a></h3>
+<p><a id="uint.repr"></a></p>
+<h4 id="uintrepr"><a class="header" href="#uintrepr">uint.repr</a></h4>
+<p><code>inline String uint.repr(uint x)</code></p>
+<p>Returns the readable representation of <code>uint</code>.</p>
+<p>Source: <code>lib/common.x:586</code></p>
+<p><a id="uint.str"></a></p>
+<h4 id="uintstr"><a class="header" href="#uintstr">uint.str</a></h4>
+<p><code>inline String uint.str(uint x)</code></p>
+<p>Returns the display <code>String</code> of <code>uint</code>.</p>
+<p>Source: <code>lib/common.x:586</code></p>
+<p><a id="uint.var"></a></p>
+<h4 id="uintvar"><a class="header" href="#uintvar">uint.var</a></h4>
+<p><code>inline Var uint.var(uint x)</code></p>
+<p>Boxes a native <code>uint</code> value as <code>Var</code>.</p>
+<p>Source: <code>lib/common.x:586</code></p>
+<h3 id="ulong"><a class="header" href="#ulong"><code>ulong</code></a></h3>
+<p><a id="ulong.var"></a></p>
+<h4 id="ulongvar"><a class="header" href="#ulongvar">ulong.var</a></h4>
+<p><code>inline Var ulong.var(ulong x)</code></p>
+<p>Boxes a <code>ulong</code> value as <code>Var</code>.</p>
+<p>Source: <code>lib/common.x:596</code></p>
+<h3 id="unsigned"><a class="header" href="#unsigned"><code>unsigned</code></a></h3>
+<p><a id="unsigned.repr"></a></p>
+<h4 id="unsignedrepr"><a class="header" href="#unsignedrepr">unsigned.repr</a></h4>
+<p><code>inline String unsigned.repr(unsigned x)</code></p>
+<p>Returns the readable representation of <code>unsigned</code>.</p>
+<p>Source: <code>lib/common.x:587</code></p>
+<p><a id="unsigned.str"></a></p>
+<h4 id="unsignedstr"><a class="header" href="#unsignedstr">unsigned.str</a></h4>
+<p><code>inline String unsigned.str(unsigned x)</code></p>
+<p>Returns the display <code>String</code> of <code>unsigned</code>.</p>
+<p>Source: <code>lib/common.x:587</code></p>
+<p><a id="unsigned.var"></a></p>
+<h4 id="unsignedvar"><a class="header" href="#unsignedvar">unsigned.var</a></h4>
+<p><code>inline Var unsigned.var(unsigned x)</code></p>
+<p>Boxes a native <code>unsigned</code> value as <code>Var</code>.</p>
+<p>Source: <code>lib/common.x:587</code></p>
+<h3 id="ushort"><a class="header" href="#ushort"><code>ushort</code></a></h3>
+<p><a id="ushort.repr"></a></p>
+<h4 id="ushortrepr"><a class="header" href="#ushortrepr">ushort.repr</a></h4>
+<p><code>inline String ushort.repr(ushort x)</code></p>
+<p>Returns the readable representation of <code>ushort</code>.</p>
+<p>Source: <code>lib/common.x:584</code></p>
+<p><a id="ushort.str"></a></p>
+<h4 id="ushortstr"><a class="header" href="#ushortstr">ushort.str</a></h4>
+<p><code>inline String ushort.str(ushort x)</code></p>
+<p>Returns the display <code>String</code> of <code>ushort</code>.</p>
+<p>Source: <code>lib/common.x:584</code></p>
+<p><a id="ushort.var"></a></p>
+<h4 id="ushortvar"><a class="header" href="#ushortvar">ushort.var</a></h4>
+<p><code>inline Var ushort.var(ushort x)</code></p>
+<p>Boxes a native <code>ushort</code> value as <code>Var</code>.</p>
+<p>Source: <code>lib/common.x:584</code></p>
+<h2 id="runtime-internal-callables"><a class="header" href="#runtime-internal-callables">Runtime-internal callables</a></h2>
+<p>These callables connect runtime translation units. They are documented
+for source readers but are not supported as user API.</p>
+<div class="table-wrapper">
+<table>
+<thead>
+<tr><th>Function</th><th>Summary</th></tr>
+</thead>
+<tbody>
+<tr><td><a href="#x2c_hash_bytes"><code>x2c_hash_bytes</code></a></td><td>Hashes an arbitrary byte block through the shared 64-bit mixer.</td></tr>
+<tr><td><a href="#x2c_hash_word"><code>x2c_hash_word</code></a></td><td>Narrows a mixed word to the nonzero 32-bit hash the tables expect.</td></tr>
+<tr><td><a href="#x2c_mix64"><code>x2c_mix64</code></a></td><td>Avalanches one 64-bit word.</td></tr>
+</tbody>
+</table>
+</div>
+<h3 id="functions-1"><a class="header" href="#functions-1">Functions</a></h3>
+<h4 id="x2c_hash_bytes"><a class="header" href="#x2c_hash_bytes">x2c_hash_bytes</a></h4>
+<p><code>inline unsigned x2c_hash_bytes( unsigned long seed, const void *data, size_t width)</code></p>
+<p>Hashes an arbitrary byte block through the shared 64-bit mixer.
+<code>seed</code> distinguishes callers that hash the same bytes under different
+types; the byte width distinguishes a final partial word from zero
+padding.</p>
+<p>Source: <code>lib/common.x:432</code></p>
+<h4 id="x2c_hash_word"><a class="header" href="#x2c_hash_word">x2c_hash_word</a></h4>
+<p><code>inline unsigned x2c_hash_word(unsigned long word)</code></p>
+<p>Narrows a mixed word to the nonzero 32-bit hash the tables expect.
+Zero is reserved to mark an empty bucket, so it maps to all ones.</p>
+<p>Source: <code>lib/common.x:422</code></p>
+<h4 id="x2c_mix64"><a class="header" href="#x2c_mix64">x2c_mix64</a></h4>
+<p><code>inline unsigned long x2c_mix64(unsigned long word)</code></p>
+<p>Avalanches one 64-bit word.
+This is MurmurHash3’s fmix64 finalizer, the shared mixer behind every
+fixed-width hash in the runtime. It is six instructions, and its low bits
+are as well distributed as its high ones, which is what <code>Map</code> masks. Use
+<code>x2c_hash_bytes</code> for a block that spans several words.</p>
+<p>Source: <code>lib/common.x:410</code></p>
+<h2 id="public-types"><a class="header" href="#public-types">Public types</a></h2>
+<div class="table-wrapper">
+<table>
+<thead>
+<tr><th>Type</th><th>Kind</th><th>Summary</th></tr>
+</thead>
+<tbody>
+<tr><td><a href="#Array"><code>Array</code></a></td><td>alias</td><td><code>Scope</code>-owned mutable <code>Block</code> view whose elements are <code>Var</code>s.</td></tr>
+<tr><td><a href="#Atom"><code>Atom</code></a></td><td>alias</td><td>Exact-name <code>Var</code> using a <code>Symbol</code> or a pooled canonical long spelling.</td></tr>
+<tr><td><a href="#Block"><code>Block</code></a></td><td>struct</td><td>Opaque handle to <code>Scope</code>-owned mutable fixed-width storage.</td></tr>
+<tr><td><a href="#Buffer"><code>Buffer</code></a></td><td>struct</td><td>Opaque handle to a <code>Scope</code>-owned mutable text builder.</td></tr>
+<tr><td><a href="#Bytes"><code>Bytes</code></a></td><td>alias</td><td>Data pointer into <code>Block</code>-owned raw element storage.</td></tr>
+<tr><td><a href="#Context"><code>Context</code></a></td><td>struct</td><td>Bounded <code>Scope</code>, <code>Error</code>, <code>Match</code>, and optional canonical-pool state.</td></tr>
+<tr><td><a href="#File"><code>File</code></a></td><td>alias</td><td>Native stdio stream handle whose opener determines close ownership.</td></tr>
+<tr><td><a href="#Func"><code>Func</code></a></td><td>struct</td><td><code>Scope</code>-owned generic native-call adapter and optional bound context.</td></tr>
+<tr><td><a href="#Iter"><code>Iter</code></a></td><td>struct</td><td>Mutable traversal state whose sources must outlive its iteration.</td></tr>
+<tr><td><a href="#List"><code>List</code></a></td><td>struct</td><td>Immutable canonical cons chain; NULL is <code>nil</code>.</td></tr>
+<tr><td><a href="#Map"><code>Map</code></a></td><td>struct</td><td><code>Scope</code>-owned mutable table mapping <code>Var</code> keys to <code>Var</code> values.</td></tr>
+<tr><td><a href="#Mutex"><code>Mutex</code></a></td><td>struct</td><td><code>Scope</code>-owned opaque mutex that must outlive every accessing thread.</td></tr>
+<tr><td><a href="#Pool"><code>Pool</code></a></td><td>struct</td><td>Nested canonicalization table with <code>Scope</code>-backed object storage.</td></tr>
+<tr><td><a href="#RenderPath"><code>RenderPath</code></a></td><td>struct</td><td>Caller-owned frame in this thread’s active recursive rendering path.</td></tr>
+<tr><td><a href="#Scope"><code>Scope</code></a></td><td>struct</td><td>Region owner for individually tracked runtime allocations.</td></tr>
+<tr><td><a href="#String"><code>String</code></a></td><td>alias</td><td>Immutable canonical NUL-terminated bytes; NULL is the empty <code>String</code>.</td></tr>
+<tr><td><a href="#Symbol"><code>Symbol</code></a></td><td>alias</td><td>Immediate compact name encoding with no allocation ownership.</td></tr>
+<tr><td><a href="#SymbolSet"><code>SymbolSet</code></a></td><td>alias</td><td>Borrowed immutable compiler-generated set of compact <code>Symbol</code>s.</td></tr>
+<tr><td><a href="#Thread"><code>Thread</code></a></td><td>struct</td><td>Caller-owned handle to a <code>Context</code>-backed worker.</td></tr>
+<tr><td><a href="#Var"><code>Var</code></a></td><td>union</td><td>Eight-byte tagged runtime value for immediate scalars and encoded handles.</td></tr>
+<tr><td><a href="#VarBinaryFn"><code>VarBinaryFn</code></a></td><td>callback</td><td>Applies one descriptor-owned binary operation and returns its result.</td></tr>
+<tr><td><a href="#VarCompareFn"><code>VarCompareFn</code></a></td><td>callback</td><td>Returns negative, zero, or positive for two <code>Var</code>s of one descriptor.</td></tr>
+<tr><td><a href="#VarContainsFn"><code>VarContainsFn</code></a></td><td>callback</td><td>Reports whether <code>receiver</code> contains <code>needle</code>.</td></tr>
+<tr><td><a href="#VarEqualFn"><code>VarEqualFn</code></a></td><td>callback</td><td>Reports value equality for two <code>Var</code>s with the same descriptor.</td></tr>
+<tr><td><a href="#VarExportContextFn"><code>VarExportContextFn</code></a></td><td>callback</td><td>Exports a custom value from <code>source</code> into its destination <code>Context</code>.</td></tr>
+<tr><td><a href="#VarGetIndexFn"><code>VarGetIndexFn</code></a></td><td>callback</td><td>Reads one dynamically indexed value.</td></tr>
+<tr><td><a href="#VarHashFn"><code>VarHashFn</code></a></td><td>callback</td><td>Computes one <code>Var</code> hash; <code>Var.hash</code> normalizes a zero result.</td></tr>
+<tr><td><a href="#VarIterIntoFn"><code>VarIterIntoFn</code></a></td><td>callback</td><td>Initializes traversal in caller-provided <code>Iter</code> storage and returns it.</td></tr>
+<tr><td><a href="#VarMethods"><code>VarMethods</code></a></td><td>struct</td><td>Sparse process-global callback row for one <code>Var</code> descriptor.</td></tr>
+<tr><td><a href="#VarPostfixIndexFn"><code>VarPostfixIndexFn</code></a></td><td>callback</td><td>Applies an indexed postfix operation and returns the prior value.</td></tr>
+<tr><td><a href="#VarSetIndexFn"><code>VarSetIndexFn</code></a></td><td>callback</td><td>Stores an indexed value and returns the assignment result.</td></tr>
+<tr><td><a href="#VarStrFn"><code>VarStrFn</code></a></td><td>callback</td><td>Renders one <code>Var</code> as a display or readable <code>String</code>.</td></tr>
+<tr><td><a href="#VarTruthFn"><code>VarTruthFn</code></a></td><td>callback</td><td>Reports whether a <code>Var</code> is true.</td></tr>
+<tr><td><a href="#VarUnaryFn"><code>VarUnaryFn</code></a></td><td>callback</td><td>Applies one descriptor-owned unary operation and returns its result.</td></tr>
+<tr><td><a href="#VarUpdateIndexFn"><code>VarUpdateIndexFn</code></a></td><td>callback</td><td>Applies an indexed compound operation and returns the stored result.</td></tr>
+<tr><td><a href="#VarWriteFn"><code>VarWriteFn</code></a></td><td>callback</td><td>Appends one <code>Var</code> rendering to a caller-owned <code>Buffer</code> and returns it.</td></tr>
+<tr><td><a href="#X2CErrorSite"><code>X2CErrorSite</code></a></td><td>struct</td><td>Borrowed source location supplied during one compiler-generated raise.</td></tr>
+<tr><td><a href="#X2CStatic"><code>X2CStatic</code></a></td><td>struct</td><td>Zero-initialized compiler storage for one dynamic local static.</td></tr>
+<tr><td><a href="#uchar"><code>uchar</code></a></td><td>alias</td><td>Unsigned native character type.</td></tr>
+<tr><td><a href="#uint"><code>uint</code></a></td><td>alias</td><td>Unsigned native int type.</td></tr>
+<tr><td><a href="#ulong"><code>ulong</code></a></td><td>alias</td><td>Unsigned native long type.</td></tr>
+<tr><td><a href="#ushort"><code>ushort</code></a></td><td>alias</td><td>Unsigned native short type.</td></tr>
+</tbody>
+</table>
+</div>
+<p><a id="Array"></a></p>
+<h3 id="array-1"><a class="header" href="#array-1">Array</a></h3>
+<p><code>typedef Block Array</code></p>
+<p><code>Scope</code>-owned mutable <code>Block</code> view whose elements are <code>Var</code>s.</p>
+<p>Source: <code>lib/common.x:77</code></p>
+<p><a id="Atom"></a></p>
+<h3 id="atom"><a class="header" href="#atom">Atom</a></h3>
+<p><code>typedef Var Atom</code></p>
+<p>Exact-name <code>Var</code> using a <code>Symbol</code> or a pooled canonical long spelling.</p>
+<p>Source: <code>lib/common.x:75</code></p>
+<p><a id="Block"></a></p>
+<h3 id="block-1"><a class="header" href="#block-1">Block</a></h3>
+<p><code>typedef struct Block *Block</code></p>
+<p>Opaque handle to <code>Scope</code>-owned mutable fixed-width storage.</p>
+<p>Source: <code>lib/common.x:67</code></p>
+<p><a id="Buffer"></a></p>
+<h3 id="buffer-1"><a class="header" href="#buffer-1">Buffer</a></h3>
+<p><code>typedef struct Buffer *Buffer</code></p>
+<p>Opaque handle to a <code>Scope</code>-owned mutable text builder.</p>
+<p>Source: <code>lib/common.x:69</code></p>
+<p><a id="Bytes"></a></p>
+<h3 id="bytes-1"><a class="header" href="#bytes-1">Bytes</a></h3>
+<p><code>typedef void *Bytes</code></p>
+<p>Data pointer into <code>Block</code>-owned raw element storage.</p>
+<p>Source: <code>lib/common.x:65</code></p>
+<p><a id="Context"></a></p>
+<h3 id="context"><a class="header" href="#context">Context</a></h3>
+<p><code>typedef struct Context *Context</code></p>
+<p>Bounded <code>Scope</code>, <code>Error</code>, <code>Match</code>, and optional canonical-pool state.</p>
+<p>Source: <code>lib/common.x:89</code></p>
+<p><a id="File"></a></p>
+<h3 id="file-1"><a class="header" href="#file-1">File</a></h3>
+<p><code>typedef FILE *File</code></p>
+<p>Native stdio stream handle whose opener determines close ownership.</p>
+<p>Source: <code>lib/common.x:103</code></p>
+<p><a id="Func"></a></p>
+<h3 id="func"><a class="header" href="#func">Func</a></h3>
+<p><code>typedef struct Func *Func</code></p>
+<p><code>Scope</code>-owned generic native-call adapter and optional bound context.</p>
+<p>Source: <code>lib/common.x:97</code></p>
+<p><a id="Iter"></a></p>
+<h3 id="iter-1"><a class="header" href="#iter-1">Iter</a></h3>
+<p><code>typedef struct Iter *Iter</code></p>
+<p>Mutable traversal state whose sources must outlive its iteration.</p>
+<p>Source: <code>lib/common.x:105</code></p>
+<p><a id="List"></a></p>
+<h3 id="list-1"><a class="header" href="#list-1">List</a></h3>
+<p><code>typedef struct List *List</code></p>
+<p>Immutable canonical cons chain; NULL is <code>nil</code>.
+Its lifetime follows its owning <code>List</code> pool, which may be an ancestor.</p>
+<p>Source: <code>lib/common.x:81</code></p>
+<p><a id="Map"></a></p>
+<h3 id="map-1"><a class="header" href="#map-1">Map</a></h3>
+<p><code>typedef struct Map *Map</code></p>
+<p><code>Scope</code>-owned mutable table mapping <code>Var</code> keys to <code>Var</code> values.</p>
+<p>Source: <code>lib/common.x:85</code></p>
+<p><a id="Mutex"></a></p>
+<h3 id="mutex"><a class="header" href="#mutex">Mutex</a></h3>
+<p><code>typedef struct Mutex *Mutex</code></p>
+<p><code>Scope</code>-owned opaque mutex that must outlive every accessing thread.</p>
+<p>Source: <code>lib/common.x:91</code></p>
+<p><a id="Pool"></a></p>
+<h3 id="pool"><a class="header" href="#pool">Pool</a></h3>
+<p><code>typedef struct Pool *Pool</code></p>
+<p>Nested canonicalization table with <code>Scope</code>-backed object storage.</p>
+<p>Source: <code>lib/common.x:87</code></p>
+<p><a id="RenderPath"></a></p>
+<h3 id="renderpath"><a class="header" href="#renderpath">RenderPath</a></h3>
+<p><code>typedef struct RenderPath { const void *identity; struct RenderPath *previous; } RenderPath</code></p>
+<p>Caller-owned frame in this thread’s active recursive rendering path.</p>
+<p>Source: <code>lib/common.x:117</code></p>
+<p><a id="Scope"></a></p>
+<h3 id="scope"><a class="header" href="#scope">Scope</a></h3>
+<p><code>typedef struct Scope *Scope</code></p>
+<p>Region owner for individually tracked runtime allocations.</p>
+<p>Source: <code>lib/common.x:83</code></p>
+<p><a id="String"></a></p>
+<h3 id="string-1"><a class="header" href="#string-1">String</a></h3>
+<p><code>typedef char *String</code></p>
+<p>Immutable canonical NUL-terminated bytes; NULL is the empty <code>String</code>.
+Its lifetime follows its owning <code>String</code> pool, which may be an ancestor.</p>
+<p>Source: <code>lib/common.x:101</code></p>
+<p><a id="Symbol"></a></p>
+<h3 id="symbol-1"><a class="header" href="#symbol-1">Symbol</a></h3>
+<p><code>typedef unsigned long Symbol</code></p>
+<p>Immediate compact name encoding with no allocation ownership.</p>
+<p>Source: <code>lib/common.x:71</code></p>
+<p><a id="SymbolSet"></a></p>
+<h3 id="symbolset"><a class="header" href="#symbolset">SymbolSet</a></h3>
+<p><code>typedef unsigned char *SymbolSet</code></p>
+<p>Borrowed immutable compiler-generated set of compact <code>Symbol</code>s.</p>
+<p>Source: <code>lib/common.x:73</code></p>
+<p><a id="Thread"></a></p>
+<h3 id="thread"><a class="header" href="#thread">Thread</a></h3>
+<p><code>typedef struct Thread *Thread</code></p>
+<p>Caller-owned handle to a <code>Context</code>-backed worker.
+Join the worker before freeing the handle.</p>
+<p>Source: <code>lib/common.x:95</code></p>
+<p><a id="Var"></a></p>
+<h3 id="var-1"><a class="header" href="#var-1">Var</a></h3>
+<p><code>typedef union Var { unsigned long u64; double f64, void *p64; } Var</code></p>
+<p>Eight-byte tagged runtime value for immediate scalars and encoded handles.
+Pointer-bearing values follow the ownership rules of their concrete type;
+raw <code>Null</code> is all zero bits and <code>void</code> is all one bits.</p>
+<p>Source: <code>lib/common.x:30</code></p>
+<p><a id="VarBinaryFn"></a></p>
+<h3 id="varbinaryfn"><a class="header" href="#varbinaryfn">VarBinaryFn</a></h3>
+<p><code>typedef Var (*VarBinaryFn)(Var lhs, Var rhs)</code></p>
+<p>Applies one descriptor-owned binary operation and returns its result.</p>
+<p>Source: <code>lib/common.x:144</code></p>
+<p><a id="VarCompareFn"></a></p>
+<h3 id="varcomparefn"><a class="header" href="#varcomparefn">VarCompareFn</a></h3>
+<p><code>typedef int (*VarCompareFn)(Var, Var)</code></p>
+<p>Returns negative, zero, or positive for two <code>Var</code>s of one descriptor.</p>
+<p>Source: <code>lib/common.x:138</code></p>
+<p><a id="VarContainsFn"></a></p>
+<h3 id="varcontainsfn"><a class="header" href="#varcontainsfn">VarContainsFn</a></h3>
+<p><code>typedef int (*VarContainsFn)(Var receiver, Var needle)</code></p>
+<p>Reports whether <code>receiver</code> contains <code>needle</code>.</p>
+<p>Source: <code>lib/common.x:142</code></p>
+<p><a id="VarEqualFn"></a></p>
+<h3 id="varequalfn"><a class="header" href="#varequalfn">VarEqualFn</a></h3>
+<p><code>typedef int (*VarEqualFn)(Var, Var)</code></p>
+<p>Reports value equality for two <code>Var</code>s with the same descriptor.</p>
+<p>Source: <code>lib/common.x:132</code></p>
+<p><a id="VarExportContextFn"></a></p>
+<h3 id="varexportcontextfn"><a class="header" href="#varexportcontextfn">VarExportContextFn</a></h3>
+<p><code>typedef Var (*VarExportContextFn)(Var value, Context source)</code></p>
+<p>Exports a custom value from <code>source</code> into its destination <code>Context</code>.
+Implementations move owned storage and recursively export nested values.</p>
+<p>Source: <code>lib/common.x:158</code></p>
+<p><a id="VarGetIndexFn"></a></p>
+<h3 id="vargetindexfn"><a class="header" href="#vargetindexfn">VarGetIndexFn</a></h3>
+<p><code>typedef Var (*VarGetIndexFn)(Var receiver, Var key)</code></p>
+<p>Reads one dynamically indexed value.</p>
+<p>Source: <code>lib/common.x:148</code></p>
+<p><a id="VarHashFn"></a></p>
+<h3 id="varhashfn"><a class="header" href="#varhashfn">VarHashFn</a></h3>
+<p><code>typedef unsigned (*VarHashFn)(Var)</code></p>
+<p>Computes one <code>Var</code> hash; <code>Var.hash</code> normalizes a zero result.</p>
+<p>Source: <code>lib/common.x:130</code></p>
+<p><a id="VarIterIntoFn"></a></p>
+<h3 id="variterintofn"><a class="header" href="#variterintofn">VarIterIntoFn</a></h3>
+<p><code>typedef Iter (*VarIterIntoFn)(Var, Iter)</code></p>
+<p>Initializes traversal in caller-provided <code>Iter</code> storage and returns it.
+The storage and any retained receiver state must outlive traversal.</p>
+<p>Source: <code>lib/common.x:136</code></p>
+<p><a id="VarMethods"></a></p>
+<h3 id="varmethods"><a class="header" href="#varmethods">VarMethods</a></h3>
+<p><code>typedef struct VarMethods { VarStrFn str, repr, VarHashFn hash, VarEqualFn equal, VarCompareFn compare; VarTruthFn truth, VarIterIntoFn iter, VarWriteFn write_str, write_repr; VarContainsFn contains, VarBinaryFn add, sub, mul, div, mod, matmul; VarUnaryFn neg; VarGetIndexFn getindex, VarSetIndexFn setindex, VarUpdateIndexFn updateindex; VarPostfixIndexFn postfixindex, VarExportContextFn export_context; } VarMethods</code></p>
+<p>Sparse process-global callback row for one <code>Var</code> descriptor.
+Registration stores each non-NULL function pointer without ownership and
+leaves existing slots unchanged for NULL fields. Callback code must remain
+loaded until its pointer is replaced or the process ends. Callbacks run
+synchronously when their operation dispatches; registration invokes none
+and retains no callback context.</p>
+<p>Source: <code>lib/common.x:171</code></p>
+<p><a id="VarPostfixIndexFn"></a></p>
+<h3 id="varpostfixindexfn"><a class="header" href="#varpostfixindexfn">VarPostfixIndexFn</a></h3>
+<p><code>typedef Var (*VarPostfixIndexFn)(Var receiver, Var key, Symbol op)</code></p>
+<p>Applies an indexed postfix operation and returns the prior value.</p>
+<p>Source: <code>lib/common.x:154</code></p>
+<p><a id="VarSetIndexFn"></a></p>
+<h3 id="varsetindexfn"><a class="header" href="#varsetindexfn">VarSetIndexFn</a></h3>
+<p><code>typedef Var (*VarSetIndexFn)(Var receiver, Var key, Var value)</code></p>
+<p>Stores an indexed value and returns the assignment result.</p>
+<p>Source: <code>lib/common.x:150</code></p>
+<p><a id="VarStrFn"></a></p>
+<h3 id="varstrfn"><a class="header" href="#varstrfn">VarStrFn</a></h3>
+<p><code>typedef String (*VarStrFn)(Var)</code></p>
+<p>Renders one <code>Var</code> as a display or readable <code>String</code>.</p>
+<p>Source: <code>lib/common.x:126</code></p>
+<p><a id="VarTruthFn"></a></p>
+<h3 id="vartruthfn"><a class="header" href="#vartruthfn">VarTruthFn</a></h3>
+<p><code>typedef int (*VarTruthFn)(Var)</code></p>
+<p>Reports whether a <code>Var</code> is true.</p>
+<p>Source: <code>lib/common.x:140</code></p>
+<p><a id="VarUnaryFn"></a></p>
+<h3 id="varunaryfn"><a class="header" href="#varunaryfn">VarUnaryFn</a></h3>
+<p><code>typedef Var (*VarUnaryFn)(Var value)</code></p>
+<p>Applies one descriptor-owned unary operation and returns its result.</p>
+<p>Source: <code>lib/common.x:146</code></p>
+<p><a id="VarUpdateIndexFn"></a></p>
+<h3 id="varupdateindexfn"><a class="header" href="#varupdateindexfn">VarUpdateIndexFn</a></h3>
+<p><code>typedef Var (*VarUpdateIndexFn)(Var receiver, Var key, Symbol op, Var rhs)</code></p>
+<p>Applies an indexed compound operation and returns the stored result.</p>
+<p>Source: <code>lib/common.x:152</code></p>
+<p><a id="VarWriteFn"></a></p>
+<h3 id="varwritefn"><a class="header" href="#varwritefn">VarWriteFn</a></h3>
+<p><code>typedef Buffer (*VarWriteFn)(Var, Buffer)</code></p>
+<p>Appends one <code>Var</code> rendering to a caller-owned <code>Buffer</code> and returns it.</p>
+<p>Source: <code>lib/common.x:128</code></p>
+<p><a id="X2CErrorSite"></a></p>
+<h3 id="x2cerrorsite"><a class="header" href="#x2cerrorsite">X2CErrorSite</a></h3>
+<p><code>typedef struct X2CErrorSite { const char *file, *function, int line; } X2CErrorSite</code></p>
+<p>Borrowed source location supplied during one compiler-generated raise.
+The pointed-to file and function spellings must outlive that call.</p>
+<p>Source: <code>lib/common.x:186</code></p>
+<p><a id="X2CStatic"></a></p>
+<h3 id="x2cstatic"><a class="header" href="#x2cstatic">X2CStatic</a></h3>
+<p><code>typedef struct X2CStatic { int ready; void *payload, *owner; struct X2CStatic *next; } X2CStatic</code></p>
+<p>Zero-initialized compiler storage for one dynamic local static.
+The runtime owns its fields. <code>payload</code> becomes available to the winning
+initializer before publication; an acquire returning zero observes the
+committed value. Failed attempts retain their address until teardown.
+Payload storage retains no referenced runtime objects.</p>
+<p>Source: <code>lib/common.x:221</code></p>
+<h3 id="uchar-1"><a class="header" href="#uchar-1">uchar</a></h3>
+<p><code>typedef unsigned char uchar</code></p>
+<p>Unsigned native character type.</p>
+<p>Source: <code>lib/common.x:108</code></p>
+<h3 id="uint-1"><a class="header" href="#uint-1">uint</a></h3>
+<p><code>typedef unsigned int uint</code></p>
+<p>Unsigned native int type.</p>
+<p>Source: <code>lib/common.x:112</code></p>
+<h3 id="ulong-1"><a class="header" href="#ulong-1">ulong</a></h3>
+<p><code>typedef unsigned long ulong</code></p>
+<p>Unsigned native long type.</p>
+<p>Source: <code>lib/common.x:114</code></p>
+<h3 id="ushort-1"><a class="header" href="#ushort-1">ushort</a></h3>
+<p><code>typedef unsigned short ushort</code></p>
+<p>Unsigned native short type.</p>
+<p>Source: <code>lib/common.x:110</code></p>
+<h2 id="design-notes"><a class="header" href="#design-notes">Design notes</a></h2>
+<p>Every runtime module includes this one. It defines the eight-byte <code>Var</code>
+union itself, the compile-time assertions that pin the native type
+sizes the encoding depends on, the <code>Symbol</code> outcome names that
+status returning APIs share, and the declarations that let modules
+name each other without an include cycle. It also defines immediate
+scalar boxing, runtime startup, and shared index normalization.
+Pointer-shaped <code>Var</code> extractors are ABI crossings whose callers establish
+the advertised source kind; scalar readers instead convert nonmatching
+numeric tags through <code>Var.convert</code>.</p>
+
+                    </main>
+
+                    <nav class="x2c-pager" aria-label="Page navigation">
+                        <a rel="prev" href="../../library/modules/buffer.html" class="x2c-pager-prev" aria-keyshortcuts="Left">
+                            <span class="x2c-pager-label">previous</span>
+                            <span class="x2c-pager-title">lib/buffer.x</span>
+                        </a>
+                        
+                        <a rel="next prefetch" href="../../library/modules/context.html" class="x2c-pager-next" aria-keyshortcuts="Right">
+                            <span class="x2c-pager-label">next</span>
+                            <span class="x2c-pager-title">lib/context.x</span>
+                        </a>
+                    </nav>
+                    <footer class="x2c-footer">
+                        &copy; 2025&ndash;2026
+                        <a href="https://flake.org">GWF</a>
+                        &middot;
+                        <a href="https://github.com/gwf/x2c/blob/c2a89d999e81f47a4422a26edf0033eb0b98c6c6/LICENSE">Apache 2.0</a>
+                        &middot;
+                        <a href="https://github.com/gwf/x2c/blob/c2a89d999e81f47a4422a26edf0033eb0b98c6c6/TRADEMARKS.md">Trademarks</a>
+                    </footer>
+                </div>
+            </div>
+
+
+        </div>
+
+        <template id=fa-eye><span class=fa-svg><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 576 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc. --><path d="M288 32c-80.8 0-145.5 36.8-192.6 80.6C48.6 156 17.3 208 2.5 243.7c-3.3 7.9-3.3 16.7 0 24.6C17.3 304 48.6 356 95.4 399.4C142.5 443.2 207.2 480 288 480s145.5-36.8 192.6-80.6c46.8-43.5 78.1-95.4 93-131.1c3.3-7.9 3.3-16.7 0-24.6c-14.9-35.7-46.2-87.7-93-131.1C433.5 68.8 368.8 32 288 32zM432 256c0 79.5-64.5 144-144 144s-144-64.5-144-144s64.5-144 144-144s144 64.5 144 144zM288 192c0 35.3-28.7 64-64 64c-11.5 0-22.3-3-31.6-8.4c-.2 2.8-.4 5.5-.4 8.4c0 53 43 96 96 96s96-43 96-96s-43-96-96-96c-2.8 0-5.6 .1-8.4 .4c5.3 9.3 8.4 20.1 8.4 31.6z"/></svg></span></template>
+        <template id=fa-eye-slash><span class=fa-svg><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 640 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc. --><path d="M38.8 5.1C28.4-3.1 13.3-1.2 5.1 9.2S-1.2 34.7 9.2 42.9l592 464c10.4 8.2 25.5 6.3 33.7-4.1s6.3-25.5-4.1-33.7L525.6 386.7c39.6-40.6 66.4-86.1 79.9-118.4c3.3-7.9 3.3-16.7 0-24.6c-14.9-35.7-46.2-87.7-93-131.1C465.5 68.8 400.8 32 320 32c-68.2 0-125 26.3-169.3 60.8L38.8 5.1zM223.1 149.5C248.6 126.2 282.7 112 320 112c79.5 0 144 64.5 144 144c0 24.9-6.3 48.3-17.4 68.7L408 294.5c5.2-11.8 8-24.8 8-38.5c0-53-43-96-96-96c-2.8 0-5.6 .1-8.4 .4c5.3 9.3 8.4 20.1 8.4 31.6c0 10.2-2.4 19.8-6.6 28.3l-90.3-70.8zm223.1 298L373 389.9c-16.4 6.5-34.3 10.1-53 10.1c-79.5 0-144-64.5-144-144c0-6.9 .5-13.6 1.4-20.2L83.1 161.5C60.3 191.2 44 220.8 34.5 243.7c-3.3 7.9-3.3 16.7 0 24.6c14.9 35.7 46.2 87.7 93 131.1C174.5 443.2 239.2 480 320 480c47.8 0 89.9-12.9 126.2-32.5z"/></svg></span></template>
+        <template id=fa-copy><span class=fa-svg><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc. --><path d="M502.6 70.63l-61.25-61.25C435.4 3.371 427.2 0 418.7 0H255.1c-35.35 0-64 28.66-64 64l.0195 256C192 355.4 220.7 384 256 384h192c35.2 0 64-28.8 64-64V93.25C512 84.77 508.6 76.63 502.6 70.63zM464 320c0 8.836-7.164 16-16 16H255.1c-8.838 0-16-7.164-16-16L239.1 64.13c0-8.836 7.164-16 16-16h128L384 96c0 17.67 14.33 32 32 32h47.1V320zM272 448c0 8.836-7.164 16-16 16H63.1c-8.838 0-16-7.164-16-16L47.98 192.1c0-8.836 7.164-16 16-16H160V128H63.99c-35.35 0-64 28.65-64 64l.0098 256C.002 483.3 28.66 512 64 512h192c35.2 0 64-28.8 64-64v-32h-47.1L272 448z"/></svg></span></template>
+        <template id=fa-play><span class=fa-svg><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 384 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc. --><path d="M73 39c-14.8-9.1-33.4-9.4-48.5-.9S0 62.6 0 80V432c0 17.4 9.4 33.4 24.5 41.9s33.7 8.1 48.5-.9L361 297c14.3-8.7 23-24.2 23-41s-8.7-32.2-23-41L73 39z"/></svg></span></template>
+        <template id=fa-clock-rotate-left><span class=fa-svg><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc. --><path d="M75 75L41 41C25.9 25.9 0 36.6 0 57.9V168c0 13.3 10.7 24 24 24H134.1c21.4 0 32.1-25.9 17-41l-30.8-30.8C155 85.5 203 64 256 64c106 0 192 86 192 192s-86 192-192 192c-40.8 0-78.6-12.7-109.7-34.4c-14.5-10.1-34.4-6.6-44.6 7.9s-6.6 34.4 7.9 44.6C151.2 495 201.7 512 256 512c141.4 0 256-114.6 256-256S397.4 0 256 0C185.3 0 121.3 28.7 75 75zm181 53c-13.3 0-24 10.7-24 24V256c0 6.4 2.5 12.5 7 17l72 72c9.4 9.4 24.6 9.4 33.9 0s9.4-24.6 0-33.9l-65-65V152c0-13.3-10.7-24-24-24z"/></svg></span></template>
+
+
+
+        <script>
+            window.playground_copyable = true;
+        </script>
+
+
+        <script src="../../elasticlunr-ef4e11c1.min.js"></script>
+        <script src="../../mark-09e88c2c.min.js"></script>
+        <script src="../../searcher-09f2665d.js"></script>
+
+        <script src="../../clipboard-1626706a.min.js"></script>
+        <script src="../../highlight-abc7f01d.js"></script>
+        <script src="../../book-609e4cb8.js"></script>
+
+        <script>
+            document.addEventListener('DOMContentLoaded', () => {
+                const sidebar = document.querySelector('#mdbook-sidebar');
+                sidebar.querySelectorAll('ol').forEach(list => {
+                    const numbers = list.querySelectorAll(
+                        ':scope > li > .chapter-link-wrapper > a > strong, :scope > li > a > strong');
+                    if (numbers.length) {
+                        const width = Math.max(...Array.from(numbers,
+                            number => number.textContent.trim().length));
+                        list.style.setProperty('--chapter-number-width', width + 'ch');
+                    }
+                });
+                const chapter = sidebar.querySelector('a.active');
+                const item = chapter?.closest('.chapter-item');
+                if (item?.querySelector(':scope > .on-this-page')) {
+                    const row = chapter.parentElement;
+                    if (!row.querySelector('.chapter-fold-toggle')) {
+                        const toggle = document.createElement('button');
+                        toggle.type = 'button';
+                        toggle.className = 'chapter-fold-toggle';
+                        toggle.appendChild(document.createElement('div'));
+                        toggle.addEventListener('click', () => {
+                            item.classList.toggle('expanded');
+                        });
+                        row.appendChild(toggle);
+                    }
+                }
+                sidebar.querySelectorAll('.chapter-fold-toggle').forEach(toggle => {
+                    const row = toggle.parentElement;
+                    const item = row.parentElement;
+                    const title = row.querySelector('a').textContent.trim();
+                    toggle.setAttribute('aria-label', 'Toggle ' + title);
+                    const update = () => toggle.setAttribute('aria-expanded',
+                        String(item.classList.contains('expanded')));
+                    update();
+                    toggle.addEventListener('click', update);
+                    if (toggle.tagName === 'A') {
+                        toggle.setAttribute('role', 'button');
+                        toggle.tabIndex = 0;
+                        toggle.addEventListener('keydown', event => {
+                            if (event.key === 'Enter' || event.key === ' ') {
+                                event.preventDefault();
+                                toggle.click();
+                            }
+                        });
+                    }
+                });
+            });
+        </script>
+
+        <!-- Custom JS scripts -->
+
+
+
+    </div>
+    </body>
+</html>

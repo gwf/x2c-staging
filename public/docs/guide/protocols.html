@@ -1,0 +1,788 @@
+<!DOCTYPE HTML>
+<html lang="en" class="light sidebar-visible" dir="ltr">
+    <head>
+        <!-- Book generated using mdBook -->
+        <meta charset="UTF-8">
+        <title>Protocols - The x2c Book</title>
+
+
+        <!-- Custom HTML head -->
+        <link rel="preconnect" href="https://fonts.googleapis.com">
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=Archivo:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">
+
+        <meta name="description" content="The x2c language, standard library, and compiler.">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <meta name="theme-color" content="#ffffff">
+
+        <link rel="icon" href="../favicon-995a3c20.svg">
+        <link rel="stylesheet" href="../css/variables-8adf115d.css">
+        <link rel="stylesheet" href="../css/general-e96d0476.css">
+        <link rel="stylesheet" href="../css/chrome-d279d366.css">
+        <link rel="stylesheet" href="../css/print-9e4910d8.css" media="print">
+
+        <!-- Fonts -->
+        <link rel="stylesheet" href="../fonts/fonts-9644e21d.css">
+
+        <!-- Highlight.js Stylesheets -->
+        <link rel="stylesheet" id="mdbook-highlight-css" href="../highlight-493f70e1.css">
+        <link rel="stylesheet" id="mdbook-tomorrow-night-css" href="../tomorrow-night-4c0ae647.css">
+        <link rel="stylesheet" id="mdbook-ayu-highlight-css" href="../ayu-highlight-3fdfc3ac.css">
+
+        <!-- Custom theme stylesheets -->
+        <link rel="stylesheet" href="../theme/header-2c1becca.css">
+        <link rel="stylesheet" href="../theme/x2c-fd3d182e.css">
+
+
+        <!-- Provide site root and default themes to javascript -->
+        <script>
+            const path_to_root = "../";
+            const default_light_theme = "light";
+            const default_dark_theme = "light";
+            window.path_to_searchindex_js = "../searchindex-2643e100.js";
+        </script>
+        <!-- Start loading toc.js asap -->
+        <script src="../toc-a71616d6.js"></script>
+        <!-- x2c publication metadata -->
+        <link rel="canonical" href="https://staging.x2c-lang.dev/docs/guide/protocols.html">
+        <meta property="og:type" content="website">
+        <meta property="og:title" content="Protocols - The x2c Book">
+        <meta property="og:description" content="The x2c language, standard library, and compiler.">
+        <meta property="og:url" content="https://staging.x2c-lang.dev/docs/guide/protocols.html">
+        <meta property="og:image" content="https://staging.x2c-lang.dev/x2c-social.png">
+        <meta property="og:image:width" content="1200">
+        <meta property="og:image:height" content="630">
+        <meta name="twitter:card" content="summary_large_image">
+        <meta name="twitter:title" content="Protocols - The x2c Book">
+        <meta name="twitter:description" content="The x2c language, standard library, and compiler.">
+        <meta name="twitter:image" content="https://staging.x2c-lang.dev/x2c-social.png">
+    </head>
+    <body><aside aria-label="Release candidate" style="padding:1rem;background:#fff1bf;color:#241c00;font:14px/1.5 monospace;overflow-wrap:anywhere"><strong>Public staging: candidate-c2a89d999e81f47a4422a26edf0033eb0b98c6c6-35470032964-1</strong><p>Source: c2a89d999e81f47a4422a26edf0033eb0b98c6c6. Use a fresh scratch installation and the explicit candidate index below. Bare x2c install commands and production URLs in the book refer to production.</p><pre style="overflow:auto">export X2C_PREFIX=&quot;$(mktemp -d)/x2c&quot;
+curl -fsSL https://staging.x2c-lang.dev/install.sh | sh
+export PATH=&quot;$X2C_PREFIX/bin:$PATH&quot;
+x2c run &quot;$X2C_PREFIX/examples/foreach.x&quot;
+x2c install pcre2 --index https://staging.x2c-lang.dev/packages/index.txt</pre></aside>
+    <div id="mdbook-help-container">
+        <div id="mdbook-help-popup">
+            <h2 class="mdbook-help-title">Keyboard shortcuts</h2>
+            <div>
+                <p>Press <kbd>←</kbd> or <kbd>→</kbd> to navigate between chapters</p>
+                <p>Press <kbd>S</kbd> or <kbd>/</kbd> to search in the book</p>
+                <p>Press <kbd>?</kbd> to show this help</p>
+                <p>Press <kbd>Esc</kbd> to hide this help</p>
+            </div>
+        </div>
+    </div>
+    <div id="mdbook-body-container">
+        <!-- Work around some values being stored in localStorage wrapped in quotes -->
+        <script>
+            try {
+                let theme = localStorage.getItem('mdbook-theme');
+                let sidebar = localStorage.getItem('mdbook-sidebar');
+
+                if (theme.startsWith('"') && theme.endsWith('"')) {
+                    localStorage.setItem('mdbook-theme', theme.slice(1, theme.length - 1));
+                }
+
+                if (sidebar.startsWith('"') && sidebar.endsWith('"')) {
+                    localStorage.setItem('mdbook-sidebar', sidebar.slice(1, sidebar.length - 1));
+                }
+            } catch (e) { }
+        </script>
+
+        <!-- Set the theme before any content is loaded, prevents flash -->
+        <script>
+            const default_theme = window.matchMedia("(prefers-color-scheme: dark)").matches ? default_dark_theme : default_light_theme;
+            let theme;
+            try { theme = localStorage.getItem('mdbook-theme'); } catch(e) { }
+            if (theme === null || theme === undefined) { theme = default_theme; }
+            const html = document.documentElement;
+            html.classList.remove('light')
+            html.classList.add(theme);
+            html.classList.add("js");
+        </script>
+
+        <input type="checkbox" id="mdbook-sidebar-toggle-anchor" class="hidden">
+
+        <!-- Hide / unhide sidebar before it is displayed -->
+        <script>
+            let sidebar = null;
+            const sidebar_toggle = document.getElementById("mdbook-sidebar-toggle-anchor");
+            if (document.body.clientWidth >= 1080) {
+                try { sidebar = localStorage.getItem('mdbook-sidebar'); } catch(e) { }
+                sidebar = sidebar || 'visible';
+            } else {
+                sidebar = 'hidden';
+                sidebar_toggle.checked = false;
+            }
+            if (sidebar === 'visible') {
+                sidebar_toggle.checked = true;
+            } else {
+                html.classList.remove('sidebar-visible');
+            }
+        </script>
+
+        <nav id="mdbook-sidebar" class="sidebar" aria-label="Table of contents">
+            <!-- populated by js -->
+            <mdbook-sidebar-scrollbox class="sidebar-scrollbox"></mdbook-sidebar-scrollbox>
+            <noscript>
+                <iframe class="sidebar-iframe-outer" src="../toc.html"></iframe>
+            </noscript>
+            <div id="mdbook-sidebar-resize-handle" class="sidebar-resize-handle">
+                <div class="sidebar-resize-indicator"></div>
+            </div>
+        </nav>
+
+        <div id="mdbook-page-wrapper" class="page-wrapper">
+
+            <div class="page">
+                <div id="mdbook-menu-bar" class="hidden"></div>
+                <header class="landing-header x2c-header">
+                    <div class="landing-header-inner">
+                        <div class="landing-branding">
+                            <a class="landing-brand" href="../../" aria-label="x2c home">
+                                <svg viewBox="0 0 100 100" width="22" height="22" aria-hidden="true"><g fill="none" stroke="#da291c" stroke-width="17" stroke-linecap="butt"><path d="M9 16 A34.5 34.5 0 0 1 9 84"></path><path d="M91 16 A34.5 34.5 0 0 0 91 84"></path></g></svg>
+                                <span class="x2c-wordmark landing-wordmark">x2c</span>
+                            </a>
+                            <span class="landing-tagline">The x2c Book</span>
+                        </div>
+                        <nav class="landing-nav" aria-label="x2c website">
+                            <div class="landing-page-nav">
+                                <a href="../../#love">love</a>
+                                <a href="../../#power">power</a>
+                                <a href="../../#magic">magic</a>
+                            </div>
+                            <div class="landing-site-nav">
+                                <a href="../../#install">install</a>
+                                <a href="../../#packages">packages</a>
+                            </div>
+                            <div class="landing-reference-nav">
+                                <a href="../../about/">about</a>
+                                <a href="../" aria-current="page">docs</a>
+                                <a href="https://github.com/gwf/x2c">source</a>
+                            </div>
+                        </nav>
+                    </div>
+                    <div class="x2c-book-tools">
+                        <div class="x2c-header-tools">
+                            <label id="mdbook-sidebar-toggle" class="icon-button" for="mdbook-sidebar-toggle-anchor" title="Toggle Table of Contents" aria-label="Toggle Table of Contents" aria-controls="mdbook-sidebar">
+                                <span class=fa-svg><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc. --><path d="M0 96C0 78.3 14.3 64 32 64H416c17.7 0 32 14.3 32 32s-14.3 32-32 32H32C14.3 128 0 113.7 0 96zM0 256c0-17.7 14.3-32 32-32H416c17.7 0 32 14.3 32 32s-14.3 32-32 32H32c-17.7 0-32-14.3-32-32zM448 416c0 17.7-14.3 32-32 32H32c-17.7 0-32-14.3-32-32s14.3-32 32-32H416c17.7 0 32 14.3 32 32z"/></svg></span>
+                            </label>
+                        </div>
+                        <div class="x2c-header-tools x2c-header-tools-right">
+                            <button id="mdbook-search-toggle" class="icon-button" type="button" title="Search (`/`)" aria-label="Toggle Searchbar" aria-expanded="false" aria-keyshortcuts="/ s" aria-controls="mdbook-searchbar">
+                                <span class=fa-svg><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc. --><path d="M416 208c0 45.9-14.9 88.3-40 122.7L502.6 457.4c12.5 12.5 12.5 32.8 0 45.3s-32.8 12.5-45.3 0L330.7 376c-34.4 25.2-76.8 40-122.7 40C93.1 416 0 322.9 0 208S93.1 0 208 0S416 93.1 416 208zM208 352c79.5 0 144-64.5 144-144s-64.5-144-144-144S64 128.5 64 208s64.5 144 144 144z"/></svg></span>
+                            </button>
+                            <button id="mdbook-theme-toggle" class="icon-button" type="button" title="Change theme" aria-label="Change theme" aria-haspopup="true" aria-expanded="false" aria-controls="mdbook-theme-list">
+                                <span class=fa-svg><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc. --><path d="M448 256c0-106-86-192-192-192V448c106 0 192-86 192-192zm64 0c0 141.4-114.6 256-256 256S0 397.4 0 256S114.6 0 256 0S512 114.6 512 256z"/></svg></span>
+                            </button>
+                            <ul id="mdbook-theme-list" class="theme-popup" aria-label="Themes" role="menu">
+                                <li role="none"><button role="menuitem" class="theme" id="mdbook-theme-default_theme">Auto</button></li>
+                                <li role="none"><button role="menuitem" class="theme" id="mdbook-theme-light">Light</button></li>
+                                <li role="none"><button role="menuitem" class="theme" id="mdbook-theme-ayu">Dark</button></li>
+                            </ul>
+                            <a href="https://github.com/gwf/x2c/edit/main/docs/src/guide/protocols.md" title="Suggest an edit" aria-label="Suggest an edit" rel="edit" class="icon-button">
+                                <span class=fa-svg id="git-edit-button"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc. --><path d="M421.7 220.3l-11.3 11.3-22.6 22.6-205 205c-6.6 6.6-14.8 11.5-23.8 14.1L30.8 511c-8.4 2.5-17.5 .2-23.7-6.1S-1.5 489.7 1 481.2L38.7 353.1c2.6-9 7.5-17.2 14.1-23.8l205-205 22.6-22.6 11.3-11.3 33.9 33.9 62.1 62.1 33.9 33.9zM96 353.9l-9.3 9.3c-.9 .9-1.6 2.1-2 3.4l-25.3 86 86-25.3c1.3-.4 2.5-1.1 3.4-2l9.3-9.3H112c-8.8 0-16-7.2-16-16V353.9zM453.3 19.3l39.4 39.4c25 25 25 65.5 0 90.5l-14.5 14.5-22.6 22.6-11.3 11.3-33.9-33.9-62.1-62.1L314.3 67.7l11.3-11.3 22.6-22.6 14.5-14.5c25-25 65.5-25 90.5 0z"/></svg></span>
+                            </a>
+                        </div>
+                    </div>
+                </header>
+                <script>
+                    const bookHeader = document.querySelector('.x2c-header');
+                    new ResizeObserver(() => {
+                        document.documentElement.style.setProperty(
+                            '--menu-bar-height', `${bookHeader.getBoundingClientRect().height}px`);
+                    }).observe(bookHeader);
+                </script>
+
+                <div id="mdbook-search-wrapper" class="hidden">
+                    <form id="mdbook-searchbar-outer" class="searchbar-outer">
+                        <div class="search-wrapper">
+                            <input type="search" id="mdbook-searchbar" name="searchbar" placeholder="Search this book ..." aria-controls="mdbook-searchresults-outer" aria-describedby="searchresults-header">
+                            <div class="spinner-wrapper">
+                                <span class=fa-svg id="fa-spin"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc. --><path d="M304 48c0-26.5-21.5-48-48-48s-48 21.5-48 48s21.5 48 48 48s48-21.5 48-48zm0 416c0-26.5-21.5-48-48-48s-48 21.5-48 48s21.5 48 48 48s48-21.5 48-48zM48 304c26.5 0 48-21.5 48-48s-21.5-48-48-48s-48 21.5-48 48s21.5 48 48 48zm464-48c0-26.5-21.5-48-48-48s-48 21.5-48 48s21.5 48 48 48s48-21.5 48-48zM142.9 437c18.7-18.7 18.7-49.1 0-67.9s-49.1-18.7-67.9 0s-18.7 49.1 0 67.9s49.1 18.7 67.9 0zm0-294.2c18.7-18.7 18.7-49.1 0-67.9S93.7 56.2 75 75s-18.7 49.1 0 67.9s49.1 18.7 67.9 0zM369.1 437c18.7 18.7 49.1 18.7 67.9 0s18.7-49.1 0-67.9s-49.1-18.7-67.9 0s-18.7 49.1 0 67.9z"/></svg></span>
+                            </div>
+                        </div>
+                    </form>
+                    <div id="mdbook-searchresults-outer" class="searchresults-outer hidden">
+                        <div id="mdbook-searchresults-header" class="searchresults-header"></div>
+                        <ul id="mdbook-searchresults">
+                        </ul>
+                    </div>
+                </div>
+
+                <!-- Apply ARIA attributes after the sidebar and the sidebar toggle button are added to the DOM -->
+                <script>
+                    document.getElementById('mdbook-sidebar-toggle').setAttribute('aria-expanded', sidebar === 'visible');
+                    document.getElementById('mdbook-sidebar').setAttribute('aria-hidden', sidebar !== 'visible');
+                    Array.from(document.querySelectorAll('#mdbook-sidebar a')).forEach(function(link) {
+                        link.setAttribute('tabIndex', sidebar === 'visible' ? 0 : -1);
+                    });
+                </script>
+
+                <div id="mdbook-content" class="content">
+                    <main>
+                        <h1 id="protocols"><a class="header" href="#protocols">Protocols</a></h1>
+<p><a href="system-macros.html#clean-up-an-initialized-local"><code>Cleanup(T)</code></a> declares
+<code>void T.cleanup(T)</code> for explicitly owned locals. Classes select their defaults
+and participate through the same protocol and method rules.</p>
+<p>A protocol declares methods that other concrete types can adopt. Its <em>base</em>
+is the type that declares those methods; a <em>participant</em> is a type that
+explicitly adopts them. The compiler selects each participant method or
+adapts a base method by converting its arguments and result.</p>
+<p>The selected methods support dot calls, operators, and, for <code>Var</code>, calls on
+boxed values. Adoption works at compile time; it creates no runtime interface
+object. Functions with matching names do not imply adoption.</p>
+<p>Protocols adapt values. Registration, ordering, and generated initialization
+code belong to decorators. Startup and shutdown operations with no receiver
+have no value to convert and are outside the protocol system.</p>
+<h2 id="declaration-and-adoption"><a class="header" href="#declaration-and-adoption">Declaration and adoption</a></h2>
+<p>A declaration names the base type and uses a fresh name, here <code>T</code>, for the
+participant. It then declares optional associated types and the methods:</p>
+<!-- ignore: partial protocol declaration illustrating the built-in Var protocol -->
+<pre class="shiki shiki-themes x2c-light x2c-dark x2c-code" style="--shiki-light:#24292e;--shiki-dark:#e9e5df;--shiki-light-bg:#fff;--shiki-dark-bg:#101011" tabindex="0"><code class="language-x2c no-highlight ignore"><span class="line"><span style="--shiki-light:#A626A4;--shiki-light-font-weight:bold;--shiki-dark:#FF4FD8;--shiki-dark-font-weight:bold">protocol</span><span style="--shiki-light:#6F42C1;--shiki-dark:#A6D9E5"> Var</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">(</span><span style="--shiki-light:#D73A49;--shiki-dark:#A6D9E5">T</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">) {</span>
+</span><span class="line"><span style="--shiki-light:#A626A4;--shiki-light-font-weight:bold;--shiki-dark:#FF4FD8;--shiki-dark-font-weight:bold">  associated</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF"> Key </span><span style="--shiki-light:#D73A49;--shiki-dark:#E9E5DF">=</span><span style="--shiki-light:#007C8A;--shiki-dark:#29D3E2"> Var</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">;</span>
+</span><span class="line"><span style="--shiki-light:#A626A4;--shiki-light-font-weight:bold;--shiki-dark:#FF4FD8;--shiki-dark-font-weight:bold">  associated</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF"> Value </span><span style="--shiki-light:#D73A49;--shiki-dark:#E9E5DF">=</span><span style="--shiki-light:#007C8A;--shiki-dark:#29D3E2"> Var</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">;</span>
+</span><span class="line">
+</span><span class="line"><span style="--shiki-light:#007C8A;--shiki-dark:#29D3E2">  String</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF"> T.</span><span style="--shiki-light:#6F42C1;--shiki-dark:#E9E5DF">str</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">(T);</span>
+</span><span class="line"><span style="--shiki-light:#D73A49;--shiki-dark:#F0ADA1">  int</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF"> T.</span><span style="--shiki-light:#6F42C1;--shiki-dark:#E9E5DF">truth</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">(T);</span>
+</span><span class="line"><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">  Value T.</span><span style="--shiki-light:#6F42C1;--shiki-dark:#E9E5DF">getindex</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">(T, Key);</span>
+</span><span class="line"><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">  Value T.</span><span style="--shiki-light:#6F42C1;--shiki-dark:#E9E5DF">setindex</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">(T, Key, Value);</span>
+</span><span class="line"><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">}</span></span></code></pre>
+
+<p>Associated types must be declared before methods. Their names and the
+participant name are local to the protocol body. The compiler warns if the
+participant name shadows a visible type: that may be an adoption written as
+a declaration by mistake.</p>
+<p>Participation is a separate, bodyless declaration:</p>
+<pre class="shiki shiki-themes x2c-light x2c-dark x2c-code" style="--shiki-light:#24292e;--shiki-dark:#e9e5df;--shiki-light-bg:#fff;--shiki-dark-bg:#101011" tabindex="0"><code class="language-x2c no-highlight"><span class="line boring"><span style="--shiki-light:#D73A49;--shiki-dark:#E9E5DF">typedef</span><span style="--shiki-light:#D73A49;--shiki-dark:#F0ADA1"> struct</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF"> Vec </span><span style="--shiki-light:#D73A49;--shiki-dark:#E9E5DF">*</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">Vec;</span>
+</span><span class="line boring"><span style="--shiki-light:#007C8A;--shiki-dark:#29D3E2">Var</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF"> Vec.</span><span style="--shiki-light:#6F42C1;--shiki-dark:#E9E5DF">var</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">(Vec </span><span style="--shiki-light:#E36209;--shiki-dark:#E9E5DF">value</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">);</span>
+</span><span class="line boring"><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">Vec </span><span style="--shiki-light:#007C8A;--shiki-dark:#29D3E2">Var</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">.</span><span style="--shiki-light:#6F42C1;--shiki-dark:#E9E5DF">vec</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">(</span><span style="--shiki-light:#007C8A;--shiki-dark:#29D3E2">Var</span><span style="--shiki-light:#E36209;--shiki-dark:#E9E5DF"> value</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">);</span>
+</span><span class="line"><span style="--shiki-light:#A626A4;--shiki-light-font-weight:bold;--shiki-dark:#FF4FD8;--shiki-dark-font-weight:bold">protocol</span><span style="--shiki-light:#6F42C1;--shiki-dark:#A6D9E5"> Var</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">(</span><span style="--shiki-light:#D73A49;--shiki-dark:#A6D9E5">Vec</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">);</span></span></code></pre>
+
+<p><code>Vec</code> must name an existing type. This declaration makes it a participant in
+<code>Var(T)</code>; defining converters or matching typedefs is not enough. The base
+itself is not a participant. Expressions with the base’s exact static type
+continue to use its own methods.</p>
+<p>A typedef can inherit the nearest visible ancestor’s resolved protocol
+methods without its own adoption. It also inherits the associated types,
+conversions, and representation unchanged. The compiler creates no new
+adoption, adapter, alias, descriptor, tag, or registration for that use.</p>
+<p>An explicit adoption on the typedef takes precedence and resolves those
+choices again. If it is invalid, the compiler reports the error; it does not
+fall back to an ancestor.</p>
+<p>A type that is only a typed view of an existing <code>Var</code> representation can name
+that representation explicitly:</p>
+<pre class="shiki shiki-themes x2c-light x2c-dark x2c-code" style="--shiki-light:#24292e;--shiki-dark:#e9e5df;--shiki-light-bg:#fff;--shiki-dark-bg:#101011" tabindex="0"><code class="language-x2c no-highlight"><span class="line"><span style="--shiki-light:#D73A49;--shiki-dark:#E9E5DF">typedef</span><span style="--shiki-light:#007C8A;--shiki-dark:#29D3E2"> List</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF"> Row;</span>
+</span><span class="line">
+</span><span class="line"><span style="--shiki-light:#007C8A;--shiki-dark:#29D3E2">Var</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF"> Row.</span><span style="--shiki-light:#6F42C1;--shiki-dark:#E9E5DF">var</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">(Row </span><span style="--shiki-light:#E36209;--shiki-dark:#E9E5DF">value</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">);</span>
+</span><span class="line"><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">Row </span><span style="--shiki-light:#007C8A;--shiki-dark:#29D3E2">Var</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">.</span><span style="--shiki-light:#6F42C1;--shiki-dark:#E9E5DF">row</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">(</span><span style="--shiki-light:#007C8A;--shiki-dark:#29D3E2">Var</span><span style="--shiki-light:#E36209;--shiki-dark:#E9E5DF"> value</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">);</span>
+</span><span class="line">
+</span><span class="line"><span style="--shiki-light:#A626A4;--shiki-light-font-weight:bold;--shiki-dark:#FF4FD8;--shiki-dark-font-weight:bold">protocol</span><span style="--shiki-light:#6F42C1;--shiki-dark:#A6D9E5"> Var</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">(</span><span style="--shiki-light:#D73A49;--shiki-dark:#A6D9E5">Row</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">) </span><span style="--shiki-light:#A626A4;--shiki-light-font-weight:bold;--shiki-dark:#FF4FD8;--shiki-dark-font-weight:bold">as</span><span style="--shiki-light:#007C8A;--shiki-dark:#29D3E2"> List</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">;</span></span></code></pre>
+
+<p><code>Row</code> has its own methods, function signatures, protocol participation, and
+conversions to and from <code>Var</code>. Compatible <code>List</code> methods satisfy <code>Var(Row)</code>
+directly, without forwarding methods on <code>Row</code>.</p>
+<p>Boxed values still carry <code>&lt;list&gt;</code> and use <code>List</code>’s descriptor for dynamic
+calls; no <code>Row</code> descriptor is registered. Consequently, <code>value is Row</code> and
+<code>value is List</code> mean the same thing. This is a compile-time distinction, not
+a new runtime class. The type after <code>as</code> must already have a fixed <code>Var</code> tag,
+as <code>List</code>, <code>int</code>, and <code>void *</code> do.</p>
+<p>A distinct runtime class whose type name does not encode the desired tag can
+name a shorter custom tag:</p>
+<!-- ignore: declaration excerpt; ArrayString is generated by typed-array.x -->
+<pre class="shiki shiki-themes x2c-light x2c-dark x2c-code" style="--shiki-light:#24292e;--shiki-dark:#e9e5df;--shiki-light-bg:#fff;--shiki-dark-bg:#101011" tabindex="0"><code class="language-x2c no-highlight ignore"><span class="line"><span style="--shiki-light:#A626A4;--shiki-light-font-weight:bold;--shiki-dark:#FF4FD8;--shiki-dark-font-weight:bold">protocol</span><span style="--shiki-light:#6F42C1;--shiki-dark:#A6D9E5"> Var</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">(</span><span style="--shiki-light:#D73A49;--shiki-dark:#A6D9E5">ArrayString</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">) </span><span style="--shiki-light:#A626A4;--shiki-light-font-weight:bold;--shiki-dark:#FF4FD8;--shiki-dark-font-weight:bold">tag</span><span style="--shiki-light:#D73A49;--shiki-dark:#E9E5DF"> &lt;</span><span style="--shiki-light:#D73A49;--shiki-dark:#A6D9E5">arraystr</span><span style="--shiki-light:#D73A49;--shiki-dark:#E9E5DF">&gt;</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">;</span></span></code></pre>
+
+<p>The participant and its converters still use <code>ArrayString</code>, but boxed values
+carry <code>&lt;arraystr&gt;</code>. The tag must be a <code>Symbol</code> literal, must not be built in,
+and must be unique across the process. <code>tag</code> registers the participant’s own
+descriptor; <code>as</code> reuses another type’s descriptor. The two modifiers cannot
+be combined.</p>
+<p>Any concrete adoption may be translation-unit-local:</p>
+<!-- ignore: adoption excerpt; Prepared and LocalPlan are application-defined types -->
+<pre class="shiki shiki-themes x2c-light x2c-dark x2c-code" style="--shiki-light:#24292e;--shiki-dark:#e9e5df;--shiki-light-bg:#fff;--shiki-dark-bg:#101011" tabindex="0"><code class="language-x2c no-highlight ignore"><span class="line"><span style="--shiki-light:#D73A49;--shiki-dark:#F0ADA1">static</span><span style="--shiki-light:#A626A4;--shiki-light-font-weight:bold;--shiki-dark:#FF4FD8;--shiki-dark-font-weight:bold"> protocol</span><span style="--shiki-light:#6F42C1;--shiki-dark:#A6D9E5"> Prepared</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">(</span><span style="--shiki-light:#D73A49;--shiki-dark:#A6D9E5">LocalPlan</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">);</span></span></code></pre>
+
+<p><code>static</code> makes an adoption local to its translation unit, even when all its
+dependencies are public. It is also valid when the protocol, participant, or
+converters are already private; then it states explicitly what the compiler
+would infer. The resulting linkage is the same. Only an adoption can be
+<code>static</code>, not a protocol body.</p>
+<p>Three visibility patterns cover most code:</p>
+<div class="table-wrapper">
+<table>
+<thead>
+<tr><th>Protocol</th><th>Participant</th><th>Typical spelling</th></tr>
+</thead>
+<tbody>
+<tr><td>public</td><td>public</td><td><code>protocol Base(Participant);</code></td></tr>
+<tr><td>public <code>Var</code></td><td>private</td><td><code>protocol Var(PrivateType);</code></td></tr>
+<tr><td>private</td><td>private</td><td><code>static protocol PrivateBase(PrivateType);</code></td></tr>
+</tbody>
+</table>
+</div>
+<p>A private type can therefore participate in the public <code>Var(T)</code> protocol
+without becoming public itself:</p>
+<pre class="shiki shiki-themes x2c-light x2c-dark x2c-code" style="--shiki-light:#24292e;--shiki-dark:#e9e5df;--shiki-light-bg:#fff;--shiki-dark-bg:#101011" tabindex="0"><code class="language-x2c no-highlight"><span class="line"><span style="--shiki-light:#D73A49;--shiki-dark:#F0ADA1">#pragma</span><span style="--shiki-light:#6F42C1;--shiki-dark:#E9E5DF"> private</span>
+</span><span class="line"><span style="--shiki-light:#D73A49;--shiki-dark:#E9E5DF">typedef</span><span style="--shiki-light:#D73A49;--shiki-dark:#F0ADA1"> struct</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF"> LocalPlan </span><span style="--shiki-light:#D73A49;--shiki-dark:#E9E5DF">*</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">LocalPlan;</span>
+</span><span class="line"><span style="--shiki-light:#007C8A;--shiki-dark:#29D3E2">Var</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF"> LocalPlan.</span><span style="--shiki-light:#6F42C1;--shiki-dark:#E9E5DF">var</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">(LocalPlan);</span>
+</span><span class="line"><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">LocalPlan </span><span style="--shiki-light:#007C8A;--shiki-dark:#29D3E2">Var</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">.</span><span style="--shiki-light:#6F42C1;--shiki-dark:#E9E5DF">localplan</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">(</span><span style="--shiki-light:#007C8A;--shiki-dark:#29D3E2">Var</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">);</span>
+</span><span class="line"><span style="--shiki-light:#A626A4;--shiki-light-font-weight:bold;--shiki-dark:#FF4FD8;--shiki-dark-font-weight:bold">protocol</span><span style="--shiki-light:#6F42C1;--shiki-dark:#A6D9E5"> Var</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">(</span><span style="--shiki-light:#D73A49;--shiki-dark:#A6D9E5">LocalPlan</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">);</span></span></code></pre>
+
+<p>A protocol body can be private below <code>#pragma private</code>.
+<code>static protocol Prepared(T) { ... }</code> is invalid because <code>static</code> modifies
+only adoptions. A local ordinary adapter is emitted as <code>static inline</code> in the
+participant’s C file. Local native aliases and their signature checks also
+stay in that file; none of these names appears in the generated header.</p>
+<p>The same linkage rules apply to <code>Var(T)</code> adapters and descriptor thunks.
+Descriptor registration is separate and process-wide. The participant’s unit
+registers either its lowercase type name or its explicit <code>tag</code> for boxed
+dispatch. Keep that tag unique, including across private types in different
+translation units. The compiler retains the full lowercase name to diagnose
+two types claiming the same encoded tag. <code>Var(T) as R</code> reuses <code>R</code>’s descriptor
+and registers nothing for <code>T</code>.</p>
+<p>A generated method cannot have both local and external linkage. If a
+participant requires both, the compiler reports an error at the source
+location. Local native aliases and local descriptor registration are still
+allowed.</p>
+<p>Protocol declarations and adoptions appear at the top level. Neither creates
+a program object or an AST node. The compiler collects them with surrounding
+declarations for each translation unit; reading source, cached declarations,
+or a unit interface gives the same result. Repeating a byte-identical
+declaration has no effect. Conflicting declarations produce errors at their
+source locations.</p>
+<h3 id="placement-and-visibility"><a class="header" href="#placement-and-visibility">Placement and visibility</a></h3>
+<p>The compiler resolves an adoption in the translation unit that declares it.
+That unit must include the protocol, participant type, required converters,
+and any participant methods needed to determine associated types. Put the
+adoption beside its converters. A shared protocol module is suitable only
+when it already includes these declarations.</p>
+<p>The runtime keeps built-in protocol bodies in <code>lib/protocols.x</code> and native
+protocols and adoptions beside the participant typedef. User modules have no
+required filename. A fully public native adoption emits aliases in the header;
+a private adoption or one with a private dependency keeps them in the
+participant’s C file.</p>
+<p>Two private typedefs may adopt a private protocol in one translation unit:
+<code>static protocol PrivateA(PrivateB);</code>. Omitting <code>static</code> has the same effect
+because the dependencies are private. If the selected methods need
+conversions in both directions, define <code>PrivateB.privatea</code> and
+<code>PrivateA.privateb</code>. The entire relationship stays within the translation
+unit.</p>
+<h2 id="conversions-are-demanded-by-adapters"><a class="header" href="#conversions-are-demanded-by-adapters">Conversions are demanded by adapters</a></h2>
+<p>The selected methods determine which conversions an adoption needs. The
+compiler generates adapters for those methods and requires only the
+conversions each adapter uses:</p>
+<div class="table-wrapper">
+<table>
+<thead>
+<tr><th>Adapter</th><th>Required conversion</th></tr>
+</thead>
+<tbody>
+<tr><td>Ordinary default parameter exactly <code>T</code></td><td>participant to base</td></tr>
+<tr><td>Ordinary default result exactly <code>T</code></td><td>base to participant</td></tr>
+<tr><td>Dispatcher thunk parameter of <code>T</code></td><td>base to participant</td></tr>
+<tr><td>Dispatcher thunk result of <code>T</code></td><td>participant to base</td></tr>
+<tr><td>Native alias occurrence of <code>T</code></td><td>the implicit C direction at that position</td></tr>
+</tbody>
+</table>
+</div>
+<p>For a participant <code>P</code> and base <code>Base</code>, name the forward conversion:</p>
+<!-- ignore: signature notation; Base and P stand for arbitrary types -->
+<pre class="shiki shiki-themes x2c-light x2c-dark x2c-code" style="--shiki-light:#24292e;--shiki-dark:#e9e5df;--shiki-light-bg:#fff;--shiki-dark-bg:#101011" tabindex="0"><code class="language-x2c no-highlight ignore"><span class="line"><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">Base P.</span><span style="--shiki-light:#6F42C1;--shiki-dark:#E9E5DF">base</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">(P)</span></span></code></pre>
+
+<p>The forward converter is a <strong>total view</strong>: every value of the declared
+participant must produce a valid base value. A reverse converter has the
+conventional spelling <code>P Base.p(Base)</code>, with <code>Base.as_p</code> reserved for a real
+name collision. It may be checked and partial because not every base value
+must contain a <code>P</code>. Signatures cannot express this totality distinction, so it
+is part of the protocol’s rules.</p>
+<p>For example, <code>Var(T)</code> descriptor thunks both unbox arguments and box results,
+so most object participants need both directions:</p>
+<pre class="shiki shiki-themes x2c-light x2c-dark x2c-code" style="--shiki-light:#24292e;--shiki-dark:#e9e5df;--shiki-light-bg:#fff;--shiki-dark-bg:#101011" tabindex="0"><code class="language-x2c no-highlight"><span class="line boring"><span style="--shiki-light:#D73A49;--shiki-dark:#E9E5DF">typedef</span><span style="--shiki-light:#D73A49;--shiki-dark:#F0ADA1"> struct</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF"> Vec </span><span style="--shiki-light:#D73A49;--shiki-dark:#E9E5DF">*</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">Vec;</span>
+</span><span class="line"><span style="--shiki-light:#007C8A;--shiki-dark:#29D3E2">Var</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF"> Vec.</span><span style="--shiki-light:#6F42C1;--shiki-dark:#E9E5DF">var</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">(Vec </span><span style="--shiki-light:#E36209;--shiki-dark:#E9E5DF">value</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">);</span>
+</span><span class="line"><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">Vec </span><span style="--shiki-light:#007C8A;--shiki-dark:#29D3E2">Var</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">.</span><span style="--shiki-light:#6F42C1;--shiki-dark:#E9E5DF">vec</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">(</span><span style="--shiki-light:#007C8A;--shiki-dark:#29D3E2">Var</span><span style="--shiki-light:#E36209;--shiki-dark:#E9E5DF"> value</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">);</span>
+</span><span class="line"><span style="--shiki-light:#A626A4;--shiki-light-font-weight:bold;--shiki-dark:#FF4FD8;--shiki-dark-font-weight:bold">protocol</span><span style="--shiki-light:#6F42C1;--shiki-dark:#A6D9E5"> Var</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">(</span><span style="--shiki-light:#D73A49;--shiki-dark:#A6D9E5">Vec</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">);</span></span></code></pre>
+
+<p>A forwarding protocol whose defaults use <code>T</code> only as a parameter may need
+only the forward conversion. A default returning <code>T</code> also needs the reverse
+conversion to turn its base result into the participant type. The adapter
+generator does not convert <code>T</code> inside compound parameter or result types, so
+those types are rejected. A missing or unsupported conversion produces an
+error at the adoption, naming the method that needs it.</p>
+<h2 id="member-resolution"><a class="header" href="#member-resolution">Member resolution</a></h2>
+<p>Each adopted member resolves independently. Omitting one does not prevent the
+others from working.</p>
+<div class="table-wrapper">
+<table>
+<thead>
+<tr><th>Resolution</th><th>Dot call</th><th>Mapped punctuation</th><th>Descriptor-backed box</th></tr>
+</thead>
+<tbody>
+<tr><td><code>implemented</code></td><td>participant member</td><td>participant member</td><td>typed thunk</td></tr>
+<tr><td><code>native</code></td><td>checked native alias</td><td>checked native alias</td><td>not implied</td></tr>
+<tr><td>ordinary <code>base-default</code></td><td>generated forwarding member</td><td>forwarding member</td><td>routes through the same winner</td></tr>
+<tr><td><code>no-member</code></td><td>no</td><td>no</td><td>another protocol’s owner, else the base fallback</td></tr>
+<tr><td><code>sig-conflict</code></td><td>compile error</td><td>compile error</td><td>compile error</td></tr>
+</tbody>
+</table>
+</div>
+<p>An ordinary base default calls a base implementation after converting the
+participant through its total forward view. Dot syntax and punctuation use that
+same semantic member, and <code>Var(T)</code> publishes it on <code>T</code>’s descriptor even
+though <code>Var(T)</code> itself resolves the member as <code>no-member</code>. A <code>Var</code> fallback
+such as <code>Var.fallback_truth</code> is only last-resort boxed behavior: a descriptor
+slot that no protocol filled reaches it directly and does not grant a static
+participant method or replace native C punctuation.</p>
+<p>An explicit adoption can use a compatible method inherited through the
+participant’s typedef chain:</p>
+<pre class="shiki shiki-themes x2c-light x2c-dark x2c-code" style="--shiki-light:#24292e;--shiki-dark:#e9e5df;--shiki-light-bg:#fff;--shiki-dark-bg:#101011" tabindex="0"><code class="language-x2c no-highlight"><span class="line"><span style="--shiki-light:#D73A49;--shiki-dark:#E9E5DF">typedef</span><span style="--shiki-light:#007C8A;--shiki-dark:#29D3E2"> List</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF"> Domain;</span>
+</span><span class="line"><span style="--shiki-light:#A626A4;--shiki-light-font-weight:bold;--shiki-dark:#FF4FD8;--shiki-dark-font-weight:bold">protocol</span><span style="--shiki-light:#6F42C1;--shiki-dark:#A6D9E5"> Iter</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">(</span><span style="--shiki-light:#D73A49;--shiki-dark:#A6D9E5">Domain</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">);</span></span></code></pre>
+
+<p><code>Domain</code> can already iterate through its inherited <code>List</code> adoption. The
+explicit adoption resolves <code>Iter</code> again and selects <code>List.iter</code>. Iteration
+therefore calls <code>List_iter</code> directly, with no <code>Domain.iter</code> forwarding method
+or participant-to-base adapter.</p>
+<p>Selection tries the participant’s own method first, then the nearest inherited
+method, then an ordinary base default. Reaching the protocol base uses the
+same default rule. When checking a method, the compiler treats parameters
+with the method’s exact receiver type as participant parameters. Thus
+<code>List.equal(List, List)</code> can satisfy <code>int T.equal(T, T)</code> for a <code>List</code> typedef.
+A concrete result keeps its declared type; a <code>Self</code> result preserves the
+participant’s static typedef.</p>
+<p><code>Var(T)</code> normally remains exact: an ordinary adoption does not search the
+participant’s typedef chain. <code>protocol Var(P) as R</code> is the exception. When
+<code>P</code> inherits from the explicitly named representation <code>R</code>, compatible
+methods owned by <code>R</code> satisfy the adoption without <code>P</code> forwarding methods.
+Boxed values already use <code>R</code>’s descriptor, so compile-time conformance uses
+the same implementation without changing runtime dispatch.</p>
+<p>A participant method with the right name but an incompatible signature is a
+<code>sig-conflict</code>. The compiler reports an error at the adoption and identifies
+the protocol member and conflicting definition. It does not treat the method
+as omitted or issue only a warning.</p>
+<h3 id="associated-types"><a class="header" href="#associated-types">Associated types</a></h3>
+<p><code>associated Name = Default;</code> declares a type variable local to the protocol.
+The compiler infers a participant’s binding by unifying the member signatures
+the participant declares. Every occurrence must resolve to one type, and the
+default applies only when no declared member constrains the name.</p>
+<p>This lets one protocol preserve different static APIs. For example, <code>Array</code> can
+bind an index <code>Key</code> to <code>int</code>, while <code>Map</code> binds it to <code>Var</code>. Calls through a
+boxed value pass associated arguments and results as <code>Var</code>; the generated thunk
+converts each exactly once. Direct calls keep the participant’s static
+signature.</p>
+<h2 id="punctuation"><a class="header" href="#punctuation">Punctuation</a></h2>
+<p>Operators call the same resolved methods as dot syntax. The mappings include:</p>
+<div class="table-wrapper">
+<table>
+<thead>
+<tr><th>Syntax</th><th>Member</th></tr>
+</thead>
+<tbody>
+<tr><td><code>+ - * / % @</code></td><td><code>add sub mul div mod matmul</code></td></tr>
+<tr><td>direct <code>+= -= *= /= %= @=</code></td><td><code>add sub mul div mod matmul</code></td></tr>
+<tr><td>direct prefix/postfix <code>++ --</code></td><td><code>add sub</code> with a converted <code>1</code></td></tr>
+<tr><td>unary <code>-</code></td><td><code>neg</code></td></tr>
+<tr><td><code>== !=</code></td><td><code>equal</code></td></tr>
+<tr><td><code>&lt; &lt;= &gt; &gt;=</code></td><td><code>compare</code> against zero</td></tr>
+<tr><td>conditions, <code>!</code>, <code>&amp;&amp;</code>, `</td><td></td></tr>
+<tr><td><code>needle in value</code></td><td><code>contains</code>, with the right operand as receiver</td></tr>
+<tr><td>indexing and indexed mutation</td><td><code>getindex</code>, <code>setindex</code>, <code>updateindex</code>, <code>postfixindex</code></td></tr>
+</tbody>
+</table>
+</div>
+<p><code>@</code> is matrix multiplication at multiplicative precedence, left-associative
+like <code>*</code>. It has no C meaning, so using it where no <code>matmul</code> member resolves
+is a compile-time type error.</p>
+<p>An operand with no <span class="x2c-wordmark">x2c</span> type, such as a preprocessor macro’s name, cannot
+convert for a participant that implements the operator; <code>images - MEAN</code>
+with <code>#define MEAN 0.1307</code> is a compile-time type error rather than C the
+host compiler rejects. Cast the macro, <code>(double) MEAN</code>, or bind its value
+to a local.</p>
+<p>A participant may also declare <code>void T.discard(T)</code>. The compiler calls it on
+an unnamed temporary it made for one operator, such as the product in
+<code>a * b + c</code> or the converted <code>2.0</code> in <code>2.0 * x</code>, immediately after the
+operator that consumes the temporary returns. A value bound to a name is
+never discarded. A handle type whose values own native storage uses this to
+release each intermediate of a long operator chain before the enclosing
+scope ends; a value type needs no such member.</p>
+<p>A method or function returning a scalar or <code>void</code> also discards such arguments
+after the call. An ordinary call returning a pointer or aggregate may borrow
+its input, return an interior pointer, or contain a borrowed handle. Unless
+the callee is a known fresh operator or numeric converter, its temporary
+arguments remain alive in their enclosing scope. The call’s result does not
+acquire fresh ownership just because one of its arguments was temporary.</p>
+<p>An implemented or native member is eligible. An ordinary base default is also
+eligible because it is an inherited member reached through a total view. An
+empty <code>Var</code> descriptor slot is not a resolved static member. If no eligible
+member exists, valid native C behavior still applies; otherwise the compiler
+reports the ordinary operator error. When exactly one operand of a binary
+operator is a struct or union participant with the member, or a handle
+typedef pointing at one, the other operand converts to that type through
+its declared converter, so <code>meters + 2.0</code> and <code>10.0 - meters</code> resolve when
+<code>double.meters</code> exists. Scalar pointers and numeric participants keep
+native C behavior for a mixed operand, so <code>text + 1</code> remains pointer
+arithmetic. The runtime uses the
+same rows itself:
+<code>String.add</code> implements <code>add</code> for <code>protocol Var(String)</code>, so <code>String</code> <code>+</code> and
+<code>+=</code> are ordinary resolved punctuation, not compiler special cases.</p>
+<p>Logical operators preserve C short-circuit evaluation: each operand’s <code>truth</code>
+method runs only when C would evaluate that operand. Indexed compound and
+postfix operations evaluate the receiver, key, and value once, then call the
+update method once.</p>
+<p>A direct participant update requires a resolved binary member with signature
+<code>Participant member(Participant, RHS)</code>. Compound assignment converts its
+right operand to <code>RHS</code>. Increment and decrement convert the integer <code>1</code> to
+<code>RHS</code> and use <code>add</code> or <code>sub</code>. The addressable participant lvalue is evaluated
+once, its current value is passed to the member once, and the returned
+<code>Participant</code> is stored once. Compound assignment and prefix forms return the
+stored value; postfix forms return the value from before the call.</p>
+<p>Plain <code>=</code>, <code>===</code>, and <code>!==</code> are never overloaded. <code>===</code> and <code>!==</code> retain
+native identity for static participants and <code>Var</code>-bit identity for boxed
+values.</p>
+<h2 id="when-protocols-share-a-method"><a class="header" href="#when-protocols-share-a-method">When protocols share a method</a></h2>
+<p>A participant implementation satisfies every adopted protocol that declares
+the same compatible member, and no protocol generates that member.</p>
+<p>Two ordinary defaults are an error. The diagnostic names both protocols.
+Implement the member on the participant to choose its semantics. Declaration
+order does not decide.</p>
+<p>A <code>Var(T)</code> adoption puts that same generated member on <code>T</code>’s descriptor when
+<code>Var(T)</code> declares the member and <code>T</code> does not implement it, so static and
+boxed behavior agree on one generated C name.</p>
+<p>Before adding a protocol member, inspect the conformance dump for every
+participant homonym and its signature:</p>
+<pre><code class="language-sh">./builds/0/x2c translate --dump-conformance path/to/unit.x
+</code></pre>
+<p>An existing method with the same name must have both the intended meaning and
+a compatible signature. Rename it before extending the protocol if it means
+something else. Incompatible signatures are compilation errors.</p>
+<h2 id="worked-examples"><a class="header" href="#worked-examples">Worked examples</a></h2>
+<h3 id="vec-declared-boxed-behavior"><a class="header" href="#vec-declared-boxed-behavior">Vec: declared boxed behavior</a></h3>
+<p>Vec supplies the conversions that <code>Var(T)</code>’s descriptor thunks use, implements
+only <code>str</code>, and explicitly adopts the protocol:</p>
+<pre class="shiki shiki-themes x2c-light x2c-dark x2c-code" style="--shiki-light:#24292e;--shiki-dark:#e9e5df;--shiki-light-bg:#fff;--shiki-dark-bg:#101011" tabindex="0"><code class="language-x2c no-highlight"><span class="line"><span style="--shiki-light:#D73A49;--shiki-dark:#E9E5DF">typedef</span><span style="--shiki-light:#D73A49;--shiki-dark:#F0ADA1"> struct</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF"> Vec {</span>
+</span><span class="line"><span style="--shiki-light:#D73A49;--shiki-dark:#F0ADA1">  int</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF"> x;</span>
+</span><span class="line"><span style="--shiki-light:#D73A49;--shiki-dark:#F0ADA1">  int</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF"> y;</span>
+</span><span class="line"><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">} </span><span style="--shiki-light:#D73A49;--shiki-dark:#E9E5DF">*</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">Vec;</span>
+</span><span class="line">
+</span><span class="line"><span style="--shiki-light:#007C8A;--shiki-dark:#29D3E2">Var</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF"> Vec.</span><span style="--shiki-light:#6F42C1;--shiki-dark:#E9E5DF">var</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">(Vec </span><span style="--shiki-light:#E36209;--shiki-dark:#E9E5DF">value</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">) {</span>
+</span><span class="line"><span style="--shiki-light:#D73A49;--shiki-dark:#F0ADA1">  return</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF"> Var.</span><span style="--shiki-light:#6F42C1;--shiki-dark:#E9E5DF">new</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">(</span><span style="--shiki-light:#24292E;--shiki-dark:#FF715A">&lt;</span><span style="--shiki-light:#005CC5;--shiki-dark:#E9E5DF">vec</span><span style="--shiki-light:#24292E;--shiki-dark:#FF715A">&gt;</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">, value);</span>
+</span><span class="line"><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">}</span>
+</span><span class="line">
+</span><span class="line"><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">Vec </span><span style="--shiki-light:#007C8A;--shiki-dark:#29D3E2">Var</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">.</span><span style="--shiki-light:#6F42C1;--shiki-dark:#E9E5DF">vec</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">(</span><span style="--shiki-light:#007C8A;--shiki-dark:#29D3E2">Var</span><span style="--shiki-light:#E36209;--shiki-dark:#E9E5DF"> value</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">) {</span>
+</span><span class="line"><span style="--shiki-light:#D73A49;--shiki-dark:#F0ADA1">  return</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF"> (Vec) value.</span><span style="--shiki-light:#6F42C1;--shiki-dark:#E9E5DF">pointer</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">();</span>
+</span><span class="line"><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">}</span>
+</span><span class="line">
+</span><span class="line"><span style="--shiki-light:#007C8A;--shiki-dark:#29D3E2">String</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF"> Vec.</span><span style="--shiki-light:#6F42C1;--shiki-dark:#E9E5DF">str</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">(Vec </span><span style="--shiki-light:#E36209;--shiki-dark:#E9E5DF">value</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">) {</span>
+</span><span class="line"><span style="--shiki-light:#D73A49;--shiki-dark:#F0ADA1">  return</span><span style="--shiki-light:#24292E;--shiki-dark:#FF715A"> %"</span><span style="--shiki-light:#032F62;--shiki-dark:#9EDFB8">Vec(</span><span style="--shiki-light:#032F62;--shiki-dark:#FF715A">${</span><span style="--shiki-light:#032F62;--shiki-dark:#9EDFB8">value.x</span><span style="--shiki-light:#032F62;--shiki-dark:#FF715A">}</span><span style="--shiki-light:#032F62;--shiki-dark:#9EDFB8">,</span><span style="--shiki-light:#032F62;--shiki-dark:#FF715A">${</span><span style="--shiki-light:#032F62;--shiki-dark:#9EDFB8">value.y</span><span style="--shiki-light:#032F62;--shiki-dark:#FF715A">}</span><span style="--shiki-light:#032F62;--shiki-dark:#9EDFB8">)</span><span style="--shiki-light:#24292E;--shiki-dark:#FF715A">"</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">;</span>
+</span><span class="line"><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">}</span>
+</span><span class="line">
+</span><span class="line"><span style="--shiki-light:#A626A4;--shiki-light-font-weight:bold;--shiki-dark:#FF4FD8;--shiki-dark-font-weight:bold">protocol</span><span style="--shiki-light:#6F42C1;--shiki-dark:#A6D9E5"> Var</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">(</span><span style="--shiki-light:#D73A49;--shiki-dark:#A6D9E5">Vec</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">);</span>
+</span><span class="line">
+</span><span class="line"><span style="--shiki-light:#D73A49;--shiki-dark:#F0ADA1">int</span><span style="--shiki-light:#6F42C1;--shiki-dark:#E9E5DF"> main</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">(</span><span style="--shiki-light:#D73A49;--shiki-dark:#F0ADA1">void</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">) {</span>
+</span><span class="line"><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">  Vec value </span><span style="--shiki-light:#D73A49;--shiki-dark:#E9E5DF">=</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF"> Scope.</span><span style="--shiki-light:#6F42C1;--shiki-dark:#E9E5DF">malloc</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">(</span><span style="--shiki-light:#D73A49;--shiki-dark:#E9E5DF">sizeof</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">(</span><span style="--shiki-light:#D73A49;--shiki-dark:#F0ADA1">struct</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF"> Vec));</span>
+</span><span class="line"><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">  value.x </span><span style="--shiki-light:#D73A49;--shiki-dark:#E9E5DF">=</span><span style="--shiki-light:#005CC5;--shiki-dark:#A9C9F5"> 1</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">;</span>
+</span><span class="line"><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">  value.y </span><span style="--shiki-light:#D73A49;--shiki-dark:#E9E5DF">=</span><span style="--shiki-light:#005CC5;--shiki-dark:#A9C9F5"> 2</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">;</span>
+</span><span class="line"><span style="--shiki-light:#007C8A;--shiki-dark:#29D3E2">  Var</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF"> boxed </span><span style="--shiki-light:#D73A49;--shiki-dark:#E9E5DF">=</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF"> value;</span>
+</span><span class="line"><span style="--shiki-light:#6F42C1;--shiki-dark:#E9E5DF">  printf</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">(</span><span style="--shiki-light:#032F62;--shiki-dark:#9EDFB8">"</span><span style="--shiki-light:#005CC5;--shiki-dark:#9EDFB8">%s\n</span><span style="--shiki-light:#032F62;--shiki-dark:#9EDFB8">"</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">, boxed);</span>
+</span><span class="line"><span style="--shiki-light:#D73A49;--shiki-dark:#F0ADA1">  return</span><span style="--shiki-light:#005CC5;--shiki-dark:#A9C9F5"> 0</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">;</span>
+</span><span class="line"><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">}</span></span></code></pre>
+
+<p><code>value.str()</code> calls <code>Vec.str</code>; <code>boxed.str()</code> calls a typed descriptor thunk
+that unboxes once and then calls <code>Vec.str</code>. Vec does not gain <code>add</code>, indexing,
+or any other omitted member. Removing <code>protocol Var(Vec);</code> removes protocol
+participation even though both conversion functions still exist.</p>
+<h3 id="polar-a-total-forward-view"><a class="header" href="#polar-a-total-forward-view">Polar: a total forward view</a></h3>
+<p>Polar implements <code>magnitude</code> and inherits the <code>Cartesian.angle</code> member.
+The generated <code>Polar.angle</code> needs only the total forward view:</p>
+<pre class="shiki shiki-themes x2c-light x2c-dark x2c-code" style="--shiki-light:#24292e;--shiki-dark:#e9e5df;--shiki-light-bg:#fff;--shiki-dark-bg:#101011" tabindex="0"><code class="language-x2c no-highlight"><span class="line"><span style="--shiki-light:#D73A49;--shiki-dark:#F0ADA1">#include</span><span style="--shiki-light:#032F62;--shiki-dark:#9EDFB8"> &lt;math.h&gt;</span>
+</span><span class="line">
+</span><span class="line"><span style="--shiki-light:#D73A49;--shiki-dark:#E9E5DF">typedef</span><span style="--shiki-light:#D73A49;--shiki-dark:#F0ADA1"> struct</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF"> Cartesian {</span>
+</span><span class="line"><span style="--shiki-light:#D73A49;--shiki-dark:#F0ADA1">  double</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF"> x;</span>
+</span><span class="line"><span style="--shiki-light:#D73A49;--shiki-dark:#F0ADA1">  double</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF"> y;</span>
+</span><span class="line"><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">} </span><span style="--shiki-light:#D73A49;--shiki-dark:#E9E5DF">*</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">Cartesian;</span>
+</span><span class="line">
+</span><span class="line"><span style="--shiki-light:#D73A49;--shiki-dark:#E9E5DF">typedef</span><span style="--shiki-light:#D73A49;--shiki-dark:#F0ADA1"> struct</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF"> Polar {</span>
+</span><span class="line"><span style="--shiki-light:#D73A49;--shiki-dark:#F0ADA1">  double</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF"> radius;</span>
+</span><span class="line"><span style="--shiki-light:#D73A49;--shiki-dark:#F0ADA1">  double</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF"> theta;</span>
+</span><span class="line"><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">} </span><span style="--shiki-light:#D73A49;--shiki-dark:#E9E5DF">*</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">Polar;</span>
+</span><span class="line">
+</span><span class="line"><span style="--shiki-light:#A626A4;--shiki-light-font-weight:bold;--shiki-dark:#FF4FD8;--shiki-dark-font-weight:bold">protocol</span><span style="--shiki-light:#6F42C1;--shiki-dark:#A6D9E5"> Cartesian</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">(</span><span style="--shiki-light:#D73A49;--shiki-dark:#A6D9E5">T</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">) {</span>
+</span><span class="line"><span style="--shiki-light:#D73A49;--shiki-dark:#F0ADA1">  double</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF"> T.</span><span style="--shiki-light:#6F42C1;--shiki-dark:#E9E5DF">magnitude</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">(T);</span>
+</span><span class="line"><span style="--shiki-light:#D73A49;--shiki-dark:#F0ADA1">  double</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF"> T.</span><span style="--shiki-light:#6F42C1;--shiki-dark:#E9E5DF">angle</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">(T);</span>
+</span><span class="line"><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">}</span>
+</span><span class="line">
+</span><span class="line"><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">Cartesian Polar.</span><span style="--shiki-light:#6F42C1;--shiki-dark:#E9E5DF">cartesian</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">(Polar </span><span style="--shiki-light:#E36209;--shiki-dark:#E9E5DF">value</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">) {</span>
+</span><span class="line"><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">  Cartesian result </span><span style="--shiki-light:#D73A49;--shiki-dark:#E9E5DF">=</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF"> Scope.</span><span style="--shiki-light:#6F42C1;--shiki-dark:#E9E5DF">malloc</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">(</span><span style="--shiki-light:#D73A49;--shiki-dark:#E9E5DF">sizeof</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">(</span><span style="--shiki-light:#D73A49;--shiki-dark:#F0ADA1">struct</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF"> Cartesian));</span>
+</span><span class="line"><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">  result.x </span><span style="--shiki-light:#D73A49;--shiki-dark:#E9E5DF">=</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF"> value.radius </span><span style="--shiki-light:#D73A49;--shiki-dark:#E9E5DF">*</span><span style="--shiki-light:#6F42C1;--shiki-dark:#E9E5DF"> cos</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">(value.theta);</span>
+</span><span class="line"><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">  result.y </span><span style="--shiki-light:#D73A49;--shiki-dark:#E9E5DF">=</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF"> value.radius </span><span style="--shiki-light:#D73A49;--shiki-dark:#E9E5DF">*</span><span style="--shiki-light:#6F42C1;--shiki-dark:#E9E5DF"> sin</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">(value.theta);</span>
+</span><span class="line"><span style="--shiki-light:#D73A49;--shiki-dark:#F0ADA1">  return</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF"> result;</span>
+</span><span class="line"><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">}</span>
+</span><span class="line">
+</span><span class="line"><span style="--shiki-light:#D73A49;--shiki-dark:#F0ADA1">double</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF"> Cartesian.</span><span style="--shiki-light:#6F42C1;--shiki-dark:#E9E5DF">magnitude</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">(Cartesian </span><span style="--shiki-light:#E36209;--shiki-dark:#E9E5DF">value</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">) {</span>
+</span><span class="line"><span style="--shiki-light:#D73A49;--shiki-dark:#F0ADA1">  return</span><span style="--shiki-light:#6F42C1;--shiki-dark:#E9E5DF"> sqrt</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">(value.x </span><span style="--shiki-light:#D73A49;--shiki-dark:#E9E5DF">*</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF"> value.x </span><span style="--shiki-light:#D73A49;--shiki-dark:#E9E5DF">+</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF"> value.y </span><span style="--shiki-light:#D73A49;--shiki-dark:#E9E5DF">*</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF"> value.y);</span>
+</span><span class="line"><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">}</span>
+</span><span class="line">
+</span><span class="line"><span style="--shiki-light:#D73A49;--shiki-dark:#F0ADA1">double</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF"> Cartesian.</span><span style="--shiki-light:#6F42C1;--shiki-dark:#E9E5DF">angle</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">(Cartesian </span><span style="--shiki-light:#E36209;--shiki-dark:#E9E5DF">value</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">) {</span>
+</span><span class="line"><span style="--shiki-light:#D73A49;--shiki-dark:#F0ADA1">  return</span><span style="--shiki-light:#6F42C1;--shiki-dark:#E9E5DF"> atan2</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">(value.y, value.x);</span>
+</span><span class="line"><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">}</span>
+</span><span class="line">
+</span><span class="line"><span style="--shiki-light:#D73A49;--shiki-dark:#F0ADA1">double</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF"> Polar.</span><span style="--shiki-light:#6F42C1;--shiki-dark:#E9E5DF">magnitude</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">(Polar </span><span style="--shiki-light:#E36209;--shiki-dark:#E9E5DF">value</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">) {</span>
+</span><span class="line"><span style="--shiki-light:#D73A49;--shiki-dark:#F0ADA1">  return</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF"> value.radius;</span>
+</span><span class="line"><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">}</span>
+</span><span class="line">
+</span><span class="line"><span style="--shiki-light:#A626A4;--shiki-light-font-weight:bold;--shiki-dark:#FF4FD8;--shiki-dark-font-weight:bold">protocol</span><span style="--shiki-light:#6F42C1;--shiki-dark:#A6D9E5"> Cartesian</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">(</span><span style="--shiki-light:#D73A49;--shiki-dark:#A6D9E5">Polar</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">);</span>
+</span><span class="line">
+</span><span class="line"><span style="--shiki-light:#D73A49;--shiki-dark:#F0ADA1">int</span><span style="--shiki-light:#6F42C1;--shiki-dark:#E9E5DF"> main</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">(</span><span style="--shiki-light:#D73A49;--shiki-dark:#F0ADA1">void</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">) {</span>
+</span><span class="line"><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">  Polar value </span><span style="--shiki-light:#D73A49;--shiki-dark:#E9E5DF">=</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF"> Scope.</span><span style="--shiki-light:#6F42C1;--shiki-dark:#E9E5DF">malloc</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">(</span><span style="--shiki-light:#D73A49;--shiki-dark:#E9E5DF">sizeof</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">(</span><span style="--shiki-light:#D73A49;--shiki-dark:#F0ADA1">struct</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF"> Polar));</span>
+</span><span class="line"><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">  value.radius </span><span style="--shiki-light:#D73A49;--shiki-dark:#E9E5DF">=</span><span style="--shiki-light:#005CC5;--shiki-dark:#A9C9F5"> 2.0</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">;</span>
+</span><span class="line"><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">  value.theta </span><span style="--shiki-light:#D73A49;--shiki-dark:#E9E5DF">=</span><span style="--shiki-light:#005CC5;--shiki-dark:#A9C9F5"> 0.5</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">;</span>
+</span><span class="line"><span style="--shiki-light:#6F42C1;--shiki-dark:#E9E5DF">  printf</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">(</span><span style="--shiki-light:#032F62;--shiki-dark:#9EDFB8">"</span><span style="--shiki-light:#005CC5;--shiki-dark:#9EDFB8">%.1f</span><span style="--shiki-light:#005CC5;--shiki-dark:#9EDFB8"> %.1f\n</span><span style="--shiki-light:#032F62;--shiki-dark:#9EDFB8">"</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">, value.</span><span style="--shiki-light:#6F42C1;--shiki-dark:#E9E5DF">magnitude</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">(), value.</span><span style="--shiki-light:#6F42C1;--shiki-dark:#E9E5DF">angle</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">());</span>
+</span><span class="line"><span style="--shiki-light:#D73A49;--shiki-dark:#F0ADA1">  return</span><span style="--shiki-light:#005CC5;--shiki-dark:#A9C9F5"> 0</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">;</span>
+</span><span class="line"><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">}</span></span></code></pre>
+
+<p>No <code>Cartesian.polar</code> reverse conversion is required because this conformance
+generates only forward calls. A same-name incompatible <code>Polar.angle</code> would be
+a hard error at <code>protocol Cartesian(Polar);</code>.</p>
+<h3 id="bytes-ordinary-defaults-and-punctuation"><a class="header" href="#bytes-ordinary-defaults-and-punctuation">Bytes: ordinary defaults and punctuation</a></h3>
+<p>The built-in manifest declares <code>protocol Block(Bytes);</code> centrally. The
+<code>Bytes.block</code> forward view is declared in <code>common.x</code> and implemented in
+<code>block.x</code>; no reverse <code>Block.as_bytes</code> adapter is needed. Members such as
+<code>len</code>, <code>truth</code>, <code>pop</code>, <code>free</code>, and <code>truncate</code> forward through that view.</p>
+<pre class="shiki shiki-themes x2c-light x2c-dark x2c-code" style="--shiki-light:#24292e;--shiki-dark:#e9e5df;--shiki-light-bg:#fff;--shiki-dark-bg:#101011" tabindex="0"><code class="language-x2c no-highlight"><span class="line"><span style="--shiki-light:#D73A49;--shiki-dark:#F0ADA1">int</span><span style="--shiki-light:#6F42C1;--shiki-dark:#E9E5DF"> main</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">(</span><span style="--shiki-light:#D73A49;--shiki-dark:#F0ADA1">void</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">) {</span>
+</span><span class="line"><span style="--shiki-light:#007C8A;--shiki-dark:#29D3E2">  Bytes</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF"> bytes </span><span style="--shiki-light:#D73A49;--shiki-dark:#E9E5DF">=</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF"> Bytes.</span><span style="--shiki-light:#6F42C1;--shiki-dark:#E9E5DF">new</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">(</span><span style="--shiki-light:#D73A49;--shiki-dark:#E9E5DF">sizeof</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">(</span><span style="--shiki-light:#D73A49;--shiki-dark:#F0ADA1">int</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">));</span>
+</span><span class="line"><span style="--shiki-light:#D73A49;--shiki-dark:#F0ADA1">  int</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF"> value </span><span style="--shiki-light:#D73A49;--shiki-dark:#E9E5DF">=</span><span style="--shiki-light:#005CC5;--shiki-dark:#A9C9F5"> 7</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">;</span>
+</span><span class="line"><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">  bytes.</span><span style="--shiki-light:#6F42C1;--shiki-dark:#E9E5DF">push</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">(</span><span style="--shiki-light:#D73A49;--shiki-dark:#E9E5DF">&amp;</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">value);</span>
+</span><span class="line"><span style="--shiki-light:#6F42C1;--shiki-dark:#E9E5DF">  printf</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">(</span><span style="--shiki-light:#032F62;--shiki-dark:#9EDFB8">"</span><span style="--shiki-light:#005CC5;--shiki-dark:#9EDFB8">%zu</span><span style="--shiki-light:#005CC5;--shiki-dark:#9EDFB8"> %d\n</span><span style="--shiki-light:#032F62;--shiki-dark:#9EDFB8">"</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">, bytes.</span><span style="--shiki-light:#6F42C1;--shiki-dark:#E9E5DF">len</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">(), bytes </span><span style="--shiki-light:#D73A49;--shiki-dark:#E9E5DF">?</span><span style="--shiki-light:#005CC5;--shiki-dark:#A9C9F5"> 1</span><span style="--shiki-light:#D73A49;--shiki-dark:#E9E5DF"> :</span><span style="--shiki-light:#005CC5;--shiki-dark:#A9C9F5"> 0</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">);</span>
+</span><span class="line"><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">  bytes.</span><span style="--shiki-light:#6F42C1;--shiki-dark:#E9E5DF">pop</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">();</span>
+</span><span class="line"><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">  bytes.</span><span style="--shiki-light:#6F42C1;--shiki-dark:#E9E5DF">free</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">();</span>
+</span><span class="line"><span style="--shiki-light:#D73A49;--shiki-dark:#F0ADA1">  return</span><span style="--shiki-light:#005CC5;--shiki-dark:#A9C9F5"> 0</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">;</span>
+</span><span class="line"><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">}</span></span></code></pre>
+
+<p><code>bytes.truth()</code> and truth punctuation select the same ordinary <code>Block.truth</code>
+semantics. A scalar that adopts <code>Var(T)</code> without implementing truth or
+equality gains no static method, so its native punctuation is not replaced by
+<code>Var.fallback_truth</code> or <code>Var.fallback_equal</code>.</p>
+<h2 id="native-protocols"><a class="header" href="#native-protocols">Native protocols</a></h2>
+<p>A native protocol maps members directly to C functions:</p>
+<pre class="shiki shiki-themes x2c-light x2c-dark x2c-code" style="--shiki-light:#24292e;--shiki-dark:#e9e5df;--shiki-light-bg:#fff;--shiki-dark-bg:#101011" tabindex="0"><code class="language-x2c no-highlight"><span class="line"><span style="--shiki-light:#D73A49;--shiki-dark:#E9E5DF">typedef</span><span style="--shiki-light:#D73A49;--shiki-dark:#F0ADA1"> void</span><span style="--shiki-light:#D73A49;--shiki-dark:#E9E5DF"> *</span><span style="--shiki-light:#005CC5;--shiki-dark:#A6D9E5">Handle</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">;</span>
+</span><span class="line">
+</span><span class="line"><span style="--shiki-light:#A626A4;--shiki-light-font-weight:bold;--shiki-dark:#FF4FD8;--shiki-dark-font-weight:bold">protocol</span><span style="--shiki-light:#D73A49;--shiki-dark:#A6D9E5"> void</span><span style="--shiki-light:#D73A49;--shiki-dark:#E9E5DF"> *</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">(</span><span style="--shiki-light:#D73A49;--shiki-dark:#A6D9E5">T</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">) {</span>
+</span><span class="line"><span style="--shiki-light:#D73A49;--shiki-dark:#F0ADA1">  void</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF"> T.</span><span style="--shiki-light:#6F42C1;--shiki-dark:#E9E5DF">release</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">(T) </span><span style="--shiki-light:#D73A49;--shiki-dark:#E9E5DF">=</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF"> free;</span>
+</span><span class="line"><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">}</span>
+</span><span class="line">
+</span><span class="line"><span style="--shiki-light:#A626A4;--shiki-light-font-weight:bold;--shiki-dark:#FF4FD8;--shiki-dark-font-weight:bold">protocol</span><span style="--shiki-light:#D73A49;--shiki-dark:#A6D9E5"> void</span><span style="--shiki-light:#D73A49;--shiki-dark:#E9E5DF"> *</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">(</span><span style="--shiki-light:#D73A49;--shiki-dark:#A6D9E5">Handle</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">);</span></span></code></pre>
+
+<p>Native participation is declared by the same bodyless adoption form; a
+matching typedef alone is insufficient. Each occurrence of <code>T</code> is checked in
+the C conversion direction that the alias uses. No named bidirectional pair
+is required.</p>
+<p>The participant’s translation unit emits a <code>_Generic</code>/<code>_Static_assert</code>
+signature check and an alias such as <code>#define Handle_release free</code>. A fully
+public adoption places them in the participant’s generated header. If the
+protocol, participant, native target, or adoption is private, both remain in
+the participant’s C file.
+Variadic native targets and unsafe conversion directions are rejected.</p>
+
+                    </main>
+
+                    <nav class="x2c-pager" aria-label="Page navigation">
+                        <a rel="prev" href="../guide/exceptions.html" class="x2c-pager-prev" aria-keyshortcuts="Left">
+                            <span class="x2c-pager-label">previous</span>
+                            <span class="x2c-pager-title">Exceptions and Cleanup</span>
+                        </a>
+                        
+                        <a rel="next prefetch" href="../guide/system-macros.html" class="x2c-pager-next" aria-keyshortcuts="Right">
+                            <span class="x2c-pager-label">next</span>
+                            <span class="x2c-pager-title">Classes and System Macros</span>
+                        </a>
+                    </nav>
+                    <footer class="x2c-footer">
+                        &copy; 2025&ndash;2026
+                        <a href="https://flake.org">GWF</a>
+                        &middot;
+                        <a href="https://github.com/gwf/x2c/blob/c2a89d999e81f47a4422a26edf0033eb0b98c6c6/LICENSE">Apache 2.0</a>
+                        &middot;
+                        <a href="https://github.com/gwf/x2c/blob/c2a89d999e81f47a4422a26edf0033eb0b98c6c6/TRADEMARKS.md">Trademarks</a>
+                    </footer>
+                </div>
+            </div>
+
+
+        </div>
+
+        <template id=fa-eye><span class=fa-svg><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 576 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc. --><path d="M288 32c-80.8 0-145.5 36.8-192.6 80.6C48.6 156 17.3 208 2.5 243.7c-3.3 7.9-3.3 16.7 0 24.6C17.3 304 48.6 356 95.4 399.4C142.5 443.2 207.2 480 288 480s145.5-36.8 192.6-80.6c46.8-43.5 78.1-95.4 93-131.1c3.3-7.9 3.3-16.7 0-24.6c-14.9-35.7-46.2-87.7-93-131.1C433.5 68.8 368.8 32 288 32zM432 256c0 79.5-64.5 144-144 144s-144-64.5-144-144s64.5-144 144-144s144 64.5 144 144zM288 192c0 35.3-28.7 64-64 64c-11.5 0-22.3-3-31.6-8.4c-.2 2.8-.4 5.5-.4 8.4c0 53 43 96 96 96s96-43 96-96s-43-96-96-96c-2.8 0-5.6 .1-8.4 .4c5.3 9.3 8.4 20.1 8.4 31.6z"/></svg></span></template>
+        <template id=fa-eye-slash><span class=fa-svg><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 640 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc. --><path d="M38.8 5.1C28.4-3.1 13.3-1.2 5.1 9.2S-1.2 34.7 9.2 42.9l592 464c10.4 8.2 25.5 6.3 33.7-4.1s6.3-25.5-4.1-33.7L525.6 386.7c39.6-40.6 66.4-86.1 79.9-118.4c3.3-7.9 3.3-16.7 0-24.6c-14.9-35.7-46.2-87.7-93-131.1C465.5 68.8 400.8 32 320 32c-68.2 0-125 26.3-169.3 60.8L38.8 5.1zM223.1 149.5C248.6 126.2 282.7 112 320 112c79.5 0 144 64.5 144 144c0 24.9-6.3 48.3-17.4 68.7L408 294.5c5.2-11.8 8-24.8 8-38.5c0-53-43-96-96-96c-2.8 0-5.6 .1-8.4 .4c5.3 9.3 8.4 20.1 8.4 31.6c0 10.2-2.4 19.8-6.6 28.3l-90.3-70.8zm223.1 298L373 389.9c-16.4 6.5-34.3 10.1-53 10.1c-79.5 0-144-64.5-144-144c0-6.9 .5-13.6 1.4-20.2L83.1 161.5C60.3 191.2 44 220.8 34.5 243.7c-3.3 7.9-3.3 16.7 0 24.6c14.9 35.7 46.2 87.7 93 131.1C174.5 443.2 239.2 480 320 480c47.8 0 89.9-12.9 126.2-32.5z"/></svg></span></template>
+        <template id=fa-copy><span class=fa-svg><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc. --><path d="M502.6 70.63l-61.25-61.25C435.4 3.371 427.2 0 418.7 0H255.1c-35.35 0-64 28.66-64 64l.0195 256C192 355.4 220.7 384 256 384h192c35.2 0 64-28.8 64-64V93.25C512 84.77 508.6 76.63 502.6 70.63zM464 320c0 8.836-7.164 16-16 16H255.1c-8.838 0-16-7.164-16-16L239.1 64.13c0-8.836 7.164-16 16-16h128L384 96c0 17.67 14.33 32 32 32h47.1V320zM272 448c0 8.836-7.164 16-16 16H63.1c-8.838 0-16-7.164-16-16L47.98 192.1c0-8.836 7.164-16 16-16H160V128H63.99c-35.35 0-64 28.65-64 64l.0098 256C.002 483.3 28.66 512 64 512h192c35.2 0 64-28.8 64-64v-32h-47.1L272 448z"/></svg></span></template>
+        <template id=fa-play><span class=fa-svg><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 384 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc. --><path d="M73 39c-14.8-9.1-33.4-9.4-48.5-.9S0 62.6 0 80V432c0 17.4 9.4 33.4 24.5 41.9s33.7 8.1 48.5-.9L361 297c14.3-8.7 23-24.2 23-41s-8.7-32.2-23-41L73 39z"/></svg></span></template>
+        <template id=fa-clock-rotate-left><span class=fa-svg><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc. --><path d="M75 75L41 41C25.9 25.9 0 36.6 0 57.9V168c0 13.3 10.7 24 24 24H134.1c21.4 0 32.1-25.9 17-41l-30.8-30.8C155 85.5 203 64 256 64c106 0 192 86 192 192s-86 192-192 192c-40.8 0-78.6-12.7-109.7-34.4c-14.5-10.1-34.4-6.6-44.6 7.9s-6.6 34.4 7.9 44.6C151.2 495 201.7 512 256 512c141.4 0 256-114.6 256-256S397.4 0 256 0C185.3 0 121.3 28.7 75 75zm181 53c-13.3 0-24 10.7-24 24V256c0 6.4 2.5 12.5 7 17l72 72c9.4 9.4 24.6 9.4 33.9 0s9.4-24.6 0-33.9l-65-65V152c0-13.3-10.7-24-24-24z"/></svg></span></template>
+
+
+
+        <script>
+            window.playground_copyable = true;
+        </script>
+
+
+        <script src="../elasticlunr-ef4e11c1.min.js"></script>
+        <script src="../mark-09e88c2c.min.js"></script>
+        <script src="../searcher-09f2665d.js"></script>
+
+        <script src="../clipboard-1626706a.min.js"></script>
+        <script src="../highlight-abc7f01d.js"></script>
+        <script src="../book-609e4cb8.js"></script>
+
+        <script>
+            document.addEventListener('DOMContentLoaded', () => {
+                const sidebar = document.querySelector('#mdbook-sidebar');
+                sidebar.querySelectorAll('ol').forEach(list => {
+                    const numbers = list.querySelectorAll(
+                        ':scope > li > .chapter-link-wrapper > a > strong, :scope > li > a > strong');
+                    if (numbers.length) {
+                        const width = Math.max(...Array.from(numbers,
+                            number => number.textContent.trim().length));
+                        list.style.setProperty('--chapter-number-width', width + 'ch');
+                    }
+                });
+                const chapter = sidebar.querySelector('a.active');
+                const item = chapter?.closest('.chapter-item');
+                if (item?.querySelector(':scope > .on-this-page')) {
+                    const row = chapter.parentElement;
+                    if (!row.querySelector('.chapter-fold-toggle')) {
+                        const toggle = document.createElement('button');
+                        toggle.type = 'button';
+                        toggle.className = 'chapter-fold-toggle';
+                        toggle.appendChild(document.createElement('div'));
+                        toggle.addEventListener('click', () => {
+                            item.classList.toggle('expanded');
+                        });
+                        row.appendChild(toggle);
+                    }
+                }
+                sidebar.querySelectorAll('.chapter-fold-toggle').forEach(toggle => {
+                    const row = toggle.parentElement;
+                    const item = row.parentElement;
+                    const title = row.querySelector('a').textContent.trim();
+                    toggle.setAttribute('aria-label', 'Toggle ' + title);
+                    const update = () => toggle.setAttribute('aria-expanded',
+                        String(item.classList.contains('expanded')));
+                    update();
+                    toggle.addEventListener('click', update);
+                    if (toggle.tagName === 'A') {
+                        toggle.setAttribute('role', 'button');
+                        toggle.tabIndex = 0;
+                        toggle.addEventListener('keydown', event => {
+                            if (event.key === 'Enter' || event.key === ' ') {
+                                event.preventDefault();
+                                toggle.click();
+                            }
+                        });
+                    }
+                });
+            });
+        </script>
+
+        <!-- Custom JS scripts -->
+
+
+
+    </div>
+    </body>
+</html>

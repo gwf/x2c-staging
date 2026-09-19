@@ -1,0 +1,607 @@
+<!DOCTYPE HTML>
+<html lang="en" class="light sidebar-visible" dir="ltr">
+    <head>
+        <!-- Book generated using mdBook -->
+        <meta charset="UTF-8">
+        <title>lib/regex.x - The x2c Book</title>
+
+
+        <!-- Custom HTML head -->
+        <link rel="preconnect" href="https://fonts.googleapis.com">
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=Archivo:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">
+
+        <meta name="description" content="The x2c language, standard library, and compiler.">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <meta name="theme-color" content="#ffffff">
+
+        <link rel="icon" href="../../favicon-995a3c20.svg">
+        <link rel="stylesheet" href="../../css/variables-8adf115d.css">
+        <link rel="stylesheet" href="../../css/general-e96d0476.css">
+        <link rel="stylesheet" href="../../css/chrome-d279d366.css">
+        <link rel="stylesheet" href="../../css/print-9e4910d8.css" media="print">
+
+        <!-- Fonts -->
+        <link rel="stylesheet" href="../../fonts/fonts-9644e21d.css">
+
+        <!-- Highlight.js Stylesheets -->
+        <link rel="stylesheet" id="mdbook-highlight-css" href="../../highlight-493f70e1.css">
+        <link rel="stylesheet" id="mdbook-tomorrow-night-css" href="../../tomorrow-night-4c0ae647.css">
+        <link rel="stylesheet" id="mdbook-ayu-highlight-css" href="../../ayu-highlight-3fdfc3ac.css">
+
+        <!-- Custom theme stylesheets -->
+        <link rel="stylesheet" href="../../theme/header-2c1becca.css">
+        <link rel="stylesheet" href="../../theme/x2c-fd3d182e.css">
+
+
+        <!-- Provide site root and default themes to javascript -->
+        <script>
+            const path_to_root = "../../";
+            const default_light_theme = "light";
+            const default_dark_theme = "light";
+            window.path_to_searchindex_js = "../../searchindex-2643e100.js";
+        </script>
+        <!-- Start loading toc.js asap -->
+        <script src="../../toc-a71616d6.js"></script>
+        <!-- x2c publication metadata -->
+        <link rel="canonical" href="https://staging.x2c-lang.dev/docs/library/modules/regex.html">
+        <meta property="og:type" content="website">
+        <meta property="og:title" content="lib/regex.x - The x2c Book">
+        <meta property="og:description" content="The x2c language, standard library, and compiler.">
+        <meta property="og:url" content="https://staging.x2c-lang.dev/docs/library/modules/regex.html">
+        <meta property="og:image" content="https://staging.x2c-lang.dev/x2c-social.png">
+        <meta property="og:image:width" content="1200">
+        <meta property="og:image:height" content="630">
+        <meta name="twitter:card" content="summary_large_image">
+        <meta name="twitter:title" content="lib/regex.x - The x2c Book">
+        <meta name="twitter:description" content="The x2c language, standard library, and compiler.">
+        <meta name="twitter:image" content="https://staging.x2c-lang.dev/x2c-social.png">
+    </head>
+    <body><aside aria-label="Release candidate" style="padding:1rem;background:#fff1bf;color:#241c00;font:14px/1.5 monospace;overflow-wrap:anywhere"><strong>Public staging: candidate-c2a89d999e81f47a4422a26edf0033eb0b98c6c6-35470032964-1</strong><p>Source: c2a89d999e81f47a4422a26edf0033eb0b98c6c6. Use a fresh scratch installation and the explicit candidate index below. Bare x2c install commands and production URLs in the book refer to production.</p><pre style="overflow:auto">export X2C_PREFIX=&quot;$(mktemp -d)/x2c&quot;
+curl -fsSL https://staging.x2c-lang.dev/install.sh | sh
+export PATH=&quot;$X2C_PREFIX/bin:$PATH&quot;
+x2c run &quot;$X2C_PREFIX/examples/foreach.x&quot;
+x2c install pcre2 --index https://staging.x2c-lang.dev/packages/index.txt</pre></aside>
+    <div id="mdbook-help-container">
+        <div id="mdbook-help-popup">
+            <h2 class="mdbook-help-title">Keyboard shortcuts</h2>
+            <div>
+                <p>Press <kbd>←</kbd> or <kbd>→</kbd> to navigate between chapters</p>
+                <p>Press <kbd>S</kbd> or <kbd>/</kbd> to search in the book</p>
+                <p>Press <kbd>?</kbd> to show this help</p>
+                <p>Press <kbd>Esc</kbd> to hide this help</p>
+            </div>
+        </div>
+    </div>
+    <div id="mdbook-body-container">
+        <!-- Work around some values being stored in localStorage wrapped in quotes -->
+        <script>
+            try {
+                let theme = localStorage.getItem('mdbook-theme');
+                let sidebar = localStorage.getItem('mdbook-sidebar');
+
+                if (theme.startsWith('"') && theme.endsWith('"')) {
+                    localStorage.setItem('mdbook-theme', theme.slice(1, theme.length - 1));
+                }
+
+                if (sidebar.startsWith('"') && sidebar.endsWith('"')) {
+                    localStorage.setItem('mdbook-sidebar', sidebar.slice(1, sidebar.length - 1));
+                }
+            } catch (e) { }
+        </script>
+
+        <!-- Set the theme before any content is loaded, prevents flash -->
+        <script>
+            const default_theme = window.matchMedia("(prefers-color-scheme: dark)").matches ? default_dark_theme : default_light_theme;
+            let theme;
+            try { theme = localStorage.getItem('mdbook-theme'); } catch(e) { }
+            if (theme === null || theme === undefined) { theme = default_theme; }
+            const html = document.documentElement;
+            html.classList.remove('light')
+            html.classList.add(theme);
+            html.classList.add("js");
+        </script>
+
+        <input type="checkbox" id="mdbook-sidebar-toggle-anchor" class="hidden">
+
+        <!-- Hide / unhide sidebar before it is displayed -->
+        <script>
+            let sidebar = null;
+            const sidebar_toggle = document.getElementById("mdbook-sidebar-toggle-anchor");
+            if (document.body.clientWidth >= 1080) {
+                try { sidebar = localStorage.getItem('mdbook-sidebar'); } catch(e) { }
+                sidebar = sidebar || 'visible';
+            } else {
+                sidebar = 'hidden';
+                sidebar_toggle.checked = false;
+            }
+            if (sidebar === 'visible') {
+                sidebar_toggle.checked = true;
+            } else {
+                html.classList.remove('sidebar-visible');
+            }
+        </script>
+
+        <nav id="mdbook-sidebar" class="sidebar" aria-label="Table of contents">
+            <!-- populated by js -->
+            <mdbook-sidebar-scrollbox class="sidebar-scrollbox"></mdbook-sidebar-scrollbox>
+            <noscript>
+                <iframe class="sidebar-iframe-outer" src="../../toc.html"></iframe>
+            </noscript>
+            <div id="mdbook-sidebar-resize-handle" class="sidebar-resize-handle">
+                <div class="sidebar-resize-indicator"></div>
+            </div>
+        </nav>
+
+        <div id="mdbook-page-wrapper" class="page-wrapper">
+
+            <div class="page">
+                <div id="mdbook-menu-bar" class="hidden"></div>
+                <header class="landing-header x2c-header">
+                    <div class="landing-header-inner">
+                        <div class="landing-branding">
+                            <a class="landing-brand" href="../../../" aria-label="x2c home">
+                                <svg viewBox="0 0 100 100" width="22" height="22" aria-hidden="true"><g fill="none" stroke="#da291c" stroke-width="17" stroke-linecap="butt"><path d="M9 16 A34.5 34.5 0 0 1 9 84"></path><path d="M91 16 A34.5 34.5 0 0 0 91 84"></path></g></svg>
+                                <span class="x2c-wordmark landing-wordmark">x2c</span>
+                            </a>
+                            <span class="landing-tagline">The x2c Book</span>
+                        </div>
+                        <nav class="landing-nav" aria-label="x2c website">
+                            <div class="landing-page-nav">
+                                <a href="../../../#love">love</a>
+                                <a href="../../../#power">power</a>
+                                <a href="../../../#magic">magic</a>
+                            </div>
+                            <div class="landing-site-nav">
+                                <a href="../../../#install">install</a>
+                                <a href="../../../#packages">packages</a>
+                            </div>
+                            <div class="landing-reference-nav">
+                                <a href="../../../about/">about</a>
+                                <a href="../../" aria-current="page">docs</a>
+                                <a href="https://github.com/gwf/x2c">source</a>
+                            </div>
+                        </nav>
+                    </div>
+                    <div class="x2c-book-tools">
+                        <div class="x2c-header-tools">
+                            <label id="mdbook-sidebar-toggle" class="icon-button" for="mdbook-sidebar-toggle-anchor" title="Toggle Table of Contents" aria-label="Toggle Table of Contents" aria-controls="mdbook-sidebar">
+                                <span class=fa-svg><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc. --><path d="M0 96C0 78.3 14.3 64 32 64H416c17.7 0 32 14.3 32 32s-14.3 32-32 32H32C14.3 128 0 113.7 0 96zM0 256c0-17.7 14.3-32 32-32H416c17.7 0 32 14.3 32 32s-14.3 32-32 32H32c-17.7 0-32-14.3-32-32zM448 416c0 17.7-14.3 32-32 32H32c-17.7 0-32-14.3-32-32s14.3-32 32-32H416c17.7 0 32 14.3 32 32z"/></svg></span>
+                            </label>
+                        </div>
+                        <div class="x2c-header-tools x2c-header-tools-right">
+                            <button id="mdbook-search-toggle" class="icon-button" type="button" title="Search (`/`)" aria-label="Toggle Searchbar" aria-expanded="false" aria-keyshortcuts="/ s" aria-controls="mdbook-searchbar">
+                                <span class=fa-svg><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc. --><path d="M416 208c0 45.9-14.9 88.3-40 122.7L502.6 457.4c12.5 12.5 12.5 32.8 0 45.3s-32.8 12.5-45.3 0L330.7 376c-34.4 25.2-76.8 40-122.7 40C93.1 416 0 322.9 0 208S93.1 0 208 0S416 93.1 416 208zM208 352c79.5 0 144-64.5 144-144s-64.5-144-144-144S64 128.5 64 208s64.5 144 144 144z"/></svg></span>
+                            </button>
+                            <button id="mdbook-theme-toggle" class="icon-button" type="button" title="Change theme" aria-label="Change theme" aria-haspopup="true" aria-expanded="false" aria-controls="mdbook-theme-list">
+                                <span class=fa-svg><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc. --><path d="M448 256c0-106-86-192-192-192V448c106 0 192-86 192-192zm64 0c0 141.4-114.6 256-256 256S0 397.4 0 256S114.6 0 256 0S512 114.6 512 256z"/></svg></span>
+                            </button>
+                            <ul id="mdbook-theme-list" class="theme-popup" aria-label="Themes" role="menu">
+                                <li role="none"><button role="menuitem" class="theme" id="mdbook-theme-default_theme">Auto</button></li>
+                                <li role="none"><button role="menuitem" class="theme" id="mdbook-theme-light">Light</button></li>
+                                <li role="none"><button role="menuitem" class="theme" id="mdbook-theme-ayu">Dark</button></li>
+                            </ul>
+                            <a href="https://github.com/gwf/x2c/edit/main/docs/src/library/modules/regex.md" title="Suggest an edit" aria-label="Suggest an edit" rel="edit" class="icon-button">
+                                <span class=fa-svg id="git-edit-button"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc. --><path d="M421.7 220.3l-11.3 11.3-22.6 22.6-205 205c-6.6 6.6-14.8 11.5-23.8 14.1L30.8 511c-8.4 2.5-17.5 .2-23.7-6.1S-1.5 489.7 1 481.2L38.7 353.1c2.6-9 7.5-17.2 14.1-23.8l205-205 22.6-22.6 11.3-11.3 33.9 33.9 62.1 62.1 33.9 33.9zM96 353.9l-9.3 9.3c-.9 .9-1.6 2.1-2 3.4l-25.3 86 86-25.3c1.3-.4 2.5-1.1 3.4-2l9.3-9.3H112c-8.8 0-16-7.2-16-16V353.9zM453.3 19.3l39.4 39.4c25 25 25 65.5 0 90.5l-14.5 14.5-22.6 22.6-11.3 11.3-33.9-33.9-62.1-62.1L314.3 67.7l11.3-11.3 22.6-22.6 14.5-14.5c25-25 65.5-25 90.5 0z"/></svg></span>
+                            </a>
+                        </div>
+                    </div>
+                </header>
+                <script>
+                    const bookHeader = document.querySelector('.x2c-header');
+                    new ResizeObserver(() => {
+                        document.documentElement.style.setProperty(
+                            '--menu-bar-height', `${bookHeader.getBoundingClientRect().height}px`);
+                    }).observe(bookHeader);
+                </script>
+
+                <div id="mdbook-search-wrapper" class="hidden">
+                    <form id="mdbook-searchbar-outer" class="searchbar-outer">
+                        <div class="search-wrapper">
+                            <input type="search" id="mdbook-searchbar" name="searchbar" placeholder="Search this book ..." aria-controls="mdbook-searchresults-outer" aria-describedby="searchresults-header">
+                            <div class="spinner-wrapper">
+                                <span class=fa-svg id="fa-spin"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc. --><path d="M304 48c0-26.5-21.5-48-48-48s-48 21.5-48 48s21.5 48 48 48s48-21.5 48-48zm0 416c0-26.5-21.5-48-48-48s-48 21.5-48 48s21.5 48 48 48s48-21.5 48-48zM48 304c26.5 0 48-21.5 48-48s-21.5-48-48-48s-48 21.5-48 48s21.5 48 48 48zm464-48c0-26.5-21.5-48-48-48s-48 21.5-48 48s21.5 48 48 48s48-21.5 48-48zM142.9 437c18.7-18.7 18.7-49.1 0-67.9s-49.1-18.7-67.9 0s-18.7 49.1 0 67.9s49.1 18.7 67.9 0zm0-294.2c18.7-18.7 18.7-49.1 0-67.9S93.7 56.2 75 75s-18.7 49.1 0 67.9s49.1 18.7 67.9 0zM369.1 437c18.7 18.7 49.1 18.7 67.9 0s18.7-49.1 0-67.9s-49.1-18.7-67.9 0s-18.7 49.1 0 67.9z"/></svg></span>
+                            </div>
+                        </div>
+                    </form>
+                    <div id="mdbook-searchresults-outer" class="searchresults-outer hidden">
+                        <div id="mdbook-searchresults-header" class="searchresults-header"></div>
+                        <ul id="mdbook-searchresults">
+                        </ul>
+                    </div>
+                </div>
+
+                <!-- Apply ARIA attributes after the sidebar and the sidebar toggle button are added to the DOM -->
+                <script>
+                    document.getElementById('mdbook-sidebar-toggle').setAttribute('aria-expanded', sidebar === 'visible');
+                    document.getElementById('mdbook-sidebar').setAttribute('aria-hidden', sidebar !== 'visible');
+                    Array.from(document.querySelectorAll('#mdbook-sidebar a')).forEach(function(link) {
+                        link.setAttribute('tabIndex', sidebar === 'visible' ? 0 : -1);
+                    });
+                </script>
+
+                <div id="mdbook-content" class="content">
+                    <main>
+                        <!-- Generated by `python3 tools/gen-api-reference.py --write` from
+     lib/*.x and the stage interfaces. Do not edit by hand. -->
+<h1 id="libregexx"><a class="header" href="#libregexx"><code>lib/regex.x</code></a></h1>
+<p>Regular expressions over the bytes of a String.</p>
+<h2 id="primary-api"><a class="header" href="#primary-api">Primary API</a></h2>
+<div class="table-wrapper">
+<table>
+<thead>
+<tr><th>Function</th><th>Summary</th></tr>
+</thead>
+<tbody>
+<tr><td><a href="#Regex.capture_count"><code>Regex.capture_count</code></a></td><td>Returns the number of capturing groups in <code>regex</code>.</td></tr>
+<tr><td><a href="#Regex.capture_names"><code>Regex.capture_names</code></a></td><td>Returns the names of the capturing groups of <code>regex</code> in capture order, with NULL for a group without a name.</td></tr>
+<tr><td><a href="#Regex.cleanup"><code>Regex.cleanup</code></a></td><td>Provides the class default for <code>Regex.cleanup</code>.</td></tr>
+<tr><td><a href="#Regex.compile"><code>Regex.compile</code></a></td><td>Compiles <code>pattern</code> and returns the <code>Regex</code>, owned by the current scope.</td></tr>
+<tr><td><a href="#Regex.equal"><code>Regex.equal</code></a></td><td>Provides the class default for <code>Regex.equal</code>.</td></tr>
+<tr><td><a href="#Regex.escape"><code>Regex.escape</code></a></td><td>Returns <code>literal</code> with every ASCII byte that is not a letter, digit, or underscore escaped, so that it matches itself inside a pattern.</td></tr>
+<tr><td><a href="#Regex.find_all"><code>Regex.find_all</code></a></td><td>Returns every non-overlapping match of <code>r</code> in <code>subject</code>, in order.</td></tr>
+<tr><td><a href="#Regex.free"><code>Regex.free</code></a></td><td>Provides the class default for <code>Regex.free</code>.</td></tr>
+<tr><td><a href="#Regex.hash"><code>Regex.hash</code></a></td><td>Provides the class default for <code>Regex.hash</code>.</td></tr>
+<tr><td><a href="#Regex.match"><code>Regex.match</code></a></td><td>Returns the first match of <code>r</code> in <code>subject</code>, or NULL.</td></tr>
+<tr><td><a href="#Regex.match_from"><code>Regex.match_from</code></a></td><td>Returns the first match of <code>r</code> in <code>subject</code> at or after the byte <code>offset</code>, or NULL.</td></tr>
+<tr><td><a href="#Regex.pattern"><code>Regex.pattern</code></a></td><td>Returns the text <code>regex</code> was compiled from.</td></tr>
+<tr><td><a href="#Regex.replace"><code>Regex.replace</code></a></td><td>Returns <code>subject</code> with the first match of <code>regex</code> replaced.</td></tr>
+<tr><td><a href="#Regex.replace_all"><code>Regex.replace_all</code></a></td><td>Returns <code>subject</code> with every match of <code>regex</code> replaced, expanding <code>replacement</code> as <code>replace</code> does.</td></tr>
+<tr><td><a href="#Regex.replace_fn"><code>Regex.replace_fn</code></a></td><td>Returns <code>subject</code> with every match of <code>regex</code> replaced by what <code>fn</code> returns for its <code>RegexMatch</code>, inserted as is.</td></tr>
+<tr><td><a href="#Regex.repr"><code>Regex.repr</code></a></td><td>Provides the class default for <code>Regex.repr</code>.</td></tr>
+<tr><td><a href="#Regex.split"><code>Regex.split</code></a></td><td>Returns the text of <code>subject</code> between the matches of <code>regex</code>, keeping an empty field where two matches touch or a match sits at either end.</td></tr>
+<tr><td><a href="#Regex.str"><code>Regex.str</code></a></td><td>Provides the class default for <code>Regex.str</code>.</td></tr>
+<tr><td><a href="#Regex.var"><code>Regex.var</code></a></td><td>Provides the class default for <code>Regex.var</code>.</td></tr>
+<tr><td><a href="#Regex.write_repr"><code>Regex.write_repr</code></a></td><td>Provides the class default for <code>Regex.write_repr</code>.</td></tr>
+<tr><td><a href="#Regex.write_str"><code>Regex.write_str</code></a></td><td>Provides the class default for <code>Regex.write_str</code>.</td></tr>
+<tr><td><a href="#RegexCapture.end"><code>RegexCapture.end</code></a></td><td>Returns the byte offset just past the capture, or -1.</td></tr>
+<tr><td><a href="#RegexCapture.index"><code>RegexCapture.index</code></a></td><td>Returns the capture number, with 0 for the whole match.</td></tr>
+<tr><td><a href="#RegexCapture.matched"><code>RegexCapture.matched</code></a></td><td>Reports whether the capture took part in the match.</td></tr>
+<tr><td><a href="#RegexCapture.name"><code>RegexCapture.name</code></a></td><td>Returns the capture’s name, or NULL.</td></tr>
+<tr><td><a href="#RegexCapture.start"><code>RegexCapture.start</code></a></td><td>Returns the byte offset where the capture starts, or -1.</td></tr>
+<tr><td><a href="#RegexCapture.text"><code>RegexCapture.text</code></a></td><td>Returns the matched text, or NULL for a capture that did not take part.</td></tr>
+<tr><td><a href="#RegexMatch.capture"><code>RegexMatch.capture</code></a></td><td>Returns the capture of <code>found</code> selected by <code>key</code>: a capture number, or a name as a <code>Symbol</code> or <code>String</code>.</td></tr>
+<tr><td><a href="#RegexMatch.getindex"><code>RegexMatch.getindex</code></a></td><td>Returns the text of the capture selected by <code>key</code>, or NULL when the capture does not exist or did not take part in the match.</td></tr>
+<tr><td><a href="#Var.regex"><code>Var.regex</code></a></td><td>Provides the class default for <code>Var.regex</code>.</td></tr>
+<tr><td><a href="#Var.regexcapture"><code>Var.regexcapture</code></a></td><td>Reads a <code>RegexCapture</code> back out of a <code>Var</code>, as <code>foreach</code> does.</td></tr>
+<tr><td><a href="#Var.regexmatch"><code>Var.regexmatch</code></a></td><td>Reads a <code>RegexMatch</code> back out of a <code>Var</code>, as <code>foreach</code> does.</td></tr>
+</tbody>
+</table>
+</div>
+<h3 id="regex"><a class="header" href="#regex"><code>Regex</code></a></h3>
+<p><a id="Regex.capture_count"></a></p>
+<h4 id="regexcapture_count"><a class="header" href="#regexcapture_count">Regex.capture_count</a></h4>
+<p><code>int Regex.capture_count(Regex regex)</code></p>
+<p>Returns the number of capturing groups in <code>regex</code>.</p>
+<p>Source: <code>lib/regex.x:630</code></p>
+<p><a id="Regex.capture_names"></a></p>
+<h4 id="regexcapture_names"><a class="header" href="#regexcapture_names">Regex.capture_names</a></h4>
+<p><code>List Regex.capture_names(Regex regex)</code></p>
+<p>Returns the names of the capturing groups of <code>regex</code> in capture order,
+with NULL for a group without a name.</p>
+<p>Source: <code>lib/regex.x:635</code></p>
+<p><a id="Regex.cleanup"></a></p>
+<h4 id="regexcleanup"><a class="header" href="#regexcleanup">Regex.cleanup</a></h4>
+<p><code>void Regex.cleanup(Regex)</code></p>
+<p>Provides the class default for <code>Regex.cleanup</code>.</p>
+<p>See <a href="../../guide/system-macros.html">Classes and system macros</a> for the default behavior.</p>
+<p>Source: <code>lib/regex.x:27</code></p>
+<p><a id="Regex.compile"></a></p>
+<h4 id="regexcompile"><a class="header" href="#regexcompile">Regex.compile</a></h4>
+<p><code>Regex Regex.compile(String pattern)</code></p>
+<p>Compiles <code>pattern</code> and returns the <code>Regex</code>, owned by the current scope.</p>
+<p><strong>Raises:</strong> <code>&lt;bad-arg&gt;</code> with <code>why</code>, the <code>pattern</code>, and the byte <code>offset</code>
+of the problem when the pattern does not parse.</p>
+<p>Source: <code>lib/regex.x:624</code></p>
+<p><a id="Regex.equal"></a></p>
+<h4 id="regexequal"><a class="header" href="#regexequal">Regex.equal</a></h4>
+<p><code>int Regex.equal(Regex, Regex)</code></p>
+<p>Provides the class default for <code>Regex.equal</code>.</p>
+<p>See <a href="../../guide/system-macros.html">Classes and system macros</a> for the default behavior.</p>
+<p>Source: <code>lib/regex.x:27</code></p>
+<p><a id="Regex.escape"></a></p>
+<h4 id="regexescape"><a class="header" href="#regexescape">Regex.escape</a></h4>
+<p><code>String Regex.escape(String literal)</code></p>
+<p>Returns <code>literal</code> with every ASCII byte that is not a letter, digit, or
+underscore escaped, so that it matches itself inside a pattern.</p>
+<p>Source: <code>lib/regex.x:640</code></p>
+<p><a id="Regex.find_all"></a></p>
+<h4 id="regexfind_all"><a class="header" href="#regexfind_all">Regex.find_all</a></h4>
+<p><code>List Regex.find_all(Regex r, String subject)</code></p>
+<p>Returns every non-overlapping match of <code>r</code> in <code>subject</code>, in order.
+An empty match advances one byte. No match returns an empty <code>List</code>.</p>
+<p>Source: <code>lib/regex.x:663</code></p>
+<p><a id="Regex.free"></a></p>
+<h4 id="regexfree"><a class="header" href="#regexfree">Regex.free</a></h4>
+<p><code>void Regex.free(Regex)</code></p>
+<p>Provides the class default for <code>Regex.free</code>.</p>
+<p>See <a href="../../guide/system-macros.html">Classes and system macros</a> for the default behavior.</p>
+<p>Source: <code>lib/regex.x:27</code></p>
+<p><a id="Regex.hash"></a></p>
+<h4 id="regexhash"><a class="header" href="#regexhash">Regex.hash</a></h4>
+<p><code>unsigned Regex.hash(Regex)</code></p>
+<p>Provides the class default for <code>Regex.hash</code>.</p>
+<p>See <a href="../../guide/system-macros.html">Classes and system macros</a> for the default behavior.</p>
+<p>Source: <code>lib/regex.x:27</code></p>
+<p><a id="Regex.match"></a></p>
+<h4 id="regexmatch"><a class="header" href="#regexmatch">Regex.match</a></h4>
+<p><code>RegexMatch Regex.match(Regex r, String subject)</code></p>
+<p>Returns the first match of <code>r</code> in <code>subject</code>, or NULL.</p>
+<p>Source: <code>lib/regex.x:658</code></p>
+<p><a id="Regex.match_from"></a></p>
+<h4 id="regexmatch_from"><a class="header" href="#regexmatch_from">Regex.match_from</a></h4>
+<p><code>RegexMatch Regex.match_from(Regex r, String subject, int offset)</code></p>
+<p>Returns the first match of <code>r</code> in <code>subject</code> at or after the byte
+<code>offset</code>, or NULL. An offset beyond the end of <code>subject</code> finds nothing.</p>
+<p>Source: <code>lib/regex.x:654</code></p>
+<p><a id="Regex.pattern"></a></p>
+<h4 id="regexpattern"><a class="header" href="#regexpattern">Regex.pattern</a></h4>
+<p><code>String Regex.pattern(Regex regex)</code></p>
+<p>Returns the text <code>regex</code> was compiled from.</p>
+<p>Source: <code>lib/regex.x:627</code></p>
+<p><a id="Regex.replace"></a></p>
+<h4 id="regexreplace"><a class="header" href="#regexreplace">Regex.replace</a></h4>
+<p><code>String Regex.replace(Regex regex, String subject, String replacement)</code></p>
+<p>Returns <code>subject</code> with the first match of <code>regex</code> replaced. In
+<code>replacement</code>, <code>$0</code> through <code>$9</code> and <code>${name}</code> insert a capture and <code>$$</code>
+is a dollar sign.</p>
+<p>Source: <code>lib/regex.x:689</code></p>
+<p><a id="Regex.replace_all"></a></p>
+<h4 id="regexreplace_all"><a class="header" href="#regexreplace_all">Regex.replace_all</a></h4>
+<p><code>String Regex.replace_all(Regex regex, String subject, String replacement)</code></p>
+<p>Returns <code>subject</code> with every match of <code>regex</code> replaced, expanding
+<code>replacement</code> as <code>replace</code> does.</p>
+<p>Source: <code>lib/regex.x:695</code></p>
+<p><a id="Regex.replace_fn"></a></p>
+<h4 id="regexreplace_fn"><a class="header" href="#regexreplace_fn">Regex.replace_fn</a></h4>
+<p><code>String Regex.replace_fn(Regex regex, String subject, Func fn)</code></p>
+<p>Returns <code>subject</code> with every match of <code>regex</code> replaced by what <code>fn</code>
+returns for its <code>RegexMatch</code>, inserted as is.</p>
+<p><strong>Raises:</strong> whatever <code>fn</code> raises.</p>
+<p>Source: <code>lib/regex.x:702</code></p>
+<p><a id="Regex.repr"></a></p>
+<h4 id="regexrepr"><a class="header" href="#regexrepr">Regex.repr</a></h4>
+<p><code>String Regex.repr(Regex)</code></p>
+<p>Provides the class default for <code>Regex.repr</code>.</p>
+<p>See <a href="../../guide/system-macros.html">Classes and system macros</a> for the default behavior.</p>
+<p>Source: <code>lib/regex.x:27</code></p>
+<p><a id="Regex.split"></a></p>
+<h4 id="regexsplit"><a class="header" href="#regexsplit">Regex.split</a></h4>
+<p><code>List Regex.split(Regex regex, String subject)</code></p>
+<p>Returns the text of <code>subject</code> between the matches of <code>regex</code>, keeping
+an empty field where two matches touch or a match sits at either end.</p>
+<p>Source: <code>lib/regex.x:674</code></p>
+<p><a id="Regex.str"></a></p>
+<h4 id="regexstr"><a class="header" href="#regexstr">Regex.str</a></h4>
+<p><code>String Regex.str(Regex)</code></p>
+<p>Provides the class default for <code>Regex.str</code>.</p>
+<p>See <a href="../../guide/system-macros.html">Classes and system macros</a> for the default behavior.</p>
+<p>Source: <code>lib/regex.x:27</code></p>
+<p><a id="Regex.var"></a></p>
+<h4 id="regexvar"><a class="header" href="#regexvar">Regex.var</a></h4>
+<p><code>Var Regex.var(Regex)</code></p>
+<p>Provides the class default for <code>Regex.var</code>.</p>
+<p>See <a href="../../guide/system-macros.html">Classes and system macros</a> for the default behavior.</p>
+<p>Source: <code>lib/regex.x:27</code></p>
+<p><a id="Regex.write_repr"></a></p>
+<h4 id="regexwrite_repr"><a class="header" href="#regexwrite_repr">Regex.write_repr</a></h4>
+<p><code>Buffer Regex.write_repr(Regex, Buffer)</code></p>
+<p>Provides the class default for <code>Regex.write_repr</code>.</p>
+<p>See <a href="../../guide/system-macros.html">Classes and system macros</a> for the default behavior.</p>
+<p>Source: <code>lib/regex.x:27</code></p>
+<p><a id="Regex.write_str"></a></p>
+<h4 id="regexwrite_str"><a class="header" href="#regexwrite_str">Regex.write_str</a></h4>
+<p><code>Buffer Regex.write_str(Regex, Buffer)</code></p>
+<p>Provides the class default for <code>Regex.write_str</code>.</p>
+<p>See <a href="../../guide/system-macros.html">Classes and system macros</a> for the default behavior.</p>
+<p>Source: <code>lib/regex.x:27</code></p>
+<h3 id="regexcapture"><a class="header" href="#regexcapture"><code>RegexCapture</code></a></h3>
+<p><a id="RegexCapture.end"></a></p>
+<h4 id="regexcaptureend"><a class="header" href="#regexcaptureend">RegexCapture.end</a></h4>
+<p><code>int RegexCapture.end(RegexCapture capture)</code></p>
+<p>Returns the byte offset just past the capture, or -1.</p>
+<p>Source: <code>lib/regex.x:742</code></p>
+<p><a id="RegexCapture.index"></a></p>
+<h4 id="regexcaptureindex"><a class="header" href="#regexcaptureindex">RegexCapture.index</a></h4>
+<p><code>int RegexCapture.index(RegexCapture capture)</code></p>
+<p>Returns the capture number, with 0 for the whole match.</p>
+<p>Source: <code>lib/regex.x:727</code></p>
+<p><a id="RegexCapture.matched"></a></p>
+<h4 id="regexcapturematched"><a class="header" href="#regexcapturematched">RegexCapture.matched</a></h4>
+<p><code>int RegexCapture.matched(RegexCapture capture)</code></p>
+<p>Reports whether the capture took part in the match.</p>
+<p>Source: <code>lib/regex.x:733</code></p>
+<p><a id="RegexCapture.name"></a></p>
+<h4 id="regexcapturename"><a class="header" href="#regexcapturename">RegexCapture.name</a></h4>
+<p><code>String RegexCapture.name(RegexCapture capture)</code></p>
+<p>Returns the capture’s name, or NULL.</p>
+<p>Source: <code>lib/regex.x:730</code></p>
+<p><a id="RegexCapture.start"></a></p>
+<h4 id="regexcapturestart"><a class="header" href="#regexcapturestart">RegexCapture.start</a></h4>
+<p><code>int RegexCapture.start(RegexCapture capture)</code></p>
+<p>Returns the byte offset where the capture starts, or -1.</p>
+<p>Source: <code>lib/regex.x:739</code></p>
+<p><a id="RegexCapture.text"></a></p>
+<h4 id="regexcapturetext"><a class="header" href="#regexcapturetext">RegexCapture.text</a></h4>
+<p><code>String RegexCapture.text(RegexCapture capture)</code></p>
+<p>Returns the matched text, or NULL for a capture that did not take part.</p>
+<p>Source: <code>lib/regex.x:736</code></p>
+<h3 id="regexmatch-1"><a class="header" href="#regexmatch-1"><code>RegexMatch</code></a></h3>
+<p><a id="RegexMatch.capture"></a></p>
+<h4 id="regexmatchcapture"><a class="header" href="#regexmatchcapture">RegexMatch.capture</a></h4>
+<p><code>RegexCapture RegexMatch.capture(RegexMatch found, Var key)</code></p>
+<p>Returns the capture of <code>found</code> selected by <code>key</code>: a capture number, or
+a name as a <code>Symbol</code> or <code>String</code>. NULL when there is no such capture.</p>
+<p>Source: <code>lib/regex.x:708</code></p>
+<p><a id="RegexMatch.getindex"></a></p>
+<h4 id="regexmatchgetindex"><a class="header" href="#regexmatchgetindex">RegexMatch.getindex</a></h4>
+<p><code>String RegexMatch.getindex(RegexMatch found, Var key)</code></p>
+<p>Returns the text of the capture selected by <code>key</code>, or NULL when the
+capture does not exist or did not take part in the match.</p>
+<p>Source: <code>lib/regex.x:721</code></p>
+<h3 id="var"><a class="header" href="#var"><code>Var</code></a></h3>
+<p><a id="Var.regex"></a></p>
+<h4 id="varregex"><a class="header" href="#varregex">Var.regex</a></h4>
+<p><code>Regex Var.regex(Var)</code></p>
+<p>Provides the class default for <code>Var.regex</code>.</p>
+<p>See <a href="../../guide/system-macros.html">Classes and system macros</a> for the default behavior.</p>
+<p>Source: <code>lib/regex.x:27</code></p>
+<p><a id="Var.regexcapture"></a></p>
+<h4 id="varregexcapture"><a class="header" href="#varregexcapture">Var.regexcapture</a></h4>
+<p><code>RegexCapture Var.regexcapture(Var value)</code></p>
+<p>Reads a <code>RegexCapture</code> back out of a <code>Var</code>, as <code>foreach</code> does.</p>
+<p>Source: <code>lib/regex.x:745</code></p>
+<p><a id="Var.regexmatch"></a></p>
+<h4 id="varregexmatch"><a class="header" href="#varregexmatch">Var.regexmatch</a></h4>
+<p><code>RegexMatch Var.regexmatch(Var value)</code></p>
+<p>Reads a <code>RegexMatch</code> back out of a <code>Var</code>, as <code>foreach</code> does.</p>
+<p>Source: <code>lib/regex.x:748</code></p>
+<h2 id="public-types"><a class="header" href="#public-types">Public types</a></h2>
+<div class="table-wrapper">
+<table>
+<thead>
+<tr><th>Type</th><th>Kind</th><th>Summary</th></tr>
+</thead>
+<tbody>
+<tr><td><a href="#Regex"><code>Regex</code></a></td><td>class</td><td>A compiled pattern.</td></tr>
+<tr><td><a href="#RegexCapture"><code>RegexCapture</code></a></td><td>alias</td><td>One capture of a match: index, name, matched, text, start, end.</td></tr>
+<tr><td><a href="#RegexMatch"><code>RegexMatch</code></a></td><td>alias</td><td>The captures of one match, with the whole match at index 0.</td></tr>
+</tbody>
+</table>
+</div>
+<p><a id="Regex"></a></p>
+<h3 id="regex-1"><a class="header" href="#regex-1">Regex</a></h3>
+<p><code>class Regex struct { String pattern; _RegexNode program; int capture_count; List capture_names; int caseless, multiline, dotall; } *</code></p>
+<p>A compiled pattern. <code>Regex.compile</code> makes one; the scope that made it
+frees it. A <code>RegexMatch</code> is the <code>List</code> of <code>RegexCapture</code>s of one match,
+indexed by capture number or name; each capture is the <code>List</code> of its
+index, name, whether it took part, text, start, and end.</p>
+<p>Source: <code>lib/regex.x:27</code></p>
+<p><a id="RegexCapture"></a></p>
+<h3 id="regexcapture-1"><a class="header" href="#regexcapture-1">RegexCapture</a></h3>
+<p><code>typedef List RegexCapture</code></p>
+<p>One capture of a match: index, name, matched, text, start, end.</p>
+<p>Source: <code>lib/regex.x:36</code></p>
+<p><a id="RegexMatch"></a></p>
+<h3 id="regexmatch-2"><a class="header" href="#regexmatch-2">RegexMatch</a></h3>
+<p><code>typedef List RegexMatch</code></p>
+<p>The captures of one match, with the whole match at index 0.</p>
+<p>Source: <code>lib/regex.x:39</code></p>
+<h2 id="design-notes"><a class="header" href="#design-notes">Design notes</a></h2>
+<p>A Regex is a compiled pattern, owned by the scope that compiled it. A
+RegexMatch and a RegexCapture are immutable Lists, so their Strings and
+offsets stay valid after the next match. Matching backtracks over a
+small node tree; a repeated single byte class runs as a loop, so the
+common <code>.*</code> and <code>\w+</code> forms do not recurse per byte.</p>
+<p>The syntax is the byte-oriented subset described in the book’s
+“Patterns” section: sets, <code>.</code>, anchors, word boundaries, greedy and
+lazy repetition, alternation, numbered and named captures, and the
+leading <code>(?i)</code>, <code>(?m)</code>, and <code>(?s)</code> flags.</p>
+<h2 id="tests-and-examples"><a class="header" href="#tests-and-examples">Tests and examples</a></h2>
+<p><code>make verify</code> (<code>unittest/test-regex.x</code>).</p>
+
+                    </main>
+
+                    <nav class="x2c-pager" aria-label="Page navigation">
+                        <a rel="prev" href="../../library/modules/process.html" class="x2c-pager-prev" aria-keyshortcuts="Left">
+                            <span class="x2c-pager-label">previous</span>
+                            <span class="x2c-pager-title">lib/process.x</span>
+                        </a>
+                        
+                        <a rel="next prefetch" href="../../library/modules/scope.html" class="x2c-pager-next" aria-keyshortcuts="Right">
+                            <span class="x2c-pager-label">next</span>
+                            <span class="x2c-pager-title">lib/scope.x</span>
+                        </a>
+                    </nav>
+                    <footer class="x2c-footer">
+                        &copy; 2025&ndash;2026
+                        <a href="https://flake.org">GWF</a>
+                        &middot;
+                        <a href="https://github.com/gwf/x2c/blob/c2a89d999e81f47a4422a26edf0033eb0b98c6c6/LICENSE">Apache 2.0</a>
+                        &middot;
+                        <a href="https://github.com/gwf/x2c/blob/c2a89d999e81f47a4422a26edf0033eb0b98c6c6/TRADEMARKS.md">Trademarks</a>
+                    </footer>
+                </div>
+            </div>
+
+
+        </div>
+
+        <template id=fa-eye><span class=fa-svg><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 576 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc. --><path d="M288 32c-80.8 0-145.5 36.8-192.6 80.6C48.6 156 17.3 208 2.5 243.7c-3.3 7.9-3.3 16.7 0 24.6C17.3 304 48.6 356 95.4 399.4C142.5 443.2 207.2 480 288 480s145.5-36.8 192.6-80.6c46.8-43.5 78.1-95.4 93-131.1c3.3-7.9 3.3-16.7 0-24.6c-14.9-35.7-46.2-87.7-93-131.1C433.5 68.8 368.8 32 288 32zM432 256c0 79.5-64.5 144-144 144s-144-64.5-144-144s64.5-144 144-144s144 64.5 144 144zM288 192c0 35.3-28.7 64-64 64c-11.5 0-22.3-3-31.6-8.4c-.2 2.8-.4 5.5-.4 8.4c0 53 43 96 96 96s96-43 96-96s-43-96-96-96c-2.8 0-5.6 .1-8.4 .4c5.3 9.3 8.4 20.1 8.4 31.6z"/></svg></span></template>
+        <template id=fa-eye-slash><span class=fa-svg><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 640 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc. --><path d="M38.8 5.1C28.4-3.1 13.3-1.2 5.1 9.2S-1.2 34.7 9.2 42.9l592 464c10.4 8.2 25.5 6.3 33.7-4.1s6.3-25.5-4.1-33.7L525.6 386.7c39.6-40.6 66.4-86.1 79.9-118.4c3.3-7.9 3.3-16.7 0-24.6c-14.9-35.7-46.2-87.7-93-131.1C465.5 68.8 400.8 32 320 32c-68.2 0-125 26.3-169.3 60.8L38.8 5.1zM223.1 149.5C248.6 126.2 282.7 112 320 112c79.5 0 144 64.5 144 144c0 24.9-6.3 48.3-17.4 68.7L408 294.5c5.2-11.8 8-24.8 8-38.5c0-53-43-96-96-96c-2.8 0-5.6 .1-8.4 .4c5.3 9.3 8.4 20.1 8.4 31.6c0 10.2-2.4 19.8-6.6 28.3l-90.3-70.8zm223.1 298L373 389.9c-16.4 6.5-34.3 10.1-53 10.1c-79.5 0-144-64.5-144-144c0-6.9 .5-13.6 1.4-20.2L83.1 161.5C60.3 191.2 44 220.8 34.5 243.7c-3.3 7.9-3.3 16.7 0 24.6c14.9 35.7 46.2 87.7 93 131.1C174.5 443.2 239.2 480 320 480c47.8 0 89.9-12.9 126.2-32.5z"/></svg></span></template>
+        <template id=fa-copy><span class=fa-svg><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc. --><path d="M502.6 70.63l-61.25-61.25C435.4 3.371 427.2 0 418.7 0H255.1c-35.35 0-64 28.66-64 64l.0195 256C192 355.4 220.7 384 256 384h192c35.2 0 64-28.8 64-64V93.25C512 84.77 508.6 76.63 502.6 70.63zM464 320c0 8.836-7.164 16-16 16H255.1c-8.838 0-16-7.164-16-16L239.1 64.13c0-8.836 7.164-16 16-16h128L384 96c0 17.67 14.33 32 32 32h47.1V320zM272 448c0 8.836-7.164 16-16 16H63.1c-8.838 0-16-7.164-16-16L47.98 192.1c0-8.836 7.164-16 16-16H160V128H63.99c-35.35 0-64 28.65-64 64l.0098 256C.002 483.3 28.66 512 64 512h192c35.2 0 64-28.8 64-64v-32h-47.1L272 448z"/></svg></span></template>
+        <template id=fa-play><span class=fa-svg><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 384 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc. --><path d="M73 39c-14.8-9.1-33.4-9.4-48.5-.9S0 62.6 0 80V432c0 17.4 9.4 33.4 24.5 41.9s33.7 8.1 48.5-.9L361 297c14.3-8.7 23-24.2 23-41s-8.7-32.2-23-41L73 39z"/></svg></span></template>
+        <template id=fa-clock-rotate-left><span class=fa-svg><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc. --><path d="M75 75L41 41C25.9 25.9 0 36.6 0 57.9V168c0 13.3 10.7 24 24 24H134.1c21.4 0 32.1-25.9 17-41l-30.8-30.8C155 85.5 203 64 256 64c106 0 192 86 192 192s-86 192-192 192c-40.8 0-78.6-12.7-109.7-34.4c-14.5-10.1-34.4-6.6-44.6 7.9s-6.6 34.4 7.9 44.6C151.2 495 201.7 512 256 512c141.4 0 256-114.6 256-256S397.4 0 256 0C185.3 0 121.3 28.7 75 75zm181 53c-13.3 0-24 10.7-24 24V256c0 6.4 2.5 12.5 7 17l72 72c9.4 9.4 24.6 9.4 33.9 0s9.4-24.6 0-33.9l-65-65V152c0-13.3-10.7-24-24-24z"/></svg></span></template>
+
+
+
+        <script>
+            window.playground_copyable = true;
+        </script>
+
+
+        <script src="../../elasticlunr-ef4e11c1.min.js"></script>
+        <script src="../../mark-09e88c2c.min.js"></script>
+        <script src="../../searcher-09f2665d.js"></script>
+
+        <script src="../../clipboard-1626706a.min.js"></script>
+        <script src="../../highlight-abc7f01d.js"></script>
+        <script src="../../book-609e4cb8.js"></script>
+
+        <script>
+            document.addEventListener('DOMContentLoaded', () => {
+                const sidebar = document.querySelector('#mdbook-sidebar');
+                sidebar.querySelectorAll('ol').forEach(list => {
+                    const numbers = list.querySelectorAll(
+                        ':scope > li > .chapter-link-wrapper > a > strong, :scope > li > a > strong');
+                    if (numbers.length) {
+                        const width = Math.max(...Array.from(numbers,
+                            number => number.textContent.trim().length));
+                        list.style.setProperty('--chapter-number-width', width + 'ch');
+                    }
+                });
+                const chapter = sidebar.querySelector('a.active');
+                const item = chapter?.closest('.chapter-item');
+                if (item?.querySelector(':scope > .on-this-page')) {
+                    const row = chapter.parentElement;
+                    if (!row.querySelector('.chapter-fold-toggle')) {
+                        const toggle = document.createElement('button');
+                        toggle.type = 'button';
+                        toggle.className = 'chapter-fold-toggle';
+                        toggle.appendChild(document.createElement('div'));
+                        toggle.addEventListener('click', () => {
+                            item.classList.toggle('expanded');
+                        });
+                        row.appendChild(toggle);
+                    }
+                }
+                sidebar.querySelectorAll('.chapter-fold-toggle').forEach(toggle => {
+                    const row = toggle.parentElement;
+                    const item = row.parentElement;
+                    const title = row.querySelector('a').textContent.trim();
+                    toggle.setAttribute('aria-label', 'Toggle ' + title);
+                    const update = () => toggle.setAttribute('aria-expanded',
+                        String(item.classList.contains('expanded')));
+                    update();
+                    toggle.addEventListener('click', update);
+                    if (toggle.tagName === 'A') {
+                        toggle.setAttribute('role', 'button');
+                        toggle.tabIndex = 0;
+                        toggle.addEventListener('keydown', event => {
+                            if (event.key === 'Enter' || event.key === ' ') {
+                                event.preventDefault();
+                                toggle.click();
+                            }
+                        });
+                    }
+                });
+            });
+        </script>
+
+        <!-- Custom JS scripts -->
+
+
+
+    </div>
+    </body>
+</html>

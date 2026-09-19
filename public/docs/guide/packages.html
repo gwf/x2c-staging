@@ -1,0 +1,735 @@
+<!DOCTYPE HTML>
+<html lang="en" class="light sidebar-visible" dir="ltr">
+    <head>
+        <!-- Book generated using mdBook -->
+        <meta charset="UTF-8">
+        <title>Packages - The x2c Book</title>
+
+
+        <!-- Custom HTML head -->
+        <link rel="preconnect" href="https://fonts.googleapis.com">
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=Archivo:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">
+
+        <meta name="description" content="The x2c language, standard library, and compiler.">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <meta name="theme-color" content="#ffffff">
+
+        <link rel="icon" href="../favicon-995a3c20.svg">
+        <link rel="stylesheet" href="../css/variables-8adf115d.css">
+        <link rel="stylesheet" href="../css/general-e96d0476.css">
+        <link rel="stylesheet" href="../css/chrome-d279d366.css">
+        <link rel="stylesheet" href="../css/print-9e4910d8.css" media="print">
+
+        <!-- Fonts -->
+        <link rel="stylesheet" href="../fonts/fonts-9644e21d.css">
+
+        <!-- Highlight.js Stylesheets -->
+        <link rel="stylesheet" id="mdbook-highlight-css" href="../highlight-493f70e1.css">
+        <link rel="stylesheet" id="mdbook-tomorrow-night-css" href="../tomorrow-night-4c0ae647.css">
+        <link rel="stylesheet" id="mdbook-ayu-highlight-css" href="../ayu-highlight-3fdfc3ac.css">
+
+        <!-- Custom theme stylesheets -->
+        <link rel="stylesheet" href="../theme/header-2c1becca.css">
+        <link rel="stylesheet" href="../theme/x2c-fd3d182e.css">
+
+
+        <!-- Provide site root and default themes to javascript -->
+        <script>
+            const path_to_root = "../";
+            const default_light_theme = "light";
+            const default_dark_theme = "light";
+            window.path_to_searchindex_js = "../searchindex-2643e100.js";
+        </script>
+        <!-- Start loading toc.js asap -->
+        <script src="../toc-a71616d6.js"></script>
+        <!-- x2c publication metadata -->
+        <link rel="canonical" href="https://staging.x2c-lang.dev/docs/guide/packages.html">
+        <meta property="og:type" content="website">
+        <meta property="og:title" content="Packages - The x2c Book">
+        <meta property="og:description" content="The x2c language, standard library, and compiler.">
+        <meta property="og:url" content="https://staging.x2c-lang.dev/docs/guide/packages.html">
+        <meta property="og:image" content="https://staging.x2c-lang.dev/x2c-social.png">
+        <meta property="og:image:width" content="1200">
+        <meta property="og:image:height" content="630">
+        <meta name="twitter:card" content="summary_large_image">
+        <meta name="twitter:title" content="Packages - The x2c Book">
+        <meta name="twitter:description" content="The x2c language, standard library, and compiler.">
+        <meta name="twitter:image" content="https://staging.x2c-lang.dev/x2c-social.png">
+    </head>
+    <body><aside aria-label="Release candidate" style="padding:1rem;background:#fff1bf;color:#241c00;font:14px/1.5 monospace;overflow-wrap:anywhere"><strong>Public staging: candidate-c2a89d999e81f47a4422a26edf0033eb0b98c6c6-35470032964-1</strong><p>Source: c2a89d999e81f47a4422a26edf0033eb0b98c6c6. Use a fresh scratch installation and the explicit candidate index below. Bare x2c install commands and production URLs in the book refer to production.</p><pre style="overflow:auto">export X2C_PREFIX=&quot;$(mktemp -d)/x2c&quot;
+curl -fsSL https://staging.x2c-lang.dev/install.sh | sh
+export PATH=&quot;$X2C_PREFIX/bin:$PATH&quot;
+x2c run &quot;$X2C_PREFIX/examples/foreach.x&quot;
+x2c install pcre2 --index https://staging.x2c-lang.dev/packages/index.txt</pre></aside>
+    <div id="mdbook-help-container">
+        <div id="mdbook-help-popup">
+            <h2 class="mdbook-help-title">Keyboard shortcuts</h2>
+            <div>
+                <p>Press <kbd>←</kbd> or <kbd>→</kbd> to navigate between chapters</p>
+                <p>Press <kbd>S</kbd> or <kbd>/</kbd> to search in the book</p>
+                <p>Press <kbd>?</kbd> to show this help</p>
+                <p>Press <kbd>Esc</kbd> to hide this help</p>
+            </div>
+        </div>
+    </div>
+    <div id="mdbook-body-container">
+        <!-- Work around some values being stored in localStorage wrapped in quotes -->
+        <script>
+            try {
+                let theme = localStorage.getItem('mdbook-theme');
+                let sidebar = localStorage.getItem('mdbook-sidebar');
+
+                if (theme.startsWith('"') && theme.endsWith('"')) {
+                    localStorage.setItem('mdbook-theme', theme.slice(1, theme.length - 1));
+                }
+
+                if (sidebar.startsWith('"') && sidebar.endsWith('"')) {
+                    localStorage.setItem('mdbook-sidebar', sidebar.slice(1, sidebar.length - 1));
+                }
+            } catch (e) { }
+        </script>
+
+        <!-- Set the theme before any content is loaded, prevents flash -->
+        <script>
+            const default_theme = window.matchMedia("(prefers-color-scheme: dark)").matches ? default_dark_theme : default_light_theme;
+            let theme;
+            try { theme = localStorage.getItem('mdbook-theme'); } catch(e) { }
+            if (theme === null || theme === undefined) { theme = default_theme; }
+            const html = document.documentElement;
+            html.classList.remove('light')
+            html.classList.add(theme);
+            html.classList.add("js");
+        </script>
+
+        <input type="checkbox" id="mdbook-sidebar-toggle-anchor" class="hidden">
+
+        <!-- Hide / unhide sidebar before it is displayed -->
+        <script>
+            let sidebar = null;
+            const sidebar_toggle = document.getElementById("mdbook-sidebar-toggle-anchor");
+            if (document.body.clientWidth >= 1080) {
+                try { sidebar = localStorage.getItem('mdbook-sidebar'); } catch(e) { }
+                sidebar = sidebar || 'visible';
+            } else {
+                sidebar = 'hidden';
+                sidebar_toggle.checked = false;
+            }
+            if (sidebar === 'visible') {
+                sidebar_toggle.checked = true;
+            } else {
+                html.classList.remove('sidebar-visible');
+            }
+        </script>
+
+        <nav id="mdbook-sidebar" class="sidebar" aria-label="Table of contents">
+            <!-- populated by js -->
+            <mdbook-sidebar-scrollbox class="sidebar-scrollbox"></mdbook-sidebar-scrollbox>
+            <noscript>
+                <iframe class="sidebar-iframe-outer" src="../toc.html"></iframe>
+            </noscript>
+            <div id="mdbook-sidebar-resize-handle" class="sidebar-resize-handle">
+                <div class="sidebar-resize-indicator"></div>
+            </div>
+        </nav>
+
+        <div id="mdbook-page-wrapper" class="page-wrapper">
+
+            <div class="page">
+                <div id="mdbook-menu-bar" class="hidden"></div>
+                <header class="landing-header x2c-header">
+                    <div class="landing-header-inner">
+                        <div class="landing-branding">
+                            <a class="landing-brand" href="../../" aria-label="x2c home">
+                                <svg viewBox="0 0 100 100" width="22" height="22" aria-hidden="true"><g fill="none" stroke="#da291c" stroke-width="17" stroke-linecap="butt"><path d="M9 16 A34.5 34.5 0 0 1 9 84"></path><path d="M91 16 A34.5 34.5 0 0 0 91 84"></path></g></svg>
+                                <span class="x2c-wordmark landing-wordmark">x2c</span>
+                            </a>
+                            <span class="landing-tagline">The x2c Book</span>
+                        </div>
+                        <nav class="landing-nav" aria-label="x2c website">
+                            <div class="landing-page-nav">
+                                <a href="../../#love">love</a>
+                                <a href="../../#power">power</a>
+                                <a href="../../#magic">magic</a>
+                            </div>
+                            <div class="landing-site-nav">
+                                <a href="../../#install">install</a>
+                                <a href="../../#packages">packages</a>
+                            </div>
+                            <div class="landing-reference-nav">
+                                <a href="../../about/">about</a>
+                                <a href="../" aria-current="page">docs</a>
+                                <a href="https://github.com/gwf/x2c">source</a>
+                            </div>
+                        </nav>
+                    </div>
+                    <div class="x2c-book-tools">
+                        <div class="x2c-header-tools">
+                            <label id="mdbook-sidebar-toggle" class="icon-button" for="mdbook-sidebar-toggle-anchor" title="Toggle Table of Contents" aria-label="Toggle Table of Contents" aria-controls="mdbook-sidebar">
+                                <span class=fa-svg><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc. --><path d="M0 96C0 78.3 14.3 64 32 64H416c17.7 0 32 14.3 32 32s-14.3 32-32 32H32C14.3 128 0 113.7 0 96zM0 256c0-17.7 14.3-32 32-32H416c17.7 0 32 14.3 32 32s-14.3 32-32 32H32c-17.7 0-32-14.3-32-32zM448 416c0 17.7-14.3 32-32 32H32c-17.7 0-32-14.3-32-32s14.3-32 32-32H416c17.7 0 32 14.3 32 32z"/></svg></span>
+                            </label>
+                        </div>
+                        <div class="x2c-header-tools x2c-header-tools-right">
+                            <button id="mdbook-search-toggle" class="icon-button" type="button" title="Search (`/`)" aria-label="Toggle Searchbar" aria-expanded="false" aria-keyshortcuts="/ s" aria-controls="mdbook-searchbar">
+                                <span class=fa-svg><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc. --><path d="M416 208c0 45.9-14.9 88.3-40 122.7L502.6 457.4c12.5 12.5 12.5 32.8 0 45.3s-32.8 12.5-45.3 0L330.7 376c-34.4 25.2-76.8 40-122.7 40C93.1 416 0 322.9 0 208S93.1 0 208 0S416 93.1 416 208zM208 352c79.5 0 144-64.5 144-144s-64.5-144-144-144S64 128.5 64 208s64.5 144 144 144z"/></svg></span>
+                            </button>
+                            <button id="mdbook-theme-toggle" class="icon-button" type="button" title="Change theme" aria-label="Change theme" aria-haspopup="true" aria-expanded="false" aria-controls="mdbook-theme-list">
+                                <span class=fa-svg><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc. --><path d="M448 256c0-106-86-192-192-192V448c106 0 192-86 192-192zm64 0c0 141.4-114.6 256-256 256S0 397.4 0 256S114.6 0 256 0S512 114.6 512 256z"/></svg></span>
+                            </button>
+                            <ul id="mdbook-theme-list" class="theme-popup" aria-label="Themes" role="menu">
+                                <li role="none"><button role="menuitem" class="theme" id="mdbook-theme-default_theme">Auto</button></li>
+                                <li role="none"><button role="menuitem" class="theme" id="mdbook-theme-light">Light</button></li>
+                                <li role="none"><button role="menuitem" class="theme" id="mdbook-theme-ayu">Dark</button></li>
+                            </ul>
+                            <a href="https://github.com/gwf/x2c/edit/main/docs/src/guide/packages.md" title="Suggest an edit" aria-label="Suggest an edit" rel="edit" class="icon-button">
+                                <span class=fa-svg id="git-edit-button"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc. --><path d="M421.7 220.3l-11.3 11.3-22.6 22.6-205 205c-6.6 6.6-14.8 11.5-23.8 14.1L30.8 511c-8.4 2.5-17.5 .2-23.7-6.1S-1.5 489.7 1 481.2L38.7 353.1c2.6-9 7.5-17.2 14.1-23.8l205-205 22.6-22.6 11.3-11.3 33.9 33.9 62.1 62.1 33.9 33.9zM96 353.9l-9.3 9.3c-.9 .9-1.6 2.1-2 3.4l-25.3 86 86-25.3c1.3-.4 2.5-1.1 3.4-2l9.3-9.3H112c-8.8 0-16-7.2-16-16V353.9zM453.3 19.3l39.4 39.4c25 25 25 65.5 0 90.5l-14.5 14.5-22.6 22.6-11.3 11.3-33.9-33.9-62.1-62.1L314.3 67.7l11.3-11.3 22.6-22.6 14.5-14.5c25-25 65.5-25 90.5 0z"/></svg></span>
+                            </a>
+                        </div>
+                    </div>
+                </header>
+                <script>
+                    const bookHeader = document.querySelector('.x2c-header');
+                    new ResizeObserver(() => {
+                        document.documentElement.style.setProperty(
+                            '--menu-bar-height', `${bookHeader.getBoundingClientRect().height}px`);
+                    }).observe(bookHeader);
+                </script>
+
+                <div id="mdbook-search-wrapper" class="hidden">
+                    <form id="mdbook-searchbar-outer" class="searchbar-outer">
+                        <div class="search-wrapper">
+                            <input type="search" id="mdbook-searchbar" name="searchbar" placeholder="Search this book ..." aria-controls="mdbook-searchresults-outer" aria-describedby="searchresults-header">
+                            <div class="spinner-wrapper">
+                                <span class=fa-svg id="fa-spin"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc. --><path d="M304 48c0-26.5-21.5-48-48-48s-48 21.5-48 48s21.5 48 48 48s48-21.5 48-48zm0 416c0-26.5-21.5-48-48-48s-48 21.5-48 48s21.5 48 48 48s48-21.5 48-48zM48 304c26.5 0 48-21.5 48-48s-21.5-48-48-48s-48 21.5-48 48s21.5 48 48 48zm464-48c0-26.5-21.5-48-48-48s-48 21.5-48 48s21.5 48 48 48s48-21.5 48-48zM142.9 437c18.7-18.7 18.7-49.1 0-67.9s-49.1-18.7-67.9 0s-18.7 49.1 0 67.9s49.1 18.7 67.9 0zm0-294.2c18.7-18.7 18.7-49.1 0-67.9S93.7 56.2 75 75s-18.7 49.1 0 67.9s49.1 18.7 67.9 0zM369.1 437c18.7 18.7 49.1 18.7 67.9 0s18.7-49.1 0-67.9s-49.1-18.7-67.9 0s-18.7 49.1 0 67.9z"/></svg></span>
+                            </div>
+                        </div>
+                    </form>
+                    <div id="mdbook-searchresults-outer" class="searchresults-outer hidden">
+                        <div id="mdbook-searchresults-header" class="searchresults-header"></div>
+                        <ul id="mdbook-searchresults">
+                        </ul>
+                    </div>
+                </div>
+
+                <!-- Apply ARIA attributes after the sidebar and the sidebar toggle button are added to the DOM -->
+                <script>
+                    document.getElementById('mdbook-sidebar-toggle').setAttribute('aria-expanded', sidebar === 'visible');
+                    document.getElementById('mdbook-sidebar').setAttribute('aria-hidden', sidebar !== 'visible');
+                    Array.from(document.querySelectorAll('#mdbook-sidebar a')).forEach(function(link) {
+                        link.setAttribute('tabIndex', sidebar === 'visible' ? 0 : -1);
+                    });
+                </script>
+
+                <div id="mdbook-content" class="content">
+                    <main>
+                        <h1 id="packages"><a class="header" href="#packages">Packages</a></h1>
+<p><span class="x2c-wordmark">x2c</span> has one flat namespace, so an included <code>.x</code> library merges its names into
+yours. A package keeps its own space. It is compiled once into an archive,
+and an importing program reaches its names through an alias.</p>
+<h2 id="what-a-package-looks-like"><a class="header" href="#what-a-package-looks-like">What a package looks like</a></h2>
+<p>A package is a directory named for the package. Only its <code>src/</code> directory
+holds package sources; everything else in the directory consumes it like any
+other program.</p>
+<pre><code class="language-text">packages/greet/
+  Makefile          PACKAGE := greet, then include ../package.mk
+  src/greet.x       the entry unit; public surface above #pragma private
+  tests/            consumers that import the package
+  examples/
+</code></pre>
+<p>That is the whole layout for a package with no native dependency. One that
+wraps a C library adds the pin, licence texts, and profile that
+<a href="wrapping-c-libraries.html">Wrapping a C Library</a> covers.</p>
+<p>The entry unit needs no manifest and no export list:</p>
+<pre class="shiki shiki-themes x2c-light x2c-dark x2c-code" style="--shiki-light:#24292e;--shiki-dark:#e9e5df;--shiki-light-bg:#fff;--shiki-dark-bg:#101011" tabindex="0"><code class="language-x2c no-highlight"><span class="line"><span style="--shiki-light:#D73A49;--shiki-dark:#E9E5DF">typedef</span><span style="--shiki-light:#D73A49;--shiki-dark:#F0ADA1"> struct</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF"> GreetingData {</span>
+</span><span class="line"><span style="--shiki-light:#007C8A;--shiki-dark:#29D3E2">  String</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF"> subject;</span>
+</span><span class="line"><span style="--shiki-light:#D73A49;--shiki-dark:#F0ADA1">  int</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF"> count;</span>
+</span><span class="line"><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">} </span><span style="--shiki-light:#D73A49;--shiki-dark:#E9E5DF">*</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">Greeting;</span>
+</span><span class="line">
+</span><span class="line"><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">Greeting Greeting.</span><span style="--shiki-light:#6F42C1;--shiki-dark:#E9E5DF">new</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">(</span><span style="--shiki-light:#007C8A;--shiki-dark:#29D3E2">String</span><span style="--shiki-light:#E36209;--shiki-dark:#E9E5DF"> subject</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">);</span>
+</span><span class="line"><span style="--shiki-light:#007C8A;--shiki-dark:#29D3E2">String</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF"> Greeting.</span><span style="--shiki-light:#6F42C1;--shiki-dark:#E9E5DF">line</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">(Greeting </span><span style="--shiki-light:#E36209;--shiki-dark:#E9E5DF">greeting</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">);</span>
+</span><span class="line">
+</span><span class="line"><span style="--shiki-light:#D73A49;--shiki-dark:#F0ADA1">#pragma</span><span style="--shiki-light:#6F42C1;--shiki-dark:#E9E5DF"> private</span>
+</span><span class="line">
+</span><span class="line"><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">Greeting Greeting.</span><span style="--shiki-light:#6F42C1;--shiki-dark:#E9E5DF">new</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">(</span><span style="--shiki-light:#007C8A;--shiki-dark:#29D3E2">String</span><span style="--shiki-light:#E36209;--shiki-dark:#E9E5DF"> subject</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">) {</span>
+</span><span class="line"><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">  Greeting greeting </span><span style="--shiki-light:#D73A49;--shiki-dark:#E9E5DF">=</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF"> Scope.</span><span style="--shiki-light:#6F42C1;--shiki-dark:#E9E5DF">malloc</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">(</span><span style="--shiki-light:#D73A49;--shiki-dark:#E9E5DF">sizeof</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">(</span><span style="--shiki-light:#D73A49;--shiki-dark:#F0ADA1">struct</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF"> GreetingData));</span>
+</span><span class="line"><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">  greeting.subject </span><span style="--shiki-light:#D73A49;--shiki-dark:#E9E5DF">=</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF"> subject;</span>
+</span><span class="line"><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">  greeting.count </span><span style="--shiki-light:#D73A49;--shiki-dark:#E9E5DF">=</span><span style="--shiki-light:#005CC5;--shiki-dark:#A9C9F5"> 0</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">;</span>
+</span><span class="line"><span style="--shiki-light:#D73A49;--shiki-dark:#F0ADA1">  return</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF"> greeting;</span>
+</span><span class="line"><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">}</span>
+</span><span class="line">
+</span><span class="line"><span style="--shiki-light:#007C8A;--shiki-dark:#29D3E2">String</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF"> Greeting.</span><span style="--shiki-light:#6F42C1;--shiki-dark:#E9E5DF">line</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">(Greeting </span><span style="--shiki-light:#E36209;--shiki-dark:#E9E5DF">greeting</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">) {</span>
+</span><span class="line"><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">  greeting.count</span><span style="--shiki-light:#D73A49;--shiki-dark:#E9E5DF">++</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">;</span>
+</span><span class="line"><span style="--shiki-light:#D73A49;--shiki-dark:#F0ADA1">  return</span><span style="--shiki-light:#24292E;--shiki-dark:#FF715A"> %"</span><span style="--shiki-light:#032F62;--shiki-dark:#9EDFB8">hello, </span><span style="--shiki-light:#032F62;--shiki-dark:#FF715A">${</span><span style="--shiki-light:#032F62;--shiki-dark:#9EDFB8">greeting.subject</span><span style="--shiki-light:#032F62;--shiki-dark:#FF715A">}</span><span style="--shiki-light:#032F62;--shiki-dark:#9EDFB8"> (</span><span style="--shiki-light:#032F62;--shiki-dark:#FF715A">${</span><span style="--shiki-light:#032F62;--shiki-dark:#9EDFB8">greeting.count</span><span style="--shiki-light:#032F62;--shiki-dark:#FF715A">}</span><span style="--shiki-light:#032F62;--shiki-dark:#9EDFB8">)</span><span style="--shiki-light:#24292E;--shiki-dark:#FF715A">"</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">;</span>
+</span><span class="line"><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">}</span></span></code></pre>
+
+<p><code>greet.x</code> spells its own names bare. Compiled as a package they become
+<code>greet__Greeting</code>, <code>greet__Greeting_new</code>, and <code>greet__Greeting_line</code>, so a
+second package may publish its own <code>Greeting</code> in the same program.</p>
+<h2 id="building-one"><a class="header" href="#building-one">Building one</a></h2>
+<p><code>packages/package.mk</code> holds the recipe. A package Makefile is two lines:</p>
+<pre><code class="language-make">PACKAGE := greet
+include ../package.mk
+</code></pre>
+<p><code>make build</code> translates every <code>src/*.x</code> in package mode and produces:</p>
+<pre><code class="language-text">builds/greet.h           the generated public header
+builds/libgreet.a        the archive a consumer links
+builds/greet.native.rsp  the native arguments a consumer needs, one per
+                         line, empty when none
+</code></pre>
+<p><code>make test</code> builds and runs <code>tests/test-*.x</code>, and <code>make clean</code> removes
+<code>builds/</code>. A package with a pinned native dependency adds a <code>dependency.json</code>
+and one more Makefile line, <code>DEPENDENCY_PREFIX_VAR := GREET_PREFIX</code>, naming
+the variable that overrides the cache prefix; <code>make prepare</code> then fetches and
+builds the dependency into a shared cache outside the worktree and leaves a
+<code>deps</code> symlink in the package directory.</p>
+<h2 id="using-one"><a class="header" href="#using-one">Using one</a></h2>
+<p>Register the directory that holds packages and import by name:</p>
+<!-- ignore: an import needs a registered --package-dir root. -->
+<pre class="shiki shiki-themes x2c-light x2c-dark x2c-code" style="--shiki-light:#24292e;--shiki-dark:#e9e5df;--shiki-light-bg:#fff;--shiki-dark-bg:#101011" tabindex="0"><code class="language-x2c no-highlight ignore"><span class="line"><span style="--shiki-light:#A626A4;--shiki-light-font-weight:bold;--shiki-dark:#FF4FD8;--shiki-dark-font-weight:bold">import</span><span style="--shiki-light:#032F62;--shiki-dark:#9EDFB8"> "greet"</span><span style="--shiki-light:#A626A4;--shiki-light-font-weight:bold;--shiki-dark:#FF4FD8;--shiki-dark-font-weight:bold"> as</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF"> g;</span>
+</span><span class="line">
+</span><span class="line"><span style="--shiki-light:#D73A49;--shiki-dark:#F0ADA1">int</span><span style="--shiki-light:#6F42C1;--shiki-dark:#E9E5DF"> main</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">(</span><span style="--shiki-light:#D73A49;--shiki-dark:#F0ADA1">void</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">) {</span>
+</span><span class="line"><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">  g.Greeting greeting </span><span style="--shiki-light:#D73A49;--shiki-dark:#E9E5DF">=</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF"> g.Greeting.</span><span style="--shiki-light:#6F42C1;--shiki-dark:#E9E5DF">new</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">(</span><span style="--shiki-light:#032F62;--shiki-dark:#9EDFB8">"x2c"</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">);</span>
+</span><span class="line"><span style="--shiki-light:#6F42C1;--shiki-dark:#E9E5DF">  printf</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">(</span><span style="--shiki-light:#032F62;--shiki-dark:#9EDFB8">"</span><span style="--shiki-light:#005CC5;--shiki-dark:#9EDFB8">%s</span><span style="--shiki-light:#032F62;--shiki-dark:#9EDFB8">"</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">,</span><span style="--shiki-light:#24292E;--shiki-dark:#FF715A"> %"</span><span style="--shiki-light:#032F62;--shiki-dark:#FF715A">${</span><span style="--shiki-light:#032F62;--shiki-dark:#9EDFB8">greeting.</span><span style="--shiki-light:#6F42C1;--shiki-dark:#E9E5DF">line</span><span style="--shiki-light:#032F62;--shiki-dark:#9EDFB8">()</span><span style="--shiki-light:#032F62;--shiki-dark:#FF715A">}</span><span style="--shiki-light:#005CC5;--shiki-dark:#9EDFB8">\n</span><span style="--shiki-light:#24292E;--shiki-dark:#FF715A">"</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">);</span>
+</span><span class="line"><span style="--shiki-light:#D73A49;--shiki-dark:#F0ADA1">  return</span><span style="--shiki-light:#005CC5;--shiki-dark:#A9C9F5"> 0</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">;</span>
+</span><span class="line"><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">}</span></span></code></pre>
+
+<pre><code class="language-sh">x2c build --package-dir packages --output greeter greeter.x
+</code></pre>
+<p>The driver reads the unit’s recorded dependencies, adds the package’s
+<code>builds</code> and <code>src</code> directories to the C include path, and links
+<code>libgreet.a</code> together with the arguments in <code>greet.native.rsp</code>. It never
+rebuilds the package. Build it once, and a read-only package tree still
+serves every consumer. A target in <code>x2c.toml</code> can set <code>package-dirs</code> instead
+of passing the flag.</p>
+<p><code>as</code> is optional; <code>import "greet";</code> binds the alias <code>greet</code>. The alias is
+only a way to spell names. The generated C always uses the package’s own
+prefix.</p>
+<p>Both clauses are optional and combine:</p>
+<pre><code class="language-text">import "&lt;package&gt;" [as &lt;alias&gt;] [with &lt;Name&gt; [as &lt;Local&gt;] {, ...}] ;
+</code></pre>
+<p>A <code>with</code> clause drops the alias from names you use often:</p>
+<!-- ignore: an import needs a registered --package-dir root. -->
+<pre class="shiki shiki-themes x2c-light x2c-dark x2c-code" style="--shiki-light:#24292e;--shiki-dark:#e9e5df;--shiki-light-bg:#fff;--shiki-dark-bg:#101011" tabindex="0"><code class="language-x2c no-highlight ignore"><span class="line"><span style="--shiki-light:#A626A4;--shiki-light-font-weight:bold;--shiki-dark:#FF4FD8;--shiki-dark-font-weight:bold">import</span><span style="--shiki-light:#032F62;--shiki-dark:#9EDFB8"> "greet"</span><span style="--shiki-light:#A626A4;--shiki-light-font-weight:bold;--shiki-dark:#FF4FD8;--shiki-dark-font-weight:bold"> with</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF"> Greeting;</span><span style="--shiki-light:#6A737D;--shiki-dark:#8B857F">             // bare Greeting</span>
+</span><span class="line"><span style="--shiki-light:#A626A4;--shiki-light-font-weight:bold;--shiki-dark:#FF4FD8;--shiki-dark-font-weight:bold">import</span><span style="--shiki-light:#032F62;--shiki-dark:#9EDFB8"> "greet"</span><span style="--shiki-light:#A626A4;--shiki-light-font-weight:bold;--shiki-dark:#FF4FD8;--shiki-dark-font-weight:bold"> with</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF"> Greeting </span><span style="--shiki-light:#A626A4;--shiki-light-font-weight:bold;--shiki-dark:#FF4FD8;--shiki-dark-font-weight:bold">as</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF"> Hello;</span><span style="--shiki-light:#6A737D;--shiki-dark:#8B857F">    // bare Hello</span>
+</span><span class="line"><span style="--shiki-light:#A626A4;--shiki-light-font-weight:bold;--shiki-dark:#FF4FD8;--shiki-dark-font-weight:bold">import</span><span style="--shiki-light:#032F62;--shiki-dark:#9EDFB8"> "greet"</span><span style="--shiki-light:#A626A4;--shiki-light-font-weight:bold;--shiki-dark:#FF4FD8;--shiki-dark-font-weight:bold"> as</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF"> g </span><span style="--shiki-light:#A626A4;--shiki-light-font-weight:bold;--shiki-dark:#FF4FD8;--shiki-dark-font-weight:bold">with</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF"> Greeting;</span><span style="--shiki-light:#6A737D;--shiki-dark:#8B857F">        // g.Greeting and Greeting</span>
+</span><span class="line">
+</span><span class="line"><span style="--shiki-light:#D73A49;--shiki-dark:#F0ADA1">int</span><span style="--shiki-light:#6F42C1;--shiki-dark:#E9E5DF"> main</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">(</span><span style="--shiki-light:#D73A49;--shiki-dark:#F0ADA1">void</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">) {</span>
+</span><span class="line"><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">  Greeting greeting </span><span style="--shiki-light:#D73A49;--shiki-dark:#E9E5DF">=</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF"> Greeting.</span><span style="--shiki-light:#6F42C1;--shiki-dark:#E9E5DF">new</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">(</span><span style="--shiki-light:#032F62;--shiki-dark:#9EDFB8">"x2c"</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">);</span>
+</span><span class="line"><span style="--shiki-light:#6F42C1;--shiki-dark:#E9E5DF">  printf</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">(</span><span style="--shiki-light:#032F62;--shiki-dark:#9EDFB8">"</span><span style="--shiki-light:#005CC5;--shiki-dark:#9EDFB8">%s</span><span style="--shiki-light:#032F62;--shiki-dark:#9EDFB8">"</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">,</span><span style="--shiki-light:#24292E;--shiki-dark:#FF715A"> %"</span><span style="--shiki-light:#032F62;--shiki-dark:#FF715A">${</span><span style="--shiki-light:#032F62;--shiki-dark:#9EDFB8">greeting.</span><span style="--shiki-light:#6F42C1;--shiki-dark:#E9E5DF">line</span><span style="--shiki-light:#032F62;--shiki-dark:#9EDFB8">()</span><span style="--shiki-light:#032F62;--shiki-dark:#FF715A">}</span><span style="--shiki-light:#005CC5;--shiki-dark:#9EDFB8">\n</span><span style="--shiki-light:#24292E;--shiki-dark:#FF715A">"</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">);</span>
+</span><span class="line"><span style="--shiki-light:#D73A49;--shiki-dark:#F0ADA1">  return</span><span style="--shiki-light:#005CC5;--shiki-dark:#A9C9F5"> 0</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">;</span>
+</span><span class="line"><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">}</span></span></code></pre>
+
+<p>A <code>with</code> name is still only a spelling: <code>Greeting.new</code> compiles to
+<code>greet__Greeting_new</code>. Any public name works, functions included. The alias
+stays registered, so <code>with</code> never takes it away, and a local variable of the
+same name shadows the binding. See the
+<a href="../reference/language.html#packages-and-import">language reference</a> for what
+does and does not cross an import.</p>
+<p>An imported package may add a method to an external type. PCRE2, for example,
+adds <code>Var.regexpmatch</code>, so <code>value.regexpmatch()</code> resolves after
+<code>import "pcre2"</code>. A method declared in the consumer still wins. If two
+imported packages provide the same receiver method, the call is ambiguous;
+call the selected package function explicitly, such as
+<code>pcre2.Var_regexpmatch(value)</code>.</p>
+<p>That external type is often one from the package’s own vendored header, which
+crosses the import under its own name. raylib’s <code>Image</code> and <code>Vector2</code> are
+raylib’s, so a consumer writes <code>Image.new(...)</code>, reads <code>image.width</code>, and uses
+<code>a + b</code> with no <code>with</code> entry for either type. The types come from the header
+and the methods from <code>raylib__</code>.</p>
+<h2 id="packages-that-wrap-a-c-library"><a class="header" href="#packages-that-wrap-a-c-library">Packages that wrap a C library</a></h2>
+<p><code>packages/yyjson/</code> is the worked example. It publishes the vendored
+<code>src/yyjson-0.12.h</code> because four of its options methods take yyjson’s own flag
+types, so a consumer needs the upstream header on its system include path:</p>
+<pre><code class="language-sh">make -C packages/yyjson prepare
+make -C packages/yyjson build
+make -C packages/yyjson test run run-lisp
+x2c build --package-dir packages \
+  --c-include-dir packages/yyjson/deps/include \
+  --output catalog catalog.x
+</code></pre>
+<p><code>prepare</code> verifies and builds the pinned native dependency. <code>build</code> creates the
+package archive and link file. The three checks exercise the <span class="x2c-wordmark">x2c</span> API, example
+applications, raw C header, and Lisp bindings. A program imports the ordinary
+API; code that needs an unwrapped option calls yyjson’s real declarations
+through <code>yyjson-0.12.h</code>, and a runtime Lisp session installs the package’s
+group with <code>JsonLisp.install</code>. The package README states which values own
+native storage and when borrowed views expire.</p>
+<p>A source distribution carries <code>packages/&lt;name&gt;/</code>, including <code>src/</code>,
+<code>dependency.json</code>, <code>LICENSES/</code>, its README, examples, and tests, together with
+<code>packages/package.mk</code>, <code>packages/dependency.mk</code>, <code>packages/tools/deps.py</code>,
+and <code>packages/tools/bundle</code>, which <code>make bundle</code> runs through <code>x2c script</code>.
+It does not carry the ignored <code>deps</code> symlink or <code>builds/</code> output. From the
+repository root, produce a source archive with ordinary <code>tar</code>:</p>
+<pre><code class="language-sh">package=yyjson
+tar --exclude="packages/$package/deps" \
+  --exclude="packages/$package/builds" \
+  -czf "$package-source.tar.gz" \
+  "packages/$package" packages/package.mk packages/dependency.mk \
+  packages/tools/deps.py packages/tools/bundle
+</code></pre>
+<p>The package directory includes its <code>Makefile</code>; keep any additional source
+files or licenses that its build needs. Include other <span class="x2c-wordmark">x2c</span> packages it imports
+in the same archive, or distribute them separately under a registered package
+root. Native dependency sources are fetched and verified from
+<code>dependency.json</code> during preparation.</p>
+<p>Shared support resolves beside those files, so the bundle needs no Git
+checkout. Unpack it into a directory where its sources and build outputs can
+remain together. Select an installed compiler and an explicit dependency
+cache. Use <a href="installation.html">the native prefix installer</a> for a compiler that can
+move independently of its producer checkout. A development build can instead
+use the absolute path to <code>builds/0/x2c</code>; keep that compiler’s support tree in
+place. A package source archive does not install or bundle the compiler.</p>
+<pre><code class="language-sh">mkdir package-sources
+tar -xzf yyjson-source.tar.gz -C package-sources
+cd package-sources
+export X2C_DEPS_DIR="$HOME/.cache/x2c-dependencies"
+make -C packages/yyjson prepare build X2C=/path/to/x2c
+</code></pre>
+<p>Register the directory containing the package with <code>--package-dir</code>. Native
+compilation and archiving use the same driver actions and retained state as
+ordinary builds, keeping the generated public headers, archive, and link flags
+together. Package tests that include <code>unittest/test-support.x</code> still need that
+repository test support; it is not part of the source-package build contract.</p>
+<p>A package over a third-party C library also has to decide what to expose, who
+owns each returned value, how to preserve the library’s error codes, and
+whether to provide Lisp bindings. That is <a href="wrapping-c-libraries.html">Wrapping a C
+Library</a>.</p>
+<h3 id="package-examples"><a class="header" href="#package-examples">Package examples</a></h3>
+<p>The packages include example applications that use their <span class="x2c-wordmark">x2c</span> interfaces
+without requiring public services:</p>
+<ul>
+<li><code>packages/sqlite/examples/observations.x</code> stores readings and queries slow
+or failed responses. <code>observation-history.x</code> imports a file batch in one
+transaction, then reopens the database and reports endpoint history.</li>
+<li><code>packages/libcurl/examples/page-titles.x</code> fetches pages concurrently with
+<code>CurlEasy.get_all</code>; <code>endpoint-report.x</code> handles each batch response or Error
+independently, then uses the ordinary single-request operations. Batch
+results keep input order and borrow their lifetime from <code>CurlBatch</code>.
+The call stays on the caller’s thread; the pinned resolver can still block
+during DNS lookup. <code>examples/packages/http-json-releases/</code>
+composes libcurl’s response bytes with yyjson parsing.</li>
+<li><code>packages/termbox2/examples/incident-filter.x</code> handles terminal input and
+rendering. Its standard run is driven through a pseudo-terminal.</li>
+<li><code>packages/blis/examples/page-rank.x</code> expresses PageRank with BLIS operators;
+<code>risk-report.x</code> shows the broader matrix workflow.</li>
+<li><code>packages/libuv/examples/process-report.x</code> supervises child processes;
+<code>thread-notify.x</code>, <code>network-report.x</code>, <code>ipc-report.x</code>, and
+<code>datagram-report.x</code> exercise wakeups, TCP, named pipes, and UDP; and
+<code>release-checks.x</code> reads produced artifacts through asynchronous files.</li>
+<li>raylib’s standard examples render PNG files in memory. Use
+<code>run-interactive</code> for the windowed showcase; package checks do not run it.</li>
+<li><code>packages/torch/examples/fit-line.x</code> fits a line by gradient descent
+through libtorch autograd: <code>x @ w + b</code>, <code>backward</code>, and an in-place update
+under <code>Torch.no_grad</code>, with every operator temporary reclaimed by the
+step’s <code>Scope</code>. <code>mlp.x</code> trains a composed model with Adam and reloads it
+from a checkpoint; <code>mnist.x</code> trains a convolutional network for one epoch
+on the MNIST files named by <code>TORCH_MNIST</code>; and <code>jit-infer.x</code> runs a
+TorchScript model exported from Python.
+<a href="torch.html">Training and Inference with torch</a> is the chapter for the
+package.</li>
+</ul>
+<p>Run the package-local examples from the repository root:</p>
+<pre><code class="language-sh">make -C packages/libcurl run
+make -C examples/packages/http-json-releases test
+make -C packages/termbox2 run
+make -C packages/blis run
+make -C packages/libuv run
+make -C packages/raylib verify
+make -C packages/torch run
+</code></pre>
+<h3 id="sqlite-rows-and-transactions"><a class="header" href="#sqlite-rows-and-transactions">SQLite rows and transactions</a></h3>
+<p>The SQLite package keeps SQL visible while accepting ordinary <span class="x2c-wordmark">x2c</span> values.
+<code>Database.open</code> creates a file-backed or <code>":memory:"</code> connection. Prepare a
+statement once, bind a positional List or a Map of exact parameter names,
+and iterate copied row Lists. Rows preserve column order and duplicate names;
+<code>Statement.columns</code> returns the names separately. Free statements before
+closing their connection, with <code>defer</code> beside each acquisition.</p>
+<!-- ignore: an import needs a registered --package-dir root. -->
+<pre class="shiki shiki-themes x2c-light x2c-dark x2c-code" style="--shiki-light:#24292e;--shiki-dark:#e9e5df;--shiki-light-bg:#fff;--shiki-dark-bg:#101011" tabindex="0"><code class="language-x2c no-highlight ignore"><span class="line"><span style="--shiki-light:#A626A4;--shiki-light-font-weight:bold;--shiki-dark:#FF4FD8;--shiki-dark-font-weight:bold">import</span><span style="--shiki-light:#032F62;--shiki-dark:#9EDFB8"> "sqlite"</span><span style="--shiki-light:#A626A4;--shiki-light-font-weight:bold;--shiki-dark:#FF4FD8;--shiki-dark-font-weight:bold"> with</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF"> Database, Statement;</span>
+</span><span class="line">
+</span><span class="line"><span style="--shiki-light:#D73A49;--shiki-dark:#F0ADA1">void</span><span style="--shiki-light:#6F42C1;--shiki-dark:#E9E5DF"> show_readings</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">(</span><span style="--shiki-light:#007C8A;--shiki-dark:#29D3E2">String</span><span style="--shiki-light:#E36209;--shiki-dark:#E9E5DF"> filename</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">) {</span>
+</span><span class="line"><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">  Database db </span><span style="--shiki-light:#D73A49;--shiki-dark:#E9E5DF">=</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF"> Database.</span><span style="--shiki-light:#6F42C1;--shiki-dark:#E9E5DF">open</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">(filename);</span>
+</span><span class="line"><span style="--shiki-light:#A626A4;--shiki-light-font-weight:bold;--shiki-dark:#FF4FD8;--shiki-dark-font-weight:bold">  defer</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF"> db.</span><span style="--shiki-light:#6F42C1;--shiki-dark:#E9E5DF">close</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">();</span>
+</span><span class="line"><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">  Statement query </span><span style="--shiki-light:#D73A49;--shiki-dark:#E9E5DF">=</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF"> db.</span><span style="--shiki-light:#6F42C1;--shiki-dark:#E9E5DF">prepare</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">(</span>
+</span><span class="line"><span style="--shiki-light:#032F62;--shiki-dark:#9EDFB8">    "SELECT url, status FROM observation WHERE status &gt;= ? ORDER BY url"</span>
+</span><span class="line"><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">  );</span>
+</span><span class="line"><span style="--shiki-light:#A626A4;--shiki-light-font-weight:bold;--shiki-dark:#FF4FD8;--shiki-dark-font-weight:bold">  defer</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF"> query.</span><span style="--shiki-light:#6F42C1;--shiki-dark:#E9E5DF">free</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">();</span>
+</span><span class="line"><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">  query.</span><span style="--shiki-light:#6F42C1;--shiki-dark:#E9E5DF">bind</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">(</span><span style="--shiki-light:#24292E;--shiki-dark:#FF715A">%(</span><span style="--shiki-light:#005CC5;--shiki-dark:#A9C9F5">400</span><span style="--shiki-light:#24292E;--shiki-dark:#FF715A">)</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">);</span>
+</span><span class="line"><span style="--shiki-light:#A626A4;--shiki-light-font-weight:bold;--shiki-dark:#FF4FD8;--shiki-dark-font-weight:bold">  foreach</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF"> (</span><span style="--shiki-light:#007C8A;--shiki-dark:#29D3E2">List</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF"> row, query)</span>
+</span><span class="line"><span style="--shiki-light:#6F42C1;--shiki-dark:#E9E5DF">    printf</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">(</span><span style="--shiki-light:#032F62;--shiki-dark:#9EDFB8">"</span><span style="--shiki-light:#005CC5;--shiki-dark:#9EDFB8">%s</span><span style="--shiki-light:#032F62;--shiki-dark:#9EDFB8">"</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">,</span><span style="--shiki-light:#24292E;--shiki-dark:#FF715A"> %"</span><span style="--shiki-light:#032F62;--shiki-dark:#FF715A">${</span><span style="--shiki-light:#005CC5;--shiki-dark:#E9E5DF">row</span><span style="--shiki-light:#032F62;--shiki-dark:#9EDFB8">[</span><span style="--shiki-light:#005CC5;--shiki-dark:#A9C9F5">0</span><span style="--shiki-light:#032F62;--shiki-dark:#9EDFB8">]</span><span style="--shiki-light:#032F62;--shiki-dark:#FF715A">}</span><span style="--shiki-light:#032F62;--shiki-dark:#9EDFB8">: HTTP </span><span style="--shiki-light:#032F62;--shiki-dark:#FF715A">${</span><span style="--shiki-light:#005CC5;--shiki-dark:#E9E5DF">row</span><span style="--shiki-light:#032F62;--shiki-dark:#9EDFB8">[</span><span style="--shiki-light:#005CC5;--shiki-dark:#A9C9F5">1</span><span style="--shiki-light:#032F62;--shiki-dark:#9EDFB8">]</span><span style="--shiki-light:#032F62;--shiki-dark:#FF715A">}</span><span style="--shiki-light:#005CC5;--shiki-dark:#9EDFB8">\n</span><span style="--shiki-light:#24292E;--shiki-dark:#FF715A">"</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">);</span>
+</span><span class="line"><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">}</span></span></code></pre>
+
+<p>SQL NULL is <code>Var.null()</code>, distinct from exhausted iteration. Integers retain
+SQLite’s signed 64-bit domain; oversized unsigned inputs raise <code>conv-range</code>.
+Text becomes <code>String</code>, while blobs and text containing NUL become copied
+<code>Bytes</code>. These values survive later steps and statement release within their
+ordinary <span class="x2c-wordmark">x2c</span> lifetimes. <code>db.transaction(%!() =&gt; { ... })</code> commits on success and
+rolls back on Error; nested managed transactions are rejected. SQLite’s own
+code, message, and operation remain available in Error details.</p>
+<p><code>SqliteLisp.install</code> adds query, execute, NULL, and byte-list operations to an
+embedded Lisp session. Each query or execute call opens its own connection,
+so use a database filename to retain changes between calls. Query results are
+ordinary nested Lists. The complete pinned raw SQLite API and the same native
+handles remain available for advanced operations. See
+<code>packages/sqlite/README.md</code> for ownership, the admitted native profile, and
+the executable examples. SQLite is verified on macOS and checked separately:</p>
+<pre><code class="language-sh">make -C packages/sqlite prepare
+make -C packages/sqlite test run run-lisp
+</code></pre>
+<h2 id="install-packages"><a class="header" href="#install-packages">Install packages</a></h2>
+<p><code>x2c install</code> places a package under <code>&lt;home&gt;/packages</code>, where every build
+finds it without <code>--package-dir</code>:</p>
+<pre><code class="language-sh">x2c install pcre2                      # a name from the package index
+x2c install ./mylib                    # a local package directory
+x2c install ./mylib-1.2.tar.gz         # a local archive
+x2c install https://example.com/mylib-1.2.tar.gz --sha256 &lt;hex&gt;
+x2c list
+x2c remove pcre2
+</code></pre>
+<p>A name resolves through the package index, <code>index.txt</code> at
+<code>https://x2c-lang.dev/packages/</code> unless <code>--index &lt;url-or-path&gt;</code> names
+another. Each index row is <code>name version kind platform url sha256</code>. The
+compiler takes the bundle row for its own platform, otherwise the source row,
+downloads the archive with <code>curl</code>, and refuses it when its digest differs. A
+URL given directly needs <code>--sha256</code>.</p>
+<p>A bundle, the output of <code>make bundle</code> below, installs as built. Its
+<code>BUNDLE.json</code> names the <span class="x2c-wordmark">x2c</span> version that built it; another version refuses
+it unless <code>--force</code>, because a bundle carries no ABI promise across releases.
+A source package is a <code>&lt;name&gt;/src/&lt;name&gt;.x</code> tree with no <code>dependency*.json</code>.
+The compiler translates it in package mode and archives it, the same two
+commands <code>packages/package.mk</code> runs, and records the origin and digest in
+<code>SOURCE.json</code>. A directory or archive carries no version of its own, so
+installing one over an installed package keeps the version that package
+recorded and a first install records none, which <code>x2c list</code> shows as <code>-</code>. A source package with native dependencies is refused; publish
+its bundle instead.</p>
+<p>Installed packages are not owned by the compiler’s install inventory, so a
+compiler upgrade keeps them and <code>x2c remove</code> is the way to delete one. A
+directory under <code>&lt;home&gt;/packages</code> without <code>BUNDLE.json</code> or <code>SOURCE.json</code> is
+never replaced or removed. Installs and removals in one home run one at a
+time. A second one waits until the first finishes and, unless <code>-q</code> is given,
+prints a message while it waits.</p>
+<p>Upgrade <span class="x2c-wordmark">x2c</span> before installing packages by name. Each release publishes the
+index that <code>x2c install &lt;name&gt;</code> reads, which lists the bundles built by that
+release’s compiler, and a bundle rejects a different compiler version.</p>
+<h2 id="pin-packages-in-a-project"><a class="header" href="#pin-packages-in-a-project">Pin packages in a project</a></h2>
+<p>A project manifest can list the packages it needs, and a build installs
+them. Each entry pins one exact version:</p>
+<pre><code class="language-toml">[dependencies]
+pcre2 = "10.48"
+</code></pre>
+<p><code>x2c build</code> and <code>x2c run</code> install anything missing through the index before
+planning the build, then write <code>x2c.lock</code> beside the manifest recording what
+they resolved. Commit that file. A later build whose lockfile is already
+satisfied by the installed packages reads no index, so it works offline, and
+one that has to reinstall a package takes it from the archive the lockfile
+recorded, so everyone gets the same packages.</p>
+<p>To change a version, edit the manifest and build again; the lockfile is
+rewritten. <code>x2c remove</code> still deletes an installed package, and the next
+build reinstalls it. See
+<a href="../reference/cli.html#pinned-packages">project manifests</a> for the rules.</p>
+<h2 id="movable-native-bundles"><a class="header" href="#movable-native-bundles">Movable native bundles</a></h2>
+<p><code>make bundle</code> builds a package and assembles its public source interfaces,
+generated headers, wrapper archive, licenses, and declared native headers and
+static libraries:</p>
+<pre><code class="language-sh">make -C packages/yyjson bundle
+mkdir native-packages
+tar -xzf packages/yyjson/builds/bundle/yyjson-native.tar.gz -C native-packages
+x2c build --package-dir native-packages app.x --output app
+</code></pre>
+<p>The directory <code>packages/yyjson/builds/bundle/yyjson</code> is also directly usable;
+register its parent with <code>--package-dir</code>. <code>BUNDLE_DIR=/path/to/output</code> changes
+the output parent. The directory and archive contain the same files. Move the
+whole package directory, keeping <code>src</code>, <code>builds</code>, <code>native</code>, and licenses
+together. Extracted bundle, compiler, header/archive, and consumer paths may
+contain spaces. Producing packages still follows the existing Make path
+restrictions; this does not promise arbitrary spaces in native build/cache
+paths.</p>
+<p>A bundle is specific to its host platform, architecture, native profile, and
+matching <span class="x2c-wordmark">x2c</span> compiler/runtime. <code>BUNDLE.json</code> records those build identities.
+Native dependency toolchain information comes from its existing cache receipt
+when available; an explicit external prefix may have no receipt. A bundle
+provides no stable ABI across compiler releases, no cross-platform execution,
+and no automatic dependency resolution. Native system libraries and frameworks
+remain supplied by the host.</p>
+<p>Most bundles link statically. libtorch is a set of shared libraries, so the
+torch bundle contains those libraries under <code>native/lib</code>, and a program built
+against it records a run-time search path to that directory. The program
+loads libtorch from the installed package, so moving or removing that package
+breaks the program.</p>
+<p>Every package carries <code>builds/&lt;name&gt;.native.rsp</code>. The compiler reads its
+quoted native arguments, expands the literal <code>{package}</code> to the resolved
+package directory, and applies C include/define options during native
+compilation and ordered archives/system options during final linking.
+Arguments remain individual argv values even when an expanded path contains
+spaces. They are not shell commands and <code>@</code> does not expand another response
+file. Definitions do not change the preceding <span class="x2c-wordmark">x2c</span> source preprocessing.
+A package built before 0.15.0 carries the earlier <code>&lt;name&gt;.link</code> file instead;
+the compiler no longer reads it, so rebuild such a package with <code>make build</code>
+or reinstall it.</p>
+<p>Native bundle metadata covers yyjson, PCRE2, BLIS, libuv, termbox2,
+libcurl, raylib, and torch. Releases publish torch for macOS arm64 and Linux
+x86_64, the platforms PyTorch ships prebuilt CPU libtorch for. SQLite remains
+separately distributed as source in this release.
+Pure and mixed C/<span class="x2c-wordmark">x2c</span> packages with no external native inputs need no dependency
+manifest; their bundle carries an empty native response file. Distribute any
+other <span class="x2c-wordmark">x2c</span> package imports alongside them under the registered package root.</p>
+<p>Libcurl bundles include its pinned OpenSSL static inputs in link order. Host
+certificate configuration remains the admitted profile’s system certificate
+bundle; native bundling does not introduce a certificate store.</p>
+<p>Raylib also requires its native type declarations during <span class="x2c-wordmark">x2c</span> source discovery.
+Use the existing source include option for its bundled headers:</p>
+<pre><code class="language-sh">x2c build --package-dir native-packages \
+  --x-include-dir native-packages/raylib/native/include chart.x --output chart
+</code></pre>
+<p>The default raylib bundle uses the headless profile. To produce its separately
+admitted macOS desktop profile, select its dependency manifest explicitly:</p>
+<pre><code class="language-sh">make -C packages/raylib clean-builds
+make -C packages/raylib bundle DEPENDENCY_MANIFEST=dependency-desktop.json
+</code></pre>
+<p>Prepare and validate the selected native profile before distributing it. The
+bundle target preserves existing dependency checksum, header, and license
+checks through the ordinary package build; consumer builds do not download
+missing inputs.</p>
+<h3 id="declare-a-packages-native-distribution"><a class="header" href="#declare-a-packages-native-distribution">Declare a package’s native distribution</a></h3>
+<p>The optional <code>distribution</code> object in <code>dependency.json</code> lists selected files
+and directories with the existing <code>copies</code> shape and ordered native arguments:</p>
+<pre><code class="language-json">"distribution": {
+  "copies": [
+    {"from": "{prefix}/include/yyjson.h",
+     "to": "native/include/yyjson.h"},
+    {"from": "{prefix}/lib/libyyjson.a",
+     "to": "native/lib/libyyjson.a"}
+  ],
+  "native_args": [
+    "--c-include-dir", "{package}/native/include",
+    "{package}/native/lib/libyyjson.a"
+  ]
+}
+</code></pre>
+<p>Copy sources expand <code>{prefix}</code> to the prepared native prefix and <code>{package}</code>
+to the producer package. Destinations are relative to the bundle. An optional
+<code>archive_objects</code> list holds objects the package compiles outside
+<code>x2c build</code>, such as torch’s C++ shim; they are added to the bundled
+<code>lib&lt;name&gt;.a</code>, so a consumer links them with no further input. Native
+arguments retain <code>{package}</code> for consumer-time expansion. An optional
+<code>platform_args</code> object appends arguments keyed by the producer’s platform
+(<code>darwin</code> or <code>linux</code>) when a shared dependency manifest has platform-specific
+system requirements. The manifest selected by the package Makefile remains
+the native profile owner. Unless <code>DEPENDENCY_MANIFEST</code> names one, the
+Makefile uses the first manifest present among
+<code>dependency-&lt;os&gt;-&lt;arch&gt;.json</code>, <code>dependency-&lt;os&gt;.json</code>, and <code>dependency.json</code>,
+where <code>&lt;os&gt;</code> is <code>darwin</code> or <code>linux</code> and <code>&lt;arch&gt;</code> is the machine name, such as
+<code>arm64</code> or <code>x86_64</code>.</p>
+<p>Accepted options are native include directories (<code>-I</code>, <code>--c-include-dir</code>,
+<code>--c-system-dir</code>), <code>-D</code>, <code>-U</code>, <code>-L</code>, <code>-l</code>, <code>--rpath</code>, archive inputs,
+<code>-pthread</code>, and <code>-framework &lt;name&gt;</code>. A bundle of shared libraries passes its
+library directory to both <code>-L</code> and <code>--rpath</code>, under <code>{package}</code>.
+Keep native archives in dependency order after the wrapper archive. Options
+that replace the consumer’s output, command, or tools and unrestricted
+compiler/linker escape options are not package metadata.</p>
+
+                    </main>
+
+                    <nav class="x2c-pager" aria-label="Page navigation">
+                        <a rel="prev" href="../guide/macros.html" class="x2c-pager-prev" aria-keyshortcuts="Left">
+                            <span class="x2c-pager-label">previous</span>
+                            <span class="x2c-pager-title">Compile-time Macros</span>
+                        </a>
+                        
+                        <a rel="next prefetch" href="../guide/wrapping-c-libraries.html" class="x2c-pager-next" aria-keyshortcuts="Right">
+                            <span class="x2c-pager-label">next</span>
+                            <span class="x2c-pager-title">Wrapping a C Library</span>
+                        </a>
+                    </nav>
+                    <footer class="x2c-footer">
+                        &copy; 2025&ndash;2026
+                        <a href="https://flake.org">GWF</a>
+                        &middot;
+                        <a href="https://github.com/gwf/x2c/blob/c2a89d999e81f47a4422a26edf0033eb0b98c6c6/LICENSE">Apache 2.0</a>
+                        &middot;
+                        <a href="https://github.com/gwf/x2c/blob/c2a89d999e81f47a4422a26edf0033eb0b98c6c6/TRADEMARKS.md">Trademarks</a>
+                    </footer>
+                </div>
+            </div>
+
+
+        </div>
+
+        <template id=fa-eye><span class=fa-svg><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 576 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc. --><path d="M288 32c-80.8 0-145.5 36.8-192.6 80.6C48.6 156 17.3 208 2.5 243.7c-3.3 7.9-3.3 16.7 0 24.6C17.3 304 48.6 356 95.4 399.4C142.5 443.2 207.2 480 288 480s145.5-36.8 192.6-80.6c46.8-43.5 78.1-95.4 93-131.1c3.3-7.9 3.3-16.7 0-24.6c-14.9-35.7-46.2-87.7-93-131.1C433.5 68.8 368.8 32 288 32zM432 256c0 79.5-64.5 144-144 144s-144-64.5-144-144s64.5-144 144-144s144 64.5 144 144zM288 192c0 35.3-28.7 64-64 64c-11.5 0-22.3-3-31.6-8.4c-.2 2.8-.4 5.5-.4 8.4c0 53 43 96 96 96s96-43 96-96s-43-96-96-96c-2.8 0-5.6 .1-8.4 .4c5.3 9.3 8.4 20.1 8.4 31.6z"/></svg></span></template>
+        <template id=fa-eye-slash><span class=fa-svg><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 640 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc. --><path d="M38.8 5.1C28.4-3.1 13.3-1.2 5.1 9.2S-1.2 34.7 9.2 42.9l592 464c10.4 8.2 25.5 6.3 33.7-4.1s6.3-25.5-4.1-33.7L525.6 386.7c39.6-40.6 66.4-86.1 79.9-118.4c3.3-7.9 3.3-16.7 0-24.6c-14.9-35.7-46.2-87.7-93-131.1C465.5 68.8 400.8 32 320 32c-68.2 0-125 26.3-169.3 60.8L38.8 5.1zM223.1 149.5C248.6 126.2 282.7 112 320 112c79.5 0 144 64.5 144 144c0 24.9-6.3 48.3-17.4 68.7L408 294.5c5.2-11.8 8-24.8 8-38.5c0-53-43-96-96-96c-2.8 0-5.6 .1-8.4 .4c5.3 9.3 8.4 20.1 8.4 31.6c0 10.2-2.4 19.8-6.6 28.3l-90.3-70.8zm223.1 298L373 389.9c-16.4 6.5-34.3 10.1-53 10.1c-79.5 0-144-64.5-144-144c0-6.9 .5-13.6 1.4-20.2L83.1 161.5C60.3 191.2 44 220.8 34.5 243.7c-3.3 7.9-3.3 16.7 0 24.6c14.9 35.7 46.2 87.7 93 131.1C174.5 443.2 239.2 480 320 480c47.8 0 89.9-12.9 126.2-32.5z"/></svg></span></template>
+        <template id=fa-copy><span class=fa-svg><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc. --><path d="M502.6 70.63l-61.25-61.25C435.4 3.371 427.2 0 418.7 0H255.1c-35.35 0-64 28.66-64 64l.0195 256C192 355.4 220.7 384 256 384h192c35.2 0 64-28.8 64-64V93.25C512 84.77 508.6 76.63 502.6 70.63zM464 320c0 8.836-7.164 16-16 16H255.1c-8.838 0-16-7.164-16-16L239.1 64.13c0-8.836 7.164-16 16-16h128L384 96c0 17.67 14.33 32 32 32h47.1V320zM272 448c0 8.836-7.164 16-16 16H63.1c-8.838 0-16-7.164-16-16L47.98 192.1c0-8.836 7.164-16 16-16H160V128H63.99c-35.35 0-64 28.65-64 64l.0098 256C.002 483.3 28.66 512 64 512h192c35.2 0 64-28.8 64-64v-32h-47.1L272 448z"/></svg></span></template>
+        <template id=fa-play><span class=fa-svg><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 384 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc. --><path d="M73 39c-14.8-9.1-33.4-9.4-48.5-.9S0 62.6 0 80V432c0 17.4 9.4 33.4 24.5 41.9s33.7 8.1 48.5-.9L361 297c14.3-8.7 23-24.2 23-41s-8.7-32.2-23-41L73 39z"/></svg></span></template>
+        <template id=fa-clock-rotate-left><span class=fa-svg><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc. --><path d="M75 75L41 41C25.9 25.9 0 36.6 0 57.9V168c0 13.3 10.7 24 24 24H134.1c21.4 0 32.1-25.9 17-41l-30.8-30.8C155 85.5 203 64 256 64c106 0 192 86 192 192s-86 192-192 192c-40.8 0-78.6-12.7-109.7-34.4c-14.5-10.1-34.4-6.6-44.6 7.9s-6.6 34.4 7.9 44.6C151.2 495 201.7 512 256 512c141.4 0 256-114.6 256-256S397.4 0 256 0C185.3 0 121.3 28.7 75 75zm181 53c-13.3 0-24 10.7-24 24V256c0 6.4 2.5 12.5 7 17l72 72c9.4 9.4 24.6 9.4 33.9 0s9.4-24.6 0-33.9l-65-65V152c0-13.3-10.7-24-24-24z"/></svg></span></template>
+
+
+
+        <script>
+            window.playground_copyable = true;
+        </script>
+
+
+        <script src="../elasticlunr-ef4e11c1.min.js"></script>
+        <script src="../mark-09e88c2c.min.js"></script>
+        <script src="../searcher-09f2665d.js"></script>
+
+        <script src="../clipboard-1626706a.min.js"></script>
+        <script src="../highlight-abc7f01d.js"></script>
+        <script src="../book-609e4cb8.js"></script>
+
+        <script>
+            document.addEventListener('DOMContentLoaded', () => {
+                const sidebar = document.querySelector('#mdbook-sidebar');
+                sidebar.querySelectorAll('ol').forEach(list => {
+                    const numbers = list.querySelectorAll(
+                        ':scope > li > .chapter-link-wrapper > a > strong, :scope > li > a > strong');
+                    if (numbers.length) {
+                        const width = Math.max(...Array.from(numbers,
+                            number => number.textContent.trim().length));
+                        list.style.setProperty('--chapter-number-width', width + 'ch');
+                    }
+                });
+                const chapter = sidebar.querySelector('a.active');
+                const item = chapter?.closest('.chapter-item');
+                if (item?.querySelector(':scope > .on-this-page')) {
+                    const row = chapter.parentElement;
+                    if (!row.querySelector('.chapter-fold-toggle')) {
+                        const toggle = document.createElement('button');
+                        toggle.type = 'button';
+                        toggle.className = 'chapter-fold-toggle';
+                        toggle.appendChild(document.createElement('div'));
+                        toggle.addEventListener('click', () => {
+                            item.classList.toggle('expanded');
+                        });
+                        row.appendChild(toggle);
+                    }
+                }
+                sidebar.querySelectorAll('.chapter-fold-toggle').forEach(toggle => {
+                    const row = toggle.parentElement;
+                    const item = row.parentElement;
+                    const title = row.querySelector('a').textContent.trim();
+                    toggle.setAttribute('aria-label', 'Toggle ' + title);
+                    const update = () => toggle.setAttribute('aria-expanded',
+                        String(item.classList.contains('expanded')));
+                    update();
+                    toggle.addEventListener('click', update);
+                    if (toggle.tagName === 'A') {
+                        toggle.setAttribute('role', 'button');
+                        toggle.tabIndex = 0;
+                        toggle.addEventListener('keydown', event => {
+                            if (event.key === 'Enter' || event.key === ' ') {
+                                event.preventDefault();
+                                toggle.click();
+                            }
+                        });
+                    }
+                });
+            });
+        </script>
+
+        <!-- Custom JS scripts -->
+
+
+
+    </div>
+    </body>
+</html>
