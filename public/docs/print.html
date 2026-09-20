@@ -1,6 +1,6 @@
 <!DOCTYPE HTML>
 <html lang="en" class="light sidebar-visible" dir="ltr">
-    <head>
+    <head><meta name="x2c-release-channel" content="staging"><meta name="x2c-candidate" content="candidate-44fa25e30ed593683c7e4269d41af2b0bec47842-35510273856-1">
         <!-- Book generated using mdBook -->
         <meta charset="UTF-8">
         <title>The x2c Book</title>
@@ -39,17 +39,13 @@
             const path_to_root = "";
             const default_light_theme = "light";
             const default_dark_theme = "light";
-            window.path_to_searchindex_js = "searchindex-6dd2704e.js";
+            window.path_to_searchindex_js = "searchindex-110f121f.js";
         </script>
         <!-- Start loading toc.js asap -->
         <script src="toc-2003ea86.js"></script>
         <meta name="robots" content="noindex">
     </head>
-    <body><aside aria-label="Release candidate" style="padding:1rem;background:#fff1bf;color:#241c00;font:14px/1.5 monospace;overflow-wrap:anywhere"><strong>Public staging: candidate-44fa25e30ed593683c7e4269d41af2b0bec47842-35510273856-1</strong><p>Source: 44fa25e30ed593683c7e4269d41af2b0bec47842. Use a fresh scratch installation and the explicit candidate index below. Bare x2c install commands and production URLs in the book refer to production.</p><pre style="overflow:auto">export X2C_PREFIX=&quot;$(mktemp -d)/x2c&quot;
-curl -fsSL https://staging.x2c-lang.dev/install.sh | sh
-export PATH=&quot;$X2C_PREFIX/bin:$PATH&quot;
-x2c run &quot;$X2C_PREFIX/examples/foreach.x&quot;
-x2c install pcre2 --index https://staging.x2c-lang.dev/packages/index.txt</pre></aside>
+    <body>
     <div id="mdbook-help-container">
         <div id="mdbook-help-popup">
             <h2 class="mdbook-help-title">Keyboard shortcuts</h2>
@@ -5227,71 +5223,104 @@ compiler Lisp SDK, see <a href="#compile-time-macros-1">Compile-time macros in t
 reference</a>.</p>
 <div style="break-before: page; page-break-before: always;"></div>
 <h1 id="meta-functions"><a class="header" href="#meta-functions">Meta Functions</a></h1>
-<p>A <code>meta</code> function is an <span class="x2c-wordmark">x2c</span> function the compiler can also run during
-translation. It lets you write a macro’s implementation in <span class="x2c-wordmark">x2c</span> instead of in
-compile-time Lisp. The body is ordinary <span class="x2c-wordmark">x2c</span>: parameters, locals, <code>foreach</code>,
-<code>match</code>, <code>String</code>, <code>List</code>, <code>Array</code> and <code>Map</code>. A macro body calls it the way
-it calls a Lisp procedure.</p>
-<p>This chapter assumes you have read <a href="#compile-time-macros">Compile-time Macros</a>. It does
-not assume you know Lisp.</p>
-<h2 id="a-complete-example"><a class="header" href="#a-complete-example">A complete example</a></h2>
-<p>Two files. The first is a <code>.xmacro</code> holding the <code>meta</code> functions and the
-macros that call them. <code>shape_fields</code> asks the compiler what a struct holds.
-<code>shape_names</code> and <code>shape_reads</code> turn that answer into syntax.</p>
-<!-- ignore: shape.xmacro is the external file being illustrated -->
-<pre class="shiki shiki-themes x2c-light x2c-dark x2c-code" style="--shiki-light:#24292e;--shiki-dark:#e9e5df;--shiki-light-bg:#fff;--shiki-dark-bg:#101011" tabindex="0"><code class="language-x2c no-highlight ignore"><span class="line"><span style="--shiki-light:#6A737D;--shiki-dark:#8B857F">/* The named fields of a struct-typed expression, in declaration order. */</span>
-</span><span class="line"><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">meta </span><span style="--shiki-light:#D73A49;--shiki-dark:#F0ADA1">static</span><span style="--shiki-light:#007C8A;--shiki-dark:#29D3E2"> List</span><span style="--shiki-light:#6F42C1;--shiki-dark:#E9E5DF"> shape_fields</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">(</span><span style="--shiki-light:#007C8A;--shiki-dark:#29D3E2">List</span><span style="--shiki-light:#E36209;--shiki-dark:#E9E5DF"> receiver</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">) </span><span style="--shiki-light:#A626A4;--shiki-light-font-weight:bold;--shiki-dark:#FF4FD8;--shiki-dark-font-weight:bold">=&gt;</span>
-</span><span class="line"><span style="--shiki-light:#6F42C1;--shiki-dark:#E9E5DF">  x2c_type_fields</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">(</span><span style="--shiki-light:#6F42C1;--shiki-dark:#E9E5DF">x2c_syntax_type</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">(receiver));</span>
-</span><span class="line">
-</span><span class="line"><span style="--shiki-light:#6A737D;--shiki-dark:#8B857F">/* One `String` literal holding those field names, comma separated. */</span>
-</span><span class="line"><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">meta </span><span style="--shiki-light:#D73A49;--shiki-dark:#F0ADA1">static</span><span style="--shiki-light:#007C8A;--shiki-dark:#29D3E2"> List</span><span style="--shiki-light:#6F42C1;--shiki-dark:#E9E5DF"> shape_names</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">(</span><span style="--shiki-light:#007C8A;--shiki-dark:#29D3E2">List</span><span style="--shiki-light:#E36209;--shiki-dark:#E9E5DF"> receiver</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">) {</span>
-</span><span class="line"><span style="--shiki-light:#007C8A;--shiki-dark:#29D3E2">  Array</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF"> names </span><span style="--shiki-light:#D73A49;--shiki-dark:#E9E5DF">=</span><span style="--shiki-light:#D73A49;--shiki-dark:#F0ADA1"> []</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">;</span>
-</span><span class="line"><span style="--shiki-light:#A626A4;--shiki-light-font-weight:bold;--shiki-dark:#FF4FD8;--shiki-dark-font-weight:bold">  foreach</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF"> (</span><span style="--shiki-light:#007C8A;--shiki-dark:#29D3E2">List</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF"> field, </span><span style="--shiki-light:#6F42C1;--shiki-dark:#E9E5DF">shape_fields</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">(receiver)) names.</span><span style="--shiki-light:#6F42C1;--shiki-dark:#E9E5DF">push</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">(field.</span><span style="--shiki-light:#6F42C1;--shiki-dark:#E9E5DF">car</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">());</span>
-</span><span class="line"><span style="--shiki-light:#D73A49;--shiki-dark:#F0ADA1">  return</span><span style="--shiki-light:#6F42C1;--shiki-dark:#E9E5DF"> x2c_literal_string</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">(String.</span><span style="--shiki-light:#6F42C1;--shiki-dark:#E9E5DF">join</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">(</span><span style="--shiki-light:#032F62;--shiki-dark:#9EDFB8">", "</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">, names));</span>
-</span><span class="line"><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">}</span>
-</span><span class="line">
-</span><span class="line"><span style="--shiki-light:#6A737D;--shiki-dark:#8B857F">/* `{ p.x, p.y, p.z }`, built from the fields rather than written out. */</span>
-</span><span class="line"><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">meta </span><span style="--shiki-light:#D73A49;--shiki-dark:#F0ADA1">static</span><span style="--shiki-light:#007C8A;--shiki-dark:#29D3E2"> List</span><span style="--shiki-light:#6F42C1;--shiki-dark:#E9E5DF"> shape_reads</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">(</span><span style="--shiki-light:#007C8A;--shiki-dark:#29D3E2">List</span><span style="--shiki-light:#E36209;--shiki-dark:#E9E5DF"> receiver</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">) {</span>
-</span><span class="line"><span style="--shiki-light:#007C8A;--shiki-dark:#29D3E2">  Array</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF"> reads </span><span style="--shiki-light:#D73A49;--shiki-dark:#E9E5DF">=</span><span style="--shiki-light:#D73A49;--shiki-dark:#F0ADA1"> []</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">;</span>
-</span><span class="line"><span style="--shiki-light:#A626A4;--shiki-light-font-weight:bold;--shiki-dark:#FF4FD8;--shiki-dark-font-weight:bold">  foreach</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF"> (</span><span style="--shiki-light:#007C8A;--shiki-dark:#29D3E2">List</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF"> field, </span><span style="--shiki-light:#6F42C1;--shiki-dark:#E9E5DF">shape_fields</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">(receiver))</span>
-</span><span class="line"><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">    reads.</span><span style="--shiki-light:#6F42C1;--shiki-dark:#E9E5DF">push</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">(</span><span style="--shiki-light:#6F42C1;--shiki-dark:#E9E5DF">x2c_expr_field</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">(receiver, field.</span><span style="--shiki-light:#6F42C1;--shiki-dark:#E9E5DF">car</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">()));</span>
-</span><span class="line"><span style="--shiki-light:#D73A49;--shiki-dark:#F0ADA1">  return</span><span style="--shiki-light:#6F42C1;--shiki-dark:#E9E5DF"> x2c_expr_composite</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">(reads);</span>
-</span><span class="line"><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">}</span>
-</span><span class="line">
-</span><span class="line"><span style="--shiki-light:#A626A4;--shiki-light-font-weight:bold;--shiki-dark:#FF4FD8;--shiki-dark-font-weight:bold">macro</span><span style="--shiki-light:#A15C00;--shiki-light-font-style:italic;--shiki-dark:#FFB454;--shiki-dark-font-style:italic"> Expression</span><span style="--shiki-light:#24292E;--shiki-dark:#FF715A"> $</span><span style="--shiki-light:#6F42C1;--shiki-dark:#FF715A">shape.names</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">(</span><span style="--shiki-light:#A15C00;--shiki-light-font-style:italic;--shiki-dark:#FFB454;--shiki-dark-font-style:italic">Expr</span><span style="--shiki-light:#24292E;--shiki-dark:#FF715A"> $</span><span style="--shiki-light:#E36209;--shiki-dark:#E9E5DF">value</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">) </span><span style="--shiki-light:#A626A4;--shiki-light-font-weight:bold;--shiki-dark:#FF4FD8;--shiki-dark-font-weight:bold">=&gt;</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF"> (</span><span style="--shiki-light:#24292E;--shiki-dark:#FF715A">$(</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">shape_names </span><span style="--shiki-light:#24292E;--shiki-dark:#FF715A">$</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">value</span><span style="--shiki-light:#24292E;--shiki-dark:#FF715A">)</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">)</span>
-</span><span class="line">
-</span><span class="line"><span style="--shiki-light:#A626A4;--shiki-light-font-weight:bold;--shiki-dark:#FF4FD8;--shiki-dark-font-weight:bold">macro</span><span style="--shiki-light:#A15C00;--shiki-light-font-style:italic;--shiki-dark:#FFB454;--shiki-dark-font-style:italic"> Expression</span><span style="--shiki-light:#24292E;--shiki-dark:#FF715A"> $</span><span style="--shiki-light:#6F42C1;--shiki-dark:#FF715A">shape.reads</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">(</span><span style="--shiki-light:#A15C00;--shiki-light-font-style:italic;--shiki-dark:#FFB454;--shiki-dark-font-style:italic">Expr</span><span style="--shiki-light:#24292E;--shiki-dark:#FF715A"> $</span><span style="--shiki-light:#E36209;--shiki-dark:#E9E5DF">value</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">) </span><span style="--shiki-light:#A626A4;--shiki-light-font-weight:bold;--shiki-dark:#FF4FD8;--shiki-dark-font-weight:bold">=&gt;</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF"> (</span><span style="--shiki-light:#24292E;--shiki-dark:#FF715A">$(</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">shape_reads </span><span style="--shiki-light:#24292E;--shiki-dark:#FF715A">$</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">value</span><span style="--shiki-light:#24292E;--shiki-dark:#FF715A">)</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">)</span></span></code></pre>
+<p>Start with an ordinary function. This one takes an integer and returns an
+integer, using the same braces, <code>return</code>, and arithmetic as C:</p>
+<pre class="shiki shiki-themes x2c-light x2c-dark x2c-code" style="--shiki-light:#24292e;--shiki-dark:#e9e5df;--shiki-light-bg:#fff;--shiki-dark-bg:#101011" tabindex="0"><code class="language-x2c no-highlight"><span class="line"><span style="--shiki-light:#D73A49;--shiki-dark:#F0ADA1">int</span><span style="--shiki-light:#6F42C1;--shiki-dark:#E9E5DF"> poly</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">(</span><span style="--shiki-light:#D73A49;--shiki-dark:#F0ADA1">int</span><span style="--shiki-light:#E36209;--shiki-dark:#E9E5DF"> n</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">) {</span>
+</span><span class="line"><span style="--shiki-light:#D73A49;--shiki-dark:#F0ADA1">  return</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF"> n </span><span style="--shiki-light:#D73A49;--shiki-dark:#E9E5DF">*</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF"> n </span><span style="--shiki-light:#D73A49;--shiki-dark:#E9E5DF">+</span><span style="--shiki-light:#005CC5;--shiki-dark:#A9C9F5"> 3</span><span style="--shiki-light:#D73A49;--shiki-dark:#E9E5DF"> *</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF"> n </span><span style="--shiki-light:#D73A49;--shiki-dark:#E9E5DF">+</span><span style="--shiki-light:#005CC5;--shiki-dark:#A9C9F5"> 1</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">;</span>
+</span><span class="line"><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">}</span></span></code></pre>
 
-<p>The second file imports it and uses the macros.</p>
-<!-- ignore: this program imports the shape.xmacro file above -->
-<pre class="shiki shiki-themes x2c-light x2c-dark x2c-code" style="--shiki-light:#24292e;--shiki-dark:#e9e5df;--shiki-light-bg:#fff;--shiki-dark-bg:#101011" tabindex="0"><code class="language-x2c no-highlight ignore"><span class="line"><span style="--shiki-light:#D73A49;--shiki-dark:#F0ADA1">#include</span><span style="--shiki-light:#032F62;--shiki-dark:#9EDFB8"> "x2c.x"</span>
-</span><span class="line"><span style="--shiki-light:#D73A49;--shiki-dark:#F0ADA1">#include</span><span style="--shiki-light:#032F62;--shiki-dark:#9EDFB8"> "meta.x"</span>
-</span><span class="line">
-</span><span class="line"><span style="--shiki-light:#24292E;--shiki-dark:#FF715A">$(</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">import </span><span style="--shiki-light:#032F62;--shiki-dark:#9EDFB8">"shape.xmacro"</span><span style="--shiki-light:#24292E;--shiki-dark:#FF715A">)</span>
-</span><span class="line">
-</span><span class="line"><span style="--shiki-light:#D73A49;--shiki-dark:#E9E5DF">typedef</span><span style="--shiki-light:#D73A49;--shiki-dark:#F0ADA1"> struct</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF"> Point { </span><span style="--shiki-light:#D73A49;--shiki-dark:#F0ADA1">int</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF"> x, y, z; } Point;</span>
+<p>Calling <code>poly(7)</code> gives 71. Now put <code>meta</code> before its definition:</p>
+<pre class="shiki shiki-themes x2c-light x2c-dark x2c-code" style="--shiki-light:#24292e;--shiki-dark:#e9e5df;--shiki-light-bg:#fff;--shiki-dark-bg:#101011" tabindex="0"><code class="language-x2c no-highlight"><span class="line"><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">meta </span><span style="--shiki-light:#D73A49;--shiki-dark:#F0ADA1">int</span><span style="--shiki-light:#6F42C1;--shiki-dark:#E9E5DF"> poly</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">(</span><span style="--shiki-light:#D73A49;--shiki-dark:#F0ADA1">int</span><span style="--shiki-light:#E36209;--shiki-dark:#E9E5DF"> n</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">) {</span>
+</span><span class="line"><span style="--shiki-light:#D73A49;--shiki-dark:#F0ADA1">  return</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF"> n </span><span style="--shiki-light:#D73A49;--shiki-dark:#E9E5DF">*</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF"> n </span><span style="--shiki-light:#D73A49;--shiki-dark:#E9E5DF">+</span><span style="--shiki-light:#005CC5;--shiki-dark:#A9C9F5"> 3</span><span style="--shiki-light:#D73A49;--shiki-dark:#E9E5DF"> *</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF"> n </span><span style="--shiki-light:#D73A49;--shiki-dark:#E9E5DF">+</span><span style="--shiki-light:#005CC5;--shiki-dark:#A9C9F5"> 1</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">;</span>
+</span><span class="line"><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">}</span></span></code></pre>
+
+<p>The body has not changed. <code>meta</code> makes it available to the compiler during
+translation as well as to the finished program. You can use it for an
+ordinary calculation; it does not have to inspect types or generate code.</p>
+<h2 id="call-it-in-the-program"><a class="header" href="#call-it-in-the-program">Call it in the program</a></h2>
+<p>An ordinary call uses parentheses and commas, just as before. Here the
+argument is a local variable:</p>
+<pre class="shiki shiki-themes x2c-light x2c-dark x2c-code" style="--shiki-light:#24292e;--shiki-dark:#e9e5df;--shiki-light-bg:#fff;--shiki-dark-bg:#101011" tabindex="0"><code class="language-x2c no-highlight"><span class="line"><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">meta </span><span style="--shiki-light:#D73A49;--shiki-dark:#F0ADA1">int</span><span style="--shiki-light:#6F42C1;--shiki-dark:#E9E5DF"> poly</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">(</span><span style="--shiki-light:#D73A49;--shiki-dark:#F0ADA1">int</span><span style="--shiki-light:#E36209;--shiki-dark:#E9E5DF"> n</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">) {</span>
+</span><span class="line"><span style="--shiki-light:#D73A49;--shiki-dark:#F0ADA1">  return</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF"> n </span><span style="--shiki-light:#D73A49;--shiki-dark:#E9E5DF">*</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF"> n </span><span style="--shiki-light:#D73A49;--shiki-dark:#E9E5DF">+</span><span style="--shiki-light:#005CC5;--shiki-dark:#A9C9F5"> 3</span><span style="--shiki-light:#D73A49;--shiki-dark:#E9E5DF"> *</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF"> n </span><span style="--shiki-light:#D73A49;--shiki-dark:#E9E5DF">+</span><span style="--shiki-light:#005CC5;--shiki-dark:#A9C9F5"> 1</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">;</span>
+</span><span class="line"><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">}</span>
 </span><span class="line">
 </span><span class="line"><span style="--shiki-light:#D73A49;--shiki-dark:#F0ADA1">int</span><span style="--shiki-light:#6F42C1;--shiki-dark:#E9E5DF"> main</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">(</span><span style="--shiki-light:#D73A49;--shiki-dark:#F0ADA1">void</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">) {</span>
-</span><span class="line"><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">  Point p </span><span style="--shiki-light:#D73A49;--shiki-dark:#E9E5DF">=</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF"> { </span><span style="--shiki-light:#005CC5;--shiki-dark:#A9C9F5">2</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">, </span><span style="--shiki-light:#005CC5;--shiki-dark:#A9C9F5">3</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">, </span><span style="--shiki-light:#005CC5;--shiki-dark:#A9C9F5">4</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF"> };</span>
-</span><span class="line"><span style="--shiki-light:#D73A49;--shiki-dark:#F0ADA1">  int</span><span style="--shiki-light:#E36209;--shiki-dark:#E9E5DF"> reads</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">[</span><span style="--shiki-light:#005CC5;--shiki-dark:#A9C9F5">3</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">] </span><span style="--shiki-light:#D73A49;--shiki-dark:#E9E5DF">=</span><span style="--shiki-light:#24292E;--shiki-dark:#FF715A"> $</span><span style="--shiki-light:#6F42C1;--shiki-dark:#FF715A">shape.reads</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">(p);</span>
-</span><span class="line"><span style="--shiki-light:#6F42C1;--shiki-dark:#E9E5DF">  printf</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">(</span><span style="--shiki-light:#032F62;--shiki-dark:#9EDFB8">"names </span><span style="--shiki-light:#005CC5;--shiki-dark:#9EDFB8">%s\n</span><span style="--shiki-light:#032F62;--shiki-dark:#9EDFB8">"</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">, </span><span style="--shiki-light:#24292E;--shiki-dark:#FF715A">$</span><span style="--shiki-light:#6F42C1;--shiki-dark:#FF715A">shape.names</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">(p));</span>
-</span><span class="line"><span style="--shiki-light:#6F42C1;--shiki-dark:#E9E5DF">  printf</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">(</span><span style="--shiki-light:#032F62;--shiki-dark:#9EDFB8">"reads </span><span style="--shiki-light:#005CC5;--shiki-dark:#9EDFB8">%d</span><span style="--shiki-light:#005CC5;--shiki-dark:#9EDFB8"> %d</span><span style="--shiki-light:#005CC5;--shiki-dark:#9EDFB8"> %d\n</span><span style="--shiki-light:#032F62;--shiki-dark:#9EDFB8">"</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">, </span><span style="--shiki-light:#E36209;--shiki-dark:#E9E5DF">reads</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">[</span><span style="--shiki-light:#005CC5;--shiki-dark:#A9C9F5">0</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">], </span><span style="--shiki-light:#E36209;--shiki-dark:#E9E5DF">reads</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">[</span><span style="--shiki-light:#005CC5;--shiki-dark:#A9C9F5">1</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">], </span><span style="--shiki-light:#E36209;--shiki-dark:#E9E5DF">reads</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">[</span><span style="--shiki-light:#005CC5;--shiki-dark:#A9C9F5">2</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">]);</span>
+</span><span class="line"><span style="--shiki-light:#D73A49;--shiki-dark:#F0ADA1">  int</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF"> n </span><span style="--shiki-light:#D73A49;--shiki-dark:#E9E5DF">=</span><span style="--shiki-light:#005CC5;--shiki-dark:#A9C9F5"> 7</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">;</span>
+</span><span class="line"><span style="--shiki-light:#6F42C1;--shiki-dark:#E9E5DF">  printf</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">(</span><span style="--shiki-light:#032F62;--shiki-dark:#9EDFB8">"</span><span style="--shiki-light:#005CC5;--shiki-dark:#9EDFB8">%d\n</span><span style="--shiki-light:#032F62;--shiki-dark:#9EDFB8">"</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">, </span><span style="--shiki-light:#6F42C1;--shiki-dark:#E9E5DF">poly</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">(n));</span>
 </span><span class="line"><span style="--shiki-light:#D73A49;--shiki-dark:#F0ADA1">  return</span><span style="--shiki-light:#005CC5;--shiki-dark:#A9C9F5"> 0</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">;</span>
 </span><span class="line"><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">}</span></span></code></pre>
 
-<pre><code class="language-text">names x, y, z
-reads 2 3 4
+<pre><code class="language-text">71
 </code></pre>
-<p>The field names never appear in the program. The compiler supplied them, and
-the <code>meta</code> functions built <code>"x, y, z"</code> and <code>{ p.x, p.y, p.z }</code> from them.</p>
-<h2 id="the-meta-word"><a class="header" href="#the-meta-word">The <code>meta</code> word</a></h2>
-<p>Write <code>meta</code> first on a function definition. A storage class follows it:</p>
-<pre class="shiki shiki-themes x2c-light x2c-dark x2c-code" style="--shiki-light:#24292e;--shiki-dark:#e9e5df;--shiki-light-bg:#fff;--shiki-dark-bg:#101011" tabindex="0"><code class="language-x2c no-highlight"><span class="line"><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">meta </span><span style="--shiki-light:#D73A49;--shiki-dark:#F0ADA1">int</span><span style="--shiki-light:#6F42C1;--shiki-dark:#E9E5DF"> poly</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">(</span><span style="--shiki-light:#D73A49;--shiki-dark:#F0ADA1">int</span><span style="--shiki-light:#E36209;--shiki-dark:#E9E5DF"> n</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">) </span><span style="--shiki-light:#A626A4;--shiki-light-font-weight:bold;--shiki-dark:#FF4FD8;--shiki-dark-font-weight:bold">=&gt;</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF"> n </span><span style="--shiki-light:#D73A49;--shiki-dark:#E9E5DF">*</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF"> n </span><span style="--shiki-light:#D73A49;--shiki-dark:#E9E5DF">+</span><span style="--shiki-light:#005CC5;--shiki-dark:#A9C9F5"> 3</span><span style="--shiki-light:#D73A49;--shiki-dark:#E9E5DF"> *</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF"> n </span><span style="--shiki-light:#D73A49;--shiki-dark:#E9E5DF">+</span><span style="--shiki-light:#005CC5;--shiki-dark:#A9C9F5"> 1</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">;</span>
+<p>This uses the function’s run-time form. The compiler emits C for the body,
+and the finished program calls it.</p>
+<h2 id="ask-the-compiler-to-calculate-it"><a class="header" href="#ask-the-compiler-to-calculate-it">Ask the compiler to calculate it</a></h2>
+<p>Use <code>$(poly 7)</code> to call the same function during translation:</p>
+<pre class="shiki shiki-themes x2c-light x2c-dark x2c-code" style="--shiki-light:#24292e;--shiki-dark:#e9e5df;--shiki-light-bg:#fff;--shiki-dark-bg:#101011" tabindex="0"><code class="language-x2c no-highlight"><span class="line"><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">meta </span><span style="--shiki-light:#D73A49;--shiki-dark:#F0ADA1">int</span><span style="--shiki-light:#6F42C1;--shiki-dark:#E9E5DF"> poly</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">(</span><span style="--shiki-light:#D73A49;--shiki-dark:#F0ADA1">int</span><span style="--shiki-light:#E36209;--shiki-dark:#E9E5DF"> n</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">) {</span>
+</span><span class="line"><span style="--shiki-light:#D73A49;--shiki-dark:#F0ADA1">  return</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF"> n </span><span style="--shiki-light:#D73A49;--shiki-dark:#E9E5DF">*</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF"> n </span><span style="--shiki-light:#D73A49;--shiki-dark:#E9E5DF">+</span><span style="--shiki-light:#005CC5;--shiki-dark:#A9C9F5"> 3</span><span style="--shiki-light:#D73A49;--shiki-dark:#E9E5DF"> *</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF"> n </span><span style="--shiki-light:#D73A49;--shiki-dark:#E9E5DF">+</span><span style="--shiki-light:#005CC5;--shiki-dark:#A9C9F5"> 1</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">;</span>
+</span><span class="line"><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">}</span>
 </span><span class="line">
-</span><span class="line"><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">meta </span><span style="--shiki-light:#D73A49;--shiki-dark:#F0ADA1">static</span><span style="--shiki-light:#007C8A;--shiki-dark:#29D3E2"> String</span><span style="--shiki-light:#6F42C1;--shiki-dark:#E9E5DF"> label</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">(</span><span style="--shiki-light:#007C8A;--shiki-dark:#29D3E2">String</span><span style="--shiki-light:#E36209;--shiki-dark:#E9E5DF"> stem</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">, </span><span style="--shiki-light:#D73A49;--shiki-dark:#F0ADA1">int</span><span style="--shiki-light:#E36209;--shiki-dark:#E9E5DF"> n</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">) </span><span style="--shiki-light:#A626A4;--shiki-light-font-weight:bold;--shiki-dark:#FF4FD8;--shiki-dark-font-weight:bold">=&gt;</span><span style="--shiki-light:#24292E;--shiki-dark:#FF715A"> %"</span><span style="--shiki-light:#032F62;--shiki-dark:#FF715A">$</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">stem</span><span style="--shiki-light:#032F62;--shiki-dark:#9EDFB8">-</span><span style="--shiki-light:#032F62;--shiki-dark:#FF715A">$</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">n</span><span style="--shiki-light:#24292E;--shiki-dark:#FF715A">"</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">;</span></span></code></pre>
+</span><span class="line"><span style="--shiki-light:#D73A49;--shiki-dark:#F0ADA1">int</span><span style="--shiki-light:#6F42C1;--shiki-dark:#E9E5DF"> main</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">(</span><span style="--shiki-light:#D73A49;--shiki-dark:#F0ADA1">void</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">) {</span>
+</span><span class="line"><span style="--shiki-light:#6F42C1;--shiki-dark:#E9E5DF">  printf</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">(</span><span style="--shiki-light:#032F62;--shiki-dark:#9EDFB8">"</span><span style="--shiki-light:#005CC5;--shiki-dark:#9EDFB8">%d\n</span><span style="--shiki-light:#032F62;--shiki-dark:#9EDFB8">"</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">, </span><span style="--shiki-light:#24292E;--shiki-dark:#FF715A">$(</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">poly </span><span style="--shiki-light:#005CC5;--shiki-dark:#A9C9F5">7</span><span style="--shiki-light:#24292E;--shiki-dark:#FF715A">)</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">);</span>
+</span><span class="line"><span style="--shiki-light:#D73A49;--shiki-dark:#F0ADA1">  return</span><span style="--shiki-light:#005CC5;--shiki-dark:#A9C9F5"> 0</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">;</span>
+</span><span class="line"><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">}</span></span></code></pre>
 
-<p><code>static</code> still means what it always meant about the emitted function. <code>meta</code>
-adds the compile-time form.</p>
+<pre><code class="language-text">71
+</code></pre>
+<p><code>$(...)</code> asks the compiler to evaluate what is inside and insert the result.
+Inside it, a call is written with the name first and space-separated
+arguments: <code>poly 7</code>, rather than <code>poly(7)</code>. That is Lisp call syntax; you do
+not need to write the function’s implementation in Lisp. Here the compiler
+runs the <span class="x2c-wordmark">x2c</span> body and inserts the integer 71 before the program is built.</p>
+<p>These are the two forms of a <code>meta</code> function: one runs in your program,
+and one runs in the compiler. Both come from the same body. Functions that
+need the compiler’s own type information are an exception: they can only
+run during translation. We will reach those after ordinary calculations.</p>
+<h2 id="constant-calls-are-folded"><a class="header" href="#constant-calls-are-folded">Constant calls are folded</a></h2>
+<p>An ordinary call with literal arguments can also be calculated during
+translation. You do not have to write <code>$(...)</code> to benefit from it:</p>
+<pre class="shiki shiki-themes x2c-light x2c-dark x2c-code" style="--shiki-light:#24292e;--shiki-dark:#e9e5df;--shiki-light-bg:#fff;--shiki-dark-bg:#101011" tabindex="0"><code class="language-x2c no-highlight"><span class="line"><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">meta </span><span style="--shiki-light:#D73A49;--shiki-dark:#F0ADA1">int</span><span style="--shiki-light:#6F42C1;--shiki-dark:#E9E5DF"> poly</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">(</span><span style="--shiki-light:#D73A49;--shiki-dark:#F0ADA1">int</span><span style="--shiki-light:#E36209;--shiki-dark:#E9E5DF"> n</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">) {</span>
+</span><span class="line"><span style="--shiki-light:#D73A49;--shiki-dark:#F0ADA1">  return</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF"> n </span><span style="--shiki-light:#D73A49;--shiki-dark:#E9E5DF">*</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF"> n </span><span style="--shiki-light:#D73A49;--shiki-dark:#E9E5DF">+</span><span style="--shiki-light:#005CC5;--shiki-dark:#A9C9F5"> 3</span><span style="--shiki-light:#D73A49;--shiki-dark:#E9E5DF"> *</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF"> n </span><span style="--shiki-light:#D73A49;--shiki-dark:#E9E5DF">+</span><span style="--shiki-light:#005CC5;--shiki-dark:#A9C9F5"> 1</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">;</span>
+</span><span class="line"><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">}</span>
+</span><span class="line">
+</span><span class="line"><span style="--shiki-light:#D73A49;--shiki-dark:#F0ADA1">int</span><span style="--shiki-light:#6F42C1;--shiki-dark:#E9E5DF"> main</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">(</span><span style="--shiki-light:#D73A49;--shiki-dark:#F0ADA1">void</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">) {</span>
+</span><span class="line"><span style="--shiki-light:#D73A49;--shiki-dark:#F0ADA1">  int</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF"> n </span><span style="--shiki-light:#D73A49;--shiki-dark:#E9E5DF">=</span><span style="--shiki-light:#005CC5;--shiki-dark:#A9C9F5"> 7</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">;</span>
+</span><span class="line"><span style="--shiki-light:#6F42C1;--shiki-dark:#E9E5DF">  printf</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">(</span><span style="--shiki-light:#032F62;--shiki-dark:#9EDFB8">"constant </span><span style="--shiki-light:#005CC5;--shiki-dark:#9EDFB8">%d\n</span><span style="--shiki-light:#032F62;--shiki-dark:#9EDFB8">"</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">, </span><span style="--shiki-light:#6F42C1;--shiki-dark:#E9E5DF">poly</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">(</span><span style="--shiki-light:#005CC5;--shiki-dark:#A9C9F5">7</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">));</span>
+</span><span class="line"><span style="--shiki-light:#6F42C1;--shiki-dark:#E9E5DF">  printf</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">(</span><span style="--shiki-light:#032F62;--shiki-dark:#9EDFB8">"local    </span><span style="--shiki-light:#005CC5;--shiki-dark:#9EDFB8">%d\n</span><span style="--shiki-light:#032F62;--shiki-dark:#9EDFB8">"</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">, </span><span style="--shiki-light:#6F42C1;--shiki-dark:#E9E5DF">poly</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">(n));</span>
+</span><span class="line"><span style="--shiki-light:#D73A49;--shiki-dark:#F0ADA1">  return</span><span style="--shiki-light:#005CC5;--shiki-dark:#A9C9F5"> 0</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">;</span>
+</span><span class="line"><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">}</span></span></code></pre>
+
+<pre><code class="language-text">constant 71
+local    71
+</code></pre>
+<p>The generated C shows the difference:</p>
+<pre><code class="language-text">printf("constant %d\n", 71);
+printf("local    %d\n", poly(n));
+</code></pre>
+<p>Here <code>poly(7)</code> becomes 71, while <code>poly(n)</code> remains a call. This automatic
+substitution is called folding. It is an optimization: you get the same
+answer either way. <code>$(poly 7)</code> explicitly requests compile-time evaluation;
+<code>poly(7)</code> uses ordinary call syntax and leaves folding to the compiler.</p>
+<h2 id="use-x2c-conveniences"><a class="header" href="#use-x2c-conveniences">Use <span class="x2c-wordmark">x2c</span> conveniences</a></h2>
+<p>The body can also use familiar <span class="x2c-wordmark">x2c</span> conveniences. An expression-bodied
+function uses <code>=&gt;</code> in place of braces and <code>return</code>:</p>
+<pre class="shiki shiki-themes x2c-light x2c-dark x2c-code" style="--shiki-light:#24292e;--shiki-dark:#e9e5df;--shiki-light-bg:#fff;--shiki-dark-bg:#101011" tabindex="0"><code class="language-x2c no-highlight"><span class="line"><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">meta </span><span style="--shiki-light:#D73A49;--shiki-dark:#F0ADA1">int</span><span style="--shiki-light:#6F42C1;--shiki-dark:#E9E5DF"> poly</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">(</span><span style="--shiki-light:#D73A49;--shiki-dark:#F0ADA1">int</span><span style="--shiki-light:#E36209;--shiki-dark:#E9E5DF"> n</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">) </span><span style="--shiki-light:#A626A4;--shiki-light-font-weight:bold;--shiki-dark:#FF4FD8;--shiki-dark-font-weight:bold">=&gt;</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF"> n </span><span style="--shiki-light:#D73A49;--shiki-dark:#E9E5DF">*</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF"> n </span><span style="--shiki-light:#D73A49;--shiki-dark:#E9E5DF">+</span><span style="--shiki-light:#005CC5;--shiki-dark:#A9C9F5"> 3</span><span style="--shiki-light:#D73A49;--shiki-dark:#E9E5DF"> *</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF"> n </span><span style="--shiki-light:#D73A49;--shiki-dark:#E9E5DF">+</span><span style="--shiki-light:#005CC5;--shiki-dark:#A9C9F5"> 1</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">;</span></span></code></pre>
+
+<p>A <code>String</code> parameter gives access to string operations through dot syntax:</p>
+<pre class="shiki shiki-themes x2c-light x2c-dark x2c-code" style="--shiki-light:#24292e;--shiki-dark:#e9e5df;--shiki-light-bg:#fff;--shiki-dark-bg:#101011" tabindex="0"><code class="language-x2c no-highlight"><span class="line"><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">meta </span><span style="--shiki-light:#D73A49;--shiki-dark:#F0ADA1">static</span><span style="--shiki-light:#D73A49;--shiki-dark:#F0ADA1"> int</span><span style="--shiki-light:#6F42C1;--shiki-dark:#E9E5DF"> width</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">(</span><span style="--shiki-light:#007C8A;--shiki-dark:#29D3E2">String</span><span style="--shiki-light:#E36209;--shiki-dark:#E9E5DF"> text</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">) </span><span style="--shiki-light:#A626A4;--shiki-light-font-weight:bold;--shiki-dark:#FF4FD8;--shiki-dark-font-weight:bold">=&gt;</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF"> text.</span><span style="--shiki-light:#6F42C1;--shiki-dark:#E9E5DF">len</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">() </span><span style="--shiki-light:#D73A49;--shiki-dark:#E9E5DF">*</span><span style="--shiki-light:#005CC5;--shiki-dark:#A9C9F5"> 2</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">;</span>
+</span><span class="line">
+</span><span class="line"><span style="--shiki-light:#D73A49;--shiki-dark:#F0ADA1">int</span><span style="--shiki-light:#6F42C1;--shiki-dark:#E9E5DF"> main</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">(</span><span style="--shiki-light:#D73A49;--shiki-dark:#F0ADA1">void</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">) {</span>
+</span><span class="line"><span style="--shiki-light:#6F42C1;--shiki-dark:#E9E5DF">  printf</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">(</span><span style="--shiki-light:#032F62;--shiki-dark:#9EDFB8">"</span><span style="--shiki-light:#005CC5;--shiki-dark:#9EDFB8">%d\n</span><span style="--shiki-light:#032F62;--shiki-dark:#9EDFB8">"</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">, </span><span style="--shiki-light:#24292E;--shiki-dark:#FF715A">$(</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">width </span><span style="--shiki-light:#032F62;--shiki-dark:#9EDFB8">"abcd"</span><span style="--shiki-light:#24292E;--shiki-dark:#FF715A">)</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">);</span>
+</span><span class="line"><span style="--shiki-light:#D73A49;--shiki-dark:#F0ADA1">  return</span><span style="--shiki-light:#005CC5;--shiki-dark:#A9C9F5"> 0</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">;</span>
+</span><span class="line"><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">}</span></span></code></pre>
+
+<pre><code class="language-text">8
+</code></pre>
+<p><code>static</code> follows <code>meta</code> and keeps its usual meaning for the emitted
+function. A body can use local variables, ordinary control flow, <code>foreach</code>,
+and <code>String</code>, <code>List</code>, <code>Array</code>, and <code>Map</code> operations with compile-time
+bindings. The restrictions below describe where this stops.</p>
+<h2 id="where-to-write-meta"><a class="header" href="#where-to-write-meta">Where to write <code>meta</code></a></h2>
 <p><code>meta</code> is contextual. It marks a function only when a function definition
 follows it. Everywhere else it is an ordinary identifier:</p>
 <pre class="shiki shiki-themes x2c-light x2c-dark x2c-code" style="--shiki-light:#24292e;--shiki-dark:#e9e5df;--shiki-light-bg:#fff;--shiki-dark-bg:#101011" tabindex="0"><code class="language-x2c no-highlight"><span class="line"><span style="--shiki-light:#007C8A;--shiki-dark:#29D3E2">List</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF"> meta </span><span style="--shiki-light:#D73A49;--shiki-dark:#E9E5DF">=</span><span style="--shiki-light:#24292E;--shiki-dark:#FF715A"> %(</span><span style="--shiki-light:#005CC5;--shiki-dark:#E9E5DF">a</span><span style="--shiki-light:#005CC5;--shiki-dark:#E9E5DF"> b</span><span style="--shiki-light:#24292E;--shiki-dark:#FF715A">)</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">;</span>
@@ -5309,22 +5338,84 @@ follows it. Everywhere else it is an ordinary identifier:</p>
 </code></pre>
 <p>A <code>meta</code> declaration needs a body. A prototype is an error, because the
 compiler has nothing to run.</p>
-<h2 id="one-body-two-forms"><a class="header" href="#one-body-two-forms">One body, two forms</a></h2>
-<p>A <code>meta</code> function has a compile-time form and a run-time form. They come
-from the same body, so they compute the same answer. <code>$(name args)</code> calls
-the compile-time form; ordinary call syntax calls the run-time one.</p>
-<pre class="shiki shiki-themes x2c-light x2c-dark x2c-code" style="--shiki-light:#24292e;--shiki-dark:#e9e5df;--shiki-light-bg:#fff;--shiki-dark-bg:#101011" tabindex="0"><code class="language-x2c no-highlight"><span class="line"><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">meta </span><span style="--shiki-light:#D73A49;--shiki-dark:#F0ADA1">int</span><span style="--shiki-light:#6F42C1;--shiki-dark:#E9E5DF"> poly</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">(</span><span style="--shiki-light:#D73A49;--shiki-dark:#F0ADA1">int</span><span style="--shiki-light:#E36209;--shiki-dark:#E9E5DF"> n</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">) </span><span style="--shiki-light:#A626A4;--shiki-light-font-weight:bold;--shiki-dark:#FF4FD8;--shiki-dark-font-weight:bold">=&gt;</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF"> n </span><span style="--shiki-light:#D73A49;--shiki-dark:#E9E5DF">*</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF"> n </span><span style="--shiki-light:#D73A49;--shiki-dark:#E9E5DF">+</span><span style="--shiki-light:#005CC5;--shiki-dark:#A9C9F5"> 3</span><span style="--shiki-light:#D73A49;--shiki-dark:#E9E5DF"> *</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF"> n </span><span style="--shiki-light:#D73A49;--shiki-dark:#E9E5DF">+</span><span style="--shiki-light:#005CC5;--shiki-dark:#A9C9F5"> 1</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">;</span>
-</span><span class="line">
-</span><span class="line"><span style="--shiki-light:#D73A49;--shiki-dark:#F0ADA1">int</span><span style="--shiki-light:#6F42C1;--shiki-dark:#E9E5DF"> main</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">(</span><span style="--shiki-light:#D73A49;--shiki-dark:#F0ADA1">void</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">) {</span>
-</span><span class="line"><span style="--shiki-light:#D73A49;--shiki-dark:#F0ADA1">  int</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF"> seven </span><span style="--shiki-light:#D73A49;--shiki-dark:#E9E5DF">=</span><span style="--shiki-light:#005CC5;--shiki-dark:#A9C9F5"> 7</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">;</span>
-</span><span class="line"><span style="--shiki-light:#6F42C1;--shiki-dark:#E9E5DF">  printf</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">(</span><span style="--shiki-light:#032F62;--shiki-dark:#9EDFB8">"compile time </span><span style="--shiki-light:#005CC5;--shiki-dark:#9EDFB8">%d\n</span><span style="--shiki-light:#032F62;--shiki-dark:#9EDFB8">"</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">, </span><span style="--shiki-light:#24292E;--shiki-dark:#FF715A">$(</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">poly </span><span style="--shiki-light:#005CC5;--shiki-dark:#A9C9F5">7</span><span style="--shiki-light:#24292E;--shiki-dark:#FF715A">)</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">);</span>
-</span><span class="line"><span style="--shiki-light:#6F42C1;--shiki-dark:#E9E5DF">  printf</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">(</span><span style="--shiki-light:#032F62;--shiki-dark:#9EDFB8">"run time     </span><span style="--shiki-light:#005CC5;--shiki-dark:#9EDFB8">%d\n</span><span style="--shiki-light:#032F62;--shiki-dark:#9EDFB8">"</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">, </span><span style="--shiki-light:#6F42C1;--shiki-dark:#E9E5DF">poly</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">(seven));</span>
-</span><span class="line"><span style="--shiki-light:#D73A49;--shiki-dark:#F0ADA1">  return</span><span style="--shiki-light:#005CC5;--shiki-dark:#A9C9F5"> 0</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">;</span>
-</span><span class="line"><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">}</span></span></code></pre>
-
-<pre><code class="language-text">compile time 71
-run time     71
+<h2 id="when-folding-applies"><a class="header" href="#when-folding-applies">When folding applies</a></h2>
+<p>Where both forms agree, the compiler may answer a call from the
+compile-time form and put the answer in the call’s place. A call is answered
+this way only when all of the following hold.</p>
+<ul>
+<li>The callee is a <code>meta</code> function this unit defines. An imported one keeps
+the run-time call to the unit that emits it.</li>
+<li>Every argument is a literal: a number, a character, a string, <code>nil</code>, or a
+literal template. An argument the compiler would have to compute first is
+not one, even when its value is fixed. <code>poly(7)</code> is answered;
+<code>poly(-7)</code>, <code>poly(BLUE)</code> for an enumerator <code>BLUE</code>, and
+<code>poly((int) sizeof(int))</code> are not, because a negation, a name and a cast
+are expressions rather than literals.</li>
+<li>Every argument already has its parameter’s declared type.</li>
+<li>The return type is <code>int</code> and the answer fits an <code>int</code>. An <code>int</code> literal
+spells itself, which is what makes the substitution possible.</li>
+</ul>
+<p>This is an optimization. The answer is the same either way, so you do not
+need to arrange for it. A <code>String</code>, <code>List</code> or <code>Map</code> result keeps its call:
+the caller owns the value a call returns, and a literal carries no such
+ownership. A <code>meta</code> body cannot read file-scope variables.
+Pass the values it needs as arguments instead.</p>
+<h2 id="what-a-meta-body-may-not-contain-today"><a class="header" href="#what-a-meta-body-may-not-contain-today">What a meta body may not contain today</a></h2>
+<p>The compiler translates the body into a compile-time form before it runs.
+Some constructs have no such form. The compiler reports this at the <code>meta</code>
+marker and names the reason. A body holding a struct or union gives:</p>
+<pre><code class="language-text">sample.x:3:1: macro: this function cannot run at compile time
+  meta static int mt_scan(int n) {
+  ^^^^
+  note: reason: a struct or union, which has no compile-time representation
 </code></pre>
+<p>The refusals a body is most likely to meet:</p>
+<div class="table-wrapper">
+<table>
+<thead>
+<tr><th>Construct</th><th>Reason in the diagnostic</th></tr>
+</thead>
+<tbody>
+<tr><td><code>goto</code></td><td><code>a goto has no lowering</code></td></tr>
+<tr><td><code>defer</code></td><td><code>defer, because a compile-time function does not free its values: the evaluator owns them</code></td></tr>
+<tr><td>a struct or union local, or a <code>.</code> field read</td><td><code>a struct or union, which has no compile-time representation</code></td></tr>
+<tr><td>a <code>switch</code> arm running into the next</td><td><code>a switch arm that falls through into the next</code></td></tr>
+<tr><td>a call with no compile-time binding</td><td><code>no binding for NAME</code></td></tr>
+</tbody>
+</table>
+</div>
+<p>A compile-time value is a Lisp value, so a struct would have to become a
+<code>Map</code> keyed by field name, which reads back as a reference where the source
+wrote a value. <code>defer</code> is refused because the evaluator owns every value a
+compile-time function makes, so freeing one would take it away. <code>goto</code> and
+a falling-through <code>switch</code> arm are refused because the compile-time form has
+no place to jump to.</p>
+<p>Ordinary control flow is carried: <code>if</code>, <code>while</code>, <code>for</code>, <code>do</code>, <code>switch</code> with
+<code>break</code> or <code>return</code> in each arm, <code>foreach</code>, <code>break</code>, <code>continue</code>, recursion,
+<code>match</code>, literal templates, lambdas and <code>Func</code> values with typed or bare
+parameters, and <code>String</code>, <code>List</code>, <code>Array</code> and <code>Map</code> operations.
+File-scope variables are not available to a <code>meta</code> body; pass their values
+as parameters or keep the working state in locals.</p>
+<p>The last row covers the most common case. A call inside a <code>meta</code> body
+resolves against the compile-time library, and an operation with no binding
+there declines the whole function. A body calling <code>time</code> reports
+<code>reason: no binding for time</code>. Prefer the <code>String</code>, <code>List</code>, <code>Array</code> and
+<code>Map</code> operations the shipped macro files already use.</p>
+<h2 id="compile-time-arithmetic"><a class="header" href="#compile-time-arithmetic">Compile-time arithmetic</a></h2>
+<p>The two forms agree on arithmetic. Narrow and unsigned integer types wrap
+and compare the way the emitted C does, floating values truncate and compare
+the same way, and every conversion position the source writes converts in
+both forms. <code>unittest/compiler-fixtures/meta-differential.x</code> prints each
+answer twice, once from the compile-time form and once from the emitted
+function, and the fixture owns the expected output.</p>
+<h2 id="from-values-to-syntax"><a class="header" href="#from-values-to-syntax">From values to syntax</a></h2>
+<p>So far we have passed values in and calculated values out. A macro works
+with something different: the syntax of the program being compiled. A
+<code>meta</code> function can take that syntax as a <code>List</code>, inspect it, and return new
+syntax for the compiler to insert.</p>
+<p>For this part, read <a href="#compile-time-macros">Compile-time Macros</a> first. The macro declares
+what syntax to capture; the <code>meta</code> function implements the transformation
+in <span class="x2c-wordmark">x2c</span>. Include <code>meta.x</code> to use the compiler’s <code>x2c_*</code> operations.</p>
 <h2 id="calling-a-meta-function-from-a-macro-body"><a class="header" href="#calling-a-meta-function-from-a-macro-body">Calling a meta function from a macro body</a></h2>
 <p>A macro body reaches compile-time code through <code>$(...)</code>. Inside it, <code>$name</code>
 is the hole’s captured syntax. The call is spelled as a Lisp call: the
@@ -5353,28 +5444,6 @@ the work.</p>
 <p>What the function returns decides what the expansion is. A <code>List</code> one of the
 compiler operations built is syntax. <code>x2c_literal_int</code>, <code>x2c_literal_string</code>
 and <code>x2c_literal_symbol</code> each return an expression holding a value.</p>
-<h2 id="sharing-a-meta-function-between-units"><a class="header" href="#sharing-a-meta-function-between-units">Sharing a <code>meta</code> function between units</a></h2>
-<p>A <code>meta</code> function written in a <code>.x</code> file belongs to that unit. Including that
-file elsewhere shares its declaration, the way including any <code>.x</code> file does,
-and the declaration alone has no compile-time form: another unit can call it
-at run time, and cannot call it during translation.</p>
-<p>To share one, put it in a <code>.xmacro</code> that each unit imports. A <code>.xmacro</code> file
-may hold <code>meta</code> functions beside the macros that call them, and importing it
-installs their compile-time forms in the importing unit. The unit that imports
-the file includes <code>meta.x</code>, because a <code>.xmacro</code> borrows the consuming unit’s
-symbol table:</p>
-<pre><code class="language-text">#include "x2c.x"
-#include "meta.x"
-
-$(import "shape.xmacro")
-</code></pre>
-<p>Importing the same file twice contributes one copy of each definition. A
-<code>.xmacro</code> may import another <code>.xmacro</code>, and a <code>meta</code> function two levels
-down reaches the consuming unit the same way.</p>
-<p>The run-time forms are separate from this. A unit emits a definition only
-for the <code>meta</code> functions it calls at run time. The storage class says what
-it emits: <code>static</code> gives that unit its own copy, and a public name is the
-one copy the program links, exported by the reaching unit’s header.</p>
 <h2 id="what-the-compiler-answers"><a class="header" href="#what-the-compiler-answers">What the compiler answers</a></h2>
 <p><code>lib/meta.x</code> declares the compiler operations a <code>meta</code> function can call.
 Each is a plain function whose name is the compile-time Lisp name with <code>_</code>
@@ -5459,8 +5528,8 @@ invocation:</p>
 <p>Two signatures differ in shape from their Lisp spellings.
 <code>x2c_expr_call</code> takes its arguments as one <code>List</code>, and <code>x2c_type_value</code>
 returns <code>int</code>.</p>
-<h2 id="a-function-that-reaches-a-compiler-operation-has-no-run-time-form"><a class="header" href="#a-function-that-reaches-a-compiler-operation-has-no-run-time-form">A function that reaches a compiler operation has no run-time form</a></h2>
-<p>The compiler operations exist only inside a compiler. A <code>meta</code> function that
+<h2 id="functions-that-need-the-compiler"><a class="header" href="#functions-that-need-the-compiler">Functions that need the compiler</a></h2>
+<p>Compiler queries exist only inside a compiler. A <code>meta</code> function that
 calls one, directly or through another <code>meta</code> function, therefore has no
 valid run-time form, and the compiler emits no definition for it. A call to
 one from a run-time body is diagnosed where it is written. Calling
@@ -5471,96 +5540,82 @@ one from a run-time body is diagnosed where it is written. Calling
   note: reason: it reaches a compiler operation, so no unit emits a
   definition for it; call it from a macro or another meta function
 </code></pre>
-<p>In the first example, the generated C mentions none of <code>shape_fields</code>,
+<p>In the complete shape example below, the generated C mentions none of <code>shape_fields</code>,
 <code>shape_names</code> or <code>shape_reads</code>.</p>
-<p>A <code>meta</code> function that reaches no compiler operation, like <code>label</code> above,
+<p>A <code>meta</code> function that needs no compiler query, like <code>poly</code> above,
 keeps both forms and is emitted normally.</p>
-<h2 id="constant-calls-are-folded"><a class="header" href="#constant-calls-are-folded">Constant calls are folded</a></h2>
-<p>Where both forms agree, the compiler may answer a call from the
-compile-time form and put the answer in the call’s place. A call is answered
-this way only when all of the following hold.</p>
-<ul>
-<li>The callee is a <code>meta</code> function this unit defines. An imported one keeps
-the run-time call to the unit that emits it.</li>
-<li>Every argument is a literal: a number, a character, a string, <code>nil</code>, or a
-literal template. An argument the compiler would have to compute first is
-not one, even when its value is fixed. <code>twice(7)</code> is answered;
-<code>twice(-7)</code>, <code>twice(BLUE)</code> for an enumerator <code>BLUE</code>, and
-<code>twice((int) sizeof(int))</code> are not, because a negation, a name and a cast
-are expressions rather than literals.</li>
-<li>Every argument already has its parameter’s declared type.</li>
-<li>The return type is <code>int</code> and the answer fits an <code>int</code>. An <code>int</code> literal
-spells itself, which is what makes the substitution possible.</li>
-</ul>
-<p>The same call with a local stays a call.</p>
-<pre class="shiki shiki-themes x2c-light x2c-dark x2c-code" style="--shiki-light:#24292e;--shiki-dark:#e9e5df;--shiki-light-bg:#fff;--shiki-dark-bg:#101011" tabindex="0"><code class="language-x2c no-highlight"><span class="line"><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">meta </span><span style="--shiki-light:#D73A49;--shiki-dark:#F0ADA1">static</span><span style="--shiki-light:#D73A49;--shiki-dark:#F0ADA1"> int</span><span style="--shiki-light:#6F42C1;--shiki-dark:#E9E5DF"> width</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">(</span><span style="--shiki-light:#007C8A;--shiki-dark:#29D3E2">String</span><span style="--shiki-light:#E36209;--shiki-dark:#E9E5DF"> text</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">) </span><span style="--shiki-light:#A626A4;--shiki-light-font-weight:bold;--shiki-dark:#FF4FD8;--shiki-dark-font-weight:bold">=&gt;</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF"> text.</span><span style="--shiki-light:#6F42C1;--shiki-dark:#E9E5DF">len</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">() </span><span style="--shiki-light:#D73A49;--shiki-dark:#E9E5DF">*</span><span style="--shiki-light:#005CC5;--shiki-dark:#A9C9F5"> 2</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">;</span>
+<h2 id="a-complete-example"><a class="header" href="#a-complete-example">A complete example</a></h2>
+<p>Two files. The first is a <code>.xmacro</code> holding the <code>meta</code> functions and the
+macros that call them. <code>shape_fields</code> asks the compiler what a struct holds.
+<code>shape_names</code> and <code>shape_reads</code> turn that answer into syntax.</p>
+<!-- ignore: shape.xmacro is the external file being illustrated -->
+<pre class="shiki shiki-themes x2c-light x2c-dark x2c-code" style="--shiki-light:#24292e;--shiki-dark:#e9e5df;--shiki-light-bg:#fff;--shiki-dark-bg:#101011" tabindex="0"><code class="language-x2c no-highlight ignore"><span class="line"><span style="--shiki-light:#6A737D;--shiki-dark:#8B857F">/* The named fields of a struct-typed expression, in declaration order. */</span>
+</span><span class="line"><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">meta </span><span style="--shiki-light:#D73A49;--shiki-dark:#F0ADA1">static</span><span style="--shiki-light:#007C8A;--shiki-dark:#29D3E2"> List</span><span style="--shiki-light:#6F42C1;--shiki-dark:#E9E5DF"> shape_fields</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">(</span><span style="--shiki-light:#007C8A;--shiki-dark:#29D3E2">List</span><span style="--shiki-light:#E36209;--shiki-dark:#E9E5DF"> receiver</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">) </span><span style="--shiki-light:#A626A4;--shiki-light-font-weight:bold;--shiki-dark:#FF4FD8;--shiki-dark-font-weight:bold">=&gt;</span>
+</span><span class="line"><span style="--shiki-light:#6F42C1;--shiki-dark:#E9E5DF">  x2c_type_fields</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">(</span><span style="--shiki-light:#6F42C1;--shiki-dark:#E9E5DF">x2c_syntax_type</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">(receiver));</span>
+</span><span class="line">
+</span><span class="line"><span style="--shiki-light:#6A737D;--shiki-dark:#8B857F">/* One `String` literal holding those field names, comma separated. */</span>
+</span><span class="line"><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">meta </span><span style="--shiki-light:#D73A49;--shiki-dark:#F0ADA1">static</span><span style="--shiki-light:#007C8A;--shiki-dark:#29D3E2"> List</span><span style="--shiki-light:#6F42C1;--shiki-dark:#E9E5DF"> shape_names</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">(</span><span style="--shiki-light:#007C8A;--shiki-dark:#29D3E2">List</span><span style="--shiki-light:#E36209;--shiki-dark:#E9E5DF"> receiver</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">) {</span>
+</span><span class="line"><span style="--shiki-light:#007C8A;--shiki-dark:#29D3E2">  Array</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF"> names </span><span style="--shiki-light:#D73A49;--shiki-dark:#E9E5DF">=</span><span style="--shiki-light:#D73A49;--shiki-dark:#F0ADA1"> []</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">;</span>
+</span><span class="line"><span style="--shiki-light:#A626A4;--shiki-light-font-weight:bold;--shiki-dark:#FF4FD8;--shiki-dark-font-weight:bold">  foreach</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF"> (</span><span style="--shiki-light:#007C8A;--shiki-dark:#29D3E2">List</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF"> field, </span><span style="--shiki-light:#6F42C1;--shiki-dark:#E9E5DF">shape_fields</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">(receiver)) names.</span><span style="--shiki-light:#6F42C1;--shiki-dark:#E9E5DF">push</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">(field.</span><span style="--shiki-light:#6F42C1;--shiki-dark:#E9E5DF">car</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">());</span>
+</span><span class="line"><span style="--shiki-light:#D73A49;--shiki-dark:#F0ADA1">  return</span><span style="--shiki-light:#6F42C1;--shiki-dark:#E9E5DF"> x2c_literal_string</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">(String.</span><span style="--shiki-light:#6F42C1;--shiki-dark:#E9E5DF">join</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">(</span><span style="--shiki-light:#032F62;--shiki-dark:#9EDFB8">", "</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">, names));</span>
+</span><span class="line"><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">}</span>
+</span><span class="line">
+</span><span class="line"><span style="--shiki-light:#6A737D;--shiki-dark:#8B857F">/* `{ p.x, p.y, p.z }`, built from the fields rather than written out. */</span>
+</span><span class="line"><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">meta </span><span style="--shiki-light:#D73A49;--shiki-dark:#F0ADA1">static</span><span style="--shiki-light:#007C8A;--shiki-dark:#29D3E2"> List</span><span style="--shiki-light:#6F42C1;--shiki-dark:#E9E5DF"> shape_reads</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">(</span><span style="--shiki-light:#007C8A;--shiki-dark:#29D3E2">List</span><span style="--shiki-light:#E36209;--shiki-dark:#E9E5DF"> receiver</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">) {</span>
+</span><span class="line"><span style="--shiki-light:#007C8A;--shiki-dark:#29D3E2">  Array</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF"> reads </span><span style="--shiki-light:#D73A49;--shiki-dark:#E9E5DF">=</span><span style="--shiki-light:#D73A49;--shiki-dark:#F0ADA1"> []</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">;</span>
+</span><span class="line"><span style="--shiki-light:#A626A4;--shiki-light-font-weight:bold;--shiki-dark:#FF4FD8;--shiki-dark-font-weight:bold">  foreach</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF"> (</span><span style="--shiki-light:#007C8A;--shiki-dark:#29D3E2">List</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF"> field, </span><span style="--shiki-light:#6F42C1;--shiki-dark:#E9E5DF">shape_fields</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">(receiver))</span>
+</span><span class="line"><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">    reads.</span><span style="--shiki-light:#6F42C1;--shiki-dark:#E9E5DF">push</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">(</span><span style="--shiki-light:#6F42C1;--shiki-dark:#E9E5DF">x2c_expr_field</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">(receiver, field.</span><span style="--shiki-light:#6F42C1;--shiki-dark:#E9E5DF">car</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">()));</span>
+</span><span class="line"><span style="--shiki-light:#D73A49;--shiki-dark:#F0ADA1">  return</span><span style="--shiki-light:#6F42C1;--shiki-dark:#E9E5DF"> x2c_expr_composite</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">(reads);</span>
+</span><span class="line"><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">}</span>
+</span><span class="line">
+</span><span class="line"><span style="--shiki-light:#A626A4;--shiki-light-font-weight:bold;--shiki-dark:#FF4FD8;--shiki-dark-font-weight:bold">macro</span><span style="--shiki-light:#A15C00;--shiki-light-font-style:italic;--shiki-dark:#FFB454;--shiki-dark-font-style:italic"> Expression</span><span style="--shiki-light:#24292E;--shiki-dark:#FF715A"> $</span><span style="--shiki-light:#6F42C1;--shiki-dark:#FF715A">shape.names</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">(</span><span style="--shiki-light:#A15C00;--shiki-light-font-style:italic;--shiki-dark:#FFB454;--shiki-dark-font-style:italic">Expr</span><span style="--shiki-light:#24292E;--shiki-dark:#FF715A"> $</span><span style="--shiki-light:#E36209;--shiki-dark:#E9E5DF">value</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">) </span><span style="--shiki-light:#A626A4;--shiki-light-font-weight:bold;--shiki-dark:#FF4FD8;--shiki-dark-font-weight:bold">=&gt;</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF"> (</span><span style="--shiki-light:#24292E;--shiki-dark:#FF715A">$(</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">shape_names </span><span style="--shiki-light:#24292E;--shiki-dark:#FF715A">$</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">value</span><span style="--shiki-light:#24292E;--shiki-dark:#FF715A">)</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">)</span>
+</span><span class="line">
+</span><span class="line"><span style="--shiki-light:#A626A4;--shiki-light-font-weight:bold;--shiki-dark:#FF4FD8;--shiki-dark-font-weight:bold">macro</span><span style="--shiki-light:#A15C00;--shiki-light-font-style:italic;--shiki-dark:#FFB454;--shiki-dark-font-style:italic"> Expression</span><span style="--shiki-light:#24292E;--shiki-dark:#FF715A"> $</span><span style="--shiki-light:#6F42C1;--shiki-dark:#FF715A">shape.reads</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">(</span><span style="--shiki-light:#A15C00;--shiki-light-font-style:italic;--shiki-dark:#FFB454;--shiki-dark-font-style:italic">Expr</span><span style="--shiki-light:#24292E;--shiki-dark:#FF715A"> $</span><span style="--shiki-light:#E36209;--shiki-dark:#E9E5DF">value</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">) </span><span style="--shiki-light:#A626A4;--shiki-light-font-weight:bold;--shiki-dark:#FF4FD8;--shiki-dark-font-weight:bold">=&gt;</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF"> (</span><span style="--shiki-light:#24292E;--shiki-dark:#FF715A">$(</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">shape_reads </span><span style="--shiki-light:#24292E;--shiki-dark:#FF715A">$</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">value</span><span style="--shiki-light:#24292E;--shiki-dark:#FF715A">)</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">)</span></span></code></pre>
+
+<p>The second file imports it and uses the macros.</p>
+<!-- ignore: this program imports the shape.xmacro file above -->
+<pre class="shiki shiki-themes x2c-light x2c-dark x2c-code" style="--shiki-light:#24292e;--shiki-dark:#e9e5df;--shiki-light-bg:#fff;--shiki-dark-bg:#101011" tabindex="0"><code class="language-x2c no-highlight ignore"><span class="line"><span style="--shiki-light:#D73A49;--shiki-dark:#F0ADA1">#include</span><span style="--shiki-light:#032F62;--shiki-dark:#9EDFB8"> "x2c.x"</span>
+</span><span class="line"><span style="--shiki-light:#D73A49;--shiki-dark:#F0ADA1">#include</span><span style="--shiki-light:#032F62;--shiki-dark:#9EDFB8"> "meta.x"</span>
+</span><span class="line">
+</span><span class="line"><span style="--shiki-light:#24292E;--shiki-dark:#FF715A">$(</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">import </span><span style="--shiki-light:#032F62;--shiki-dark:#9EDFB8">"shape.xmacro"</span><span style="--shiki-light:#24292E;--shiki-dark:#FF715A">)</span>
+</span><span class="line">
+</span><span class="line"><span style="--shiki-light:#D73A49;--shiki-dark:#E9E5DF">typedef</span><span style="--shiki-light:#D73A49;--shiki-dark:#F0ADA1"> struct</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF"> Point { </span><span style="--shiki-light:#D73A49;--shiki-dark:#F0ADA1">int</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF"> x, y, z; } Point;</span>
 </span><span class="line">
 </span><span class="line"><span style="--shiki-light:#D73A49;--shiki-dark:#F0ADA1">int</span><span style="--shiki-light:#6F42C1;--shiki-dark:#E9E5DF"> main</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">(</span><span style="--shiki-light:#D73A49;--shiki-dark:#F0ADA1">void</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">) {</span>
-</span><span class="line"><span style="--shiki-light:#007C8A;--shiki-dark:#29D3E2">  String</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF"> name </span><span style="--shiki-light:#D73A49;--shiki-dark:#E9E5DF">=</span><span style="--shiki-light:#032F62;--shiki-dark:#9EDFB8"> "abcd"</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">;</span>
-</span><span class="line"><span style="--shiki-light:#6F42C1;--shiki-dark:#E9E5DF">  printf</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">(</span><span style="--shiki-light:#032F62;--shiki-dark:#9EDFB8">"constant </span><span style="--shiki-light:#005CC5;--shiki-dark:#9EDFB8">%d\n</span><span style="--shiki-light:#032F62;--shiki-dark:#9EDFB8">"</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">, </span><span style="--shiki-light:#6F42C1;--shiki-dark:#E9E5DF">width</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">(</span><span style="--shiki-light:#032F62;--shiki-dark:#9EDFB8">"abcd"</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">));</span>
-</span><span class="line"><span style="--shiki-light:#6F42C1;--shiki-dark:#E9E5DF">  printf</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">(</span><span style="--shiki-light:#032F62;--shiki-dark:#9EDFB8">"local    </span><span style="--shiki-light:#005CC5;--shiki-dark:#9EDFB8">%d\n</span><span style="--shiki-light:#032F62;--shiki-dark:#9EDFB8">"</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">, </span><span style="--shiki-light:#6F42C1;--shiki-dark:#E9E5DF">width</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">(name));</span>
+</span><span class="line"><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">  Point p </span><span style="--shiki-light:#D73A49;--shiki-dark:#E9E5DF">=</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF"> { </span><span style="--shiki-light:#005CC5;--shiki-dark:#A9C9F5">2</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">, </span><span style="--shiki-light:#005CC5;--shiki-dark:#A9C9F5">3</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">, </span><span style="--shiki-light:#005CC5;--shiki-dark:#A9C9F5">4</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF"> };</span>
+</span><span class="line"><span style="--shiki-light:#D73A49;--shiki-dark:#F0ADA1">  int</span><span style="--shiki-light:#E36209;--shiki-dark:#E9E5DF"> reads</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">[</span><span style="--shiki-light:#005CC5;--shiki-dark:#A9C9F5">3</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">] </span><span style="--shiki-light:#D73A49;--shiki-dark:#E9E5DF">=</span><span style="--shiki-light:#24292E;--shiki-dark:#FF715A"> $</span><span style="--shiki-light:#6F42C1;--shiki-dark:#FF715A">shape.reads</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">(p);</span>
+</span><span class="line"><span style="--shiki-light:#6F42C1;--shiki-dark:#E9E5DF">  printf</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">(</span><span style="--shiki-light:#032F62;--shiki-dark:#9EDFB8">"names </span><span style="--shiki-light:#005CC5;--shiki-dark:#9EDFB8">%s\n</span><span style="--shiki-light:#032F62;--shiki-dark:#9EDFB8">"</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">, </span><span style="--shiki-light:#24292E;--shiki-dark:#FF715A">$</span><span style="--shiki-light:#6F42C1;--shiki-dark:#FF715A">shape.names</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">(p));</span>
+</span><span class="line"><span style="--shiki-light:#6F42C1;--shiki-dark:#E9E5DF">  printf</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">(</span><span style="--shiki-light:#032F62;--shiki-dark:#9EDFB8">"reads </span><span style="--shiki-light:#005CC5;--shiki-dark:#9EDFB8">%d</span><span style="--shiki-light:#005CC5;--shiki-dark:#9EDFB8"> %d</span><span style="--shiki-light:#005CC5;--shiki-dark:#9EDFB8"> %d\n</span><span style="--shiki-light:#032F62;--shiki-dark:#9EDFB8">"</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">, </span><span style="--shiki-light:#E36209;--shiki-dark:#E9E5DF">reads</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">[</span><span style="--shiki-light:#005CC5;--shiki-dark:#A9C9F5">0</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">], </span><span style="--shiki-light:#E36209;--shiki-dark:#E9E5DF">reads</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">[</span><span style="--shiki-light:#005CC5;--shiki-dark:#A9C9F5">1</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">], </span><span style="--shiki-light:#E36209;--shiki-dark:#E9E5DF">reads</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">[</span><span style="--shiki-light:#005CC5;--shiki-dark:#A9C9F5">2</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">]);</span>
 </span><span class="line"><span style="--shiki-light:#D73A49;--shiki-dark:#F0ADA1">  return</span><span style="--shiki-light:#005CC5;--shiki-dark:#A9C9F5"> 0</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">;</span>
 </span><span class="line"><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">}</span></span></code></pre>
 
-<pre><code class="language-text">constant 8
-local    8
+<pre><code class="language-text">names x, y, z
+reads 2 3 4
 </code></pre>
-<p>The generated C shows the difference:</p>
-<pre><code class="language-text">printf("constant %d\n", 8);
-printf("local    %d\n", width(name));
+<p>The field names never appear in the program. The compiler supplied them, and
+the <code>meta</code> functions built <code>"x, y, z"</code> and <code>{ p.x, p.y, p.z }</code> from them.</p>
+<h2 id="sharing-a-meta-function-between-units"><a class="header" href="#sharing-a-meta-function-between-units">Sharing a <code>meta</code> function between units</a></h2>
+<p>A <code>meta</code> function written in a <code>.x</code> file belongs to that unit. Including that
+file elsewhere shares its declaration, the way including any <code>.x</code> file does,
+and the declaration alone has no compile-time form: another unit can call it
+at run time, and cannot call it during translation.</p>
+<p>To share one, put it in a <code>.xmacro</code> that each unit imports. A <code>.xmacro</code> file
+may hold <code>meta</code> functions beside the macros that call them, and importing it
+installs their compile-time forms in the importing unit. The unit that imports
+the file includes <code>meta.x</code>, because a <code>.xmacro</code> borrows the consuming unit’s
+symbol table:</p>
+<pre><code class="language-text">#include "x2c.x"
+#include "meta.x"
+
+$(import "shape.xmacro")
 </code></pre>
-<p>This is an optimization. The answer is the same either way, so you do not
-need to arrange for it. A <code>String</code>, <code>List</code> or <code>Map</code> result keeps its call:
-the caller owns the value a call returns, and a literal carries no such
-ownership. A function reading file-scope state keeps its call too, because
-the compile-time form reads its own table.</p>
-<h2 id="what-a-meta-body-may-not-contain-today"><a class="header" href="#what-a-meta-body-may-not-contain-today">What a meta body may not contain today</a></h2>
-<p>The compiler translates the body into a compile-time form before it runs.
-Some constructs have no such form. The compiler reports this at the <code>meta</code>
-marker and names the reason. A body holding a struct or union gives:</p>
-<pre><code class="language-text">sample.x:3:1: macro: this function cannot run at compile time
-  meta static int mt_scan(int n) {
-  ^^^^
-  note: reason: a struct or union, which has no compile-time representation
-</code></pre>
-<p>The refusals a body is most likely to meet:</p>
-<div class="table-wrapper">
-<table>
-<thead>
-<tr><th>Construct</th><th>Reason in the diagnostic</th></tr>
-</thead>
-<tbody>
-<tr><td><code>goto</code></td><td><code>a goto has no lowering</code></td></tr>
-<tr><td><code>defer</code></td><td><code>defer, because a compile-time function does not free its values: the evaluator owns them</code></td></tr>
-<tr><td>a struct or union local, or a <code>.</code> field read</td><td><code>a struct or union, which has no compile-time representation</code></td></tr>
-<tr><td>a <code>switch</code> arm running into the next</td><td><code>a switch arm that falls through into the next</code></td></tr>
-<tr><td>a call with no compile-time binding</td><td><code>no binding for NAME</code></td></tr>
-</tbody>
-</table>
-</div>
-<p>A compile-time value is a Lisp value, so a struct would have to become a
-<code>Map</code> keyed by field name, which reads back as a reference where the source
-wrote a value. <code>defer</code> is refused because the evaluator owns every value a
-compile-time function makes, so freeing one would take it away. <code>goto</code> and
-a falling-through <code>switch</code> arm are refused because the compile-time form has
-no place to jump to.</p>
-<p>Ordinary control flow is carried: <code>if</code>, <code>while</code>, <code>for</code>, <code>do</code>, <code>switch</code> with
-<code>break</code> or <code>return</code> in each arm, <code>foreach</code>, <code>break</code>, <code>continue</code>, recursion,
-<code>match</code>, literal templates, lambdas and <code>Func</code> values with typed or bare
-parameters, <code>String</code>, <code>List</code>, <code>Array</code> and <code>Map</code> operations, and file-scope
-state.</p>
-<p>The last row covers the most common case. A call inside a <code>meta</code> body
-resolves against the compile-time library, and an operation with no binding
-there declines the whole function. A body calling <code>time</code> reports
-<code>reason: no binding for time</code>. Prefer the <code>String</code>, <code>List</code>, <code>Array</code> and
-<code>Map</code> operations the shipped macro files already use.</p>
-<h2 id="compile-time-arithmetic"><a class="header" href="#compile-time-arithmetic">Compile-time arithmetic</a></h2>
-<p>The two forms agree on arithmetic. Narrow and unsigned integer types wrap
-and compare the way the emitted C does, floating values truncate and compare
-the same way, and every conversion position the source writes converts in
-both forms. <code>unittest/compiler-fixtures/meta-differential.x</code> prints each
-answer twice, once from the compile-time form and once from the emitted
-function, and the fixture owns the expected output.</p>
+<p>Importing the same file twice contributes one copy of each definition. A
+<code>.xmacro</code> may import another <code>.xmacro</code>, and a <code>meta</code> function two levels
+down reaches the consuming unit the same way.</p>
+<p>The run-time forms are separate from this. A unit emits a definition only
+for the <code>meta</code> functions it calls at run time. The storage class says what
+it emits: <code>static</code> gives that unit its own copy, and a public name is the
+one copy the program links, exported by the reaching unit’s header.</p>
 <h2 id="names-the-compile-time-library-already-defines"><a class="header" href="#names-the-compile-time-library-already-defines">Names the compile-time library already defines</a></h2>
 <p>A unit’s compile-time session inherits the compiler’s own Lisp library and
 cannot replace one of its definitions. A macro file or a <code>$(...)</code> form that
