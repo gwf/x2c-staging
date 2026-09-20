@@ -39,7 +39,7 @@
             const path_to_root = "../";
             const default_light_theme = "light";
             const default_dark_theme = "light";
-            window.path_to_searchindex_js = "../searchindex-6206416b.js";
+            window.path_to_searchindex_js = "../searchindex-5b85bfeb.js";
         </script>
         <!-- Start loading toc.js asap -->
         <script src="../toc-2003ea86.js"></script>
@@ -1431,12 +1431,30 @@ a macro body. A construct with no compile-time form is diagnosed at the
 time, unless it reaches a compiler operation, directly or through another
 <code>meta</code> function. A function that reaches one has no runtime form and none is
 emitted for it.</li>
-<li>A call to it whose arguments are all compile-time constants may be replaced
-by the answer its compile-time form computes. The compiler folds only where
-the two forms agree; a function that returns an owned value such as a
-<code>String</code> keeps its call. A function that reaches file-scope state is refused,
-because the compile-time session cannot read the program’s variables.</li>
+<li>An ordinary call may be folded only for a locally installed eligible
+definition, literal arguments already matching the parameter types, and
+a declared <code>int</code> result fitting <code>int</code>. Other return types remain calls.
+This optimization is separate from explicit evaluation and result insertion.</li>
 </ul>
+<p>The compile-time subset cuts across C and <span class="x2c-wordmark">x2c</span> constructs. Local mutation,
+represented collections, local address-taking/dereference, and resolved
+method calls are supported; native aggregate field access and operations
+without compile-time bindings are not. A supported type does not expose all
+of its runtime methods. See the guide’s
+<a href="../guide/meta-functions.html#the-compile-time-subset">capability and operation inventory</a>.</p>
+<p>Meta functions may pass and return represented values such as wide integers,
+floating values, Strings and collections during compile-time execution.
+Explicit <code>$(...)</code> expression insertion currently accepts integers as <code>int</code>
+syntax, strings as quoted C string syntax, Symbols, identifiers and nonempty
+expression-syntax Lists. It does not directly insert floating values or
+arbitrary collection/callable values. This boundary does not limit internal
+returns to <code>int</code>; see
+<a href="../guide/meta-functions.html#results-compute-insert-or-fold">results</a>.</p>
+<p>Compile-time objects belong to the evaluator. Ordinary dual-form meta
+functions reject file-scope state because the program’s initializers and
+future mutable state are not available to them. Compiler-only functions
+reaching compiler operations are exempt from that rejection, but use
+separate per-unit compile-time state, not the program’s variables.</p>
 <p>A <code>meta</code> declaration in an imported <code>.xmacro</code> installs its compile-time form in
 every consuming unit. The runtime forms are independent: a unit emits a
 definition only for those it reaches, and the storage class written on the
@@ -2838,9 +2856,9 @@ callbacks, or <code>Context</code> regions.</p>
                         &copy; 2025&ndash;2026
                         <a href="https://flake.org">GWF</a>
                         &middot;
-                        <a href="https://github.com/gwf/x2c/blob/44fa25e30ed593683c7e4269d41af2b0bec47842/LICENSE">Apache 2.0</a>
+                        <a href="https://github.com/gwf/x2c/blob/231550b00962085f415b827a8f4d249b6da8a13d/LICENSE">Apache 2.0</a>
                         &middot;
-                        <a href="https://github.com/gwf/x2c/blob/44fa25e30ed593683c7e4269d41af2b0bec47842/TRADEMARKS.md">Trademarks</a>
+                        <a href="https://github.com/gwf/x2c/blob/231550b00962085f415b827a8f4d249b6da8a13d/TRADEMARKS.md">Trademarks</a>
                     </footer>
                 </div>
             </div>

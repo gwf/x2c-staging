@@ -39,7 +39,7 @@
             const path_to_root = "../";
             const default_light_theme = "light";
             const default_dark_theme = "light";
-            window.path_to_searchindex_js = "../searchindex-6206416b.js";
+            window.path_to_searchindex_js = "../searchindex-5b85bfeb.js";
         </script>
         <!-- Start loading toc.js asap -->
         <script src="../toc-2003ea86.js"></script>
@@ -219,6 +219,24 @@
                 <div id="mdbook-content" class="content">
                     <main>
                         <h1 id="meta-functions"><a class="header" href="#meta-functions">Meta Functions</a></h1>
+<p><span class="x2c-wordmark">x2c</span> extends C. The subset that a <code>meta</code> function can execute during
+compilation cuts across both C features and <span class="x2c-wordmark">x2c</span> additions: integer loops,
+local pointer indirection, collection literals and method calls can work;
+a native struct field or an otherwise ordinary library call can stop it.
+There are three separate questions:</p>
+<ol>
+<li><strong>Can the body execute?</strong> Its syntax and values need compile-time
+representations. This includes parameters, locals, mutation and returns.</li>
+<li><strong>Can each operation execute?</strong> Every resolved call needs a compile-time
+binding. Having a supported receiver type does not expose its entire API.</li>
+<li><strong>Can the answer become program syntax?</strong> Returning a value to another
+meta function, inserting it with <code>$(...)</code>, and folding an ordinary call
+have different limits.</li>
+</ol>
+<p><code>meta</code> is not a purity annotation. A body can mutate locals, arrays and
+maps, and pass local addresses to other meta functions. Its compile-time
+objects belong to the evaluator; they are not the objects the eventual
+program allocates.</p>
 <p>Start with an ordinary function. This one takes an integer and returns an
 integer, using the same braces, <code>return</code>, and arithmetic as C:</p>
 <pre class="shiki shiki-themes x2c-light x2c-dark x2c-code" style="--shiki-light:#24292e;--shiki-dark:#e9e5df;--shiki-light-bg:#fff;--shiki-dark-bg:#101011" tabindex="0"><code class="language-x2c no-highlight"><span class="line"><span style="--shiki-light:#D73A49;--shiki-dark:#F0ADA1">int</span><span style="--shiki-light:#6F42C1;--shiki-dark:#E9E5DF"> poly</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">(</span><span style="--shiki-light:#D73A49;--shiki-dark:#F0ADA1">int</span><span style="--shiki-light:#E36209;--shiki-dark:#E9E5DF"> n</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">) {</span>
@@ -294,8 +312,8 @@ local    71
 printf("local    %d\n", poly(n));
 </code></pre>
 <p>Here <code>poly(7)</code> becomes 71, while <code>poly(n)</code> remains a call. This automatic
-substitution is called folding. It is an optimization: you get the same
-answer either way. <code>$(poly 7)</code> explicitly requests compile-time evaluation;
+substitution is called folding. It is an optimization intended to preserve
+the runtime answer; the capability catalog below records current differences. <code>$(poly 7)</code> explicitly requests compile-time evaluation;
 <code>poly(7)</code> uses ordinary call syntax and leaves folding to the compiler.</p>
 <h2 id="use-x2c-conveniences"><a class="header" href="#use-x2c-conveniences">Use <span class="x2c-wordmark">x2c</span> conveniences</a></h2>
 <p>The body can also use familiar <span class="x2c-wordmark">x2c</span> conveniences. An expression-bodied
@@ -351,59 +369,259 @@ are expressions rather than literals.</li>
 <li>The return type is <code>int</code> and the answer fits an <code>int</code>. An <code>int</code> literal
 spells itself, which is what makes the substitution possible.</li>
 </ul>
-<p>This is an optimization. The answer is the same either way, so you do not
-need to arrange for it. A <code>String</code>, <code>List</code> or <code>Map</code> result keeps its call:
+<p>This is an optimization, so you do not need to arrange for it. Its
+equivalence depends on staying within the supported operation semantics;
+see the native-array narrowing and missing-value differences below. A <code>String</code>, <code>List</code> or <code>Map</code> result keeps its call:
 the caller owns the value a call returns, and a literal carries no such
-ownership. A <code>meta</code> body cannot read file-scope variables.
-Pass the values it needs as arguments instead.</p>
-<h2 id="what-a-meta-body-may-not-contain-today"><a class="header" href="#what-a-meta-body-may-not-contain-today">What a meta body may not contain today</a></h2>
-<p>The compiler translates the body into a compile-time form before it runs.
-Some constructs have no such form. The compiler reports this at the <code>meta</code>
-marker and names the reason. A body holding a struct or union gives:</p>
-<pre><code class="language-text">sample.x:3:1: macro: this function cannot run at compile time
-  meta static int mt_scan(int n) {
-  ^^^^
-  note: reason: a struct or union, which has no compile-time representation
-</code></pre>
-<p>The refusals a body is most likely to meet:</p>
+ownership. This restriction on folding does not restrict internal meta
+return types or forbid explicit computed-string insertion.</p>
+<h2 id="the-compile-time-subset"><a class="header" href="#the-compile-time-subset">The compile-time subset</a></h2>
+<p>The following tables separate supported values, available operations and
+current refusals. They catalog the implemented surface and known differences;
+untested combinations are identified explicitly rather than implied to work.</p>
+<h3 id="values-declarations-and-mutation"><a class="header" href="#values-declarations-and-mutation">Values, declarations and mutation</a></h3>
+<p>The table describes current support, not a promise that every C operation
+on a listed type works. The operation inventory below further limits calls.</p>
 <div class="table-wrapper">
 <table>
 <thead>
-<tr><th>Construct</th><th>Reason in the diagnostic</th></tr>
+<tr><th>Value or construct</th><th>Construction, parameters and returns</th><th>Reads and changes during compilation</th></tr>
 </thead>
 <tbody>
-<tr><td><code>goto</code></td><td><code>a goto has no lowering</code></td></tr>
-<tr><td><code>defer</code></td><td><code>defer, because a compile-time function does not free its values: the evaluator owns them</code></td></tr>
-<tr><td>a struct or union local, or a <code>.</code> field read</td><td><code>a struct or union, which has no compile-time representation</code></td></tr>
-<tr><td>a <code>switch</code> arm running into the next</td><td><code>a switch arm that falls through into the next</code></td></tr>
-<tr><td>a call with no compile-time binding</td><td><code>no binding for NAME</code></td></tr>
+<tr><td>Native integers, including <code>char</code>, narrow, unsigned and wide types</td><td>Numeric literals and typed locals; values can pass between meta functions and return from them. Width alone is not a prohibition.</td><td>Arithmetic, comparisons, casts, assignment and local compound updates. Literal spelling also matters: <code>10000000000</code> works in a tested wide calculation; <code>10000000000L</code> currently declines as an unreadable integer literal.</td></tr>
+<tr><td><code>float</code>, <code>double</code></td><td>Literals, locals, parameters and returns work, including <code>f</code>/<code>F</code> floating suffixes.</td><td>Arithmetic and scalar conversions work. Direct insertion of a floating result is a separate missing case.</td></tr>
+<tr><td><code>long double</code></td><td>A typed parameter/return and arithmetic via a <code>double</code> argument passed a focused probe; extended-precision parity is not established.</td><td>An <code>L</code>-suffixed floating literal such as <code>9.0L</code> currently declines. Treat this as limited coverage, not a full precision guarantee.</td></tr>
+<tr><td><code>void</code> return</td><td>A meta helper may return no value, including a helper writing through an out-parameter.</td><td>The call can run for its effect; this is distinct from a <code>Var</code> containing runtime <code>void</code>.</td></tr>
+<tr><td><code>String</code>, <code>Symbol</code></td><td>String/symbol literals, computed strings and interpolation; parameters and returns.</td><td>String indexing reads character codes. Bound string methods work; indexed string writes do not. Symbols have the small method surface listed below.</td></tr>
+<tr><td><code>List</code></td><td>Templates, braced/list-compatible initialization, conversion from <code>Array</code>; parameters and returns.</td><td>Index/association reads, traversal, matching and bound methods. No indexed assignment; build a new List instead. A returned data List is not automatically an expression.</td></tr>
+<tr><td><code>Array</code></td><td><code>[]</code>, <code>[a, b]</code>, <code>Array.new()</code>, conversion from <code>List</code>; parameters and returns.</td><td>Indexed reads/writes and the bound mutating methods. Contents can mix represented values and nest collections.</td></tr>
+<tr><td><code>Map</code></td><td><code>{}</code>, keyed literals, <code>Map.new()</code>; parameters and returns.</td><td>Keyed reads/writes and bound methods; represented collections and callable values can be stored inside it.</td></tr>
+<tr><td><code>Var</code></td><td>Boxes represented numbers, strings, symbols, collections and callable values.</td><td>Only the exposed operations below. Compile-time <code>void</code> and an empty List share a representation; do not use this distinction to control a meta calculation.</td></tr>
+<tr><td><code>Func</code></td><td>Lambdas with typed or bare parameters, captures and references to available functions; parameters and returns between meta functions.</td><td>Dynamic calls and storage in collections work. This does not expose arbitrary native function-pointer calls or unrepresented argument types.</td></tr>
+<tr><td>Local native arrays</td><td>A literal-sized one-dimensional array, such as <code>int a[3] = {1, 2};</code>, has compile-time storage. Omitted elements are filled with zero-like values.</td><td>Indexing and simple assignment work; passing the array to an indexed pointer parameter works in the tested case. This is represented storage, not a native byte buffer. See element/dimension limits below.</td></tr>
+<tr><td>Pointers to locals</td><td><code>int *p = &amp;n;</code>, copying that pointer and passing it to another meta function work.</td><td><code>*p</code> reads and <code>*p = value</code> writes the local. General pointer arithmetic, address-of an array element and native memory/layout access are not supplied by this cell representation.</td></tr>
+<tr><td>Native structs and unions</td><td>Native aggregate locals and native field access are rejected; a type name in a signature alone does not establish a usable value representation.</td><td>Dot <strong>methods</strong> resolve as calls and can work. Dot <strong>fields</strong> need native aggregate representation and do not. Compiler queries may inspect a struct’s type and build future field access syntax without reading a struct value.</td></tr>
+<tr><td><code>File</code>, buffers and other resource types</td><td>No general compile-time constructor/operation surface is installed for these types. A declaration or opaque type name alone does not make the resource usable.</td><td>For example, <code>File.open</code> has no binding. Use the compiler’s explicit text-embedding operation for source-dependent text.</td></tr>
 </tbody>
 </table>
 </div>
-<p>A compile-time value is a Lisp value, so a struct would have to become a
-<code>Map</code> keyed by field name, which reads back as a reference where the source
-wrote a value. <code>defer</code> is refused because the evaluator owns every value a
-compile-time function makes, so freeing one would take it away. <code>goto</code> and
-a falling-through <code>switch</code> arm are refused because the compile-time form has
-no place to jump to.</p>
-<p>Ordinary control flow is carried: <code>if</code>, <code>while</code>, <code>for</code>, <code>do</code>, <code>switch</code> with
-<code>break</code> or <code>return</code> in each arm, <code>foreach</code>, <code>break</code>, <code>continue</code>, recursion,
-<code>match</code>, literal templates, lambdas and <code>Func</code> values with typed or bare
-parameters, and <code>String</code>, <code>List</code>, <code>Array</code> and <code>Map</code> operations.
-File-scope variables are not available to a <code>meta</code> body; pass their values
-as parameters or keep the working state in locals.</p>
-<p>The last row covers the most common case. A call inside a <code>meta</code> body
-resolves against the compile-time library, and an operation with no binding
-there declines the whole function. A body calling <code>time</code> reports
-<code>reason: no binding for time</code>. Prefer the <code>String</code>, <code>List</code>, <code>Array</code> and
-<code>Map</code> operations the shipped macro files already use.</p>
-<h2 id="compile-time-arithmetic"><a class="header" href="#compile-time-arithmetic">Compile-time arithmetic</a></h2>
-<p>The two forms agree on arithmetic. Narrow and unsigned integer types wrap
-and compare the way the emitted C does, floating values truncate and compare
-the same way, and every conversion position the source writes converts in
-both forms. <code>unittest/compiler-fixtures/meta-differential.x</code> prints each
-answer twice, once from the compile-time form and once from the emitted
-function, and the fixture owns the expected output.</p>
+<p>Collections hold values, not arbitrary native memory. Nested collections keep
+references to their contained objects; mutating a shared <code>Array</code> or <code>Map</code>
+changes that object. Native aggregates do not become legal collection
+contents merely because the container itself is supported.</p>
+<p>Native array coverage is narrower than C’s array model. Integer arrays have
+fixture coverage; focused probes also cover <code>double</code> and <code>String</code> elements.
+A dimension such as <code>1 + 1</code> is rejected even though C can compute it, and a
+nested braced initializer for <code>int a[2][2]</code> is rejected. The implementation
+stores a local native array in a dynamic container, using its first declared
+dimension; this is not general multidimensional or native-layout support.
+Native-array initializer narrowing has a confirmed difference: with
+<code>unsigned char a[1] = { n }; return a[0];</code>, passing 257 produced 257 during
+compilation and 1 at run time. Convert the element explicitly before storing
+it when relying on narrowing; accepting the declaration does not establish
+C-equivalent initialization. This is an implementation gap. Other element
+types, array decay/alias combinations and every zero-initialization case
+remain coverage gaps.</p>
+<p>Even null pointers need care: a probe declaring <code>int *p = NULL</code> was rejected
+as reaching file-scope state. Do not extrapolate general null/address/cast
+support from the working local-address example below.</p>
+<p>These two functions demonstrate a supported address and a supported chain:</p>
+<pre class="shiki shiki-themes x2c-light x2c-dark x2c-code" style="--shiki-light:#24292e;--shiki-dark:#e9e5df;--shiki-light-bg:#fff;--shiki-dark-bg:#101011" tabindex="0"><code class="language-x2c no-highlight"><span class="line"><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">meta </span><span style="--shiki-light:#D73A49;--shiki-dark:#F0ADA1">static</span><span style="--shiki-light:#D73A49;--shiki-dark:#F0ADA1"> void</span><span style="--shiki-light:#6F42C1;--shiki-dark:#E9E5DF"> meta_set</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">(</span><span style="--shiki-light:#D73A49;--shiki-dark:#F0ADA1">int</span><span style="--shiki-light:#D73A49;--shiki-dark:#E9E5DF"> *</span><span style="--shiki-light:#E36209;--shiki-dark:#E9E5DF">out</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">) { </span><span style="--shiki-light:#D73A49;--shiki-dark:#E9E5DF">*</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">out </span><span style="--shiki-light:#D73A49;--shiki-dark:#E9E5DF">=</span><span style="--shiki-light:#005CC5;--shiki-dark:#A9C9F5"> 9</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">; }</span>
+</span><span class="line">
+</span><span class="line"><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">meta </span><span style="--shiki-light:#D73A49;--shiki-dark:#F0ADA1">static</span><span style="--shiki-light:#D73A49;--shiki-dark:#F0ADA1"> int</span><span style="--shiki-light:#6F42C1;--shiki-dark:#E9E5DF"> meta_address</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">(</span><span style="--shiki-light:#D73A49;--shiki-dark:#F0ADA1">void</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">) {</span>
+</span><span class="line"><span style="--shiki-light:#D73A49;--shiki-dark:#F0ADA1">  int</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF"> n </span><span style="--shiki-light:#D73A49;--shiki-dark:#E9E5DF">=</span><span style="--shiki-light:#005CC5;--shiki-dark:#A9C9F5"> 1</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">;</span>
+</span><span class="line"><span style="--shiki-light:#6F42C1;--shiki-dark:#E9E5DF">  meta_set</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">(</span><span style="--shiki-light:#D73A49;--shiki-dark:#E9E5DF">&amp;</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">n);</span>
+</span><span class="line"><span style="--shiki-light:#D73A49;--shiki-dark:#F0ADA1">  return</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF"> n;</span>
+</span><span class="line"><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">}</span>
+</span><span class="line">
+</span><span class="line"><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">meta </span><span style="--shiki-light:#D73A49;--shiki-dark:#F0ADA1">static</span><span style="--shiki-light:#D73A49;--shiki-dark:#F0ADA1"> int</span><span style="--shiki-light:#6F42C1;--shiki-dark:#E9E5DF"> meta_parts</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">(</span><span style="--shiki-light:#007C8A;--shiki-dark:#29D3E2">String</span><span style="--shiki-light:#E36209;--shiki-dark:#E9E5DF"> path</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">) </span><span style="--shiki-light:#A626A4;--shiki-light-font-weight:bold;--shiki-dark:#FF4FD8;--shiki-dark-font-weight:bold">=&gt;</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF"> path.</span><span style="--shiki-light:#6F42C1;--shiki-dark:#E9E5DF">split</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">(</span><span style="--shiki-light:#032F62;--shiki-dark:#9EDFB8">"."</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">).</span><span style="--shiki-light:#6F42C1;--shiki-dark:#E9E5DF">len</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">();</span>
+</span><span class="line">
+</span><span class="line"><span style="--shiki-light:#D73A49;--shiki-dark:#F0ADA1">int</span><span style="--shiki-light:#6F42C1;--shiki-dark:#E9E5DF"> main</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">(</span><span style="--shiki-light:#D73A49;--shiki-dark:#F0ADA1">void</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">) {</span>
+</span><span class="line"><span style="--shiki-light:#6F42C1;--shiki-dark:#E9E5DF">  printf</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">(</span><span style="--shiki-light:#032F62;--shiki-dark:#9EDFB8">"</span><span style="--shiki-light:#005CC5;--shiki-dark:#9EDFB8">%d</span><span style="--shiki-light:#005CC5;--shiki-dark:#9EDFB8"> %d\n</span><span style="--shiki-light:#032F62;--shiki-dark:#9EDFB8">"</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">, </span><span style="--shiki-light:#24292E;--shiki-dark:#FF715A">$(</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">meta_address</span><span style="--shiki-light:#24292E;--shiki-dark:#FF715A">)</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">, </span><span style="--shiki-light:#24292E;--shiki-dark:#FF715A">$(</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">meta_parts </span><span style="--shiki-light:#032F62;--shiki-dark:#9EDFB8">"a.b.c"</span><span style="--shiki-light:#24292E;--shiki-dark:#FF715A">)</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">);</span>
+</span><span class="line"><span style="--shiki-light:#D73A49;--shiki-dark:#F0ADA1">  return</span><span style="--shiki-light:#005CC5;--shiki-dark:#A9C9F5"> 0</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">;</span>
+</span><span class="line"><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">}</span></span></code></pre>
+
+<pre><code class="language-text">9 3
+</code></pre>
+<p>The chain calls <code>String.split</code>, then <code>List.len</code>. Neither dot reads a native
+struct field.</p>
+<h3 id="which-library-operations-are-available"><a class="header" href="#which-library-operations-are-available">Which library operations are available</a></h3>
+<p>A method uses its ordinary resolved call, so <code>text.len()</code> and
+<code>String.len(text)</code> reach the same operation. Chaining adds no separate
+restriction: every call in the chain must be available.</p>
+<p>The following is the shipped binding inventory for ordinary meta calls.
+Names in each row follow the type prefix, for example <code>Array.push</code>.
+It is an inventory of exposed operations, not evidence that every argument
+combination or callback has been tested. Consult the runtime module
+reference for signatures, then apply the compile-time qualifications here.</p>
+<div class="table-wrapper">
+<table>
+<thead>
+<tr><th>Type</th><th>Exposed operations</th></tr>
+</thead>
+<tbody>
+<tr><td><code>String</code></td><td><code>new</code>, <code>equal</code>, <code>getindex</code>, <code>len</code>, <code>add</code>, <code>lower</code>, <code>upper</code>, <code>find</code>, <code>contains</code>, <code>startswith</code>, <code>endswith</code>, <code>getslice</code>, <code>replace</code>, <code>join</code>, <code>split</code>, <code>split_lines</code>, <code>partition</code>, <code>rpartition</code>, <code>find_all</code>, <code>rfind</code>, <code>count</code>, <code>capitalize</code>, <code>repeat</code>, <code>remove_prefix</code>, <code>remove_suffix</code>, <code>escape</code>, <code>unescape</code>, <code>var</code></td></tr>
+<tr><td><code>List</code></td><td><code>len</code>, <code>reverse</code>, <code>index</code>, <code>getindex</code>, <code>last</code>, <code>assoc</code>, <code>get</code>, <code>array</code>, <code>sort</code>, <code>match</code>, <code>search</code>, <code>equal</code>, <code>contains</code>, <code>map</code>, <code>filter</code>, <code>try_next</code>, <code>var</code></td></tr>
+<tr><td><code>Array</code></td><td><code>new</code>, <code>len</code>, <code>push</code>, <code>getindex</code>, <code>setindex</code>, <code>list</code>, <code>join</code>, <code>find</code>, <code>contains</code>, <code>count</code>, <code>unshift</code>, <code>take_last</code>, <code>shift</code>, <code>remove</code>, <code>insert</code>, <code>try_next</code>, <code>var</code></td></tr>
+<tr><td><code>Map</code></td><td><code>new</code>, <code>len</code>, <code>get</code>, <code>getindex</code>, <code>setindex</code>, <code>contains</code>, <code>del</code>, <code>getdefault</code>, <code>setdefault</code>, <code>list</code>, <code>try_next</code>, <code>var</code></td></tr>
+<tr><td><code>Symbol</code></td><td><code>str</code>, <code>var</code></td></tr>
+<tr><td><code>Var</code></td><td><code>car</code>, <code>cdr</code>, <code>tag</code>, <code>parse</code>, <code>convert</code>, <code>integer</code>, <code>floating</code>, <code>is</code>, <code>equal</code>, <code>str</code>, <code>list</code>, <code>func</code>, <code>repr</code></td></tr>
+<tr><td><code>int</code>, <code>long</code>, <code>double</code></td><td><code>str</code>, <code>var</code></td></tr>
+<tr><td><code>Func</code></td><td><code>var</code>; direct dynamic calls have their own support</td></tr>
+</tbody>
+</table>
+</div>
+<p>For example, <code>String.strip</code>, <code>String.try_long</code>, <code>Map.keys</code>, <code>Map.try_get</code>,
+<code>Array.cleanup</code>, <code>Symbol.len</code> and <code>Var.kind</code> have no ordinary meta binding.
+The existence of an operation at run time, or even in the underlying
+compile-time library under another spelling, is not sufficient.
+The same rule applies to native C functions and optional packages.
+Other installed meta functions and the compiler operations declared in
+<code>meta.x</code> extend this surface; including a normal function declaration does
+not install its body for compile-time execution.</p>
+<p>The adapters normalize missing List/Array/Map lookups and removals to an
+empty List rather than runtime <code>void</code>. Keep calculations inside the defined
+bounds when they must agree with runtime code. The exact bindings and
+adapters live in <code>etc/comptime.xlisp</code>; supported body forms live in
+<code>src/comptime.x</code>.</p>
+<h3 id="control-flow-and-current-rejections"><a class="header" href="#control-flow-and-current-rejections">Control flow and current rejections</a></h3>
+<p><code>if</code>, conditional expressions, short-circuit boolean operations, <code>while</code>,
+<code>for</code>, <code>do</code>, <code>break</code>, <code>continue</code>, recursion, <code>foreach</code>, <code>match</code>, templates,
+lambdas and destructuring have compile-time support. A <code>switch</code> may share
+labels and its final arm may end normally; an earlier arm must not execute
+through to the next one. Recursive calculations remain subject to the
+compiler’s evaluation limits.</p>
+<p>Some combinations still decline: <code>switch</code> with a subject needing a temporary
+binding on a loop path; destructuring a source needing such a binding on a
+loop path; and taking the address of a destructured local. Match patterns
+must fold at lowering time, so a pattern interpolating a local value is not
+generally supported. These are binding/lowering gaps, not fundamental
+restrictions on loops, destructuring or pattern matching.</p>
+<p>Mutation is position-sensitive. <code>n++</code> as a statement is supported, but
+<code>return n++;</code> is not. <code>a[i] = a[i] + 1;</code> and <code>*p = *p + 1;</code> are supported
+shapes; <code>a[i] += 1;</code> and <code>(*p)++;</code> are not. An assignment used as an
+expression is not a general substitute for a statement.</p>
+<p>The table separates present restrictions from design assessment. “Gap”
+means feasible in principle, not scheduled or promised support.</p>
+<div class="table-wrapper">
+<table>
+<thead>
+<tr><th>Currently unsupported</th><th>What would be needed; fundamental or gap?</th></tr>
+</thead>
+<tbody>
+<tr><td><code>goto</code>, switch fallthrough</td><td><strong>Gap:</strong> control-flow lowering that preserves the transfer.</td></tr>
+<tr><td>Postfix expression values, compound updates to indexed/dereferenced places</td><td><strong>Gap:</strong> preserve the old result and evaluate the destination once.</td></tr>
+<tr><td>Computed native-array dimensions, general multidimensional arrays and missing element conversions</td><td><strong>Gap:</strong> extend the represented array shape and typed operations.</td></tr>
+<tr><td>Native struct values/fields</td><td><strong>Gap:</strong> a representation preserving value copying, identity where applicable, and field semantics. A Map alone would not preserve C value semantics.</td></tr>
+<tr><td>Unions, native layout and general pointers</td><td><strong>Representation gap:</strong> model storage, aliasing and layout. A pointer to an actual future runtime object cannot be dereferenced during compilation; that is a <strong>phase boundary</strong>. Symbolic addresses would be different from accessing that object now.</td></tr>
+<tr><td><code>defer</code></td><td><strong>Gap</strong> for deferred execution in general. Explicitly freeing evaluator-owned objects conflicts with the <strong>current ownership model</strong>; it is not an argument that all deferred actions are impossible.</td></tr>
+<tr><td><code>try</code>, <code>catch</code>, <code>finally</code>, <code>raise</code> in a meta body</td><td><strong>Gap:</strong> exception transfer and cleanup need compile-time modeling. Evaluation failures can still become compiler diagnostics.</td></tr>
+<tr><td>Missing library/resource operations, including <code>File.open</code></td><td><strong>API gap:</strong> implement bindings and appropriate resource lifetimes. Compile-time file I/O is possible in principle; it is not prohibited by the phase boundary.</td></tr>
+<tr><td>Loop-path temporary bindings, address-taken destructured locals, nonfolded match patterns</td><td><strong>Gap:</strong> preserve required bindings and support pattern evaluation at the appropriate time.</td></tr>
+<tr><td>Native <code>sizeof</code> expressions</td><td><strong>Gap:</strong> provide the compile-time value of the queried layout; <code>sizeof(int)</code> currently declines as an unsupported expression.</td></tr>
+<tr><td>Integer <code>L</code> and floating <code>L</code> literal suffixes tested above</td><td><strong>Gap:</strong> read these literal spellings with the appropriate type and precision.</td></tr>
+<tr><td>Named enum values</td><td><strong>Gap:</strong> make the enumerator’s numeric value available to the lowerer.</td></tr>
+<tr><td>Reading future runtime mutable state</td><td><strong>Fundamental phase boundary:</strong> that program state does not exist yet. Separate compile-time state is possible but is not the same state.</td></tr>
+<tr><td>Floating/other representable result insertion; folding beyond <code>int</code></td><td><strong>Gap:</strong> construct correctly typed program constants and preserve value/ownership semantics. See the next section.</td></tr>
+</tbody>
+</table>
+</div>
+<p>For example, these are intentionally rejected definitions:</p>
+<!-- ignore: native field access is unsupported in a meta body -->
+<pre class="shiki shiki-themes x2c-light x2c-dark x2c-code" style="--shiki-light:#24292e;--shiki-dark:#e9e5df;--shiki-light-bg:#fff;--shiki-dark-bg:#101011" tabindex="0"><code class="language-x2c no-highlight ignore"><span class="line"><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">meta </span><span style="--shiki-light:#D73A49;--shiki-dark:#F0ADA1">int</span><span style="--shiki-light:#6F42C1;--shiki-dark:#E9E5DF"> meta_field</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">(</span><span style="--shiki-light:#D73A49;--shiki-dark:#F0ADA1">void</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">) {</span>
+</span><span class="line"><span style="--shiki-light:#D73A49;--shiki-dark:#F0ADA1">  struct</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF"> { </span><span style="--shiki-light:#D73A49;--shiki-dark:#F0ADA1">int</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF"> x; } value </span><span style="--shiki-light:#D73A49;--shiki-dark:#E9E5DF">=</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF"> { </span><span style="--shiki-light:#005CC5;--shiki-dark:#A9C9F5">1</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF"> };</span>
+</span><span class="line"><span style="--shiki-light:#D73A49;--shiki-dark:#F0ADA1">  return</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF"> value.x;</span>
+</span><span class="line"><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">}</span></span></code></pre>
+
+<!-- ignore: compound update of an indexed destination is unsupported -->
+<pre class="shiki shiki-themes x2c-light x2c-dark x2c-code" style="--shiki-light:#24292e;--shiki-dark:#e9e5df;--shiki-light-bg:#fff;--shiki-dark-bg:#101011" tabindex="0"><code class="language-x2c no-highlight ignore"><span class="line"><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">meta </span><span style="--shiki-light:#D73A49;--shiki-dark:#F0ADA1">int</span><span style="--shiki-light:#6F42C1;--shiki-dark:#E9E5DF"> meta_update</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">(</span><span style="--shiki-light:#D73A49;--shiki-dark:#F0ADA1">void</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">) {</span>
+</span><span class="line"><span style="--shiki-light:#D73A49;--shiki-dark:#F0ADA1">  int</span><span style="--shiki-light:#E36209;--shiki-dark:#E9E5DF"> values</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">[</span><span style="--shiki-light:#005CC5;--shiki-dark:#A9C9F5">2</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">] </span><span style="--shiki-light:#D73A49;--shiki-dark:#E9E5DF">=</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF"> { </span><span style="--shiki-light:#005CC5;--shiki-dark:#A9C9F5">1</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">, </span><span style="--shiki-light:#005CC5;--shiki-dark:#A9C9F5">2</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF"> };</span>
+</span><span class="line"><span style="--shiki-light:#E36209;--shiki-dark:#E9E5DF">  values</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">[</span><span style="--shiki-light:#005CC5;--shiki-dark:#A9C9F5">0</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">] </span><span style="--shiki-light:#D73A49;--shiki-dark:#E9E5DF">+=</span><span style="--shiki-light:#005CC5;--shiki-dark:#A9C9F5"> 1</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">;</span>
+</span><span class="line"><span style="--shiki-light:#D73A49;--shiki-dark:#F0ADA1">  return</span><span style="--shiki-light:#E36209;--shiki-dark:#E9E5DF"> values</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">[</span><span style="--shiki-light:#005CC5;--shiki-dark:#A9C9F5">0</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">];</span>
+</span><span class="line"><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">}</span></span></code></pre>
+
+<p>Their diagnostic reasons are respectively <code>a struct or union, which has no compile-time representation</code> and <code>update of a computed place</code>.
+The compiler checks the body when installing the meta definition, so an
+unused function or an untaken branch does not hide an unsupported construct.</p>
+<h3 id="lifetime-and-state"><a class="header" href="#lifetime-and-state">Lifetime and state</a></h3>
+<p>Compile-time allocations belong to the evaluator session. Do not free,
+close, or otherwise take over evaluator-owned objects: the ordinary resource
+cleanup API is not available, and <code>defer</code> is rejected. A returned collection
+can be consumed by another meta function while the session is alive; it does
+not become a pointer to the eventual program’s heap. A local address is useful
+within the calculation, not a portable constant address to embed in C.</p>
+<p>The emitted runtime function still follows the runtime’s ownership rules.
+Evaluator cleanup does not add cleanup to that function. In particular,
+allocating scratch collections in a dual-form body does not by itself prove
+that repeated runtime calls have the desired lifetime behavior.</p>
+<p>Ordinary dual-form meta functions cannot reach file-scope variables, directly
+or through another function. Pass values as arguments or use locals. There is
+an implementation exception for compiler-only functions that reach compiler
+operations: their state uses a separate per-unit compile-time table, without
+running the program’s file-scope initializers. This does not grant access to
+future runtime state or establish a general shared-global contract.</p>
+<h2 id="results-compute-insert-or-fold"><a class="header" href="#results-compute-insert-or-fold">Results: compute, insert, or fold</a></h2>
+<p>A meta function can return more than <code>int</code>. Computation and return between
+meta functions can preserve floating, wide numeric, collection and callable
+values. The expression insertion boundary is narrower:</p>
+<div class="table-wrapper">
+<table>
+<thead>
+<tr><th>Result</th><th>Explicit <code>$(...)</code> expression insertion</th><th>Automatic ordinary-call folding</th></tr>
+</thead>
+<tbody>
+<tr><td>Integer value, including a computed character code</td><td>Accepted as <code>int</code> expression syntax; the function’s exact original scalar type is not preserved by this path. Do not infer correct typed-wide insertion from wide internal arithmetic.</td><td>Only declared <code>int</code> results fitting <code>int</code>, under the conditions above.</td></tr>
+<tr><td><code>float</code>, <code>double</code></td><td>No floating-result insertion branch today; direct insertion is diagnosed.</td><td>Keeps the call.</td></tr>
+<tr><td>Computed string</td><td>Accepted as quoted C string literal syntax. Existing computed-string support is independent of numeric insertion gaps.</td><td>Keeps the call, preserving runtime result ownership.</td></tr>
+<tr><td><code>Symbol</code></td><td>Accepted as Symbol literal syntax.</td><td>Keeps the call.</td></tr>
+<tr><td>Identifier or nonempty syntax <code>List</code></td><td>Bound as identifier/expression syntax, subject to normal compiler binding and typing. An arbitrary data List is not an expression.</td><td>Keeps the call.</td></tr>
+<tr><td><code>Array</code>, <code>Map</code>, <code>Func</code>, empty List or arbitrary native address</td><td>No direct value-to-expression insertion. Build appropriate program syntax when that expresses the intended result.</td><td>Keeps the call.</td></tr>
+</tbody>
+</table>
+</div>
+<p>Here <code>meta_half</code> returns a <code>double</code> to another meta function, which converts
+it to an <code>int</code> before insertion. The second result is a computed string:</p>
+<pre class="shiki shiki-themes x2c-light x2c-dark x2c-code" style="--shiki-light:#24292e;--shiki-dark:#e9e5df;--shiki-light-bg:#fff;--shiki-dark-bg:#101011" tabindex="0"><code class="language-x2c no-highlight"><span class="line"><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">meta </span><span style="--shiki-light:#D73A49;--shiki-dark:#F0ADA1">static</span><span style="--shiki-light:#D73A49;--shiki-dark:#F0ADA1"> double</span><span style="--shiki-light:#6F42C1;--shiki-dark:#E9E5DF"> meta_half</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">(</span><span style="--shiki-light:#D73A49;--shiki-dark:#F0ADA1">double</span><span style="--shiki-light:#E36209;--shiki-dark:#E9E5DF"> n</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">) </span><span style="--shiki-light:#A626A4;--shiki-light-font-weight:bold;--shiki-dark:#FF4FD8;--shiki-dark-font-weight:bold">=&gt;</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF"> n </span><span style="--shiki-light:#D73A49;--shiki-dark:#E9E5DF">/</span><span style="--shiki-light:#005CC5;--shiki-dark:#A9C9F5"> 2.0</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">;</span>
+</span><span class="line"><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">meta </span><span style="--shiki-light:#D73A49;--shiki-dark:#F0ADA1">static</span><span style="--shiki-light:#D73A49;--shiki-dark:#F0ADA1"> int</span><span style="--shiki-light:#6F42C1;--shiki-dark:#E9E5DF"> meta_whole</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">(</span><span style="--shiki-light:#D73A49;--shiki-dark:#F0ADA1">void</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">) </span><span style="--shiki-light:#A626A4;--shiki-light-font-weight:bold;--shiki-dark:#FF4FD8;--shiki-dark-font-weight:bold">=&gt;</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF"> (</span><span style="--shiki-light:#D73A49;--shiki-dark:#F0ADA1">int</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">) </span><span style="--shiki-light:#6F42C1;--shiki-dark:#E9E5DF">meta_half</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">(</span><span style="--shiki-light:#005CC5;--shiki-dark:#A9C9F5">9.0</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">);</span>
+</span><span class="line"><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">meta </span><span style="--shiki-light:#D73A49;--shiki-dark:#F0ADA1">static</span><span style="--shiki-light:#007C8A;--shiki-dark:#29D3E2"> String</span><span style="--shiki-light:#6F42C1;--shiki-dark:#E9E5DF"> meta_label</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">(</span><span style="--shiki-light:#007C8A;--shiki-dark:#29D3E2">String</span><span style="--shiki-light:#E36209;--shiki-dark:#E9E5DF"> stem</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">) </span><span style="--shiki-light:#A626A4;--shiki-light-font-weight:bold;--shiki-dark:#FF4FD8;--shiki-dark-font-weight:bold">=&gt;</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF"> stem.</span><span style="--shiki-light:#6F42C1;--shiki-dark:#E9E5DF">upper</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">() </span><span style="--shiki-light:#D73A49;--shiki-dark:#E9E5DF">+</span><span style="--shiki-light:#032F62;--shiki-dark:#9EDFB8"> "!"</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">;</span>
+</span><span class="line">
+</span><span class="line"><span style="--shiki-light:#D73A49;--shiki-dark:#F0ADA1">int</span><span style="--shiki-light:#6F42C1;--shiki-dark:#E9E5DF"> main</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">(</span><span style="--shiki-light:#D73A49;--shiki-dark:#F0ADA1">void</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">) {</span>
+</span><span class="line"><span style="--shiki-light:#6F42C1;--shiki-dark:#E9E5DF">  printf</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">(</span><span style="--shiki-light:#032F62;--shiki-dark:#9EDFB8">"</span><span style="--shiki-light:#005CC5;--shiki-dark:#9EDFB8">%d</span><span style="--shiki-light:#005CC5;--shiki-dark:#9EDFB8"> %s\n</span><span style="--shiki-light:#032F62;--shiki-dark:#9EDFB8">"</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">, </span><span style="--shiki-light:#24292E;--shiki-dark:#FF715A">$(</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">meta_whole</span><span style="--shiki-light:#24292E;--shiki-dark:#FF715A">)</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">, </span><span style="--shiki-light:#24292E;--shiki-dark:#FF715A">$(</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">meta_label </span><span style="--shiki-light:#032F62;--shiki-dark:#9EDFB8">"ready"</span><span style="--shiki-light:#24292E;--shiki-dark:#FF715A">)</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">);</span>
+</span><span class="line"><span style="--shiki-light:#D73A49;--shiki-dark:#F0ADA1">  return</span><span style="--shiki-light:#005CC5;--shiki-dark:#A9C9F5"> 0</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">;</span>
+</span><span class="line"><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">}</span></span></code></pre>
+
+<pre><code class="language-text">4 READY!
+</code></pre>
+<p>Replacing <code>$(meta_whole)</code> with <code>$(meta_half 9.0)</code> is rejected with
+<code>compile-time Lisp result cannot fill an expression slot</code>. The calculation
+succeeded; inserting the floating answer is the missing operation.</p>
+<p>The broader design possibility is to insert any legal result that can be
+represented as a correctly typed program constant, including numeric,
+character, string and other representable results. This is not current
+support or a settled conversion design. It does not imply serializing
+arbitrary evaluator objects, and it must preserve computed strings already
+supported today.</p>
+<h2 id="compile-time-arithmetic-and-evidence"><a class="header" href="#compile-time-arithmetic-and-evidence">Compile-time arithmetic and evidence</a></h2>
+<p>Native scalar conversions are applied at typed declarations, assignments,
+casts, arguments between meta functions and returns. Array/List and
+Symbol/String conversions also have explicit support. This does not make
+all casts meaningful: reinterpreting a native address still needs a native
+storage representation.</p>
+<p>The <code>meta-differential</code> compiler fixture checks selected narrow/unsigned
+arithmetic, wide intermediate values, floating operations and conversions
+against runtime calls. The <code>comptime-lowering</code>, <code>meta-import</code> and
+<code>meta-cursors</code> fixtures cover collections, callable values, local addresses,
+method chaining and iteration. They do not prove every operation/type
+combination equivalent. Focused probes for this chapter additionally covered
+nested Array/Map contents, pointer out-parameters, <code>double</code>/<code>String</code> native
+array elements, wide and floating internal returns, and the rejected shapes
+shown above. Native-array initializer narrowing is a confirmed mismatch, not
+merely an untested case. Other native-array conversions, extended-precision parity,
+general pointer behavior, all callback signatures and resource lifetimes
+remain unverified. An <code>_Alignof(int)</code> probe failed during ordinary parsing,
+before meta lowering; that does not establish a meta-specific restriction.
+This catalog covers the installed operation surface and identified lowering
+boundaries, not an exhaustive proof of every combination of C and <span class="x2c-wordmark">x2c</span> syntax.</p>
 <h2 id="from-values-to-syntax"><a class="header" href="#from-values-to-syntax">From values to syntax</a></h2>
 <p>So far we have passed values in and calculated values out. A macro works
 with something different: the syntax of the program being compiled. A
@@ -659,9 +877,9 @@ calls itself by name must be a <code>defun</code>:</p>
                         &copy; 2025&ndash;2026
                         <a href="https://flake.org">GWF</a>
                         &middot;
-                        <a href="https://github.com/gwf/x2c/blob/44fa25e30ed593683c7e4269d41af2b0bec47842/LICENSE">Apache 2.0</a>
+                        <a href="https://github.com/gwf/x2c/blob/231550b00962085f415b827a8f4d249b6da8a13d/LICENSE">Apache 2.0</a>
                         &middot;
-                        <a href="https://github.com/gwf/x2c/blob/44fa25e30ed593683c7e4269d41af2b0bec47842/TRADEMARKS.md">Trademarks</a>
+                        <a href="https://github.com/gwf/x2c/blob/231550b00962085f415b827a8f4d249b6da8a13d/TRADEMARKS.md">Trademarks</a>
                     </footer>
                 </div>
             </div>
