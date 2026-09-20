@@ -39,10 +39,10 @@
             const path_to_root = "../";
             const default_light_theme = "light";
             const default_dark_theme = "light";
-            window.path_to_searchindex_js = "../searchindex-2643e100.js";
+            window.path_to_searchindex_js = "../searchindex-6dd2704e.js";
         </script>
         <!-- Start loading toc.js asap -->
-        <script src="../toc-a71616d6.js"></script>
+        <script src="../toc-2003ea86.js"></script>
         <!-- x2c publication metadata -->
         <link rel="canonical" href="https://staging.x2c-lang.dev/docs/reference/language.html">
         <meta property="og:type" content="website">
@@ -57,7 +57,7 @@
         <meta name="twitter:description" content="The x2c language, standard library, and compiler.">
         <meta name="twitter:image" content="https://staging.x2c-lang.dev/x2c-social.png">
     </head>
-    <body><aside aria-label="Release candidate" style="padding:1rem;background:#fff1bf;color:#241c00;font:14px/1.5 monospace;overflow-wrap:anywhere"><strong>Public staging: candidate-c2a89d999e81f47a4422a26edf0033eb0b98c6c6-35470032964-1</strong><p>Source: c2a89d999e81f47a4422a26edf0033eb0b98c6c6. Use a fresh scratch installation and the explicit candidate index below. Bare x2c install commands and production URLs in the book refer to production.</p><pre style="overflow:auto">export X2C_PREFIX=&quot;$(mktemp -d)/x2c&quot;
+    <body><aside aria-label="Release candidate" style="padding:1rem;background:#fff1bf;color:#241c00;font:14px/1.5 monospace;overflow-wrap:anywhere"><strong>Public staging: candidate-44fa25e30ed593683c7e4269d41af2b0bec47842-35510273856-1</strong><p>Source: 44fa25e30ed593683c7e4269d41af2b0bec47842. Use a fresh scratch installation and the explicit candidate index below. Bare x2c install commands and production URLs in the book refer to production.</p><pre style="overflow:auto">export X2C_PREFIX=&quot;$(mktemp -d)/x2c&quot;
 curl -fsSL https://staging.x2c-lang.dev/install.sh | sh
 export PATH=&quot;$X2C_PREFIX/bin:$PATH&quot;
 x2c run &quot;$X2C_PREFIX/examples/foreach.x&quot;
@@ -1221,6 +1221,31 @@ files may contain macro definitions and top-level Lisp forms. Import paths are
 relative to the importing file, canonicalized, loaded once, and checked for
 cycles. Direct Lisp file operations remain available but are not tracked as
 compiler dependencies.</p>
+<p>A free name in a lambda or macro body reads the definitions the body was
+written next to, and then the session’s globals. The environment the call was
+written in is not part of that chain, so a caller that binds the same name
+changes nothing about what the body reads. A lambda written inside a binding
+form reads that form’s bindings and keeps the values it was made with. A macro
+that needs a value from its caller takes it as an argument.</p>
+<p>A <code>let</code> binding is not visible inside its own initializer. A lambda a <code>let</code>
+binds therefore cannot call itself by that name, and the self-call reports
+<code>(unbound (name h))</code>. Write such a helper as a <code>defun</code>.</p>
+<pre><code class="language-text">(let ((h (lambda (n) (h n)))) (h 3))   error: (unbound (name h))
+(defun h (n) (h n))                    reads its own name
+</code></pre>
+<p>The session that translates a unit inherits the compile-time library and
+cannot replace one of its definitions. <code>def</code> on an inherited name raises
+<code>(bad-state (operation "def") (why "inherited") (name NAME))</code>, which the
+compiler reports as a failed compile-time evaluation at the defining form.
+This covers <code>defun</code> and <code>defmacro</code>, which are <code>def</code>. The library defines
+many ordinary words, including <code>filter</code>, <code>last</code>, <code>map</code>, <code>search</code>, <code>len</code> and
+<code>apply</code>, so a macro file needs its own names for its own definitions. A
+unit’s own definitions live in its own session, so one unit never changes
+what another reads, and the compiler treats an inherited binding as final.</p>
+<p><code>eval</code> is an ordinary procedure. The form it is given is evaluated in the
+session’s globals, not in the bindings around the call, so
+<code>(let ((z 7)) (eval (quote (add z 1))))</code> reports <code>(unbound (name z))</code>. Build
+the form with the value in it when a local has to reach <code>eval</code>.</p>
 <p>Compile-time Lisp is trusted code. It runs with the compiler user’s authority,
 including the existing native bindings and file operations; there is no
 sandbox. Lisp may also construct canonical AST <code>List</code>s directly, including
@@ -1388,6 +1413,66 @@ comma-separated initializer. Compose a call to an existing spelling with
 <code>x2c.expr.call</code>, <code>x2c.expr.ident</code>, and <code>x2c.ident</code>.</p>
 <p>Names under <code>x2c.*</code> or <code>_x2c.*</code> with a component beginning <code>_</code> are private
 implementation details.</p>
+<h3 id="meta-functions"><a class="header" href="#meta-functions"><code>meta</code> functions</a></h3>
+<p>A function definition may be marked <code>meta</code>. The marker precedes the whole
+declaration, ahead of any storage class:</p>
+<pre><code class="language-text">meta int poly(int n) =&gt; n * n + 3 * n + 1;
+meta static String label(String stem, int n) =&gt; %"$stem-$n";
+</code></pre>
+<p><code>meta</code> is contextual. It marks a function only when a function definition
+follows it, and is an ordinary identifier everywhere else, including as a
+file-scope name, an assignment target, and a struct field. A <code>meta</code>
+declaration without a body is diagnosed, because the compiler has nothing to
+run. <code>meta</code> marks a definition only.</p>
+<p>Marking a function <code>meta</code> has three consequences.</p>
+<ul>
+<li>The compiler translates the body into a compile-time form and installs it in
+the translation unit’s macro session. It is then callable during translation,
+by <code>$(name args)</code> from an <span class="x2c-wordmark">x2c</span> body and as an ordinary call from Lisp or from
+a macro body. A construct with no compile-time form is diagnosed at the
+<code>meta</code> marker, with the reason.</li>
+<li>The function is also emitted as C and behaves as an ordinary function at run
+time, unless it reaches a compiler operation, directly or through another
+<code>meta</code> function. A function that reaches one has no runtime form and none is
+emitted for it.</li>
+<li>A call to it whose arguments are all compile-time constants may be replaced
+by the answer its compile-time form computes. The compiler folds only where
+the two forms agree; a function that returns an owned value such as a
+<code>String</code> keeps its call. A function that reaches file-scope state is refused,
+because the compile-time session cannot read the program’s variables.</li>
+</ul>
+<p>A <code>meta</code> declaration in an imported <code>.xmacro</code> installs its compile-time form in
+every consuming unit. The runtime forms are independent: a unit emits a
+definition only for those it reaches, and the storage class written on the
+declaration says what it emits. Importing the same file twice contributes one
+copy of each definition.</p>
+<p>See <a href="../guide/meta-functions.html">Meta Functions</a> for the authoring guide.</p>
+<h3 id="the-same-operations-from-x2c"><a class="header" href="#the-same-operations-from-x2c">The same operations from <span class="x2c-wordmark">x2c</span></a></h3>
+<p>Every public operation above is also declared in <span class="x2c-wordmark">x2c</span>, in the optional module
+<code>lib/meta.x</code>, so a <code>meta</code> function that includes it calls the compiler
+directly and a macro’s implementation does not have to be written in Lisp. The
+declarations are the signatures; the semantics are the ones described above.</p>
+<p>The name is mechanical: each <code>.</code> becomes <code>_</code>. <code>x2c.type.fields</code> is
+<code>x2c_type_fields</code>, <code>x2c.invocation.line</code> is <code>x2c_invocation_line</code>, <code>x2c.ident</code>
+is <code>x2c_ident</code>. Two answers differ in shape because <span class="x2c-wordmark">x2c</span> has no spelling for
+the Lisp one:</p>
+<ul>
+<li><code>x2c_expr_call(List callee, List arguments)</code> takes its arguments as one
+<code>List</code> rather than as a rest parameter.</li>
+<li><code>x2c_type_value(List value)</code> returns <code>int</code>, 1 or 0, rather than a Lisp
+truth value.</li>
+</ul>
+<p><code>x2c.comptime.lower</code> has no <span class="x2c-wordmark">x2c</span> spelling, because it runs the pass that
+translates the calling function.</p>
+<p>The syntax builders have <code>meta</code> bodies in <code>lib/meta.x</code>, shared by both
+spellings. The literal builders, identifier, index, call and composite
+builders, function-body reader and parameter-argument builder also run at
+runtime. The field and cast builders call compiler queries.</p>
+<p>Operations declared without bodies exist only inside a compiler. A <code>meta</code>
+function that reaches one, directly or through another <code>meta</code> function, has
+no runtime form and none is emitted for it; the compiler derives this and needs no spelling for it. A call to one
+from a run-time body is diagnosed where it is written, naming the function and
+the reason.</p>
 <p>Compiler facilities load before author imports, and macro code cannot redefine
 them.</p>
 <p>Standard Lisp exposes the <code>List</code> matcher of <a href="../guide/match.html">Pattern
@@ -2757,9 +2842,9 @@ callbacks, or <code>Context</code> regions.</p>
                         &copy; 2025&ndash;2026
                         <a href="https://flake.org">GWF</a>
                         &middot;
-                        <a href="https://github.com/gwf/x2c/blob/c2a89d999e81f47a4422a26edf0033eb0b98c6c6/LICENSE">Apache 2.0</a>
+                        <a href="https://github.com/gwf/x2c/blob/44fa25e30ed593683c7e4269d41af2b0bec47842/LICENSE">Apache 2.0</a>
                         &middot;
-                        <a href="https://github.com/gwf/x2c/blob/c2a89d999e81f47a4422a26edf0033eb0b98c6c6/TRADEMARKS.md">Trademarks</a>
+                        <a href="https://github.com/gwf/x2c/blob/44fa25e30ed593683c7e4269d41af2b0bec47842/TRADEMARKS.md">Trademarks</a>
                     </footer>
                 </div>
             </div>

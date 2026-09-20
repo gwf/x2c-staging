@@ -2332,6 +2332,37 @@ relative to the importing file, canonicalized, loaded once, and checked for
 cycles. Direct Lisp file operations remain available but are not tracked as
 compiler dependencies.
 
+A free name in a lambda or macro body reads the definitions the body was
+written next to, and then the session's globals. The environment the call was
+written in is not part of that chain, so a caller that binds the same name
+changes nothing about what the body reads. A lambda written inside a binding
+form reads that form's bindings and keeps the values it was made with. A macro
+that needs a value from its caller takes it as an argument.
+
+A `let` binding is not visible inside its own initializer. A lambda a `let`
+binds therefore cannot call itself by that name, and the self-call reports
+`(unbound (name h))`. Write such a helper as a `defun`.
+
+```text
+(let ((h (lambda (n) (h n)))) (h 3))   error: (unbound (name h))
+(defun h (n) (h n))                    reads its own name
+```
+
+The session that translates a unit inherits the compile-time library and
+cannot replace one of its definitions. `def` on an inherited name raises
+`(bad-state (operation "def") (why "inherited") (name NAME))`, which the
+compiler reports as a failed compile-time evaluation at the defining form.
+This covers `defun` and `defmacro`, which are `def`. The library defines
+many ordinary words, including `filter`, `last`, `map`, `search`, `len` and
+`apply`, so a macro file needs its own names for its own definitions. A
+unit's own definitions live in its own session, so one unit never changes
+what another reads, and the compiler treats an inherited binding as final.
+
+`eval` is an ordinary procedure. The form it is given is evaluated in the
+session's globals, not in the bindings around the call, so
+`(let ((z 7)) (eval (quote (add z 1))))` reports `(unbound (name z))`. Build
+the form with the value in it when a local has to reach `eval`.
+
 Compile-time Lisp is trusted code. It runs with the compiler user's authority,
 including the existing native bindings and file operations; there is no
 sandbox. Lisp may also construct canonical AST `List`s directly, including
@@ -2530,6 +2561,78 @@ comma-separated initializer. Compose a call to an existing spelling with
 
 Names under `x2c.*` or `_x2c.*` with a component beginning `_` are private
 implementation details.
+
+### `meta` functions
+
+A function definition may be marked `meta`. The marker precedes the whole
+declaration, ahead of any storage class:
+
+```text
+meta int poly(int n) => n * n + 3 * n + 1;
+meta static String label(String stem, int n) => %"$stem-$n";
+```
+
+`meta` is contextual. It marks a function only when a function definition
+follows it, and is an ordinary identifier everywhere else, including as a
+file-scope name, an assignment target, and a struct field. A `meta`
+declaration without a body is diagnosed, because the compiler has nothing to
+run. `meta` marks a definition only.
+
+Marking a function `meta` has three consequences.
+
+- The compiler translates the body into a compile-time form and installs it in
+  the translation unit's macro session. It is then callable during translation,
+  by `$(name args)` from an x2c body and as an ordinary call from Lisp or from
+  a macro body. A construct with no compile-time form is diagnosed at the
+  `meta` marker, with the reason.
+- The function is also emitted as C and behaves as an ordinary function at run
+  time, unless it reaches a compiler operation, directly or through another
+  `meta` function. A function that reaches one has no runtime form and none is
+  emitted for it.
+- A call to it whose arguments are all compile-time constants may be replaced
+  by the answer its compile-time form computes. The compiler folds only where
+  the two forms agree; a function that returns an owned value such as a
+  `String` keeps its call. A function that reaches file-scope state is refused,
+  because the compile-time session cannot read the program's variables.
+
+A `meta` declaration in an imported `.xmacro` installs its compile-time form in
+every consuming unit. The runtime forms are independent: a unit emits a
+definition only for those it reaches, and the storage class written on the
+declaration says what it emits. Importing the same file twice contributes one
+copy of each definition.
+
+See [Meta Functions](https://x2c-lang.dev/docs/guide/meta-functions.html) for the authoring guide.
+
+### The same operations from x2c
+
+Every public operation above is also declared in x2c, in the optional module
+`lib/meta.x`, so a `meta` function that includes it calls the compiler
+directly and a macro's implementation does not have to be written in Lisp. The
+declarations are the signatures; the semantics are the ones described above.
+
+The name is mechanical: each `.` becomes `_`. `x2c.type.fields` is
+`x2c_type_fields`, `x2c.invocation.line` is `x2c_invocation_line`, `x2c.ident`
+is `x2c_ident`. Two answers differ in shape because x2c has no spelling for
+the Lisp one:
+
+- `x2c_expr_call(List callee, List arguments)` takes its arguments as one
+  `List` rather than as a rest parameter.
+- `x2c_type_value(List value)` returns `int`, 1 or 0, rather than a Lisp
+  truth value.
+
+`x2c.comptime.lower` has no x2c spelling, because it runs the pass that
+translates the calling function.
+
+The syntax builders have `meta` bodies in `lib/meta.x`, shared by both
+spellings. The literal builders, identifier, index, call and composite
+builders, function-body reader and parameter-argument builder also run at
+runtime. The field and cast builders call compiler queries.
+
+Operations declared without bodies exist only inside a compiler. A `meta`
+function that reaches one, directly or through another `meta` function, has
+no runtime form and none is emitted for it; the compiler derives this and needs no spelling for it. A call to one
+from a run-time body is diagnosed where it is written, naming the function and
+the reason.
 
 Compiler facilities load before author imports, and macro code cannot redefine
 them.
@@ -4227,7 +4330,8 @@ Inspection modes print an intermediate result and stop translation:
 ```
 
 - `--dump-tokens` prints source tokens and stops.
-- `--dump-ast` prints the parsed AST and stops.
+- `--dump-source-ast` prints experimental deferred source syntax and stops.
+- `--dump-ast` prints the parsed, bound AST after macro expansion and stops.
 - `--dump-transforms` prints the transformed AST and stops.
 - `--dump-code` prints unformatted generated code and stops.
 - `--dump-symbols` prints the source symbol table and stops.
@@ -4237,6 +4341,23 @@ Inspection modes print an intermediate result and stop translation:
 - `--dump-cpp-symbols` prints the CPP symbol table and stops.
 - `--dump-cache` prints the compiler cache and stops.
 - `--dump-conformance` prints protocol conformance and stops.
+
+`--dump-source-ast` retains macro invocations, method spelling, literal
+construction, and source identifier spelling instead of expanding or resolving
+them in the inspected tree. It reuses the compiler's deferred template parser;
+it is an experimental analysis representation, not a lossless concrete syntax
+tree or an input format accepted by another compiler stage. Comments and
+whitespace are omitted. Identifier spellings do not establish binding identity,
+and expression types may be absent. Match arms and typed captures retain source
+forms instead of their ordinary binding operations.
+
+Collection, imports, and file-scope declaration producers still run to
+establish the grammar and visible types. Their generated trees are omitted
+from the inspected output, but they may execute compile-time Lisp or macros
+and report semantic errors. This option does not disable compile-time
+execution. The source tree retains top-level Lisp text and does not proceed
+to protocol adapters, transforms, or C emission. Use `--dump-ast` when the
+analysis needs resolved bindings and typed, expanded syntax.
 
 An inspection that does not write generated files does not need `--out-dir`.
 Only one inspection mode runs; the last option given wins.
