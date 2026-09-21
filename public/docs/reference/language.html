@@ -1,6 +1,6 @@
 <!DOCTYPE HTML>
 <html lang="en" class="light sidebar-visible" dir="ltr">
-    <head><meta name="x2c-release-channel" content="staging"><meta name="x2c-candidate" content="candidate-44fa25e30ed593683c7e4269d41af2b0bec47842-35510273856-1">
+    <head><meta name="x2c-release-channel" content="staging"><meta name="x2c-candidate" content="candidate-fcdfc3dcef64095ad1d5f8349591508fcb5b564f-35546382278-1">
         <!-- Book generated using mdBook -->
         <meta charset="UTF-8">
         <title>Language Reference - The x2c Book</title>
@@ -39,10 +39,10 @@
             const path_to_root = "../";
             const default_light_theme = "light";
             const default_dark_theme = "light";
-            window.path_to_searchindex_js = "../searchindex-5b85bfeb.js";
+            window.path_to_searchindex_js = "../searchindex-a9fb4c9d.js";
         </script>
         <!-- Start loading toc.js asap -->
-        <script src="../toc-2003ea86.js"></script>
+        <script src="../toc-9e476103.js"></script>
         <!-- x2c publication metadata -->
         <link rel="canonical" href="https://staging.x2c-lang.dev/docs/reference/language.html">
         <meta property="og:type" content="website">
@@ -1424,18 +1424,28 @@ run. <code>meta</code> marks a definition only.</p>
 <ul>
 <li>The compiler translates the body into a compile-time form and installs it in
 the translation unit’s macro session. It is then callable during translation,
-by <code>$(name args)</code> from an <span class="x2c-wordmark">x2c</span> body and as an ordinary call from Lisp or from
-a macro body. A construct with no compile-time form is diagnosed at the
+by <code>$name(args)</code> or <code>$(name args)</code> from an <span class="x2c-wordmark">x2c</span> body, or from another
+executing meta function. A construct with no compile-time form is diagnosed at the
 <code>meta</code> marker, with the reason.</li>
 <li>The function is also emitted as C and behaves as an ordinary function at run
-time, unless it reaches a compiler operation, directly or through another
-<code>meta</code> function. A function that reaches one has no runtime form and none is
-emitted for it.</li>
+time, unless it reaches a compiler query, an explicit dollar-prefixed meta
+call or a source-template constructor, directly or through another meta
+function. Such a function has no runtime form and none is emitted for it.</li>
 <li>An ordinary call may be folded only for a locally installed eligible
-definition, literal arguments already matching the parameter types, and
-a declared <code>int</code> result fitting <code>int</code>. Other return types remain calls.
+definition, available constant arguments matching the parameter types, and
+a representable scalar, String, Symbol, immutable List or boxed result.
+Mutable container, callable and native-address results remain calls.
 This optimization is separate from explicit evaluation and result insertion.</li>
 </ul>
+<p>A dollar-prefixed function call requires compile-time evaluation. Arguments
+may compute values from other resolvable values and meta calls; unresolved
+runtime inputs are diagnosed. Visible macros retain precedence over meta
+functions with the same name. In a macro body, forwarding a captured hole
+directly passes its code rather than evaluating the future runtime expression.</p>
+<p>Inside meta bodies, Unit and Statement source macros used in expression
+positions construct deferred invocation Lists from computed arguments. Normal
+binding expands them when inserted into a program. Existing Expression macros
+still expand normally. See <a href="../guide/meta-functions.html#source-templates-from-meta-functions">source templates</a>.</p>
 <p>The compile-time subset cuts across C and <span class="x2c-wordmark">x2c</span> constructs. Local mutation,
 represented collections, local address-taking/dereference, and resolved
 method calls are supported; native aggregate field access and operations
@@ -1444,10 +1454,10 @@ of its runtime methods. See the guide’s
 <a href="../guide/meta-functions.html#the-compile-time-subset">capability and operation inventory</a>.</p>
 <p>Meta functions may pass and return represented values such as wide integers,
 floating values, Strings and collections during compile-time execution.
-Explicit <code>$(...)</code> expression insertion currently accepts integers as <code>int</code>
-syntax, strings as quoted C string syntax, Symbols, identifiers and nonempty
-expression-syntax Lists. It does not directly insert floating values or
-arbitrary collection/callable values. This boundary does not limit internal
+Explicit <code>$(...)</code> expression insertion accepts numeric values with their
+native Var family, computed strings as C string literals, Symbols, identifiers
+and nonempty expression-code Lists. It does not directly materialize mutable
+collections, callable values or evaluator addresses. This boundary does not limit internal
 returns to <code>int</code>; see
 <a href="../guide/meta-functions.html#results-compute-insert-or-fold">results</a>.</p>
 <p>Compile-time objects belong to the evaluator. Ordinary dual-form meta
@@ -1476,15 +1486,18 @@ the Lisp one:</p>
 <li><code>x2c_type_value(List value)</code> returns <code>int</code>, 1 or 0, rather than a Lisp
 truth value.</li>
 </ul>
-<p><code>x2c.comptime.lower</code> has no <span class="x2c-wordmark">x2c</span> spelling, because it runs the pass that
+<p><code>x2c.comptime.lower</code> has no <span class="x2c-wordmark">x2c</span> wrapper, because it runs the pass that
 translates the calling function.</p>
-<p>The syntax builders have <code>meta</code> bodies in <code>lib/meta.x</code>, shared by both
-spellings. The literal builders, identifier, index, call and composite
+<p>The code builders have <code>meta</code> bodies in <code>lib/meta.x</code>, shared by the <span class="x2c-wordmark">x2c</span>
+and Lisp functions. The literal builders, identifier, index, call and composite
 builders, function-body reader and parameter-argument builder also run at
 runtime. The field and cast builders call compiler queries.</p>
 <p>Operations declared without bodies exist only inside a compiler. A <code>meta</code>
 function that reaches one, directly or through another <code>meta</code> function, has
-no runtime form and none is emitted for it; the compiler derives this and needs no spelling for it. A call to one
+no runtime form and none is emitted for it. The compiler infers this
+restriction; no additional annotation is needed. Explicit meta calls and
+source-template constructors also make their enclosing meta bodies
+compile-time-only. A call to one
 from a run-time body is diagnosed where it is written, naming the function and
 the reason.</p>
 <p>Compiler facilities load before author imports, and macro code cannot redefine
@@ -2856,9 +2869,9 @@ callbacks, or <code>Context</code> regions.</p>
                         &copy; 2025&ndash;2026
                         <a href="https://flake.org">GWF</a>
                         &middot;
-                        <a href="https://github.com/gwf/x2c/blob/231550b00962085f415b827a8f4d249b6da8a13d/LICENSE">Apache 2.0</a>
+                        <a href="https://github.com/gwf/x2c/blob/fcdfc3dcef64095ad1d5f8349591508fcb5b564f/LICENSE">Apache 2.0</a>
                         &middot;
-                        <a href="https://github.com/gwf/x2c/blob/231550b00962085f415b827a8f4d249b6da8a13d/TRADEMARKS.md">Trademarks</a>
+                        <a href="https://github.com/gwf/x2c/blob/fcdfc3dcef64095ad1d5f8349591508fcb5b564f/TRADEMARKS.md">Trademarks</a>
                     </footer>
                 </div>
             </div>

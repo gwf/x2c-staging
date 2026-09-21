@@ -1,6 +1,6 @@
 <!DOCTYPE HTML>
 <html lang="en" class="light sidebar-visible" dir="ltr">
-    <head><meta name="x2c-release-channel" content="staging"><meta name="x2c-candidate" content="candidate-44fa25e30ed593683c7e4269d41af2b0bec47842-35510273856-1">
+    <head><meta name="x2c-release-channel" content="staging"><meta name="x2c-candidate" content="candidate-fcdfc3dcef64095ad1d5f8349591508fcb5b564f-35546382278-1">
         <!-- Book generated using mdBook -->
         <meta charset="UTF-8">
         <title>lib/lisp.x - The x2c Book</title>
@@ -39,10 +39,10 @@
             const path_to_root = "../../";
             const default_light_theme = "light";
             const default_dark_theme = "light";
-            window.path_to_searchindex_js = "../../searchindex-5b85bfeb.js";
+            window.path_to_searchindex_js = "../../searchindex-a9fb4c9d.js";
         </script>
         <!-- Start loading toc.js asap -->
-        <script src="../../toc-2003ea86.js"></script>
+        <script src="../../toc-9e476103.js"></script>
         <!-- x2c publication metadata -->
         <link rel="canonical" href="https://staging.x2c-lang.dev/docs/library/modules/lisp.html">
         <meta property="og:type" content="website">
@@ -232,6 +232,7 @@
 <tr><td><a href="#lisp_car"><code>lisp_car</code></a></td><td>Returns the first element of <code>value</code>, or <code>void</code> when it is <code>nil</code>.</td></tr>
 <tr><td><a href="#lisp_cdr"><code>lisp_cdr</code></a></td><td>Returns the tail of <code>value</code>, or <code>nil</code> when it is <code>nil</code>.</td></tr>
 <tr><td><a href="#lisp_match_replace"><code>lisp_match_replace</code></a></td><td>Returns the instantiated <code>template</code> when <code>input</code> matches <code>pat</code>.</td></tr>
+<tr><td><a href="#lisp_string_strip"><code>lisp_string_strip</code></a></td><td>Trims the bytes in <code>chars</code>, using whitespace for an empty String.</td></tr>
 <tr><td><a href="#Lisp.adopt"><code>Lisp.adopt</code></a></td><td>Makes <code>lisp</code> read <code>parent</code>’s definitions for names it does not bind.</td></tr>
 <tr><td><a href="#Lisp.apply"><code>Lisp.apply</code></a></td><td>Applies <code>callable</code> to already evaluated <code>values</code>.</td></tr>
 <tr><td><a href="#Lisp.auto_prepare"><code>Lisp.auto_prepare</code></a></td><td>Word-compiles every lambda this session’s globals name, in place.</td></tr>
@@ -266,7 +267,11 @@ A nonlist operand raises <code>&lt;bad-types&gt;</code>.</p>
 <code>List.match_replace</code> returns a <code>List</code>, so a template that is a bare binder
 loses a scalar result. Lisp sees the replacement itself. A miss, malformed
 pattern, cache pressure, or machine error returns <code>input</code> unchanged.</p>
-<p>Source: <code>lib/lisp.x:898</code></p>
+<p>Source: <code>lib/lisp.x:905</code></p>
+<h4 id="lisp_string_strip"><a class="header" href="#lisp_string_strip">lisp_string_strip</a></h4>
+<p><code>String lisp_string_strip(String string, Var chars)</code></p>
+<p>Trims the bytes in <code>chars</code>, using whitespace for an empty String.</p>
+<p>Source: <code>lib/lisp.x:894</code></p>
 <h3 id="lisp"><a class="header" href="#lisp"><code>Lisp</code></a></h3>
 <p><a id="Lisp.adopt"></a></p>
 <h4 id="lispadopt"><a class="header" href="#lispadopt">Lisp.adopt</a></h4>
@@ -296,7 +301,7 @@ values keep their existing owners. The caller retains responsibility for
 <p><strong>Raises:</strong> <code>&lt;bad-arg&gt;</code> for a null session, <code>&lt;not-call&gt;</code> for a non-procedure or
 evaluator-only callable, <code>&lt;bad-arity&gt;</code> or <code>&lt;bad-types&gt;</code> at the call
 boundary, or a cause raised by the called procedure.</p>
-<p>Source: <code>lib/lisp.x:2251</code></p>
+<p>Source: <code>lib/lisp.x:2259</code></p>
 <p><a id="Lisp.auto_prepare"></a></p>
 <h4 id="lispauto_prepare"><a class="header" href="#lispauto_prepare">Lisp.auto_prepare</a></h4>
 <p><code>int Lisp.auto_prepare(Lisp lisp)</code></p>
@@ -307,7 +312,7 @@ child session runs, so each program’s frozen constants belong to that
 <p>A lambda a global holds indirectly, inside a <code>List</code> or a <code>Map</code> value, is
 not reached: the globals a library defines are the callables a child
 resolves by name, and those are what a shared program guards against.</p>
-<p>Source: <code>lib/lisp.x:2113</code></p>
+<p>Source: <code>lib/lisp.x:2121</code></p>
 <p><a id="Lisp.bind"></a></p>
 <h4 id="lispbind"><a class="header" href="#lispbind">Lisp.bind</a></h4>
 <p><code>void Lisp.bind(Lisp lisp, String name, Func function)</code></p>
@@ -319,7 +324,7 @@ then raises <code>&lt;alloc-fail&gt;</code>, <code>&lt;size-limit&gt;</code>, or
 the pointer while the session lives. Values inside the <code>Func</code>, including
 its
 signature graph, retain their existing owners.</p>
-<p>Source: <code>lib/lisp.x:2352</code></p>
+<p>Source: <code>lib/lisp.x:2360</code></p>
 <p><a id="Lisp.call_budget"></a></p>
 <h4 id="lispcall_budget"><a class="header" href="#lispcall_budget">Lisp.call_budget</a></h4>
 <p><code>void Lisp.call_budget(Lisp lisp, long budget)</code></p>
@@ -331,7 +336,7 @@ reach it quickly.</p>
 <p>The budget belongs to the public entry. <code>Lisp.eval</code>, <code>Lisp.apply</code>, and
 <code>Lisp.eval_string</code> each open one, and a call that runs it out does not
 renew it, so one entry reports a runaway once however many calls follow.</p>
-<p>Source: <code>lib/lisp.x:2088</code></p>
+<p>Source: <code>lib/lisp.x:2096</code></p>
 <p><a id="Lisp.eval"></a></p>
 <h4 id="lispeval"><a class="header" href="#lispeval">Lisp.eval</a></h4>
 <p><code>Var Lisp.eval(Lisp lisp, Var expression)</code></p>
@@ -341,7 +346,7 @@ reaches in session globals, Lambdas, or captures as described by the module
 ownership rule. Effects completed before a later failure are not rolled
 back. Raises: <code>&lt;bad-arg&gt;</code> for a null session, or any evaluator, imported
 operation, or called-procedure cause.</p>
-<p>Source: <code>lib/lisp.x:2233</code></p>
+<p>Source: <code>lib/lisp.x:2241</code></p>
 <p><a id="Lisp.eval_file"></a></p>
 <h4 id="lispeval_file"><a class="header" href="#lispeval_file">Lisp.eval_file</a></h4>
 <p><code>Var Lisp.eval_file(Lisp lisp, File source)</code></p>
@@ -355,7 +360,7 @@ has been consumed.</p>
 <p><strong>Raises:</strong> <code>&lt;bad-arg&gt;</code> for a null stream or embedded NUL, <code>&lt;io-fail&gt;</code>,
 <code>&lt;size-limit&gt;</code>, or <code>&lt;alloc-fail&gt;</code> while reading, or any cause from
 <code>Lisp.eval_string</code>.</p>
-<p>Source: <code>lib/lisp.x:2291</code></p>
+<p>Source: <code>lib/lisp.x:2299</code></p>
 <p><a id="Lisp.eval_string"></a></p>
 <h4 id="lispeval_string"><a class="header" href="#lispeval_string">Lisp.eval_string</a></h4>
 <p><code>Var Lisp.eval_string(Lisp lisp, String source)</code></p>
@@ -365,7 +370,7 @@ Forms run in source order and the return value is the last result, or Lisp
 completed before a later reader or evaluator failure remain installed.</p>
 <p><strong>Raises:</strong> <code>&lt;bad-arg&gt;</code> for a null session, <code>&lt;incomplete&gt;</code> or <code>&lt;malformed&gt;</code>
 while reading, or any cause from <code>Lisp.eval</code>.</p>
-<p>Source: <code>lib/lisp.x:2264</code></p>
+<p>Source: <code>lib/lisp.x:2272</code></p>
 <p><a id="Lisp.freeze"></a></p>
 <h4 id="lispfreeze"><a class="header" href="#lispfreeze">Lisp.freeze</a></h4>
 <p><code>void Lisp.freeze(Lisp lisp)</code></p>
@@ -421,7 +426,7 @@ Returns 1 only after writing the borrowed value. A null session, name, or
 output, or an absent name returns 0 and leaves <code>out</code> unchanged. Raises
 <code>&lt;alloc-fail&gt;</code> or <code>&lt;bad-enc&gt;</code> when a nonempty lookup name cannot be
 canonicalized.</p>
-<p>Source: <code>lib/lisp.x:2313</code></p>
+<p>Source: <code>lib/lisp.x:2321</code></p>
 <h2 id="advanced-and-interop-api"><a class="header" href="#advanced-and-interop-api">Advanced and interop API</a></h2>
 <div class="table-wrapper">
 <table>
@@ -465,7 +470,7 @@ Raises any cause from argument materialization or the callable.</p>
 <code>lisp</code> must be a live session.
 Re-enabling AUTO preserves published programs, thresholds, statistics, and
 the instrumentation pointer.</p>
-<p>Source: <code>lib/lisp.x:2099</code></p>
+<p>Source: <code>lib/lisp.x:2107</code></p>
 <p><a id="Lisp.auto_instrument"></a></p>
 <h4 id="lispauto_instrument"><a class="header" href="#lispauto_instrument">Lisp.auto_instrument</a></h4>
 <p><code>void Lisp.auto_instrument(Lisp lisp, MachineStats *stats)</code></p>
@@ -473,19 +478,19 @@ the instrumentation pointer.</p>
 <code>lisp</code> must be a live session.
 <code>stats</code> is borrowed, retained without initialization, and updated in place;
 it must outlive every evaluation until replaced or cleared with NULL.</p>
-<p>Source: <code>lib/lisp.x:2074</code></p>
+<p>Source: <code>lib/lisp.x:2082</code></p>
 <p><a id="Lisp.auto_stats"></a></p>
 <h4 id="lispauto_stats"><a class="header" href="#lispauto_stats">Lisp.auto_stats</a></h4>
 <p><code>LispAutoStats Lisp.auto_stats(Lisp lisp)</code></p>
 <p>Returns the current cumulative automatic-evaluator statistics for <code>lisp</code>.
 <code>lisp</code> must be a live session. The returned structure is a value snapshot
 and does not reset any counter.</p>
-<p>Source: <code>lib/lisp.x:2067</code></p>
+<p>Source: <code>lib/lisp.x:2075</code></p>
 <p><a id="Lisp.cleanup"></a></p>
 <h4 id="lispcleanup"><a class="header" href="#lispcleanup">Lisp.cleanup</a></h4>
 <p><code>void Lisp.cleanup(Lisp value)</code></p>
 <p>Ends the owned lifetime when a managed local leaves its block.</p>
-<p>Source: <code>lib/lisp.x:2360</code></p>
+<p>Source: <code>lib/lisp.x:2368</code></p>
 <p><a id="Lisp.destroy"></a></p>
 <h4 id="lispdestroy"><a class="header" href="#lispdestroy">Lisp.destroy</a></h4>
 <p><code>void Lisp.destroy(Lisp lisp)</code></p>
@@ -580,7 +585,7 @@ may replace such a binding.</p>
 <p><strong>Raises:</strong> <code>&lt;bad-arg&gt;</code> for a null session or name, <code>&lt;void-op&gt;</code> for a <code>void</code>
 value, or <code>&lt;alloc-fail&gt;</code>, <code>&lt;size-limit&gt;</code>, or <code>&lt;bad-enc&gt;</code> while
 canonicalizing or storing the binding.</p>
-<p>Source: <code>lib/lisp.x:2326</code></p>
+<p>Source: <code>lib/lisp.x:2334</code></p>
 <h2 id="runtime-internal-callables"><a class="header" href="#runtime-internal-callables">Runtime-internal callables</a></h2>
 <p>These callables connect runtime translation units. They are documented
 for source readers but are not supported as user API.</p>
@@ -708,7 +713,7 @@ An empty input raises <code>&lt;bad-arity&gt;</code>.</p>
 contents.
 Raises the open, read, size, or allocation cause reported by <code>File</code>. An
 opened stream is still closed on transfer.</p>
-<p>Source: <code>lib/lisp.x:909</code></p>
+<p>Source: <code>lib/lisp.x:916</code></p>
 <h4 id="lisp_repr"><a class="header" href="#lisp_repr">lisp_repr</a></h4>
 <p><code>Var lisp_repr(Var value)</code></p>
 <p>Boxes the readable representation of <code>value</code>.</p>
@@ -753,7 +758,7 @@ failure returns <code>nil</code> after any accepted bytes; this operation is not
 atomic.
 An open failure transfers its <code>File</code> cause. <code>Null</code> text writes an empty
 file.</p>
-<p>Source: <code>lib/lisp.x:918</code></p>
+<p>Source: <code>lib/lisp.x:925</code></p>
 <h3 id="lisp-2"><a class="header" href="#lisp-2"><code>Lisp</code></a></h3>
 <p><a id="Lisp.evaluate"></a></p>
 <h4 id="lispevaluate"><a class="header" href="#lispevaluate">Lisp.evaluate</a></h4>
@@ -855,9 +860,9 @@ and mutation and destroys it only after every call has returned.</p>
                         &copy; 2025&ndash;2026
                         <a href="https://flake.org">GWF</a>
                         &middot;
-                        <a href="https://github.com/gwf/x2c/blob/231550b00962085f415b827a8f4d249b6da8a13d/LICENSE">Apache 2.0</a>
+                        <a href="https://github.com/gwf/x2c/blob/fcdfc3dcef64095ad1d5f8349591508fcb5b564f/LICENSE">Apache 2.0</a>
                         &middot;
-                        <a href="https://github.com/gwf/x2c/blob/231550b00962085f415b827a8f4d249b6da8a13d/TRADEMARKS.md">Trademarks</a>
+                        <a href="https://github.com/gwf/x2c/blob/fcdfc3dcef64095ad1d5f8349591508fcb5b564f/TRADEMARKS.md">Trademarks</a>
                     </footer>
                 </div>
             </div>
