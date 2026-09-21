@@ -1,6 +1,6 @@
 <!DOCTYPE HTML>
 <html lang="en" class="light sidebar-visible" dir="ltr">
-    <head><meta name="x2c-release-channel" content="staging"><meta name="x2c-candidate" content="candidate-a62d971e6c763b747da9833c0f5746de8c126069-35552563330-1">
+    <head><meta name="x2c-release-channel" content="staging"><meta name="x2c-candidate" content="candidate-53c1ed815d792b4a1af2b182a63e32feb1a5e007-35619563015-1">
         <!-- Book generated using mdBook -->
         <meta charset="UTF-8">
         <title>Meta Functions - The x2c Book</title>
@@ -39,7 +39,7 @@
             const path_to_root = "../";
             const default_light_theme = "light";
             const default_dark_theme = "light";
-            window.path_to_searchindex_js = "../searchindex-de529392.js";
+            window.path_to_searchindex_js = "../searchindex-bb4fc07e.js";
         </script>
         <!-- Start loading toc.js asap -->
         <script src="../toc-a0a48a0f.js"></script>
@@ -422,15 +422,15 @@ on a listed type works. The operation inventory below further limits calls.</p>
 <tr><td>Native integers, including <code>char</code>, narrow, unsigned and wide types</td><td>Numeric literals and typed locals; values can pass between meta functions and return from them. Width alone is not a prohibition.</td><td>Arithmetic, comparisons, casts, assignment and local compound updates. Source numeric literals use the shared scanner and type conversion rules, including integer base prefixes and <code>U</code>, <code>L</code> and <code>LL</code> suffixes.</td></tr>
 <tr><td><code>float</code>, <code>double</code></td><td>Literals, locals, parameters and returns work, including <code>f</code>/<code>F</code> floating suffixes.</td><td>Arithmetic and scalar conversions work. Floating results can also be inserted as typed expressions.</td></tr>
 <tr><td><code>long double</code></td><td>Typed parameters, returns and <code>L</code>-suffixed floating literals work.</td><td>Decimal and hexadecimal floating literals use the declared numeric precision. The focused checks do not establish parity for every extended-precision calculation.</td></tr>
-<tr><td><code>void</code> return</td><td>A meta helper may return no value, including a helper writing through an out-parameter.</td><td>The call can run for its effect; this is distinct from a <code>Var</code> containing runtime <code>void</code>.</td></tr>
+<tr><td><code>void</code> return</td><td>A meta helper may return true no-value, including a helper writing through an out-parameter. Bare return and fallthrough preserve that result.</td><td>Raw evaluator slots, <code>Var</code> parameters and <code>Var</code> results transport <code>void</code> without changing it to an empty List. Concrete typed value parameters and ordinary collections still reject it.</td></tr>
 <tr><td><code>String</code>, <code>Symbol</code></td><td>String/symbol literals, computed strings and interpolation; parameters and returns.</td><td>String indexing reads character codes. Bound string methods work; indexed string writes do not. Symbols have the small method surface listed below.</td></tr>
 <tr><td><code>List</code></td><td>Templates, braced/list-compatible initialization, conversion from <code>Array</code>; parameters and returns.</td><td>Index/association reads, traversal, matching and bound methods. No indexed assignment; build a new List instead. A returned data List is not automatically an expression.</td></tr>
 <tr><td><code>Array</code></td><td><code>[]</code>, <code>[a, b]</code>, <code>Array.new()</code>, conversion from <code>List</code>; parameters and returns.</td><td>Indexed reads/writes and the bound mutating methods. Contents can mix represented values and nest collections.</td></tr>
 <tr><td><code>Map</code></td><td><code>{}</code>, keyed literals, <code>Map.new()</code>; parameters and returns.</td><td>Keyed reads/writes and bound methods; represented collections and callable values can be stored inside it.</td></tr>
-<tr><td><code>Var</code></td><td>Boxes represented numbers, strings, symbols, collections and callable values.</td><td>Only the exposed operations below. Compile-time <code>void</code> and an empty List share a representation; do not use this distinction to control a meta calculation.</td></tr>
+<tr><td><code>Var</code></td><td>Boxes represented numbers, strings, symbols, collections and callable values.</td><td>Only the exposed operations below. Compile-time <code>void</code> and an empty List remain distinct. Lisp conditions treat both as false; <span class="x2c-wordmark">x2c</span> runtime <code>Var.truth</code> still raises on <code>void</code>.</td></tr>
 <tr><td><code>Func</code></td><td>Lambdas with typed or bare parameters, captures and references to available functions; parameters and returns between meta functions.</td><td>Dynamic calls and storage in collections work. This does not expose arbitrary native function-pointer calls or unrepresented argument types.</td></tr>
 <tr><td>C-style array declarations</td><td>A literal-sized one-dimensional array, such as <code>int a[3] = {1, 2};</code>, has compile-time storage. Omitted elements are filled with zero-like values.</td><td>Indexing and simple assignment work; passing the array to an indexed pointer parameter works in the tested case. At compile time, a mutable evaluator cell holds a dynamic Array of Var values. Runtime uses native C array storage; the evaluator does not use <code>alloca</code>. See element/dimension limits below.</td></tr>
-<tr><td>Pointers to locals</td><td><code>int *p = &amp;n;</code>, copying that pointer and passing it to another meta function work.</td><td><code>*p</code> reads and <code>*p = value</code> writes the local. General pointer arithmetic, address-of an array element and native memory/layout access are not supplied by this cell representation.</td></tr>
+<tr><td>Pointers to locals</td><td><code>int *p = &amp;n;</code>, copying that pointer and passing it to another meta function work. The evaluator exposes the source pointer tag while retaining its own cell.</td><td><code>*p</code> reads and <code>*p = value</code> writes the local. General pointer arithmetic, address-of an array element and native memory/layout access are not supplied by this cell representation.</td></tr>
 <tr><td>Native structs and unions</td><td>Native aggregate locals and native field access are rejected; a type name in a signature alone does not establish a usable value representation.</td><td>Dot <strong>methods</strong> resolve as calls and can work. Dot <strong>fields</strong> need native aggregate representation and do not. Compiler queries may inspect a struct’s type and build future field access code without reading a struct value.</td></tr>
 <tr><td><code>File</code>, buffers and other resource types</td><td>No general compile-time constructor/operation surface is installed for these types. A declaration or opaque type name alone does not make the resource usable.</td><td>For example, <code>File.open</code> has no binding. Use the compiler’s explicit text-embedding operation for source-dependent text.</td></tr>
 </tbody>
@@ -494,18 +494,45 @@ reuse those same operations. <code>String</code>, <code>List</code>, <code>Array
 <code>str</code> and <code>repr</code> rendering; <code>Symbol</code> also exposes <code>repr</code> and <code>compare</code>, and
 <code>Var.kind</code> reports a value’s kind. These calls use the existing value
 implementations rather than a separate formatting or comparison algorithm.</p>
-<p>A binding name is not proof of runtime-equivalent behavior. A missing binding
-also does not explain why it was omitted. Some operations need only an adapter
-over existing values; others need interpreted callbacks, native pointer
-arguments or resource ownership. In particular, <code>Map.keys</code> takes caller-owned
-iterator storage: exposing that contract requires an iterator representation,
-not simply an alias for returning a List of keys.</p>
+<p>Iterator producers and functional collection operations are also available in
+<span class="x2c-wordmark">x2c</span>-style meta functions. Omit the native destination argument when an
+iterator is consumed by the same expression. The compile-time binding allocates
+the iterator in the session <code>Scope</code>; it still uses the native lazy producer and
+borrows its source and any callback.</p>
+<pre class="shiki shiki-themes x2c-light x2c-dark x2c-code" style="--shiki-light:#24292e;--shiki-dark:#e9e5df;--shiki-light-bg:#fff;--shiki-dark-bg:#101011" tabindex="0"><code class="language-x2c no-highlight"><span class="line"><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">meta </span><span style="--shiki-light:#D73A49;--shiki-dark:#F0ADA1">int</span><span style="--shiki-light:#6F42C1;--shiki-dark:#E9E5DF"> key_count</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">(</span><span style="--shiki-light:#007C8A;--shiki-dark:#29D3E2">Map</span><span style="--shiki-light:#E36209;--shiki-dark:#E9E5DF"> values</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">) </span><span style="--shiki-light:#A626A4;--shiki-light-font-weight:bold;--shiki-dark:#FF4FD8;--shiki-dark-font-weight:bold">=&gt;</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF"> values.</span><span style="--shiki-light:#6F42C1;--shiki-dark:#E9E5DF">keys</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">().</span><span style="--shiki-light:#6F42C1;--shiki-dark:#E9E5DF">count</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">();</span>
+</span><span class="line">
+</span><span class="line"><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">meta </span><span style="--shiki-light:#007C8A;--shiki-dark:#29D3E2">List</span><span style="--shiki-light:#6F42C1;--shiki-dark:#E9E5DF"> shifted</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">(</span><span style="--shiki-light:#D73A49;--shiki-dark:#F0ADA1">int</span><span style="--shiki-light:#E36209;--shiki-dark:#E9E5DF"> amount</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">) {</span>
+</span><span class="line"><span style="--shiki-light:#007C8A;--shiki-dark:#29D3E2">  List</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF"> result </span><span style="--shiki-light:#D73A49;--shiki-dark:#E9E5DF">=</span><span style="--shiki-light:#6F42C1;--shiki-dark:#E9E5DF"> range</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">(</span><span style="--shiki-light:#005CC5;--shiki-dark:#A9C9F5">1</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">, </span><span style="--shiki-light:#005CC5;--shiki-dark:#A9C9F5">3</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">, </span><span style="--shiki-light:#005CC5;--shiki-dark:#A9C9F5">1</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">)</span>
+</span><span class="line"><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">    .</span><span style="--shiki-light:#6F42C1;--shiki-dark:#E9E5DF">map</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">(</span><span style="--shiki-light:#24292E;--shiki-dark:#FF715A">%!</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">(</span><span style="--shiki-light:#007C8A;--shiki-dark:#29D3E2">Var</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF"> value) </span><span style="--shiki-light:#A626A4;--shiki-light-font-weight:bold;--shiki-dark:#FF4FD8;--shiki-dark-font-weight:bold">=&gt;</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF"> value </span><span style="--shiki-light:#D73A49;--shiki-dark:#E9E5DF">+</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF"> amount);</span>
+</span><span class="line"><span style="--shiki-light:#D73A49;--shiki-dark:#F0ADA1">  return</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF"> result;</span>
+</span><span class="line"><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">}</span></span></code></pre>
+
+<p><code>List</code>, <code>Array</code> and <code>String</code> mapping and filtering use the same native
+operations with an adapter for the interpreted callback. Lazy <code>Iter</code> mapping,
+filtering, pairing and collection work the same way. Calls made as Lisp treat
+nil and <code>void</code> as false; callbacks in <span class="x2c-wordmark">x2c</span>-style meta functions retain ordinary
+<code>Var</code> truth.</p>
+<p>A binding name alone is not proof of runtime-equivalent behavior. A missing
+binding also does not explain why it was omitted. Some operations need only an
+adapter over existing values; others need native pointer arguments or resource
+ownership. Explicit caller-supplied <code>struct Iter</code> storage remains a runtime
+contract and has no compile-time representation. Use the destination-free form
+inside a meta function. <code>List</code>, <code>Array</code> and <code>Iter</code> folds preserve a true <code>void</code>
+no-seed argument. Empty or exhausted <code>Iter.next</code>, <code>find</code>, <code>min</code> and <code>max</code> calls
+return true runtime <code>void</code>, distinct from Lisp nil.</p>
 <p>Other installed meta functions and the compiler operations declared in
 <code>meta.x</code> extend this surface; including a normal function declaration does
 not install its body for compile-time execution.</p>
-<p>The adapters normalize missing List/Array/Map lookups and removals, including
-<code>caar</code>, <code>cadr</code> and <code>caddr</code>, to an empty List rather than runtime <code>void</code>. Keep
-calculations inside the defined bounds when they must agree with runtime code.
+<p>Missing List/Array/Map lookups and removals preserve runtime <code>void</code>; they no
+longer become an empty List in the evaluator. This covers List <code>getindex</code>,
+<code>last</code>, <code>assoc</code>, <code>get</code>, <code>caar</code>, <code>cadr</code> and <code>caddr</code>; Array <code>getindex</code>, <code>setindex</code>,
+<code>take_last</code>, <code>shift</code>, <code>remove</code> and <code>insert</code>; and Map <code>get</code>, <code>getindex</code> and <code>del</code>.
+<code>caar</code> stops when either selection is absent. Ordinary Lists, Arrays and Maps
+still reject <code>void</code> as an element, key or value, so a rest call cannot pack it
+into its argument List.
+Lisp conditions treat <code>void</code> as false while the normal <span class="x2c-wordmark">x2c</span> <code>Var.truth</code> contract
+still raises <code>&lt;void-op&gt;</code>; compare explicitly with <code>void</code> when both forms must
+agree.
 The compiler loads several binding layers, including <code>etc/init.xlisp</code>,
 <code>etc/lisp-values.xlisp</code> and <code>etc/comptime.xlisp</code>; supported body forms live in
 <code>src/comptime.x</code>.</p>
@@ -967,9 +994,9 @@ calls itself by name must be a <code>defun</code>:</p>
                         &copy; 2025&ndash;2026
                         <a href="https://flake.org">GWF</a>
                         &middot;
-                        <a href="https://github.com/gwf/x2c/blob/a62d971e6c763b747da9833c0f5746de8c126069/LICENSE">Apache 2.0</a>
+                        <a href="https://github.com/gwf/x2c/blob/53c1ed815d792b4a1af2b182a63e32feb1a5e007/LICENSE">Apache 2.0</a>
                         &middot;
-                        <a href="https://github.com/gwf/x2c/blob/a62d971e6c763b747da9833c0f5746de8c126069/TRADEMARKS.md">Trademarks</a>
+                        <a href="https://github.com/gwf/x2c/blob/53c1ed815d792b4a1af2b182a63e32feb1a5e007/TRADEMARKS.md">Trademarks</a>
                     </footer>
                 </div>
             </div>
