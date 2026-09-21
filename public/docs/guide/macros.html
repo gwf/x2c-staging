@@ -1,6 +1,6 @@
 <!DOCTYPE HTML>
 <html lang="en" class="light sidebar-visible" dir="ltr">
-    <head><meta name="x2c-release-channel" content="staging"><meta name="x2c-candidate" content="candidate-fcdfc3dcef64095ad1d5f8349591508fcb5b564f-35546382278-1">
+    <head><meta name="x2c-release-channel" content="staging"><meta name="x2c-candidate" content="candidate-a62d971e6c763b747da9833c0f5746de8c126069-35552563330-1">
         <!-- Book generated using mdBook -->
         <meta charset="UTF-8">
         <title>Compile-time Macros - The x2c Book</title>
@@ -39,10 +39,10 @@
             const path_to_root = "../";
             const default_light_theme = "light";
             const default_dark_theme = "light";
-            window.path_to_searchindex_js = "../searchindex-a9fb4c9d.js";
+            window.path_to_searchindex_js = "../searchindex-de529392.js";
         </script>
         <!-- Start loading toc.js asap -->
-        <script src="../toc-9e476103.js"></script>
+        <script src="../toc-a0a48a0f.js"></script>
         <!-- x2c publication metadata -->
         <link rel="canonical" href="https://staging.x2c-lang.dev/docs/guide/macros.html">
         <meta property="og:type" content="website">
@@ -233,11 +233,12 @@ accept and produce one declared kind of source.</p>
 <p>Choose according to what the code does:</p>
 <ul>
 <li>a function computes with runtime values;</li>
+<li>a meta function also computes during compilation;</li>
 <li>a macro constructs source at translation time;</li>
 <li>a decorator transforms the expression or source item immediately following
 it.</li>
 </ul>
-<p>Start with templates. Use compile-time Lisp only when the result requires
+<p>Start with templates. Use meta functions when the result requires
 computation.</p>
 <h2 id="a-first-expression-macro"><a class="header" href="#a-first-expression-macro">A first expression macro</a></h2>
 <p>The result kind follows <code>macro</code>; typed holes appear in the invocation pattern:</p>
@@ -455,11 +456,14 @@ inside a function. The compiler diagnoses the mismatch at the invocation.</p>
 <p>Declare scratch bindings after <code>using</code> when a template needs caller-local
 temporaries:</p>
 <pre class="shiki shiki-themes x2c-light x2c-dark x2c-code" style="--shiki-light:#24292e;--shiki-dark:#e9e5df;--shiki-light-bg:#fff;--shiki-dark-bg:#101011" tabindex="0"><code class="language-x2c no-highlight"><span class="line boring">
+</span><span class="line"><span style="--shiki-light:#D73A49;--shiki-dark:#F0ADA1">#include</span><span style="--shiki-light:#032F62;--shiki-dark:#9EDFB8"> "meta.x"</span>
+</span><span class="line"><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">meta </span><span style="--shiki-light:#D73A49;--shiki-dark:#F0ADA1">static</span><span style="--shiki-light:#007C8A;--shiki-dark:#29D3E2"> List</span><span style="--shiki-light:#6F42C1;--shiki-dark:#E9E5DF"> project_type</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">(</span><span style="--shiki-light:#007C8A;--shiki-dark:#29D3E2">List</span><span style="--shiki-light:#E36209;--shiki-dark:#E9E5DF"> value</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">) </span><span style="--shiki-light:#A626A4;--shiki-light-font-weight:bold;--shiki-dark:#FF4FD8;--shiki-dark-font-weight:bold">=&gt;</span><span style="--shiki-light:#6F42C1;--shiki-dark:#E9E5DF"> x2c_syntax_type</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">(value);</span>
+</span><span class="line">
 </span><span class="line"><span style="--shiki-light:#A626A4;--shiki-light-font-weight:bold;--shiki-dark:#FF4FD8;--shiki-dark-font-weight:bold">macro</span><span style="--shiki-light:#A15C00;--shiki-light-font-style:italic;--shiki-dark:#FFB454;--shiki-dark-font-style:italic"> Statement</span><span style="--shiki-light:#24292E;--shiki-dark:#FF715A"> $</span><span style="--shiki-light:#6F42C1;--shiki-dark:#FF715A">project.swap</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">(</span>
 </span><span class="line"><span style="--shiki-light:#A15C00;--shiki-light-font-style:italic;--shiki-dark:#FFB454;--shiki-dark-font-style:italic">  Expr</span><span style="--shiki-light:#24292E;--shiki-dark:#FF715A"> $</span><span style="--shiki-light:#E36209;--shiki-dark:#E9E5DF">left</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">,</span>
 </span><span class="line"><span style="--shiki-light:#A15C00;--shiki-light-font-style:italic;--shiki-dark:#FFB454;--shiki-dark-font-style:italic">  Expr</span><span style="--shiki-light:#24292E;--shiki-dark:#FF715A"> $</span><span style="--shiki-light:#E36209;--shiki-dark:#E9E5DF">right</span>
 </span><span class="line"><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">) </span><span style="--shiki-light:#A626A4;--shiki-light-font-weight:bold;--shiki-dark:#FF4FD8;--shiki-dark-font-weight:bold">using</span><span style="--shiki-light:#24292E;--shiki-dark:#FF715A"> $</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">temporary </span><span style="--shiki-light:#A626A4;--shiki-light-font-weight:bold;--shiki-dark:#FF4FD8;--shiki-dark-font-weight:bold">=&gt;</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF"> {</span>
-</span><span class="line"><span style="--shiki-light:#24292E;--shiki-dark:#FF715A">  $(</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">x2c.syntax.type </span><span style="--shiki-light:#24292E;--shiki-dark:#FF715A">$</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">left</span><span style="--shiki-light:#24292E;--shiki-dark:#FF715A">)</span><span style="--shiki-light:#24292E;--shiki-dark:#FF715A"> $</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">temporary </span><span style="--shiki-light:#D73A49;--shiki-dark:#E9E5DF">=</span><span style="--shiki-light:#24292E;--shiki-dark:#FF715A"> $</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">left;</span>
+</span><span class="line"><span style="--shiki-light:#24292E;--shiki-dark:#FF715A">  $</span><span style="--shiki-light:#6F42C1;--shiki-dark:#FF715A">project_type</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">(</span><span style="--shiki-light:#24292E;--shiki-dark:#FF715A">$</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">left) </span><span style="--shiki-light:#24292E;--shiki-dark:#FF715A">$</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">temporary </span><span style="--shiki-light:#D73A49;--shiki-dark:#E9E5DF">=</span><span style="--shiki-light:#24292E;--shiki-dark:#FF715A"> $</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">left;</span>
 </span><span class="line"><span style="--shiki-light:#24292E;--shiki-dark:#FF715A">  $</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">left </span><span style="--shiki-light:#D73A49;--shiki-dark:#E9E5DF">=</span><span style="--shiki-light:#24292E;--shiki-dark:#FF715A"> $</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">right;</span>
 </span><span class="line"><span style="--shiki-light:#24292E;--shiki-dark:#FF715A">  $</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">right </span><span style="--shiki-light:#D73A49;--shiki-dark:#E9E5DF">=</span><span style="--shiki-light:#24292E;--shiki-dark:#FF715A"> $</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">temporary;</span>
 </span><span class="line"><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">}</span>
@@ -471,6 +475,8 @@ temporaries:</p>
 </span><span class="line boring"><span style="--shiki-light:#D73A49;--shiki-dark:#F0ADA1">  return</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF"> left </span><span style="--shiki-light:#D73A49;--shiki-dark:#E9E5DF">==</span><span style="--shiki-light:#005CC5;--shiki-dark:#A9C9F5"> 2</span><span style="--shiki-light:#D73A49;--shiki-dark:#E9E5DF"> &amp;&amp;</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF"> right </span><span style="--shiki-light:#D73A49;--shiki-dark:#E9E5DF">==</span><span style="--shiki-light:#005CC5;--shiki-dark:#A9C9F5"> 1</span><span style="--shiki-light:#D73A49;--shiki-dark:#E9E5DF"> ?</span><span style="--shiki-light:#005CC5;--shiki-dark:#A9C9F5"> 0</span><span style="--shiki-light:#D73A49;--shiki-dark:#E9E5DF"> :</span><span style="--shiki-light:#005CC5;--shiki-dark:#A9C9F5"> 1</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">;</span>
 </span><span class="line boring"><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">}</span></span></code></pre>
 
+<p>The helper returns a type into the declaration’s type slot. The same explicit
+call form also supplies expressions and generated names in their own slots.</p>
 <p>Each invocation receives a compiler-private binding for <code>$temporary</code>.
 Definition-local literal names resolve where the macro was defined, captured
 names keep their caller bindings, and generated names cannot collide with
@@ -478,8 +484,9 @@ caller source. A local macro’s literal references to parameters and preceding
 locals also keep those exact bindings when an inner declaration uses the same
 spelling.</p>
 <h2 id="put-reusable-macros-in-imports"><a class="header" href="#put-reusable-macros-in-imports">Put reusable macros in imports</a></h2>
-<p>An <code>.xmacro</code> file may contain macro definitions and top-level compile-time
-Lisp. Import it explicitly:</p>
+<p>An <code>.xmacro</code> file may contain macro definitions, meta functions and top-level
+compile-time Lisp. Imports currently use <code>$(import "...")</code>; authoring the
+macros and meta functions inside the imported file does not require Lisp:</p>
 <!-- ignore: project-macros.xmacro is the external file being illustrated -->
 <pre class="shiki shiki-themes x2c-light x2c-dark x2c-code" style="--shiki-light:#24292e;--shiki-dark:#e9e5df;--shiki-light-bg:#fff;--shiki-dark-bg:#101011" tabindex="0"><code class="language-x2c no-highlight ignore"><span class="line"><span style="--shiki-light:#24292E;--shiki-dark:#FF715A">$(</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">import </span><span style="--shiki-light:#032F62;--shiki-dark:#9EDFB8">"project-macros.xmacro"</span><span style="--shiki-light:#24292E;--shiki-dark:#FF715A">)</span></span></code></pre>
 
@@ -494,6 +501,10 @@ ambiguous short global names.</p>
 <p>A decorator receives the following expression or source item as its required
 first parameter. Invocation arguments follow normally:</p>
 <pre class="shiki shiki-themes x2c-light x2c-dark x2c-code" style="--shiki-light:#24292e;--shiki-dark:#e9e5df;--shiki-light-bg:#fff;--shiki-dark-bg:#101011" tabindex="0"><code class="language-x2c no-highlight"><span class="line boring">
+</span><span class="line"><span style="--shiki-light:#D73A49;--shiki-dark:#F0ADA1">#include</span><span style="--shiki-light:#032F62;--shiki-dark:#9EDFB8"> "meta.x"</span>
+</span><span class="line"><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">meta </span><span style="--shiki-light:#D73A49;--shiki-dark:#F0ADA1">static</span><span style="--shiki-light:#007C8A;--shiki-dark:#29D3E2"> String</span><span style="--shiki-light:#6F42C1;--shiki-dark:#E9E5DF"> project_name</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">(</span><span style="--shiki-light:#007C8A;--shiki-dark:#29D3E2">List</span><span style="--shiki-light:#E36209;--shiki-dark:#E9E5DF"> fn</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">) </span><span style="--shiki-light:#A626A4;--shiki-light-font-weight:bold;--shiki-dark:#FF4FD8;--shiki-dark-font-weight:bold">=&gt;</span><span style="--shiki-light:#6F42C1;--shiki-dark:#E9E5DF"> x2c_function_name</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">(fn);</span>
+</span><span class="line"><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">meta </span><span style="--shiki-light:#D73A49;--shiki-dark:#F0ADA1">static</span><span style="--shiki-light:#007C8A;--shiki-dark:#29D3E2"> List</span><span style="--shiki-light:#6F42C1;--shiki-dark:#E9E5DF"> project_body</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">(</span><span style="--shiki-light:#007C8A;--shiki-dark:#29D3E2">List</span><span style="--shiki-light:#E36209;--shiki-dark:#E9E5DF"> fn</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">) </span><span style="--shiki-light:#A626A4;--shiki-light-font-weight:bold;--shiki-dark:#FF4FD8;--shiki-dark-font-weight:bold">=&gt;</span><span style="--shiki-light:#6F42C1;--shiki-dark:#E9E5DF"> x2c_function_body</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">(fn);</span>
+</span><span class="line">
 </span><span class="line"><span style="--shiki-light:#A626A4;--shiki-light-font-weight:bold;--shiki-dark:#FF4FD8;--shiki-dark-font-weight:bold">macro</span><span style="--shiki-light:#A15C00;--shiki-light-font-style:italic;--shiki-dark:#FFB454;--shiki-dark-font-style:italic"> Decorator</span><span style="--shiki-light:#24292E;--shiki-dark:#FF715A"> $</span><span style="--shiki-light:#6F42C1;--shiki-dark:#FF715A">project.trace</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">(</span>
 </span><span class="line"><span style="--shiki-light:#A15C00;--shiki-light-font-style:italic;--shiki-dark:#FFB454;--shiki-dark-font-style:italic">  Function</span><span style="--shiki-light:#24292E;--shiki-dark:#FF715A"> $</span><span style="--shiki-light:#E36209;--shiki-dark:#E9E5DF">function</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">,</span>
 </span><span class="line"><span style="--shiki-light:#A15C00;--shiki-light-font-style:italic;--shiki-dark:#FFB454;--shiki-dark-font-style:italic">  Expr</span><span style="--shiki-light:#24292E;--shiki-dark:#FF715A"> $</span><span style="--shiki-light:#E36209;--shiki-dark:#E9E5DF">label</span>
@@ -501,10 +512,10 @@ first parameter. Invocation arguments follow normally:</p>
 </span><span class="line"><span style="--shiki-light:#6F42C1;--shiki-dark:#E9E5DF">  printf</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">(</span>
 </span><span class="line"><span style="--shiki-light:#032F62;--shiki-dark:#9EDFB8">    "[</span><span style="--shiki-light:#005CC5;--shiki-dark:#9EDFB8">%s</span><span style="--shiki-light:#032F62;--shiki-dark:#9EDFB8">] enter </span><span style="--shiki-light:#005CC5;--shiki-dark:#9EDFB8">%s\n</span><span style="--shiki-light:#032F62;--shiki-dark:#9EDFB8">"</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">,</span>
 </span><span class="line"><span style="--shiki-light:#24292E;--shiki-dark:#FF715A">    $</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">label,</span>
-</span><span class="line"><span style="--shiki-light:#24292E;--shiki-dark:#FF715A">    $(</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">x2c.literal.string (x2c.function.name </span><span style="--shiki-light:#24292E;--shiki-dark:#FF715A">$</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">function)</span><span style="--shiki-light:#24292E;--shiki-dark:#FF715A">)</span>
+</span><span class="line"><span style="--shiki-light:#24292E;--shiki-dark:#FF715A">    $</span><span style="--shiki-light:#6F42C1;--shiki-dark:#FF715A">project_name</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">(</span><span style="--shiki-light:#24292E;--shiki-dark:#FF715A">$</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">function)</span>
 </span><span class="line"><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">  );</span>
 </span><span class="line"><span style="--shiki-light:#A626A4;--shiki-light-font-weight:bold;--shiki-dark:#FF4FD8;--shiki-dark-font-weight:bold">  defer</span><span style="--shiki-light:#6F42C1;--shiki-dark:#E9E5DF"> printf</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">(</span><span style="--shiki-light:#032F62;--shiki-dark:#9EDFB8">"[</span><span style="--shiki-light:#005CC5;--shiki-dark:#9EDFB8">%s</span><span style="--shiki-light:#032F62;--shiki-dark:#9EDFB8">] leave</span><span style="--shiki-light:#005CC5;--shiki-dark:#9EDFB8">\n</span><span style="--shiki-light:#032F62;--shiki-dark:#9EDFB8">"</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">, </span><span style="--shiki-light:#24292E;--shiki-dark:#FF715A">$</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">label);</span>
-</span><span class="line"><span style="--shiki-light:#24292E;--shiki-dark:#FF715A">  $(</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">x2c.function.body </span><span style="--shiki-light:#24292E;--shiki-dark:#FF715A">$</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">function</span><span style="--shiki-light:#24292E;--shiki-dark:#FF715A">)</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">...</span>
+</span><span class="line"><span style="--shiki-light:#24292E;--shiki-dark:#FF715A">  $</span><span style="--shiki-light:#6F42C1;--shiki-dark:#FF715A">project_body</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">(</span><span style="--shiki-light:#24292E;--shiki-dark:#FF715A">$</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">function)...</span>
 </span><span class="line"><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">}</span>
 </span><span class="line">
 </span><span class="line"><span style="--shiki-light:#24292E;--shiki-dark:#FF715A">$</span><span style="--shiki-light:#6F42C1;--shiki-dark:#FF715A">project.trace</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">(</span><span style="--shiki-light:#032F62;--shiki-dark:#9EDFB8">"request"</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">)</span>
@@ -516,6 +527,8 @@ first parameter. Invocation arguments follow normally:</p>
 </span><span class="line boring"><span style="--shiki-light:#D73A49;--shiki-dark:#F0ADA1">  return</span><span style="--shiki-light:#6F42C1;--shiki-dark:#E9E5DF"> answer</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">(</span><span style="--shiki-light:#005CC5;--shiki-dark:#A9C9F5">21</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">) </span><span style="--shiki-light:#D73A49;--shiki-dark:#E9E5DF">==</span><span style="--shiki-light:#005CC5;--shiki-dark:#A9C9F5"> 42</span><span style="--shiki-light:#D73A49;--shiki-dark:#E9E5DF"> ?</span><span style="--shiki-light:#005CC5;--shiki-dark:#A9C9F5"> 0</span><span style="--shiki-light:#D73A49;--shiki-dark:#E9E5DF"> :</span><span style="--shiki-light:#005CC5;--shiki-dark:#A9C9F5"> 1</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">;</span>
 </span><span class="line boring"><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">}</span></span></code></pre>
 
+<p>The helpers receive the complete captured function. One returns its name;
+the other returns its body as the sequence inserted by <code>...</code>.</p>
 <p>There is no semicolon after the decorator invocation. Decorators stack
 closest-first, and each expansion must leave exactly one target for the next.
 A function decorator preserves the function’s original name, storage,
@@ -575,11 +588,14 @@ look like a new control construct without adding a new parser for its header:</p
 the following block.</p>
 <p>Ordinary macros can use the same declaration. Their parentheses remain
 mandatory, even when they take no arguments:</p>
-<pre class="shiki shiki-themes x2c-light x2c-dark x2c-code" style="--shiki-light:#24292e;--shiki-dark:#e9e5df;--shiki-light-bg:#fff;--shiki-dark-bg:#101011" tabindex="0"><code class="language-x2c no-highlight"><span class="line"><span style="--shiki-light:#A626A4;--shiki-light-font-weight:bold;--shiki-dark:#FF4FD8;--shiki-dark-font-weight:bold">macro</span><span style="--shiki-light:#A15C00;--shiki-light-font-style:italic;--shiki-dark:#FFB454;--shiki-dark-font-style:italic"> Statement</span><span style="--shiki-light:#24292E;--shiki-dark:#FF715A"> $</span><span style="--shiki-light:#6F42C1;--shiki-dark:#FF715A">control.swap</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">(</span>
+<pre class="shiki shiki-themes x2c-light x2c-dark x2c-code" style="--shiki-light:#24292e;--shiki-dark:#e9e5df;--shiki-light-bg:#fff;--shiki-dark-bg:#101011" tabindex="0"><code class="language-x2c no-highlight"><span class="line"><span style="--shiki-light:#D73A49;--shiki-dark:#F0ADA1">#include</span><span style="--shiki-light:#032F62;--shiki-dark:#9EDFB8"> "meta.x"</span>
+</span><span class="line"><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">meta </span><span style="--shiki-light:#D73A49;--shiki-dark:#F0ADA1">static</span><span style="--shiki-light:#007C8A;--shiki-dark:#29D3E2"> List</span><span style="--shiki-light:#6F42C1;--shiki-dark:#E9E5DF"> project_type</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">(</span><span style="--shiki-light:#007C8A;--shiki-dark:#29D3E2">List</span><span style="--shiki-light:#E36209;--shiki-dark:#E9E5DF"> value</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">) </span><span style="--shiki-light:#A626A4;--shiki-light-font-weight:bold;--shiki-dark:#FF4FD8;--shiki-dark-font-weight:bold">=&gt;</span><span style="--shiki-light:#6F42C1;--shiki-dark:#E9E5DF"> x2c_syntax_type</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">(value);</span>
+</span><span class="line">
+</span><span class="line"><span style="--shiki-light:#A626A4;--shiki-light-font-weight:bold;--shiki-dark:#FF4FD8;--shiki-dark-font-weight:bold">macro</span><span style="--shiki-light:#A15C00;--shiki-light-font-style:italic;--shiki-dark:#FFB454;--shiki-dark-font-style:italic"> Statement</span><span style="--shiki-light:#24292E;--shiki-dark:#FF715A"> $</span><span style="--shiki-light:#6F42C1;--shiki-dark:#FF715A">control.swap</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">(</span>
 </span><span class="line"><span style="--shiki-light:#A15C00;--shiki-light-font-style:italic;--shiki-dark:#FFB454;--shiki-dark-font-style:italic">  Expr</span><span style="--shiki-light:#24292E;--shiki-dark:#FF715A"> $</span><span style="--shiki-light:#E36209;--shiki-dark:#E9E5DF">left</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">,</span>
 </span><span class="line"><span style="--shiki-light:#A15C00;--shiki-light-font-style:italic;--shiki-dark:#FFB454;--shiki-dark-font-style:italic">  Expr</span><span style="--shiki-light:#24292E;--shiki-dark:#FF715A"> $</span><span style="--shiki-light:#E36209;--shiki-dark:#E9E5DF">right</span>
 </span><span class="line"><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">) </span><span style="--shiki-light:#A626A4;--shiki-light-font-weight:bold;--shiki-dark:#FF4FD8;--shiki-dark-font-weight:bold">using</span><span style="--shiki-light:#24292E;--shiki-dark:#FF715A"> $</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">temporary </span><span style="--shiki-light:#A626A4;--shiki-light-font-weight:bold;--shiki-dark:#FF4FD8;--shiki-dark-font-weight:bold">=&gt;</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF"> {</span>
-</span><span class="line"><span style="--shiki-light:#24292E;--shiki-dark:#FF715A">  $(</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">x2c.syntax.type </span><span style="--shiki-light:#24292E;--shiki-dark:#FF715A">$</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">left</span><span style="--shiki-light:#24292E;--shiki-dark:#FF715A">)</span><span style="--shiki-light:#24292E;--shiki-dark:#FF715A"> $</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">temporary </span><span style="--shiki-light:#D73A49;--shiki-dark:#E9E5DF">=</span><span style="--shiki-light:#24292E;--shiki-dark:#FF715A"> $</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">left;</span>
+</span><span class="line"><span style="--shiki-light:#24292E;--shiki-dark:#FF715A">  $</span><span style="--shiki-light:#6F42C1;--shiki-dark:#FF715A">project_type</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">(</span><span style="--shiki-light:#24292E;--shiki-dark:#FF715A">$</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">left) </span><span style="--shiki-light:#24292E;--shiki-dark:#FF715A">$</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">temporary </span><span style="--shiki-light:#D73A49;--shiki-dark:#E9E5DF">=</span><span style="--shiki-light:#24292E;--shiki-dark:#FF715A"> $</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">left;</span>
 </span><span class="line"><span style="--shiki-light:#24292E;--shiki-dark:#FF715A">  $</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">left </span><span style="--shiki-light:#D73A49;--shiki-dark:#E9E5DF">=</span><span style="--shiki-light:#24292E;--shiki-dark:#FF715A"> $</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">right;</span>
 </span><span class="line"><span style="--shiki-light:#24292E;--shiki-dark:#FF715A">  $</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">right </span><span style="--shiki-light:#D73A49;--shiki-dark:#E9E5DF">=</span><span style="--shiki-light:#24292E;--shiki-dark:#FF715A"> $</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">temporary;</span>
 </span><span class="line"><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">}</span>
@@ -633,87 +649,101 @@ remain those of the aliased macro.</p>
 binding directly beside the expression or source item it affects.
 Do not use a decorator for type registration, protocol participation, or
 receiverless startup and shutdown. Those have their own declarations.</p>
-<h2 id="compile-time-lisp-is-where-computation-happens"><a class="header" href="#compile-time-lisp-is-where-computation-happens">Compile-time Lisp is where computation happens</a></h2>
-<p><code>$(...)</code> evaluates Lisp during translation. Inside a macro body, hole names
-refer to the captured syntax:</p>
-<pre class="shiki shiki-themes x2c-light x2c-dark x2c-code" style="--shiki-light:#24292e;--shiki-dark:#e9e5df;--shiki-light-bg:#fff;--shiki-dark-bg:#101011" tabindex="0"><code class="language-x2c no-highlight"><span class="line boring">
-</span><span class="line"><span style="--shiki-light:#24292E;--shiki-dark:#FF715A">$(</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">defun project-offset () </span><span style="--shiki-light:#005CC5;--shiki-dark:#A9C9F5">2</span><span style="--shiki-light:#24292E;--shiki-dark:#FF715A">)</span>
+<h2 id="compute-with-meta-functions"><a class="header" href="#compute-with-meta-functions">Compute with meta functions</a></h2>
+<p>Write compile-time calculations as ordinary <span class="x2c-wordmark">x2c</span> functions marked <code>meta</code>.
+A macro calls one with <code>$helper(...)</code>; its captured holes supply code rather
+than the future runtime values of those expressions:</p>
+<pre class="shiki shiki-themes x2c-light x2c-dark x2c-code" style="--shiki-light:#24292e;--shiki-dark:#e9e5df;--shiki-light-bg:#fff;--shiki-dark-bg:#101011" tabindex="0"><code class="language-x2c no-highlight"><span class="line"><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">meta </span><span style="--shiki-light:#D73A49;--shiki-dark:#F0ADA1">static</span><span style="--shiki-light:#D73A49;--shiki-dark:#F0ADA1"> int</span><span style="--shiki-light:#6F42C1;--shiki-dark:#E9E5DF"> project_offset</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">(</span><span style="--shiki-light:#D73A49;--shiki-dark:#F0ADA1">void</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">) </span><span style="--shiki-light:#A626A4;--shiki-light-font-weight:bold;--shiki-dark:#FF4FD8;--shiki-dark-font-weight:bold">=&gt;</span><span style="--shiki-light:#005CC5;--shiki-dark:#A9C9F5"> 2</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">;</span>
 </span><span class="line">
 </span><span class="line"><span style="--shiki-light:#A626A4;--shiki-light-font-weight:bold;--shiki-dark:#FF4FD8;--shiki-dark-font-weight:bold">macro</span><span style="--shiki-light:#A15C00;--shiki-light-font-style:italic;--shiki-dark:#FFB454;--shiki-dark-font-style:italic"> Expression</span><span style="--shiki-light:#24292E;--shiki-dark:#FF715A"> $</span><span style="--shiki-light:#6F42C1;--shiki-dark:#FF715A">project.answer</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">(</span><span style="--shiki-light:#A15C00;--shiki-light-font-style:italic;--shiki-dark:#FFB454;--shiki-dark-font-style:italic">Expr</span><span style="--shiki-light:#24292E;--shiki-dark:#FF715A"> $</span><span style="--shiki-light:#E36209;--shiki-dark:#E9E5DF">base</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">) </span><span style="--shiki-light:#A626A4;--shiki-light-font-weight:bold;--shiki-dark:#FF4FD8;--shiki-dark-font-weight:bold">=&gt;</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF"> (</span>
-</span><span class="line"><span style="--shiki-light:#24292E;--shiki-dark:#FF715A">  $</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">base </span><span style="--shiki-light:#D73A49;--shiki-dark:#E9E5DF">+</span><span style="--shiki-light:#24292E;--shiki-dark:#FF715A"> $(</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">project-offset</span><span style="--shiki-light:#24292E;--shiki-dark:#FF715A">)</span>
-</span><span class="line"><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">)</span>
-</span><span class="line boring">
-</span><span class="line boring"><span style="--shiki-light:#D73A49;--shiki-dark:#F0ADA1">int</span><span style="--shiki-light:#6F42C1;--shiki-dark:#E9E5DF"> main</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">(</span><span style="--shiki-light:#D73A49;--shiki-dark:#F0ADA1">void</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">) {</span>
-</span><span class="line boring"><span style="--shiki-light:#D73A49;--shiki-dark:#F0ADA1">  return</span><span style="--shiki-light:#24292E;--shiki-dark:#FF715A"> $</span><span style="--shiki-light:#6F42C1;--shiki-dark:#FF715A">project.answer</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">(</span><span style="--shiki-light:#005CC5;--shiki-dark:#A9C9F5">40</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">) </span><span style="--shiki-light:#D73A49;--shiki-dark:#E9E5DF">==</span><span style="--shiki-light:#005CC5;--shiki-dark:#A9C9F5"> 42</span><span style="--shiki-light:#D73A49;--shiki-dark:#E9E5DF"> ?</span><span style="--shiki-light:#005CC5;--shiki-dark:#A9C9F5"> 0</span><span style="--shiki-light:#D73A49;--shiki-dark:#E9E5DF"> :</span><span style="--shiki-light:#005CC5;--shiki-dark:#A9C9F5"> 1</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">;</span>
-</span><span class="line boring"><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">}</span></span></code></pre>
-
-<p>The compiler supplies operations for diagnostics, identifiers, types, bindings,
-literals, function projections, structural matching, and invocation location.
-The <a href="../reference/language.html#compile-time-lisp-and-imports">language
-reference</a> lists them.</p>
-<p>Local macro names are lexical, but compile-time Lisp is not. A local macro may
-define or change Lisp state, and that state remains available for the rest of
-the translation unit after the block ends.</p>
-<p><code>x2c.type.fields</code> lets a macro walk a complete struct or union in source
-order without reconstructing its declaration. Pair each returned name with
-<code>x2c.expr.field</code> when generated code needs ordinary typed access through a
-value or pointer receiver:</p>
-<pre><code class="language-text">(map (lambda (field)
-  (x2c.expr.field receiver (car field)))
-  (x2c.type.fields (x2c.syntax.type receiver)))
-</code></pre>
-<p><code>x2c.method.resolve</code> is the optional form of direct dotted method lookup. A
-generator can inspect the returned callee’s function <code>Type</code> or compose it with
-<code>x2c.expr.call</code>; a missing method returns <code>nil</code> instead of producing a type
-diagnostic:</p>
-<pre><code class="language-text">(let ((callee (x2c.method.resolve type "write")))
-  (if callee (x2c.expr.call callee receiver value) nil))
-</code></pre>
-<p>It does not search delegate fields. A delegated result would also need the
-field-projected receiver, which this operation does not return. Macro-generated
-dotted call syntax still uses delegation when ordinary expression resolution
-later sees the call.</p>
-<p>When spelling matters rather than meaning, <code>x2c.source.text</code> reads the exact
-text of a complete captured argument:</p>
-<pre class="shiki shiki-themes x2c-light x2c-dark x2c-code" style="--shiki-light:#24292e;--shiki-dark:#e9e5df;--shiki-light-bg:#fff;--shiki-dark-bg:#101011" tabindex="0"><code class="language-x2c no-highlight"><span class="line"><span style="--shiki-light:#A626A4;--shiki-light-font-weight:bold;--shiki-dark:#FF4FD8;--shiki-dark-font-weight:bold">macro</span><span style="--shiki-light:#A15C00;--shiki-light-font-style:italic;--shiki-dark:#FFB454;--shiki-dark-font-style:italic"> Expression</span><span style="--shiki-light:#24292E;--shiki-dark:#FF715A"> $</span><span style="--shiki-light:#6F42C1;--shiki-dark:#FF715A">project.spelling</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">(</span><span style="--shiki-light:#A15C00;--shiki-light-font-style:italic;--shiki-dark:#FFB454;--shiki-dark-font-style:italic">Expr</span><span style="--shiki-light:#24292E;--shiki-dark:#FF715A"> $</span><span style="--shiki-light:#E36209;--shiki-dark:#E9E5DF">value</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">) </span><span style="--shiki-light:#A626A4;--shiki-light-font-weight:bold;--shiki-dark:#FF4FD8;--shiki-dark-font-weight:bold">=&gt;</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF"> (</span>
-</span><span class="line"><span style="--shiki-light:#24292E;--shiki-dark:#FF715A">  $(</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">x2c.literal.string (x2c.source.text </span><span style="--shiki-light:#24292E;--shiki-dark:#FF715A">$</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">value)</span><span style="--shiki-light:#24292E;--shiki-dark:#FF715A">)</span>
+</span><span class="line"><span style="--shiki-light:#24292E;--shiki-dark:#FF715A">  $</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">base </span><span style="--shiki-light:#D73A49;--shiki-dark:#E9E5DF">+</span><span style="--shiki-light:#24292E;--shiki-dark:#FF715A"> $</span><span style="--shiki-light:#6F42C1;--shiki-dark:#FF715A">project_offset</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">()</span>
 </span><span class="line"><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">)</span>
 </span><span class="line">
 </span><span class="line"><span style="--shiki-light:#D73A49;--shiki-dark:#F0ADA1">int</span><span style="--shiki-light:#6F42C1;--shiki-dark:#E9E5DF"> main</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">(</span><span style="--shiki-light:#D73A49;--shiki-dark:#F0ADA1">void</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">) {</span>
-</span><span class="line"><span style="--shiki-light:#D73A49;--shiki-dark:#F0ADA1">  return</span><span style="--shiki-light:#6F42C1;--shiki-dark:#E9E5DF"> strcmp</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">(</span><span style="--shiki-light:#24292E;--shiki-dark:#FF715A">$</span><span style="--shiki-light:#6F42C1;--shiki-dark:#FF715A">project.spelling</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">(</span><span style="--shiki-light:#005CC5;--shiki-dark:#A9C9F5">1</span><span style="--shiki-light:#6A737D;--shiki-dark:#8B857F"> /* kept */</span><span style="--shiki-light:#D73A49;--shiki-dark:#E9E5DF"> +</span><span style="--shiki-light:#005CC5;--shiki-dark:#A9C9F5"> 2</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">),</span>
+</span><span class="line"><span style="--shiki-light:#6F42C1;--shiki-dark:#E9E5DF">  printf</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">(</span><span style="--shiki-light:#032F62;--shiki-dark:#9EDFB8">"</span><span style="--shiki-light:#005CC5;--shiki-dark:#9EDFB8">%d\n</span><span style="--shiki-light:#032F62;--shiki-dark:#9EDFB8">"</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">, </span><span style="--shiki-light:#24292E;--shiki-dark:#FF715A">$</span><span style="--shiki-light:#6F42C1;--shiki-dark:#FF715A">project.answer</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">(</span><span style="--shiki-light:#005CC5;--shiki-dark:#A9C9F5">40</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">));</span>
+</span><span class="line"><span style="--shiki-light:#D73A49;--shiki-dark:#F0ADA1">  return</span><span style="--shiki-light:#005CC5;--shiki-dark:#A9C9F5"> 0</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">;</span>
+</span><span class="line"><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">}</span></span></code></pre>
+
+<pre><code class="language-text">42
+</code></pre>
+<p>Include <code>meta.x</code> when the calculation needs compiler operations for
+diagnostics, identifiers, types, bindings, source text or function bodies.
+The <a href="meta-functions.html">meta-function guide</a> introduces these operations;
+the <a href="../reference/language.html#the-same-operations-from-x2c">language reference</a>
+specifies them.</p>
+<p><code>x2c_type_fields</code> returns a struct or union’s fields in declaration order.
+Pair their names with <code>x2c_expr_field</code> to build typed field reads:</p>
+<pre class="shiki shiki-themes x2c-light x2c-dark x2c-code" style="--shiki-light:#24292e;--shiki-dark:#e9e5df;--shiki-light-bg:#fff;--shiki-dark-bg:#101011" tabindex="0"><code class="language-x2c no-highlight"><span class="line"><span style="--shiki-light:#D73A49;--shiki-dark:#F0ADA1">#include</span><span style="--shiki-light:#032F62;--shiki-dark:#9EDFB8"> "meta.x"</span>
+</span><span class="line"><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">meta </span><span style="--shiki-light:#D73A49;--shiki-dark:#F0ADA1">static</span><span style="--shiki-light:#007C8A;--shiki-dark:#29D3E2"> List</span><span style="--shiki-light:#6F42C1;--shiki-dark:#E9E5DF"> project_fields</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">(</span><span style="--shiki-light:#007C8A;--shiki-dark:#29D3E2">List</span><span style="--shiki-light:#E36209;--shiki-dark:#E9E5DF"> receiver</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">) {</span>
+</span><span class="line"><span style="--shiki-light:#007C8A;--shiki-dark:#29D3E2">  Array</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF"> reads </span><span style="--shiki-light:#D73A49;--shiki-dark:#E9E5DF">=</span><span style="--shiki-light:#D73A49;--shiki-dark:#F0ADA1"> []</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">;</span>
+</span><span class="line"><span style="--shiki-light:#A626A4;--shiki-light-font-weight:bold;--shiki-dark:#FF4FD8;--shiki-dark-font-weight:bold">  foreach</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF"> (</span><span style="--shiki-light:#007C8A;--shiki-dark:#29D3E2">List</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF"> field, </span><span style="--shiki-light:#6F42C1;--shiki-dark:#E9E5DF">x2c_type_fields</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">(</span><span style="--shiki-light:#6F42C1;--shiki-dark:#E9E5DF">x2c_syntax_type</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">(receiver)))</span>
+</span><span class="line"><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">    reads.</span><span style="--shiki-light:#6F42C1;--shiki-dark:#E9E5DF">push</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">(</span><span style="--shiki-light:#6F42C1;--shiki-dark:#E9E5DF">x2c_expr_field</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">(receiver, field.</span><span style="--shiki-light:#6F42C1;--shiki-dark:#E9E5DF">car</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">()));</span>
+</span><span class="line"><span style="--shiki-light:#D73A49;--shiki-dark:#F0ADA1">  return</span><span style="--shiki-light:#6F42C1;--shiki-dark:#E9E5DF"> x2c_expr_composite</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">(reads);</span>
+</span><span class="line"><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">}</span>
+</span><span class="line"><span style="--shiki-light:#A626A4;--shiki-light-font-weight:bold;--shiki-dark:#FF4FD8;--shiki-dark-font-weight:bold">macro</span><span style="--shiki-light:#A15C00;--shiki-light-font-style:italic;--shiki-dark:#FFB454;--shiki-dark-font-style:italic"> Expression</span><span style="--shiki-light:#24292E;--shiki-dark:#FF715A"> $</span><span style="--shiki-light:#6F42C1;--shiki-dark:#FF715A">project.fields</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">(</span><span style="--shiki-light:#A15C00;--shiki-light-font-style:italic;--shiki-dark:#FFB454;--shiki-dark-font-style:italic">Expr</span><span style="--shiki-light:#24292E;--shiki-dark:#FF715A"> $</span><span style="--shiki-light:#E36209;--shiki-dark:#E9E5DF">value</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">) </span><span style="--shiki-light:#A626A4;--shiki-light-font-weight:bold;--shiki-dark:#FF4FD8;--shiki-dark-font-weight:bold">=&gt;</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF"> (</span><span style="--shiki-light:#24292E;--shiki-dark:#FF715A">$</span><span style="--shiki-light:#6F42C1;--shiki-dark:#FF715A">project_fields</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">(</span><span style="--shiki-light:#24292E;--shiki-dark:#FF715A">$</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">value))</span>
+</span><span class="line boring"><span style="--shiki-light:#D73A49;--shiki-dark:#E9E5DF">typedef</span><span style="--shiki-light:#D73A49;--shiki-dark:#F0ADA1"> struct</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF"> Point { </span><span style="--shiki-light:#D73A49;--shiki-dark:#F0ADA1">int</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF"> x, y; } Point;</span>
+</span><span class="line boring"><span style="--shiki-light:#D73A49;--shiki-dark:#F0ADA1">int</span><span style="--shiki-light:#6F42C1;--shiki-dark:#E9E5DF"> main</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">(</span><span style="--shiki-light:#D73A49;--shiki-dark:#F0ADA1">void</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">) {</span>
+</span><span class="line boring"><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">  Point p </span><span style="--shiki-light:#D73A49;--shiki-dark:#E9E5DF">=</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF"> { </span><span style="--shiki-light:#005CC5;--shiki-dark:#A9C9F5">2</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">, </span><span style="--shiki-light:#005CC5;--shiki-dark:#A9C9F5">3</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF"> };</span>
+</span><span class="line boring"><span style="--shiki-light:#D73A49;--shiki-dark:#F0ADA1">  int</span><span style="--shiki-light:#E36209;--shiki-dark:#E9E5DF"> values</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">[</span><span style="--shiki-light:#005CC5;--shiki-dark:#A9C9F5">2</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">] </span><span style="--shiki-light:#D73A49;--shiki-dark:#E9E5DF">=</span><span style="--shiki-light:#24292E;--shiki-dark:#FF715A"> $</span><span style="--shiki-light:#6F42C1;--shiki-dark:#FF715A">project.fields</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">(p);</span>
+</span><span class="line boring"><span style="--shiki-light:#D73A49;--shiki-dark:#F0ADA1">  return</span><span style="--shiki-light:#E36209;--shiki-dark:#E9E5DF"> values</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">[</span><span style="--shiki-light:#005CC5;--shiki-dark:#A9C9F5">0</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">] </span><span style="--shiki-light:#D73A49;--shiki-dark:#E9E5DF">!=</span><span style="--shiki-light:#005CC5;--shiki-dark:#A9C9F5"> 2</span><span style="--shiki-light:#D73A49;--shiki-dark:#E9E5DF"> ||</span><span style="--shiki-light:#E36209;--shiki-dark:#E9E5DF"> values</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">[</span><span style="--shiki-light:#005CC5;--shiki-dark:#A9C9F5">1</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">] </span><span style="--shiki-light:#D73A49;--shiki-dark:#E9E5DF">!=</span><span style="--shiki-light:#005CC5;--shiki-dark:#A9C9F5"> 3</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">;</span>
+</span><span class="line boring"><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">}</span></span></code></pre>
+
+<p><code>x2c_method_resolve</code> optionally looks up a direct dotted method. A generator
+can inspect the callee’s function type or build a call; a missing method
+returns an empty List:</p>
+<pre class="shiki shiki-themes x2c-light x2c-dark x2c-code" style="--shiki-light:#24292e;--shiki-dark:#e9e5df;--shiki-light-bg:#fff;--shiki-dark-bg:#101011" tabindex="0"><code class="language-x2c no-highlight"><span class="line"><span style="--shiki-light:#D73A49;--shiki-dark:#F0ADA1">#include</span><span style="--shiki-light:#032F62;--shiki-dark:#9EDFB8"> "meta.x"</span>
+</span><span class="line"><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">meta </span><span style="--shiki-light:#D73A49;--shiki-dark:#F0ADA1">static</span><span style="--shiki-light:#007C8A;--shiki-dark:#29D3E2"> List</span><span style="--shiki-light:#6F42C1;--shiki-dark:#E9E5DF"> project_write</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">(</span><span style="--shiki-light:#007C8A;--shiki-dark:#29D3E2">List</span><span style="--shiki-light:#E36209;--shiki-dark:#E9E5DF"> type</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">, </span><span style="--shiki-light:#007C8A;--shiki-dark:#29D3E2">List</span><span style="--shiki-light:#E36209;--shiki-dark:#E9E5DF"> receiver</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">, </span><span style="--shiki-light:#007C8A;--shiki-dark:#29D3E2">List</span><span style="--shiki-light:#E36209;--shiki-dark:#E9E5DF"> value</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">) {</span>
+</span><span class="line"><span style="--shiki-light:#007C8A;--shiki-dark:#29D3E2">  List</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF"> callee </span><span style="--shiki-light:#D73A49;--shiki-dark:#E9E5DF">=</span><span style="--shiki-light:#6F42C1;--shiki-dark:#E9E5DF"> x2c_method_resolve</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">(type, </span><span style="--shiki-light:#032F62;--shiki-dark:#9EDFB8">"write"</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">);</span>
+</span><span class="line"><span style="--shiki-light:#D73A49;--shiki-dark:#F0ADA1">  if</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF"> (callee) </span><span style="--shiki-light:#D73A49;--shiki-dark:#F0ADA1">return</span><span style="--shiki-light:#6F42C1;--shiki-dark:#E9E5DF"> x2c_expr_call</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">(callee, </span><span style="--shiki-light:#24292E;--shiki-dark:#FF715A">%($</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">receiver </span><span style="--shiki-light:#24292E;--shiki-dark:#FF715A">$</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">value</span><span style="--shiki-light:#24292E;--shiki-dark:#FF715A">)</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">);</span>
+</span><span class="line"><span style="--shiki-light:#D73A49;--shiki-dark:#F0ADA1">  return</span><span style="--shiki-light:#24292E;--shiki-dark:#FF715A"> %()</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">;</span>
+</span><span class="line"><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">}</span></span></code></pre>
+
+<p>It does not search delegate fields. A delegated result would also need the
+field-projected receiver, which this operation does not return. Generated
+dotted calls still use delegation during ordinary expression resolution.</p>
+<p>To read the exact source text of a complete captured argument, use
+<code>x2c_source_text</code>:</p>
+<pre class="shiki shiki-themes x2c-light x2c-dark x2c-code" style="--shiki-light:#24292e;--shiki-dark:#e9e5df;--shiki-light-bg:#fff;--shiki-dark-bg:#101011" tabindex="0"><code class="language-x2c no-highlight"><span class="line"><span style="--shiki-light:#D73A49;--shiki-dark:#F0ADA1">#include</span><span style="--shiki-light:#032F62;--shiki-dark:#9EDFB8"> "meta.x"</span>
+</span><span class="line"><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">meta </span><span style="--shiki-light:#D73A49;--shiki-dark:#F0ADA1">static</span><span style="--shiki-light:#007C8A;--shiki-dark:#29D3E2"> String</span><span style="--shiki-light:#6F42C1;--shiki-dark:#E9E5DF"> project_text</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">(</span><span style="--shiki-light:#007C8A;--shiki-dark:#29D3E2">List</span><span style="--shiki-light:#E36209;--shiki-dark:#E9E5DF"> value</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">) </span><span style="--shiki-light:#A626A4;--shiki-light-font-weight:bold;--shiki-dark:#FF4FD8;--shiki-dark-font-weight:bold">=&gt;</span><span style="--shiki-light:#6F42C1;--shiki-dark:#E9E5DF"> x2c_source_text</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">(value);</span>
+</span><span class="line"><span style="--shiki-light:#A626A4;--shiki-light-font-weight:bold;--shiki-dark:#FF4FD8;--shiki-dark-font-weight:bold">macro</span><span style="--shiki-light:#A15C00;--shiki-light-font-style:italic;--shiki-dark:#FFB454;--shiki-dark-font-style:italic"> Expression</span><span style="--shiki-light:#24292E;--shiki-dark:#FF715A"> $</span><span style="--shiki-light:#6F42C1;--shiki-dark:#FF715A">project.source</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">(</span><span style="--shiki-light:#A15C00;--shiki-light-font-style:italic;--shiki-dark:#FFB454;--shiki-dark-font-style:italic">Expr</span><span style="--shiki-light:#24292E;--shiki-dark:#FF715A"> $</span><span style="--shiki-light:#E36209;--shiki-dark:#E9E5DF">value</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">) </span><span style="--shiki-light:#A626A4;--shiki-light-font-weight:bold;--shiki-dark:#FF4FD8;--shiki-dark-font-weight:bold">=&gt;</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF"> (</span><span style="--shiki-light:#24292E;--shiki-dark:#FF715A">$</span><span style="--shiki-light:#6F42C1;--shiki-dark:#FF715A">project_text</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">(</span><span style="--shiki-light:#24292E;--shiki-dark:#FF715A">$</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">value))</span>
+</span><span class="line">
+</span><span class="line"><span style="--shiki-light:#D73A49;--shiki-dark:#F0ADA1">int</span><span style="--shiki-light:#6F42C1;--shiki-dark:#E9E5DF"> main</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">(</span><span style="--shiki-light:#D73A49;--shiki-dark:#F0ADA1">void</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">) {</span>
+</span><span class="line"><span style="--shiki-light:#D73A49;--shiki-dark:#F0ADA1">  return</span><span style="--shiki-light:#6F42C1;--shiki-dark:#E9E5DF"> strcmp</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">(</span><span style="--shiki-light:#24292E;--shiki-dark:#FF715A">$</span><span style="--shiki-light:#6F42C1;--shiki-dark:#FF715A">project.source</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">(</span><span style="--shiki-light:#005CC5;--shiki-dark:#A9C9F5">1</span><span style="--shiki-light:#6A737D;--shiki-dark:#8B857F"> /* kept */</span><span style="--shiki-light:#D73A49;--shiki-dark:#E9E5DF"> +</span><span style="--shiki-light:#005CC5;--shiki-dark:#A9C9F5"> 2</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">),</span>
 </span><span class="line"><span style="--shiki-light:#032F62;--shiki-dark:#9EDFB8">                "1 /* kept */ + 2"</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">);</span>
 </span><span class="line"><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">}</span></span></code></pre>
 
-<p>Forwarding a capture through another macro preserves that text. Constructing
-or selecting an AST subtree does not invent source text; use standard Lisp
-<code>repr</code> when canonical AST rendering is intended.</p>
-<p><code>x2c.embed.text</code> reads a regular text file into a compile-time <code>String</code> and
-records the canonical file as a build dependency. A <code>String</code> path is relative
-to the file containing that Lisp form. A captured <code>String</code> literal is relative
-to the caller file where the literal was written:</p>
+<p>Passing a complete capture to a meta helper preserves the source information
+for this query. Forwarding it through another source macro does too.
+Constructing or selecting an AST subtree does not invent source text; use
+<code>List.repr()</code> to render code data.</p>
+<p><code>x2c_embed_text</code> reads a regular text file into a compile-time String and
+records it as a build dependency. A captured String literal retains the
+caller’s file location for resolving a relative path:</p>
 <!-- ignore: notice.txt is the external file being illustrated -->
-<pre class="shiki shiki-themes x2c-light x2c-dark x2c-code" style="--shiki-light:#24292e;--shiki-dark:#e9e5df;--shiki-light-bg:#fff;--shiki-dark-bg:#101011" tabindex="0"><code class="language-x2c no-highlight ignore"><span class="line"><span style="--shiki-light:#A626A4;--shiki-light-font-weight:bold;--shiki-dark:#FF4FD8;--shiki-dark-font-weight:bold">macro</span><span style="--shiki-light:#A15C00;--shiki-light-font-style:italic;--shiki-dark:#FFB454;--shiki-dark-font-style:italic"> Expression</span><span style="--shiki-light:#24292E;--shiki-dark:#FF715A"> $</span><span style="--shiki-light:#6F42C1;--shiki-dark:#FF715A">project.notice</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">(</span><span style="--shiki-light:#A15C00;--shiki-light-font-style:italic;--shiki-dark:#FFB454;--shiki-dark-font-style:italic">Literal</span><span style="--shiki-light:#24292E;--shiki-dark:#FF715A"> $</span><span style="--shiki-light:#E36209;--shiki-dark:#E9E5DF">path</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">) </span><span style="--shiki-light:#A626A4;--shiki-light-font-weight:bold;--shiki-dark:#FF4FD8;--shiki-dark-font-weight:bold">=&gt;</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF"> (</span>
-</span><span class="line"><span style="--shiki-light:#24292E;--shiki-dark:#FF715A">  $(</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">x2c.literal.string (x2c.embed.text </span><span style="--shiki-light:#24292E;--shiki-dark:#FF715A">$</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">path)</span><span style="--shiki-light:#24292E;--shiki-dark:#FF715A">)</span>
-</span><span class="line"><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">)</span>
+<pre class="shiki shiki-themes x2c-light x2c-dark x2c-code" style="--shiki-light:#24292e;--shiki-dark:#e9e5df;--shiki-light-bg:#fff;--shiki-dark-bg:#101011" tabindex="0"><code class="language-x2c no-highlight ignore"><span class="line"><span style="--shiki-light:#D73A49;--shiki-dark:#F0ADA1">#include</span><span style="--shiki-light:#032F62;--shiki-dark:#9EDFB8"> "meta.x"</span>
+</span><span class="line"><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">meta </span><span style="--shiki-light:#D73A49;--shiki-dark:#F0ADA1">static</span><span style="--shiki-light:#007C8A;--shiki-dark:#29D3E2"> String</span><span style="--shiki-light:#6F42C1;--shiki-dark:#E9E5DF"> project_notice</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">(</span><span style="--shiki-light:#007C8A;--shiki-dark:#29D3E2">String</span><span style="--shiki-light:#E36209;--shiki-dark:#E9E5DF"> path</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">) </span><span style="--shiki-light:#A626A4;--shiki-light-font-weight:bold;--shiki-dark:#FF4FD8;--shiki-dark-font-weight:bold">=&gt;</span><span style="--shiki-light:#6F42C1;--shiki-dark:#E9E5DF"> x2c_embed_text</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">(path);</span>
+</span><span class="line"><span style="--shiki-light:#A626A4;--shiki-light-font-weight:bold;--shiki-dark:#FF4FD8;--shiki-dark-font-weight:bold">macro</span><span style="--shiki-light:#A15C00;--shiki-light-font-style:italic;--shiki-dark:#FFB454;--shiki-dark-font-style:italic"> Expression</span><span style="--shiki-light:#24292E;--shiki-dark:#FF715A"> $</span><span style="--shiki-light:#6F42C1;--shiki-dark:#FF715A">project.notice</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">(</span><span style="--shiki-light:#A15C00;--shiki-light-font-style:italic;--shiki-dark:#FFB454;--shiki-dark-font-style:italic">Literal</span><span style="--shiki-light:#24292E;--shiki-dark:#FF715A"> $</span><span style="--shiki-light:#E36209;--shiki-dark:#E9E5DF">path</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">) </span><span style="--shiki-light:#A626A4;--shiki-light-font-weight:bold;--shiki-dark:#FF4FD8;--shiki-dark-font-weight:bold">=&gt;</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF"> (</span><span style="--shiki-light:#24292E;--shiki-dark:#FF715A">$</span><span style="--shiki-light:#6F42C1;--shiki-dark:#FF715A">project_notice</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">(</span><span style="--shiki-light:#24292E;--shiki-dark:#FF715A">$</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">path))</span>
 </span><span class="line">
 </span><span class="line"><span style="--shiki-light:#007C8A;--shiki-dark:#29D3E2">String</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF"> notice </span><span style="--shiki-light:#D73A49;--shiki-dark:#E9E5DF">=</span><span style="--shiki-light:#24292E;--shiki-dark:#FF715A"> $</span><span style="--shiki-light:#6F42C1;--shiki-dark:#FF715A">project.notice</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">(</span><span style="--shiki-light:#032F62;--shiki-dark:#9EDFB8">"notice.txt"</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">);</span></span></code></pre>
 
-<p>The returned value stays compile-time data; use <code>x2c.literal.string</code>
-explicitly when generated code needs a runtime <code>String</code>. Empty files are valid.
-Directories, embedded NUL bytes, unreadable files, and files too large for a
-<code>String</code> are rejected.</p>
-<p>Most macros should not need those operations. A source-shaped template keeps
-the binding and generated result visible to a reader. Use Lisp when a template
-must compute a value, inspect a declaration, select among shapes, or generate a
-checked name. If the Lisp and AST manipulation is longer or harder to explain
-than the repeated source, keep the source.</p>
+<p>A captured path stays relative to its caller even when the macro is defined
+in an imported file. A computed String path instead resolves beside the
+macro definition, or beside the source file for a direct meta call.</p>
+<p>Empty files are valid. Directories, embedded NUL bytes, unreadable files and
+files too large for a String are rejected.</p>
+<p>Prefer source templates for generated code and meta functions for the
+calculations that supply their arguments. Use the optional <code>$(...)</code> Lisp
+entry when integrating existing Lisp helpers or changing the compiler’s Lisp
+session. For example, <code>$(project_offset)</code> calls the helper above from Lisp.
+Local macro names are lexical; Lisp definitions instead remain available for
+the rest of the translation unit after the defining block ends.</p>
 <h3 id="generate-several-views-from-one-table"><a class="header" href="#generate-several-views-from-one-table">Generate several views from one table</a></h3>
-<p>Compile-time Lisp can keep one table of facts from which small macros generate
+<p>A meta function can keep one table of facts from which small macros generate
 enums, lookup tables, switch cases, declarations, and repetitive functions.
 Changing the table then changes every generated form.</p>
 <p>Use a table when the outputs repeat the same facts. Write names, types, and
 status values explicitly so a reader can understand the generated code without
-working through the Lisp. Keep unrelated outputs as direct source.</p>
+working through the generator. Keep unrelated outputs as direct source.</p>
 <h2 id="declare-methods-and-converters-before-adoption"><a class="header" href="#declare-methods-and-converters-before-adoption">Declare methods and converters before adoption</a></h2>
 <p>Shallow collection loads <code>.xmacro</code> imports and expands their file-scope unit
 macros. Generated private helpers remain available to later macro invocations
@@ -730,6 +760,7 @@ need.</p>
 <p>Use:</p>
 <ul>
 <li>a function for runtime computation;</li>
+<li>a meta function for compile-time calculation and compiler queries;</li>
 <li>a protocol for explicit participation in shared typed behavior;</li>
 <li>a macro for repeated source whose invocation has one obvious expansion;</li>
 <li>a decorator for uniform policy on one following expression or source item;</li>
@@ -739,7 +770,7 @@ need.</p>
 total, preserves useful diagnostics, and makes each binding clear.</p>
 <p>For a complete generator built from these pieces, see <a href="autodiff.html">Automatic
 Differentiation</a>: a <code>Type</code>-hole family for dual numbers, and
-<code>Unit</code> decorators whose compile-time Lisp rewrites a function’s typed AST
+<code>Unit</code> decorators whose meta functions transform a function’s typed code
 into its derivative.</p>
 <p>For the complete hole grammar, result validation, hygiene rules, limits, and
 compiler Lisp SDK, see <a href="../reference/language.html#compile-time-macros">Compile-time macros in the language
@@ -762,9 +793,9 @@ reference</a>.</p>
                         &copy; 2025&ndash;2026
                         <a href="https://flake.org">GWF</a>
                         &middot;
-                        <a href="https://github.com/gwf/x2c/blob/fcdfc3dcef64095ad1d5f8349591508fcb5b564f/LICENSE">Apache 2.0</a>
+                        <a href="https://github.com/gwf/x2c/blob/a62d971e6c763b747da9833c0f5746de8c126069/LICENSE">Apache 2.0</a>
                         &middot;
-                        <a href="https://github.com/gwf/x2c/blob/fcdfc3dcef64095ad1d5f8349591508fcb5b564f/TRADEMARKS.md">Trademarks</a>
+                        <a href="https://github.com/gwf/x2c/blob/a62d971e6c763b747da9833c0f5746de8c126069/TRADEMARKS.md">Trademarks</a>
                     </footer>
                 </div>
             </div>

@@ -3,7 +3,7 @@
     <head><meta name="x2c-release-channel" content="staging"><meta name="x2c-candidate" content="candidate-a62d971e6c763b747da9833c0f5746de8c126069-35552563330-1">
         <!-- Book generated using mdBook -->
         <meta charset="UTF-8">
-        <title>src/cleanup.x - The x2c Book</title>
+        <title>src/repl.x - The x2c Book</title>
 
 
         <!-- Custom HTML head -->
@@ -44,16 +44,16 @@
         <!-- Start loading toc.js asap -->
         <script src="../../toc-a0a48a0f.js"></script>
         <!-- x2c publication metadata -->
-        <link rel="canonical" href="https://staging.x2c-lang.dev/docs/internals/compiler-api/cleanup.html">
+        <link rel="canonical" href="https://staging.x2c-lang.dev/docs/internals/compiler-api/repl.html">
         <meta property="og:type" content="website">
-        <meta property="og:title" content="src/cleanup.x - The x2c Book">
+        <meta property="og:title" content="src/repl.x - The x2c Book">
         <meta property="og:description" content="The x2c language, standard library, and compiler.">
-        <meta property="og:url" content="https://staging.x2c-lang.dev/docs/internals/compiler-api/cleanup.html">
+        <meta property="og:url" content="https://staging.x2c-lang.dev/docs/internals/compiler-api/repl.html">
         <meta property="og:image" content="https://staging.x2c-lang.dev/x2c-social.png">
         <meta property="og:image:width" content="1200">
         <meta property="og:image:height" content="630">
         <meta name="twitter:card" content="summary_large_image">
-        <meta name="twitter:title" content="src/cleanup.x - The x2c Book">
+        <meta name="twitter:title" content="src/repl.x - The x2c Book">
         <meta name="twitter:description" content="The x2c language, standard library, and compiler.">
         <meta name="twitter:image" content="https://staging.x2c-lang.dev/x2c-social.png">
     </head>
@@ -177,7 +177,7 @@
                                 <li role="none"><button role="menuitem" class="theme" id="mdbook-theme-light">Light</button></li>
                                 <li role="none"><button role="menuitem" class="theme" id="mdbook-theme-ayu">Dark</button></li>
                             </ul>
-                            <a href="https://github.com/gwf/x2c/edit/main/docs/src/internals/compiler-api/cleanup.md" title="Suggest an edit" aria-label="Suggest an edit" rel="edit" class="icon-button">
+                            <a href="https://github.com/gwf/x2c/edit/main/docs/src/internals/compiler-api/repl.md" title="Suggest an edit" aria-label="Suggest an edit" rel="edit" class="icon-button">
                                 <span class=fa-svg id="git-edit-button"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc. --><path d="M421.7 220.3l-11.3 11.3-22.6 22.6-205 205c-6.6 6.6-14.8 11.5-23.8 14.1L30.8 511c-8.4 2.5-17.5 .2-23.7-6.1S-1.5 489.7 1 481.2L38.7 353.1c2.6-9 7.5-17.2 14.1-23.8l205-205 22.6-22.6 11.3-11.3 33.9 33.9 62.1 62.1 33.9 33.9zM96 353.9l-9.3 9.3c-.9 .9-1.6 2.1-2 3.4l-25.3 86 86-25.3c1.3-.4 2.5-1.1 3.4-2l9.3-9.3H112c-8.8 0-16-7.2-16-16V353.9zM453.3 19.3l39.4 39.4c25 25 25 65.5 0 90.5l-14.5 14.5-22.6 22.6-11.3 11.3-33.9-33.9-62.1-62.1L314.3 67.7l11.3-11.3 22.6-22.6 14.5-14.5c25-25 65.5-25 90.5 0z"/></svg></span>
                             </a>
                         </div>
@@ -224,8 +224,8 @@
 <p><strong>Provisional API:</strong> This reference documents current compiler behavior.
 Compatibility is not yet promised.</p>
 </blockquote>
-<h1 id="srccleanupx"><a class="header" href="#srccleanupx"><code>src/cleanup.x</code></a></h1>
-<p>What a cleanup region runs, and which exits run it.</p>
+<h1 id="srcreplx"><a class="header" href="#srcreplx"><code>src/repl.x</code></a></h1>
+<p>Terminal client for persistent compiler submissions.</p>
 <h2 id="functions"><a class="header" href="#functions">Functions</a></h2>
 <div class="table-wrapper">
 <table>
@@ -233,54 +233,29 @@ Compatibility is not yet promised.</p>
 <tr><th>Function</th><th>Summary</th></tr>
 </thead>
 <tbody>
-<tr><td><a href="#Compiler.mark_cleanup_regions"><code>Compiler.mark_cleanup_regions</code></a></td><td>Names each cleanup region, records the statements that leave it, and runs them on every exit that leaves it.</td></tr>
-<tr><td><a href="#Compiler.static_value_is_runtime"><code>Compiler.static_value_is_runtime</code></a></td><td>Reports whether the static local initializer <code>value</code> has to run at runtime, because it reads an automatic object or another static this function initializes.</td></tr>
+<tr><td><a href="#repl_run"><code>repl_run</code></a></td><td>Runs the experimental REPL on stdin.</td></tr>
 </tbody>
 </table>
 </div>
-<h3 id="compiler"><a class="header" href="#compiler"><code>Compiler</code></a></h3>
-<p><a id="Compiler.mark_cleanup_regions"></a></p>
-<h4 id="compilermark_cleanup_regions"><a class="header" href="#compilermark_cleanup_regions">Compiler.mark_cleanup_regions</a></h4>
-<p><code>List Compiler.mark_cleanup_regions(Compiler c, List ast)</code></p>
-<p>Names each cleanup region, records the statements that leave it, and
-runs them on every exit that leaves it. <code>ast</code> must be a transformed
-top-level unit whose <code>defer</code> and <code>try</code> forms are final; the pass rewrites
-transfers, so it runs once, after the transform driver reaches its fixed
-point.</p>
-<p>Source: <code>src/cleanup.x:757</code></p>
-<p><a id="Compiler.static_value_is_runtime"></a></p>
-<h4 id="compilerstatic_value_is_runtime"><a class="header" href="#compilerstatic_value_is_runtime">Compiler.static_value_is_runtime</a></h4>
-<p><code>int Compiler.static_value_is_runtime(Compiler c, List value, Map runtime)</code></p>
-<p>Reports whether the static local initializer <code>value</code> has to run at
-runtime, because it reads an automatic object or another static this
-function initializes. <code>runtime</code> holds the statics already known to run
-that way, and gains this one’s bindings.</p>
-<p>Source: <code>src/cleanup.x:269</code></p>
-<h2 id="design-notes"><a class="header" href="#design-notes">Design notes</a></h2>
-<p><code>defer</code> and <code>try</code> regions reach this pass as the forms <code>transform.x</code>
-produced. It names each region’s runtime record, builds the statements
-that leave the region, and runs them on every exit that leaves it: the
-region’s own end, a <code>return</code>, a <code>break</code> or <code>continue</code> that leaves the
-construct, and an outward <code>goto</code>. <code>emit.x</code> prints the frames, records,
-and statements this pass decided on.</p>
-<p>A <code>break</code> or <code>continue</code> only transfers inside its own loop or switch, so
-it leaves the regions opened inside that construct and no others. A
-<code>return</code> leaves every open region, after saving its value, because
-cleanup may change what the expression read. A <code>goto</code> leaves exactly the
-regions between it and its label, and entering a region it did not open
-is rejected here.</p>
+<h3 id="functions-1"><a class="header" href="#functions-1">Functions</a></h3>
+<h4 id="repl_run"><a class="header" href="#repl_run">repl_run</a></h4>
+<p><code>int repl_run(CliRequest request)</code></p>
+<p>Runs the experimental REPL on stdin. Piped input continues after errors
+and exits with status one if any submission or command failed. Interactive
+errors leave the session usable; SIGINT retains its process-exit action.</p>
+<p>Source: <code>src/repl.x:62</code></p>
 
                     </main>
 
                     <nav class="x2c-pager" aria-label="Page navigation">
-                        <a rel="prev" href="../../internals/compiler-api/cache.html" class="x2c-pager-prev" aria-keyshortcuts="Left">
+                        <a rel="prev" href="../../internals/compiler-api/repl-session.html" class="x2c-pager-prev" aria-keyshortcuts="Left">
                             <span class="x2c-pager-label">previous</span>
-                            <span class="x2c-pager-title">src/cache.x</span>
+                            <span class="x2c-pager-title">src/repl-session.x</span>
                         </a>
                         
-                        <a rel="next prefetch" href="../../internals/compiler-api/cli.html" class="x2c-pager-next" aria-keyshortcuts="Right">
+                        <a rel="next prefetch" href="../../internals/compiler-api/report.html" class="x2c-pager-next" aria-keyshortcuts="Right">
                             <span class="x2c-pager-label">next</span>
-                            <span class="x2c-pager-title">src/cli.x</span>
+                            <span class="x2c-pager-title">src/report.x</span>
                         </a>
                     </nav>
                     <footer class="x2c-footer">
