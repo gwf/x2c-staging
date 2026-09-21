@@ -1,6 +1,6 @@
 <!DOCTYPE HTML>
 <html lang="en" class="light sidebar-visible" dir="ltr">
-    <head><meta name="x2c-release-channel" content="staging"><meta name="x2c-candidate" content="candidate-53c1ed815d792b4a1af2b182a63e32feb1a5e007-35619563015-1">
+    <head><meta name="x2c-release-channel" content="staging"><meta name="x2c-candidate" content="candidate-4fcf5c2a6d16ec5f73a61e582fa97bd3257fcb75-35633957957-1">
         <!-- Book generated using mdBook -->
         <meta charset="UTF-8">
         <title>src/repl-session.x - The x2c Book</title>
@@ -39,10 +39,10 @@
             const path_to_root = "../../";
             const default_light_theme = "light";
             const default_dark_theme = "light";
-            window.path_to_searchindex_js = "../../searchindex-bb4fc07e.js";
+            window.path_to_searchindex_js = "../../searchindex-aa7bc7b3.js";
         </script>
         <!-- Start loading toc.js asap -->
-        <script src="../../toc-a0a48a0f.js"></script>
+        <script src="../../toc-22ab70ae.js"></script>
         <!-- x2c publication metadata -->
         <link rel="canonical" href="https://staging.x2c-lang.dev/docs/internals/compiler-api/repl-session.html">
         <meta property="og:type" content="website">
@@ -233,6 +233,7 @@ Compatibility is not yet promised.</p>
 <tr><th>Function</th><th>Summary</th></tr>
 </thead>
 <tbody>
+<tr><td><a href="#ReplSession.complete"><code>ReplSession.complete</code></a></td><td>Completes the source namespace at byte <code>cursor</code> without publishing parse state.</td></tr>
 <tr><td><a href="#ReplSession.inspect"><code>ReplSession.inspect</code></a></td><td>Returns (value), (function (typed AST) (lowered FORMS)), or NULL if absent.</td></tr>
 <tr><td><a href="#ReplSession.new"><code>ReplSession.new</code></a></td><td>Borrows an initialized submission compiler until its unit closes.</td></tr>
 <tr><td><a href="#ReplSession.submit"><code>ReplSession.submit</code></a></td><td>Submits one complete candidate without printing or retaining a pending prefix.</td></tr>
@@ -241,32 +242,38 @@ Compatibility is not yet promised.</p>
 </table>
 </div>
 <h3 id="replsession"><a class="header" href="#replsession"><code>ReplSession</code></a></h3>
+<p><a id="ReplSession.complete"></a></p>
+<h4 id="replsessioncomplete"><a class="header" href="#replsessioncomplete">ReplSession.complete</a></h4>
+<p><code>ReplCompletion ReplSession.complete( ReplSession session, String source, size_t cursor)</code></p>
+<p>Completes the source namespace at byte <code>cursor</code> without publishing parse
+state. Invalid or non-code prefixes return no candidates.</p>
+<p>Source: <code>src/repl-session.x:100</code></p>
 <p><a id="ReplSession.inspect"></a></p>
 <h4 id="replsessioninspect"><a class="header" href="#replsessioninspect">ReplSession.inspect</a></h4>
 <p><code>List ReplSession.inspect(ReplSession session, String name)</code></p>
 <p>Returns (value), (function (typed AST) (lowered FORMS)), or NULL if absent.
 These are the original canonical Lists, borrowed until unit close.</p>
-<p>Source: <code>src/repl-session.x:61</code></p>
+<p>Source: <code>src/repl-session.x:68</code></p>
 <p><a id="ReplSession.new"></a></p>
 <h4 id="replsessionnew"><a class="header" href="#replsessionnew">ReplSession.new</a></h4>
 <p><code>ReplSession ReplSession.new(Compiler compiler)</code></p>
 <p>Borrows an initialized submission compiler until its unit closes.
 Source-fact collection must be disabled because submission scratch maps
 are reclaimed after each call.</p>
-<p>Source: <code>src/repl-session.x:36</code></p>
+<p>Source: <code>src/repl-session.x:43</code></p>
 <p><a id="ReplSession.submit"></a></p>
 <h4 id="replsessionsubmit"><a class="header" href="#replsessionsubmit">ReplSession.submit</a></h4>
 <p><code>ReplResult ReplSession.submit(ReplSession session, String source)</code></p>
 <p>Submits one complete candidate without printing or retaining a pending
 prefix. Only successfully initialized declarations publish new bindings;
 evaluation effects on previously published values survive failure.</p>
-<p>Source: <code>src/repl-session.x:158</code></p>
+<p>Source: <code>src/repl-session.x:263</code></p>
 <p><a id="ReplSession.symbols"></a></p>
 <h4 id="replsessionsymbols"><a class="header" href="#replsessionsymbols">ReplSession.symbols</a></h4>
 <p><code>List ReplSession.symbols(ReplSession session)</code></p>
 <p>Returns an immutable snapshot of (kind “name”) entries, sorted by name.
 Only session definitions appear; storage is borrowed until unit close.</p>
-<p>Source: <code>src/repl-session.x:48</code></p>
+<p>Source: <code>src/repl-session.x:55</code></p>
 <h2 id="public-types"><a class="header" href="#public-types">Public types</a></h2>
 <div class="table-wrapper">
 <table>
@@ -274,11 +281,18 @@ Only session definitions appear; storage is borrowed until unit close.</p>
 <tr><th>Type</th><th>Kind</th><th>Summary</th></tr>
 </thead>
 <tbody>
+<tr><td><a href="#ReplCompletion"><code>ReplCompletion</code></a></td><td>struct</td><td>Byte range and sorted replacement spellings for one completion request.</td></tr>
 <tr><td><a href="#ReplResult"><code>ReplResult</code></a></td><td>struct</td><td>status is incomplete, rejected, defined, executed, value, or failed.</td></tr>
 <tr><td><a href="#ReplSession"><code>ReplSession</code></a></td><td>struct</td><td>The caller keeps the compiler’s unit Context open until every result and this session are finished.</td></tr>
 </tbody>
 </table>
 </div>
+<p><a id="ReplCompletion"></a></p>
+<h3 id="replcompletion"><a class="header" href="#replcompletion">ReplCompletion</a></h3>
+<p><code>typedef struct ReplCompletion { size_t start, end; List candidates; } ReplCompletion</code></p>
+<p>Byte range and sorted replacement spellings for one completion request.
+Candidate storage is borrowed until the session unit closes.</p>
+<p>Source: <code>src/repl-session.x:28</code></p>
 <p><a id="ReplResult"></a></p>
 <h3 id="replresult"><a class="header" href="#replresult">ReplResult</a></h3>
 <p><code>typedef struct ReplResult { Symbol status; Var value; String name, message, source; List diagnostics, cause, syntax, lowered; } ReplResult</code></p>
@@ -297,9 +311,9 @@ this session are finished. Results borrow that Context’s storage.</p>
                     </main>
 
                     <nav class="x2c-pager" aria-label="Page navigation">
-                        <a rel="prev" href="../../internals/compiler-api/regions.html" class="x2c-pager-prev" aria-keyshortcuts="Left">
+                        <a rel="prev" href="../../internals/compiler-api/repl-input.html" class="x2c-pager-prev" aria-keyshortcuts="Left">
                             <span class="x2c-pager-label">previous</span>
-                            <span class="x2c-pager-title">src/regions.x</span>
+                            <span class="x2c-pager-title">src/repl-input.x</span>
                         </a>
                         
                         <a rel="next prefetch" href="../../internals/compiler-api/repl.html" class="x2c-pager-next" aria-keyshortcuts="Right">
@@ -311,9 +325,9 @@ this session are finished. Results borrow that Context’s storage.</p>
                         &copy; 2025&ndash;2026
                         <a href="https://flake.org">GWF</a>
                         &middot;
-                        <a href="https://github.com/gwf/x2c/blob/53c1ed815d792b4a1af2b182a63e32feb1a5e007/LICENSE">Apache 2.0</a>
+                        <a href="https://github.com/gwf/x2c/blob/4fcf5c2a6d16ec5f73a61e582fa97bd3257fcb75/LICENSE">Apache 2.0</a>
                         &middot;
-                        <a href="https://github.com/gwf/x2c/blob/53c1ed815d792b4a1af2b182a63e32feb1a5e007/TRADEMARKS.md">Trademarks</a>
+                        <a href="https://github.com/gwf/x2c/blob/4fcf5c2a6d16ec5f73a61e582fa97bd3257fcb75/TRADEMARKS.md">Trademarks</a>
                     </footer>
                 </div>
             </div>
