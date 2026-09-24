@@ -1,6 +1,6 @@
 <!DOCTYPE HTML>
 <html lang="en" class="light sidebar-visible" dir="ltr">
-    <head><meta name="x2c-release-channel" content="staging"><meta name="x2c-candidate" content="candidate-4fcf5c2a6d16ec5f73a61e582fa97bd3257fcb75-35633957957-1">
+    <head><meta name="x2c-release-channel" content="staging"><meta name="x2c-candidate" content="candidate-0351be4a4d6c00dd246e5190e8dcf5a970560beb-36014113963-1">
         <!-- Book generated using mdBook -->
         <meta charset="UTF-8">
         <title>lib/func.x - The x2c Book</title>
@@ -39,10 +39,10 @@
             const path_to_root = "../../";
             const default_light_theme = "light";
             const default_dark_theme = "light";
-            window.path_to_searchindex_js = "../../searchindex-aa7bc7b3.js";
+            window.path_to_searchindex_js = "../../searchindex-c9145dcc.js";
         </script>
         <!-- Start loading toc.js asap -->
-        <script src="../../toc-22ab70ae.js"></script>
+        <script src="../../toc-b37ed13f.js"></script>
         <!-- x2c publication metadata -->
         <link rel="canonical" href="https://staging.x2c-lang.dev/docs/library/modules/func.html">
         <meta property="og:type" content="website">
@@ -229,6 +229,8 @@
 <tr><th>Function</th><th>Summary</th></tr>
 </thead>
 <tbody>
+<tr><td><a href="#x2c_func_pointer_argument"><code>x2c_func_pointer_argument</code></a></td><td>Returns the address value argument <code>i</code> carries.</td></tr>
+<tr><td><a href="#x2c_func_record_result"><code>x2c_func_record_result</code></a></td><td>Boxes a record result as a <code>&lt;p48&gt;</code> to a copy of its <code>size</code> bytes in the active <code>Scope</code>.</td></tr>
 <tr><td><a href="#x2c_func_reference_argument"><code>x2c_func_reference_argument</code></a></td><td>Returns reference argument <code>i</code> after checking its declared source type.</td></tr>
 <tr><td><a href="#x2c_func_value_argument"><code>x2c_func_value_argument</code></a></td><td>Checks and converts value argument <code>i</code>, reporting its position.</td></tr>
 <tr><td><a href="#Func.apply"><code>Func.apply</code></a></td><td>Invokes a bound native function synchronously and returns its boxed result.</td></tr>
@@ -239,10 +241,25 @@
 <tr><td><a href="#Func.var"><code>Func.var</code></a></td><td>Boxes <code>function</code> without copying or retaining the <code>Func</code>.</td></tr>
 <tr><td><a href="#FuncArg.reference"><code>FuncArg.reference</code></a></td><td>Constructs a <code>Func</code> argument borrowing a typed lvalue address.</td></tr>
 <tr><td><a href="#FuncArg.value"><code>FuncArg.value</code></a></td><td>Constructs a <code>Func</code> argument by copying one <code>Var</code> value.</td></tr>
+<tr><td><a href="#Var.func"><code>Var.func</code></a></td><td>Returns the borrowed native callable carried by <code>value</code>.</td></tr>
 </tbody>
 </table>
 </div>
 <h3 id="functions"><a class="header" href="#functions">Functions</a></h3>
+<h4 id="x2c_func_pointer_argument"><a class="header" href="#x2c_func_pointer_argument">x2c_func_pointer_argument</a></h4>
+<p><code>void *x2c_func_pointer_argument(Func fn, const FuncArg *argv, unsigned i)</code></p>
+<p>Returns the address value argument <code>i</code> carries. Generated adapters use it
+for a pointer parameter with no <code>Var</code> tag of its own, such as
+<code>const char *</code> or <code>struct timespec *</code>, and for a record passed by value,
+whose bytes the adapter copies. Any pointer, reference, or <code>String</code>
+argument is accepted, as C converts it to the parameter’s pointer type.</p>
+<p><strong>Raises:</strong> <code>&lt;bad-types&gt;</code> for any other argument.</p>
+<p>Source: <code>lib/func.x:249</code></p>
+<h4 id="x2c_func_record_result"><a class="header" href="#x2c_func_record_result">x2c_func_record_result</a></h4>
+<p><code>Var x2c_func_record_result(const void *bytes, size_t size)</code></p>
+<p>Boxes a record result as a <code>&lt;p48&gt;</code> to a copy of its <code>size</code> bytes in the
+active <code>Scope</code>.</p>
+<p>Source: <code>lib/func.x:263</code></p>
 <h4 id="x2c_func_reference_argument"><a class="header" href="#x2c_func_reference_argument">x2c_func_reference_argument</a></h4>
 <p><code>void *x2c_func_reference_argument( Func fn, const FuncArg *argv, unsigned i, List want)</code></p>
 <p>Returns reference argument <code>i</code> after checking its declared source type.
@@ -253,7 +270,7 @@ compiler-generated adapters establish both facts.</p>
 <code>Func</code> signature and adapter disagree, its type differs, or conversion
 would
 discard a qualifier. It does not return on failure.</p>
-<p>Source: <code>lib/func.x:224</code></p>
+<p>Source: <code>lib/func.x:227</code></p>
 <h4 id="x2c_func_value_argument"><a class="header" href="#x2c_func_value_argument">x2c_func_value_argument</a></h4>
 <p><code>Var x2c_func_value_argument( Func fn, const FuncArg *argv, unsigned i, Symbol want)</code></p>
 <p>Checks and converts value argument <code>i</code>, reporting its position.
@@ -269,7 +286,7 @@ a reference, and
 A detail names the argument’s tag rather than the argument: any tag may
 arrive here, and an identity-bearing detail value terminates at the error
 floor instead of reaching the handler that would report it.</p>
-<p>Source: <code>lib/func.x:166</code></p>
+<p>Source: <code>lib/func.x:169</code></p>
 <h3 id="func"><a class="header" href="#func"><code>Func</code></a></h3>
 <p><a id="Func.apply"></a></p>
 <h4 id="funcapply"><a class="header" href="#funcapply">Func.apply</a></h4>
@@ -287,7 +304,7 @@ argument, <code>&lt;alloc-fail&gt;</code> or <code>&lt;size-limit&gt;</code> whi
 or any cause raised by the adapter or native target. A <code>void</code> adapter
 result remains no-value. Other results have the ownership of the value the
 adapter returned.</p>
-<p>Source: <code>lib/func.x:364</code></p>
+<p>Source: <code>lib/func.x:399</code></p>
 <p><a id="Func.context"></a></p>
 <h4 id="funccontext"><a class="header" href="#funccontext">Func.context</a></h4>
 <p><code>const void *Func.context(Func function)</code></p>
@@ -296,7 +313,7 @@ The pointer remains valid only for the <code>Func</code>’s <code>Scope</code> 
 NULL
 when the binding has no context.</p>
 <p><strong>Raises:</strong> <code>&lt;bad-arg&gt;</code> for a null binding. It does not return on failure.</p>
-<p>Source: <code>lib/func.x:345</code></p>
+<p>Source: <code>lib/func.x:380</code></p>
 <p><a id="Func.new"></a></p>
 <h4 id="funcnew"><a class="header" href="#funcnew">Func.new</a></h4>
 <p><code>Func Func.new(FuncAdapter adapter, List signature)</code></p>
@@ -308,7 +325,7 @@ outer shape is checked here, so a hand-written adapter must agree with its
 parameter count and types.</p>
 <p><strong>Raises:</strong> <code>&lt;bad-sig&gt;</code> for a null adapter or a malformed signature, and
 <code>&lt;alloc-fail&gt;</code> when binding storage cannot be allocated.</p>
-<p>Source: <code>lib/func.x:306</code></p>
+<p>Source: <code>lib/func.x:333</code></p>
 <p><a id="Func.new_context"></a></p>
 <h4 id="funcnew_context"><a class="header" href="#funcnew_context">Func.new_context</a></h4>
 <p><code>Func Func.new_context( FuncAdapter adapter, List signature, const void *context, size_t context_size)</code></p>
@@ -321,7 +338,7 @@ borrowed for the <code>Func</code> lifetime.</p>
 <p><strong>Raises:</strong> <code>&lt;bad-arg&gt;</code> when a nonzero size has no source, <code>&lt;size-limit&gt;</code> when
 the allocation size overflows, <code>&lt;bad-sig&gt;</code> for a null adapter or malformed
 signature, or <code>&lt;alloc-fail&gt;</code> when storage cannot be allocated. None return.</p>
-<p>Source: <code>lib/func.x:334</code></p>
+<p>Source: <code>lib/func.x:361</code></p>
 <p><a id="Func.new_rest"></a></p>
 <h4 id="funcnew_rest"><a class="header" href="#funcnew_rest">Func.new_rest</a></h4>
 <p><code>Func Func.new_rest(FuncAdapter adapter, List signature)</code></p>
@@ -336,14 +353,14 @@ The result belongs to the current <code>Scope</code>.</p>
 <p><strong>Raises:</strong> <code>&lt;bad-sig&gt;</code> for a null adapter, a malformed signature, or a
 signature whose parameters are anything but one <code>List</code>, and <code>&lt;alloc-fail&gt;</code>
 when binding storage cannot be allocated.</p>
-<p>Source: <code>lib/func.x:321</code></p>
+<p>Source: <code>lib/func.x:348</code></p>
 <p><a id="Func.var"></a></p>
 <h4 id="funcvar"><a class="header" href="#funcvar">Func.var</a></h4>
 <p><code>Var Func.var(Func function)</code></p>
 <p>Boxes <code>function</code> without copying or retaining the <code>Func</code>.
 The returned <code>Var</code> carries the same pointer and shares its <code>Scope</code>
 lifetime.</p>
-<p>Source: <code>lib/func.x:400</code></p>
+<p>Source: <code>lib/func.x:435</code></p>
 <h3 id="funcarg"><a class="header" href="#funcarg"><code>FuncArg</code></a></h3>
 <p><a id="FuncArg.reference"></a></p>
 <h4 id="funcargreference"><a class="header" href="#funcargreference">FuncArg.reference</a></h4>
@@ -352,14 +369,21 @@ lifetime.</p>
 The address and canonical <code>type</code> must remain valid through <code>Func.apply</code>;
 this constructor performs no validation. Compiler-generated adapters use
 the checked reference reader before calling native code.</p>
-<p>Source: <code>lib/func.x:87</code></p>
+<p>Source: <code>lib/func.x:90</code></p>
 <p><a id="FuncArg.value"></a></p>
 <h4 id="funcargvalue"><a class="header" href="#funcargvalue">FuncArg.value</a></h4>
 <p><code>inline FuncArg FuncArg.value(Var value)</code></p>
 <p>Constructs a <code>Func</code> argument by copying one <code>Var</code> value.
 Pointer-bearing payload storage is not copied or retained and must outlive
 the call that consumes the argument.</p>
-<p>Source: <code>lib/func.x:78</code></p>
+<p>Source: <code>lib/func.x:81</code></p>
+<h3 id="var"><a class="header" href="#var"><code>Var</code></a></h3>
+<p><a id="Var.func"></a></p>
+<h4 id="varfunc"><a class="header" href="#varfunc">Var.func</a></h4>
+<p><code>Func Var.func(Var value)</code></p>
+<p>Returns the borrowed native callable carried by <code>value</code>.</p>
+<p><strong>Raises:</strong> <code>&lt;bad-types&gt;</code> when the value is not a <code>Func</code>.</p>
+<p>Source: <code>lib/func.x:439</code></p>
 <h2 id="runtime-internal-callables"><a class="header" href="#runtime-internal-callables">Runtime-internal callables</a></h2>
 <p>These callables connect runtime translation units. They are documented
 for source readers but are not supported as user API.</p>
@@ -371,6 +395,7 @@ for source readers but are not supported as user API.</p>
 <tbody>
 <tr><td><a href="#x2c_func_reference_type"><code>x2c_func_reference_type</code></a></td><td>Returns the borrowed pointee type for reference parameter <code>index</code>.</td></tr>
 <tr><td><a href="#x2c_func_unrepresentable_argument"><code>x2c_func_unrepresentable_argument</code></a></td><td>Rejects a value argument whose source type has no <code>Var</code> representation.</td></tr>
+<tr><td><a href="#Func.signature"><code>Func.signature</code></a></td><td>Returns a native binding’s borrowed canonical signature.</td></tr>
 </tbody>
 </table>
 </div>
@@ -383,13 +408,21 @@ before evaluating the source argument, so an output-only lvalue is not
 read.</p>
 <p><strong>Raises:</strong> <code>&lt;bad-arg&gt;</code> for a null <code>Func</code> or an index outside <code>argc</code>, or
 <code>&lt;bad-arity&gt;</code> when <code>argc</code> disagrees with a fixed signature.</p>
-<p>Source: <code>lib/func.x:113</code></p>
+<p>Source: <code>lib/func.x:116</code></p>
 <h4 id="x2c_func_unrepresentable_argument"><a class="header" href="#x2c_func_unrepresentable_argument">x2c_func_unrepresentable_argument</a></h4>
 <p><code>FuncArg x2c_func_unrepresentable_argument( Func fn, unsigned i, List source)</code></p>
 <p>Rejects a value argument whose source type has no <code>Var</code> representation.
 Generated calls use this branch instead of compiling an impossible
 conversion. Raises: <code>&lt;bad-types&gt;</code>.</p>
-<p>Source: <code>lib/func.x:243</code></p>
+<p>Source: <code>lib/func.x:270</code></p>
+<h3 id="func-1"><a class="header" href="#func-1"><code>Func</code></a></h3>
+<p><a id="Func.signature"></a></p>
+<h4 id="funcsignature"><a class="header" href="#funcsignature">Func.signature</a></h4>
+<p><code>List Func.signature(Func function)</code></p>
+<p>Returns a native binding’s borrowed canonical signature.
+The result has the <code>((func (PARAMETERS...)) RESULT...)</code> shape supplied to
+the constructor and remains valid for the binding’s lifetime.</p>
+<p>Source: <code>lib/func.x:369</code></p>
 <h2 id="public-types"><a class="header" href="#public-types">Public types</a></h2>
 <div class="table-wrapper">
 <table>
@@ -414,7 +447,7 @@ readers, call their native target, and box its result. A returned <code>void</co
 remains no-value. Adapters receive no count. Fixed bindings check arity
 first,
 and rest bindings receive one packed <code>List</code> argument.</p>
-<p>Source: <code>lib/func.x:46</code></p>
+<p>Source: <code>lib/func.x:49</code></p>
 <p><a id="FuncArg"></a></p>
 <h3 id="funcarg-1"><a class="header" href="#funcarg-1">FuncArg</a></h3>
 <p><code>typedef struct FuncArg { FuncArgData data; List reference_type; } FuncArg</code></p>
@@ -423,13 +456,13 @@ A null <code>reference_type</code> selects the copied <code>Var</code> bits; oth
 <code>reference</code>
 and the canonical source type are borrowed and must remain valid through
 the call. A reference target may be mutated by the native function.</p>
-<p>Source: <code>lib/func.x:32</code></p>
+<p>Source: <code>lib/func.x:35</code></p>
 <p><a id="FuncArgData"></a></p>
 <h3 id="funcargdata"><a class="header" href="#funcargdata">FuncArgData</a></h3>
 <p><code>typedef union FuncArgData { Var value; const void *reference; } FuncArgData</code></p>
 <p>Storage for either the value or reference member selected by <code>FuncArg</code>.
 Pointer-bearing <code>Var</code> storage and referenced objects belong to the caller.</p>
-<p>Source: <code>lib/func.x:21</code></p>
+<p>Source: <code>lib/func.x:24</code></p>
 <h2 id="design-notes"><a class="header" href="#design-notes">Design notes</a></h2>
 <p><code>Func</code> binds a synchronous native call. It stores a typed signature and
 adapter, checks boxed value and typed-reference arguments, and boxes the
@@ -453,9 +486,9 @@ as the <code>Func</code>.</p>
                         &copy; 2025&ndash;2026
                         <a href="https://flake.org">GWF</a>
                         &middot;
-                        <a href="https://github.com/gwf/x2c/blob/4fcf5c2a6d16ec5f73a61e582fa97bd3257fcb75/LICENSE">Apache 2.0</a>
+                        <a href="https://github.com/gwf/x2c/blob/0351be4a4d6c00dd246e5190e8dcf5a970560beb/LICENSE">Apache 2.0</a>
                         &middot;
-                        <a href="https://github.com/gwf/x2c/blob/4fcf5c2a6d16ec5f73a61e582fa97bd3257fcb75/TRADEMARKS.md">Trademarks</a>
+                        <a href="https://github.com/gwf/x2c/blob/0351be4a4d6c00dd246e5190e8dcf5a970560beb/TRADEMARKS.md">Trademarks</a>
                     </footer>
                 </div>
             </div>

@@ -1,6 +1,6 @@
 <!DOCTYPE HTML>
 <html lang="en" class="light sidebar-visible" dir="ltr">
-    <head><meta name="x2c-release-channel" content="staging"><meta name="x2c-candidate" content="candidate-4fcf5c2a6d16ec5f73a61e582fa97bd3257fcb75-35633957957-1">
+    <head><meta name="x2c-release-channel" content="staging"><meta name="x2c-candidate" content="candidate-0351be4a4d6c00dd246e5190e8dcf5a970560beb-36014113963-1">
         <!-- Book generated using mdBook -->
         <meta charset="UTF-8">
         <title>The Region Model - The x2c Book</title>
@@ -39,10 +39,10 @@
             const path_to_root = "../";
             const default_light_theme = "light";
             const default_dark_theme = "light";
-            window.path_to_searchindex_js = "../searchindex-aa7bc7b3.js";
+            window.path_to_searchindex_js = "../searchindex-c9145dcc.js";
         </script>
         <!-- Start loading toc.js asap -->
-        <script src="../toc-22ab70ae.js"></script>
+        <script src="../toc-b37ed13f.js"></script>
         <!-- x2c publication metadata -->
         <link rel="canonical" href="https://staging.x2c-lang.dev/docs/guide/regions.html">
         <meta property="og:type" content="website">
@@ -227,20 +227,21 @@ at, or a static), an object owned by an outer or sibling region, and any
 pointer whose target the compiler cannot identify, including a pointer that
 a called function stores into for the caller.</p>
 <p>A region is a <code>$scope()</code> block, a <code>Scope.retain</code> and <code>Scope.release</code> pair, a
-<code>$scope(&amp;slot)</code> push, a <code>Pool.open</code> bracket, an <code>$auto</code> local, or the
-storage of a <code>Scope</code> local that <code>Scope.destroy</code> ends.
+<code>$scope(&amp;slot)</code> push, a <code>Pool.open</code> bracket, an <code>$auto</code> local, the
+storage of a <code>Scope</code> local that <code>Scope.destroy</code> ends, or the function’s own
+locals and parameters, whose storage ends when the function returns.
 <code>src/regions.x</code> analyzes these forms before the transform driver lowers
 them, so a region is still the call that opens it and the <code>defer</code> beside it
 that closes it.</p>
 <h2 id="exemptions"><a class="header" href="#exemptions">Exemptions</a></h2>
-<p>The pass exempts four ways of leaving a region.</p>
-<p>A <code>List</code> pool owns each canonical value, so ending a region never frees it.
-<code>String</code>, <code>List</code>, and <code>Symbol</code> results therefore cross a region boundary
-without a warning. A value consed inside a <code>Pool.open</code> bracket is the
-exception: that bracket’s pool frees it, so the pass tracks pool-born values
-the same way it tracks scope-born ones. The exemption covers the List cells
-alone. <code>cons(a, rest)</code> and <code>%($a)</code> store <code>a</code> in a cell that outlives every
-region, so the pass reports a region-born <code>a</code> at that store.</p>
+<p>The pass exempts these ways of leaving a region.</p>
+<p>A <code>List</code> pool owns each canonical value, so ending a Scope region does not
+free it. A value made inside a <code>Pool.open</code> bracket belongs to that bracket’s
+pool and is tracked like scope-born storage. This includes <code>String.new</code>,
+<code>String.malloc</code>, and List cells returned by a helper. <code>cons(a, rest)</code> and
+<code>%($a)</code> retain their arguments in the cell’s pool: a value from that same
+pool stays there, while a value from a shorter-lived region reports at the
+store.</p>
 <p><code>Scope.move</code> and <code>Context.export</code> change the storage’s owner. After the
 move, the region the pass was tracking no longer holds the allocation, so
 the allocation survives the end of that region. The promote family -
@@ -256,6 +257,20 @@ owner, so the target does not inherit the region. The pass classifies the
 assignment by the declared type through the compiler’s <code>Var</code> tag for that
 type, as the converter does. A <code>String *</code> or <code>List *</code> points at storage and
 gets no exemption.</p>
+<p>Every region a function opens ends before the function’s own storage. The
+address of a local can therefore be stored into another local, or into an
+object of a region the function opens, without a warning. A reference
+capture, <code>using &amp;name</code>, moves the local into a cell of the active region, so
+the closure holds that cell rather than the function’s storage.</p>
+<p>A store into a place that an earlier <code>defer</code> in the same block writes
+back, as <code>$let</code> does, is undone before the block ends and is not reported.
+A store made before that <code>defer</code>, or after a <code>defer</code> that runs on only one
+branch, is reported, because a <code>return</code> between them leaves the place
+holding the value.</p>
+<p>A destination that converts its value by copying does not keep it: a <code>List</code>
+parameter given an <code>Array</code>, or a <code>Var</code> given a C string, which it boxes as a
+fresh <code>String</code>. A local C array
+passed on, returned, or stored counts as the address of its first element.</p>
 <h2 id="what-the-warnings-do-not-cover"><a class="header" href="#what-the-warnings-do-not-cover">What the warnings do not cover</a></h2>
 <p>The check covers lexical regions and the storage it tracks. It does not
 cover:</p>
@@ -263,11 +278,14 @@ cover:</p>
 <li>storage from plain <code>malloc</code> or a C library;</li>
 <li>pointer arithmetic and casts through raw C types;</li>
 <li>values reached through a field of a stack <code>struct</code>, which the pass treats
-as one storage;</li>
+as one storage, so an address kept in a field of a struct that is copied
+out is not followed;</li>
 <li>callbacks and function pointers, including entry points a Lisp binding
 calls;</li>
-<li><code>Scope.free</code> and <code>Scope.realloc</code>, whose effect on other aliases of the
-same allocation the pass does not track;</li>
+<li>other aliases of storage that <code>Scope.free</code> or <code>Scope.realloc</code> ended; the
+pass ends only the local passed to the call, and it reports a free only
+of storage it can see is not from a Scope allocator: a literal, the
+function’s own storage, or a pooled value;</li>
 <li><code>Context</code> regions, which are not modeled;</li>
 <li><code>$auto</code> and <code>defer</code> cleanups other than the runtime’s own <code>Array</code>, <code>Map</code>,
 <code>Block</code>, <code>Bytes</code>, <code>Buffer</code>, <code>Context</code>, and <code>Scope</code> cleanups;</li>
@@ -278,16 +296,30 @@ statements after that branch.</li>
 warning. The pass reports one pattern. A program without warnings is not
 shown to be memory safe.</p>
 <h2 id="how-the-check-works"><a class="header" href="#how-the-check-works">How the check works</a></h2>
-<p>Each function gets one summary of two facts: whether its result is fresh
-storage, and, for each parameter, where that parameter is sunk (returned,
-into another parameter’s object, into a static, or through an unknown
-pointer). The summaries of a unit’s functions are computed to a fixpoint,
-because a caller’s facts depend on its callees’ facts. Each round walks every
+<p>Each function gets one summary of two facts: which of Scope and Pool storage
+its result may use (possibly both), and where each parameter is sunk
+(returned by identity, retained in the fresh result, placed into another
+parameter’s object or a static, or stored through an unknown pointer). The
+summaries of a unit’s functions are computed to a fixpoint because a caller’s
+facts depend on its callees’ facts. Each round walks every
 body with a stack of open regions and a map from each binding to its known
 facts: its parameter index, the region it was born in, the local a pointer
 was taken from, and whether a free has already ended it. The first round
 that changes no summary walked every body against final summaries, so its
 warnings are the ones reported.</p>
+<p>An address taken with <code>&amp;</code> belongs to the storage it names. The address of a
+local, a parameter, or a compound literal belongs to the function’s own
+storage. An address reached through a pointer, such as <code>&amp;box-&gt;value</code>,
+belongs to whatever that pointer holds, so an address inside a parameter’s
+object counts as that parameter in the summary. A caller of a function that
+returns <code>&amp;box-&gt;value</code> therefore sees its own borrow come back.</p>
+<p>A <code>meta</code> function is walked the same way when it is defined, against the
+summaries of the <code>meta</code> functions defined before it. A compile-time call
+frees its locals when it returns, so a finding in a <code>meta</code> body is an error
+that rejects the definition rather than a warning; see
+<a href="meta-functions.html">Meta Functions</a>. A native function outside the runtime table
+described below takes a summary its signature implies; see
+<a href="meta-functions.html#native-modules">Native modules</a>.</p>
 <p>Summaries stay inside the unit. For a call into another unit, the pass uses
 only a fixed table of runtime operations, such as a <code>Scope</code> allocator,
 <code>cons</code>, <code>Array.push</code>, <code>Scope.move</code>, and <code>Array.list_free</code>. Summaries are not
@@ -297,11 +329,6 @@ units, so an interface summary would make a unit’s warnings depend on input
 order, the job count, and interfaces left by an earlier translation. As a
 result, the pass reports no warning when a caller passes a region-born value
 to a function in another unit that stores its argument into a static.</p>
-<p>The whole-project answer is a separate run over the sources at once. The
-<code>region-escapes</code> command of the <code>x2c-graph</code> tool walks every unit against the
-summaries the other units proved, repeating until no summary grows, and then
-reports. It finds the cross-unit store a translation cannot, and it changes
-nothing about how a translation behaves.</p>
 <h2 id="where-the-design-sits"><a class="header" href="#where-the-design-sits">Where the design sits</a></h2>
 <p>The region check descends from the ML Kit and Cyclone. The ML Kit inferred
 regions and a region-annotated program from an unannotated one. Cyclone made
@@ -310,12 +337,12 @@ lifetimes against them. From the ML Kit, <span class="x2c-wordmark">x2c</span> t
 the unit of deallocation; from Cyclone, the idea that a C program can be
 checked against them. The regions are the ones the author wrote with
 <code>$scope</code> and the retain and release calls. The check adds nothing to the
-program text and produces only warnings.</p>
+program text and produces only warnings, except in compile-time code.</p>
 <p>Rust and Swift put ownership and lifetime in the signature. Every call is
 checked locally against a declared contract, and a violation is an error.
 <span class="x2c-wordmark">x2c</span> has no lifetime annotations, so the check derives the same information,
 and derived facts are weaker than a declared contract. As a result, existing
-C-shaped code compiles unchanged, and the check can only warn.</p>
+C-shaped code compiles unchanged, and ordinary code gets only warnings.</p>
 <p>Go’s escape analysis and Infer use the most similar methods. Go computes
 per-function escape facts and uses them to choose between stack and heap
 allocation. Infer computes per-procedure summaries and propagates them
@@ -340,9 +367,9 @@ within one unit and uses them for warnings.</p>
                         &copy; 2025&ndash;2026
                         <a href="https://flake.org">GWF</a>
                         &middot;
-                        <a href="https://github.com/gwf/x2c/blob/4fcf5c2a6d16ec5f73a61e582fa97bd3257fcb75/LICENSE">Apache 2.0</a>
+                        <a href="https://github.com/gwf/x2c/blob/0351be4a4d6c00dd246e5190e8dcf5a970560beb/LICENSE">Apache 2.0</a>
                         &middot;
-                        <a href="https://github.com/gwf/x2c/blob/4fcf5c2a6d16ec5f73a61e582fa97bd3257fcb75/TRADEMARKS.md">Trademarks</a>
+                        <a href="https://github.com/gwf/x2c/blob/0351be4a4d6c00dd246e5190e8dcf5a970560beb/TRADEMARKS.md">Trademarks</a>
                     </footer>
                 </div>
             </div>

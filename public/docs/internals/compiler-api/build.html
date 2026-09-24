@@ -1,6 +1,6 @@
 <!DOCTYPE HTML>
 <html lang="en" class="light sidebar-visible" dir="ltr">
-    <head><meta name="x2c-release-channel" content="staging"><meta name="x2c-candidate" content="candidate-4fcf5c2a6d16ec5f73a61e582fa97bd3257fcb75-35633957957-1">
+    <head><meta name="x2c-release-channel" content="staging"><meta name="x2c-candidate" content="candidate-0351be4a4d6c00dd246e5190e8dcf5a970560beb-36014113963-1">
         <!-- Book generated using mdBook -->
         <meta charset="UTF-8">
         <title>src/build.x - The x2c Book</title>
@@ -39,10 +39,10 @@
             const path_to_root = "../../";
             const default_light_theme = "light";
             const default_dark_theme = "light";
-            window.path_to_searchindex_js = "../../searchindex-aa7bc7b3.js";
+            window.path_to_searchindex_js = "../../searchindex-c9145dcc.js";
         </script>
         <!-- Start loading toc.js asap -->
-        <script src="../../toc-22ab70ae.js"></script>
+        <script src="../../toc-b37ed13f.js"></script>
         <!-- x2c publication metadata -->
         <link rel="canonical" href="https://staging.x2c-lang.dev/docs/internals/compiler-api/build.html">
         <meta property="og:type" content="website">
@@ -234,7 +234,7 @@ Compatibility is not yet promised.</p>
 </thead>
 <tbody>
 <tr><td><a href="#build_check_input"><code>build_check_input</code></a></td><td>Exits with a driver error unless <code>input</code> names a regular file.</td></tr>
-<tr><td><a href="#build_hash_bytes"><code>build_hash_bytes</code></a></td><td>Returns <code>hash</code> extended with <code>length</code> <code>bytes</code> by 64-bit FNV-1a.</td></tr>
+<tr><td><a href="#build_module_stamp"><code>build_module_stamp</code></a></td><td>Returns the stamp a native module records: <code>x2c-module-stamp:</code> and the running compiler’s identity.</td></tr>
 <tr><td><a href="#compile_commands_write"><code>compile_commands_write</code></a></td><td>Publishes collected native compilation entries as one JSON database.</td></tr>
 <tr><td><a href="#Build.add_generated"><code>Build.add_generated</code></a></td><td>Registers generated artifacts for native compilation.</td></tr>
 <tr><td><a href="#Build.begin_translation"><code>Build.begin_translation</code></a></td><td>Starts translation reporting for <code>input</code> and initializes timing when unset.</td></tr>
@@ -242,6 +242,7 @@ Compatibility is not yet promised.</p>
 <tr><td><a href="#Build.end_translation"><code>Build.end_translation</code></a></td><td>Records one completed translation and reports the phase when all finish.</td></tr>
 <tr><td><a href="#Build.finish"><code>Build.finish</code></a></td><td>Compiles registered C sources and then archives or links the final output.</td></tr>
 <tr><td><a href="#Build.generated_dir"><code>Build.generated_dir</code></a></td><td>Returns the generated-file directory for <code>input</code>.</td></tr>
+<tr><td><a href="#Build.module_entry"><code>Build.module_entry</code></a></td><td>Writes the entry unit of a native module and returns the request that translates it.</td></tr>
 <tr><td><a href="#Build.publish_script"><code>Build.publish_script</code></a></td><td>Moves a script’s built executable, and its debug symbols on macOS, to <code>executable</code> and records what it was built from, so <code>CliRequest.script_current</code> can reuse it.</td></tr>
 <tr><td><a href="#Build.record_translation"><code>Build.record_translation</code></a></td><td>Records the successful translation fingerprint when retained state exists.</td></tr>
 <tr><td><a href="#Build.report_success"><code>Build.report_success</code></a></td><td>Prints the completed build receipt and artifact details when enabled.</td></tr>
@@ -258,18 +259,20 @@ Compatibility is not yet promised.</p>
 <p><code>void build_check_input(String input)</code></p>
 <p>Exits with a driver error unless <code>input</code> names a regular file.
 A wildcard or directory operand adds a note on what to pass instead.</p>
-<p>Source: <code>src/build.x:211</code></p>
-<h4 id="build_hash_bytes"><a class="header" href="#build_hash_bytes">build_hash_bytes</a></h4>
-<p><code>uint64_t build_hash_bytes(uint64_t hash, const void *bytes, size_t length)</code></p>
-<p>Returns <code>hash</code> extended with <code>length</code> <code>bytes</code> by 64-bit FNV-1a.</p>
-<p>Source: <code>src/build.x:84</code></p>
+<p>Source: <code>src/build.x:198</code></p>
+<h4 id="build_module_stamp"><a class="header" href="#build_module_stamp">build_module_stamp</a></h4>
+<p><code>String build_module_stamp(void)</code></p>
+<p>Returns the stamp a native module records: <code>x2c-module-stamp:</code> and the
+running compiler’s identity. Returns NULL when the executable cannot be
+read. Only the compiler that built a module loads it.</p>
+<p>Source: <code>src/build.x:126</code></p>
 <h4 id="compile_commands_write"><a class="header" href="#compile_commands_write">compile_commands_write</a></h4>
 <p><code>int compile_commands_write(String path, Array commands)</code></p>
 <p>Publishes collected native compilation entries as one JSON database.
 <code>commands</code> holds serialized entries from each completed build target.
 The destination’s parent must exist. A failed write preserves the
 existing database, reports a diagnostic, and returns zero.</p>
-<p>Source: <code>src/build.x:542</code></p>
+<p>Source: <code>src/build.x:597</code></p>
 <h3 id="build"><a class="header" href="#build"><code>Build</code></a></h3>
 <p><a id="Build.add_generated"></a></p>
 <h4 id="buildadd_generated"><a class="header" href="#buildadd_generated">Build.add_generated</a></h4>
@@ -279,46 +282,57 @@ Counts the C and header bytes, appends the C source, and adds include
 directories and native compile options for imported packages. Programs
 also add ordered package archives and link flags; an absent archive prints
 a diagnostic and exits with status 2. Static libraries skip link inputs.</p>
-<p>Source: <code>src/build.x:431</code></p>
+<p>Source: <code>src/build.x:426</code></p>
 <p><a id="Build.begin_translation"></a></p>
 <h4 id="buildbegin_translation"><a class="header" href="#buildbegin_translation">Build.begin_translation</a></h4>
 <p><code>void Build.begin_translation(Build state, String input)</code></p>
 <p>Starts translation reporting for <code>input</code> and initializes timing when unset.</p>
-<p>Source: <code>src/build.x:444</code></p>
+<p>Source: <code>src/build.x:480</code></p>
 <p><a id="Build.cleanup"></a></p>
 <h4 id="buildcleanup"><a class="header" href="#buildcleanup">Build.cleanup</a></h4>
 <p><code>void Build.cleanup(Build b, int success)</code></p>
 <p>Removes the temporary work tree after a successful real build.
 Failed builds, retained directories, and dry runs are left untouched; a
 removal failure emits a warning and is not returned to the caller.</p>
-<p>Source: <code>src/build.x:876</code></p>
+<p>Source: <code>src/build.x:954</code></p>
 <p><a id="Build.end_translation"></a></p>
 <h4 id="buildend_translation"><a class="header" href="#buildend_translation">Build.end_translation</a></h4>
 <p><code>void Build.end_translation(Build state, String input, int cached)</code></p>
 <p>Records one completed translation and reports the phase when all finish.
 A nonzero <code>cached</code> value also increments the cached-translation count.</p>
-<p>Source: <code>src/build.x:452</code></p>
+<p>Source: <code>src/build.x:488</code></p>
 <p><a id="Build.finish"></a></p>
 <h4 id="buildfinish"><a class="header" href="#buildfinish">Build.finish</a></h4>
 <p><code>int Build.finish(Build b)</code></p>
 <p>Compiles registered C sources and then archives or links the final output.
 Returns zero for success and one when compilation or the final native
 action fails. Compile-only requests stop after objects. Static archives
-reuse their recorded inputs; executables always link because library
-selection and implicit linker inputs are not in the fingerprint. The
-archiver or linker writes a private sibling that replaces the output by
-rename, so a concurrent build in the same project finds the whole
+reuse their recorded inputs. Native modules and executables always link
+because library selection and implicit linker inputs are not in the
+fingerprint. An identical relinked module keeps its old file so consumers
+stay current. The archiver or linker writes a private sibling that
+replaces the output by rename, so a concurrent build finds the whole
 previous artifact or the whole new one. Mapped
 macOS debug executables also produce a companion dSYM before cleanup;
 failed symbol assembly fails the build and preserves intermediates.</p>
-<p>Source: <code>src/build.x:716</code></p>
+<p>Source: <code>src/build.x:772</code></p>
 <p><a id="Build.generated_dir"></a></p>
 <h4 id="buildgenerated_dir"><a class="header" href="#buildgenerated_dir">Build.generated_dir</a></h4>
 <p><code>String Build.generated_dir(Build state, String input)</code></p>
 <p>Returns the generated-file directory for <code>input</code>.
 The directory is derived from the input path and created unless this is
 a dry run. Native registration belongs to <code>Build.add_generated</code>.</p>
-<p>Source: <code>src/build.x:322</code></p>
+<p>Source: <code>src/build.x:314</code></p>
+<p><a id="Build.module_entry"></a></p>
+<h4 id="buildmodule_entry"><a class="header" href="#buildmodule_entry">Build.module_entry</a></h4>
+<p><code>CliRequest Build.module_entry(Build b)</code></p>
+<p>Writes the entry unit of a native module and returns the request that
+translates it. The entry defines <code>x2c_module_targets</code>, which returns a
+Map from the name of each native <code>meta</code> prototype the module’s <span class="x2c-wordmark">x2c</span>
+sources declare to a <code>Func</code> that calls it, and <code>x2c_module_stamp</code>, which
+holds the stamp the loading compiler must match. A module whose sources
+declare no such prototype fails to translate.</p>
+<p>Source: <code>src/build.x:444</code></p>
 <p><a id="Build.publish_script"></a></p>
 <h4 id="buildpublish_script"><a class="header" href="#buildpublish_script">Build.publish_script</a></h4>
 <p><code>void Build.publish_script(Build b, String executable)</code></p>
@@ -329,7 +343,7 @@ the script’s translation and compile prerequisites, package archives, and
 the runtime archive. A file changed while the build ran records nothing,
 so the executable is never reused for source it was not built from.</p>
 <p><strong>Raises:</strong> <code>&lt;io-fail&gt;</code> when the executable cannot be moved.</p>
-<p>Source: <code>src/build.x:978</code></p>
+<p>Source: <code>src/build.x:1056</code></p>
 <p><a id="Build.record_translation"></a></p>
 <h4 id="buildrecord_translation"><a class="header" href="#buildrecord_translation">Build.record_translation</a></h4>
 <p><code>void Build.record_translation(Build state, String input, String directory)</code></p>
@@ -339,18 +353,18 @@ are ignored, so the generated C is never reused for an input it does not
 match. Writing the private
 state file is best effort; after a write or rename failure, cleanup
 attempts to unlink the temporary file but cannot guarantee its removal.</p>
-<p>Source: <code>src/build.x:372</code></p>
+<p>Source: <code>src/build.x:367</code></p>
 <p><a id="Build.report_success"></a></p>
 <h4 id="buildreport_success"><a class="header" href="#buildreport_success">Build.report_success</a></h4>
 <p><code>void Build.report_success(Build b)</code></p>
 <p>Prints the completed build receipt and artifact details when enabled.</p>
-<p>Source: <code>src/build.x:806</code></p>
+<p>Source: <code>src/build.x:883</code></p>
 <p><a id="Build.run_program"></a></p>
 <h4 id="buildrun_program"><a class="header" href="#buildrun_program">Build.run_program</a></h4>
 <p><code>int Build.run_program(Build b)</code></p>
 <p>Runs the built output with the request’s arguments and returns its status.
 A dry run prints the action without launching the program.</p>
-<p>Source: <code>src/build.x:861</code></p>
+<p>Source: <code>src/build.x:939</code></p>
 <p><a id="Build.script_helpers"></a></p>
 <h4 id="buildscript_helpers"><a class="header" href="#buildscript_helpers">Build.script_helpers</a></h4>
 <p><code>List Build.script_helpers(Build b)</code></p>
@@ -358,7 +372,7 @@ A dry run prints the action without launching the program.</p>
 program must translate and link. The script’s translation depfile already
 lists every file the translation read, so helpers of helpers appear too.
 Runtime and package sources are excluded; their objects are archived.</p>
-<p>Source: <code>src/build.x:954</code></p>
+<p>Source: <code>src/build.x:1032</code></p>
 <p><a id="Build.translation_current"></a></p>
 <h4 id="buildtranslation_current"><a class="header" href="#buildtranslation_current">Build.translation_current</a></h4>
 <p><code>int Build.translation_current(Build state, String input, String directory)</code></p>
@@ -366,7 +380,7 @@ Runtime and package sources are excluded; their objects are archived.</p>
 Returns zero without retained state, during a dry run, when either output
 is absent, or when any compiler, tool, option, depfile, or dependency
 fingerprint cannot be read or differs.</p>
-<p>Source: <code>src/build.x:351</code></p>
+<p>Source: <code>src/build.x:346</code></p>
 <h3 id="clirequest"><a class="header" href="#clirequest"><code>CliRequest</code></a></h3>
 <p><a id="CliRequest.prepare"></a></p>
 <h4 id="clirequestprepare"><a class="header" href="#clirequestprepare">CliRequest.prepare</a></h4>
@@ -376,13 +390,13 @@ It writes the default state seed and selected compiler and archiver back
 to <code>request</code>, chooses output and intermediate paths, and creates artifact
 directories unless this is a dry run. Invalid inputs or setup print a
 diagnostic and exit with status 2.</p>
-<p>Source: <code>src/build.x:235</code></p>
+<p>Source: <code>src/build.x:222</code></p>
 <p><a id="CliRequest.script_current"></a></p>
 <h4 id="clirequestscript_current"><a class="header" href="#clirequestscript_current">CliRequest.script_current</a></h4>
 <p><code>int CliRequest.script_current(CliRequest c, String directory)</code></p>
 <p>Reports whether the script executable under <code>directory</code> still matches
 everything recorded when it was built.</p>
-<p>Source: <code>src/build.x:1007</code></p>
+<p>Source: <code>src/build.x:1085</code></p>
 <h2 id="public-types"><a class="header" href="#public-types">Public types</a></h2>
 <div class="table-wrapper">
 <table>
@@ -429,9 +443,9 @@ remains with the compiler driver.</p>
                         &copy; 2025&ndash;2026
                         <a href="https://flake.org">GWF</a>
                         &middot;
-                        <a href="https://github.com/gwf/x2c/blob/4fcf5c2a6d16ec5f73a61e582fa97bd3257fcb75/LICENSE">Apache 2.0</a>
+                        <a href="https://github.com/gwf/x2c/blob/0351be4a4d6c00dd246e5190e8dcf5a970560beb/LICENSE">Apache 2.0</a>
                         &middot;
-                        <a href="https://github.com/gwf/x2c/blob/4fcf5c2a6d16ec5f73a61e582fa97bd3257fcb75/TRADEMARKS.md">Trademarks</a>
+                        <a href="https://github.com/gwf/x2c/blob/0351be4a4d6c00dd246e5190e8dcf5a970560beb/TRADEMARKS.md">Trademarks</a>
                     </footer>
                 </div>
             </div>

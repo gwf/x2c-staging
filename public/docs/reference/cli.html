@@ -1,6 +1,6 @@
 <!DOCTYPE HTML>
 <html lang="en" class="light sidebar-visible" dir="ltr">
-    <head><meta name="x2c-release-channel" content="staging"><meta name="x2c-candidate" content="candidate-4fcf5c2a6d16ec5f73a61e582fa97bd3257fcb75-35633957957-1">
+    <head><meta name="x2c-release-channel" content="staging"><meta name="x2c-candidate" content="candidate-0351be4a4d6c00dd246e5190e8dcf5a970560beb-36014113963-1">
         <!-- Book generated using mdBook -->
         <meta charset="UTF-8">
         <title>Compiler Options - The x2c Book</title>
@@ -39,10 +39,10 @@
             const path_to_root = "../";
             const default_light_theme = "light";
             const default_dark_theme = "light";
-            window.path_to_searchindex_js = "../searchindex-aa7bc7b3.js";
+            window.path_to_searchindex_js = "../searchindex-c9145dcc.js";
         </script>
         <!-- Start loading toc.js asap -->
-        <script src="../toc-22ab70ae.js"></script>
+        <script src="../toc-b37ed13f.js"></script>
         <!-- x2c publication metadata -->
         <link rel="canonical" href="https://staging.x2c-lang.dev/docs/reference/cli.html">
         <meta property="og:type" content="website">
@@ -352,6 +352,24 @@ per C source. <code>--kind static-library</code> uses the selected archiver:</p>
 <pre><code class="language-sh">./x2c build --kind static-library \
   --output /tmp/libwidget.a src/widget.x src/helper.c
 </code></pre>
+<p><code>--kind meta-module</code> builds a native module, whose functions compile-time
+code can call. The module leaves the <span class="x2c-wordmark">x2c</span> runtime unresolved and uses the
+loading compiler’s copy, and it records that compiler’s content hash. On
+macOS the module links against the running compiler, so a call to a runtime
+function the compiler does not link fails the build.
+<code>--native-module &lt;file&gt;</code> loads a module for <code>translate</code>, <code>build</code>, <code>run</code>, and
+<code>repl</code>, and repeats:</p>
+<pre><code class="language-sh">./x2c build --kind meta-module --output helpers.so src/helpers.x
+./x2c run --native-module helpers.so src/helpers.x src/main.x
+</code></pre>
+<p>Only the compiler that built a module loads it; any other compiler reports
+that the module was built by another compiler before running any of its
+code. The compiler loads a module only on request and keeps it loaded until
+it exits, and a translation binds only the modules its request names. When
+two of them define one name, the first supplies it and the declaration
+reports a warning. Modules work on macOS, Linux and WSL.
+<a href="../guide/meta-functions.html#native-modules">Native modules</a> explains what a
+module contains.</p>
 <p><code>-c</code>, or <code>--compile-only</code>, stops after compilation. One input may name its
 object with <code>--output</code>. Multiple compile-only inputs require <code>--build-dir</code>, so
 every object has an unambiguous path.</p>
@@ -420,8 +438,9 @@ not publish the APE; <code>make ape-build</code> in a checkout produces it.</p>
 </code></pre>
 <p>The command verifies and extracts the source distribution stored in the APE
 ZIP, builds a native runtime archive first, then builds and installs the
-matching native compiler. The result includes the compiler, its runtime
-archive, headers, sources, unit interfaces, licenses, and a toolchain record.
+matching native compiler, which then writes the runtime unit interfaces. The
+result includes the compiler, its runtime archive, headers, sources, unit
+interfaces, licenses, and a toolchain record.
 A running bootstrap locks <code>&lt;prefix&gt;/.x2c-bootstrap.lock</code>, and a second
 bootstrap into the same prefix stops with an error. The operating system
 releases the lock when the process exits, and the empty file stays in the
@@ -571,11 +590,16 @@ shell, a name that begins with a dot matches only where the pattern has a
 literal dot. Matches are deduplicated and bytewise sorted. Unmatched patterns,
 unknown targets, and dependency cycles are errors before any action runs.</p>
 <p>A target may also set defines, C flags, library directories, libraries, link
-flags, package directories, and an output. Command-line target, profile,
-kind, output, build directory, and tool options override the corresponding
-defaults. <code>--target &lt;name&gt;</code> builds the named manifest target and <code>--profile &lt;name&gt;</code> applies the named manifest build profile; both work with <code>build</code> and
-<code>run</code>. The selected target must define the named profile; a dependency target
-takes it when it defines one and builds with its own settings otherwise.
+flags, package directories, and an output. <code>kind = "meta-module"</code> builds a
+native module, and a target’s <code>native-modules</code> field lists the module
+targets its translation loads. Those build first, like <code>dependencies</code>, and a
+changed module retranslates the targets that load it. Command-line target,
+profile, kind, output, build directory, and tool options override the
+corresponding defaults. <code>--target &lt;name&gt;</code> builds the named manifest target
+and <code>--profile &lt;name&gt;</code> applies the named manifest build profile; both work
+with <code>build</code> and <code>run</code>. The selected target must define the named profile; a
+dependency target takes it when it defines one and builds with its own
+settings otherwise.
 <code>--manifest-path</code>, <code>--target</code>, and <code>--profile</code> describe a manifest build, so
 each conflicts with explicit input operands, and <code>-c</code> needs operands rather
 than a manifest.</p>
@@ -637,8 +661,9 @@ installed a dependency does not hold it while the program runs.</p>
 <p><code>x2c env</code> prints the resolved home, executable, include directory, runtime
 archive, prelude interface, package roots, C compiler, archiver, and script
 cache root as <code>name = value</code> lines. The prelude is the runtime <code>x2c.xi</code>
-interface the compiler replays for the runtime declarations; an empty value
-means the compiler reads <code>lib/x2c.x</code> from source once per process.
+interface the compiler replays for the runtime declarations. Only an
+interface the same compiler wrote qualifies; an empty value means the
+compiler reads <code>lib/x2c.x</code> from source once per process.
 <code>x2c env &lt;name&gt;</code> prints one value; <code>--package-dir</code>, <code>--cc</code>, and <code>--ar</code> show
 their effect on the report.</p>
 <pre><code class="language-sh">x2c env
@@ -688,16 +713,18 @@ code that means what it says can be left as written.</p>
 <li><code>region</code> says a value allocated inside a region can still be reached after
 the region ends, and names how it leaves. Its note gives the line that
 opened the region.</li>
-<li><code>after-free</code> says a local was read after <code>Scope.free</code> or
-<code>Array.list_free</code> consumed it.</li>
-<li><code>unbalanced</code> says a region has no matching release in the block that
-opened it, a shape the <code>region</code> check cannot follow.</li>
+<li><code>after-free</code> says a local was read after <code>Scope.free</code>, <code>Scope.realloc</code>,
+or <code>Array.list_free</code> consumed it.</li>
+<li><code>bad-free</code> says <code>Scope.free</code> or <code>Scope.realloc</code> was given a literal, a
+local’s address, or other storage no Scope allocator returned.</li>
 <li><code>literal</code> says a bare word inside a macro is a <code>Symbol</code> where a value was
 probably meant, and names the unquoted spelling that inserts the value.</li>
 <li><code>macro</code> carries what a macro reported through <code>x2c.diagnostic.warn</code>, at the
 invocation, with the notes the macro supplied.</li>
-<li><code>warning</code> covers the remaining cases: an unnecessary conversion, and a
-protocol binder that shadows a visible type name.</li>
+<li><code>warning</code> covers the remaining cases: an unnecessary conversion, a
+protocol binder that shadows a visible type name, a native <code>meta</code>
+prototype whose name both the compiler and a native module define, and
+one that more than one native module defines.</li>
 </ul>
 <p><a href="../guide/regions.html">The Region Model</a> explains what the first three cover
 and what they cannot see. <a href="../guide/memory.html">Scopes and Lifetime</a> shows
@@ -804,9 +831,9 @@ error; requested dumps and program output use standard output.</p>
                         &copy; 2025&ndash;2026
                         <a href="https://flake.org">GWF</a>
                         &middot;
-                        <a href="https://github.com/gwf/x2c/blob/4fcf5c2a6d16ec5f73a61e582fa97bd3257fcb75/LICENSE">Apache 2.0</a>
+                        <a href="https://github.com/gwf/x2c/blob/0351be4a4d6c00dd246e5190e8dcf5a970560beb/LICENSE">Apache 2.0</a>
                         &middot;
-                        <a href="https://github.com/gwf/x2c/blob/4fcf5c2a6d16ec5f73a61e582fa97bd3257fcb75/TRADEMARKS.md">Trademarks</a>
+                        <a href="https://github.com/gwf/x2c/blob/0351be4a4d6c00dd246e5190e8dcf5a970560beb/TRADEMARKS.md">Trademarks</a>
                     </footer>
                 </div>
             </div>

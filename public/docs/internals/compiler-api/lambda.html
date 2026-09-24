@@ -1,6 +1,6 @@
 <!DOCTYPE HTML>
 <html lang="en" class="light sidebar-visible" dir="ltr">
-    <head><meta name="x2c-release-channel" content="staging"><meta name="x2c-candidate" content="candidate-4fcf5c2a6d16ec5f73a61e582fa97bd3257fcb75-35633957957-1">
+    <head><meta name="x2c-release-channel" content="staging"><meta name="x2c-candidate" content="candidate-0351be4a4d6c00dd246e5190e8dcf5a970560beb-36014113963-1">
         <!-- Book generated using mdBook -->
         <meta charset="UTF-8">
         <title>src/lambda.x - The x2c Book</title>
@@ -39,10 +39,10 @@
             const path_to_root = "../../";
             const default_light_theme = "light";
             const default_dark_theme = "light";
-            window.path_to_searchindex_js = "../../searchindex-aa7bc7b3.js";
+            window.path_to_searchindex_js = "../../searchindex-c9145dcc.js";
         </script>
         <!-- Start loading toc.js asap -->
-        <script src="../../toc-22ab70ae.js"></script>
+        <script src="../../toc-b37ed13f.js"></script>
         <!-- x2c publication metadata -->
         <link rel="canonical" href="https://staging.x2c-lang.dev/docs/internals/compiler-api/lambda.html">
         <meta property="og:type" content="website">
@@ -235,6 +235,7 @@ Compatibility is not yet promised.</p>
 <tbody>
 <tr><td><a href="#Compiler.adapt_lambda_arg"><code>Compiler.adapt_lambda_arg</code></a></td><td>Adapts a lowered noncapturing lambda helper to a typed callback.</td></tr>
 <tr><td><a href="#Compiler.check_lambda_captures"><code>Compiler.check_lambda_captures</code></a></td><td>Rejects writes and reference access to read-only snapshot bindings.</td></tr>
+<tr><td><a href="#Compiler.func_signature"><code>Compiler.func_signature</code></a></td><td>Returns the canonical signature shared by native and meta Func adapters.</td></tr>
 <tr><td><a href="#Compiler.lift_func_expression"><code>Compiler.lift_func_expression</code></a></td><td>Converts a resolved function-like expression to <code>Func</code> when supported.</td></tr>
 <tr><td><a href="#Compiler.lower_lambda_expr"><code>Compiler.lower_lambda_expr</code></a></td><td>Lowers a resolved lambda expression to emitter-ready helper references.</td></tr>
 <tr><td><a href="#Compiler.lower_typed_adapter_expr"><code>Compiler.lower_typed_adapter_expr</code></a></td><td>Lowers a resolved <code>tadapt</code> expression to a typed callback helper.</td></tr>
@@ -256,14 +257,19 @@ a queued static helper converts callback arguments to the lowered lambda’s
 original parameter types before calling it, then converts its <code>Var</code> result
 to the expected return type. Already compatible or unsupported shapes pass
 through unchanged.</p>
-<p>Source: <code>src/lambda.x:864</code></p>
+<p>Source: <code>src/lambda.x:911</code></p>
 <p><a id="Compiler.check_lambda_captures"></a></p>
 <h4 id="compilercheck_lambda_captures"><a class="header" href="#compilercheck_lambda_captures">Compiler.check_lambda_captures</a></h4>
 <p><code>void Compiler.check_lambda_captures(Compiler c, List ast)</code></p>
 <p>Rejects writes and reference access to read-only snapshot bindings.
 The body has already resolved identifiers and call arguments. Templates
 defer this check until expansion; nested lambdas check their own bodies.</p>
-<p>Source: <code>src/lambda.x:1041</code></p>
+<p>Source: <code>src/lambda.x:1088</code></p>
+<p><a id="Compiler.func_signature"></a></p>
+<h4 id="compilerfunc_signature"><a class="header" href="#compilerfunc_signature">Compiler.func_signature</a></h4>
+<p><code>List Compiler.func_signature(Compiler compiler, Type type)</code></p>
+<p>Returns the canonical signature shared by native and meta Func adapters.</p>
+<p>Source: <code>src/lambda.x:314</code></p>
 <p><a id="Compiler.lift_func_expression"></a></p>
 <h4 id="compilerlift_func_expression"><a class="header" href="#compilerlift_func_expression">Compiler.lift_func_expression</a></h4>
 <p><code>List Compiler.lift_func_expression(Compiler c, List expression)</code></p>
@@ -274,7 +280,7 @@ are evaluated once and copied into a new context-bound <code>Func</code>, with n
 pointers producing null <code>Func</code>. Lambda expressions are lowered first, and
 unrelated expressions pass through unchanged. Public inline functions
 reach the queued helpers through generated bridge functions.</p>
-<p>Source: <code>src/lambda.x:814</code></p>
+<p>Source: <code>src/lambda.x:861</code></p>
 <p><a id="Compiler.lower_lambda_expr"></a></p>
 <h4 id="compilerlower_lambda_expr"><a class="header" href="#compilerlower_lambda_expr">Compiler.lower_lambda_expr</a></h4>
 <p><code>List Compiler.lower_lambda_expr(Compiler compiler, List expression)</code></p>
@@ -287,7 +293,7 @@ reference addresses; capture expressions run once from left to right.
 Nested lambdas lower inside out, block fallthrough and bare returns produce
 no value, and synthesized declarations enter the early queue. Parentheses
 remain around lowered helpers; other non-lambda expressions pass through.</p>
-<p>Source: <code>src/lambda.x:1590</code></p>
+<p>Source: <code>src/lambda.x:1637</code></p>
 <p><a id="Compiler.lower_typed_adapter_expr"></a></p>
 <h4 id="compilerlower_typed_adapter_expr"><a class="header" href="#compilerlower_typed_adapter_expr">Compiler.lower_typed_adapter_expr</a></h4>
 <p><code>List Compiler.lower_typed_adapter_expr(Compiler c, List expression)</code></p>
@@ -307,7 +313,7 @@ arguments must be resolved direct designators, possibly parenthesized,
 cast, or addressed; an indirect function-pointer value is rejected.
 A function already having the adapter’s pointee type passes through,
 and new helpers are cached and queued with <code>Compiler.add_early</code>.</p>
-<p>Source: <code>src/lambda.x:490</code></p>
+<p>Source: <code>src/lambda.x:537</code></p>
 <p><a id="Compiler.prepare_lambda_cells"></a></p>
 <h4 id="compilerprepare_lambda_cells"><a class="header" href="#compilerprepare_lambda_cells">Compiler.prepare_lambda_cells</a></h4>
 <p><code>List Compiler.prepare_lambda_cells(Compiler c, List declarator, List body)</code></p>
@@ -318,7 +324,7 @@ Before normal body transformation, the method rewrites explicitly shared
 parameters and locals to <code>Scope</code>-owned cells, prepares nested bodies,
 and returns the rewritten body with declaration and initializer order
 preserved.</p>
-<p>Source: <code>src/lambda.x:1311</code></p>
+<p>Source: <code>src/lambda.x:1358</code></p>
 <h2 id="design-notes"><a class="header" href="#design-notes">Design notes</a></h2>
 <p>Lowers lambda literals into static helper functions, with
 <code>Func</code> storage for
@@ -343,9 +349,9 @@ declarations enter the Compiler’s early declaration queue.</p>
                         &copy; 2025&ndash;2026
                         <a href="https://flake.org">GWF</a>
                         &middot;
-                        <a href="https://github.com/gwf/x2c/blob/4fcf5c2a6d16ec5f73a61e582fa97bd3257fcb75/LICENSE">Apache 2.0</a>
+                        <a href="https://github.com/gwf/x2c/blob/0351be4a4d6c00dd246e5190e8dcf5a970560beb/LICENSE">Apache 2.0</a>
                         &middot;
-                        <a href="https://github.com/gwf/x2c/blob/4fcf5c2a6d16ec5f73a61e582fa97bd3257fcb75/TRADEMARKS.md">Trademarks</a>
+                        <a href="https://github.com/gwf/x2c/blob/0351be4a4d6c00dd246e5190e8dcf5a970560beb/TRADEMARKS.md">Trademarks</a>
                     </footer>
                 </div>
             </div>

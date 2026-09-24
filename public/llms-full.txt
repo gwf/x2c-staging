@@ -2296,7 +2296,32 @@ Captured syntax retains its call-site binding identity. Free identifiers
 written literally in a body resolve where the macro was defined, including
 parameters and preceding declarations captured by a local macro. A declaration
 written in a body receives a fresh binding identity and a private generated C
-spelling for each expansion.
+spelling for each expansion. The spelling of a file-scope declaration with
+external or no linkage also names its unit's file name and the outermost
+invocation, so units that include one another can expand the same macro. A field keeps its spelling, because C scopes it to its
+aggregate, and an anonymous aggregate is a distinct type in each expansion. A
+visible body local passed to a nested macro's `Name` hole is that expansion's
+binding, so the nested macro can read and assign it.
+
+A `struct`, `union`, or `enum` tag that a body defines or declares is private
+to each expansion, like a typedef, and so are the enumerators it lists. Tags
+are a separate namespace, so `struct tm tm;` names the outside tag and a
+private variable. Declarations in nested blocks may shadow same-spelled body
+locals and tags; references use the nearest lexical declaration. A tag the
+body only references keeps its outside meaning.
+To publish a tag, spell it
+through a `Name` hole or `x2c.ident`:
+
+```x2c
+macro Unit $handler_type(name $tag) {
+  struct $tag { int depth; };
+  typedef struct $(x2c.ident "Frame") { int line; } $(x2c.ident "Frame");
+}
+
+$handler_type(Handler);
+struct Handler handler = {1};
+struct Frame frame = {2};
+```
 
 Most generated declarations need no directive: writing `int temporary` in a
 body makes both that declaration and its literal references hygienic. When
@@ -2360,7 +2385,7 @@ macro Expression $computed(Expr $value) => $(car (list $value));
 ```
 
 `.xlisp` files execute in the translation unit's Lisp session. `.xmacro`
-files may contain macro definitions, meta functions and top-level Lisp forms. Import paths are
+files may contain macro definitions, `meta` declarations and top-level Lisp forms. Import paths are
 relative to the importing file, canonicalized, loaded once, and checked for
 cycles. Direct Lisp file operations remain available but are not tracked as
 compiler dependencies.
@@ -2614,11 +2639,26 @@ int main(void) {
 71 item-2
 ```
 
-`meta` is contextual. It marks a function only when a function definition
-follows it, and is an ordinary identifier everywhere else, including as a
-file-scope name, an assignment target, and a struct field. A `meta`
-declaration without a body is diagnosed, because the compiler has nothing to
-run. `meta` marks a definition only.
+`meta` is contextual. It marks a function definition, a bodyless function
+prototype, an initialized file-static value, or a protocol adoption.
+Everywhere else it is an ordinary identifier, including as a file-scope name,
+an assignment target, and a struct field. Types need no marker: compile-time
+code can use any type the compiler sees.
+
+A bodyless `meta` prototype declares a native function that the compiler
+itself links, such as `meta double sin(double);`. Compile-time code then
+calls the compiler's copy. The declared signature must match that function
+exactly. A function the compiler does not link can come from a loaded
+[native module](https://x2c-lang.dev/docs/guide/meta-functions.html#native-modules). A prototype for
+a function that neither supplies is accepted, and compile-time code that
+calls it is diagnosed. See
+[native C functions](https://x2c-lang.dev/docs/guide/meta-functions.html#native-c-functions).
+
+A `meta` protocol adoption, such as `meta protocol Iter(List);`, adopts the
+protocol and declares each of that conformance's witnesses the way a bodyless
+`meta` prototype would. Availability stays explicit for each conformance: a
+protocol body cannot be marked, and a witness the compiler does not link is
+not available.
 
 Marking a function `meta` has three consequences.
 
@@ -2631,11 +2671,8 @@ Marking a function `meta` has three consequences.
   time, unless it reaches a compiler query, an explicit dollar-prefixed meta
   call or a source-template constructor, directly or through another meta
   function. Such a function has no runtime form and none is emitted for it.
-- An ordinary call may be folded only for a locally installed eligible
-  definition, available constant arguments matching the parameter types, and
-  a representable scalar, String, Symbol, immutable List or boxed result.
-  Mutable container, callable and native-address results remain calls.
-  This optimization is separate from explicit evaluation and result insertion.
+- A call without `$` always calls the emitted function, even with constant
+  arguments.
 
 A dollar-prefixed function call requires compile-time evaluation. Arguments
 may compute values from other resolvable values and meta calls; unresolved
@@ -2655,10 +2692,12 @@ binding expands them when inserted into a program. Existing Expression macros
 still expand normally. See [source templates](https://x2c-lang.dev/docs/guide/meta-functions.html#source-templates-from-meta-functions).
 
 The compile-time subset cuts across C and x2c constructs. Local mutation,
-represented collections, local address-taking/dereference, and resolved
-method calls are supported; native aggregate field access and operations
-without compile-time bindings are not. A supported type does not expose all
-of its runtime methods. See the guide's
+represented collections, struct locals, local address-taking/dereference,
+and resolved method calls are supported; unions and operations without
+compile-time bindings are not. Struct locals and address-taken locals live
+in native bytes with C layout; see
+[C objects during compilation](https://x2c-lang.dev/docs/guide/meta-functions.html#c-objects-during-compilation).
+A supported type does not expose all of its runtime methods. See the guide's
 [capability and operation inventory](https://x2c-lang.dev/docs/guide/meta-functions.html#the-compile-time-subset).
 
 Meta functions may pass and return represented values such as wide integers,
@@ -2669,16 +2708,19 @@ string literals, Symbols, identifiers
 and nonempty expression-code Lists. It does not directly materialize mutable
 collections, callable values or evaluator addresses. This boundary does not limit internal
 returns to `int`; see
-[results](https://x2c-lang.dev/docs/guide/meta-functions.html#results-compute-insert-or-fold).
+[results](https://x2c-lang.dev/docs/guide/meta-functions.html#results-compute-or-insert).
 
 Compile-time objects belong to the evaluator. Ordinary dual-form meta
 functions reject file-scope state because the program's initializers and
-future mutable state are not available to them. Compiler-only functions
-reaching compiler operations are exempt from that rejection, but use
-separate per-unit compile-time state, not the program's variables.
+future mutable state are not available to them. A `meta static` value is the
+exception: it gives compile-time code its own separate instance.
+Compiler-only functions reaching compiler operations are exempt from that
+rejection, but use separate per-unit compile-time state, not the program's
+variables.
 
 A `meta` declaration in an imported `.xmacro` installs its compile-time form in
-every consuming unit. The runtime forms are independent: a unit emits a
+every consuming unit; a `meta static` value gives each unit its own
+compile-time copy. The runtime forms are independent: a unit emits a
 definition only for those it reaches, and the storage class written on the
 declaration says what it emits. Importing the same file twice contributes one
 copy of each definition.
@@ -2991,14 +3033,14 @@ representation. Nested `[...]` and `{...}` are evaluated literals of the same
 kinds; nested `List` data is written `%(...)`.
 
 `[]` is a fresh empty `Array`. The empty brace `{}` is a fresh empty `Map`
-when its destination is a `Map`, an alias of `Map`, or a type that converts
-from `Map`, and likewise for `Array`; for any other destination, including
-`Var`, it is the native zero initializer. An element or value of a bare
+when its destination is a `Map`, a `Var`, an alias of either, or a type that
+converts from `Map`, and likewise for `Array`; for any other destination it
+is the native zero initializer. An element or value of a bare
 `[...]` or `{...}` literal is the exception: there `{}` is an empty `Map`, so
 `[{}]` holds one Map. Outside a declaration initializer, a brace that remains
 an initializer becomes a compound literal of its destination, as an argument,
 a `return` value, an assignment, or a `?:` arm: `Map m = ready ? {} : NULL;`
-builds a Map, `Var v = ready ? {} : NULL;` is Null either way, and
+builds a Map, `Var v = ready ? {} : NULL;` holds a Map when `ready`, and
 `return {3, 4};` in a function returning a struct builds that struct. An
 anonymous struct or union destination has no compound-literal spelling and is
 rejected.
@@ -3226,6 +3268,9 @@ Use an owner that outlives every use of the stored value. Failed initialization
 retains the reserved address; the next attempt starts with zeroed storage.
 Only successful initialization publishes the value, and retry does not change
 referent ownership.
+
+A function-local static has no compile-time lowering; a meta function that
+declares one declines.
 
 A `goto` or switch dispatch cannot bypass a runtime static declaration and
 enter its remaining block. Put the declaration before the switch, or put it
@@ -3752,7 +3797,13 @@ Where a `Func` is expected, a fixed nonvariadic function or
 function-pointer value converts implicitly when the `Func` conversion supports
 its parameters and result. Value parameters and results need a lossless `Var`
 conversion, and reference
-parameters retain their typed lvalue address. A direct function or noncapturing
+parameters retain their typed lvalue address. A pointer parameter whose type
+has no `Var` tag of its own, such as `const char *` or `struct timespec *`,
+accepts any pointer or `String` argument. A struct parameter taken by value
+receives a `<p48>` pointer to the bytes to copy, and a struct result arrives
+as a `<p48>` pointer to a copy of its bytes in the active `Scope`. Native code
+passes such an address as a `void *`, because a struct pointer has no lossless
+`Var` conversion of its own. A direct function or noncapturing
 lambda has one file-static `Func` handle that every conversion reuses. A
 function-pointer expression is evaluated once and its exact pointer is copied
 into a new `Func`; later assignment to the source pointer does not retarget it.
@@ -4042,6 +4093,15 @@ is set and before the method body. This makes calls from the initializer back
 into static helpers in the same translation unit safe. Translation units that
 need only literal caching retain a private synthetic initializer.
 
+When the initializer is defined only inside conditional groups, the non-static
+functions call a private synthetic initializer instead. It repeats the
+conditions around the initializer's definition to call the initializer where
+it is compiled, and otherwise runs the compiler-owned initialization itself.
+It sits before the unit's first function, so a `#define` or `#undef` between
+that function and the initializer's definition that changes those conditions
+makes the two disagree. The initializer's body then never runs, or the
+generated C calls an initializer that was compiled out.
+
 Other initialization statements and runtime-valued static assignments belong in
 the method body. Eligible file-static percent literals use the generated
 sequence described under [Values and literals](https://x2c-lang.dev/docs/reference/language.html#values-and-literals). Top-level
@@ -4246,7 +4306,10 @@ prototype and the definition x2c generates. Attributes are not part of the
 signature compared between a prototype and its definition. A definition
 without `static` after a `static` prototype keeps the prototype's internal
 linkage. `__inline`, `__inline__`, `__restrict`, and `__restrict__` are the
-standard keywords.
+standard keywords. A collected header may also place attributes after
+`struct`, `union`, or `enum` and after an aggregate's closing brace, as in
+`struct S { char c; int i; } __attribute__((packed));`. Collection reads
+past them, and C applies them. A unit does not accept these two positions.
 
 `in` and `match` are keywords only where their x2c forms can occur: `in`
 between two operands, and `match` as `match (...)` followed by `case` or
@@ -4298,8 +4361,8 @@ Each is a warning: translation continues and the program still compiles.
 | Code | Reported for |
 | --- | --- |
 | `region` | A value allocated inside a region is reachable after the region ends. The message gives the way the value leaves, and the note gives the line that opened the region. |
-| `unbalanced` | A region has no matching release in the block that opened it. |
-| `after-free` | A local is read after `Scope.free` or `Array.list_free` consumed it. |
+| `after-free` | A local is read after `Scope.free`, `Scope.realloc`, or `Array.list_free` consumed it. |
+| `bad-free` | `Scope.free` or `Scope.realloc` is given a literal, a local's address, or other storage no Scope allocator returned. |
 
 The check analyzes regions lexically and summarizes each function within its
 own unit, so a unit gets the same warnings whatever else is translated with
@@ -4484,6 +4547,28 @@ per C source. `--kind static-library` uses the selected archiver:
   --output /tmp/libwidget.a src/widget.x src/helper.c
 ```
 
+`--kind meta-module` builds a native module, whose functions compile-time
+code can call. The module leaves the x2c runtime unresolved and uses the
+loading compiler's copy, and it records that compiler's content hash. On
+macOS the module links against the running compiler, so a call to a runtime
+function the compiler does not link fails the build.
+`--native-module <file>` loads a module for `translate`, `build`, `run`, and
+`repl`, and repeats:
+
+```sh
+./x2c build --kind meta-module --output helpers.so src/helpers.x
+./x2c run --native-module helpers.so src/helpers.x src/main.x
+```
+
+Only the compiler that built a module loads it; any other compiler reports
+that the module was built by another compiler before running any of its
+code. The compiler loads a module only on request and keeps it loaded until
+it exits, and a translation binds only the modules its request names. When
+two of them define one name, the first supplies it and the declaration
+reports a warning. Modules work on macOS, Linux and WSL.
+[Native modules](https://x2c-lang.dev/docs/guide/meta-functions.html#native-modules) explains what a
+module contains.
+
 `-c`, or `--compile-only`, stops after compilation. One input may name its
 object with `--output`. Multiple compile-only inputs require `--build-dir`, so
 every object has an unambiguous path.
@@ -4575,8 +4660,9 @@ To try the experiment:
 
 The command verifies and extracts the source distribution stored in the APE
 ZIP, builds a native runtime archive first, then builds and installs the
-matching native compiler. The result includes the compiler, its runtime
-archive, headers, sources, unit interfaces, licenses, and a toolchain record.
+matching native compiler, which then writes the runtime unit interfaces. The
+result includes the compiler, its runtime archive, headers, sources, unit
+interfaces, licenses, and a toolchain record.
 A running bootstrap locks `<prefix>/.x2c-bootstrap.lock`, and a second
 bootstrap into the same prefix stops with an error. The operating system
 releases the lock when the process exits, and the empty file stays in the
@@ -4771,12 +4857,16 @@ literal dot. Matches are deduplicated and bytewise sorted. Unmatched patterns,
 unknown targets, and dependency cycles are errors before any action runs.
 
 A target may also set defines, C flags, library directories, libraries, link
-flags, package directories, and an output. Command-line target, profile,
-kind, output, build directory, and tool options override the corresponding
-defaults. `--target <name>` builds the named manifest target and `--profile
-<name>` applies the named manifest build profile; both work with `build` and
-`run`. The selected target must define the named profile; a dependency target
-takes it when it defines one and builds with its own settings otherwise.
+flags, package directories, and an output. `kind = "meta-module"` builds a
+native module, and a target's `native-modules` field lists the module
+targets its translation loads. Those build first, like `dependencies`, and a
+changed module retranslates the targets that load it. Command-line target,
+profile, kind, output, build directory, and tool options override the
+corresponding defaults. `--target <name>` builds the named manifest target
+and `--profile <name>` applies the named manifest build profile; both work
+with `build` and `run`. The selected target must define the named profile; a
+dependency target takes it when it defines one and builds with its own
+settings otherwise.
 `--manifest-path`, `--target`, and `--profile` describe a manifest build, so
 each conflicts with explicit input operands, and `-c` needs operands rather
 than a manifest.
@@ -4858,8 +4948,9 @@ A project manifest can pin packages instead of installing them by hand; see
 `x2c env` prints the resolved home, executable, include directory, runtime
 archive, prelude interface, package roots, C compiler, archiver, and script
 cache root as `name = value` lines. The prelude is the runtime `x2c.xi`
-interface the compiler replays for the runtime declarations; an empty value
-means the compiler reads `lib/x2c.x` from source once per process.
+interface the compiler replays for the runtime declarations. Only an
+interface the same compiler wrote qualifies; an empty value means the
+compiler reads `lib/x2c.x` from source once per process.
 `x2c env <name>` prints one value; `--package-dir`, `--cc`, and `--ar` show
 their effect on the report.
 
@@ -4919,16 +5010,18 @@ Six codes are reported as warnings:
 - `region` says a value allocated inside a region can still be reached after
   the region ends, and names how it leaves. Its note gives the line that
   opened the region.
-- `after-free` says a local was read after `Scope.free` or
-  `Array.list_free` consumed it.
-- `unbalanced` says a region has no matching release in the block that
-  opened it, a shape the `region` check cannot follow.
+- `after-free` says a local was read after `Scope.free`, `Scope.realloc`,
+  or `Array.list_free` consumed it.
+- `bad-free` says `Scope.free` or `Scope.realloc` was given a literal, a
+  local's address, or other storage no Scope allocator returned.
 - `literal` says a bare word inside a macro is a `Symbol` where a value was
   probably meant, and names the unquoted spelling that inserts the value.
 - `macro` carries what a macro reported through `x2c.diagnostic.warn`, at the
   invocation, with the notes the macro supplied.
-- `warning` covers the remaining cases: an unnecessary conversion, and a
-  protocol binder that shadows a visible type name.
+- `warning` covers the remaining cases: an unnecessary conversion, a
+  protocol binder that shadows a visible type name, a native `meta`
+  prototype whose name both the compiler and a native module define, and
+  one that more than one native module defines.
 
 [The Region Model](https://x2c-lang.dev/docs/guide/regions.html) explains what the first three cover
 and what they cannot see. [Scopes and Lifetime](https://x2c-lang.dev/docs/guide/memory.html) shows

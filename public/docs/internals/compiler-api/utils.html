@@ -1,6 +1,6 @@
 <!DOCTYPE HTML>
 <html lang="en" class="light sidebar-visible" dir="ltr">
-    <head><meta name="x2c-release-channel" content="staging"><meta name="x2c-candidate" content="candidate-4fcf5c2a6d16ec5f73a61e582fa97bd3257fcb75-35633957957-1">
+    <head><meta name="x2c-release-channel" content="staging"><meta name="x2c-candidate" content="candidate-0351be4a4d6c00dd246e5190e8dcf5a970560beb-36014113963-1">
         <!-- Book generated using mdBook -->
         <meta charset="UTF-8">
         <title>src/utils.x - The x2c Book</title>
@@ -39,10 +39,10 @@
             const path_to_root = "../../";
             const default_light_theme = "light";
             const default_dark_theme = "light";
-            window.path_to_searchindex_js = "../../searchindex-aa7bc7b3.js";
+            window.path_to_searchindex_js = "../../searchindex-c9145dcc.js";
         </script>
         <!-- Start loading toc.js asap -->
-        <script src="../../toc-22ab70ae.js"></script>
+        <script src="../../toc-b37ed13f.js"></script>
         <!-- x2c publication metadata -->
         <link rel="canonical" href="https://staging.x2c-lang.dev/docs/internals/compiler-api/utils.html">
         <meta property="og:type" content="website">
@@ -238,11 +238,14 @@ Compatibility is not yet promised.</p>
 <tr><td><a href="#worker_exit"><code>worker_exit</code></a></td><td>Attempts to flush process streams and terminates a worker with <code>status</code>.</td></tr>
 <tr><td><a href="#worker_fork"><code>worker_fork</code></a></td><td>Forks a worker that continues the current program with inherited state.</td></tr>
 <tr><td><a href="#worker_wait_any"><code>worker_wait_any</code></a></td><td>Waits until one of the <code>count</code> workers in <code>pids</code> exits and returns its index, storing its shell-style status: the exit status, <code>128 + signal</code>, or -1 when it cannot be waited.</td></tr>
+<tr><td><a href="#x2c_compiler_identity"><code>x2c_compiler_identity</code></a></td><td>Returns the running compiler’s identity, the FNV-1a digest of its executable’s contents in 16 hexadecimal digits, or NULL when the executable is unknown or unreadable.</td></tr>
 <tr><td><a href="#x2c_cpp_include_dirs"><code>x2c_cpp_include_dirs</code></a></td><td>Returns the borrowed preprocessor <code>List</code> <code>&lt;root&gt;/src</code>, then <code>&lt;root&gt;/lib</code>.</td></tr>
 <tr><td><a href="#x2c_default_include_dirs"><code>x2c_default_include_dirs</code></a></td><td>Returns the borrowed default include <code>List</code> containing <code>&lt;root&gt;/include</code>.</td></tr>
 <tr><td><a href="#x2c_driver_error"><code>x2c_driver_error</code></a></td><td>Prints <code>x2c: error: &lt;message&gt;</code> to stderr and exits with status 2.</td></tr>
 <tr><td><a href="#x2c_filename_hash"><code>x2c_filename_hash</code></a></td><td>Hashes unit filename spelling for stable generated C identifiers.</td></tr>
 <tr><td><a href="#x2c_find_program"><code>x2c_find_program</code></a></td><td>Returns the spelling of the first <code>PATH</code> candidate for the program <code>name</code> that this process may execute, searched as <code>execvp</code> searches, or NULL.</td></tr>
+<tr><td><a href="#x2c_fnv_bytes"><code>x2c_fnv_bytes</code></a></td><td>Returns <code>hash</code> extended with <code>length</code> <code>bytes</code> by 64-bit FNV-1a.</td></tr>
+<tr><td><a href="#x2c_fnv_file"><code>x2c_fnv_file</code></a></td><td>Returns <code>hash</code> extended with the contents of the file at <code>path</code>.</td></tr>
 <tr><td><a href="#x2c_get_executable"><code>x2c_get_executable</code></a></td><td>Returns the borrowed resolved executable path, or NULL when unavailable.</td></tr>
 <tr><td><a href="#x2c_get_root"><code>x2c_get_root</code></a></td><td>Returns the borrowed repository root, or NULL before it is configured.</td></tr>
 <tr><td><a href="#x2c_home"><code>x2c_home</code></a></td><td>Returns the discovered or configured home, or NULL when there is none.</td></tr>
@@ -263,7 +266,7 @@ Compatibility is not yet promised.</p>
 <p>Locks the file <code>p</code>, creating it, and returns a descriptor that holds the
 lock until it is closed or the process exits. Returns -1 when <code>wait</code> is
 zero and another process holds the lock.</p>
-<p>Source: <code>src/utils.x:168</code></p>
+<p>Source: <code>src/utils.x:171</code></p>
 <h4 id="file_publish"><a class="header" href="#file_publish">file_publish</a></h4>
 <p><code>void file_publish(List outputs)</code></p>
 <p>Replaces each file named in <code>outputs</code>, a List of alternating paths and
@@ -273,14 +276,14 @@ destination. The renames then run in order: each destination holds its
 old contents or its new ones, and a failed rename leaves the earlier
 destinations replaced.</p>
 <p><strong>Raises:</strong> <code>&lt;not-found&gt;</code> or <code>&lt;io-fail&gt;</code>, after removing the siblings.</p>
-<p>Source: <code>src/utils.x:188</code></p>
+<p>Source: <code>src/utils.x:191</code></p>
 <h4 id="worker_exit"><a class="header" href="#worker_exit">worker_exit</a></h4>
 <p><code>void worker_exit(int status)</code></p>
 <p>Attempts to flush process streams and terminates a worker with <code>status</code>.
 Flush failure is ignored. This function does not return and does not run
 <code>atexit</code> handlers. Those belong to the parent process and would close its
 log and process-lifetime <code>Scope</code>s twice.</p>
-<p>Source: <code>src/utils.x:274</code></p>
+<p>Source: <code>src/utils.x:326</code></p>
 <h4 id="worker_fork"><a class="header" href="#worker_fork">worker_fork</a></h4>
 <p><code>long worker_fork(void)</code></p>
 <p>Forks a worker that continues the current program with inherited state.
@@ -288,65 +291,81 @@ Returns zero in the child, its PID in the parent, or -1 on fork failure.
 The call attempts to flush all process streams before the fork so
 successfully flushed bytes cannot be written by both processes. Flush
 failure is ignored. The child must leave through <code>worker_exit</code>.</p>
-<p>Source: <code>src/utils.x:263</code></p>
+<p>Source: <code>src/utils.x:315</code></p>
 <h4 id="worker_wait_any"><a class="header" href="#worker_wait_any">worker_wait_any</a></h4>
 <p><code>int worker_wait_any(long *pids, int count, int *status)</code></p>
 <p>Waits until one of the <code>count</code> workers in <code>pids</code> exits and returns its
 index, storing its shell-style status: the exit status, <code>128 + signal</code>,
 or -1 when it cannot be waited. Other children stay unreaped, so the
 wait polls with a short sleep.</p>
-<p>Source: <code>src/utils.x:284</code></p>
+<p>Source: <code>src/utils.x:336</code></p>
+<h4 id="x2c_compiler_identity"><a class="header" href="#x2c_compiler_identity">x2c_compiler_identity</a></h4>
+<p><code>String x2c_compiler_identity(void)</code></p>
+<p>Returns the running compiler’s identity, the FNV-1a digest of its
+executable’s contents in 16 hexadecimal digits, or NULL when the
+executable is unknown or unreadable. Only byte-identical compilers share
+an identity. Environment setup reads the executable once.</p>
+<p>Source: <code>src/utils.x:305</code></p>
 <h4 id="x2c_cpp_include_dirs"><a class="header" href="#x2c_cpp_include_dirs">x2c_cpp_include_dirs</a></h4>
 <p><code>List x2c_cpp_include_dirs(void)</code></p>
 <p>Returns the borrowed preprocessor <code>List</code> <code>&lt;root&gt;/src</code>, then <code>&lt;root&gt;/lib</code>.
 <code>&lt;root&gt;/src</code> is present only when the home has that directory. Returns
 NULL before environment setup.</p>
-<p>Source: <code>src/utils.x:110</code></p>
+<p>Source: <code>src/utils.x:113</code></p>
 <h4 id="x2c_default_include_dirs"><a class="header" href="#x2c_default_include_dirs">x2c_default_include_dirs</a></h4>
 <p><code>List x2c_default_include_dirs(void)</code></p>
 <p>Returns the borrowed default include <code>List</code> containing <code>&lt;root&gt;/include</code>.
 Returns NULL before environment setup.</p>
-<p>Source: <code>src/utils.x:104</code></p>
+<p>Source: <code>src/utils.x:107</code></p>
 <h4 id="x2c_driver_error"><a class="header" href="#x2c_driver_error">x2c_driver_error</a></h4>
 <p><code>void x2c_driver_error(const char *message)</code></p>
 <p>Prints <code>x2c: error: &lt;message&gt;</code> to stderr and exits with status 2.
 The streams are flushed and <code>atexit</code> handlers do not run, so the call is
 safe inside a <code>try</code> body or a catch arm, whose records those handlers
 would otherwise find still live.</p>
-<p>Source: <code>src/utils.x:147</code></p>
+<p>Source: <code>src/utils.x:150</code></p>
 <h4 id="x2c_filename_hash"><a class="header" href="#x2c_filename_hash">x2c_filename_hash</a></h4>
 <p><code>String x2c_filename_hash(String filename)</code></p>
 <p>Hashes unit filename spelling for stable generated C identifiers.</p>
-<p>Source: <code>src/utils.x:299</code></p>
+<p>Source: <code>src/utils.x:351</code></p>
 <h4 id="x2c_find_program"><a class="header" href="#x2c_find_program">x2c_find_program</a></h4>
 <p><code>String x2c_find_program(String name)</code></p>
 <p>Returns the spelling of the first <code>PATH</code> candidate for the program <code>name</code>
 that this process may execute, searched as <code>execvp</code> searches, or NULL.
 An empty entry names the current directory.</p>
-<p>Source: <code>src/utils.x:134</code></p>
+<p>Source: <code>src/utils.x:137</code></p>
+<h4 id="x2c_fnv_bytes"><a class="header" href="#x2c_fnv_bytes">x2c_fnv_bytes</a></h4>
+<p><code>uint64_t x2c_fnv_bytes(uint64_t hash, const void *bytes, size_t length)</code></p>
+<p>Returns <code>hash</code> extended with <code>length</code> <code>bytes</code> by 64-bit FNV-1a.</p>
+<p>Source: <code>src/utils.x:274</code></p>
+<h4 id="x2c_fnv_file"><a class="header" href="#x2c_fnv_file">x2c_fnv_file</a></h4>
+<p><code>uint64_t x2c_fnv_file(uint64_t hash, String path, int *ok)</code></p>
+<p>Returns <code>hash</code> extended with the contents of the file at <code>path</code>.
+A missing or unreadable file clears <code>ok</code>.</p>
+<p>Source: <code>src/utils.x:286</code></p>
 <h4 id="x2c_get_executable"><a class="header" href="#x2c_get_executable">x2c_get_executable</a></h4>
 <p><code>String x2c_get_executable(void)</code></p>
 <p>Returns the borrowed resolved executable path, or NULL when unavailable.</p>
-<p>Source: <code>src/utils.x:58</code></p>
+<p>Source: <code>src/utils.x:61</code></p>
 <h4 id="x2c_get_root"><a class="header" href="#x2c_get_root">x2c_get_root</a></h4>
 <p><code>String x2c_get_root(void)</code></p>
 <p>Returns the borrowed repository root, or NULL before it is configured.
 The root is absolute with symbolic links resolved, the one spelling
 paths below the home are compared in.</p>
-<p>Source: <code>src/utils.x:55</code></p>
+<p>Source: <code>src/utils.x:58</code></p>
 <h4 id="x2c_home"><a class="header" href="#x2c_home">x2c_home</a></h4>
 <p><code>String x2c_home(void)</code></p>
 <p>Returns the discovered or configured home, or NULL when there is none.</p>
-<p>Source: <code>src/utils.x:113</code></p>
+<p>Source: <code>src/utils.x:116</code></p>
 <h4 id="x2c_home_packages"><a class="header" href="#x2c_home_packages">x2c_home_packages</a></h4>
 <p><code>String x2c_home_packages(void)</code></p>
 <p>Returns <code>&lt;home&gt;/packages</code>, which may not exist, or NULL without a home.</p>
-<p>Source: <code>src/utils.x:116</code></p>
+<p>Source: <code>src/utils.x:119</code></p>
 <h4 id="x2c_host_error"><a class="header" href="#x2c_host_error">x2c_host_error</a></h4>
 <p><code>void x2c_host_error(List detail)</code></p>
 <p>Reports a caught <code>&lt;not-found&gt;</code> or <code>&lt;io-fail&gt;</code> through <code>x2c_driver_error</code>
 as its operation, path or program, and system reason.</p>
-<p>Source: <code>src/utils.x:156</code></p>
+<p>Source: <code>src/utils.x:159</code></p>
 <h4 id="x2c_initialize_environment"><a class="header" href="#x2c_initialize_environment">x2c_initialize_environment</a></h4>
 <p><code>void x2c_initialize_environment(const char *argv0)</code></p>
 <p>Initializes compiler paths and default include <code>List</code>s once.
@@ -357,36 +376,38 @@ the executable and then from the current directory to a directory holding
 installed prefix alike. The root is kept absolute with symbolic links
 resolved, the one spelling every path below the home is compared in.
 Without a home the root is the current directory and <code>x2c_home</code> reports
-none. An already configured root leaves all state unchanged.</p>
-<p>Source: <code>src/utils.x:26</code></p>
+none. The compiler identity is taken here, before any later work could
+observe a replaced executable. An already configured root leaves all
+state unchanged.</p>
+<p>Source: <code>src/utils.x:28</code></p>
 <h4 id="x2c_package_directory"><a class="header" href="#x2c_package_directory">x2c_package_directory</a></h4>
 <p><code>String x2c_package_directory(List roots, String path)</code></p>
 <p>Returns the package directory that holds <code>path</code> below one of <code>roots</code>:
 the root’s child on the way to <code>path</code>, compared by canonical path, when
 that child’s name is an identifier. Returns NULL for any other path.</p>
-<p>Source: <code>src/utils.x:64</code></p>
+<p>Source: <code>src/utils.x:67</code></p>
 <h4 id="x2c_package_source"><a class="header" href="#x2c_package_source">x2c_package_source</a></h4>
 <p><code>int x2c_package_source(String directory, String path)</code></p>
 <p>Recognizes a package’s <code>src/</code> files or its package-named legacy entry.
 Other files under the package directory are consumers.</p>
-<p>Source: <code>src/utils.x:95</code></p>
+<p>Source: <code>src/utils.x:98</code></p>
 <h4 id="x2c_set_root"><a class="header" href="#x2c_set_root">x2c_set_root</a></h4>
 <p><code>void x2c_set_root(String root)</code></p>
 <p>Overrides the repository root and rebuilds its default include <code>List</code>s.
 The root is resolved as environment setup resolves it. The rebuilt values
 must remain valid until the next override or the process no longer uses
 them.</p>
-<p>Source: <code>src/utils.x:43</code></p>
+<p>Source: <code>src/utils.x:46</code></p>
 <h4 id="x2c_source_file"><a class="header" href="#x2c_source_file">x2c_source_file</a></h4>
 <p><code>int x2c_source_file(String path)</code></p>
 <p>Reports whether <code>path</code> is <span class="x2c-wordmark">x2c</span> source: a <code>.x</code> file, or a file of any
 other name whose first line is a shebang, which is a script.</p>
-<p>Source: <code>src/utils.x:79</code></p>
+<p>Source: <code>src/utils.x:82</code></p>
 <h4 id="x2c_stage_dir"><a class="header" href="#x2c_stage_dir">x2c_stage_dir</a></h4>
 <p><code>String x2c_stage_dir(void)</code></p>
 <p>Returns the directory of a compiler staged at <code>&lt;home&gt;/builds/&lt;stage&gt;/</code>,
 or NULL for any other compiler.</p>
-<p>Source: <code>src/utils.x:124</code></p>
+<p>Source: <code>src/utils.x:127</code></p>
 <h2 id="design-notes"><a class="header" href="#design-notes">Design notes</a></h2>
 <p>Owns the environment the driver modules share: where the executable,
 home, stage, and packages are, how a file is locked or replaced, the
@@ -410,9 +431,9 @@ through <code>lib/process.x</code>.</p>
                         &copy; 2025&ndash;2026
                         <a href="https://flake.org">GWF</a>
                         &middot;
-                        <a href="https://github.com/gwf/x2c/blob/4fcf5c2a6d16ec5f73a61e582fa97bd3257fcb75/LICENSE">Apache 2.0</a>
+                        <a href="https://github.com/gwf/x2c/blob/0351be4a4d6c00dd246e5190e8dcf5a970560beb/LICENSE">Apache 2.0</a>
                         &middot;
-                        <a href="https://github.com/gwf/x2c/blob/4fcf5c2a6d16ec5f73a61e582fa97bd3257fcb75/TRADEMARKS.md">Trademarks</a>
+                        <a href="https://github.com/gwf/x2c/blob/0351be4a4d6c00dd246e5190e8dcf5a970560beb/TRADEMARKS.md">Trademarks</a>
                     </footer>
                 </div>
             </div>

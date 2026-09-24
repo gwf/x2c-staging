@@ -1,6 +1,6 @@
 <!DOCTYPE HTML>
 <html lang="en" class="light sidebar-visible" dir="ltr">
-    <head><meta name="x2c-release-channel" content="staging"><meta name="x2c-candidate" content="candidate-4fcf5c2a6d16ec5f73a61e582fa97bd3257fcb75-35633957957-1">
+    <head><meta name="x2c-release-channel" content="staging"><meta name="x2c-candidate" content="candidate-0351be4a4d6c00dd246e5190e8dcf5a970560beb-36014113963-1">
         <!-- Book generated using mdBook -->
         <meta charset="UTF-8">
         <title>Compiler Architecture - The x2c Book</title>
@@ -39,10 +39,10 @@
             const path_to_root = "../";
             const default_light_theme = "light";
             const default_dark_theme = "light";
-            window.path_to_searchindex_js = "../searchindex-aa7bc7b3.js";
+            window.path_to_searchindex_js = "../searchindex-c9145dcc.js";
         </script>
         <!-- Start loading toc.js asap -->
-        <script src="../toc-22ab70ae.js"></script>
+        <script src="../toc-b37ed13f.js"></script>
         <!-- x2c publication metadata -->
         <link rel="canonical" href="https://staging.x2c-lang.dev/docs/internals/architecture.html">
         <meta property="og:type" content="website">
@@ -385,26 +385,39 @@ anyway; unresolved quote includes are driver errors. Each file is spliced once
 by real path, so include cycles terminate.</p>
 <p>A file’s contribution is collected once per process. Translating a unit
 also writes it beside the generated C as a unit interface, <code>&lt;stem&gt;.xi</code>: the
-ordered declaration maps, include placeholders, and <code>private</code> and <code>public</code>
-markers for the visibility pragmas, the source content hash,
-function definitions, and the macro, Lisp, and embedded-text files the walk
-read with their hashes. A declaration map below a <code>private</code> marker holds only
-what that region publishes, so an including unit never sees a private type or
-static helper, and a package’s surface stops at that marker. The file holds one
-<code>(interface 2 "path" "hash" (PARTS...) (DEFINITIONS...) (DEPENDENCIES...))</code>
-form in <code>%()</code> List syntax, with bare Atoms for its structural words and
-Strings for identifiers; the reader reads that one form without evaluating
-it. Before walking a file’s source, collection looks for
-its interface in the output directory, then in the directory that mirrors
+identity of the compiler that wrote it, the ordered declaration maps,
+include placeholders, and <code>private</code> and <code>public</code> markers for the visibility
+pragmas, the source content hash, function definitions, and the macro, Lisp,
+and embedded-text files the walk read with their hashes. A declaration map
+below a <code>private</code> marker holds only what that region publishes, so an
+including unit never sees a private type or static helper, and a package’s
+surface stops at that marker. The file holds one
+<code>(interface 4 "compiler" "path" "hash" (PARTS...) (DEFINITIONS...) (SELECTED-DEFINITIONS...) (DEPENDENCIES...))</code> form in <code>%()</code> List syntax,
+with bare Atoms for its structural words and Strings for identifiers; the
+reader reads that one form without evaluating it. Selected definitions carry
+the local function’s native and source names, canonical type, parameter
+spellings, source line, and documentation. They include macro output and
+compiler-only <code>meta</code> definitions, while prototypes and imported functions
+do not become local definitions. The API reference enumerates these rows and
+joins authored prose to them. Before walking a file’s source, collection looks
+for its interface in the output directory, then in the directory that mirrors
 the file’s home-relative path under the compiler’s stage directory (or under
 an installed home), then in a package’s <code>builds/</code>. An interface is used only
-when its recorded path and every hash still match; otherwise collection
-walks the source. The prelude is the runtime <code>x2c.xi</code> interface from the
+when its recorded compiler, path, and every hash still match; otherwise
+collection walks the source. The compiler identity is a digest of the
+executable’s contents, so a changed compiler never replays rows an earlier
+build collected. The prelude is the runtime <code>x2c.xi</code> interface from the
 library batch, so a stage build produces the prelude the next batch and the
-next stage replay, and no tracked file is both an input and an output of a
-build. <code>x2c env prelude</code> prints the interface a compiler would replay; an
-empty value means the compiler walks the source of <code>lib/x2c.x</code>, which costs
-about a quarter of a second per process.</p>
+next stage replay when the stage compilers are byte-identical, as they are
+once the bootstrap matches the source. No tracked file is both an input and
+an output of a build. An installation writes its runtime interfaces with
+the compiler it installs. <code>x2c env prelude</code> prints the prelude interface
+this compiler wrote; an empty value means the compiler walks the source of
+<code>lib/x2c.x</code>, which costs about a quarter of a second per process. Replay must
+match the walk it replaces: <code>make proof-cold-collection</code> retranslates <code>lib/</code>
+and <code>src/</code> with the hidden <code>--no-interfaces</code> option, which reads no
+interface, and requires the stage 2 C, headers, and interfaces byte for
+byte.</p>
 <p><code>--cpp-symbols</code> and <code>--live-symbols</code> discover symbols through the host C
 preprocessor: the toolchain force-loads <code>lib/x2c.x</code> and runs <code>cc -E -P</code> as a
 child process.
@@ -749,6 +762,11 @@ byte for byte. <code>stage-diff-0</code> asks whether the bootstrap compiler re-
 C it was built from; the rest ask whether each stage emits what the stage
 before it emitted. Once two adjacent stages agree, the chain has reached a
 fixed point.</p>
+<p>From stage 1 on, a stage build also fails on a diagnostic. The stage
+Makefile passes the hidden <code>--fatal-warnings</code> option, which fails a unit that
+reports any warning or region finding, and compiles the generated C with
+<code>-Werror</code>. Stage 0 stays lenient, because the checked-in bootstrap compiler
+translates it and a source install compiles it with the host C compiler.</p>
 <p>A byte comparison can catch problems that behavioral tests miss. An iteration
 order that depends on addresses, or a generated-name counter that carries
 across translation units, shows up here while every suite still passes. The
@@ -771,9 +789,9 @@ same phase run twice has to produce the same bytes.</p>
                         &copy; 2025&ndash;2026
                         <a href="https://flake.org">GWF</a>
                         &middot;
-                        <a href="https://github.com/gwf/x2c/blob/4fcf5c2a6d16ec5f73a61e582fa97bd3257fcb75/LICENSE">Apache 2.0</a>
+                        <a href="https://github.com/gwf/x2c/blob/0351be4a4d6c00dd246e5190e8dcf5a970560beb/LICENSE">Apache 2.0</a>
                         &middot;
-                        <a href="https://github.com/gwf/x2c/blob/4fcf5c2a6d16ec5f73a61e582fa97bd3257fcb75/TRADEMARKS.md">Trademarks</a>
+                        <a href="https://github.com/gwf/x2c/blob/0351be4a4d6c00dd246e5190e8dcf5a970560beb/TRADEMARKS.md">Trademarks</a>
                     </footer>
                 </div>
             </div>

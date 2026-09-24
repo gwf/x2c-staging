@@ -1,6 +1,6 @@
 <!DOCTYPE HTML>
 <html lang="en" class="light sidebar-visible" dir="ltr">
-    <head><meta name="x2c-release-channel" content="staging"><meta name="x2c-candidate" content="candidate-4fcf5c2a6d16ec5f73a61e582fa97bd3257fcb75-35633957957-1">
+    <head><meta name="x2c-release-channel" content="staging"><meta name="x2c-candidate" content="candidate-0351be4a4d6c00dd246e5190e8dcf5a970560beb-36014113963-1">
         <!-- Book generated using mdBook -->
         <meta charset="UTF-8">
         <title>src/collect.x - The x2c Book</title>
@@ -39,10 +39,10 @@
             const path_to_root = "../../";
             const default_light_theme = "light";
             const default_dark_theme = "light";
-            window.path_to_searchindex_js = "../../searchindex-aa7bc7b3.js";
+            window.path_to_searchindex_js = "../../searchindex-c9145dcc.js";
         </script>
         <!-- Start loading toc.js asap -->
-        <script src="../../toc-22ab70ae.js"></script>
+        <script src="../../toc-b37ed13f.js"></script>
         <!-- x2c publication metadata -->
         <link rel="canonical" href="https://staging.x2c-lang.dev/docs/internals/compiler-api/collect.html">
         <meta property="og:type" content="website">
@@ -234,8 +234,8 @@ Compatibility is not yet promised.</p>
 </thead>
 <tbody>
 <tr><td><a href="#interface_configure"><code>interface_configure</code></a></td><td>Creates the process cache and names the directories searched for <code>.xi</code> interfaces.</td></tr>
-<tr><td><a href="#interface_prelude"><code>interface_prelude</code></a></td><td>Returns the readable prelude interface path, or NULL when none exists.</td></tr>
-<tr><td><a href="#interface_text"><code>interface_text</code></a></td><td>Returns the compiler’s own collected contribution as interface text, or NULL when the unit has not collected its symbols.</td></tr>
+<tr><td><a href="#interface_prelude"><code>interface_prelude</code></a></td><td>Returns the path of the first prelude interface this compiler wrote, or NULL when there is none or the compiler’s identity is unknown.</td></tr>
+<tr><td><a href="#interface_text"><code>interface_text</code></a></td><td>Returns the compiler’s own collected contribution as interface text, or NULL when the unit has not collected its symbols or the compiler’s identity is unknown, since no compiler could replay that interface.</td></tr>
 <tr><td><a href="#Compiler.collect_package"><code>Compiler.collect_package</code></a></td><td>Collects a package once and installs its public surface in the current unit.</td></tr>
 <tr><td><a href="#Compiler.collect_symbols"><code>Compiler.collect_symbols</code></a></td><td>Collects the current translation unit’s declarations into <code>globs</code>.</td></tr>
 <tr><td><a href="#Compiler.record_generated_symbol"><code>Compiler.record_generated_symbol</code></a></td><td>Records one generated public callable in the declaration map that the current file’s collected entry contributes, which is the map its interface publishes.</td></tr>
@@ -244,23 +244,28 @@ Compatibility is not yet promised.</p>
 </div>
 <h3 id="functions-1"><a class="header" href="#functions-1">Functions</a></h3>
 <h4 id="interface_configure"><a class="header" href="#interface_configure">interface_configure</a></h4>
-<p><code>void interface_configure(String out_dir)</code></p>
+<p><code>void interface_configure(String out_dir, int cold)</code></p>
 <p>Creates the process cache and names the directories searched for <code>.xi</code>
 interfaces. <code>out_dir</code> is the current translation output directory, or
 NULL. Home files mirror their home-relative path under the compiler’s
 stage directory when it runs from <code>&lt;home&gt;/builds/</code>, otherwise under the
-home. Call it before opening any translation unit’s Context.</p>
-<p>Source: <code>src/collect.x:707</code></p>
+home. A <code>cold</code> process reads no interface and still writes its own. Call
+it before opening any translation unit’s Context.</p>
+<p>Source: <code>src/collect.x:728</code></p>
 <h4 id="interface_prelude"><a class="header" href="#interface_prelude">interface_prelude</a></h4>
 <p><code>String interface_prelude(void)</code></p>
-<p>Returns the readable prelude interface path, or NULL when none exists.</p>
-<p>Source: <code>src/collect.x:732</code></p>
+<p>Returns the path of the first prelude interface this compiler wrote, or
+NULL when there is none or the compiler’s identity is unknown. Its
+source hashes are not checked.</p>
+<p>Source: <code>src/collect.x:756</code></p>
 <h4 id="interface_text"><a class="header" href="#interface_text">interface_text</a></h4>
-<p><code>String interface_text(Compiler compiler)</code></p>
+<p><code>String interface_text(Compiler compiler, List selected)</code></p>
 <p>Returns the compiler’s own collected contribution as interface text, or
-NULL when the unit has not collected its symbols. A contribution that
-the interface grammar cannot spell is reported as an <code>emit</code> diagnostic.</p>
-<p>Source: <code>src/collect.x:954</code></p>
+NULL when the unit has not collected its symbols or the compiler’s
+identity is unknown, since no compiler could replay that interface. A
+contribution that the interface grammar cannot spell is reported as an
+<code>emit</code> diagnostic.</p>
+<p>Source: <code>src/collect.x:994</code></p>
 <h3 id="compiler"><a class="header" href="#compiler"><code>Compiler</code></a></h3>
 <p><a id="Compiler.collect_package"></a></p>
 <h4 id="compilercollect_package"><a class="header" href="#compilercollect_package">Compiler.collect_package</a></h4>
@@ -273,7 +278,7 @@ their previously collected declarations. Public declarations and
 protocol rows enter the current symbol state, and dependencies enter the
 importing compiler. Replay also merges recorded function definitions.
 <code>token</code> locates lookup and public-surface errors.</p>
-<p>Source: <code>src/collect.x:655</code></p>
+<p>Source: <code>src/collect.x:671</code></p>
 <p><a id="Compiler.collect_symbols"></a></p>
 <h4 id="compilercollect_symbols"><a class="header" href="#compilercollect_symbols">Compiler.collect_symbols</a></h4>
 <p><code>Map Compiler.collect_symbols(Compiler c, Map globs)</code></p>
@@ -286,7 +291,7 @@ and raw-include closure then merge in source order, and the returned map
 is <code>globs</code>. Collection also updates dependencies, function definitions,
 and macro state. Keyword alias maps and seen-name state are file-local
 and restored when each file walk ends.</p>
-<p>Source: <code>src/collect.x:495</code></p>
+<p>Source: <code>src/collect.x:510</code></p>
 <p><a id="Compiler.record_generated_symbol"></a></p>
 <h4 id="compilerrecord_generated_symbol"><a class="header" href="#compilerrecord_generated_symbol">Compiler.record_generated_symbol</a></h4>
 <p><code>void Compiler.record_generated_symbol( Compiler c, String name, Type signature)</code></p>
@@ -294,7 +299,7 @@ and restored when each file walk ends.</p>
 current file’s collected entry contributes, which is the map its
 interface publishes. A file without a collected declaration map records
 nothing. The cache retains <code>signature</code>.</p>
-<p>Source: <code>src/collect.x:349</code></p>
+<p>Source: <code>src/collect.x:366</code></p>
 <h2 id="design-notes"><a class="header" href="#design-notes">Design notes</a></h2>
 <p>Raw collection scans includes without running cpp. Each cold walk records
 declaration maps and included paths at their source positions; cache and
@@ -320,9 +325,9 @@ and the runtime prelude is <code>lib/x2c.xi</code>.</p>
                         &copy; 2025&ndash;2026
                         <a href="https://flake.org">GWF</a>
                         &middot;
-                        <a href="https://github.com/gwf/x2c/blob/4fcf5c2a6d16ec5f73a61e582fa97bd3257fcb75/LICENSE">Apache 2.0</a>
+                        <a href="https://github.com/gwf/x2c/blob/0351be4a4d6c00dd246e5190e8dcf5a970560beb/LICENSE">Apache 2.0</a>
                         &middot;
-                        <a href="https://github.com/gwf/x2c/blob/4fcf5c2a6d16ec5f73a61e582fa97bd3257fcb75/TRADEMARKS.md">Trademarks</a>
+                        <a href="https://github.com/gwf/x2c/blob/0351be4a4d6c00dd246e5190e8dcf5a970560beb/TRADEMARKS.md">Trademarks</a>
                     </footer>
                 </div>
             </div>

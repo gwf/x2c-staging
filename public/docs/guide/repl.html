@@ -1,6 +1,6 @@
 <!DOCTYPE HTML>
 <html lang="en" class="light sidebar-visible" dir="ltr">
-    <head><meta name="x2c-release-channel" content="staging"><meta name="x2c-candidate" content="candidate-4fcf5c2a6d16ec5f73a61e582fa97bd3257fcb75-35633957957-1">
+    <head><meta name="x2c-release-channel" content="staging"><meta name="x2c-candidate" content="candidate-0351be4a4d6c00dd246e5190e8dcf5a970560beb-36014113963-1">
         <!-- Book generated using mdBook -->
         <meta charset="UTF-8">
         <title>Experimental REPL - The x2c Book</title>
@@ -39,10 +39,10 @@
             const path_to_root = "../";
             const default_light_theme = "light";
             const default_dark_theme = "light";
-            window.path_to_searchindex_js = "../searchindex-aa7bc7b3.js";
+            window.path_to_searchindex_js = "../searchindex-c9145dcc.js";
         </script>
         <!-- Start loading toc.js asap -->
-        <script src="../toc-22ab70ae.js"></script>
+        <script src="../toc-b37ed13f.js"></script>
         <!-- x2c publication metadata -->
         <link rel="canonical" href="https://staging.x2c-lang.dev/docs/guide/repl.html">
         <meta property="og:type" content="website">
@@ -255,14 +255,23 @@ and up/down history recall. History holds the last 100 nonempty commands and
 completed source submissions for the current process; adjacent duplicates are
 stored once, and history is not written to disk. A rejected or failed
 submission remains available for correction.</p>
-<p>Tab completes names from the compiler’s live session namespace. This includes
-published session values and functions, visible types and macros, and fields or
-evaluator-callable methods on a typed receiver. A sole match replaces the
-current name; otherwise Tab inserts the common prefix, and another Tab lists
-the sorted choices. Completion parses only through the cursor and rolls back
-its semantic work, so it can use locals from pending multiline input without
-publishing them. APIs become candidates when their ordinary declarations and
-compile-time bindings become visible; the REPL keeps no separate API list.</p>
+<p>Tab completes names from the compiler’s live session namespace. The parser’s
+current grammar role filters that namespace: type positions offer types and
+type-producing macros, expression positions offer values and callable forms,
+and statement, block, and submission starts offer their legal union plus
+contextual keywords. Narrow continuation contexts offer <code>else</code>, <code>catch</code>, or
+<code>finally</code> where each is legal. Fields and evaluator-callable methods remain
+available on a typed receiver. At a blank primary prompt completion also
+offers colon commands, grouped with keywords, session names, types, and other
+callables. Unsupported REPL declarations and imports are not suggested.</p>
+<p>A colon-prefixed line completes commands even at a continuation prompt;
+<code>:ast</code> and <code>:lowered</code> then complete published function names, and <code>:stats</code>
+completes <code>verbose</code>. A sole match replaces the current name; otherwise Tab
+inserts the common prefix, and another Tab lists compact, grouped choices.
+Completion parses only through the cursor and rolls back its semantic work,
+so it can use locals from pending multiline input without publishing them.
+APIs become candidates when their ordinary declarations and compile-time
+bindings become visible; the REPL keeps no separate API or grammar model.</p>
 <p>Long input wraps across terminal rows. Bracketed paste keeps embedded newlines
 inside one editable entry, so a pasted multiline submission can be accepted
 with one Enter. Recalled multiline submissions are also one entry. The editor
@@ -278,6 +287,7 @@ incomplete submission continues at a fresh <code>... </code> prompt.</p>
 </thead>
 <tbody>
 <tr><td><code>:help</code></td><td>Show session commands.</td></tr>
+<tr><td><code>:stats [verbose]</code></td><td>Show concise or detailed runtime statistics.</td></tr>
 <tr><td><code>:symbols</code></td><td>List successfully defined names and their kinds.</td></tr>
 <tr><td><code>:ast plus</code></td><td>Show <code>plus</code>’s typed <span class="x2c-wordmark">x2c</span> AST.</td></tr>
 <tr><td><code>:lowered plus</code></td><td>Show the Lisp forms used to execute <code>plus</code>.</td></tr>
@@ -296,27 +306,63 @@ command reports an error. Colon commands are recognized on separate lines
 even inside an incomplete string or comment. Missing names, extra arguments,
 and unknown commands report errors.</p>
 <p><code>--dump</code> prints each available typed AST and lowered Lisp form to standard
-error. <code>--stats</code> prints Lisp calls, word-machine entries, and machine errors
-at exit. The options can be combined.</p>
+error. <code>--stats</code> prints the concise runtime report at exit, to standard error.
+<code>--verbose-stats</code> prints the detailed report and implies exit reporting; when
+both statistics options are present, one verbose report is printed. The
+options can be combined with <code>--dump</code>.</p>
+<p>The report separates absolute live or retained quantities from activity since
+the REPL opened. <code>live-program-bytes</code> is published evaluator program storage,
+not total evaluator memory. Scope allocation objects and live requested bytes
+are process-wide runtime values; requested bytes count public managed payload,
+not allocator metadata. <code>requested-traffic-bytes</code> remains cumulative activity.
+Pool active and depot bytes partition retained backing capacity; they are not
+reachable payload. Scope, Pool, and Lisp figures overlap and must not be
+summed. <span class="x2c-wordmark">x2c</span> has no garbage collector, so reuse and promotion counters are
+activity rather than collection counts. Verbose reports add all evaluator
+AUTO fields, Scope creation and peak data, Pool traffic and capacity detail,
+and machine execution counters collected since the REPL opened.</p>
 <h2 id="supported-subset"><a class="header" href="#supported-subset">Supported subset</a></h2>
 <p>The current subset includes initialized simple variables, function
 definitions, integer arithmetic and narrowing, assignment, conditionals,
 <code>for</code> loops, self recursion, and calls to earlier functions. String values
 and length, List literals and indexing, and Array construction, mutation,
 and indexing are exercised by the focused checks.</p>
+<p>The whole interpreter exposes the fixed-signature
+<code>String.format(String fmt, List values)</code> operation. Call it as
+<code>fmt.format(values)</code>:</p>
+<pre class="shiki shiki-themes x2c-light x2c-dark x2c-code" style="--shiki-light:#24292e;--shiki-dark:#e9e5df;--shiki-light-bg:#fff;--shiki-dark-bg:#101011" tabindex="0"><code class="language-x2c no-highlight"><span class="line boring"><span style="--shiki-light:#007C8A;--shiki-dark:#29D3E2">List</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF"> values </span><span style="--shiki-light:#D73A49;--shiki-dark:#E9E5DF">=</span><span style="--shiki-light:#24292E;--shiki-dark:#FF715A"> %(</span><span style="--shiki-light:#24292E;--shiki-dark:#FF715A">"</span><span style="--shiki-light:#032F62;--shiki-dark:#9EDFB8">answer</span><span style="--shiki-light:#24292E;--shiki-dark:#FF715A">"</span><span style="--shiki-light:#005CC5;--shiki-dark:#A9C9F5"> 42</span><span style="--shiki-light:#24292E;--shiki-dark:#FF715A">)</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">;</span>
+</span><span class="line"><span style="--shiki-light:#007C8A;--shiki-dark:#29D3E2">String</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF"> text </span><span style="--shiki-light:#D73A49;--shiki-dark:#E9E5DF">=</span><span style="--shiki-light:#032F62;--shiki-dark:#9EDFB8"> "</span><span style="--shiki-light:#005CC5;--shiki-dark:#9EDFB8">%s</span><span style="--shiki-light:#032F62;--shiki-dark:#9EDFB8">=</span><span style="--shiki-light:#005CC5;--shiki-dark:#9EDFB8">%04d</span><span style="--shiki-light:#032F62;--shiki-dark:#9EDFB8">"</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">.</span><span style="--shiki-light:#6F42C1;--shiki-dark:#E9E5DF">format</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">(values);</span></span></code></pre>
+
+<p>It supports <code>%%</code>, flags <code>-+ #0</code>, numeric and <code>*</code> width and precision, integer
+conversions <code>d i o u x X</code> with <code>hh h l ll</code>, floating conversions
+<code>f F e E g G a A</code> with default, <code>l</code>, or <code>L</code>, plus <code>%c</code> and <code>%s</code>. It converts
+numeric <code>Var</code>s and uses <code>Var.str</code> for <code>%s</code>. Pointer and write-count
+conversions, wide strings and characters, positional formats, and <code>j z t</code>
+lengths are rejected. The result follows the process locale, and a failure
+publishes no partial String. Native <code>String.printf</code> retains its ordinary C
+varargs contract for compiled code.</p>
+<p>REPL sessions also provide <code>print(String)</code> and <code>println(String)</code>. <code>print</code>
+writes the String’s bytes; <code>println</code> writes those bytes followed by one
+newline. Use String interpolation for formatting, such as
+<code>println(%"count=$count")</code>. Both functions are REPL-only, reserve their names
+in the session, and report <code>ok</code> rather than a synthetic value. They are not
+varargs aliases.</p>
 <p>Redefinition is disabled; assign to an existing variable to change its value.
 Function replacement and mutually recursive forward declarations are not
 supported. Names beginning <code>__repl_</code> are reserved.</p>
 <p>Native pointer and ABI operations, arbitrary C libraries, aggregate and type
 definitions, imports, protocols, user macro/meta definitions, preprocessor
-directives, and direct Lisp input are outside this subset. Variables need
+directives, and direct Lisp input are outside this subset. A bodyless <code>meta</code>
+prototype is accepted: it makes a function the compiler links, or one from a
+<a href="meta-functions.html#native-modules">native module</a> loaded with
+<code>--native-module</code>, callable in the session. Variables need
 initializers; declarator modifiers, <code>const</code>, and <code>volatile</code> are rejected.
 Function-local <code>static</code>, <code>extern</code>, and <code>threaded</code> storage are also rejected:
 the evaluator cannot provide their native lifetime or linkage semantics.
 Other constructs depend on the existing lowering and may be declined. Full
 native execution and reference/lifecycle parity are not established; for
 example, the evaluator loses the distinction between <code>Var void</code> and an
-empty List. A void function currently displays the lowering’s zero sentinel.</p>
+empty List.</p>
 <h2 id="failure-and-lifetime"><a class="header" href="#failure-and-lifetime">Failure and lifetime</a></h2>
 <p>Rejected submissions leave earlier definitions usable. A declaration
 publishes its names only after all initializers succeed. If a later
@@ -359,9 +405,9 @@ line reader instead. Piped input retains the same output and exit behavior.</p>
                         &copy; 2025&ndash;2026
                         <a href="https://flake.org">GWF</a>
                         &middot;
-                        <a href="https://github.com/gwf/x2c/blob/4fcf5c2a6d16ec5f73a61e582fa97bd3257fcb75/LICENSE">Apache 2.0</a>
+                        <a href="https://github.com/gwf/x2c/blob/0351be4a4d6c00dd246e5190e8dcf5a970560beb/LICENSE">Apache 2.0</a>
                         &middot;
-                        <a href="https://github.com/gwf/x2c/blob/4fcf5c2a6d16ec5f73a61e582fa97bd3257fcb75/TRADEMARKS.md">Trademarks</a>
+                        <a href="https://github.com/gwf/x2c/blob/0351be4a4d6c00dd246e5190e8dcf5a970560beb/TRADEMARKS.md">Trademarks</a>
                     </footer>
                 </div>
             </div>

@@ -1,6 +1,6 @@
 <!DOCTYPE HTML>
 <html lang="en" class="light sidebar-visible" dir="ltr">
-    <head><meta name="x2c-release-channel" content="staging"><meta name="x2c-candidate" content="candidate-4fcf5c2a6d16ec5f73a61e582fa97bd3257fcb75-35633957957-1">
+    <head><meta name="x2c-release-channel" content="staging"><meta name="x2c-candidate" content="candidate-0351be4a4d6c00dd246e5190e8dcf5a970560beb-36014113963-1">
         <!-- Book generated using mdBook -->
         <meta charset="UTF-8">
         <title>lib/pool.x - The x2c Book</title>
@@ -39,10 +39,10 @@
             const path_to_root = "../../";
             const default_light_theme = "light";
             const default_dark_theme = "light";
-            window.path_to_searchindex_js = "../../searchindex-aa7bc7b3.js";
+            window.path_to_searchindex_js = "../../searchindex-c9145dcc.js";
         </script>
         <!-- Start loading toc.js asap -->
-        <script src="../../toc-22ab70ae.js"></script>
+        <script src="../../toc-b37ed13f.js"></script>
         <!-- x2c publication metadata -->
         <link rel="canonical" href="https://staging.x2c-lang.dev/docs/library/modules/pool.html">
         <meta property="og:type" content="website">
@@ -318,7 +318,7 @@ diagnostics.</p>
 <p>Returns this level’s canonical counts plus process-wide storage counters.
 A null pool reports depth and per-level counts as zero. The counters are a
 snapshot; nothing in the result stays live with the pool.</p>
-<p>Source: <code>lib/pool.x:934</code></p>
+<p>Source: <code>lib/pool.x:942</code></p>
 <h2 id="advanced-and-interop-api"><a class="header" href="#advanced-and-interop-api">Advanced and interop API</a></h2>
 <div class="table-wrapper">
 <table>
@@ -461,9 +461,11 @@ It is promoted to the outermost pool when a pool in the chain owns it.
 value is already outermost or reaches it, and zero when no pool in the
 chain owns it or a promotion fails. A null <code>inner</code> reports safe, since no
 pool can then reclaim the value. Promotion is not transactional across
-levels: an earlier level remains promoted if a later promotion transfers.</p>
+levels: an earlier level remains promoted if a later promotion transfers.
+A thread that loses a concurrent promotion of an equal value still gets
+one, though <code>Pool.is_permanent</code> answers zero for its surviving copy.</p>
 <p><strong>Raises:</strong> <code>&lt;alloc-fail&gt;</code> when promotion metadata cannot be allocated.</p>
-<p>Source: <code>lib/pool.x:915</code></p>
+<p>Source: <code>lib/pool.x:923</code></p>
 <p><a id="Pool.owns"></a></p>
 <h4 id="poolowns"><a class="header" href="#poolowns">Pool.owns</a></h4>
 <p><code>int Pool.owns(Pool pool, Var key)</code></p>
@@ -474,11 +476,13 @@ Ancestors are not searched, and a null pool reports zero.</p>
 <h4 id="poolpromote"><a class="header" href="#poolpromote">Pool.promote</a></h4>
 <p><code>int Pool.promote(Pool inner, Var object, void *alloc)</code></p>
 <p>Publishes an identity owned by <code>inner</code> in its parent.
-<code>alloc</code> survives <code>inner</code>’s release without changing its address. Returns
-zero for a missing owner, root pool, or null allocation.</p>
+<code>alloc</code> survives <code>inner</code>’s release without changing its address. When the
+parent already holds an equal identity, that one stays canonical and
+<code>object</code> only survives. Returns zero for a missing owner, root pool, or
+null allocation.</p>
 <p><strong>Raises:</strong> <code>&lt;alloc-fail&gt;</code>, <code>&lt;size-limit&gt;</code>, or <code>&lt;invariant&gt;</code> while recording
 the promotion; that transfer may happen before storage is marked or moved.</p>
-<p>Source: <code>lib/pool.x:900</code></p>
+<p>Source: <code>lib/pool.x:906</code></p>
 <p><a id="Pool.shutdown"></a></p>
 <h4 id="poolshutdown"><a class="header" href="#poolshutdown">Pool.shutdown</a></h4>
 <p><code>void Pool.shutdown(void)</code></p>
@@ -559,9 +563,9 @@ with <code>Error</code> and <code>Match</code> state.</p>
                         &copy; 2025&ndash;2026
                         <a href="https://flake.org">GWF</a>
                         &middot;
-                        <a href="https://github.com/gwf/x2c/blob/4fcf5c2a6d16ec5f73a61e582fa97bd3257fcb75/LICENSE">Apache 2.0</a>
+                        <a href="https://github.com/gwf/x2c/blob/0351be4a4d6c00dd246e5190e8dcf5a970560beb/LICENSE">Apache 2.0</a>
                         &middot;
-                        <a href="https://github.com/gwf/x2c/blob/4fcf5c2a6d16ec5f73a61e582fa97bd3257fcb75/TRADEMARKS.md">Trademarks</a>
+                        <a href="https://github.com/gwf/x2c/blob/0351be4a4d6c00dd246e5190e8dcf5a970560beb/TRADEMARKS.md">Trademarks</a>
                     </footer>
                 </div>
             </div>

@@ -1,6 +1,6 @@
 <!DOCTYPE HTML>
 <html lang="en" class="light sidebar-visible" dir="ltr">
-    <head><meta name="x2c-release-channel" content="staging"><meta name="x2c-candidate" content="candidate-4fcf5c2a6d16ec5f73a61e582fa97bd3257fcb75-35633957957-1">
+    <head><meta name="x2c-release-channel" content="staging"><meta name="x2c-candidate" content="candidate-0351be4a4d6c00dd246e5190e8dcf5a970560beb-36014113963-1">
         <!-- Book generated using mdBook -->
         <meta charset="UTF-8">
         <title>src/comptime.x - The x2c Book</title>
@@ -39,10 +39,10 @@
             const path_to_root = "../../";
             const default_light_theme = "light";
             const default_dark_theme = "light";
-            window.path_to_searchindex_js = "../../searchindex-aa7bc7b3.js";
+            window.path_to_searchindex_js = "../../searchindex-c9145dcc.js";
         </script>
         <!-- Start loading toc.js asap -->
-        <script src="../../toc-22ab70ae.js"></script>
+        <script src="../../toc-b37ed13f.js"></script>
         <!-- x2c publication metadata -->
         <link rel="canonical" href="https://staging.x2c-lang.dev/docs/internals/compiler-api/comptime.html">
         <meta property="og:type" content="website">
@@ -234,16 +234,17 @@ Compatibility is not yet promised.</p>
 </thead>
 <tbody>
 <tr><td><a href="#Compiler.check_meta_call"><code>Compiler.check_meta_call</code></a></td><td>Refuses a run-time call to a <code>meta</code> function this compiler derived compile-time only.</td></tr>
-<tr><td><a href="#Compiler.fold_meta_call"><code>Compiler.fold_meta_call</code></a></td><td>Answers a call to a <code>meta</code> function from its compile-time form when every argument is a compile-time constant of the parameter’s own type, or returns <code>NULL</code> to leave the call alone.</td></tr>
 <tr><td><a href="#Compiler.inherit_shared_meta"><code>Compiler.inherit_shared_meta</code></a></td><td>Restores the shared definitions’ derived call restrictions into a fresh compiler pass.</td></tr>
 <tr><td><a href="#Compiler.install_comptime"><code>Compiler.install_comptime</code></a></td><td>Lowers <code>fn</code> and evaluates the result in the macro session, so the function is callable from compile-time Lisp under its own name.</td></tr>
 <tr><td><a href="#Compiler.lower_comptime"><code>Compiler.lower_comptime</code></a></td><td>Lowers one compile-time function into the forms the macro session evaluates, or returns <code>NULL</code> when the substitution cannot carry it.</td></tr>
 <tr><td><a href="#Compiler.lower_declined"><code>Compiler.lower_declined</code></a></td><td>Returns why the last <code>Compiler.lower_comptime</code> declined, or <code>NULL</code>.</td></tr>
 <tr><td><a href="#Compiler.lower_meta_expression"><code>Compiler.lower_meta_expression</code></a></td><td>Lowers a closed expression for explicit compile-time evaluation.</td></tr>
-<tr><td><a href="#Compiler.lower_reached_globals"><code>Compiler.lower_reached_globals</code></a></td><td>Returns whether the last <code>Compiler.install_comptime</code> reached file-scope state, directly or through a callee already recorded as reaching it.</td></tr>
+<tr><td><a href="#Compiler.lower_meta_initializer"><code>Compiler.lower_meta_initializer</code></a></td><td>Lowers one advertised file-scope initializer to a new object holding its value.</td></tr>
 <tr><td><a href="#Compiler.lower_reached_meta"><code>Compiler.lower_reached_meta</code></a></td><td>Returns whether the last <code>Compiler.install_comptime</code> reached a <code>Meta</code> operation, directly or through a callee already recorded as reaching one.</td></tr>
+<tr><td><a href="#Compiler.lower_repl"><code>Compiler.lower_repl</code></a></td><td>Lowers a REPL execution wrapper whose unresolved bindings name the session’s persistent value table rather than program file-scope state.</td></tr>
+<tr><td><a href="#Compiler.lowered_meta_regions"><code>Compiler.lowered_meta_regions</code></a></td><td>Returns the region summary an earlier install of <code>fn</code> from the same file recorded with its lowering, or NULL when the process has none.</td></tr>
 <tr><td><a href="#Compiler.meta_is_comptime_only"><code>Compiler.meta_is_comptime_only</code></a></td><td>Returns whether <code>fn</code> is a <code>meta</code> function this compiler recorded as compile-time only, whose runtime form the unit does not emit.</td></tr>
-<tr><td><a href="#Compiler.meta_value_expression"><code>Compiler.meta_value_expression</code></a></td><td>Returns literal code preserving <code>declared</code> when supplied.</td></tr>
+<tr><td><a href="#Compiler.meta_value_expression"><code>Compiler.meta_value_expression</code></a></td><td>Returns literal code for a compile-time <code>value</code>, preserving <code>declared</code> when supplied.</td></tr>
 </tbody>
 </table>
 </div>
@@ -259,26 +260,14 @@ the linker as an undefined symbol, which names the C spelling and not the
 source. Another <code>meta</code> function may call it: calling one is what makes
 the caller compile-time only too, so a body being parsed under the marker
 is left alone.</p>
-<p>Source: <code>src/comptime.x:2342</code></p>
-<p><a id="Compiler.fold_meta_call"></a></p>
-<h4 id="compilerfold_meta_call"><a class="header" href="#compilerfold_meta_call">Compiler.fold_meta_call</a></h4>
-<p><code>List Compiler.fold_meta_call( Compiler c, List callee, Type signature, Type result, List arguments)</code></p>
-<p>Answers a call to a <code>meta</code> function from its compile-time form when every
-argument is a compile-time constant of the parameter’s own type, or
-returns <code>NULL</code> to leave the call alone.</p>
-<p><code>callee</code> is the resolved callee expression, <code>signature</code> its function type
-and <code>result</code> the call’s type. Only a <code>meta</code> function this compiler
-installed folds, so an import’s runtime definition keeps the run-time
-call that designates the unit emitting it. Evaluation runs in the macro
-session; a raise there leaves the call.</p>
-<p>Source: <code>src/comptime.x:2364</code></p>
+<p>Source: <code>src/comptime.x:3260</code></p>
 <p><a id="Compiler.inherit_shared_meta"></a></p>
 <h4 id="compilerinherit_shared_meta"><a class="header" href="#compilerinherit_shared_meta">Compiler.inherit_shared_meta</a></h4>
 <p><code>void Compiler.inherit_shared_meta(Compiler compiler)</code></p>
 <p>Restores the shared definitions’ derived call restrictions into a fresh
 compiler pass. Reads existing process tables without opening Lisp or
 creating a lowering cache in the unit’s Context.</p>
-<p>Source: <code>src/comptime.x:2065</code></p>
+<p>Source: <code>src/comptime.x:2913</code></p>
 <p><a id="Compiler.install_comptime"></a></p>
 <h4 id="compilerinstall_comptime"><a class="header" href="#compilerinstall_comptime">Compiler.install_comptime</a></h4>
 <p><code>int Compiler.install_comptime(Compiler compiler, List fn)</code></p>
@@ -286,7 +275,7 @@ creating a lowering cache in the unit’s Context.</p>
 function is callable from compile-time Lisp under its own name.
 Returns whether the lowering succeeded. This method mutates the macro
 session and does not open a semantic transaction.</p>
-<p>Source: <code>src/comptime.x:2120</code></p>
+<p>Source: <code>src/comptime.x:2991</code></p>
 <p><a id="Compiler.lower_comptime"></a></p>
 <h4 id="compilerlower_comptime"><a class="header" href="#compilerlower_comptime">Compiler.lower_comptime</a></h4>
 <p><code>List Compiler.lower_comptime(Compiler compiler, List fn)</code></p>
@@ -295,43 +284,58 @@ evaluates, or returns <code>NULL</code> when the substitution cannot carry it.
 The result is the loop definitions the body needed followed by the
 function’s own, in evaluation order. This method does not open a
 semantic transaction.</p>
-<p>Source: <code>src/comptime.x:1960</code></p>
+<p>Source: <code>src/comptime.x:2861</code></p>
 <p><a id="Compiler.lower_declined"></a></p>
 <h4 id="compilerlower_declined"><a class="header" href="#compilerlower_declined">Compiler.lower_declined</a></h4>
 <p><code>String Compiler.lower_declined(Compiler compiler)</code></p>
 <p>Returns why the last <code>Compiler.lower_comptime</code> declined, or <code>NULL</code>.</p>
-<p>Source: <code>src/comptime.x:2024</code></p>
+<p>Source: <code>src/comptime.x:2870</code></p>
 <p><a id="Compiler.lower_meta_expression"></a></p>
 <h4 id="compilerlower_meta_expression"><a class="header" href="#compilerlower_meta_expression">Compiler.lower_meta_expression</a></h4>
 <p><code>Var Compiler.lower_meta_expression(Compiler c, List expression)</code></p>
 <p>Lowers a closed expression for explicit compile-time evaluation.</p>
-<p>Source: <code>src/comptime.x:2184</code></p>
-<p><a id="Compiler.lower_reached_globals"></a></p>
-<h4 id="compilerlower_reached_globals"><a class="header" href="#compilerlower_reached_globals">Compiler.lower_reached_globals</a></h4>
-<p><code>int Compiler.lower_reached_globals(Compiler compiler)</code></p>
-<p>Returns whether the last <code>Compiler.install_comptime</code> reached file-scope
-state, directly or through a callee already recorded as reaching it.</p>
-<p>Source: <code>src/comptime.x:2160</code></p>
+<p>Source: <code>src/comptime.x:3063</code></p>
+<p><a id="Compiler.lower_meta_initializer"></a></p>
+<h4 id="compilerlower_meta_initializer"><a class="header" href="#compilerlower_meta_initializer">Compiler.lower_meta_initializer</a></h4>
+<p><code>Var Compiler.lower_meta_initializer( Compiler c, Type type, int id, List initializer)</code></p>
+<p>Lowers one advertised file-scope initializer to a new object holding its
+value. Evaluated outside any function, the object’s bytes belong to the
+macro session. The declaration parser has already installed its binding
+and checked that its type has a native layout.</p>
+<p>Source: <code>src/comptime.x:3041</code></p>
 <p><a id="Compiler.lower_reached_meta"></a></p>
 <h4 id="compilerlower_reached_meta"><a class="header" href="#compilerlower_reached_meta">Compiler.lower_reached_meta</a></h4>
 <p><code>int Compiler.lower_reached_meta(Compiler compiler)</code></p>
 <p>Returns whether the last <code>Compiler.install_comptime</code> reached a <code>Meta</code>
 operation, directly or through a callee already recorded as reaching one.</p>
-<p>Source: <code>src/comptime.x:2168</code></p>
+<p>Source: <code>src/comptime.x:3022</code></p>
+<p><a id="Compiler.lower_repl"></a></p>
+<h4 id="compilerlower_repl"><a class="header" href="#compilerlower_repl">Compiler.lower_repl</a></h4>
+<p><code>List Compiler.lower_repl(Compiler compiler, List fn)</code></p>
+<p>Lowers a REPL execution wrapper whose unresolved bindings name the
+session’s persistent value table rather than program file-scope state.</p>
+<p>Source: <code>src/comptime.x:2866</code></p>
+<p><a id="Compiler.lowered_meta_regions"></a></p>
+<h4 id="compilerlowered_meta_regions"><a class="header" href="#compilerlowered_meta_regions">Compiler.lowered_meta_regions</a></h4>
+<p><code>List Compiler.lowered_meta_regions(Compiler compiler, List fn)</code></p>
+<p>Returns the region summary an earlier install of <code>fn</code> from the same file
+recorded with its lowering, or NULL when the process has none.</p>
+<p>Source: <code>src/comptime.x:2970</code></p>
 <p><a id="Compiler.meta_is_comptime_only"></a></p>
 <h4 id="compilermeta_is_comptime_only"><a class="header" href="#compilermeta_is_comptime_only">Compiler.meta_is_comptime_only</a></h4>
 <p><code>int Compiler.meta_is_comptime_only(Compiler c, List fn)</code></p>
 <p>Returns whether <code>fn</code> is a <code>meta</code> function this compiler recorded as
 compile-time only, whose runtime form the unit does not emit.</p>
-<p>Source: <code>src/comptime.x:2176</code></p>
+<p>Source: <code>src/comptime.x:3030</code></p>
 <p><a id="Compiler.meta_value_expression"></a></p>
 <h4 id="compilermeta_value_expression"><a class="header" href="#compilermeta_value_expression">Compiler.meta_value_expression</a></h4>
-<p><code>List Compiler.meta_value_expression( Compiler c, Type declared, Var value, int mutable_root)</code></p>
-<p>Returns literal code preserving <code>declared</code> when supplied.
-<code>mutable_root</code> permits a fresh Array or Map at an explicit code boundary;
-its descendants must be immutable representable values. Returns NULL for
-code Lists or values without the requested literal representation.</p>
-<p>Source: <code>src/comptime.x:2240</code></p>
+<p><code>List Compiler.meta_value_expression( Compiler c, Type declared, Var value, Token site)</code></p>
+<p>Returns literal code for a compile-time <code>value</code>, preserving <code>declared</code>
+when supplied. An Array or Map, at any depth, becomes a literal that
+builds a fresh collection on every execution; other data comes from the
+literal cache. A cycle or a collection held twice is reported at <code>site</code>.
+Returns NULL for code Lists or values without a literal representation.</p>
+<p>Source: <code>src/comptime.x:3186</code></p>
 <h2 id="design-notes"><a class="header" href="#design-notes">Design notes</a></h2>
 <p>A function marked for compile-time use is lowered here into the Lisp the
 macro session evaluates. A call in tail position reuses the frame it
@@ -361,9 +365,9 @@ iteration path, and declines the function when it is on one.</p>
                         &copy; 2025&ndash;2026
                         <a href="https://flake.org">GWF</a>
                         &middot;
-                        <a href="https://github.com/gwf/x2c/blob/4fcf5c2a6d16ec5f73a61e582fa97bd3257fcb75/LICENSE">Apache 2.0</a>
+                        <a href="https://github.com/gwf/x2c/blob/0351be4a4d6c00dd246e5190e8dcf5a970560beb/LICENSE">Apache 2.0</a>
                         &middot;
-                        <a href="https://github.com/gwf/x2c/blob/4fcf5c2a6d16ec5f73a61e582fa97bd3257fcb75/TRADEMARKS.md">Trademarks</a>
+                        <a href="https://github.com/gwf/x2c/blob/0351be4a4d6c00dd246e5190e8dcf5a970560beb/TRADEMARKS.md">Trademarks</a>
                     </footer>
                 </div>
             </div>
