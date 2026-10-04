@@ -1,0 +1,611 @@
+<!DOCTYPE HTML>
+<html lang="en" class="light sidebar-visible" dir="ltr">
+    <head><meta name="x2c-site-source" content="2fb2e7abb7462f842903580f47a5b96c69698937"><meta name="x2c-release-channel" content="staging"><meta name="x2c-candidate" content="candidate-0351be4a4d6c00dd246e5190e8dcf5a970560beb-36014113963-1">
+        <!-- Book generated using mdBook -->
+        <meta charset="UTF-8">
+        <title>src/meta-sdk.x - The x2c Book</title>
+
+
+        <!-- Custom HTML head -->
+        <link rel="preconnect" href="https://fonts.googleapis.com">
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=Archivo:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">
+
+        <meta name="description" content="The x2c language, standard library, and compiler.">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <meta name="theme-color" content="#ffffff">
+
+        <link rel="icon" href="../../favicon-995a3c20.svg">
+        <link rel="stylesheet" href="../../css/variables-8adf115d.css">
+        <link rel="stylesheet" href="../../css/general-e96d0476.css">
+        <link rel="stylesheet" href="../../css/chrome-d279d366.css">
+        <link rel="stylesheet" href="../../css/print-9e4910d8.css" media="print">
+
+        <!-- Fonts -->
+        <link rel="stylesheet" href="../../fonts/fonts-9644e21d.css">
+
+        <!-- Highlight.js Stylesheets -->
+        <link rel="stylesheet" id="mdbook-highlight-css" href="../../highlight-493f70e1.css">
+        <link rel="stylesheet" id="mdbook-tomorrow-night-css" href="../../tomorrow-night-4c0ae647.css">
+        <link rel="stylesheet" id="mdbook-ayu-highlight-css" href="../../ayu-highlight-3fdfc3ac.css">
+
+        <!-- Custom theme stylesheets -->
+        <link rel="stylesheet" href="../../theme/header-2c1becca.css">
+        <link rel="stylesheet" href="../../theme/x2c-fd3d182e.css">
+
+
+        <!-- Provide site root and default themes to javascript -->
+        <script>
+            const path_to_root = "../../";
+            const default_light_theme = "light";
+            const default_dark_theme = "light";
+            window.path_to_searchindex_js = "../../searchindex-94a52d98.js";
+        </script>
+        <!-- Start loading toc.js asap -->
+        <script src="../../toc-89ef7d96.js"></script>
+        <!-- x2c publication metadata -->
+        <link rel="canonical" href="https://staging.x2c-lang.dev/docs/internals/compiler-api/meta-sdk.html">
+        <meta property="og:type" content="website">
+        <meta property="og:title" content="src/meta-sdk.x - The x2c Book">
+        <meta property="og:description" content="The x2c language, standard library, and compiler.">
+        <meta property="og:url" content="https://staging.x2c-lang.dev/docs/internals/compiler-api/meta-sdk.html">
+        <meta property="og:image" content="https://staging.x2c-lang.dev/x2c-social.png">
+        <meta property="og:image:width" content="1200">
+        <meta property="og:image:height" content="630">
+        <meta name="twitter:card" content="summary_large_image">
+        <meta name="twitter:title" content="src/meta-sdk.x - The x2c Book">
+        <meta name="twitter:description" content="The x2c language, standard library, and compiler.">
+        <meta name="twitter:image" content="https://staging.x2c-lang.dev/x2c-social.png">
+    </head>
+    <body>
+    <div id="mdbook-help-container">
+        <div id="mdbook-help-popup">
+            <h2 class="mdbook-help-title">Keyboard shortcuts</h2>
+            <div>
+                <p>Press <kbd>←</kbd> or <kbd>→</kbd> to navigate between chapters</p>
+                <p>Press <kbd>S</kbd> or <kbd>/</kbd> to search in the book</p>
+                <p>Press <kbd>?</kbd> to show this help</p>
+                <p>Press <kbd>Esc</kbd> to hide this help</p>
+            </div>
+        </div>
+    </div>
+    <div id="mdbook-body-container">
+        <!-- Work around some values being stored in localStorage wrapped in quotes -->
+        <script>
+            try {
+                let theme = localStorage.getItem('mdbook-theme');
+                let sidebar = localStorage.getItem('mdbook-sidebar');
+
+                if (theme.startsWith('"') && theme.endsWith('"')) {
+                    localStorage.setItem('mdbook-theme', theme.slice(1, theme.length - 1));
+                }
+
+                if (sidebar.startsWith('"') && sidebar.endsWith('"')) {
+                    localStorage.setItem('mdbook-sidebar', sidebar.slice(1, sidebar.length - 1));
+                }
+            } catch (e) { }
+        </script>
+
+        <!-- Set the theme before any content is loaded, prevents flash -->
+        <script>
+            const default_theme = window.matchMedia("(prefers-color-scheme: dark)").matches ? default_dark_theme : default_light_theme;
+            let theme;
+            try { theme = localStorage.getItem('mdbook-theme'); } catch(e) { }
+            if (theme === null || theme === undefined) { theme = default_theme; }
+            const html = document.documentElement;
+            html.classList.remove('light')
+            html.classList.add(theme);
+            html.classList.add("js");
+        </script>
+
+        <input type="checkbox" id="mdbook-sidebar-toggle-anchor" class="hidden">
+
+        <!-- Hide / unhide sidebar before it is displayed -->
+        <script>
+            let sidebar = null;
+            const sidebar_toggle = document.getElementById("mdbook-sidebar-toggle-anchor");
+            if (document.body.clientWidth >= 1080) {
+                try { sidebar = localStorage.getItem('mdbook-sidebar'); } catch(e) { }
+                sidebar = sidebar || 'visible';
+            } else {
+                sidebar = 'hidden';
+                sidebar_toggle.checked = false;
+            }
+            if (sidebar === 'visible') {
+                sidebar_toggle.checked = true;
+            } else {
+                html.classList.remove('sidebar-visible');
+            }
+        </script>
+
+        <nav id="mdbook-sidebar" class="sidebar" aria-label="Table of contents">
+            <!-- populated by js -->
+            <mdbook-sidebar-scrollbox class="sidebar-scrollbox"></mdbook-sidebar-scrollbox>
+            <noscript>
+                <iframe class="sidebar-iframe-outer" src="../../toc.html"></iframe>
+            </noscript>
+            <div id="mdbook-sidebar-resize-handle" class="sidebar-resize-handle">
+                <div class="sidebar-resize-indicator"></div>
+            </div>
+        </nav>
+
+        <div id="mdbook-page-wrapper" class="page-wrapper">
+
+            <div class="page">
+                <div id="mdbook-menu-bar" class="hidden"></div>
+                <header class="landing-header x2c-header">
+                    <div class="landing-header-inner">
+                        <div class="landing-branding">
+                            <a class="landing-brand" href="../../../" aria-label="x2c home">
+                                <svg viewBox="0 0 100 100" width="22" height="22" aria-hidden="true"><g fill="none" stroke="#da291c" stroke-width="17" stroke-linecap="butt"><path d="M9 16 A34.5 34.5 0 0 1 9 84"></path><path d="M91 16 A34.5 34.5 0 0 0 91 84"></path></g></svg>
+                                <span class="x2c-wordmark landing-wordmark">x2c</span>
+                            </a>
+                            <span class="landing-tagline">The x2c Book</span>
+                        </div>
+                        <nav class="landing-nav" aria-label="x2c website">
+                            <div class="landing-page-nav">
+                                <a href="../../../#love">love</a>
+                                <a href="../../../#power">power</a>
+                                <a href="../../../#magic">magic</a>
+                            </div>
+                            <div class="landing-site-nav">
+                                <a href="../../../#install">install</a>
+                                <a href="../../../#packages">packages</a>
+                            </div>
+                            <div class="landing-reference-nav">
+                                <a href="../../../about/">about</a>
+                                <a href="../../" aria-current="page">docs</a>
+                                <a href="https://github.com/gwf/x2c">source</a>
+                            </div>
+                        </nav>
+                    </div>
+                    <div class="x2c-book-tools">
+                        <div class="x2c-header-tools">
+                            <label id="mdbook-sidebar-toggle" class="icon-button" for="mdbook-sidebar-toggle-anchor" title="Toggle Table of Contents" aria-label="Toggle Table of Contents" aria-controls="mdbook-sidebar">
+                                <span class=fa-svg><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc. --><path d="M0 96C0 78.3 14.3 64 32 64H416c17.7 0 32 14.3 32 32s-14.3 32-32 32H32C14.3 128 0 113.7 0 96zM0 256c0-17.7 14.3-32 32-32H416c17.7 0 32 14.3 32 32s-14.3 32-32 32H32c-17.7 0-32-14.3-32-32zM448 416c0 17.7-14.3 32-32 32H32c-17.7 0-32-14.3-32-32s14.3-32 32-32H416c17.7 0 32 14.3 32 32z"/></svg></span>
+                            </label>
+                        </div>
+                        <div class="x2c-header-tools x2c-header-tools-right">
+                            <button id="mdbook-search-toggle" class="icon-button" type="button" title="Search (`/`)" aria-label="Toggle Searchbar" aria-expanded="false" aria-keyshortcuts="/ s" aria-controls="mdbook-searchbar">
+                                <span class=fa-svg><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc. --><path d="M416 208c0 45.9-14.9 88.3-40 122.7L502.6 457.4c12.5 12.5 12.5 32.8 0 45.3s-32.8 12.5-45.3 0L330.7 376c-34.4 25.2-76.8 40-122.7 40C93.1 416 0 322.9 0 208S93.1 0 208 0S416 93.1 416 208zM208 352c79.5 0 144-64.5 144-144s-64.5-144-144-144S64 128.5 64 208s64.5 144 144 144z"/></svg></span>
+                            </button>
+                            <button id="mdbook-theme-toggle" class="icon-button" type="button" title="Change theme" aria-label="Change theme" aria-haspopup="true" aria-expanded="false" aria-controls="mdbook-theme-list">
+                                <span class=fa-svg><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc. --><path d="M448 256c0-106-86-192-192-192V448c106 0 192-86 192-192zm64 0c0 141.4-114.6 256-256 256S0 397.4 0 256S114.6 0 256 0S512 114.6 512 256z"/></svg></span>
+                            </button>
+                            <ul id="mdbook-theme-list" class="theme-popup" aria-label="Themes" role="menu">
+                                <li role="none"><button role="menuitem" class="theme" id="mdbook-theme-default_theme">Auto</button></li>
+                                <li role="none"><button role="menuitem" class="theme" id="mdbook-theme-light">Light</button></li>
+                                <li role="none"><button role="menuitem" class="theme" id="mdbook-theme-ayu">Dark</button></li>
+                            </ul>
+                            <a href="https://github.com/gwf/x2c/edit/main/docs/src/internals/compiler-api/meta-sdk.md" title="Suggest an edit" aria-label="Suggest an edit" rel="edit" class="icon-button">
+                                <span class=fa-svg id="git-edit-button"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc. --><path d="M421.7 220.3l-11.3 11.3-22.6 22.6-205 205c-6.6 6.6-14.8 11.5-23.8 14.1L30.8 511c-8.4 2.5-17.5 .2-23.7-6.1S-1.5 489.7 1 481.2L38.7 353.1c2.6-9 7.5-17.2 14.1-23.8l205-205 22.6-22.6 11.3-11.3 33.9 33.9 62.1 62.1 33.9 33.9zM96 353.9l-9.3 9.3c-.9 .9-1.6 2.1-2 3.4l-25.3 86 86-25.3c1.3-.4 2.5-1.1 3.4-2l9.3-9.3H112c-8.8 0-16-7.2-16-16V353.9zM453.3 19.3l39.4 39.4c25 25 25 65.5 0 90.5l-14.5 14.5-22.6 22.6-11.3 11.3-33.9-33.9-62.1-62.1L314.3 67.7l11.3-11.3 22.6-22.6 14.5-14.5c25-25 65.5-25 90.5 0z"/></svg></span>
+                            </a>
+                        </div>
+                    </div>
+                </header>
+                <script>
+                    const bookHeader = document.querySelector('.x2c-header');
+                    new ResizeObserver(() => {
+                        document.documentElement.style.setProperty(
+                            '--menu-bar-height', `${bookHeader.getBoundingClientRect().height}px`);
+                    }).observe(bookHeader);
+                </script>
+
+                <div id="mdbook-search-wrapper" class="hidden">
+                    <form id="mdbook-searchbar-outer" class="searchbar-outer">
+                        <div class="search-wrapper">
+                            <input type="search" id="mdbook-searchbar" name="searchbar" placeholder="Search this book ..." aria-controls="mdbook-searchresults-outer" aria-describedby="searchresults-header">
+                            <div class="spinner-wrapper">
+                                <span class=fa-svg id="fa-spin"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc. --><path d="M304 48c0-26.5-21.5-48-48-48s-48 21.5-48 48s21.5 48 48 48s48-21.5 48-48zm0 416c0-26.5-21.5-48-48-48s-48 21.5-48 48s21.5 48 48 48s48-21.5 48-48zM48 304c26.5 0 48-21.5 48-48s-21.5-48-48-48s-48 21.5-48 48s21.5 48 48 48zm464-48c0-26.5-21.5-48-48-48s-48 21.5-48 48s21.5 48 48 48s48-21.5 48-48zM142.9 437c18.7-18.7 18.7-49.1 0-67.9s-49.1-18.7-67.9 0s-18.7 49.1 0 67.9s49.1 18.7 67.9 0zm0-294.2c18.7-18.7 18.7-49.1 0-67.9S93.7 56.2 75 75s-18.7 49.1 0 67.9s49.1 18.7 67.9 0zM369.1 437c18.7 18.7 49.1 18.7 67.9 0s18.7-49.1 0-67.9s-49.1-18.7-67.9 0s-18.7 49.1 0 67.9z"/></svg></span>
+                            </div>
+                        </div>
+                    </form>
+                    <div id="mdbook-searchresults-outer" class="searchresults-outer hidden">
+                        <div id="mdbook-searchresults-header" class="searchresults-header"></div>
+                        <ul id="mdbook-searchresults">
+                        </ul>
+                    </div>
+                </div>
+
+                <!-- Apply ARIA attributes after the sidebar and the sidebar toggle button are added to the DOM -->
+                <script>
+                    document.getElementById('mdbook-sidebar-toggle').setAttribute('aria-expanded', sidebar === 'visible');
+                    document.getElementById('mdbook-sidebar').setAttribute('aria-hidden', sidebar !== 'visible');
+                    Array.from(document.querySelectorAll('#mdbook-sidebar a')).forEach(function(link) {
+                        link.setAttribute('tabIndex', sidebar === 'visible' ? 0 : -1);
+                    });
+                </script>
+
+                <div id="mdbook-content" class="content">
+                    <main>
+                        <!-- Generated by `make doc-generate` from
+     src/*.x and the compiler's definitions. Do not edit by hand. -->
+<blockquote>
+<p><strong>Provisional API:</strong> This reference documents current compiler behavior.
+Compatibility is not yet promised.</p>
+</blockquote>
+<h1 id="srcmeta-sdkx"><a class="header" href="#srcmeta-sdkx"><code>src/meta-sdk.x</code></a></h1>
+<p>The compiler’s answers to <code>lib/meta.x</code> operations.</p>
+<h2 id="functions"><a class="header" href="#functions">Functions</a></h2>
+<div class="table-wrapper">
+<table>
+<thead>
+<tr><th>Function</th><th>Summary</th></tr>
+</thead>
+<tbody>
+<tr><td><a href="#binding_literal_list"><code>binding_literal_list</code></a></td><td>Returns <code>values</code>, such as a Lisp-built signature, as a cached literal of the expanding unit.</td></tr>
+<tr><td><a href="#binding_native_type"><code>binding_native_type</code></a></td><td>Returns the <code>Func</code> signature of the function syntax <code>syntax</code>.</td></tr>
+<tr><td><a href="#builtin_class_location"><code>builtin_class_location</code></a></td><td>Returns the location of the active macro invocation.</td></tr>
+<tr><td><a href="#builtin_foreach_bindings"><code>builtin_foreach_bindings</code></a></td><td>Returns an expression reading each binding <code>declaration</code> declares.</td></tr>
+<tr><td><a href="#builtin_foreach_collection"><code>builtin_foreach_collection</code></a></td><td>Returns the collection <code>foreach</code> iterates for <code>expression</code>, promoting a String literal.</td></tr>
+<tr><td><a href="#builtin_foreach_complete"><code>builtin_foreach_complete</code></a></td><td>Returns <code>expression</code> with the iterator chain <code>foreach</code> reads completed.</td></tr>
+<tr><td><a href="#builtin_foreach_reference"><code>builtin_foreach_reference</code></a></td><td>Returns the typed expression naming the function <code>name</code>, or an empty List when no function of that name is visible.</td></tr>
+<tr><td><a href="#builtin_foreach_unique"><code>builtin_foreach_unique</code></a></td><td>Returns a fresh binding whose spelling starts with <code>stem</code>.</td></tr>
+<tr><td><a href="#meta_source_description"><code>meta_source_description</code></a></td><td>Returns what a <code>meta</code> parameter declared <code>Source</code> receives for the captured syntax <code>value</code>: <code>((text T) (file F) (syntax value))</code>, where <code>T</code> is the text the developer wrote and <code>F</code> the file it is in.</td></tr>
+<tr><td><a href="#meta_type_description"><code>meta_type_description</code></a></td><td>Returns what a <code>meta</code> parameter declared <code>TypeInfo</code> receives for the captured syntax <code>value</code>: <code>((name N) (kind K) (type T) (fields F) (methods M))</code>.</td></tr>
+<tr><td><a href="#x2c_binding_spelling"><code>x2c_binding_spelling</code></a></td><td>Answers <code>x2c.binding.spelling</code>, declared in <code>lib/meta.x</code>.</td></tr>
+<tr><td><a href="#x2c_diagnostic_fail"><code>x2c_diagnostic_fail</code></a></td><td>Answers <code>x2c.diagnostic.fail</code>, declared in <code>lib/meta.x</code>.</td></tr>
+<tr><td><a href="#x2c_diagnostic_warn"><code>x2c_diagnostic_warn</code></a></td><td>A warning reports where it is raised and returns, so a macro can keep expanding.</td></tr>
+<tr><td><a href="#x2c_embed_text"><code>x2c_embed_text</code></a></td><td>Answers <code>x2c.embed.text</code>, declared in <code>lib/meta.x</code>.</td></tr>
+<tr><td><a href="#x2c_function_name"><code>x2c_function_name</code></a></td><td>Answers <code>x2c.function.name</code>, declared in <code>lib/meta.x</code>.</td></tr>
+<tr><td><a href="#x2c_function_parameter"><code>x2c_function_parameter</code></a></td><td>Answers <code>x2c.function.parameter</code>, declared in <code>lib/meta.x</code>.</td></tr>
+<tr><td><a href="#x2c_ident"><code>x2c_ident</code></a></td><td>Answers <code>x2c.ident</code>, declared in <code>lib/meta.x</code>.</td></tr>
+<tr><td><a href="#x2c_invocation_column"><code>x2c_invocation_column</code></a></td><td>Answers <code>x2c.invocation.column</code>, declared in <code>lib/meta.x</code>.</td></tr>
+<tr><td><a href="#x2c_invocation_file"><code>x2c_invocation_file</code></a></td><td>Answers <code>x2c.invocation.file</code>, declared in <code>lib/meta.x</code>.</td></tr>
+<tr><td><a href="#x2c_invocation_line"><code>x2c_invocation_line</code></a></td><td>Answers <code>x2c.invocation.line</code>, declared in <code>lib/meta.x</code>.</td></tr>
+<tr><td><a href="#x2c_literal_value"><code>x2c_literal_value</code></a></td><td>Answers <code>x2c.literal.value</code>, declared in <code>lib/meta.x</code>.</td></tr>
+<tr><td><a href="#x2c_meta_definition_hashes"><code>x2c_meta_definition_hashes</code></a></td><td>Answers <code>x2c.meta.definition.hashes</code>, declared in <code>lib/meta.x</code>.</td></tr>
+<tr><td><a href="#x2c_method_resolve"><code>x2c_method_resolve</code></a></td><td>Answers <code>x2c.method.resolve</code>, declared in <code>lib/meta.x</code>.</td></tr>
+<tr><td><a href="#x2c_protocol_member"><code>x2c_protocol_member</code></a></td><td>Answers <code>x2c.protocol.member</code>, declared in <code>lib/meta.x</code>.</td></tr>
+<tr><td><a href="#x2c_source_text"><code>x2c_source_text</code></a></td><td>Answers <code>x2c.source.text</code>, declared in <code>lib/meta.x</code>.</td></tr>
+<tr><td><a href="#x2c_syntax_type"><code>x2c_syntax_type</code></a></td><td>Answers <code>x2c.syntax.type</code>, declared in <code>lib/meta.x</code>.</td></tr>
+<tr><td><a href="#x2c_type_element"><code>x2c_type_element</code></a></td><td>Answers <code>x2c.type.element</code>, declared in <code>lib/meta.x</code>.</td></tr>
+<tr><td><a href="#x2c_type_fields"><code>x2c_type_fields</code></a></td><td>Answers <code>x2c.type.fields</code>, declared in <code>lib/meta.x</code>.</td></tr>
+<tr><td><a href="#x2c_type_is_integral"><code>x2c_type_is_integral</code></a></td><td>Answers <code>x2c.type.integral?</code>, declared in <code>lib/meta.x</code>.</td></tr>
+<tr><td><a href="#x2c_type_is_pointer"><code>x2c_type_is_pointer</code></a></td><td>Answers <code>x2c.type.pointer?</code>, declared in <code>lib/meta.x</code>.</td></tr>
+<tr><td><a href="#x2c_type_is_value"><code>x2c_type_is_value</code></a></td><td>Answers <code>x2c.type.value?</code>, declared in <code>lib/meta.x</code>.</td></tr>
+<tr><td><a href="#x2c_type_layout"><code>x2c_type_layout</code></a></td><td>Answers <code>x2c.type.layout</code>, declared in <code>lib/meta.x</code>.</td></tr>
+<tr><td><a href="#x2c_type_parameters"><code>x2c_type_parameters</code></a></td><td>Answers <code>x2c.type.parameters</code>, declared in <code>lib/meta.x</code>.</td></tr>
+<tr><td><a href="#x2c_type_parts"><code>x2c_type_parts</code></a></td><td>Answers <code>x2c.type.parts</code>, declared in <code>lib/meta.x</code>.</td></tr>
+<tr><td><a href="#x2c_type_resolve"><code>x2c_type_resolve</code></a></td><td>Answers <code>x2c.type.resolve</code>, declared in <code>lib/meta.x</code>.</td></tr>
+<tr><td><a href="#x2c_type_return"><code>x2c_type_return</code></a></td><td>Answers <code>x2c.type.return</code>, declared in <code>lib/meta.x</code>.</td></tr>
+<tr><td><a href="#x2c_type_reverse_name"><code>x2c_type_reverse_name</code></a></td><td>Answers <code>x2c.type.reverse-name</code>, declared in <code>lib/meta.x</code>.</td></tr>
+<tr><td><a href="#x2c_type_tag_name"><code>x2c_type_tag_name</code></a></td><td>Answers <code>x2c.type.tag-name</code>, declared in <code>lib/meta.x</code>.</td></tr>
+<tr><td><a href="#Compiler.bind_sdk_primitives"><code>Compiler.bind_sdk_primitives</code></a></td><td>Binds the internal primitives the compile-time SDK library wraps into <code>lisp</code>, under their <code>_x2c.</code> names.</td></tr>
+<tr><td><a href="#Compiler.expanding"><code>Compiler.expanding</code></a></td><td>Returns the compiler running the current compile-time call.</td></tr>
+<tr><td><a href="#MetaContext.current"><code>MetaContext.current</code></a></td><td>Returns the context of the running compile-time call, which an evaluation changes with <code>$let</code> for its own extent.</td></tr>
+<tr><td><a href="#MetaContext.reject"><code>MetaContext.reject</code></a></td><td>Reports <code>message</code> and <code>notes</code> at the active invocation and never returns, so the rejected operation’s caller cannot continue with a missing answer.</td></tr>
+</tbody>
+</table>
+</div>
+<h3 id="functions-1"><a class="header" href="#functions-1">Functions</a></h3>
+<h4 id="binding_literal_list"><a class="header" href="#binding_literal_list">binding_literal_list</a></h4>
+<p><code>List binding_literal_list(List values)</code></p>
+<p>Returns <code>values</code>, such as a Lisp-built signature, as a cached literal
+of the expanding unit.</p>
+<p>Source: <code>src/meta-sdk.x:352</code></p>
+<h4 id="binding_native_type"><a class="header" href="#binding_native_type">binding_native_type</a></h4>
+<p><code>List binding_native_type(List syntax)</code></p>
+<p>Returns the <code>Func</code> signature of the function syntax <code>syntax</code>. A native
+binding stores the same signature as an ordinary Func adapter.</p>
+<p>Source: <code>src/meta-sdk.x:342</code></p>
+<h4 id="builtin_class_location"><a class="header" href="#builtin_class_location">builtin_class_location</a></h4>
+<p><code>List builtin_class_location(void)</code></p>
+<p>Returns the location of the active macro invocation.</p>
+<p>Source: <code>src/meta-sdk.x:515</code></p>
+<h4 id="builtin_foreach_bindings"><a class="header" href="#builtin_foreach_bindings">builtin_foreach_bindings</a></h4>
+<p><code>List builtin_foreach_bindings(List declaration)</code></p>
+<p>Returns an expression reading each binding <code>declaration</code> declares.</p>
+<p>Source: <code>src/meta-sdk.x:122</code></p>
+<h4 id="builtin_foreach_collection"><a class="header" href="#builtin_foreach_collection">builtin_foreach_collection</a></h4>
+<p><code>List builtin_foreach_collection(List expression)</code></p>
+<p>Returns the collection <code>foreach</code> iterates for <code>expression</code>, promoting a
+String literal.</p>
+<p>Source: <code>src/meta-sdk.x:620</code></p>
+<h4 id="builtin_foreach_complete"><a class="header" href="#builtin_foreach_complete">builtin_foreach_complete</a></h4>
+<p><code>List builtin_foreach_complete(List expression)</code></p>
+<p>Returns <code>expression</code> with the iterator chain <code>foreach</code> reads completed.</p>
+<p>Source: <code>src/meta-sdk.x:613</code></p>
+<h4 id="builtin_foreach_reference"><a class="header" href="#builtin_foreach_reference">builtin_foreach_reference</a></h4>
+<p><code>List builtin_foreach_reference(String name)</code></p>
+<p>Returns the typed expression naming the function <code>name</code>, or an empty
+List when no function of that name is visible. This reads the symbol
+table only, so any compile-time Lisp evaluation may call it, including
+one outside a macro expansion.</p>
+<p>Source: <code>src/meta-sdk.x:150</code></p>
+<h4 id="builtin_foreach_unique"><a class="header" href="#builtin_foreach_unique">builtin_foreach_unique</a></h4>
+<p><code>Var builtin_foreach_unique(String stem)</code></p>
+<p>Returns a fresh binding whose spelling starts with <code>stem</code>.</p>
+<p>Source: <code>src/meta-sdk.x:294</code></p>
+<h4 id="meta_source_description"><a class="header" href="#meta_source_description">meta_source_description</a></h4>
+<p><code>List meta_source_description(Var value)</code></p>
+<p>Returns what a <code>meta</code> parameter declared <code>Source</code> receives for the
+captured syntax <code>value</code>: <code>((text T) (file F) (syntax value))</code>, where <code>T</code>
+is the text the developer wrote and <code>F</code> the file it is in.</p>
+<p>Source: <code>src/meta-sdk.x:604</code></p>
+<h4 id="meta_type_description"><a class="header" href="#meta_type_description">meta_type_description</a></h4>
+<p><code>List meta_type_description(Var value)</code></p>
+<p>Returns what a <code>meta</code> parameter declared <code>TypeInfo</code> receives for the
+captured syntax <code>value</code>: <code>((name N) (kind K) (type T) (fields F) (methods M))</code>.
+<code>T</code> is the canonical type of <code>value</code> and <code>N</code> its name, or “” when it has
+none. <code>K</code> is <code>struct</code>, <code>union</code>, <code>enum</code>, <code>pointer</code>, <code>scalar</code>, or <code>other</code>,
+<code>F</code> lists the <code>(name type)</code> rows of a struct or union’s named fields,
+and <code>M</code> the names of its direct dotted methods.</p>
+<p>Source: <code>src/meta-sdk.x:563</code></p>
+<h4 id="x2c_binding_spelling"><a class="header" href="#x2c_binding_spelling">x2c_binding_spelling</a></h4>
+<p><code>String x2c_binding_spelling(Var syntax)</code></p>
+<p>Answers <code>x2c.binding.spelling</code>, declared in <code>lib/meta.x</code>.</p>
+<p>Source: <code>src/meta-sdk.x:248</code></p>
+<h4 id="x2c_diagnostic_fail"><a class="header" href="#x2c_diagnostic_fail">x2c_diagnostic_fail</a></h4>
+<p><code>void x2c_diagnostic_fail(String message, List notes)</code></p>
+<p>Answers <code>x2c.diagnostic.fail</code>, declared in <code>lib/meta.x</code>.</p>
+<p>Source: <code>src/meta-sdk.x:534</code></p>
+<h4 id="x2c_diagnostic_warn"><a class="header" href="#x2c_diagnostic_warn">x2c_diagnostic_warn</a></h4>
+<p><code>void x2c_diagnostic_warn(String message, List notes)</code></p>
+<p>A warning reports where it is raised and returns, so a macro can keep
+expanding. Failure stays separate because it never returns.</p>
+<p>Source: <code>src/meta-sdk.x:541</code></p>
+<h4 id="x2c_embed_text"><a class="header" href="#x2c_embed_text">x2c_embed_text</a></h4>
+<p><code>String x2c_embed_text(Var requested)</code></p>
+<p>Answers <code>x2c.embed.text</code>, declared in <code>lib/meta.x</code>.</p>
+<p>Source: <code>src/meta-sdk.x:394</code></p>
+<h4 id="x2c_function_name"><a class="header" href="#x2c_function_name">x2c_function_name</a></h4>
+<p><code>String x2c_function_name(List function)</code></p>
+<p>Answers <code>x2c.function.name</code>, declared in <code>lib/meta.x</code>.</p>
+<p>Source: <code>src/meta-sdk.x:318</code></p>
+<h4 id="x2c_function_parameter"><a class="header" href="#x2c_function_parameter">x2c_function_parameter</a></h4>
+<p><code>List x2c_function_parameter(List function, String wanted)</code></p>
+<p>Answers <code>x2c.function.parameter</code>, declared in <code>lib/meta.x</code>.</p>
+<p>Source: <code>src/meta-sdk.x:325</code></p>
+<h4 id="x2c_ident"><a class="header" href="#x2c_ident">x2c_ident</a></h4>
+<p><code>List x2c_ident(String spelling)</code></p>
+<p>Answers <code>x2c.ident</code>, declared in <code>lib/meta.x</code>.</p>
+<p>Source: <code>src/meta-sdk.x:286</code></p>
+<h4 id="x2c_invocation_column"><a class="header" href="#x2c_invocation_column">x2c_invocation_column</a></h4>
+<p><code>int x2c_invocation_column(void)</code></p>
+<p>Answers <code>x2c.invocation.column</code>, declared in <code>lib/meta.x</code>.</p>
+<p>Source: <code>src/meta-sdk.x:530</code></p>
+<h4 id="x2c_invocation_file"><a class="header" href="#x2c_invocation_file">x2c_invocation_file</a></h4>
+<p><code>String x2c_invocation_file(void)</code></p>
+<p>Answers <code>x2c.invocation.file</code>, declared in <code>lib/meta.x</code>.</p>
+<p>Source: <code>src/meta-sdk.x:522</code></p>
+<h4 id="x2c_invocation_line"><a class="header" href="#x2c_invocation_line">x2c_invocation_line</a></h4>
+<p><code>int x2c_invocation_line(void)</code></p>
+<p>Answers <code>x2c.invocation.line</code>, declared in <code>lib/meta.x</code>.</p>
+<p>Source: <code>src/meta-sdk.x:526</code></p>
+<h4 id="x2c_literal_value"><a class="header" href="#x2c_literal_value">x2c_literal_value</a></h4>
+<p><code>Var x2c_literal_value(Var syntax)</code></p>
+<p>Answers <code>x2c.literal.value</code>, declared in <code>lib/meta.x</code>.</p>
+<p>Source: <code>src/meta-sdk.x:492</code></p>
+<h4 id="x2c_meta_definition_hashes"><a class="header" href="#x2c_meta_definition_hashes">x2c_meta_definition_hashes</a></h4>
+<p><code>Map x2c_meta_definition_hashes(void)</code></p>
+<p>Answers <code>x2c.meta.definition.hashes</code>, declared in <code>lib/meta.x</code>.</p>
+<p>Source: <code>src/meta-sdk.x:303</code></p>
+<h4 id="x2c_method_resolve"><a class="header" href="#x2c_method_resolve">x2c_method_resolve</a></h4>
+<p><code>List x2c_method_resolve(List type_value, String name)</code></p>
+<p>Answers <code>x2c.method.resolve</code>, declared in <code>lib/meta.x</code>.</p>
+<p>Source: <code>src/meta-sdk.x:104</code></p>
+<h4 id="x2c_protocol_member"><a class="header" href="#x2c_protocol_member">x2c_protocol_member</a></h4>
+<p><code>List x2c_protocol_member(List participant, List base, String member)</code></p>
+<p>Answers <code>x2c.protocol.member</code>, declared in <code>lib/meta.x</code>.</p>
+<p>Source: <code>src/meta-sdk.x:89</code></p>
+<h4 id="x2c_source_text"><a class="header" href="#x2c_source_text">x2c_source_text</a></h4>
+<p><code>String x2c_source_text(Var value)</code></p>
+<p>Answers <code>x2c.source.text</code>, declared in <code>lib/meta.x</code>.</p>
+<p>Source: <code>src/meta-sdk.x:381</code></p>
+<h4 id="x2c_syntax_type"><a class="header" href="#x2c_syntax_type">x2c_syntax_type</a></h4>
+<p><code>List x2c_syntax_type(List value)</code></p>
+<p>Answers <code>x2c.syntax.type</code>, declared in <code>lib/meta.x</code>.</p>
+<p>Source: <code>src/meta-sdk.x:60</code></p>
+<h4 id="x2c_type_element"><a class="header" href="#x2c_type_element">x2c_type_element</a></h4>
+<p><code>List x2c_type_element(List value)</code></p>
+<p>Answers <code>x2c.type.element</code>, declared in <code>lib/meta.x</code>.</p>
+<p>Source: <code>src/meta-sdk.x:169</code></p>
+<h4 id="x2c_type_fields"><a class="header" href="#x2c_type_fields">x2c_type_fields</a></h4>
+<p><code>List x2c_type_fields(List value)</code></p>
+<p>Answers <code>x2c.type.fields</code>, declared in <code>lib/meta.x</code>.</p>
+<p>Source: <code>src/meta-sdk.x:231</code></p>
+<h4 id="x2c_type_is_integral"><a class="header" href="#x2c_type_is_integral">x2c_type_is_integral</a></h4>
+<p><code>int x2c_type_is_integral(List value)</code></p>
+<p>Answers <code>x2c.type.integral?</code>, declared in <code>lib/meta.x</code>.</p>
+<p>Source: <code>src/meta-sdk.x:162</code></p>
+<h4 id="x2c_type_is_pointer"><a class="header" href="#x2c_type_is_pointer">x2c_type_is_pointer</a></h4>
+<p><code>int x2c_type_is_pointer(List value)</code></p>
+<p>Answers <code>x2c.type.pointer?</code>, declared in <code>lib/meta.x</code>.</p>
+<p>Source: <code>src/meta-sdk.x:165</code></p>
+<h4 id="x2c_type_is_value"><a class="header" href="#x2c_type_is_value">x2c_type_is_value</a></h4>
+<p><code>int x2c_type_is_value(List value)</code></p>
+<p>Answers <code>x2c.type.value?</code>, declared in <code>lib/meta.x</code>.</p>
+<p>Source: <code>src/meta-sdk.x:205</code></p>
+<h4 id="x2c_type_layout"><a class="header" href="#x2c_type_layout">x2c_type_layout</a></h4>
+<p><code>List x2c_type_layout(List value)</code></p>
+<p>Answers <code>x2c.type.layout</code>, declared in <code>lib/meta.x</code>.</p>
+<p>Source: <code>src/meta-sdk.x:199</code></p>
+<h4 id="x2c_type_parameters"><a class="header" href="#x2c_type_parameters">x2c_type_parameters</a></h4>
+<p><code>List x2c_type_parameters(List value)</code></p>
+<p>Answers <code>x2c.type.parameters</code>, declared in <code>lib/meta.x</code>.</p>
+<p>Source: <code>src/meta-sdk.x:173</code></p>
+<h4 id="x2c_type_parts"><a class="header" href="#x2c_type_parts">x2c_type_parts</a></h4>
+<p><code>List x2c_type_parts(List value)</code></p>
+<p>Answers <code>x2c.type.parts</code>, declared in <code>lib/meta.x</code>.</p>
+<p>Source: <code>src/meta-sdk.x:184</code></p>
+<h4 id="x2c_type_resolve"><a class="header" href="#x2c_type_resolve">x2c_type_resolve</a></h4>
+<p><code>List x2c_type_resolve(List value)</code></p>
+<p>Answers <code>x2c.type.resolve</code>, declared in <code>lib/meta.x</code>.</p>
+<p>Source: <code>src/meta-sdk.x:193</code></p>
+<h4 id="x2c_type_return"><a class="header" href="#x2c_type_return">x2c_type_return</a></h4>
+<p><code>List x2c_type_return(List value)</code></p>
+<p>Answers <code>x2c.type.return</code>, declared in <code>lib/meta.x</code>.</p>
+<p>Source: <code>src/meta-sdk.x:180</code></p>
+<h4 id="x2c_type_reverse_name"><a class="header" href="#x2c_type_reverse_name">x2c_type_reverse_name</a></h4>
+<p><code>String x2c_type_reverse_name(String base, String participant)</code></p>
+<p>Answers <code>x2c.type.reverse-name</code>, declared in <code>lib/meta.x</code>.</p>
+<p>Source: <code>src/meta-sdk.x:187</code></p>
+<h4 id="x2c_type_tag_name"><a class="header" href="#x2c_type_tag_name">x2c_type_tag_name</a></h4>
+<p><code>Symbol x2c_type_tag_name(String name)</code></p>
+<p>Answers <code>x2c.type.tag-name</code>, declared in <code>lib/meta.x</code>.</p>
+<p>Source: <code>src/meta-sdk.x:215</code></p>
+<h3 id="compiler"><a class="header" href="#compiler"><code>Compiler</code></a></h3>
+<p><a id="Compiler.bind_sdk_primitives"></a></p>
+<h4 id="compilerbind_sdk_primitives"><a class="header" href="#compilerbind_sdk_primitives">Compiler.bind_sdk_primitives</a></h4>
+<p><code>void Compiler.bind_sdk_primitives(Lisp lisp)</code></p>
+<p>Binds the internal primitives the compile-time SDK library wraps into
+<code>lisp</code>, under their <code>_x2c.</code> names.</p>
+<p>Source: <code>src/meta-sdk.x:650</code></p>
+<p><a id="Compiler.expanding"></a></p>
+<h4 id="compilerexpanding"><a class="header" href="#compilerexpanding">Compiler.expanding</a></h4>
+<p><code>Compiler Compiler.expanding(void)</code></p>
+<p>Returns the compiler running the current compile-time call. A slot
+function compiled into the compiler reads its facts through it.</p>
+<p>Source: <code>src/meta-sdk.x:54</code></p>
+<h3 id="metacontext"><a class="header" href="#metacontext"><code>MetaContext</code></a></h3>
+<p><a id="MetaContext.current"></a></p>
+<h4 id="metacontextcurrent"><a class="header" href="#metacontextcurrent">MetaContext.current</a></h4>
+<p><code>MetaContext *MetaContext.current(void)</code></p>
+<p>Returns the context of the running compile-time call, which an
+evaluation changes with <code>$let</code> for its own extent.</p>
+<p>Source: <code>src/meta-sdk.x:50</code></p>
+<p><a id="MetaContext.reject"></a></p>
+<h4 id="metacontextreject"><a class="header" href="#metacontextreject">MetaContext.reject</a></h4>
+<p><code>void MetaContext.reject(String message, List notes)</code></p>
+<p>Reports <code>message</code> and <code>notes</code> at the active invocation and never
+returns, so the rejected operation’s caller cannot continue with a
+missing answer. With no active invocation it is a bad state.</p>
+<p>Source: <code>src/meta-sdk.x:630</code></p>
+<h2 id="public-types"><a class="header" href="#public-types">Public types</a></h2>
+<div class="table-wrapper">
+<table>
+<thead>
+<tr><th>Type</th><th>Kind</th><th>Summary</th></tr>
+</thead>
+<tbody>
+<tr><td><a href="#MetaContext"><code>MetaContext</code></a></td><td>struct</td><td>What the running compile-time call answers from.</td></tr>
+</tbody>
+</table>
+</div>
+<p><a id="MetaContext"></a></p>
+<h3 id="metacontext-1"><a class="header" href="#metacontext-1">MetaContext</a></h3>
+<p><code>typedef struct MetaContext { Compiler expander, evaluator; String definition_file; Map captures; int has_bindings; Token site; } MetaContext</code></p>
+<p>What the running compile-time call answers from. <code>expander</code> is the
+compiler of the active macro expansion, <code>definition_file</code> the source of
+its definition, <code>captures</code> its complete captured syntax by identity, and
+<code>has_bindings</code> whether it bound captured values. <code>evaluator</code> is the
+compiler evaluating Lisp and <code>site</code> where that evaluation stands, which
+a nested import changes without an expansion. Each evaluation installs
+its part with <code>$let</code>, so a captured entry is valid only while its
+expansion is active.</p>
+<p>Source: <code>src/meta-sdk.x:26</code></p>
+<h2 id="design-notes"><a class="header" href="#design-notes">Design notes</a></h2>
+<p>Compile-time code asks the compiler about syntax, types, names, and
+source through the operations <code>lib/meta.x</code> declares, and the built-in
+macros ask through their own entries here. A native operation has no
+Compiler parameter, so each answer reads the running call’s
+<code>MetaContext</code>, which the evaluations in <code>macros.x</code> install for their
+extent. An operation that cannot answer reports at the active
+invocation and never returns.</p>
+
+                    </main>
+
+                    <nav class="x2c-pager" aria-label="Page navigation">
+                        <a rel="prev" href="../../internals/compiler-api/meta-project.html" class="x2c-pager-prev" aria-keyshortcuts="Left">
+                            <span class="x2c-pager-label">previous</span>
+                            <span class="x2c-pager-title">src/meta-project.x</span>
+                        </a>
+                        
+                        <a rel="next prefetch" href="../../internals/compiler-api/parse.html" class="x2c-pager-next" aria-keyshortcuts="Right">
+                            <span class="x2c-pager-label">next</span>
+                            <span class="x2c-pager-title">src/parse.x</span>
+                        </a>
+                    </nav>
+                    <footer class="x2c-footer">
+                        &copy; 2025&ndash;2026
+                        <a href="https://flake.org">GWF</a>
+                        &middot;
+                        <a href="https://github.com/gwf/x2c/blob/2fb2e7abb7462f842903580f47a5b96c69698937/LICENSE">Apache 2.0</a>
+                        &middot;
+                        <a href="https://github.com/gwf/x2c/blob/2fb2e7abb7462f842903580f47a5b96c69698937/TRADEMARKS.md">Trademarks</a>
+                    </footer>
+                </div>
+            </div>
+
+
+        </div>
+
+        <template id=fa-eye><span class=fa-svg><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 576 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc. --><path d="M288 32c-80.8 0-145.5 36.8-192.6 80.6C48.6 156 17.3 208 2.5 243.7c-3.3 7.9-3.3 16.7 0 24.6C17.3 304 48.6 356 95.4 399.4C142.5 443.2 207.2 480 288 480s145.5-36.8 192.6-80.6c46.8-43.5 78.1-95.4 93-131.1c3.3-7.9 3.3-16.7 0-24.6c-14.9-35.7-46.2-87.7-93-131.1C433.5 68.8 368.8 32 288 32zM432 256c0 79.5-64.5 144-144 144s-144-64.5-144-144s64.5-144 144-144s144 64.5 144 144zM288 192c0 35.3-28.7 64-64 64c-11.5 0-22.3-3-31.6-8.4c-.2 2.8-.4 5.5-.4 8.4c0 53 43 96 96 96s96-43 96-96s-43-96-96-96c-2.8 0-5.6 .1-8.4 .4c5.3 9.3 8.4 20.1 8.4 31.6z"/></svg></span></template>
+        <template id=fa-eye-slash><span class=fa-svg><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 640 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc. --><path d="M38.8 5.1C28.4-3.1 13.3-1.2 5.1 9.2S-1.2 34.7 9.2 42.9l592 464c10.4 8.2 25.5 6.3 33.7-4.1s6.3-25.5-4.1-33.7L525.6 386.7c39.6-40.6 66.4-86.1 79.9-118.4c3.3-7.9 3.3-16.7 0-24.6c-14.9-35.7-46.2-87.7-93-131.1C465.5 68.8 400.8 32 320 32c-68.2 0-125 26.3-169.3 60.8L38.8 5.1zM223.1 149.5C248.6 126.2 282.7 112 320 112c79.5 0 144 64.5 144 144c0 24.9-6.3 48.3-17.4 68.7L408 294.5c5.2-11.8 8-24.8 8-38.5c0-53-43-96-96-96c-2.8 0-5.6 .1-8.4 .4c5.3 9.3 8.4 20.1 8.4 31.6c0 10.2-2.4 19.8-6.6 28.3l-90.3-70.8zm223.1 298L373 389.9c-16.4 6.5-34.3 10.1-53 10.1c-79.5 0-144-64.5-144-144c0-6.9 .5-13.6 1.4-20.2L83.1 161.5C60.3 191.2 44 220.8 34.5 243.7c-3.3 7.9-3.3 16.7 0 24.6c14.9 35.7 46.2 87.7 93 131.1C174.5 443.2 239.2 480 320 480c47.8 0 89.9-12.9 126.2-32.5z"/></svg></span></template>
+        <template id=fa-copy><span class=fa-svg><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc. --><path d="M502.6 70.63l-61.25-61.25C435.4 3.371 427.2 0 418.7 0H255.1c-35.35 0-64 28.66-64 64l.0195 256C192 355.4 220.7 384 256 384h192c35.2 0 64-28.8 64-64V93.25C512 84.77 508.6 76.63 502.6 70.63zM464 320c0 8.836-7.164 16-16 16H255.1c-8.838 0-16-7.164-16-16L239.1 64.13c0-8.836 7.164-16 16-16h128L384 96c0 17.67 14.33 32 32 32h47.1V320zM272 448c0 8.836-7.164 16-16 16H63.1c-8.838 0-16-7.164-16-16L47.98 192.1c0-8.836 7.164-16 16-16H160V128H63.99c-35.35 0-64 28.65-64 64l.0098 256C.002 483.3 28.66 512 64 512h192c35.2 0 64-28.8 64-64v-32h-47.1L272 448z"/></svg></span></template>
+        <template id=fa-play><span class=fa-svg><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 384 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc. --><path d="M73 39c-14.8-9.1-33.4-9.4-48.5-.9S0 62.6 0 80V432c0 17.4 9.4 33.4 24.5 41.9s33.7 8.1 48.5-.9L361 297c14.3-8.7 23-24.2 23-41s-8.7-32.2-23-41L73 39z"/></svg></span></template>
+        <template id=fa-clock-rotate-left><span class=fa-svg><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc. --><path d="M75 75L41 41C25.9 25.9 0 36.6 0 57.9V168c0 13.3 10.7 24 24 24H134.1c21.4 0 32.1-25.9 17-41l-30.8-30.8C155 85.5 203 64 256 64c106 0 192 86 192 192s-86 192-192 192c-40.8 0-78.6-12.7-109.7-34.4c-14.5-10.1-34.4-6.6-44.6 7.9s-6.6 34.4 7.9 44.6C151.2 495 201.7 512 256 512c141.4 0 256-114.6 256-256S397.4 0 256 0C185.3 0 121.3 28.7 75 75zm181 53c-13.3 0-24 10.7-24 24V256c0 6.4 2.5 12.5 7 17l72 72c9.4 9.4 24.6 9.4 33.9 0s9.4-24.6 0-33.9l-65-65V152c0-13.3-10.7-24-24-24z"/></svg></span></template>
+
+
+
+        <script>
+            window.playground_copyable = true;
+        </script>
+
+
+        <script src="../../elasticlunr-ef4e11c1.min.js"></script>
+        <script src="../../mark-09e88c2c.min.js"></script>
+        <script src="../../searcher-09f2665d.js"></script>
+
+        <script src="../../clipboard-1626706a.min.js"></script>
+        <script src="../../highlight-abc7f01d.js"></script>
+        <script src="../../book-609e4cb8.js"></script>
+
+        <script>
+            document.addEventListener('DOMContentLoaded', () => {
+                const sidebar = document.querySelector('#mdbook-sidebar');
+                sidebar.querySelectorAll('ol').forEach(list => {
+                    const numbers = list.querySelectorAll(
+                        ':scope > li > .chapter-link-wrapper > a > strong, :scope > li > a > strong');
+                    if (numbers.length) {
+                        const width = Math.max(...Array.from(numbers,
+                            number => number.textContent.trim().length));
+                        list.style.setProperty('--chapter-number-width', width + 'ch');
+                    }
+                });
+                const chapter = sidebar.querySelector('a.active');
+                const item = chapter?.closest('.chapter-item');
+                if (item?.querySelector(':scope > .on-this-page')) {
+                    const row = chapter.parentElement;
+                    if (!row.querySelector('.chapter-fold-toggle')) {
+                        const toggle = document.createElement('button');
+                        toggle.type = 'button';
+                        toggle.className = 'chapter-fold-toggle';
+                        toggle.appendChild(document.createElement('div'));
+                        toggle.addEventListener('click', () => {
+                            item.classList.toggle('expanded');
+                        });
+                        row.appendChild(toggle);
+                    }
+                }
+                sidebar.querySelectorAll('.chapter-fold-toggle').forEach(toggle => {
+                    const row = toggle.parentElement;
+                    const item = row.parentElement;
+                    const title = row.querySelector('a').textContent.trim();
+                    toggle.setAttribute('aria-label', 'Toggle ' + title);
+                    const update = () => toggle.setAttribute('aria-expanded',
+                        String(item.classList.contains('expanded')));
+                    update();
+                    toggle.addEventListener('click', update);
+                    if (toggle.tagName === 'A') {
+                        toggle.setAttribute('role', 'button');
+                        toggle.tabIndex = 0;
+                        toggle.addEventListener('keydown', event => {
+                            if (event.key === 'Enter' || event.key === ' ') {
+                                event.preventDefault();
+                                toggle.click();
+                            }
+                        });
+                    }
+                });
+            });
+        </script>
+
+        <!-- Custom JS scripts -->
+
+
+
+    </div>
+    </body>
+</html>

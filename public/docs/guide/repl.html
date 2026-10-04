@@ -1,6 +1,6 @@
 <!DOCTYPE HTML>
 <html lang="en" class="light sidebar-visible" dir="ltr">
-    <head><meta name="x2c-release-channel" content="staging"><meta name="x2c-candidate" content="candidate-0351be4a4d6c00dd246e5190e8dcf5a970560beb-36014113963-1">
+    <head><meta name="x2c-site-source" content="2fb2e7abb7462f842903580f47a5b96c69698937"><meta name="x2c-release-channel" content="staging"><meta name="x2c-candidate" content="candidate-0351be4a4d6c00dd246e5190e8dcf5a970560beb-36014113963-1">
         <!-- Book generated using mdBook -->
         <meta charset="UTF-8">
         <title>Experimental REPL - The x2c Book</title>
@@ -39,10 +39,10 @@
             const path_to_root = "../";
             const default_light_theme = "light";
             const default_dark_theme = "light";
-            window.path_to_searchindex_js = "../searchindex-c9145dcc.js";
+            window.path_to_searchindex_js = "../searchindex-94a52d98.js";
         </script>
         <!-- Start loading toc.js asap -->
-        <script src="../toc-b37ed13f.js"></script>
+        <script src="../toc-89ef7d96.js"></script>
         <!-- x2c publication metadata -->
         <link rel="canonical" href="https://staging.x2c-lang.dev/docs/guide/repl.html">
         <meta property="og:type" content="website">
@@ -219,15 +219,18 @@
                 <div id="mdbook-content" class="content">
                     <main>
                         <h1 id="experimental-repl"><a class="header" href="#experimental-repl">Experimental REPL</a></h1>
-<p><code>x2c repl</code> evaluates a supported subset of <span class="x2c-wordmark">x2c</span> in a persistent session.
-It uses the compiler’s typed syntax and compile-time Lisp evaluator. It does
-not compile each submission to a native executable.</p>
+<p><code>x2c repl</code> is a shipped external command that evaluates a supported subset
+of <span class="x2c-wordmark">x2c</span> in a persistent session.
+The command lowers the compiler’s typed syntax to ordinary Lisp and runs it
+in its own evaluator session. Compiler macros continue to use native meta
+compilation and helper execution.</p>
 <pre><code class="language-sh">x2c repl
 x2c repl --help
 x2c repl --dump --stats
 </code></pre>
 <p>No source file or checkout is needed when using an installed development
-build. The command reads standard input and accepts no file operands.</p>
+build. The command reads standard input and accepts no file operands. It also
+runs directly as <code>x2c-repl</code> from the installation’s <code>libexec/x2c</code> directory.</p>
 <h2 id="try-a-session"><a class="header" href="#try-a-session">Try a session</a></h2>
 <p>Enter these submissions in order:</p>
 <pre><code class="language-text">x2c&gt; int total = 10;
@@ -311,22 +314,19 @@ error. <code>--stats</code> prints the concise runtime report at exit, to standa
 both statistics options are present, one verbose report is printed. The
 options can be combined with <code>--dump</code>.</p>
 <p>The report separates absolute live or retained quantities from activity since
-the REPL opened. <code>live-program-bytes</code> is published evaluator program storage,
-not total evaluator memory. Scope allocation objects and live requested bytes
-are process-wide runtime values; requested bytes count public managed payload,
-not allocator metadata. <code>requested-traffic-bytes</code> remains cumulative activity.
-Pool active and depot bytes partition retained backing capacity; they are not
-reachable payload. Scope, Pool, and Lisp figures overlap and must not be
-summed. <span class="x2c-wordmark">x2c</span> has no garbage collector, so reuse and promotion counters are
-activity rather than collection counts. Verbose reports add all evaluator
-AUTO fields, Scope creation and peak data, Pool traffic and capacity detail,
-and machine execution counters collected since the REPL opened.</p>
+the REPL opened. Scope allocation objects and live requested bytes are
+process-wide runtime values; requested bytes count public managed payload.
+Pool active and depot bytes partition retained backing capacity. Scope and
+Pool figures overlap and must not be summed. Verbose reports add Scope and
+Pool traffic and capacity details. There is no Lisp wordcode or AUTO tier.</p>
 <h2 id="supported-subset"><a class="header" href="#supported-subset">Supported subset</a></h2>
 <p>The current subset includes initialized simple variables, function
 definitions, integer arithmetic and narrowing, assignment, conditionals,
 <code>for</code> loops, self recursion, and calls to earlier functions. String values
 and length, List literals and indexing, and Array construction, mutation,
-and indexing are exercised by the focused checks.</p>
+and indexing are exercised by the focused checks. Captured <code>Func</code> values
+can be called directly or passed to supported native callbacks. A record
+captured by value retains a copy through later submissions.</p>
 <p>The whole interpreter exposes the fixed-signature
 <code>String.format(String fmt, List values)</code> operation. Call it as
 <code>fmt.format(values)</code>:</p>
@@ -347,11 +347,13 @@ newline. Use String interpolation for formatting, such as
 <code>println(%"count=$count")</code>. Both functions are REPL-only, reserve their names
 in the session, and report <code>ok</code> rather than a synthetic value. They are not
 varargs aliases.</p>
+<p>A session also declares <code>Json</code>, <code>Diff</code> and <code>Path</code>, so <code>Json.parse</code>,
+<code>Diff.unified</code> and <code>Path.basename</code> evaluate without an include.</p>
 <p>Redefinition is disabled; assign to an existing variable to change its value.
 Function replacement and mutually recursive forward declarations are not
 supported. Names beginning <code>__repl_</code> are reserved.</p>
-<p>Native pointer and ABI operations, arbitrary C libraries, aggregate and type
-definitions, imports, protocols, user macro/meta definitions, preprocessor
+<p>Arbitrary C libraries, unions, enums, imports, protocols, user macro/meta
+definitions, preprocessor
 directives, and direct Lisp input are outside this subset. A bodyless <code>meta</code>
 prototype is accepted: it makes a function the compiler links, or one from a
 <a href="meta-functions.html#native-modules">native module</a> loaded with
@@ -359,7 +361,17 @@ prototype is accepted: it makes a function the compiler links, or one from a
 initializers; declarator modifiers, <code>const</code>, and <code>volatile</code> are rejected.
 Function-local <code>static</code>, <code>extern</code>, and <code>threaded</code> storage are also rejected:
 the evaluator cannot provide their native lifetime or linkage semantics.
-Other constructs depend on the existing lowering and may be declined. Full
+Statement expressions such as <code>({ int n=3; n+4; })</code> are declined.
+Reference parameters use the ordinary compiler conversion: pass an
+addressable value, or write <code>*p</code> to pass a pointer’s object. A pointer itself
+cannot substitute for the referenced object.
+Records, typedefs, addressed locals and pointer reads/writes use native
+storage with layouts derived from compiler types. Record assignment copies
+into existing storage, preserving pointers to its fields. A session
+global record has an address, but a session global scalar does not:
+<code>&amp;count</code> for an <code>int count</code> entered earlier is declined as the address
+of file-scope state. Copy the value into a local to take its address. Other constructs
+depend on the existing lowering and may be declined. Full
 native execution and reference/lifecycle parity are not established; for
 example, the evaluator loses the distinction between <code>Var void</code> and an
 empty List.</p>
@@ -371,9 +383,15 @@ including through inspection. Effects already made on existing values
 remain, both for failed initialization and failed statements.</p>
 <p>Session storage lives until exit. Submission scratch is reclaimed, but
 canonical syntax, compiler caches, and evaluator allocations can accumulate.
-Long sessions do not have a bounded-memory guarantee. A one-million-step
-Lisp call budget interrupts runaway interpreted evaluation; native callbacks
-are not a preemptible sandbox.</p>
+Long sessions do not have a bounded-memory guarantee. Each submission may
+make 40 million interpreted Lisp calls, the evaluator’s default budget.
+SIGINT (Ctrl-C) during evaluation stops the submission with an
+<code>(interrupt ...)</code> evaluation error. Once the budget is exhausted or the
+submission is interrupted, no further interpreted code runs, including
+pending <code>defer</code> bodies. Ordinary evaluation failures
+still run those cleanups. The next submission gets a fresh budget. Native
+callbacks are not a preemptible sandbox: an interrupt takes effect at the
+next interpreted call.</p>
 <p>EOF exits successfully unless input is incomplete, which exits with status</p>
 <ol>
 <li>With piped input, any submission or command error makes the final status
@@ -384,9 +402,9 @@ do not change a normal exit’s status from 0.</li>
 pending incomplete submission, then returns to the <code>x2c&gt; </code> prompt without a
 diagnostic. Ctrl-D on an empty edit buffer exits; pending incomplete source
 still makes that exit status 1. Terminal canonical mode is restored before a
-submission runs, so Ctrl-C during evaluation continues to terminate the
-process. Terminals without the required escape-sequence support use the basic
-line reader instead. Piped input retains the same output and exit behavior.</p>
+submission runs, and Ctrl-C during evaluation stops only that submission.
+Terminals without the required escape-sequence support use the basic line
+reader instead. Piped input retains the same output and exit behavior.</p>
 
                     </main>
 
@@ -396,18 +414,18 @@ line reader instead. Piped input retains the same output and exit behavior.</p>
                             <span class="x2c-pager-title">Commands and Files</span>
                         </a>
                         
-                        <a rel="next prefetch" href="../guide/idioms.html" class="x2c-pager-next" aria-keyshortcuts="Right">
+                        <a rel="next prefetch" href="../guide/indentation.html" class="x2c-pager-next" aria-keyshortcuts="Right">
                             <span class="x2c-pager-label">next</span>
-                            <span class="x2c-pager-title">Programming Idioms</span>
+                            <span class="x2c-pager-title">Indentation Syntax</span>
                         </a>
                     </nav>
                     <footer class="x2c-footer">
                         &copy; 2025&ndash;2026
                         <a href="https://flake.org">GWF</a>
                         &middot;
-                        <a href="https://github.com/gwf/x2c/blob/0351be4a4d6c00dd246e5190e8dcf5a970560beb/LICENSE">Apache 2.0</a>
+                        <a href="https://github.com/gwf/x2c/blob/2fb2e7abb7462f842903580f47a5b96c69698937/LICENSE">Apache 2.0</a>
                         &middot;
-                        <a href="https://github.com/gwf/x2c/blob/0351be4a4d6c00dd246e5190e8dcf5a970560beb/TRADEMARKS.md">Trademarks</a>
+                        <a href="https://github.com/gwf/x2c/blob/2fb2e7abb7462f842903580f47a5b96c69698937/TRADEMARKS.md">Trademarks</a>
                     </footer>
                 </div>
             </div>

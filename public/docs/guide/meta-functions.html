@@ -1,6 +1,6 @@
 <!DOCTYPE HTML>
 <html lang="en" class="light sidebar-visible" dir="ltr">
-    <head><meta name="x2c-release-channel" content="staging"><meta name="x2c-candidate" content="candidate-0351be4a4d6c00dd246e5190e8dcf5a970560beb-36014113963-1">
+    <head><meta name="x2c-site-source" content="2fb2e7abb7462f842903580f47a5b96c69698937"><meta name="x2c-release-channel" content="staging"><meta name="x2c-candidate" content="candidate-0351be4a4d6c00dd246e5190e8dcf5a970560beb-36014113963-1">
         <!-- Book generated using mdBook -->
         <meta charset="UTF-8">
         <title>Meta Functions - The x2c Book</title>
@@ -39,10 +39,10 @@
             const path_to_root = "../";
             const default_light_theme = "light";
             const default_dark_theme = "light";
-            window.path_to_searchindex_js = "../searchindex-c9145dcc.js";
+            window.path_to_searchindex_js = "../searchindex-94a52d98.js";
         </script>
         <!-- Start loading toc.js asap -->
-        <script src="../toc-b37ed13f.js"></script>
+        <script src="../toc-89ef7d96.js"></script>
         <!-- x2c publication metadata -->
         <link rel="canonical" href="https://staging.x2c-lang.dev/docs/guide/meta-functions.html">
         <meta property="og:type" content="website">
@@ -219,22 +219,20 @@
                 <div id="mdbook-content" class="content">
                     <main>
                         <h1 id="meta-functions"><a class="header" href="#meta-functions">Meta Functions</a></h1>
-<p><span class="x2c-wordmark">x2c</span> extends C. The subset that a <code>meta</code> function can execute during
-compilation cuts across both C features and <span class="x2c-wordmark">x2c</span> additions: integer loops,
-local pointer indirection, structs, collection literals and method calls
-can work; a union or an otherwise ordinary library call can stop it.
-There are three separate questions:</p>
+<p><span class="x2c-wordmark">x2c</span> extends C. A <code>meta</code> function is compiled by the same backend as the
+rest of the program and runs as native code inside the compiler, so its
+body is ordinary <span class="x2c-wordmark">x2c</span>: anything the unit can compile, it can run during
+translation. Two questions remain, both at the boundary between the
+program and compile-time code:</p>
 <ol>
-<li><strong>Can the body execute?</strong> Its syntax and values need compile-time
-representations. This includes parameters, locals, mutation and returns.</li>
-<li><strong>Can each operation execute?</strong> Every resolved call needs a compile-time
-binding. Having a supported receiver type does not expose its entire API.</li>
+<li><strong>Can the arguments cross?</strong> A <code>$helper(...)</code> call passes constants,
+captured syntax, or the results of other <code>$</code> calls.</li>
 <li><strong>Can the answer become program code?</strong> Returning a value to another
 meta function and inserting it with <code>$helper(...)</code> have different limits.</li>
 </ol>
 <p><code>meta</code> is not a purity annotation. A body can mutate locals, arrays, maps
 and structs, and pass local addresses to other meta functions. Its
-compile-time objects belong to the evaluator; they are not the objects the
+compile-time objects belong to the compiler; they are not the objects the
 eventual program allocates.</p>
 <p>Start with an ordinary function. This one takes an integer and returns an
 integer, using the same braces, <code>return</code>, and arithmetic as C:</p>
@@ -250,6 +248,10 @@ integer, using the same braces, <code>return</code>, and arithmetic as C:</p>
 <p>The body has not changed. <code>meta</code> makes it available to the compiler during
 translation as well as to the finished program. You can use it for an
 ordinary calculation; it does not have to inspect types or generate code.</p>
+<p>A <code>meta</code> function with a body can sit beside the code that calls it, as
+in the samples of this chapter, or in a <code>.xmacro</code> file that several units
+import; see
+<a href="#sharing-a-meta-function-between-units">Sharing a <code>meta</code> function between units</a>.</p>
 <h2 id="call-it-in-the-program"><a class="header" href="#call-it-in-the-program">Call it in the program</a></h2>
 <p>An ordinary call uses parentheses and commas, just as before. Here the
 argument is a local variable:</p>
@@ -288,7 +290,8 @@ use it when working with Lisp code already in the compiler session.</p>
 <p>These are the two forms of a <code>meta</code> function: one runs in your program,
 and one runs in the compiler. Both come from the same body. Functions that
 need compiler queries, explicit compile-time calls or source-template
-construction are exceptions: they only run during translation. We will reach those after ordinary calculations.</p>
+construction are exceptions: they only run during translation. We will
+reach those after ordinary calculations.</p>
 <h2 id="compute-the-arguments-too"><a class="header" href="#compute-the-arguments-too">Compute the arguments too</a></h2>
 <p>An explicit call can calculate its arguments before invoking the function:</p>
 <pre class="shiki shiki-themes x2c-light x2c-dark x2c-code" style="--shiki-light:#24292e;--shiki-dark:#e9e5df;--shiki-light-bg:#fff;--shiki-dark-bg:#101011" tabindex="0"><code class="language-x2c no-highlight"><span class="line"><span style="--shiki-light:#D73A49;--shiki-dark:#F0ADA1">meta</span><span style="--shiki-light:#D73A49;--shiki-dark:#F0ADA1"> int</span><span style="--shiki-light:#6F42C1;--shiki-dark:#E9E5DF"> twice</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">(</span><span style="--shiki-light:#D73A49;--shiki-dark:#F0ADA1">int</span><span style="--shiki-light:#E36209;--shiki-dark:#E9E5DF"> n</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">) </span><span style="--shiki-light:#A626A4;--shiki-light-font-weight:bold;--shiki-dark:#FF4FD8;--shiki-dark-font-weight:bold">=&gt;</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF"> n </span><span style="--shiki-light:#D73A49;--shiki-dark:#E9E5DF">*</span><span style="--shiki-light:#005CC5;--shiki-dark:#A9C9F5"> 2</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">;</span>
@@ -317,10 +320,8 @@ Inside an executing meta body, arguments use that evaluation’s current values.
 
 <pre><code class="language-text">71
 </code></pre>
-<p>This dispatches the compiled implementation. It does not select the
-interpreted body used during compilation. An embedding program can apply an
-interpreted callable through the Lisp evaluator API, but converting a meta
-function to <code>Func</code> does not export that interpreted callable automatically.</p>
+<p>This dispatches the program’s compiled implementation, not the copy the
+compiler runs during translation.</p>
 <h2 id="typed-func-calls-during-compilation"><a class="header" href="#typed-func-calls-during-compilation">Typed Func calls during compilation</a></h2>
 <p>Inside a meta body, a <code>Func</code> retains its callable signature through parameters,
 returns and collection storage. Lambdas and available named functions use the
@@ -386,7 +387,8 @@ remains an ordinary identifier:</p>
 <pre><code class="language-text">3 3
 </code></pre>
 <p>A bodyless <code>meta</code> prototype declares a native C function for compile-time
-code. <a href="#native-c-functions">Native C functions</a> below describes which
+code, and <code>meta native</code> before a definition does the same for the function
+it defines. <a href="#native-c-functions">Native C functions</a> below describes which
 functions the compiler provides.</p>
 <p>At file scope, <code>meta</code> can also advertise one initialized static value to
 compile-time code:</p>
@@ -394,15 +396,13 @@ compile-time code:</p>
 meta static int compile_counter = 0;
 </code></pre>
 <p>The emitted program keeps the ordinary C declarations and initializers.
-Compile-time code gets separate per-translation-unit values built from the
-same source initializers, so compile-time mutation never changes the
-eventual program’s object. An explicit dollar call reads and writes the
-compile-time values; an ordinary call reads the program’s. Each value lives in bytes the compile-time session
-owns, so taking its address and reading or writing through a correctly typed
-pointer has the same aliasing effect as in C. <code>const</code> prevents compile-time
-writes.</p>
-<p>A function-local <code>static</code> has no compile-time lowering, so a meta function
-that declares one declines like any other unsupported form.</p>
+Compile-time code gets separate per-translation-unit values built from the same
+source initializers, so compile-time mutation never changes the eventual
+program’s object. An explicit dollar call reads and writes the compile-time
+values; an ordinary call reads the program’s. Each value lives in bytes the
+compile-time session owns, so taking its address and reading or writing through
+a correctly typed pointer has the same aliasing effect as in C. <code>const</code>
+prevents compile-time writes.</p>
 <p><code>meta</code> marks functions, values and protocol adoptions, not types.
 Compile-time code can use any type the compiler sees: scalars, typedefs,
 classes with a <code>Var</code> representation, and any complete struct, including an
@@ -452,6 +452,31 @@ before calling the native operation. A declared <code>Func</code> parameter matc
 callable and adapts it.</p>
 <p>A <code>meta</code> protocol adoption, such as <code>meta protocol Iter(List);</code>, declares each
 witness of that conformance the way a bodyless prototype would.</p>
+<h3 id="native-definitions"><a class="header" href="#native-definitions">Native definitions</a></h3>
+<p>A function that has an <span class="x2c-wordmark">x2c</span> body can be declared native where it is defined.
+Write <code>native</code> after <code>meta</code>:</p>
+<pre class="shiki shiki-themes x2c-light x2c-dark x2c-code" style="--shiki-light:#24292e;--shiki-dark:#e9e5df;--shiki-light-bg:#fff;--shiki-dark-bg:#101011" tabindex="0"><code class="language-x2c no-highlight"><span class="line"><span style="--shiki-light:#6A737D;--shiki-dark:#8B857F">/** Returns the number of set bits in `value`. */</span>
+</span><span class="line"><span style="--shiki-light:#D73A49;--shiki-dark:#F0ADA1">meta</span><span style="--shiki-light:#D73A49;--shiki-dark:#F0ADA1"> native</span><span style="--shiki-light:#D73A49;--shiki-dark:#F0ADA1"> int</span><span style="--shiki-light:#6F42C1;--shiki-dark:#E9E5DF"> bits</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">(</span><span style="--shiki-light:#D73A49;--shiki-dark:#F0ADA1">unsigned</span><span style="--shiki-light:#E36209;--shiki-dark:#E9E5DF"> value</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">) {</span>
+</span><span class="line"><span style="--shiki-light:#D73A49;--shiki-dark:#F0ADA1">  int</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF"> count </span><span style="--shiki-light:#D73A49;--shiki-dark:#E9E5DF">=</span><span style="--shiki-light:#005CC5;--shiki-dark:#A9C9F5"> 0</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">;</span>
+</span><span class="line"><span style="--shiki-light:#D73A49;--shiki-dark:#F0ADA1">  for</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF"> (; value; value </span><span style="--shiki-light:#D73A49;--shiki-dark:#E9E5DF">&amp;=</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF"> value </span><span style="--shiki-light:#D73A49;--shiki-dark:#E9E5DF">-</span><span style="--shiki-light:#005CC5;--shiki-dark:#A9C9F5"> 1</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">) count</span><span style="--shiki-light:#D73A49;--shiki-dark:#E9E5DF">++</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">;</span>
+</span><span class="line"><span style="--shiki-light:#D73A49;--shiki-dark:#F0ADA1">  return</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF"> count;</span>
+</span><span class="line"><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">}</span></span></code></pre>
+
+<p>This means the same as a bodyless <code>meta</code> prototype followed by the ordinary
+definition. The body is compiled for the program and never staged with the
+unit’s <code>meta</code> group. Compile-time code that calls the function runs
+the compiler’s native copy, and the signature must match that copy just as a
+prototype’s must. <code>native</code> applies only to functions; before any other
+declaration it is an error:</p>
+<pre><code class="language-text">sample.x:1:1: parse: a native meta declaration must be a function
+  meta native static int value = 3;
+  ^^^^
+</code></pre>
+<p><code>native</code> is a marker only directly after <code>meta</code> and before a declaration.
+Elsewhere, including as a type name after <code>meta</code>, it is an ordinary
+identifier.</p>
+<p>Keep the bodyless prototype for a function that has no <span class="x2c-wordmark">x2c</span> body, such as
+<code>sin</code> from the C library.</p>
 <p>The compiler checks a <code>meta</code> body’s storage against what each native callee
 allocates and keeps; see <a href="regions.html">Regions</a>. The runtime’s own functions
 state this in a table. For any other native function, the compiler infers
@@ -472,6 +497,11 @@ a pointer, such as <code>frexp</code>, <code>modf</code> and <code>remquo</code>
 <p>The <code>&lt;ctype.h&gt;</code> functions are not included, because a C library may define
 them as macros. A compile-time <code>String</code> passes to a <code>const char *</code> parameter,
 so <code>$atoi("42")</code> answers 42.</p>
+<p>The compiler also links the pure text operations of three optional modules:
+<code>Json.parse</code>, <code>Diff.lines</code>, <code>Diff.unified</code>, and <code>Path.join</code>, <code>dirname</code>,
+<code>basename</code>, <code>extension</code> and <code>stem</code>. Include <code>json.x</code>, <code>diff.x</code> or <code>path.x</code>
+to call them from a <code>meta</code> body. They give the same results as at run time.
+The Path operations that read the filesystem are not available.</p>
 <p>A pointer argument can be the address of a compile-time local. The native
 function writes through it, and the caller reads the result afterward:</p>
 <pre class="shiki shiki-themes x2c-light x2c-dark x2c-code" style="--shiki-light:#24292e;--shiki-dark:#e9e5df;--shiki-light-bg:#fff;--shiki-dark-bg:#101011" tabindex="0"><code class="language-x2c no-highlight"><span class="line"><span style="--shiki-light:#D73A49;--shiki-dark:#F0ADA1">meta</span><span style="--shiki-light:#D73A49;--shiki-dark:#F0ADA1"> static</span><span style="--shiki-light:#D73A49;--shiki-dark:#F0ADA1"> double</span><span style="--shiki-light:#6F42C1;--shiki-dark:#E9E5DF"> parts</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">(</span><span style="--shiki-light:#D73A49;--shiki-dark:#F0ADA1">double</span><span style="--shiki-light:#E36209;--shiki-dark:#E9E5DF"> x</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">) {</span>
@@ -500,21 +530,21 @@ function that calls it is diagnosed where it is defined:</p>
 compile-time code calls it. <code>sin(1.0)</code> stays a call in the generated C;
 write <code>$sin(1.0)</code> to compute the value during translation.</p>
 <h2 id="native-modules"><a class="header" href="#native-modules">Native modules</a></h2>
-<p>A native module lets compile-time code call functions from your own
-project. Declare each function with a bodyless <code>meta</code> prototype and define
-it as usual:</p>
-<pre class="shiki shiki-themes x2c-light x2c-dark x2c-code" style="--shiki-light:#24292e;--shiki-dark:#e9e5df;--shiki-light-bg:#fff;--shiki-dark-bg:#101011" tabindex="0"><code class="language-x2c no-highlight"><span class="line"><span style="--shiki-light:#D73A49;--shiki-dark:#F0ADA1">meta</span><span style="--shiki-light:#D73A49;--shiki-dark:#F0ADA1"> int</span><span style="--shiki-light:#6F42C1;--shiki-dark:#E9E5DF"> triple</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">(</span><span style="--shiki-light:#D73A49;--shiki-dark:#F0ADA1">int</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">);</span>
-</span><span class="line">
-</span><span class="line"><span style="--shiki-light:#D73A49;--shiki-dark:#F0ADA1">#pragma</span><span style="--shiki-light:#6F42C1;--shiki-dark:#E9E5DF"> private</span>
-</span><span class="line">
-</span><span class="line"><span style="--shiki-light:#D73A49;--shiki-dark:#F0ADA1">int</span><span style="--shiki-light:#6F42C1;--shiki-dark:#E9E5DF"> triple</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">(</span><span style="--shiki-light:#D73A49;--shiki-dark:#F0ADA1">int</span><span style="--shiki-light:#E36209;--shiki-dark:#E9E5DF"> x</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">) { </span><span style="--shiki-light:#D73A49;--shiki-dark:#F0ADA1">return</span><span style="--shiki-light:#005CC5;--shiki-dark:#A9C9F5"> 3</span><span style="--shiki-light:#D73A49;--shiki-dark:#E9E5DF"> *</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF"> x; }</span></span></code></pre>
+<p>The project’s bodied <code>meta</code> functions need no module of your own: the
+compiler builds the project meta module from them and caches it, as
+<a href="#how-a-meta-function-runs">How a meta function runs</a> describes. A native
+module is built ahead of time instead, by you or by a package. It lets
+compile-time code call functions that are not part of the project meta
+module, and it can be shared between projects. Define each function with
+<code>meta native</code>:</p>
+<pre class="shiki shiki-themes x2c-light x2c-dark x2c-code" style="--shiki-light:#24292e;--shiki-dark:#e9e5df;--shiki-light-bg:#fff;--shiki-dark-bg:#101011" tabindex="0"><code class="language-x2c no-highlight"><span class="line"><span style="--shiki-light:#D73A49;--shiki-dark:#F0ADA1">meta</span><span style="--shiki-light:#D73A49;--shiki-dark:#F0ADA1"> native</span><span style="--shiki-light:#D73A49;--shiki-dark:#F0ADA1"> int</span><span style="--shiki-light:#6F42C1;--shiki-dark:#E9E5DF"> triple</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">(</span><span style="--shiki-light:#D73A49;--shiki-dark:#F0ADA1">int</span><span style="--shiki-light:#E36209;--shiki-dark:#E9E5DF"> x</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">) { </span><span style="--shiki-light:#D73A49;--shiki-dark:#F0ADA1">return</span><span style="--shiki-light:#005CC5;--shiki-dark:#A9C9F5"> 3</span><span style="--shiki-light:#D73A49;--shiki-dark:#E9E5DF"> *</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF"> x; }</span></span></code></pre>
 
 <p>Save that as <code>helpers.x</code> and build it as a module:</p>
 <pre><code class="language-sh">x2c build --kind meta-module --output helpers.so helpers.x
 </code></pre>
-<p>The module contains every function that a bodyless <code>meta</code> prototype in its
-own sources declares. Code that includes the prototype can call the
-function during translation when the compiler loads the module:</p>
+<p>The module contains every function that a <code>meta native</code> definition or a
+bodyless <code>meta</code> prototype in its own sources declares. Code that includes
+the declaration can call the function during translation when the compiler loads the module:</p>
 <!-- ignore: the sample needs helpers.x and the module built from it -->
 <pre class="shiki shiki-themes x2c-light x2c-dark x2c-code" style="--shiki-light:#24292e;--shiki-dark:#e9e5df;--shiki-light-bg:#fff;--shiki-dark-bg:#101011" tabindex="0"><code class="language-x2c no-highlight ignore"><span class="line"><span style="--shiki-light:#D73A49;--shiki-dark:#F0ADA1">#include</span><span style="--shiki-light:#032F62;--shiki-dark:#9EDFB8"> &lt;stdio.h&gt;</span>
 </span><span class="line"><span style="--shiki-light:#D73A49;--shiki-dark:#F0ADA1">#include</span><span style="--shiki-light:#032F62;--shiki-dark:#9EDFB8"> "helpers.x"</span>
@@ -533,8 +563,8 @@ function during translation when the compiler loads the module:</p>
 <p><code>$nine()</code> runs the module’s <code>triple</code> during translation. The ordinary call
 <code>triple(5)</code> uses the copy linked into the program, so <code>helpers.x</code> is also
 one of the program’s sources. <code>--native-module</code> works with <code>translate</code>,
-<code>build</code>, <code>run</code>, and <code>repl</code>, and the REPL accepts the same bodyless
-prototype.</p>
+<code>build</code>, <code>run</code>, and <code>repl</code>, and the REPL accepts a bodyless prototype for
+the same function.</p>
 <p>A module function may take or return a handle:</p>
 <ul>
 <li>A returned handle is a fresh allocation in the active <code>Scope</code>. Allocate it
@@ -551,10 +581,12 @@ inferred, so its prototype is rejected:</li>
 <pre><code class="language-text">helpers.x:3:1: type: unproved native meta lifetime
   meta Widget widget_wrap(Widget inner);
   ^^^^
-  note: name: widget_wrap signature: ((func ((* struct "Widget"))) * struct "Widget") it might return or keep its argument; ownership cannot be inferred
+  note: name: widget_wrap signature: ((func (("Widget"))) "Widget") it might return or keep its argument; ownership cannot be inferred
 </code></pre>
-<p>The compiler loads a module only when an option or a manifest names it.
-Without <code>--native-module</code>, <code>nine</code> reports <code>no binding for triple</code>. In a
+<p>The compiler loads a module only when an option, a manifest or an import
+names it. Without <code>--native-module</code>, <code>nine</code> reports <code>no binding for triple</code>.
+A <a href="packages.html#packages-with-compile-time-parts">package with a compile-time part</a>
+builds its module with the package, and importing the package loads it. In a
 manifest, a target lists the module targets its translation loads:</p>
 <pre><code class="language-toml">[target.helpers]
 kind = "meta-module"
@@ -573,55 +605,36 @@ mismatch is reported at the declaration. A function the compiler links
 takes precedence, and the prototype reports a warning that the compiler’s
 own function hides the module’s. When two named modules define the same
 name, the one named first supplies it, and the prototype reports a
-warning.</p>
+warning. Modules named by an option or a manifest come before the modules
+of imported packages.</p>
 <p>A module runs inside the compiler and uses the compiler’s own runtime, not
 a copy of it. Only the compiler that built a module can load it, so a
 module must be rebuilt after the compiler changes. The compiler checks this
 before it loads any of the module’s code:</p>
 <pre><code class="language-text">x2c: error: native module 'helpers.so' was built by another compiler; rebuild it
 </code></pre>
-<p>Every function the module exports needs a bodyless <code>meta</code> prototype in the
-module’s sources, and a module whose sources declare none fails to build.</p>
-<p>A module can call most of the runtime, because the compiler links every
-runtime module that registers no <code>Var</code> class of its own. This holds for a
-compiler built from a checkout and for one <code>x2c bootstrap</code> installs. The compiler
-leaves out the modules whose classes would take up rows of the fixed
-32-row class registry at startup: Automatic Differentiation, <code>Regex</code>,
-typed Arrays and Maps, <code>Thread</code> and <code>Mutex</code>, the scripting library, and
-the modules that need them. A module that calls one of their functions
-fails to build on macOS, and the link error names each missing symbol:</p>
-<pre><code class="language-text">Undefined symbols for architecture arm64:
-  "_Regex_compile", referenced from:
-      _groups in rx-634299d6.o
-</code></pre>
-<p>On Linux the same module builds, and loading it fails with an error that
-names the missing symbol. A loaded module stays loaded until the compiler
+<p>Every function the module exports needs a <code>meta native</code> definition or a
+bodyless <code>meta</code> prototype in the module’s sources, and a module whose sources
+declare none fails to build.</p>
+<p>A module can call any runtime function, because the compiler links the
+whole runtime. This holds for a compiler built from a checkout and for one
+<code>make install</code> installs. A loaded module stays loaded until the compiler
 exits. Native modules work on macOS, Linux and WSL. On other platforms,
 loading one reports that native modules are not supported.</p>
+<p>A package’s compile-time part can instead be linked into the compiler
+itself, which is the only route where modules do not load.
+<code>x2c build --extension &lt;dir&gt;</code>, given the compiler’s sources, translates
+the package’s sources into the compiler and registers its <code>meta</code> functions
+under the package’s name. Any number of packages can be linked this way. Importing
+such a package loads no module and needs no <code>builds/&lt;name&gt;.module</code>; its
+functions come after the modules an option or a manifest names.</p>
 <h2 id="c-objects-during-compilation"><a class="header" href="#c-objects-during-compilation">C objects during compilation</a></h2>
-<p>Compile-time code keeps C objects the way C does. Every struct local, and
-every local whose address is taken, lives in native bytes. C arrays use
-contiguous native element storage as well. The compiler lays
-out a struct in natural C layout, with the field order, sizes and alignment
-from its own type information. The bytes belong to the running function’s
-frame and are released when that function returns, normally or by an error.</p>
-<p>Field reads and writes, <code>&amp;x</code>, <code>&amp;s.f</code>, <code>p-&gt;f</code>, <code>*p</code> and <code>p[i]</code> operate on
-those bytes. A <code>bool</code> field is one byte, and a value reaching <code>bool</code> becomes 0
-or 1; it reads as the int C promotes it to. An enum field is an <code>int</code> when
-the enum is not packed and every enumerator initializer has an integer type
-no wider than <code>int</code>, or names the enum itself. Any other enum may be wider
-or narrower in C, so it has no compile-time layout. Compile-time code reads
-every enum value as a signed <code>int</code>. Clang and GCC make an enum with no
-negative enumerator an <code>unsigned int</code>, so a negative value stored in such an
-enum compares differently: at compile time it stays negative, and at run
-time it is a large unsigned value.
-A pointer parameter can also receive a local C array,
-which <code>p[i]</code> indexes the same way. A pointer compares with <code>NULL</code> by address
-and tests false at the null address.
-Struct assignment copies bytes into the destination’s existing storage, so an
-address taken earlier stays valid. Passing a struct by value gives the callee
-its own copy. Returning a struct copies it into the caller’s storage before
-the callee’s storage ends:</p>
+<p>Compile-time code keeps C objects the way the program does, because it is
+the same C. Structs, unions, bitfields, arrays, enums of any width, local
+statics, pointers, and <code>goto</code> all behave as C defines them. Struct
+assignment copies bytes into the destination’s existing storage, so an
+address taken earlier stays valid. Passing a struct by value gives the
+callee its own copy:</p>
 <pre class="shiki shiki-themes x2c-light x2c-dark x2c-code" style="--shiki-light:#24292e;--shiki-dark:#e9e5df;--shiki-light-bg:#fff;--shiki-dark-bg:#101011" tabindex="0"><code class="language-x2c no-highlight"><span class="line"><span style="--shiki-light:#D73A49;--shiki-dark:#F0ADA1">struct</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF"> Pair { </span><span style="--shiki-light:#D73A49;--shiki-dark:#F0ADA1">int</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF"> x; </span><span style="--shiki-light:#D73A49;--shiki-dark:#F0ADA1">int</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF"> y; };</span>
 </span><span class="line">
 </span><span class="line"><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">meta </span><span style="--shiki-light:#D73A49;--shiki-dark:#F0ADA1">static</span><span style="--shiki-light:#D73A49;--shiki-dark:#F0ADA1"> struct</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF"> Pair </span><span style="--shiki-light:#6F42C1;--shiki-dark:#E9E5DF">pair</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">(</span><span style="--shiki-light:#D73A49;--shiki-dark:#F0ADA1">int</span><span style="--shiki-light:#E36209;--shiki-dark:#E9E5DF"> x</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">) {</span>
@@ -653,10 +666,6 @@ the callee’s storage ends:</p>
 </code></pre>
 <p><code>ax</code> still points into <code>a</code> after the assignment, so <code>*ax</code> reads 15. <code>spare</code>
 changes its own copy and returns 6, and <code>a.x</code> is still 15.</p>
-<p>A pointer is a real address. Passing <code>&amp;value</code> to a native function lets the
-native code fill the object in place. Only a struct defined in an <span class="x2c-wordmark">x2c</span> unit has
-a compile-time layout; a struct declared in a C header, such as
-<code>struct timespec</code>, is declined in compile-time code.</p>
 <p>A compile-time call frees its locals and parameters when it returns. A
 <code>meta</code> function whose body lets the address of one outlive the call is
 rejected where it is defined, with an error at the statement where the
@@ -681,50 +690,17 @@ address inside <code>box</code>.</p>
 <p>The check is the region check of ordinary code, and every finding it makes
 in a <code>meta</code> body is an error, including a value from a <code>Scope</code> region that
 outlives the region. In ordinary code the same findings are warnings; see
-<a href="regions.html">The Region Model</a>.</p>
-<p>The check does not yet follow every path an address can take. These still
-translate, and using the address after the call returns is undefined
-behavior, as in C:</p>
-<ul>
-<li>an address stored in a field of a local struct that is then returned by
-value or assigned to a <code>meta static</code> struct;</li>
-<li>an address computed with pointer arithmetic or a cast;</li>
-<li>an address passed to a native function that keeps it.</li>
-</ul>
-<p>A struct inside a <code>meta static</code> value, or in a value that persists across
-REPL submissions, lives in storage the compile-time session owns.</p>
-<p>A struct result stays inside compile-time code. Inserting one into the
-program with <code>$pair(3)</code> is diagnosed, because the compiler cannot write a
-struct value as code.</p>
-<p>These C shapes are not available at compile time:</p>
-<ul>
-<li>Unions.</li>
-<li>Structs with bitfields, array members, anonymous members, or an enum field
-whose initializers do not all have <code>int</code>-range types. A meta function that
-uses one reports <code>a compile-time struct with no host layout</code>.</li>
-<li>Structs declared in C headers. A meta function that uses one reports
-<code>a compile-time struct with no host layout</code>.</li>
-<li>A <code>packed</code> attribute on a struct <span class="x2c-wordmark">x2c</span> parses is a compile error.
-<code>#pragma pack</code> passes through to the C compiler, and an unused
-packed-attribute macro does not fail translation. Layout attributes,
-including <code>aligned</code>, <code>mode</code> and <code>vector_size</code>, leave a struct without a
-provable compile-time layout. A meta function that uses such a struct
-reports <code>a compile-time struct with no host layout</code>. A field whose typedef
-has a layout attribute is also declined.</li>
-<li>Structs with field alignment the compiler cannot prove, such as a field
-declared <code>_Alignas</code>, have no compile-time layout. Do not pass one to a
-native function from compile-time code.</li>
-<li>Local arrays of structs, which a meta function reports as <code>an array of structs</code>, and static arrays. An array of structs on the heap works; see
-<a href="#heap-objects-during-compilation">Heap objects during compilation</a>.</li>
-<li><code>sizeof</code> of an array type, or of a type with no compile-time layout,
-which a meta function reports as <code>sizeof a type with no layout</code>. The
-parser does not accept <code>_Alignof</code>.</li>
-</ul>
+<a href="regions.html">The Region Model</a>. As in C, an address the check does not
+follow, such as one computed with pointer arithmetic, is undefined behavior
+once its storage ends.</p>
+<p>A struct, a C <code>bool</code>, or a pointer stays inside compile-time code: another
+meta function can take it, but a <code>$</code> call cannot pass one in or insert one
+into the program. Such a call reports <code>this function cannot run at compile time</code> with a reason that names the kind of value: a struct or union
+result, an address result, or a parameter or result with no Var form.</p>
 <h2 id="heap-objects-during-compilation"><a class="header" href="#heap-objects-during-compilation">Heap objects during compilation</a></h2>
 <p><code>Scope.malloc</code>, <code>Scope.calloc</code>, <code>Scope.memdup</code>, <code>Scope.realloc</code>, and
-<code>Scope.free</code> are bound for compile-time calls, and <code>sizeof</code> answers from
-the same layout the compiler gives each struct and scalar. A meta function
-can therefore build structs on the heap: a linked list, an array of
+<code>Scope.free</code> work as they do in the program, and <code>sizeof</code> is C’s. A meta
+function can therefore build structs on the heap: a linked list, an array of
 structs, or a buffer that grows. <code>p-&gt;f</code>, <code>p.f</code>, <code>*p</code>, and <code>p[i]</code> read and
 write the heap bytes, and a pointer plus or minus an integer moves by whole
 elements, as in C.</p>
@@ -768,209 +744,81 @@ elements, as in C.</p>
 </code></pre>
 <p>The heap belongs to the compiler while it translates. A heap pointer can
 pass between meta functions, but it is not a value the program can hold:
-inserting one with <code>$make()</code> reports <code>compile-time result is a compiler address</code>. Return a value computed from the heap objects instead.</p>
+inserting one with <code>$make()</code> reports that the function cannot run at
+compile time, because its result has no Var form. Return a value computed
+from the heap objects instead.</p>
 <p>The <a href="regions.html">region check</a> treats <code>Scope.realloc</code> as the end of the
 pointer it is given, as <code>Scope.free</code> is. In a <code>meta</code> body, a read through a
 pointer after <code>Scope.free</code> or <code>Scope.realloc</code> ended it is an error, and so
 is freeing or reallocating a literal, a local’s address, or other storage
 no Scope allocator returned.</p>
-<h2 id="the-compile-time-subset"><a class="header" href="#the-compile-time-subset">The compile-time subset</a></h2>
-<p>The following tables separate supported values, available operations and
-current refusals. They catalog the implemented surface and known differences;
-untested combinations are identified explicitly rather than implied to work.</p>
-<h3 id="values-declarations-and-mutation"><a class="header" href="#values-declarations-and-mutation">Values, declarations and mutation</a></h3>
-<p>The table describes current support, not a promise that every C operation
-on a listed type works. The operation inventory below further limits calls.</p>
-<div class="table-wrapper">
-<table>
-<thead>
-<tr><th>Value or construct</th><th>Construction, parameters and returns</th><th>Reads and changes during compilation</th></tr>
-</thead>
-<tbody>
-<tr><td>Native integers, including <code>char</code>, narrow, unsigned and wide types</td><td>Numeric literals and typed locals; values can pass between meta functions and return from them. Width alone is not a prohibition.</td><td>Arithmetic, comparisons, casts, assignment and local compound updates. Source numeric literals use the shared scanner and type conversion rules, including integer base prefixes and <code>U</code>, <code>L</code> and <code>LL</code> suffixes.</td></tr>
-<tr><td><code>float</code>, <code>double</code></td><td>Literals, locals, parameters and returns work, including <code>f</code>/<code>F</code> floating suffixes.</td><td>Arithmetic and scalar conversions work. Floating results can also be inserted as typed expressions.</td></tr>
-<tr><td><code>long double</code></td><td>Typed parameters, returns and <code>L</code>-suffixed floating literals work.</td><td>Decimal and hexadecimal floating literals use the declared numeric precision. The focused checks do not establish parity for every extended-precision calculation.</td></tr>
-<tr><td><code>void</code> return</td><td>A meta helper may return true no-value, including a helper writing through an out-parameter. Bare return and fallthrough preserve that result.</td><td>Raw evaluator slots, <code>Var</code> parameters and <code>Var</code> results transport <code>void</code> without changing it to an empty List. Concrete typed value parameters and ordinary collections still reject it.</td></tr>
-<tr><td><code>String</code>, <code>Symbol</code></td><td>String/symbol literals, computed strings and interpolation; parameters and returns.</td><td>String indexing reads character codes. Bound string methods work; indexed string writes do not. Symbols have the small method surface listed below.</td></tr>
-<tr><td><code>List</code></td><td>Templates, braced/list-compatible initialization, conversion from <code>Array</code>; parameters and returns.</td><td>Index/association reads, traversal, matching and bound methods. No indexed assignment; build a new List instead. A returned data List is not automatically an expression.</td></tr>
-<tr><td><code>Array</code></td><td><code>[]</code>, <code>[a, b]</code>, <code>Array.new()</code>, conversion from <code>List</code>; parameters and returns.</td><td>Indexed reads/writes and the bound mutating methods. Contents can mix represented values and nest collections.</td></tr>
-<tr><td><code>Map</code></td><td><code>{}</code>, keyed literals, <code>Map.new()</code>; parameters and returns.</td><td>Keyed reads/writes and bound methods; represented collections and callable values can be stored inside it.</td></tr>
-<tr><td><code>Var</code></td><td>Boxes represented numbers, strings, symbols, collections and callable values.</td><td>Only the exposed operations below. Compile-time <code>void</code> and an empty List remain distinct. Lisp conditions treat both as false; <span class="x2c-wordmark">x2c</span> runtime <code>Var.truth</code> still raises on <code>void</code>.</td></tr>
-<tr><td><code>Func</code></td><td>Expression-bodied lambdas with typed or bare parameters, captures and references to available functions; parameters and returns between meta functions.</td><td>Dynamic calls retain the typed signature, convert value parameters and results, and alias reference arguments in place. Storage in collections works. Block-bodied lambdas have no compile-time lowering. This does not expose arbitrary native function-pointer calls.</td></tr>
-<tr><td>C-style array declarations</td><td>A literal-sized one-dimensional automatic array, such as <code>int a[3] = {1, 2};</code>, has compile-time storage. Omitted elements are filled with zero-like values. Static arrays have no compile-time lowering.</td><td>Indexing, assignment, addresses of elements and reference arguments share contiguous native storage. Passing the array to a pointer parameter preserves that storage. See element/dimension limits below.</td></tr>
-<tr><td>Pointers to locals</td><td><code>int *p = &amp;n;</code>, copying that pointer, and passing it to another meta function or a native function work. A local whose address is taken lives in native bytes, and the pointer is its real address.</td><td><code>*p</code> and <code>p[i]</code> read, and <code>*p = value</code> and <code>p[i] = value</code> write, the bytes as C does. Addresses such as <code>&amp;a[i]</code> work, and a pointer plus or minus an integer moves by whole elements.</td></tr>
-<tr><td>Structs</td><td>Named, inline and nested locals; initialization, assignment, by-value arguments and returns, with C copy behavior.</td><td>Fields and addresses refer to native bytes in C layout. Assignment keeps existing field addresses; storage ends when the function returns. See <a href="#c-objects-during-compilation">C objects during compilation</a>.</td></tr>
-<tr><td>Native functions</td><td>The functions in <code>lib/cmath.x</code> and <code>lib/clibc.x</code>, the iterator producers marked <code>meta</code> in <code>lib/iter.x</code>, <code>lib/map.x</code> and <code>lib/dispatch.x</code>, and the witnesses of <code>meta protocol</code> adoptions, all of which the compiler links.</td><td>Explicit dollar evaluation and meta bodies can call them, including through output pointers. See <a href="#native-c-functions">Native C functions</a>.</td></tr>
-<tr><td><code>File</code>, buffers and other resource types</td><td>No general compile-time constructor/operation surface is installed for these types. A declaration or opaque type name alone does not make the resource usable.</td><td>For example, <code>File.open</code> has no binding. Use the compiler’s explicit text-embedding operation for source-dependent text.</td></tr>
-</tbody>
-</table>
-</div>
-<p>Collections hold values, not arbitrary native memory. Nested collections keep
-references to their contained objects; mutating a shared <code>Array</code> or <code>Map</code>
-changes that object.</p>
-<p>Native array coverage is narrower than C’s array model. Integer arrays have
-fixture coverage; focused probes also cover <code>double</code> and <code>String</code> elements.
-A dimension such as <code>1 + 1</code> is rejected even though C can compute it, and a
-nested braced initializer for <code>int a[2][2]</code> is rejected. The implementation
-stores a C-style array in a dynamic container, using its first declared
-dimension; this is not general multidimensional or native-layout support.
-Element initialization applies the declared scalar conversion. For example,
-<code>unsigned char a[1] = { n }; return a[0];</code> with 257 returns 1 both during
-compilation and at runtime. Signed-byte, float-rounding and floating-to-integer
-initialization also have differential checks. Other element types, array
-decay/alias combinations and every zero-initialization case remain coverage
-gaps.</p>
-<p>A null-pointer constant such as <code>NULL</code> or <code>(char *) 0</code> can supply the default
-character set for <code>String.strip</code>, and <code>true</code> and <code>false</code> are 1 and 0. Any
-other preprocessor name has no compile-time value; a meta function that uses
-one reports <code>a name with no declaration</code>.</p>
-<p>These two functions demonstrate a supported address and a supported chain:</p>
-<pre class="shiki shiki-themes x2c-light x2c-dark x2c-code" style="--shiki-light:#24292e;--shiki-dark:#e9e5df;--shiki-light-bg:#fff;--shiki-dark-bg:#101011" tabindex="0"><code class="language-x2c no-highlight"><span class="line"><span style="--shiki-light:#D73A49;--shiki-dark:#F0ADA1">meta</span><span style="--shiki-light:#D73A49;--shiki-dark:#F0ADA1"> static</span><span style="--shiki-light:#D73A49;--shiki-dark:#F0ADA1"> void</span><span style="--shiki-light:#6F42C1;--shiki-dark:#E9E5DF"> meta_set</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">(</span><span style="--shiki-light:#D73A49;--shiki-dark:#F0ADA1">int</span><span style="--shiki-light:#D73A49;--shiki-dark:#E9E5DF"> *</span><span style="--shiki-light:#E36209;--shiki-dark:#E9E5DF">out</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">) { </span><span style="--shiki-light:#D73A49;--shiki-dark:#E9E5DF">*</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">out </span><span style="--shiki-light:#D73A49;--shiki-dark:#E9E5DF">=</span><span style="--shiki-light:#005CC5;--shiki-dark:#A9C9F5"> 9</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">; }</span>
-</span><span class="line">
-</span><span class="line"><span style="--shiki-light:#D73A49;--shiki-dark:#F0ADA1">meta</span><span style="--shiki-light:#D73A49;--shiki-dark:#F0ADA1"> static</span><span style="--shiki-light:#D73A49;--shiki-dark:#F0ADA1"> int</span><span style="--shiki-light:#6F42C1;--shiki-dark:#E9E5DF"> meta_address</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">(</span><span style="--shiki-light:#D73A49;--shiki-dark:#F0ADA1">void</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">) {</span>
-</span><span class="line"><span style="--shiki-light:#D73A49;--shiki-dark:#F0ADA1">  int</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF"> n </span><span style="--shiki-light:#D73A49;--shiki-dark:#E9E5DF">=</span><span style="--shiki-light:#005CC5;--shiki-dark:#A9C9F5"> 1</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">;</span>
-</span><span class="line"><span style="--shiki-light:#6F42C1;--shiki-dark:#E9E5DF">  meta_set</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">(</span><span style="--shiki-light:#D73A49;--shiki-dark:#E9E5DF">&amp;</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">n);</span>
-</span><span class="line"><span style="--shiki-light:#D73A49;--shiki-dark:#F0ADA1">  return</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF"> n;</span>
-</span><span class="line"><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">}</span>
-</span><span class="line">
-</span><span class="line"><span style="--shiki-light:#D73A49;--shiki-dark:#F0ADA1">meta</span><span style="--shiki-light:#D73A49;--shiki-dark:#F0ADA1"> static</span><span style="--shiki-light:#D73A49;--shiki-dark:#F0ADA1"> int</span><span style="--shiki-light:#6F42C1;--shiki-dark:#E9E5DF"> meta_parts</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">(</span><span style="--shiki-light:#007C8A;--shiki-dark:#29D3E2">String</span><span style="--shiki-light:#E36209;--shiki-dark:#E9E5DF"> path</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">) </span><span style="--shiki-light:#A626A4;--shiki-light-font-weight:bold;--shiki-dark:#FF4FD8;--shiki-dark-font-weight:bold">=&gt;</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF"> path.</span><span style="--shiki-light:#6F42C1;--shiki-dark:#E9E5DF">split</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">(</span><span style="--shiki-light:#032F62;--shiki-dark:#9EDFB8">"."</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">).</span><span style="--shiki-light:#6F42C1;--shiki-dark:#E9E5DF">len</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">();</span>
-</span><span class="line">
-</span><span class="line"><span style="--shiki-light:#D73A49;--shiki-dark:#F0ADA1">int</span><span style="--shiki-light:#6F42C1;--shiki-dark:#E9E5DF"> main</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">(</span><span style="--shiki-light:#D73A49;--shiki-dark:#F0ADA1">void</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">) {</span>
-</span><span class="line"><span style="--shiki-light:#6F42C1;--shiki-dark:#E9E5DF">  printf</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">(</span><span style="--shiki-light:#032F62;--shiki-dark:#9EDFB8">"</span><span style="--shiki-light:#005CC5;--shiki-dark:#9EDFB8">%d</span><span style="--shiki-light:#005CC5;--shiki-dark:#9EDFB8"> %d\n</span><span style="--shiki-light:#032F62;--shiki-dark:#9EDFB8">"</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">, </span><span style="--shiki-light:#24292E;--shiki-dark:#FF715A">$</span><span style="--shiki-light:#6F42C1;--shiki-dark:#FF715A">meta_address</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">(), </span><span style="--shiki-light:#24292E;--shiki-dark:#FF715A">$</span><span style="--shiki-light:#6F42C1;--shiki-dark:#FF715A">meta_parts</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">(</span><span style="--shiki-light:#032F62;--shiki-dark:#9EDFB8">"a.b.c"</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">));</span>
-</span><span class="line"><span style="--shiki-light:#D73A49;--shiki-dark:#F0ADA1">  return</span><span style="--shiki-light:#005CC5;--shiki-dark:#A9C9F5"> 0</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">;</span>
-</span><span class="line"><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">}</span></span></code></pre>
-
-<pre><code class="language-text">9 3
-</code></pre>
-<p>The chain calls <code>String.split</code>, then <code>List.len</code>.</p>
-<h3 id="which-library-operations-are-available"><a class="header" href="#which-library-operations-are-available">Which library operations are available</a></h3>
-<p>A method uses its ordinary resolved call, so <code>text.len()</code> and
-<code>String.len(text)</code> reach the same operation. Chaining adds no separate
-restriction: every call in the chain must be available.</p>
-<p>The rest of this section lists the library operations meta functions can
-call. The ordinary <code>List</code> and <code>Var</code> selectors <code>caar</code>, <code>cadr</code>, <code>cddr</code> and <code>caddr</code>
-reuse those same operations. <code>String</code>, <code>List</code>, <code>Array</code> and <code>Map</code> expose their
-<code>str</code> and <code>repr</code> rendering; <code>Symbol</code> also exposes <code>repr</code> and <code>compare</code>, and
-<code>Var.kind</code> reports a value’s kind. These calls use the existing value
-implementations rather than a separate formatting or comparison algorithm.</p>
-<p>Iterator producers and functional collection operations are also available in
-<span class="x2c-wordmark">x2c</span>-style meta functions. <code>lib/protocols.x</code> marks the <code>Array</code>, <code>List</code>, <code>Map</code>
-and <code>String</code> Iter adoptions <code>meta protocol</code>, so their <code>iter</code> methods are
-available. <code>range</code> and the <code>Iter</code> producers are <code>meta</code> prototypes in
-<code>lib/iter.x</code>; <code>Map.keys</code>, <code>Map.enumerate</code> and <code>Var.iter</code> are marked beside
-their definitions in <code>lib/map.x</code> and <code>lib/dispatch.x</code>. A <code>File</code> is not
-iterable at compile time. Omit the native destination argument when an
-iterator is consumed by the same expression; the call then allocates the
-iterator with <code>Iter.new</code>. Either way it uses the native lazy producer and
-borrows its source and any callback.</p>
-<pre class="shiki shiki-themes x2c-light x2c-dark x2c-code" style="--shiki-light:#24292e;--shiki-dark:#e9e5df;--shiki-light-bg:#fff;--shiki-dark-bg:#101011" tabindex="0"><code class="language-x2c no-highlight"><span class="line"><span style="--shiki-light:#D73A49;--shiki-dark:#F0ADA1">meta</span><span style="--shiki-light:#D73A49;--shiki-dark:#F0ADA1"> int</span><span style="--shiki-light:#6F42C1;--shiki-dark:#E9E5DF"> key_count</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">(</span><span style="--shiki-light:#007C8A;--shiki-dark:#29D3E2">Map</span><span style="--shiki-light:#E36209;--shiki-dark:#E9E5DF"> values</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">) </span><span style="--shiki-light:#A626A4;--shiki-light-font-weight:bold;--shiki-dark:#FF4FD8;--shiki-dark-font-weight:bold">=&gt;</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF"> values.</span><span style="--shiki-light:#6F42C1;--shiki-dark:#E9E5DF">keys</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">().</span><span style="--shiki-light:#6F42C1;--shiki-dark:#E9E5DF">count</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">();</span>
-</span><span class="line">
-</span><span class="line"><span style="--shiki-light:#D73A49;--shiki-dark:#F0ADA1">meta</span><span style="--shiki-light:#007C8A;--shiki-dark:#29D3E2"> List</span><span style="--shiki-light:#6F42C1;--shiki-dark:#E9E5DF"> shifted</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">(</span><span style="--shiki-light:#D73A49;--shiki-dark:#F0ADA1">int</span><span style="--shiki-light:#E36209;--shiki-dark:#E9E5DF"> amount</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">) {</span>
-</span><span class="line"><span style="--shiki-light:#007C8A;--shiki-dark:#29D3E2">  List</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF"> result </span><span style="--shiki-light:#D73A49;--shiki-dark:#E9E5DF">=</span><span style="--shiki-light:#6F42C1;--shiki-dark:#E9E5DF"> range</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">(</span><span style="--shiki-light:#005CC5;--shiki-dark:#A9C9F5">1</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">, </span><span style="--shiki-light:#005CC5;--shiki-dark:#A9C9F5">3</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">, </span><span style="--shiki-light:#005CC5;--shiki-dark:#A9C9F5">1</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">)</span>
-</span><span class="line"><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">    .</span><span style="--shiki-light:#6F42C1;--shiki-dark:#E9E5DF">map</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">(</span><span style="--shiki-light:#24292E;--shiki-dark:#FF715A">%!</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">(</span><span style="--shiki-light:#007C8A;--shiki-dark:#29D3E2">Var</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF"> value) </span><span style="--shiki-light:#A626A4;--shiki-light-font-weight:bold;--shiki-dark:#FF4FD8;--shiki-dark-font-weight:bold">=&gt;</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF"> value </span><span style="--shiki-light:#D73A49;--shiki-dark:#E9E5DF">+</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF"> amount);</span>
-</span><span class="line"><span style="--shiki-light:#D73A49;--shiki-dark:#F0ADA1">  return</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF"> result;</span>
-</span><span class="line"><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">}</span></span></code></pre>
-
-<p><code>List</code>, <code>Array</code> and <code>String</code> mapping and filtering use the same native
-operations with an adapter for the interpreted callback. Lazy <code>Iter</code> mapping,
-filtering, pairing and collection work the same way. Calls made as Lisp treat
-nil and <code>void</code> as false; callbacks in <span class="x2c-wordmark">x2c</span>-style meta functions retain ordinary
-<code>Var</code> truth.</p>
-<p>A binding name alone is not proof of runtime-equivalent behavior. A missing
-binding also does not explain why it was omitted. Some operations need only an
-adapter over existing values; others need native pointer arguments or resource
-ownership. A local <code>struct Iter</code> passed as the destination lives in native
-bytes, as other compile-time C objects do, and ends with its function.
-<code>List</code>, <code>Array</code> and <code>Iter</code> folds preserve a true <code>void</code>
-no-seed argument. Empty or exhausted <code>Iter.next</code>, <code>find</code>, <code>min</code> and <code>max</code> calls
-return true runtime <code>void</code>, distinct from Lisp nil.</p>
-<p>Other installed meta functions and the compiler operations declared in
-<code>meta.x</code> extend this surface; including a normal function declaration does
-not install its body for compile-time execution.</p>
-<p>Missing List/Array/Map lookups and removals preserve runtime <code>void</code>; they no
-longer become an empty List in the evaluator. This covers List <code>getindex</code>,
-<code>last</code>, <code>assoc</code>, <code>get</code>, <code>caar</code>, <code>cadr</code> and <code>caddr</code>; Array <code>getindex</code>, <code>setindex</code>,
-<code>take_last</code>, <code>shift</code>, <code>remove</code> and <code>insert</code>; and Map <code>get</code>, <code>getindex</code> and <code>del</code>.
-<code>caar</code> stops when either selection is absent. Ordinary Lists, Arrays and Maps
-still reject <code>void</code> as an element, key or value, so a rest call cannot pack it
-into its argument List.</p>
-<p>Status operations with output parameters receive the addresses of
-compile-time locals. <code>String.try_long</code>, <code>String.try_double</code>,
-<code>String.try_next</code>, the three <code>List.try_*</code> match operations, <code>Map.try_get</code>,
-<code>Map.try_del</code> and <code>Symbol.try_new</code> are the native operations themselves,
-writing through those addresses as they do at run time. A failed call
-therefore leaves every output unchanged; <code>String.try_next</code> and
-<code>List.try_search</code> write their paired outputs together.</p>
-<p><code>Array.heap_pop</code>, <code>Map.get_hashed</code>, <code>Var.getindex</code> and <code>Var.null</code> preserve
-their native <code>void</code>-versus-<code>Null</code> results. <code>Var.clone_wide</code> creates a fresh
-session-<code>Scope</code> box for a wide value and returns true <code>void</code> for a nonwide
-value.</p>
-<p>Lisp conditions treat <code>void</code> as false while the normal <span class="x2c-wordmark">x2c</span> <code>Var.truth</code> contract
-still raises <code>&lt;void-op&gt;</code>; compare explicitly with <code>void</code> when both forms must
-agree.
-The compiler loads several binding layers, including <code>etc/init.xlisp</code>,
-<code>etc/lisp-values.xlisp</code> and <code>etc/comptime.xlisp</code>; supported body forms live in
-<code>src/comptime.x</code>.</p>
-<h3 id="control-flow-and-current-rejections"><a class="header" href="#control-flow-and-current-rejections">Control flow and current rejections</a></h3>
-<p><code>if</code>, conditional expressions, short-circuit boolean operations, <code>while</code>,
-<code>for</code>, <code>do</code>, <code>break</code>, <code>continue</code>, recursion, <code>foreach</code>, <code>match</code>, templates,
-lambdas and destructuring have compile-time support. A <code>switch</code> may share
-labels and its final arm may end normally; an earlier arm must not execute
-through to the next one. Recursive calculations remain subject to the
-compiler’s evaluation limits.</p>
-<p>Some combinations still decline: <code>switch</code> with a subject needing a temporary
-binding on a loop path; destructuring a source needing such a binding on a
-loop path; taking the address of a destructured local; and destructuring
-in a function that holds a cleanup. Match patterns
-must fold at lowering time, so a pattern interpolating a local value is not
-generally supported. These are binding/lowering gaps, not fundamental
-restrictions on loops, destructuring or pattern matching.</p>
-<p>Mutation is position-sensitive. <code>n++</code> as a statement is supported, but
-<code>return n++;</code> is not. <code>a[i] = a[i] + 1;</code> and <code>*p = *p + 1;</code> are supported
-shapes; <code>a[i] += 1;</code> and <code>(*p)++;</code> are not. An assignment used as an
-expression is not a general substitute for a statement.</p>
-<p>The table separates present restrictions from design assessment. “Gap”
-means feasible in principle, not scheduled or promised support.</p>
-<div class="table-wrapper">
-<table>
-<thead>
-<tr><th>Currently unsupported</th><th>What would be needed; fundamental or gap?</th></tr>
-</thead>
-<tbody>
-<tr><td><code>goto</code>, switch fallthrough</td><td><strong>Gap:</strong> control-flow lowering that preserves the transfer.</td></tr>
-<tr><td>Postfix increment expression values, compound updates to indexed/dereferenced places</td><td><strong>Gap:</strong> preserve the old result and evaluate the destination once. Prefix increments on locals and reference arguments are supported.</td></tr>
-<tr><td>Static arrays, computed native-array dimensions, general multidimensional arrays and missing element conversions</td><td><strong>Gap:</strong> extend the represented array shape and typed operations.</td></tr>
-<tr><td>Structs with bitfields, array members, anonymous members or layout attributes other than <code>packed</code>; arrays of structs</td><td><strong>Gap:</strong> compute a layout for these shapes. Packing is unsupported and causes a compile error. Other structs use native bytes in C layout.</td></tr>
-<tr><td>Unions</td><td><strong>Gap:</strong> model overlapping storage in native bytes. A pointer to an actual future runtime object cannot be dereferenced during compilation; that is a <strong>phase boundary</strong>.</td></tr>
-<tr><td><code>try</code>, <code>catch</code>, <code>finally</code>, <code>raise</code> in a meta body</td><td><strong>Gap:</strong> exception transfer needs compile-time modeling. An error raised by a called operation still runs pending cleanups and becomes a compiler diagnostic.</td></tr>
-<tr><td>Missing library/resource operations, including <code>File.open</code></td><td><strong>API gap:</strong> implement bindings and appropriate resource lifetimes. Compile-time file I/O is possible in principle; it is not prohibited by the phase boundary.</td></tr>
-<tr><td>Loop-path temporary bindings, address-taken destructured locals, nonfolded match patterns</td><td><strong>Gap:</strong> preserve required bindings and support pattern evaluation at the appropriate time.</td></tr>
-<tr><td>Named enum values</td><td><strong>Gap:</strong> make the enumerator’s numeric value available to the lowerer.</td></tr>
-<tr><td>Reading future runtime mutable state</td><td><strong>Fundamental phase boundary:</strong> that program state does not exist yet. Separate compile-time state is possible but is not the same state.</td></tr>
-<tr><td>Callable result insertion</td><td><strong>Gap:</strong> preserve identity when constructing a runtime value. See the next section.</td></tr>
-</tbody>
-</table>
-</div>
-<p>For example, these are rejected definitions:</p>
-<!-- ignore: a union has no compile-time representation -->
-<pre class="shiki shiki-themes x2c-light x2c-dark x2c-code" style="--shiki-light:#24292e;--shiki-dark:#e9e5df;--shiki-light-bg:#fff;--shiki-dark-bg:#101011" tabindex="0"><code class="language-x2c no-highlight ignore"><span class="line"><span style="--shiki-light:#D73A49;--shiki-dark:#F0ADA1">union</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF"> Bits { </span><span style="--shiki-light:#D73A49;--shiki-dark:#F0ADA1">int</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF"> i; </span><span style="--shiki-light:#D73A49;--shiki-dark:#F0ADA1">float</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF"> f; };</span>
-</span><span class="line">
-</span><span class="line"><span style="--shiki-light:#D73A49;--shiki-dark:#F0ADA1">meta</span><span style="--shiki-light:#D73A49;--shiki-dark:#F0ADA1"> int</span><span style="--shiki-light:#6F42C1;--shiki-dark:#E9E5DF"> meta_union</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">(</span><span style="--shiki-light:#D73A49;--shiki-dark:#F0ADA1">void</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">) {</span>
-</span><span class="line"><span style="--shiki-light:#D73A49;--shiki-dark:#F0ADA1">  union</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF"> Bits bits </span><span style="--shiki-light:#D73A49;--shiki-dark:#E9E5DF">=</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF"> { </span><span style="--shiki-light:#005CC5;--shiki-dark:#A9C9F5">1</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF"> };</span>
-</span><span class="line"><span style="--shiki-light:#D73A49;--shiki-dark:#F0ADA1">  return</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF"> bits.i;</span>
-</span><span class="line"><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">}</span></span></code></pre>
-
-<!-- ignore: compound update of an indexed destination is unsupported -->
-<pre class="shiki shiki-themes x2c-light x2c-dark x2c-code" style="--shiki-light:#24292e;--shiki-dark:#e9e5df;--shiki-light-bg:#fff;--shiki-dark-bg:#101011" tabindex="0"><code class="language-x2c no-highlight ignore"><span class="line"><span style="--shiki-light:#D73A49;--shiki-dark:#F0ADA1">meta</span><span style="--shiki-light:#D73A49;--shiki-dark:#F0ADA1"> int</span><span style="--shiki-light:#6F42C1;--shiki-dark:#E9E5DF"> meta_update</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">(</span><span style="--shiki-light:#D73A49;--shiki-dark:#F0ADA1">void</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">) {</span>
-</span><span class="line"><span style="--shiki-light:#D73A49;--shiki-dark:#F0ADA1">  int</span><span style="--shiki-light:#E36209;--shiki-dark:#E9E5DF"> values</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">[</span><span style="--shiki-light:#005CC5;--shiki-dark:#A9C9F5">2</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">] </span><span style="--shiki-light:#D73A49;--shiki-dark:#E9E5DF">=</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF"> { </span><span style="--shiki-light:#005CC5;--shiki-dark:#A9C9F5">1</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">, </span><span style="--shiki-light:#005CC5;--shiki-dark:#A9C9F5">2</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF"> };</span>
-</span><span class="line"><span style="--shiki-light:#E36209;--shiki-dark:#E9E5DF">  values</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">[</span><span style="--shiki-light:#005CC5;--shiki-dark:#A9C9F5">0</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">] </span><span style="--shiki-light:#D73A49;--shiki-dark:#E9E5DF">+=</span><span style="--shiki-light:#005CC5;--shiki-dark:#A9C9F5"> 1</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">;</span>
-</span><span class="line"><span style="--shiki-light:#D73A49;--shiki-dark:#F0ADA1">  return</span><span style="--shiki-light:#E36209;--shiki-dark:#E9E5DF"> values</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">[</span><span style="--shiki-light:#005CC5;--shiki-dark:#A9C9F5">0</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">];</span>
-</span><span class="line"><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">}</span></span></code></pre>
-
-<p>Their diagnostic reasons identify the union and the unsupported indexed
-update respectively.
-The compiler checks the body when installing the meta definition, so an
-unused function or an untaken branch does not hide an unsupported construct.</p>
+<h2 id="how-a-meta-function-runs"><a class="header" href="#how-a-meta-function-runs">How a meta function runs</a></h2>
+<p>A translation runs in two phases. Before any unit is translated, the
+compiler gathers the bodied <code>meta</code> functions the inputs reach: those of
+each <code>.xmacro</code> file an input imports, directly, through an included
+header, or through a package, and those an input defines itself. It
+emits them, with the declarations they use, as C through the ordinary
+backend, compiles them with the host C compiler (<code>--meta-cc</code>, default
+<code>cc</code>, never the target <code>--cc</code>), and links them with the host runtime into
+one helper program, the project meta module. A group sees the headers its
+unit includes, found from the unit’s directory and the <code>-I</code> directories.
+The translation then
+sends each <code>$</code> call, and each compile-time Lisp call, of one of those
+functions to the helper and inserts the reply. A project whose inputs
+reach no <code>meta</code> function builds nothing extra.</p>
+<p>The helper is kept under the cache directory (<code>$X2C_CACHE_DIR</code>,
+<code>$XDG_CACHE_HOME/x2c</code>, or <code>~/.cache/x2c</code>), named by a hash of the meta
+source paths, the compiler, the C compiler, and the flags, including <code>-D</code>
+and <code>-U</code>. It is built again when any file its build read changes, <span class="x2c-wordmark">x2c</span>
+source or C header; a change to program code alone recompiles the groups
+but keeps the helper when no group object changes. The
+shipped meta code of the compiler’s own <code>.xmacro</code> files and of
+<code>lib/meta.x</code> is linked into the compiler and runs without a helper. The
+REPL evaluates its supported submissions through Lisp. It accepts bodyless
+<code>meta</code> prototypes for linked or explicitly loaded native functions; user
+<code>meta</code> function definitions are outside its supported subset.</p>
+<p>Inside a <code>meta</code> body the whole body runs at compile time, so <code>$f(x)</code> there
+is an ordinary call of <code>f</code>. <code>$</code> keeps its meaning only where program code
+meets compile-time code, and says evaluate now and insert the result.</p>
+<p>Each unit gets its own <code>meta static</code> values: the helper runs their
+initializers again before the first call a unit makes. What those
+initializers allocate, a Job one starts included, lasts until the next
+unit’s reset or the end of the helper.</p>
+<p>A project <code>meta</code> function receives what it needs as arguments and returns
+a value; it does not query the compiler. The syntax builders of
+<code>lib/meta.x</code>, <code>x2c_ident</code>, <code>x2c_function_name</code>, <code>x2c_diagnostic_fail</code>,
+and <code>x2c_diagnostic_warn</code> work in the helper, and a builder that needs a
+type’s parts is finished by the compiler when the call returns. The
+operations that read other compiler state, such as <code>x2c_source_text</code> and
+<code>x2c_type_fields</code>, report that they are not available to project meta
+code.</p>
+<p>Running compile-time code needs what building the program needs: the C
+compiler and the runtime headers. A project meta module that does not
+compile is reported at the call with the C compiler’s first error and the
+directory that keeps its C.</p>
+<p>A raise inside a <code>meta</code> body becomes a diagnostic at the <code>$</code> call. A body
+that crashes, exits, or overflows the stack ends the helper; the call is
+reported with the function and the reason, and the next call starts a new
+helper. A <code>$</code> call that runs longer than 60 seconds is stopped the same
+way; <code>X2C_META_TIMEOUT</code> sets another limit in seconds, and <code>0</code> turns the
+limit off.</p>
+<p>A process that compile-time code starts ends no later than its helper.
+The helper leads a process group of its own, and everything in that group
+ends when the helper ends, whether it quits, crashes, or passes the
+deadline, and when the translation that started it ends. Since that group
+is not the terminal’s, compile-time code that reads the terminal is
+stopped until the call’s deadline.</p>
+<h3 id="arguments-and-results"><a class="header" href="#arguments-and-results">Arguments and results</a></h3>
+<p>A <code>$</code> call’s arguments are evaluated before the call. Each is a numeric,
+character, or String literal, a <code>%(...)</code> syntax literal, arithmetic over
+constants, a Symbol, captured macro syntax, or another <code>$</code> call. A captured
+literal passed to a parameter that is not syntax, such as a <code>String</code>,
+arrives as the literal’s value. Anything else, such as a program variable,
+reports <code>an argument must be a constant, captured syntax, or a meta call</code>.</p>
+<p>Compile-time Lisp calls a <code>meta</code> function by its name with Lisp values.
+The native function checks each argument against its declared type, so
+passing <code>0</code> where a <code>List</code> is declared is an error rather than an empty
+list.</p>
 <h3 id="lifetime-and-state"><a class="header" href="#lifetime-and-state">Lifetime and state</a></h3>
 <p>A block that holds a cleanup keeps its C meaning in a meta body. <code>defer</code>,
 <code>$scope</code>, and <code>$let</code> run their cleanup when the block ends and on every
@@ -996,8 +844,8 @@ the cleanup before it becomes the diagnostic for the explicit call.</li>
 </span><span class="line"><span style="--shiki-light:#A626A4;--shiki-light-font-weight:bold;--shiki-dark:#FF4FD8;--shiki-dark-font-weight:bold">    defer</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF"> total </span><span style="--shiki-light:#D73A49;--shiki-dark:#E9E5DF">+=</span><span style="--shiki-light:#005CC5;--shiki-dark:#A9C9F5"> 1</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">;</span>
 </span><span class="line"><span style="--shiki-light:#D73A49;--shiki-dark:#F0ADA1">    if</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF"> (n </span><span style="--shiki-light:#D73A49;--shiki-dark:#E9E5DF">&gt;</span><span style="--shiki-light:#005CC5;--shiki-dark:#A9C9F5"> 5</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">) </span><span style="--shiki-light:#D73A49;--shiki-dark:#F0ADA1">return</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF"> total </span><span style="--shiki-light:#D73A49;--shiki-dark:#E9E5DF">*</span><span style="--shiki-light:#005CC5;--shiki-dark:#A9C9F5"> 100</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">;</span>
 </span><span class="line"><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">  }</span>
-</span><span class="line"><span style="--shiki-light:#24292E;--shiki-dark:#FF715A">  $</span><span style="--shiki-light:#6F42C1;--shiki-dark:#FF715A">let</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">(total, </span><span style="--shiki-light:#005CC5;--shiki-dark:#A9C9F5">0</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">) total </span><span style="--shiki-light:#D73A49;--shiki-dark:#E9E5DF">=</span><span style="--shiki-light:#005CC5;--shiki-dark:#A9C9F5"> 7</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">;</span>
-</span><span class="line"><span style="--shiki-light:#24292E;--shiki-dark:#FF715A">  $</span><span style="--shiki-light:#6F42C1;--shiki-dark:#FF715A">scope</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">() {</span>
+</span><span class="line"><span style="--shiki-light:#24292E;--shiki-dark:#FF715A">  $</span><span style="--shiki-light:#005CC5;--shiki-dark:#E9E5DF">let</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">(total, </span><span style="--shiki-light:#005CC5;--shiki-dark:#A9C9F5">0</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">) total </span><span style="--shiki-light:#D73A49;--shiki-dark:#E9E5DF">=</span><span style="--shiki-light:#005CC5;--shiki-dark:#A9C9F5"> 7</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">;</span>
+</span><span class="line"><span style="--shiki-light:#24292E;--shiki-dark:#FF715A">  $</span><span style="--shiki-light:#005CC5;--shiki-dark:#E9E5DF">scope</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">() {</span>
 </span><span class="line"><span style="--shiki-light:#007C8A;--shiki-dark:#29D3E2">    Array</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF"> scratch </span><span style="--shiki-light:#D73A49;--shiki-dark:#E9E5DF">=</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF"> [total];</span>
 </span><span class="line"><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">    total </span><span style="--shiki-light:#D73A49;--shiki-dark:#E9E5DF">+=</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF"> (</span><span style="--shiki-light:#D73A49;--shiki-dark:#F0ADA1">int</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">) scratch.</span><span style="--shiki-light:#6F42C1;--shiki-dark:#E9E5DF">len</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">();</span>
 </span><span class="line"><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">  }</span>
@@ -1022,7 +870,7 @@ iteration path still runs each turn in constant space.</p>
 return converts the Array to a new List first, then the cleanup frees the
 Array:</p>
 <pre class="shiki shiki-themes x2c-light x2c-dark x2c-code" style="--shiki-light:#24292e;--shiki-dark:#e9e5df;--shiki-light-bg:#fff;--shiki-dark-bg:#101011" tabindex="0"><code class="language-x2c no-highlight"><span class="line"><span style="--shiki-light:#D73A49;--shiki-dark:#F0ADA1">meta</span><span style="--shiki-light:#D73A49;--shiki-dark:#F0ADA1"> static</span><span style="--shiki-light:#007C8A;--shiki-dark:#29D3E2"> List</span><span style="--shiki-light:#6F42C1;--shiki-dark:#E9E5DF"> evens</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">(</span><span style="--shiki-light:#D73A49;--shiki-dark:#F0ADA1">int</span><span style="--shiki-light:#E36209;--shiki-dark:#E9E5DF"> n</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">) {</span>
-</span><span class="line"><span style="--shiki-light:#007C8A;--shiki-dark:#29D3E2">  Array</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF"> out </span><span style="--shiki-light:#D73A49;--shiki-dark:#E9E5DF">=</span><span style="--shiki-light:#24292E;--shiki-dark:#FF715A"> $</span><span style="--shiki-light:#6F42C1;--shiki-dark:#FF715A">auto</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">(</span><span style="--shiki-light:#D73A49;--shiki-dark:#F0ADA1">[]</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">);</span>
+</span><span class="line"><span style="--shiki-light:#007C8A;--shiki-dark:#29D3E2">  Array</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF"> out </span><span style="--shiki-light:#D73A49;--shiki-dark:#E9E5DF">=</span><span style="--shiki-light:#24292E;--shiki-dark:#FF715A"> $</span><span style="--shiki-light:#005CC5;--shiki-dark:#E9E5DF">auto</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">(</span><span style="--shiki-light:#D73A49;--shiki-dark:#F0ADA1">[]</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">);</span>
 </span><span class="line"><span style="--shiki-light:#D73A49;--shiki-dark:#F0ADA1">  for</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF"> (</span><span style="--shiki-light:#D73A49;--shiki-dark:#F0ADA1">int</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF"> i </span><span style="--shiki-light:#D73A49;--shiki-dark:#E9E5DF">=</span><span style="--shiki-light:#005CC5;--shiki-dark:#A9C9F5"> 0</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">; i </span><span style="--shiki-light:#D73A49;--shiki-dark:#E9E5DF">&lt;</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF"> n; i</span><span style="--shiki-light:#D73A49;--shiki-dark:#E9E5DF">++</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">) out.</span><span style="--shiki-light:#6F42C1;--shiki-dark:#E9E5DF">push</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">(</span><span style="--shiki-light:#005CC5;--shiki-dark:#A9C9F5">2</span><span style="--shiki-light:#D73A49;--shiki-dark:#E9E5DF"> *</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF"> i);</span>
 </span><span class="line"><span style="--shiki-light:#D73A49;--shiki-dark:#F0ADA1">  return</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF"> out;</span>
 </span><span class="line"><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">}</span>
@@ -1035,37 +883,19 @@ Array:</p>
 
 <pre><code class="language-text">(0 2 4 6)
 </code></pre>
-<p>Meta code manages lifetimes with the same operations as native code.
-<code>$auto</code> works on an <code>Array</code>, a <code>Map</code>, or a <code>Scope</code>, and <code>Array.free</code>,
-<code>String.free</code>, <code>Scope.new</code>, <code>Scope.new_named</code>, <code>Scope.destroy</code>,
-<code>Context.open</code>, <code>Context.export</code>, <code>Context.close</code>, and <code>List.promote</code> are
-bound for compile-time calls. <code>Scope.retain</code>, <code>Scope.release</code>, <code>Scope.push</code>,
-<code>Scope.pop</code>, <code>Scope.move</code>, and <code>Context.export</code> act on the session’s user
-allocations. Compile-time
-allocations belong to the evaluator session. The evaluator keeps its own
-bindings, automatic storage, and session state in a separate Scope, so a
-release in meta code frees only what meta code allocated. A returned
-collection can be consumed by another meta function while the session is
-alive; it does not become a pointer to the eventual program’s heap. Struct
-locals and address-taken locals are released when their function returns,
-as described in <a href="#c-objects-during-compilation">C objects during compilation</a>.
-A local address is useful within the calculation, not a portable constant
-address to embed in C.
-As in C, a value built inside a region must not be kept, in a meta global
-or a Lisp definition, after that region is released.</p>
-<p>The emitted runtime function still follows the runtime’s ownership rules.
-Evaluator cleanup does not add cleanup to that function. In particular,
-allocating scratch collections in a dual-form body does not by itself prove
-that repeated runtime calls have the desired lifetime behavior.</p>
-<p>Ordinary file-scope variables remain unavailable, directly or through another
-function. Mark one <code>meta static</code> when compile-time access is intended. Its
-evaluator instance uses a separate per-unit table and does not expose future
-runtime state. Compiler-only functions that reach compiler operations use the
-same isolated table.</p>
+<p>Meta code manages lifetimes with the same operations as native code, and
+they mean the same thing: a compile-time call runs inside a Scope the
+compiler opens for it, and a returned collection belongs to the compiler,
+not to the eventual program’s heap. As in C, a value built inside a region
+must not be kept, in a <code>meta static</code> or a Lisp definition, after that
+region is released.</p>
+<p>A file-scope variable a <code>meta</code> body reads is the compiled group’s own copy,
+initialized as the declaration says; it does not expose future runtime
+state. Mark it <code>meta static</code> to say that compile-time code owns it.</p>
 <h2 id="results-compute-or-insert"><a class="header" href="#results-compute-or-insert">Results: compute or insert</a></h2>
-<p>A meta function can pass and return numeric, collection and callable values
-inside the evaluator. Inserting a result into the program adds a separate
-requirement: the compiler must construct code representing that value.</p>
+<p>A meta function can pass and return any value to another meta function.
+Inserting a result into the program adds a separate requirement: the
+compiler must construct code representing that value.</p>
 <div class="table-wrapper">
 <table>
 <thead>
@@ -1079,8 +909,8 @@ requirement: the compiler must construct code representing that value.</p>
 <tr><td>Boxed <code>Var</code></td><td>Insertion follows the contained value.</td></tr>
 <tr><td><code>{}</code> stored in a <code>Var</code></td><td>A fresh empty Map, as in compiled code; inserted like any other Map.</td></tr>
 <tr><td><code>Array</code> or <code>Map</code>, nested at any depth</td><td>Constructs fresh collections through the ordinary literal constructors.</td></tr>
-<tr><td>Struct value</td><td>Diagnosed; the compiler cannot write a struct value as code.</td></tr>
-<tr><td><code>Func</code> or arbitrary native address</td><td>No direct materialization of the evaluator object.</td></tr>
+<tr><td>Struct value, C <code>bool</code> or pointer</td><td>Diagnosed; the value has no Var form.</td></tr>
+<tr><td><code>Func</code></td><td>No direct materialization of the compiler’s object.</td></tr>
 </tbody>
 </table>
 </div>
@@ -1116,29 +946,17 @@ calls at runtime:</p>
 </code></pre>
 <p>Floating constants retain their binary value using hexadecimal literals;
 nonfinite values use the native compiler’s infinity/NaN expressions.
-The remaining container work must account for identity, shared references,
-mutation and ownership. A pointer into the evaluator is never a valid address
-to embed in the future program.</p>
+A pointer into the compiler is never a valid address to embed in the future
+program.</p>
 <h2 id="compile-time-arithmetic-and-evidence"><a class="header" href="#compile-time-arithmetic-and-evidence">Compile-time arithmetic and evidence</a></h2>
-<p>Native scalar conversions are applied at typed declarations, assignments,
-casts, arguments between meta functions and returns. Array/List and
-Symbol/String conversions also have explicit support. This does not make
-all casts meaningful: reinterpreting an address is not supported. A pointer
-plus or minus an integer moves by whole elements.</p>
-<p>The <code>meta-differential</code> compiler fixture checks selected narrow/unsigned
+<p>Compile-time code is compiled by the same backend with the same C compiler
+as the program, so its arithmetic, conversions and casts are the program’s.
+The <code>meta-differential</code> compiler fixture checks narrow and unsigned
 arithmetic, wide intermediate values, floating operations and conversions
-against runtime calls. The <code>comptime-lowering</code>, <code>meta-import</code> and
-<code>meta-cursors</code> fixtures cover collections, callable values, local addresses,
-method chaining and iteration. They do not prove every operation/type
-combination equivalent. The <code>meta-records</code> and <code>meta-record-*</code> fixtures
-cover struct layout, copies and addresses, <code>meta-heap-objects</code> covers
-<code>sizeof</code> and heap structs, and the <code>meta-native-*</code> fixtures
-cover native calls. The <code>meta-numeric-lowering</code> fixture checks numeric
-suffixes and array element conversions against runtime results. Other array
-conversions, extended-precision parity, all callback signatures and resource
-lifetimes are not covered. This catalog covers the installed operation
-surface and identified lowering boundaries, not an exhaustive proof of every
-combination of C and <span class="x2c-wordmark">x2c</span> syntax.</p>
+against runtime calls. The <code>comptime-lowering</code>, <code>meta-native-constructs</code>,
+<code>meta-import</code> and <code>meta-cursors</code> fixtures cover collections, callable
+values, local addresses, C constructs, method chaining and iteration; the
+<code>meta-records</code> and <code>meta-heap-objects</code> fixtures cover structs and the heap.</p>
 <h2 id="from-values-to-code"><a class="header" href="#from-values-to-code">From values to code</a></h2>
 <p>So far we have passed values in and calculated values out. A macro works
 with the code being compiled. A <code>meta</code> function can take that code as a
@@ -1157,8 +975,8 @@ for text and location queries; constructed subtrees do not acquire it.</p>
 </span><span class="line">
 </span><span class="line"><span style="--shiki-light:#D73A49;--shiki-dark:#E9E5DF">typedef</span><span style="--shiki-light:#D73A49;--shiki-dark:#F0ADA1"> struct</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF"> Point { </span><span style="--shiki-light:#D73A49;--shiki-dark:#F0ADA1">int</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF"> x, y, z; } Point;</span>
 </span><span class="line">
-</span><span class="line"><span style="--shiki-light:#D73A49;--shiki-dark:#F0ADA1">meta</span><span style="--shiki-light:#D73A49;--shiki-dark:#F0ADA1"> static</span><span style="--shiki-light:#007C8A;--shiki-dark:#29D3E2"> List</span><span style="--shiki-light:#6F42C1;--shiki-dark:#E9E5DF"> field_count</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">(</span><span style="--shiki-light:#007C8A;--shiki-dark:#29D3E2">List</span><span style="--shiki-light:#E36209;--shiki-dark:#E9E5DF"> receiver</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">) </span><span style="--shiki-light:#A626A4;--shiki-light-font-weight:bold;--shiki-dark:#FF4FD8;--shiki-dark-font-weight:bold">=&gt;</span>
-</span><span class="line"><span style="--shiki-light:#6F42C1;--shiki-dark:#E9E5DF">  x2c_literal_int</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">(</span><span style="--shiki-light:#6F42C1;--shiki-dark:#E9E5DF">x2c_type_fields</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">(</span><span style="--shiki-light:#6F42C1;--shiki-dark:#E9E5DF">x2c_syntax_type</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">(receiver)).</span><span style="--shiki-light:#6F42C1;--shiki-dark:#E9E5DF">len</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">());</span>
+</span><span class="line"><span style="--shiki-light:#D73A49;--shiki-dark:#F0ADA1">meta</span><span style="--shiki-light:#D73A49;--shiki-dark:#F0ADA1"> static</span><span style="--shiki-light:#007C8A;--shiki-dark:#29D3E2"> List</span><span style="--shiki-light:#6F42C1;--shiki-dark:#E9E5DF"> field_count</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">(TypeInfo </span><span style="--shiki-light:#E36209;--shiki-dark:#E9E5DF">type</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">) </span><span style="--shiki-light:#A626A4;--shiki-light-font-weight:bold;--shiki-dark:#FF4FD8;--shiki-dark-font-weight:bold">=&gt;</span>
+</span><span class="line"><span style="--shiki-light:#6F42C1;--shiki-dark:#E9E5DF">  x2c_literal_int</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">(((</span><span style="--shiki-light:#007C8A;--shiki-dark:#29D3E2">List</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">) type.</span><span style="--shiki-light:#6F42C1;--shiki-dark:#E9E5DF">assoc</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">(</span><span style="--shiki-light:#24292E;--shiki-dark:#FF715A">&lt;</span><span style="--shiki-light:#005CC5;--shiki-dark:#E9E5DF">fields</span><span style="--shiki-light:#24292E;--shiki-dark:#FF715A">&gt;</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">)).</span><span style="--shiki-light:#6F42C1;--shiki-dark:#E9E5DF">len</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">());</span>
 </span><span class="line">
 </span><span class="line"><span style="--shiki-light:#A626A4;--shiki-light-font-weight:bold;--shiki-dark:#FF4FD8;--shiki-dark-font-weight:bold">macro</span><span style="--shiki-light:#A15C00;--shiki-light-font-style:italic;--shiki-dark:#FFB454;--shiki-dark-font-style:italic"> Expression</span><span style="--shiki-light:#24292E;--shiki-dark:#FF715A"> $</span><span style="--shiki-light:#6F42C1;--shiki-dark:#FF715A">probe.count</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">(</span><span style="--shiki-light:#A15C00;--shiki-light-font-style:italic;--shiki-dark:#FFB454;--shiki-dark-font-style:italic">Expr</span><span style="--shiki-light:#24292E;--shiki-dark:#FF715A"> $</span><span style="--shiki-light:#E36209;--shiki-dark:#E9E5DF">value</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">) </span><span style="--shiki-light:#A626A4;--shiki-light-font-weight:bold;--shiki-dark:#FF4FD8;--shiki-dark-font-weight:bold">=&gt;</span><span style="--shiki-light:#24292E;--shiki-dark:#FF715A"> $</span><span style="--shiki-light:#6F42C1;--shiki-dark:#FF715A">field_count</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">(</span><span style="--shiki-light:#24292E;--shiki-dark:#FF715A">$</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">value);</span>
 </span><span class="line">
@@ -1173,11 +991,23 @@ for text and location queries; constructed subtrees do not acquire it.</p>
 <p>The macro body is one call and nothing else. That is the usual shape: the
 macro declares the holes and the result kind, and the <code>meta</code> function does
 the work.</p>
+<p><code>field_count</code> declares its parameter <code>TypeInfo</code>, so it receives a description
+of the argument’s type rather than its code. The compiler computes that
+description at the <code>$</code> call:</p>
+<pre><code class="language-text">((name "Point") (kind struct) (type ("Point"))
+ (fields (("x" (int)) ("y" (int)) ("z" (int)))) (methods ()))
+</code></pre>
+<p><code>name</code> is the type’s name, or <code>""</code> when it has none. <code>kind</code> is <code>struct</code>,
+<code>union</code>, <code>enum</code>, <code>pointer</code>, <code>scalar</code> or <code>other</code>. <code>type</code> is the canonical
+type, and <code>fields</code> lists the <code>(name type)</code> rows of a struct or union’s
+named fields in declaration order. <code>methods</code> lists the names of the type’s
+direct dotted methods. Read a part with <code>List.assoc</code>. Pass the same hole twice when a function needs both the code
+and its type, as <code>shape_reads</code> does below.</p>
 <p>What the function returns decides what the expansion is. A <code>List</code> one of the
 compiler operations built represents code. <code>x2c_literal_int</code>, <code>x2c_literal_string</code>
 and <code>x2c_literal_symbol</code> each return an expression holding a value.</p>
 <h2 id="source-templates-from-meta-functions"><a class="header" href="#source-templates-from-meta-functions">Source templates from meta functions</a></h2>
-<p>A Unit or Statement macro used as an expression inside a meta function
+<p>A Unit or Stmt macro used as an expression inside a meta function
 constructs a deferred template invocation. Its arguments are values computed
 by the meta function. The returned code expands when inserted into the
 program, using ordinary macro substitution, scope and binding rules.
@@ -1205,16 +1035,126 @@ Expression macros retain their usual expansion behavior.</p>
 <code>...</code> inserts a sequence of nodes. It does not return an already expanded
 function declaration for the helper to inspect. Name, Type, parameter and
 statement captures still follow the source macro’s declared hole kinds.</p>
-<p>The reverse gradient generator in <code>lib/autodiff.xmacro</code> uses this pattern.
-Its <code>ad_reverse_function</code> returns an invocation of the <code>ad.gradient</code> source
+<p>A decorator can make that choice from the function it captures. Here the
+<code>meta</code> helper selects one of two named Stmt templates, then the decorator
+inserts the selected invocation into the function body:</p>
+<pre class="shiki shiki-themes x2c-light x2c-dark x2c-code" style="--shiki-light:#24292e;--shiki-dark:#e9e5df;--shiki-light-bg:#fff;--shiki-dark-bg:#101011" tabindex="0"><code class="language-x2c no-highlight"><span class="line"><span style="--shiki-light:#D73A49;--shiki-dark:#F0ADA1">#include</span><span style="--shiki-light:#032F62;--shiki-dark:#9EDFB8"> "x2c.x"</span>
+</span><span class="line"><span style="--shiki-light:#D73A49;--shiki-dark:#F0ADA1">#include</span><span style="--shiki-light:#032F62;--shiki-dark:#9EDFB8"> "meta.x"</span>
+</span><span class="line">
+</span><span class="line"><span style="--shiki-light:#D73A49;--shiki-dark:#F0ADA1">static</span><span style="--shiki-light:#D73A49;--shiki-dark:#F0ADA1"> int</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF"> calls </span><span style="--shiki-light:#D73A49;--shiki-dark:#E9E5DF">=</span><span style="--shiki-light:#005CC5;--shiki-dark:#A9C9F5"> 0</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">;</span>
+</span><span class="line">
+</span><span class="line"><span style="--shiki-light:#A626A4;--shiki-light-font-weight:bold;--shiki-dark:#FF4FD8;--shiki-dark-font-weight:bold">macro</span><span style="--shiki-light:#A15C00;--shiki-light-font-style:italic;--shiki-dark:#FFB454;--shiki-dark-font-style:italic"> Stmt</span><span style="--shiki-light:#24292E;--shiki-dark:#FF715A"> $</span><span style="--shiki-light:#6F42C1;--shiki-dark:#FF715A">counted</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">(</span><span style="--shiki-light:#A15C00;--shiki-light-font-style:italic;--shiki-dark:#FFB454;--shiki-dark-font-style:italic">Stmt</span><span style="--shiki-light:#24292E;--shiki-dark:#FF715A"> $</span><span style="--shiki-light:#E36209;--shiki-dark:#E9E5DF">body</span><span style="--shiki-light:#24292E;--shiki-dark:#FF715A">...</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">) {</span>
+</span><span class="line"><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">  calls</span><span style="--shiki-light:#D73A49;--shiki-dark:#E9E5DF">++</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">;</span>
+</span><span class="line"><span style="--shiki-light:#24292E;--shiki-dark:#FF715A">  $</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">body</span><span style="--shiki-light:#24292E;--shiki-dark:#FF715A">...</span>
+</span><span class="line"><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">}</span>
+</span><span class="line">
+</span><span class="line"><span style="--shiki-light:#A626A4;--shiki-light-font-weight:bold;--shiki-dark:#FF4FD8;--shiki-dark-font-weight:bold">macro</span><span style="--shiki-light:#A15C00;--shiki-light-font-style:italic;--shiki-dark:#FFB454;--shiki-dark-font-style:italic"> Stmt</span><span style="--shiki-light:#24292E;--shiki-dark:#FF715A"> $</span><span style="--shiki-light:#6F42C1;--shiki-dark:#FF715A">plain</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">(</span><span style="--shiki-light:#A15C00;--shiki-light-font-style:italic;--shiki-dark:#FFB454;--shiki-dark-font-style:italic">Stmt</span><span style="--shiki-light:#24292E;--shiki-dark:#FF715A"> $</span><span style="--shiki-light:#E36209;--shiki-dark:#E9E5DF">body</span><span style="--shiki-light:#24292E;--shiki-dark:#FF715A">...</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">) {</span>
+</span><span class="line"><span style="--shiki-light:#24292E;--shiki-dark:#FF715A">  $</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">body</span><span style="--shiki-light:#24292E;--shiki-dark:#FF715A">...</span>
+</span><span class="line"><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">}</span>
+</span><span class="line">
+</span><span class="line"><span style="--shiki-light:#D73A49;--shiki-dark:#F0ADA1">meta</span><span style="--shiki-light:#D73A49;--shiki-dark:#F0ADA1"> static</span><span style="--shiki-light:#007C8A;--shiki-dark:#29D3E2"> List</span><span style="--shiki-light:#6F42C1;--shiki-dark:#E9E5DF"> choose_body</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">(</span><span style="--shiki-light:#007C8A;--shiki-dark:#29D3E2">List</span><span style="--shiki-light:#E36209;--shiki-dark:#E9E5DF"> function</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">) {</span>
+</span><span class="line"><span style="--shiki-light:#007C8A;--shiki-dark:#29D3E2">  List</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF"> body </span><span style="--shiki-light:#D73A49;--shiki-dark:#E9E5DF">=</span><span style="--shiki-light:#6F42C1;--shiki-dark:#E9E5DF"> x2c_function_body</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">(function);</span>
+</span><span class="line"><span style="--shiki-light:#007C8A;--shiki-dark:#29D3E2">  String</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF"> name </span><span style="--shiki-light:#D73A49;--shiki-dark:#E9E5DF">=</span><span style="--shiki-light:#6F42C1;--shiki-dark:#E9E5DF"> x2c_function_name</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">(function);</span>
+</span><span class="line"><span style="--shiki-light:#007C8A;--shiki-dark:#29D3E2">  List</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF"> node </span><span style="--shiki-light:#D73A49;--shiki-dark:#E9E5DF">=</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF"> name </span><span style="--shiki-light:#D73A49;--shiki-dark:#E9E5DF">==</span><span style="--shiki-light:#032F62;--shiki-dark:#9EDFB8"> "tracked"</span><span style="--shiki-light:#D73A49;--shiki-dark:#E9E5DF"> ?</span><span style="--shiki-light:#24292E;--shiki-dark:#FF715A"> $</span><span style="--shiki-light:#6F42C1;--shiki-dark:#FF715A">counted</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">(body) </span><span style="--shiki-light:#D73A49;--shiki-dark:#E9E5DF">:</span><span style="--shiki-light:#24292E;--shiki-dark:#FF715A"> $</span><span style="--shiki-light:#6F42C1;--shiki-dark:#FF715A">plain</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">(body);</span>
+</span><span class="line"><span style="--shiki-light:#D73A49;--shiki-dark:#F0ADA1">  return</span><span style="--shiki-light:#24292E;--shiki-dark:#FF715A"> %($</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">node</span><span style="--shiki-light:#24292E;--shiki-dark:#FF715A">)</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">;</span>
+</span><span class="line"><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">}</span>
+</span><span class="line">
+</span><span class="line"><span style="--shiki-light:#A626A4;--shiki-light-font-weight:bold;--shiki-dark:#FF4FD8;--shiki-dark-font-weight:bold">macro</span><span style="--shiki-light:#A15C00;--shiki-light-font-style:italic;--shiki-dark:#FFB454;--shiki-dark-font-style:italic"> Decorator</span><span style="--shiki-light:#24292E;--shiki-dark:#FF715A"> $</span><span style="--shiki-light:#6F42C1;--shiki-dark:#FF715A">count_if_tracked</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">(</span><span style="--shiki-light:#A15C00;--shiki-light-font-style:italic;--shiki-dark:#FFB454;--shiki-dark-font-style:italic">Function</span><span style="--shiki-light:#24292E;--shiki-dark:#FF715A"> $</span><span style="--shiki-light:#E36209;--shiki-dark:#E9E5DF">function</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">) {</span>
+</span><span class="line"><span style="--shiki-light:#24292E;--shiki-dark:#FF715A">  $</span><span style="--shiki-light:#6F42C1;--shiki-dark:#FF715A">choose_body</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">(</span><span style="--shiki-light:#24292E;--shiki-dark:#FF715A">$</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">function)...</span>
+</span><span class="line"><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">}</span>
+</span><span class="line">
+</span><span class="line"><span style="--shiki-light:#24292E;--shiki-dark:#FF715A">$</span><span style="--shiki-light:#6F42C1;--shiki-dark:#FF715A">count_if_tracked</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">()</span>
+</span><span class="line"><span style="--shiki-light:#D73A49;--shiki-dark:#F0ADA1">static</span><span style="--shiki-light:#D73A49;--shiki-dark:#F0ADA1"> int</span><span style="--shiki-light:#6F42C1;--shiki-dark:#E9E5DF"> tracked</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">(</span><span style="--shiki-light:#D73A49;--shiki-dark:#F0ADA1">void</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">) { </span><span style="--shiki-light:#D73A49;--shiki-dark:#F0ADA1">return</span><span style="--shiki-light:#005CC5;--shiki-dark:#A9C9F5"> 7</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">; }</span>
+</span><span class="line">
+</span><span class="line"><span style="--shiki-light:#24292E;--shiki-dark:#FF715A">$</span><span style="--shiki-light:#6F42C1;--shiki-dark:#FF715A">count_if_tracked</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">()</span>
+</span><span class="line"><span style="--shiki-light:#D73A49;--shiki-dark:#F0ADA1">static</span><span style="--shiki-light:#D73A49;--shiki-dark:#F0ADA1"> int</span><span style="--shiki-light:#6F42C1;--shiki-dark:#E9E5DF"> ordinary</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">(</span><span style="--shiki-light:#D73A49;--shiki-dark:#F0ADA1">void</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">) { </span><span style="--shiki-light:#D73A49;--shiki-dark:#F0ADA1">return</span><span style="--shiki-light:#005CC5;--shiki-dark:#A9C9F5"> 9</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">; }</span>
+</span><span class="line">
+</span><span class="line"><span style="--shiki-light:#D73A49;--shiki-dark:#F0ADA1">int</span><span style="--shiki-light:#6F42C1;--shiki-dark:#E9E5DF"> main</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">(</span><span style="--shiki-light:#D73A49;--shiki-dark:#F0ADA1">void</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">) {</span>
+</span><span class="line"><span style="--shiki-light:#6F42C1;--shiki-dark:#E9E5DF">  printf</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">(</span><span style="--shiki-light:#032F62;--shiki-dark:#9EDFB8">"</span><span style="--shiki-light:#005CC5;--shiki-dark:#9EDFB8">%d</span><span style="--shiki-light:#005CC5;--shiki-dark:#9EDFB8"> %d</span><span style="--shiki-light:#005CC5;--shiki-dark:#9EDFB8"> %d\n</span><span style="--shiki-light:#032F62;--shiki-dark:#9EDFB8">"</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">, </span><span style="--shiki-light:#6F42C1;--shiki-dark:#E9E5DF">tracked</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">(), </span><span style="--shiki-light:#6F42C1;--shiki-dark:#E9E5DF">ordinary</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">(), calls);</span>
+</span><span class="line"><span style="--shiki-light:#D73A49;--shiki-dark:#F0ADA1">  return</span><span style="--shiki-light:#005CC5;--shiki-dark:#A9C9F5"> 0</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">;</span>
+</span><span class="line"><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">}</span></span></code></pre>
+
+<pre><code class="language-text">7 9 1
+</code></pre>
+<p><code>choose_body</code> runs while the compiler expands the decorator. It reads the
+captured function, computes the choice, and returns a deferred invocation.
+The chosen template expands when the returned code is inserted. Its body
+capture becomes the function’s statements; <code>calls++</code> runs only when <code>tracked</code>
+is called at runtime. The template names are known in source, while <code>meta</code>
+chooses which one to use for each function.</p>
+<p>The reverse gradient generator in <code>packages/autodiff/src/autodiff.xmacro</code>
+uses this pattern.
+Its <code>ad_reverse_with</code> returns an invocation of the <code>ad.gradient</code> source
 macro. The macro contains the generated function declaration, tape storage,
 reverse-pass label and cleanup. Meta helpers compute the parameter and
 statement sequences. The macro owns the fresh scratch names and passes those
 same names to the fragment helpers, keeping all generated references in the
 intended function scope.</p>
+<h2 id="quoting-code-with-"><a class="header" href="#quoting-code-with-">Quoting code with <code>$!</code></a></h2>
+<p>A template that a <code>meta</code> function uses once can be written where it is used.
+<code>$!( expression )</code> builds an expression, <code>$!{ items }</code> builds statements, and
+<code>$!Unit{ ... }</code>, <code>$!Field{ ... }</code>, or another category name before the braces
+builds that kind of code. A <code>$name</code> inside names the function’s local
+<code>name</code> and inserts its value: syntax where the position takes syntax, and a
+number, String, or Symbol as a literal. <code>$name...</code> splices a <code>List</code> local.
+Each local’s first position decides what it fills.</p>
+<pre class="shiki shiki-themes x2c-light x2c-dark x2c-code" style="--shiki-light:#24292e;--shiki-dark:#e9e5df;--shiki-light-bg:#fff;--shiki-dark-bg:#101011" tabindex="0"><code class="language-x2c no-highlight"><span class="line"><span style="--shiki-light:#D73A49;--shiki-dark:#F0ADA1">#include</span><span style="--shiki-light:#032F62;--shiki-dark:#9EDFB8"> "x2c.x"</span>
+</span><span class="line"><span style="--shiki-light:#D73A49;--shiki-dark:#F0ADA1">#include</span><span style="--shiki-light:#032F62;--shiki-dark:#9EDFB8"> "meta.x"</span>
+</span><span class="line">
+</span><span class="line"><span style="--shiki-light:#D73A49;--shiki-dark:#F0ADA1">meta</span><span style="--shiki-light:#D73A49;--shiki-dark:#F0ADA1"> static</span><span style="--shiki-light:#007C8A;--shiki-dark:#29D3E2"> List</span><span style="--shiki-light:#6F42C1;--shiki-dark:#E9E5DF"> numbered</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">(</span><span style="--shiki-light:#007C8A;--shiki-dark:#29D3E2">List</span><span style="--shiki-light:#E36209;--shiki-dark:#E9E5DF"> subject</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">, </span><span style="--shiki-light:#007C8A;--shiki-dark:#29D3E2">List</span><span style="--shiki-light:#E36209;--shiki-dark:#E9E5DF"> arms</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">) {</span>
+</span><span class="line"><span style="--shiki-light:#007C8A;--shiki-dark:#29D3E2">  Array</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF"> cases </span><span style="--shiki-light:#D73A49;--shiki-dark:#E9E5DF">=</span><span style="--shiki-light:#D73A49;--shiki-dark:#F0ADA1"> []</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">;</span>
+</span><span class="line"><span style="--shiki-light:#D73A49;--shiki-dark:#F0ADA1">  int</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF"> index </span><span style="--shiki-light:#D73A49;--shiki-dark:#E9E5DF">=</span><span style="--shiki-light:#005CC5;--shiki-dark:#A9C9F5"> 0</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">;</span>
+</span><span class="line"><span style="--shiki-light:#A626A4;--shiki-light-font-weight:bold;--shiki-dark:#FF4FD8;--shiki-dark-font-weight:bold">  foreach</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF"> (</span><span style="--shiki-light:#007C8A;--shiki-dark:#29D3E2">List</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF"> arm, arms) {</span>
+</span><span class="line"><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">    cases.</span><span style="--shiki-light:#6F42C1;--shiki-dark:#E9E5DF">push</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">($</span><span style="--shiki-light:#D73A49;--shiki-dark:#E9E5DF">!</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">{ </span><span style="--shiki-light:#D73A49;--shiki-dark:#F0ADA1">if</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF"> (</span><span style="--shiki-light:#24292E;--shiki-dark:#FF715A">$</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">subject </span><span style="--shiki-light:#D73A49;--shiki-dark:#E9E5DF">==</span><span style="--shiki-light:#24292E;--shiki-dark:#FF715A"> $</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">index) </span><span style="--shiki-light:#24292E;--shiki-dark:#FF715A">$</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">arm });</span>
+</span><span class="line"><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">    index</span><span style="--shiki-light:#D73A49;--shiki-dark:#E9E5DF">++</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">;</span>
+</span><span class="line"><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">  }</span>
+</span><span class="line"><span style="--shiki-light:#D73A49;--shiki-dark:#F0ADA1">  return</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF"> cases.</span><span style="--shiki-light:#6F42C1;--shiki-dark:#E9E5DF">list_free</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">();</span>
+</span><span class="line"><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">}</span>
+</span><span class="line">
+</span><span class="line"><span style="--shiki-light:#A626A4;--shiki-light-font-weight:bold;--shiki-dark:#FF4FD8;--shiki-dark-font-weight:bold">macro</span><span style="--shiki-light:#A15C00;--shiki-light-font-style:italic;--shiki-dark:#FFB454;--shiki-dark-font-style:italic"> Stmt</span><span style="--shiki-light:#24292E;--shiki-dark:#FF715A"> $</span><span style="--shiki-light:#6F42C1;--shiki-dark:#FF715A">choose</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">(</span><span style="--shiki-light:#A15C00;--shiki-light-font-style:italic;--shiki-dark:#FFB454;--shiki-dark-font-style:italic">Expr</span><span style="--shiki-light:#24292E;--shiki-dark:#FF715A"> $</span><span style="--shiki-light:#E36209;--shiki-dark:#E9E5DF">subject</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">, </span><span style="--shiki-light:#A15C00;--shiki-light-font-style:italic;--shiki-dark:#FFB454;--shiki-dark-font-style:italic">Stmt</span><span style="--shiki-light:#24292E;--shiki-dark:#FF715A"> $</span><span style="--shiki-light:#E36209;--shiki-dark:#E9E5DF">arms</span><span style="--shiki-light:#24292E;--shiki-dark:#FF715A">...</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">) {</span>
+</span><span class="line"><span style="--shiki-light:#24292E;--shiki-dark:#FF715A">  $</span><span style="--shiki-light:#6F42C1;--shiki-dark:#FF715A">numbered</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">(</span><span style="--shiki-light:#24292E;--shiki-dark:#FF715A">$</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">subject, </span><span style="--shiki-light:#24292E;--shiki-dark:#FF715A">$</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">arms)...</span>
+</span><span class="line"><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">}</span>
+</span><span class="line">
+</span><span class="line"><span style="--shiki-light:#D73A49;--shiki-dark:#F0ADA1">int</span><span style="--shiki-light:#6F42C1;--shiki-dark:#E9E5DF"> main</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">(</span><span style="--shiki-light:#D73A49;--shiki-dark:#F0ADA1">void</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">) {</span>
+</span><span class="line"><span style="--shiki-light:#D73A49;--shiki-dark:#F0ADA1">  int</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF"> pick </span><span style="--shiki-light:#D73A49;--shiki-dark:#E9E5DF">=</span><span style="--shiki-light:#005CC5;--shiki-dark:#A9C9F5"> 1</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">;</span>
+</span><span class="line"><span style="--shiki-light:#24292E;--shiki-dark:#FF715A">  $</span><span style="--shiki-light:#6F42C1;--shiki-dark:#FF715A">choose</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">(pick, </span><span style="--shiki-light:#6F42C1;--shiki-dark:#E9E5DF">printf</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">(</span><span style="--shiki-light:#032F62;--shiki-dark:#9EDFB8">"zero</span><span style="--shiki-light:#005CC5;--shiki-dark:#9EDFB8">\n</span><span style="--shiki-light:#032F62;--shiki-dark:#9EDFB8">"</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">);, </span><span style="--shiki-light:#6F42C1;--shiki-dark:#E9E5DF">printf</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">(</span><span style="--shiki-light:#032F62;--shiki-dark:#9EDFB8">"one</span><span style="--shiki-light:#005CC5;--shiki-dark:#9EDFB8">\n</span><span style="--shiki-light:#032F62;--shiki-dark:#9EDFB8">"</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">);, </span><span style="--shiki-light:#6F42C1;--shiki-dark:#E9E5DF">printf</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">(</span><span style="--shiki-light:#032F62;--shiki-dark:#9EDFB8">"two</span><span style="--shiki-light:#005CC5;--shiki-dark:#9EDFB8">\n</span><span style="--shiki-light:#032F62;--shiki-dark:#9EDFB8">"</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">););</span>
+</span><span class="line"><span style="--shiki-light:#D73A49;--shiki-dark:#F0ADA1">  return</span><span style="--shiki-light:#005CC5;--shiki-dark:#A9C9F5"> 0</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">;</span>
+</span><span class="line"><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">}</span></span></code></pre>
+
+<pre><code class="language-text">one
+</code></pre>
+<p>A quotation is an anonymous macro applied at once to the locals its body
+names, so it follows the same rules as any template: arguments arrive as the
+syntax or values the locals hold, names the body declares are private to the
+expansion, and other names resolve where the code lands. It keeps nothing
+from the function once it has been applied. Inside a <code>%(...)</code> List, <code>$</code>
+inserts a value, so bind a quotation to a local first and insert the local.
+A <code>$name...</code> sequence splices into call arguments, braced initializers such
+as <code>$!( { $items... } )</code> or <code>(T){ $first, $rest... }</code>, and <code>%[$items...]</code>
+Array literals; Map entries splice as <code>%{${$rows...}}</code>.
+A quotation expands where code is bound, spliced, or resolved: return it,
+pass it to a slot, or use it as another quotation’s hole. A quotation inside
+hand-built expression syntax, such as a call’s argument list or a declaration
+initializer, expands when the compiler resolves that expression.</p>
+<p>A local declared <code>Type</code> fills a type position, which lets a quotation
+declare a variable whose type it computes:</p>
+<!-- ignore: a meta function fragment without its includes -->
+<pre class="shiki shiki-themes x2c-light x2c-dark x2c-code" style="--shiki-light:#24292e;--shiki-dark:#e9e5df;--shiki-light-bg:#fff;--shiki-dark-bg:#101011" tabindex="0"><code class="language-x2c no-highlight ignore"><span class="line"><span style="--shiki-light:#D73A49;--shiki-dark:#F0ADA1">meta</span><span style="--shiki-light:#D73A49;--shiki-dark:#F0ADA1"> static</span><span style="--shiki-light:#007C8A;--shiki-dark:#29D3E2"> List</span><span style="--shiki-light:#6F42C1;--shiki-dark:#E9E5DF"> counter</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">(</span><span style="--shiki-light:#007C8A;--shiki-dark:#29D3E2">String</span><span style="--shiki-light:#E36209;--shiki-dark:#E9E5DF"> name</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">) {</span>
+</span><span class="line"><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">  Type type </span><span style="--shiki-light:#D73A49;--shiki-dark:#E9E5DF">=</span><span style="--shiki-light:#24292E;--shiki-dark:#FF715A"> %(</span><span style="--shiki-light:#005CC5;--shiki-dark:#E9E5DF">unsigned</span><span style="--shiki-light:#24292E;--shiki-dark:#FF715A">)</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">;</span>
+</span><span class="line"><span style="--shiki-light:#D73A49;--shiki-dark:#F0ADA1">  return</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF"> $</span><span style="--shiki-light:#D73A49;--shiki-dark:#E9E5DF">!</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">{ </span><span style="--shiki-light:#24292E;--shiki-dark:#FF715A">$</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">type </span><span style="--shiki-light:#24292E;--shiki-dark:#FF715A">$</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">name </span><span style="--shiki-light:#D73A49;--shiki-dark:#E9E5DF">=</span><span style="--shiki-light:#005CC5;--shiki-dark:#A9C9F5"> 0</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">; };</span>
+</span><span class="line"><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">}</span></span></code></pre>
+
 <h2 id="what-the-compiler-answers"><a class="header" href="#what-the-compiler-answers">What the compiler answers</a></h2>
-<p><code>lib/meta.x</code> declares the compiler operations a <code>meta</code> function can call.
-Each is a plain function whose name is the compile-time Lisp name with <code>_</code>
+<p><code>lib/meta.x</code> declares the compiler operations. The code builders and
+<code>x2c_ident</code>, <code>x2c_function_name</code>, <code>x2c_diagnostic_fail</code> and
+<code>x2c_diagnostic_warn</code> work in every <code>meta</code> function. The queries that read
+the compiler’s symbol table, such as <code>x2c_syntax_type</code>,
+<code>x2c_type_fields</code> and <code>x2c_type_resolve</code>, run only in the compiler’s own
+<code>meta</code> code: the <code>.xmacro</code> files and <code>lib/meta.x</code> that are linked into
+the compiler. A project <code>meta</code> function receives those answers as <code>TypeInfo</code>
+and <code>Source</code> parameters instead; calling such a query from the project
+meta module reports that it is not available to project meta code. Each
+operation is a plain function whose name is the compile-time Lisp name with <code>_</code>
 for <code>.</code>, so <code>x2c.type.fields</code> is <code>x2c_type_fields</code> from <span class="x2c-wordmark">x2c</span>. They are grouped
 here by the task, not by signature; the
 <a href="../library/modules/meta.html">module reference</a> lists every declaration, and
@@ -1253,27 +1193,36 @@ node shapes by hand, so the compiler binds and types the result:</p>
 
 <pre><code class="language-text">twice 42
 </code></pre>
-<p><strong>Asking about types and fields.</strong> <code>x2c_syntax_type</code> answers the canonical
-<code>Type</code> of an expression or binding. <code>x2c_type_fields</code> answers the named
-fields of a struct or union <code>Type</code>, each as a metadata row whose first
-element is the field name. <code>x2c_type_layout</code>, <code>x2c_type_parts</code>,
-<code>x2c_type_resolve</code> and <code>x2c_type_value</code> answer the remaining
-generated-code questions. <code>x2c_method_resolve</code> answers which operation a
-member call selects. These answers live in the compiler’s symbol table, so
-a macro body cannot derive them from the code it captured.</p>
-<p><strong>Source text and location.</strong> <code>x2c_source_text</code> returns the text the
-developer wrote for a captured hole. <code>x2c_binding_spelling</code> returns the
-name a binding was declared with. <code>x2c_invocation_file</code>,
-<code>x2c_invocation_line</code> and <code>x2c_invocation_column</code> give the site of the
-macro invocation. <code>x2c_embed_text</code> reads a file beside the source and
-records it as a translation dependency.</p>
+<p><strong>Asking about types and fields.</strong> A program’s <code>meta</code> function receives a
+type as a <code>TypeInfo</code> parameter, described above, and asks the compiler
+nothing. The queries below answer the same questions for the compiler’s
+own <code>meta</code> code in <code>lib/</code>. <code>x2c_syntax_type</code> answers the canonical <code>Type</code>
+of an expression or binding. <code>x2c_type_fields</code> answers the named fields
+of a struct or union <code>Type</code>, each as a metadata row whose first element is
+the field name. <code>x2c_type_layout</code>, <code>x2c_type_resolve</code> and
+<code>x2c_type_is_value</code> answer the remaining generated-code questions.
+<code>x2c_type_parts</code> reads only the <code>Type</code> it receives, so it also works in a
+project <code>meta</code> function.
+<code>x2c_method_resolve</code> answers which operation a member call selects. These
+answers live in the compiler’s symbol table, so a macro body cannot derive
+them from the code it captured.</p>
+<p><strong>Source text and location.</strong> A parameter declared <code>Source</code> receives a
+captured hole together with the text the developer wrote for it:
+<code>((text T) (file F) (syntax S))</code>. <code>x2c_source_text</code> returns that text, and
+<code>x2c_embed_text</code> reads the file a captured <code>String</code> literal names beside
+the source that wrote it and records it as a translation dependency. Both
+read what the argument carries. <code>x2c_embed_text</code> also accepts an
+absolute <code>String</code> path.
+<code>x2c_binding_spelling</code> returns the name a binding was declared with.
+<code>x2c_invocation_file</code>, <code>x2c_invocation_line</code> and <code>x2c_invocation_column</code>
+give the site of the macro invocation.</p>
 <p><strong>Failing with a diagnostic.</strong> <code>x2c_diagnostic_fail</code> reports a message at
 the invocation and stops the expansion. It does not return. Use it when the
 argument is wrong in a way the macro can see:</p>
 <pre class="shiki shiki-themes x2c-light x2c-dark x2c-code" style="--shiki-light:#24292e;--shiki-dark:#e9e5df;--shiki-light-bg:#fff;--shiki-dark-bg:#101011" tabindex="0"><code class="language-x2c no-highlight"><span class="line"><span style="--shiki-light:#D73A49;--shiki-dark:#F0ADA1">#include</span><span style="--shiki-light:#032F62;--shiki-dark:#9EDFB8"> "x2c.x"</span>
 </span><span class="line"><span style="--shiki-light:#D73A49;--shiki-dark:#F0ADA1">#include</span><span style="--shiki-light:#032F62;--shiki-dark:#9EDFB8"> "meta.x"</span>
 </span><span class="line">
-</span><span class="line"><span style="--shiki-light:#D73A49;--shiki-dark:#F0ADA1">meta</span><span style="--shiki-light:#D73A49;--shiki-dark:#F0ADA1"> static</span><span style="--shiki-light:#007C8A;--shiki-dark:#29D3E2"> List</span><span style="--shiki-light:#6F42C1;--shiki-dark:#E9E5DF"> one_word</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">(</span><span style="--shiki-light:#007C8A;--shiki-dark:#29D3E2">Var</span><span style="--shiki-light:#E36209;--shiki-dark:#E9E5DF"> node</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">) {</span>
+</span><span class="line"><span style="--shiki-light:#D73A49;--shiki-dark:#F0ADA1">meta</span><span style="--shiki-light:#D73A49;--shiki-dark:#F0ADA1"> static</span><span style="--shiki-light:#007C8A;--shiki-dark:#29D3E2"> List</span><span style="--shiki-light:#6F42C1;--shiki-dark:#E9E5DF"> one_word</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">(Source </span><span style="--shiki-light:#E36209;--shiki-dark:#E9E5DF">node</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">) {</span>
 </span><span class="line"><span style="--shiki-light:#007C8A;--shiki-dark:#29D3E2">  String</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF"> text </span><span style="--shiki-light:#D73A49;--shiki-dark:#E9E5DF">=</span><span style="--shiki-light:#6F42C1;--shiki-dark:#E9E5DF"> x2c_source_text</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">(node);</span>
 </span><span class="line"><span style="--shiki-light:#D73A49;--shiki-dark:#F0ADA1">  if</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF"> (text.</span><span style="--shiki-light:#6F42C1;--shiki-dark:#E9E5DF">contains</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">(</span><span style="--shiki-light:#032F62;--shiki-dark:#9EDFB8">" "</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">))</span>
 </span><span class="line"><span style="--shiki-light:#6F42C1;--shiki-dark:#E9E5DF">    x2c_diagnostic_fail</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">(</span><span style="--shiki-light:#032F62;--shiki-dark:#9EDFB8">"this argument must be one word"</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">, </span><span style="--shiki-light:#24292E;--shiki-dark:#FF715A">%()</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">);</span>
@@ -1290,29 +1239,32 @@ argument is wrong in a way the macro can see:</p>
 
 <pre><code class="language-text">word seconds
 </code></pre>
-<p>The helper receives the complete capture, including the source information
-required by <code>x2c_source_text</code>. A computed subtree is code data, not a new
-source capture.</p>
+<p>The helper receives the complete capture with its source text, which
+<code>x2c_source_text</code> reads. A computed subtree is code data, not a new source
+capture, and cannot be passed as a <code>Source</code>.</p>
 <p>Writing <code>$probe.word(seconds * 2)</code> instead reports the message at that
 invocation:</p>
 <pre><code class="language-text">sample.x:15:23: macro: this argument must be one word
   printf("word %s\n", $probe.word(seconds * 2));
                       ^
 </code></pre>
-<p>Two signatures differ from the corresponding Lisp functions.
-<code>x2c_expr_call</code> takes its arguments as one <code>List</code>, and <code>x2c_type_value</code>
-returns <code>int</code>.</p>
+<p>The compiler binds each of these under its <span class="x2c-wordmark">x2c</span> name and derives the Lisp
+name from it: <code>_</code> becomes <code>.</code>, and a predicate <code>x2c_type_is_X</code> becomes
+<code>x2c.type.X?</code>. Only <code>x2c.type.tag-name</code> and <code>x2c.type.reverse-name</code>, which
+carry a hyphen, are listed by hand. Two signatures differ from the
+corresponding Lisp functions. <code>x2c_expr_call</code> takes its arguments as one
+<code>List</code>, and <code>x2c_type_is_value</code> returns <code>int</code>.</p>
 <h2 id="functions-that-need-the-compiler"><a class="header" href="#functions-that-need-the-compiler">Functions that need the compiler</a></h2>
 <p>Compiler queries exist only inside a compiler. A <code>meta</code> function that
 calls one, directly or through another <code>meta</code> function, therefore has no
 valid runtime form, and the compiler emits no definition for it. A body
-containing an explicit dollar-prefixed meta call or a source-template
-constructor is also compile-time-only, as are its meta callers. A call to
+containing a source-template constructor is also compile-time-only, as are
+its meta callers. A call to
 one from a runtime body is diagnosed where it is written. Calling
-<code>field_count</code> from an earlier section at run time gives:</p>
-<pre><code class="language-text">sample.x:19:22: macro: 'field_count' can only be called at compile time
-    int n = field_count(point);
-                       ^
+<code>one_word</code> from an earlier section at run time gives:</p>
+<pre><code class="language-text">sample.x:19:22: macro: 'one_word' can only be called at compile time
+    List n = one_word(node);
+                     ^
   note: reason: it reaches a compiler operation, so no unit emits a
   definition for it; call it from a macro or another meta function
 </code></pre>
@@ -1320,33 +1272,38 @@ one from a runtime body is diagnosed where it is written. Calling
 <code>shape_names</code> or <code>shape_reads</code>.</p>
 <p>A <code>meta</code> function that needs no compiler query, like <code>poly</code> above,
 keeps both forms and is emitted normally.</p>
+<p>The queries themselves belong to the compiler’s own <code>meta</code> code. A project
+<code>meta</code> function reaches the compiler only through what a call passes it:
+constants, captured syntax, a <code>TypeInfo</code>, or a <code>Source</code>.</p>
 <h2 id="a-complete-example"><a class="header" href="#a-complete-example">A complete example</a></h2>
 <p>Two files. The first is a <code>.xmacro</code> holding the <code>meta</code> functions and the
-macros that call them. <code>shape_fields</code> asks the compiler what a struct holds.
-<code>shape_names</code> and <code>shape_reads</code> turn that answer into code.</p>
+macros that call them. <code>shape_fields</code> reads the fields from the <code>TypeInfo</code> the
+compiler sends. <code>shape_names</code> and <code>shape_reads</code> turn them into code.</p>
 <!-- ignore: shape.xmacro is the external file being illustrated -->
 <pre class="shiki shiki-themes x2c-light x2c-dark x2c-code" style="--shiki-light:#24292e;--shiki-dark:#e9e5df;--shiki-light-bg:#fff;--shiki-dark-bg:#101011" tabindex="0"><code class="language-x2c no-highlight ignore"><span class="line"><span style="--shiki-light:#6A737D;--shiki-dark:#8B857F">/* The named fields of a struct-typed expression, in declaration order. */</span>
-</span><span class="line"><span style="--shiki-light:#D73A49;--shiki-dark:#F0ADA1">meta</span><span style="--shiki-light:#D73A49;--shiki-dark:#F0ADA1"> static</span><span style="--shiki-light:#007C8A;--shiki-dark:#29D3E2"> List</span><span style="--shiki-light:#6F42C1;--shiki-dark:#E9E5DF"> shape_fields</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">(</span><span style="--shiki-light:#007C8A;--shiki-dark:#29D3E2">List</span><span style="--shiki-light:#E36209;--shiki-dark:#E9E5DF"> receiver</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">) </span><span style="--shiki-light:#A626A4;--shiki-light-font-weight:bold;--shiki-dark:#FF4FD8;--shiki-dark-font-weight:bold">=&gt;</span>
-</span><span class="line"><span style="--shiki-light:#6F42C1;--shiki-dark:#E9E5DF">  x2c_type_fields</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">(</span><span style="--shiki-light:#6F42C1;--shiki-dark:#E9E5DF">x2c_syntax_type</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">(receiver));</span>
+</span><span class="line"><span style="--shiki-light:#D73A49;--shiki-dark:#F0ADA1">meta</span><span style="--shiki-light:#D73A49;--shiki-dark:#F0ADA1"> static</span><span style="--shiki-light:#007C8A;--shiki-dark:#29D3E2"> List</span><span style="--shiki-light:#6F42C1;--shiki-dark:#E9E5DF"> shape_fields</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">(TypeInfo </span><span style="--shiki-light:#E36209;--shiki-dark:#E9E5DF">type</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">) </span><span style="--shiki-light:#A626A4;--shiki-light-font-weight:bold;--shiki-dark:#FF4FD8;--shiki-dark-font-weight:bold">=&gt;</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF"> type.</span><span style="--shiki-light:#6F42C1;--shiki-dark:#E9E5DF">assoc</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">(</span><span style="--shiki-light:#24292E;--shiki-dark:#FF715A">&lt;</span><span style="--shiki-light:#005CC5;--shiki-dark:#E9E5DF">fields</span><span style="--shiki-light:#24292E;--shiki-dark:#FF715A">&gt;</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">);</span>
 </span><span class="line">
 </span><span class="line"><span style="--shiki-light:#6A737D;--shiki-dark:#8B857F">/* One `String` literal holding those field names, comma separated. */</span>
-</span><span class="line"><span style="--shiki-light:#D73A49;--shiki-dark:#F0ADA1">meta</span><span style="--shiki-light:#D73A49;--shiki-dark:#F0ADA1"> static</span><span style="--shiki-light:#007C8A;--shiki-dark:#29D3E2"> List</span><span style="--shiki-light:#6F42C1;--shiki-dark:#E9E5DF"> shape_names</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">(</span><span style="--shiki-light:#007C8A;--shiki-dark:#29D3E2">List</span><span style="--shiki-light:#E36209;--shiki-dark:#E9E5DF"> receiver</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">) {</span>
+</span><span class="line"><span style="--shiki-light:#D73A49;--shiki-dark:#F0ADA1">meta</span><span style="--shiki-light:#D73A49;--shiki-dark:#F0ADA1"> static</span><span style="--shiki-light:#007C8A;--shiki-dark:#29D3E2"> List</span><span style="--shiki-light:#6F42C1;--shiki-dark:#E9E5DF"> shape_names</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">(TypeInfo </span><span style="--shiki-light:#E36209;--shiki-dark:#E9E5DF">type</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">) {</span>
 </span><span class="line"><span style="--shiki-light:#007C8A;--shiki-dark:#29D3E2">  Array</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF"> names </span><span style="--shiki-light:#D73A49;--shiki-dark:#E9E5DF">=</span><span style="--shiki-light:#D73A49;--shiki-dark:#F0ADA1"> []</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">;</span>
-</span><span class="line"><span style="--shiki-light:#A626A4;--shiki-light-font-weight:bold;--shiki-dark:#FF4FD8;--shiki-dark-font-weight:bold">  foreach</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF"> (</span><span style="--shiki-light:#007C8A;--shiki-dark:#29D3E2">List</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF"> field, </span><span style="--shiki-light:#6F42C1;--shiki-dark:#E9E5DF">shape_fields</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">(receiver)) names.</span><span style="--shiki-light:#6F42C1;--shiki-dark:#E9E5DF">push</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">(field.</span><span style="--shiki-light:#6F42C1;--shiki-dark:#E9E5DF">car</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">());</span>
+</span><span class="line"><span style="--shiki-light:#A626A4;--shiki-light-font-weight:bold;--shiki-dark:#FF4FD8;--shiki-dark-font-weight:bold">  foreach</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF"> (</span><span style="--shiki-light:#007C8A;--shiki-dark:#29D3E2">List</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF"> field, </span><span style="--shiki-light:#6F42C1;--shiki-dark:#E9E5DF">shape_fields</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">(type)) names.</span><span style="--shiki-light:#6F42C1;--shiki-dark:#E9E5DF">push</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">(field.</span><span style="--shiki-light:#6F42C1;--shiki-dark:#E9E5DF">car</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">());</span>
 </span><span class="line"><span style="--shiki-light:#D73A49;--shiki-dark:#F0ADA1">  return</span><span style="--shiki-light:#6F42C1;--shiki-dark:#E9E5DF"> x2c_literal_string</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">(String.</span><span style="--shiki-light:#6F42C1;--shiki-dark:#E9E5DF">join</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">(</span><span style="--shiki-light:#032F62;--shiki-dark:#9EDFB8">", "</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">, names));</span>
 </span><span class="line"><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">}</span>
 </span><span class="line">
 </span><span class="line"><span style="--shiki-light:#6A737D;--shiki-dark:#8B857F">/* `{ p.x, p.y, p.z }`, built from the fields rather than written out. */</span>
-</span><span class="line"><span style="--shiki-light:#D73A49;--shiki-dark:#F0ADA1">meta</span><span style="--shiki-light:#D73A49;--shiki-dark:#F0ADA1"> static</span><span style="--shiki-light:#007C8A;--shiki-dark:#29D3E2"> List</span><span style="--shiki-light:#6F42C1;--shiki-dark:#E9E5DF"> shape_reads</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">(</span><span style="--shiki-light:#007C8A;--shiki-dark:#29D3E2">List</span><span style="--shiki-light:#E36209;--shiki-dark:#E9E5DF"> receiver</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">) {</span>
+</span><span class="line"><span style="--shiki-light:#D73A49;--shiki-dark:#F0ADA1">meta</span><span style="--shiki-light:#D73A49;--shiki-dark:#F0ADA1"> static</span><span style="--shiki-light:#007C8A;--shiki-dark:#29D3E2"> List</span><span style="--shiki-light:#6F42C1;--shiki-dark:#E9E5DF"> shape_reads</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">(</span><span style="--shiki-light:#007C8A;--shiki-dark:#29D3E2">List</span><span style="--shiki-light:#E36209;--shiki-dark:#E9E5DF"> receiver</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">, TypeInfo </span><span style="--shiki-light:#E36209;--shiki-dark:#E9E5DF">type</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">) {</span>
 </span><span class="line"><span style="--shiki-light:#007C8A;--shiki-dark:#29D3E2">  Array</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF"> reads </span><span style="--shiki-light:#D73A49;--shiki-dark:#E9E5DF">=</span><span style="--shiki-light:#D73A49;--shiki-dark:#F0ADA1"> []</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">;</span>
-</span><span class="line"><span style="--shiki-light:#A626A4;--shiki-light-font-weight:bold;--shiki-dark:#FF4FD8;--shiki-dark-font-weight:bold">  foreach</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF"> (</span><span style="--shiki-light:#007C8A;--shiki-dark:#29D3E2">List</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF"> field, </span><span style="--shiki-light:#6F42C1;--shiki-dark:#E9E5DF">shape_fields</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">(receiver))</span>
-</span><span class="line"><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">    reads.</span><span style="--shiki-light:#6F42C1;--shiki-dark:#E9E5DF">push</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">(</span><span style="--shiki-light:#6F42C1;--shiki-dark:#E9E5DF">x2c_expr_field</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">(receiver, field.</span><span style="--shiki-light:#6F42C1;--shiki-dark:#E9E5DF">car</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">()));</span>
-</span><span class="line"><span style="--shiki-light:#D73A49;--shiki-dark:#F0ADA1">  return</span><span style="--shiki-light:#6F42C1;--shiki-dark:#E9E5DF"> x2c_expr_composite</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">(reads);</span>
+</span><span class="line"><span style="--shiki-light:#A626A4;--shiki-light-font-weight:bold;--shiki-dark:#FF4FD8;--shiki-dark-font-weight:bold">  foreach</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF"> (</span><span style="--shiki-light:#007C8A;--shiki-dark:#29D3E2">List</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF"> field, </span><span style="--shiki-light:#6F42C1;--shiki-dark:#E9E5DF">shape_fields</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">(type)) {</span>
+</span><span class="line"><span style="--shiki-light:#007C8A;--shiki-dark:#29D3E2">    String</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF"> member </span><span style="--shiki-light:#D73A49;--shiki-dark:#E9E5DF">=</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF"> field.</span><span style="--shiki-light:#6F42C1;--shiki-dark:#E9E5DF">car</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">();</span>
+</span><span class="line"><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">    reads.</span><span style="--shiki-light:#6F42C1;--shiki-dark:#E9E5DF">push</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">($</span><span style="--shiki-light:#D73A49;--shiki-dark:#E9E5DF">!</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">( </span><span style="--shiki-light:#24292E;--shiki-dark:#FF715A">$</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">receiver.</span><span style="--shiki-light:#24292E;--shiki-dark:#FF715A">$</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">member ));</span>
+</span><span class="line"><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">  }</span>
+</span><span class="line"><span style="--shiki-light:#007C8A;--shiki-dark:#29D3E2">  List</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF"> items </span><span style="--shiki-light:#D73A49;--shiki-dark:#E9E5DF">=</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF"> reads.</span><span style="--shiki-light:#6F42C1;--shiki-dark:#E9E5DF">list_free</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">();</span>
+</span><span class="line"><span style="--shiki-light:#D73A49;--shiki-dark:#F0ADA1">  return</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF"> $</span><span style="--shiki-light:#D73A49;--shiki-dark:#E9E5DF">!</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">( { </span><span style="--shiki-light:#24292E;--shiki-dark:#FF715A">$</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">items</span><span style="--shiki-light:#24292E;--shiki-dark:#FF715A">...</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF"> } );</span>
 </span><span class="line"><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">}</span>
 </span><span class="line">
 </span><span class="line"><span style="--shiki-light:#A626A4;--shiki-light-font-weight:bold;--shiki-dark:#FF4FD8;--shiki-dark-font-weight:bold">macro</span><span style="--shiki-light:#A15C00;--shiki-light-font-style:italic;--shiki-dark:#FFB454;--shiki-dark-font-style:italic"> Expression</span><span style="--shiki-light:#24292E;--shiki-dark:#FF715A"> $</span><span style="--shiki-light:#6F42C1;--shiki-dark:#FF715A">shape.names</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">(</span><span style="--shiki-light:#A15C00;--shiki-light-font-style:italic;--shiki-dark:#FFB454;--shiki-dark-font-style:italic">Expr</span><span style="--shiki-light:#24292E;--shiki-dark:#FF715A"> $</span><span style="--shiki-light:#E36209;--shiki-dark:#E9E5DF">value</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">) </span><span style="--shiki-light:#A626A4;--shiki-light-font-weight:bold;--shiki-dark:#FF4FD8;--shiki-dark-font-weight:bold">=&gt;</span><span style="--shiki-light:#24292E;--shiki-dark:#FF715A"> $</span><span style="--shiki-light:#6F42C1;--shiki-dark:#FF715A">shape_names</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">(</span><span style="--shiki-light:#24292E;--shiki-dark:#FF715A">$</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">value);</span>
 </span><span class="line">
-</span><span class="line"><span style="--shiki-light:#A626A4;--shiki-light-font-weight:bold;--shiki-dark:#FF4FD8;--shiki-dark-font-weight:bold">macro</span><span style="--shiki-light:#A15C00;--shiki-light-font-style:italic;--shiki-dark:#FFB454;--shiki-dark-font-style:italic"> Expression</span><span style="--shiki-light:#24292E;--shiki-dark:#FF715A"> $</span><span style="--shiki-light:#6F42C1;--shiki-dark:#FF715A">shape.reads</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">(</span><span style="--shiki-light:#A15C00;--shiki-light-font-style:italic;--shiki-dark:#FFB454;--shiki-dark-font-style:italic">Expr</span><span style="--shiki-light:#24292E;--shiki-dark:#FF715A"> $</span><span style="--shiki-light:#E36209;--shiki-dark:#E9E5DF">value</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">) </span><span style="--shiki-light:#A626A4;--shiki-light-font-weight:bold;--shiki-dark:#FF4FD8;--shiki-dark-font-weight:bold">=&gt;</span><span style="--shiki-light:#24292E;--shiki-dark:#FF715A"> $</span><span style="--shiki-light:#6F42C1;--shiki-dark:#FF715A">shape_reads</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">(</span><span style="--shiki-light:#24292E;--shiki-dark:#FF715A">$</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">value);</span></span></code></pre>
+</span><span class="line"><span style="--shiki-light:#A626A4;--shiki-light-font-weight:bold;--shiki-dark:#FF4FD8;--shiki-dark-font-weight:bold">macro</span><span style="--shiki-light:#A15C00;--shiki-light-font-style:italic;--shiki-dark:#FFB454;--shiki-dark-font-style:italic"> Expression</span><span style="--shiki-light:#24292E;--shiki-dark:#FF715A"> $</span><span style="--shiki-light:#6F42C1;--shiki-dark:#FF715A">shape.reads</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">(</span><span style="--shiki-light:#A15C00;--shiki-light-font-style:italic;--shiki-dark:#FFB454;--shiki-dark-font-style:italic">Expr</span><span style="--shiki-light:#24292E;--shiki-dark:#FF715A"> $</span><span style="--shiki-light:#E36209;--shiki-dark:#E9E5DF">value</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">) </span><span style="--shiki-light:#A626A4;--shiki-light-font-weight:bold;--shiki-dark:#FF4FD8;--shiki-dark-font-weight:bold">=&gt;</span><span style="--shiki-light:#24292E;--shiki-dark:#FF715A"> $</span><span style="--shiki-light:#6F42C1;--shiki-dark:#FF715A">shape_reads</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">(</span><span style="--shiki-light:#24292E;--shiki-dark:#FF715A">$</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">value, </span><span style="--shiki-light:#24292E;--shiki-dark:#FF715A">$</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">value);</span></span></code></pre>
 
 <p>The second file imports it and uses the macros. Imports still use the
 compiler’s <code>$(import "...")</code> form; this is a loading operation, not a meta
@@ -1373,11 +1330,13 @@ reads 2 3 4
 <p>The field names never appear in the program. The compiler supplied them, and
 the <code>meta</code> functions built <code>"x, y, z"</code> and <code>{ p.x, p.y, p.z }</code> from them.</p>
 <h2 id="sharing-a-meta-function-between-units"><a class="header" href="#sharing-a-meta-function-between-units">Sharing a <code>meta</code> function between units</a></h2>
-<p>A <code>meta</code> function written in a <code>.x</code> file belongs to that unit. Including that
-file elsewhere shares its declaration, the way including any <code>.x</code> file does,
-and the declaration alone has no compile-time form: another unit can call it
-at run time, and cannot call it during translation.</p>
-<p>To share one, put it in a <code>.xmacro</code> that each unit imports. A <code>.xmacro</code> file
+<p>A bodied <code>meta</code> function may be defined in an ordinary <code>.x</code> file or in a
+<code>.xmacro</code> file. Either way the project meta build copies it into the
+project meta module. It must be written in a source file: a <code>meta</code>
+function inside a macro template, or one produced by a <code>$</code> call, is
+reported where it is written.</p>
+<p>To share a <code>meta</code> function between units, put it in a <code>.xmacro</code> that each
+unit imports. A <code>.xmacro</code> file
 may hold <code>meta</code> functions beside the macros that call them, and importing it
 installs their compile-time forms in the importing unit. The unit that imports
 the file includes <code>meta.x</code>, because a <code>.xmacro</code> borrows the consuming unit’s
@@ -1405,12 +1364,9 @@ the one copy the program links, exported by the reaching unit’s header.</p>
 <h2 id="lisp-interoperability"><a class="header" href="#lisp-interoperability">Lisp interoperability</a></h2>
 <p>Use the <span class="x2c-wordmark">x2c</span> calls above for ordinary meta work. The following notes apply
 when importing or calling Lisp helpers, or working with the compiler session.</p>
-<p>The compiler loads Lisp support into an embedded evaluator. Some loaded files
-are generated output: <code>etc/builtin-macros.xlisp</code> comes from
-<code>etc/builtin-macros.x</code> and <code>etc/builtin-core.xlisp</code> through
-<code>tools/gen-lisp-init.py</code>. Seeing Lisp in that generated file does not mean the
-algorithms still need a separate handwritten Lisp implementation. The support
-layer and the generated functions have different source owners.</p>
+<p>The compiler loads Lisp support into an embedded evaluator. The built-in
+macros’ algorithms are compiler functions (<code>src/builtins.x</code>); the Lisp in
+<code>etc/builtin-core.xlisp</code> and <code>etc/lisp-bindings.xlisp</code> only names them.</p>
 <h3 id="one-table-for-compiled-code-and-lisp"><a class="header" href="#one-table-for-compiled-code-and-lisp">One table for compiled code and Lisp</a></h3>
 <p>Compile-time Lisp calls a <code>meta</code> function by its name. A table kept as a
 <code>meta</code> function therefore serves both an inserted value and a Lisp helper
@@ -1434,8 +1390,9 @@ this way: <code>src/type.x</code> inserts it, and the <code>lib/lisp.x</code> ac
 their tags from it.</p>
 <h3 id="names-the-compile-time-library-already-defines"><a class="header" href="#names-the-compile-time-library-already-defines">Names the compile-time library already defines</a></h3>
 <p>A unit’s compile-time session inherits the compiler’s own Lisp library and
-cannot replace one of its definitions. A macro file or a <code>$(...)</code> form that
-defines an inherited name reports:</p>
+cannot replace one of its definitions. A <code>meta</code> function is installed under
+its C name, so <code>meta int add(int x)</code> reports that it could not be installed.
+A macro file or a <code>$(...)</code> form that defines an inherited name reports:</p>
 <pre><code class="language-text">sample.x:2:1: macro: compile-time Lisp evaluation failed
   $(defun filter (a b) 42)
   ^^
@@ -1476,9 +1433,9 @@ calls itself by name must be a <code>defun</code>:</p>
                         &copy; 2025&ndash;2026
                         <a href="https://flake.org">GWF</a>
                         &middot;
-                        <a href="https://github.com/gwf/x2c/blob/0351be4a4d6c00dd246e5190e8dcf5a970560beb/LICENSE">Apache 2.0</a>
+                        <a href="https://github.com/gwf/x2c/blob/2fb2e7abb7462f842903580f47a5b96c69698937/LICENSE">Apache 2.0</a>
                         &middot;
-                        <a href="https://github.com/gwf/x2c/blob/0351be4a4d6c00dd246e5190e8dcf5a970560beb/TRADEMARKS.md">Trademarks</a>
+                        <a href="https://github.com/gwf/x2c/blob/2fb2e7abb7462f842903580f47a5b96c69698937/TRADEMARKS.md">Trademarks</a>
                     </footer>
                 </div>
             </div>

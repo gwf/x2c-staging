@@ -1,6 +1,6 @@
 <!DOCTYPE HTML>
 <html lang="en" class="light sidebar-visible" dir="ltr">
-    <head><meta name="x2c-release-channel" content="staging"><meta name="x2c-candidate" content="candidate-0351be4a4d6c00dd246e5190e8dcf5a970560beb-36014113963-1">
+    <head><meta name="x2c-site-source" content="2fb2e7abb7462f842903580f47a5b96c69698937"><meta name="x2c-release-channel" content="staging"><meta name="x2c-candidate" content="candidate-0351be4a4d6c00dd246e5190e8dcf5a970560beb-36014113963-1">
         <!-- Book generated using mdBook -->
         <meta charset="UTF-8">
         <title>Implementation Map - The x2c Book</title>
@@ -39,10 +39,10 @@
             const path_to_root = "../";
             const default_light_theme = "light";
             const default_dark_theme = "light";
-            window.path_to_searchindex_js = "../searchindex-c9145dcc.js";
+            window.path_to_searchindex_js = "../searchindex-94a52d98.js";
         </script>
         <!-- Start loading toc.js asap -->
-        <script src="../toc-b37ed13f.js"></script>
+        <script src="../toc-89ef7d96.js"></script>
         <!-- x2c publication metadata -->
         <link rel="canonical" href="https://staging.x2c-lang.dev/docs/internals/implementation-map.html">
         <meta property="og:type" content="website">
@@ -257,7 +257,7 @@ that stage. Take a <code>foreach</code> loop:</p>
   (block ...)))
 </code></pre>
 <p>The built-in source macro in <code>src/macros.x</code>, <code>etc/builtin-macros.xmacro</code>, and
-<code>etc/builtin-macros.xlisp</code> has replaced <code>foreach</code> with declarations and a
+<code>src/builtins.x</code> has replaced <code>foreach</code> with declarations and a
 <code>while</code> loop that call <code>List_iter</code> and <code>Iter_try_next</code>. The final <code>List_iter</code>
 argument is a zero-initialized compound literal whose block lifetime holds the
 iterator state. The later transform pass replaces <code>total += n</code> with the
@@ -317,9 +317,16 @@ that do not fit a <code>Symbol</code></li>
 <ul>
 <li>Parse, import, hygiene, and expand: <code>src/macros.x</code></li>
 <li>Shared compile-time syntax builders: <code>lib/meta.x</code></li>
+<li>Macro values, their application, and macro-valued <code>case</code> recognition:
+<code>lib/macro-value.x</code></li>
 <li>Compile-time Lisp boundary adapters: <code>etc/compiler-sdk.xlisp</code></li>
+<li><code>meta</code> arguments and results: <code>src/stage.x</code>; a unit’s <code>meta</code> group and
+in-process staging: <code>src/meta-group.x</code>; the project helper:
+<code>src/meta-project.x</code> builds it, <code>src/meta-helper-client.x</code> calls it, and
+<code>etc/meta-helper.x</code> answers</li>
 <li>Embedded native bindings: <code>etc/lisp-bindings.xmacro</code>,
-<code>etc/lisp-bindings.xlisp</code>, <code>lib/lisp.x</code>, and <code>lib/func.x</code></li>
+<code>etc/lisp-bindings.xlisp</code>, <code>lib/lisp-targets.x</code>, <code>lib/lisp.x</code>, and
+<code>lib/func.x</code></li>
 <li>Tests: macro import, template, decorator, inline-Lisp, and inferred-binding
 compiler fixtures; Lisp and <code>Func</code> suites; compile-time-macros, decorators,
 and inline-lisp examples</li>
@@ -328,7 +335,7 @@ and inline-lisp examples</li>
 <h3 id="package-imports-and-with-names"><a class="header" href="#package-imports-and-with-names">Package imports and <code>with</code> names</a></h3>
 <ul>
 <li>Parse: <code>src/parse.x</code></li>
-<li>Package name collection and resolution: <code>src/compiler.x</code>, <code>src/collect.x</code></li>
+<li>Package name collection and resolution: <code>src/symbols.x</code>, <code>src/collect.x</code></li>
 <li>Manifest and native build ownership: <code>src/project.x</code>, <code>src/build.x</code>, and
 <code>src/toolchain.x</code></li>
 <li>Tests: import/package compiler fixtures and the import-greet example</li>
@@ -364,7 +371,7 @@ inline-lisp example</li>
 <h3 id="var-boxing-conversion-operations-and-dispatch"><a class="header" href="#var-boxing-conversion-operations-and-dispatch">Var boxing, conversion, operations, and dispatch</a></h3>
 <ul>
 <li>Type selection: <code>src/type.x</code></li>
-<li>Typedef identity and scopes: <code>src/compiler.x</code>, <code>src/statements.x</code></li>
+<li>Typedef identity and scopes: <code>src/symbols.x</code>, <code>src/statements.x</code></li>
 <li>Conversion lowering: <code>src/expressions.x</code></li>
 <li>Operator and truthiness lowering: <code>src/transform.x</code>, <code>src/emit.x</code></li>
 <li>Sentinel literal parsing and C spelling: <code>src/literals.x</code>, <code>src/emit.x</code>;
@@ -409,7 +416,7 @@ var-bitfield-compound, and local-typedef compiler fixtures</li>
 <h3 id="lambdas"><a class="header" href="#lambdas">Lambdas</a></h3>
 <ul>
 <li>Parse: <code>src/literals.x</code></li>
-<li>Lower and direct <code>Func</code> calls: <code>src/lambda.x</code>, <code>src/transform.x</code>,
+<li>Lower and direct <code>Func</code> calls: <code>src/transform.x</code>,
 <code>src/expressions.x</code></li>
 <li>Runtime: <code>lib/func.x</code> and receiving callback APIs</li>
 <li>Tests: captured-lambda and lambda-lowering fixtures, lambda and <code>Func</code> suites</li>
@@ -417,8 +424,8 @@ var-bitfield-compound, and local-typedef compiler fixtures</li>
 <h3 id="foreach"><a class="header" href="#foreach">Foreach</a></h3>
 <ul>
 <li>Parse and expand: built-in source macro support in <code>src/macros.x</code> and
-<code>etc/builtin-macros.xmacro</code>; private lowering in
-<code>etc/builtin-macros.xlisp</code></li>
+<code>etc/builtin-macros.xmacro</code>; the expansion algorithm in
+<code>src/builtins.x</code></li>
 <li>Lower/generate the expanded loop: <code>src/transform.x</code>, <code>src/emit.x</code></li>
 <li>Runtime: <code>lib/iter.x</code> and collection adapters; <code>Iter.try_next</code> owns status</li>
 <li>Tests: <code>foreach</code> fixture, <code>Iter</code> suite, and checked example</li>
@@ -448,8 +455,9 @@ coverage</li>
 <li>Parse: <code>src/statements.x</code></li>
 <li>Lower/generate: <code>src/transform.x</code>, <code>src/emit.x</code>; emitted code calls
 <code>List.match</code></li>
-<li>Runtime: <code>lib/match.x</code> owns pattern semantics and plan compilation;
-<code>lib/match-machine.x</code> executes plans over wordcode and state definitions
+<li>Runtime: <code>lib/match.x</code> owns pattern semantics; <code>lib/match-plan.x</code>
+compiles patterns to plans, <code>lib/match-cache.x</code> retains them, and
+<code>lib/match-machine.x</code> executes them over wordcode and state definitions
 from <code>lib/machine.x</code>; patterns and binding sets are ordinary <code>List</code>s from
 <code>lib/list.x</code></li>
 <li>Tests: match suites and checked nested example</li>
@@ -458,7 +466,7 @@ from <code>lib/machine.x</code>; patterns and binding sets are ordinary <code>Li
 <h3 id="raise-filtered-catch-finally-and-defer"><a class="header" href="#raise-filtered-catch-finally-and-defer">Raise, filtered catch, finally, and defer</a></h3>
 <ul>
 <li>Parse: <code>src/statements.x</code></li>
-<li>Lower/generate: <code>src/transform.x</code>; <code>src/cleanup.x</code> places cleanup on every
+<li>Lower/generate: <code>src/transform.x</code>; <code>src/transform.x</code> places cleanup on every
 exit from a region; <code>src/emit.x</code></li>
 <li>Runtime: <code>lib/exception.x</code> owns the frame/jump engine for transfer and
 cleanup; <code>lib/error.x</code> owns handlers, policy, watermarks, accumulated
@@ -497,9 +505,9 @@ one-error compiler default, and reusable store limit are documented in
 <li><code>src/expressions.x</code>, <code>src/statements.x</code>, and <code>src/literals.x</code> construct
 typed AST forms; <code>src/ast.x</code> owns the shared node contracts they build to.</li>
 <li><code>src/type.x</code> supplies type facts and canonical forms.</li>
-<li><code>src/transform.x</code> lowers most extensions; <code>src/lambda.x</code> owns lambda
+<li><code>src/transform.x</code> lowers most extensions; <code>src/transform.x</code> owns lambda
 helper and adapter synthesis.</li>
-<li><code>src/cleanup.x</code> names each <code>defer</code> and <code>try</code> region’s runtime record and
+<li><code>src/transform.x</code> names each <code>defer</code> and <code>try</code> region’s runtime record and
 places its cleanup statements on every exit that leaves the region.</li>
 <li><code>src/generate.x</code> partitions the translation unit and installs init
 scaffolding; <code>src/cache.x</code> owns literal-cache initialization.</li>
@@ -510,8 +518,8 @@ pipeline. <code>src/collect.x</code> gathers global symbol types by shallow-pars
 source and splicing quote-includes in preprocessor order, replays the
 runtime prelude from the runtime <code>x2c.xi</code> interface, and writes each unit’s
 interface beside its generated C as Lisp data.</p>
-<p><code>src/compiler.x</code> owns compiler state and symbol scopes. <code>src/diagnostics.x</code>
-owns structured errors. <code>src/utils.x</code> owns host-environment and process
+<p><code>src/compiler.x</code> owns compiler state and <code>src/symbols.x</code> its symbol
+scopes. <code>src/diagnostics.x</code> owns structured errors. <code>src/utils.x</code> owns host-environment and process
 helpers, including the C preprocessor process boundary. <code>src/frontend.x</code>
 shares configured source stages and sequential unit lifetimes with internal
 tools. <code>src/main.x</code> owns the translation loop, inspection output, and exit
@@ -519,31 +527,24 @@ policy; <code>src/cli.x</code> owns the option table, command selection, and hel
 <p>Each feature entry lists the relevant parser, transforms, runtime code, and
 tests so you can follow its complete implementation.</p>
 <h2 id="shared-lisp-initialization"><a class="header" href="#shared-lisp-initialization">Shared Lisp initialization</a></h2>
-<p>The compiler and <code>Lisp.new()</code> load the same generated <code>etc/init.xlisp</code>. Its
-handwritten primitives and evaluator macros live in <code>etc/init-core.xlisp</code>.
-List traversal, numeric wrappers, selectors, predicates, and pattern helpers
-live in <code>etc/init.x</code>. <code>tools/gen-lisp-init.py</code> uses the compiler’s existing
-lowering to assemble their Lisp definitions between the core primitives and
-public aliases. The core retains evaluator macros, native bindings, four
-rest-argument adapters, and the identity conversion used by generated code.</p>
-<p><code>make bootstrap-refresh</code> regenerates this artifact with the current stage-0
-compiler and rebuilds its embedded runtime copy before refreshing bootstrap
-C. The artifact is checked in: installation and session startup do not need
-to translate the initial environment. Generated helpers use fixed primitive
-operations internally; their public Lisp names remain replaceable. In
-particular, rebinding <code>car</code>, <code>cdr</code>, or <code>cons</code> does not change <code>filter</code>.</p>
-<p>The compiler’s built-in macro algorithms live in <code>etc/builtin-macros.x</code>.
-The same generator assembles their lowering and the thin forwarding wrappers
-in <code>etc/builtin-core.xlisp</code> into <code>etc/builtin-macros.xlisp</code>. This artifact
-loads at the existing compiler-only boundary after the compile-time runtime
-and SDK; it is not part of <code>Lisp.new()</code>. Scope expansion, foreach lowering,
-and deferred class defaults reuse the ordinary compiler queries and syntax
-builders. The wrappers defer native-operation lookup until expansion because
-native operations are registered after the libraries are loaded.</p>
-<p>Native Lisp signature and binding algorithms live in <code>etc/lisp-bindings.x</code>.
-The generator combines their lowering with the adapters in
-<code>etc/lisp-bindings-core.xlisp</code> to produce <code>etc/lisp-bindings.xlisp</code>. Importing
-that artifact loads only functions. The compiler initializes binding rows and
+<p>The compiler and <code>Lisp.new()</code> load the same <code>etc/init.xlisp</code>: the evaluator
+primitives, macros, native bindings, and the standard algorithms (list
+traversal, numeric wrappers, selectors, predicates, and pattern helpers).
+The algorithms without callbacks are <span class="x2c-wordmark">x2c</span> functions in <code>lib/lisp-init.x</code>,
+which that file binds by name; <code>map</code>, <code>filter</code>, and <code>foldl</code> stay in Lisp.
+Those algorithms use fixed primitive operations internally; their public
+Lisp names remain replaceable. In particular, rebinding <code>car</code>, <code>cdr</code>, or
+<code>cons</code> does not change <code>filter</code>.</p>
+<p>The compiler’s built-in macro algorithms are compiler functions in
+<code>src/builtins.x</code>, bound into the shared compile-time session before
+<code>etc/builtin-core.xlisp</code>, which names them for the built-in macros. It
+loads at the compiler-only boundary after the SDK; it is not part of
+<code>Lisp.new()</code>. Scope expansion, foreach lowering, and deferred class defaults
+reuse the ordinary compiler queries and syntax builders.</p>
+<p>Native Lisp signature and binding algorithms are compiler functions in
+<code>src/builtins.x</code> under <code>_x2c.binding_*</code>, and <code>etc/lisp-bindings.xlisp</code>
+defines the Lisp entry points over them. Importing that file loads only
+functions. The compiler initializes binding rows and
 sealed groups when it installs the binding macros for each translation unit,
 so signature preloading cannot put mutable group state in the shared parent.</p>
 
@@ -564,9 +565,9 @@ so signature preloading cannot put mutable group state in the shared parent.</p>
                         &copy; 2025&ndash;2026
                         <a href="https://flake.org">GWF</a>
                         &middot;
-                        <a href="https://github.com/gwf/x2c/blob/0351be4a4d6c00dd246e5190e8dcf5a970560beb/LICENSE">Apache 2.0</a>
+                        <a href="https://github.com/gwf/x2c/blob/2fb2e7abb7462f842903580f47a5b96c69698937/LICENSE">Apache 2.0</a>
                         &middot;
-                        <a href="https://github.com/gwf/x2c/blob/0351be4a4d6c00dd246e5190e8dcf5a970560beb/TRADEMARKS.md">Trademarks</a>
+                        <a href="https://github.com/gwf/x2c/blob/2fb2e7abb7462f842903580f47a5b96c69698937/TRADEMARKS.md">Trademarks</a>
                     </footer>
                 </div>
             </div>

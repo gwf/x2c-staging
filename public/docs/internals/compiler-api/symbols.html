@@ -1,0 +1,866 @@
+<!DOCTYPE HTML>
+<html lang="en" class="light sidebar-visible" dir="ltr">
+    <head><meta name="x2c-site-source" content="2fb2e7abb7462f842903580f47a5b96c69698937"><meta name="x2c-release-channel" content="staging"><meta name="x2c-candidate" content="candidate-0351be4a4d6c00dd246e5190e8dcf5a970560beb-36014113963-1">
+        <!-- Book generated using mdBook -->
+        <meta charset="UTF-8">
+        <title>src/symbols.x - The x2c Book</title>
+
+
+        <!-- Custom HTML head -->
+        <link rel="preconnect" href="https://fonts.googleapis.com">
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=Archivo:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">
+
+        <meta name="description" content="The x2c language, standard library, and compiler.">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <meta name="theme-color" content="#ffffff">
+
+        <link rel="icon" href="../../favicon-995a3c20.svg">
+        <link rel="stylesheet" href="../../css/variables-8adf115d.css">
+        <link rel="stylesheet" href="../../css/general-e96d0476.css">
+        <link rel="stylesheet" href="../../css/chrome-d279d366.css">
+        <link rel="stylesheet" href="../../css/print-9e4910d8.css" media="print">
+
+        <!-- Fonts -->
+        <link rel="stylesheet" href="../../fonts/fonts-9644e21d.css">
+
+        <!-- Highlight.js Stylesheets -->
+        <link rel="stylesheet" id="mdbook-highlight-css" href="../../highlight-493f70e1.css">
+        <link rel="stylesheet" id="mdbook-tomorrow-night-css" href="../../tomorrow-night-4c0ae647.css">
+        <link rel="stylesheet" id="mdbook-ayu-highlight-css" href="../../ayu-highlight-3fdfc3ac.css">
+
+        <!-- Custom theme stylesheets -->
+        <link rel="stylesheet" href="../../theme/header-2c1becca.css">
+        <link rel="stylesheet" href="../../theme/x2c-fd3d182e.css">
+
+
+        <!-- Provide site root and default themes to javascript -->
+        <script>
+            const path_to_root = "../../";
+            const default_light_theme = "light";
+            const default_dark_theme = "light";
+            window.path_to_searchindex_js = "../../searchindex-94a52d98.js";
+        </script>
+        <!-- Start loading toc.js asap -->
+        <script src="../../toc-89ef7d96.js"></script>
+        <!-- x2c publication metadata -->
+        <link rel="canonical" href="https://staging.x2c-lang.dev/docs/internals/compiler-api/symbols.html">
+        <meta property="og:type" content="website">
+        <meta property="og:title" content="src/symbols.x - The x2c Book">
+        <meta property="og:description" content="The x2c language, standard library, and compiler.">
+        <meta property="og:url" content="https://staging.x2c-lang.dev/docs/internals/compiler-api/symbols.html">
+        <meta property="og:image" content="https://staging.x2c-lang.dev/x2c-social.png">
+        <meta property="og:image:width" content="1200">
+        <meta property="og:image:height" content="630">
+        <meta name="twitter:card" content="summary_large_image">
+        <meta name="twitter:title" content="src/symbols.x - The x2c Book">
+        <meta name="twitter:description" content="The x2c language, standard library, and compiler.">
+        <meta name="twitter:image" content="https://staging.x2c-lang.dev/x2c-social.png">
+    </head>
+    <body>
+    <div id="mdbook-help-container">
+        <div id="mdbook-help-popup">
+            <h2 class="mdbook-help-title">Keyboard shortcuts</h2>
+            <div>
+                <p>Press <kbd>←</kbd> or <kbd>→</kbd> to navigate between chapters</p>
+                <p>Press <kbd>S</kbd> or <kbd>/</kbd> to search in the book</p>
+                <p>Press <kbd>?</kbd> to show this help</p>
+                <p>Press <kbd>Esc</kbd> to hide this help</p>
+            </div>
+        </div>
+    </div>
+    <div id="mdbook-body-container">
+        <!-- Work around some values being stored in localStorage wrapped in quotes -->
+        <script>
+            try {
+                let theme = localStorage.getItem('mdbook-theme');
+                let sidebar = localStorage.getItem('mdbook-sidebar');
+
+                if (theme.startsWith('"') && theme.endsWith('"')) {
+                    localStorage.setItem('mdbook-theme', theme.slice(1, theme.length - 1));
+                }
+
+                if (sidebar.startsWith('"') && sidebar.endsWith('"')) {
+                    localStorage.setItem('mdbook-sidebar', sidebar.slice(1, sidebar.length - 1));
+                }
+            } catch (e) { }
+        </script>
+
+        <!-- Set the theme before any content is loaded, prevents flash -->
+        <script>
+            const default_theme = window.matchMedia("(prefers-color-scheme: dark)").matches ? default_dark_theme : default_light_theme;
+            let theme;
+            try { theme = localStorage.getItem('mdbook-theme'); } catch(e) { }
+            if (theme === null || theme === undefined) { theme = default_theme; }
+            const html = document.documentElement;
+            html.classList.remove('light')
+            html.classList.add(theme);
+            html.classList.add("js");
+        </script>
+
+        <input type="checkbox" id="mdbook-sidebar-toggle-anchor" class="hidden">
+
+        <!-- Hide / unhide sidebar before it is displayed -->
+        <script>
+            let sidebar = null;
+            const sidebar_toggle = document.getElementById("mdbook-sidebar-toggle-anchor");
+            if (document.body.clientWidth >= 1080) {
+                try { sidebar = localStorage.getItem('mdbook-sidebar'); } catch(e) { }
+                sidebar = sidebar || 'visible';
+            } else {
+                sidebar = 'hidden';
+                sidebar_toggle.checked = false;
+            }
+            if (sidebar === 'visible') {
+                sidebar_toggle.checked = true;
+            } else {
+                html.classList.remove('sidebar-visible');
+            }
+        </script>
+
+        <nav id="mdbook-sidebar" class="sidebar" aria-label="Table of contents">
+            <!-- populated by js -->
+            <mdbook-sidebar-scrollbox class="sidebar-scrollbox"></mdbook-sidebar-scrollbox>
+            <noscript>
+                <iframe class="sidebar-iframe-outer" src="../../toc.html"></iframe>
+            </noscript>
+            <div id="mdbook-sidebar-resize-handle" class="sidebar-resize-handle">
+                <div class="sidebar-resize-indicator"></div>
+            </div>
+        </nav>
+
+        <div id="mdbook-page-wrapper" class="page-wrapper">
+
+            <div class="page">
+                <div id="mdbook-menu-bar" class="hidden"></div>
+                <header class="landing-header x2c-header">
+                    <div class="landing-header-inner">
+                        <div class="landing-branding">
+                            <a class="landing-brand" href="../../../" aria-label="x2c home">
+                                <svg viewBox="0 0 100 100" width="22" height="22" aria-hidden="true"><g fill="none" stroke="#da291c" stroke-width="17" stroke-linecap="butt"><path d="M9 16 A34.5 34.5 0 0 1 9 84"></path><path d="M91 16 A34.5 34.5 0 0 0 91 84"></path></g></svg>
+                                <span class="x2c-wordmark landing-wordmark">x2c</span>
+                            </a>
+                            <span class="landing-tagline">The x2c Book</span>
+                        </div>
+                        <nav class="landing-nav" aria-label="x2c website">
+                            <div class="landing-page-nav">
+                                <a href="../../../#love">love</a>
+                                <a href="../../../#power">power</a>
+                                <a href="../../../#magic">magic</a>
+                            </div>
+                            <div class="landing-site-nav">
+                                <a href="../../../#install">install</a>
+                                <a href="../../../#packages">packages</a>
+                            </div>
+                            <div class="landing-reference-nav">
+                                <a href="../../../about/">about</a>
+                                <a href="../../" aria-current="page">docs</a>
+                                <a href="https://github.com/gwf/x2c">source</a>
+                            </div>
+                        </nav>
+                    </div>
+                    <div class="x2c-book-tools">
+                        <div class="x2c-header-tools">
+                            <label id="mdbook-sidebar-toggle" class="icon-button" for="mdbook-sidebar-toggle-anchor" title="Toggle Table of Contents" aria-label="Toggle Table of Contents" aria-controls="mdbook-sidebar">
+                                <span class=fa-svg><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc. --><path d="M0 96C0 78.3 14.3 64 32 64H416c17.7 0 32 14.3 32 32s-14.3 32-32 32H32C14.3 128 0 113.7 0 96zM0 256c0-17.7 14.3-32 32-32H416c17.7 0 32 14.3 32 32s-14.3 32-32 32H32c-17.7 0-32-14.3-32-32zM448 416c0 17.7-14.3 32-32 32H32c-17.7 0-32-14.3-32-32s14.3-32 32-32H416c17.7 0 32 14.3 32 32z"/></svg></span>
+                            </label>
+                        </div>
+                        <div class="x2c-header-tools x2c-header-tools-right">
+                            <button id="mdbook-search-toggle" class="icon-button" type="button" title="Search (`/`)" aria-label="Toggle Searchbar" aria-expanded="false" aria-keyshortcuts="/ s" aria-controls="mdbook-searchbar">
+                                <span class=fa-svg><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc. --><path d="M416 208c0 45.9-14.9 88.3-40 122.7L502.6 457.4c12.5 12.5 12.5 32.8 0 45.3s-32.8 12.5-45.3 0L330.7 376c-34.4 25.2-76.8 40-122.7 40C93.1 416 0 322.9 0 208S93.1 0 208 0S416 93.1 416 208zM208 352c79.5 0 144-64.5 144-144s-64.5-144-144-144S64 128.5 64 208s64.5 144 144 144z"/></svg></span>
+                            </button>
+                            <button id="mdbook-theme-toggle" class="icon-button" type="button" title="Change theme" aria-label="Change theme" aria-haspopup="true" aria-expanded="false" aria-controls="mdbook-theme-list">
+                                <span class=fa-svg><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc. --><path d="M448 256c0-106-86-192-192-192V448c106 0 192-86 192-192zm64 0c0 141.4-114.6 256-256 256S0 397.4 0 256S114.6 0 256 0S512 114.6 512 256z"/></svg></span>
+                            </button>
+                            <ul id="mdbook-theme-list" class="theme-popup" aria-label="Themes" role="menu">
+                                <li role="none"><button role="menuitem" class="theme" id="mdbook-theme-default_theme">Auto</button></li>
+                                <li role="none"><button role="menuitem" class="theme" id="mdbook-theme-light">Light</button></li>
+                                <li role="none"><button role="menuitem" class="theme" id="mdbook-theme-ayu">Dark</button></li>
+                            </ul>
+                            <a href="https://github.com/gwf/x2c/edit/main/docs/src/internals/compiler-api/symbols.md" title="Suggest an edit" aria-label="Suggest an edit" rel="edit" class="icon-button">
+                                <span class=fa-svg id="git-edit-button"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc. --><path d="M421.7 220.3l-11.3 11.3-22.6 22.6-205 205c-6.6 6.6-14.8 11.5-23.8 14.1L30.8 511c-8.4 2.5-17.5 .2-23.7-6.1S-1.5 489.7 1 481.2L38.7 353.1c2.6-9 7.5-17.2 14.1-23.8l205-205 22.6-22.6 11.3-11.3 33.9 33.9 62.1 62.1 33.9 33.9zM96 353.9l-9.3 9.3c-.9 .9-1.6 2.1-2 3.4l-25.3 86 86-25.3c1.3-.4 2.5-1.1 3.4-2l9.3-9.3H112c-8.8 0-16-7.2-16-16V353.9zM453.3 19.3l39.4 39.4c25 25 25 65.5 0 90.5l-14.5 14.5-22.6 22.6-11.3 11.3-33.9-33.9-62.1-62.1L314.3 67.7l11.3-11.3 22.6-22.6 14.5-14.5c25-25 65.5-25 90.5 0z"/></svg></span>
+                            </a>
+                        </div>
+                    </div>
+                </header>
+                <script>
+                    const bookHeader = document.querySelector('.x2c-header');
+                    new ResizeObserver(() => {
+                        document.documentElement.style.setProperty(
+                            '--menu-bar-height', `${bookHeader.getBoundingClientRect().height}px`);
+                    }).observe(bookHeader);
+                </script>
+
+                <div id="mdbook-search-wrapper" class="hidden">
+                    <form id="mdbook-searchbar-outer" class="searchbar-outer">
+                        <div class="search-wrapper">
+                            <input type="search" id="mdbook-searchbar" name="searchbar" placeholder="Search this book ..." aria-controls="mdbook-searchresults-outer" aria-describedby="searchresults-header">
+                            <div class="spinner-wrapper">
+                                <span class=fa-svg id="fa-spin"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc. --><path d="M304 48c0-26.5-21.5-48-48-48s-48 21.5-48 48s21.5 48 48 48s48-21.5 48-48zm0 416c0-26.5-21.5-48-48-48s-48 21.5-48 48s21.5 48 48 48s48-21.5 48-48zM48 304c26.5 0 48-21.5 48-48s-21.5-48-48-48s-48 21.5-48 48s21.5 48 48 48zm464-48c0-26.5-21.5-48-48-48s-48 21.5-48 48s21.5 48 48 48s48-21.5 48-48zM142.9 437c18.7-18.7 18.7-49.1 0-67.9s-49.1-18.7-67.9 0s-18.7 49.1 0 67.9s49.1 18.7 67.9 0zm0-294.2c18.7-18.7 18.7-49.1 0-67.9S93.7 56.2 75 75s-18.7 49.1 0 67.9s49.1 18.7 67.9 0zM369.1 437c18.7 18.7 49.1 18.7 67.9 0s18.7-49.1 0-67.9s-49.1-18.7-67.9 0s-18.7 49.1 0 67.9z"/></svg></span>
+                            </div>
+                        </div>
+                    </form>
+                    <div id="mdbook-searchresults-outer" class="searchresults-outer hidden">
+                        <div id="mdbook-searchresults-header" class="searchresults-header"></div>
+                        <ul id="mdbook-searchresults">
+                        </ul>
+                    </div>
+                </div>
+
+                <!-- Apply ARIA attributes after the sidebar and the sidebar toggle button are added to the DOM -->
+                <script>
+                    document.getElementById('mdbook-sidebar-toggle').setAttribute('aria-expanded', sidebar === 'visible');
+                    document.getElementById('mdbook-sidebar').setAttribute('aria-hidden', sidebar !== 'visible');
+                    Array.from(document.querySelectorAll('#mdbook-sidebar a')).forEach(function(link) {
+                        link.setAttribute('tabIndex', sidebar === 'visible' ? 0 : -1);
+                    });
+                </script>
+
+                <div id="mdbook-content" class="content">
+                    <main>
+                        <!-- Generated by `make doc-generate` from
+     src/*.x and the compiler's definitions. Do not edit by hand. -->
+<blockquote>
+<p><strong>Provisional API:</strong> This reference documents current compiler behavior.
+Compatibility is not yet promised.</p>
+</blockquote>
+<h1 id="srcsymbolsx"><a class="header" href="#srcsymbolsx"><code>src/symbols.x</code></a></h1>
+<p>The compiler’s semantic symbol table.</p>
+<h2 id="functions"><a class="header" href="#functions">Functions</a></h2>
+<div class="table-wrapper">
+<table>
+<thead>
+<tr><th>Function</th><th>Summary</th></tr>
+</thead>
+<tbody>
+<tr><td><a href="#Compiler.aggregate_name"><code>Compiler.aggregate_name</code></a></td><td>Binds a local aggregate tag before its fields, preserving native spelling.</td></tr>
+<tr><td><a href="#Compiler.begin_semantic_transaction"><code>Compiler.begin_semantic_transaction</code></a></td><td>Begins a reversible transaction over the current semantic scope.</td></tr>
+<tr><td><a href="#Compiler.drop_fact"><code>Compiler.drop_fact</code></a></td><td>Deletes one semantic binding fact.</td></tr>
+<tr><td><a href="#Compiler.imported_providers"><code>Compiler.imported_providers</code></a></td><td>Returns sorted imported packages that publish <code>name</code>.</td></tr>
+<tr><td><a href="#Compiler.imported_spelling"><code>Compiler.imported_spelling</code></a></td><td>Returns an unambiguous imported spelling for <code>name</code>, or <code>NULL</code>.</td></tr>
+<tr><td><a href="#Compiler.macro_definition_locals"><code>Compiler.macro_definition_locals</code></a></td><td>Returns the active macro definition’s borrowed local map, or <code>NULL</code>.</td></tr>
+<tr><td><a href="#Compiler.macro_template_local"><code>Compiler.macro_template_local</code></a></td><td>Reports whether <code>binding</code> is a local of the active macro definition or of a template that encloses it; a nested definition’s literal names share the enclosing template’s names.</td></tr>
+<tr><td><a href="#Compiler.package_member_spelling"><code>Compiler.package_member_spelling</code></a></td><td>Returns a visible <code>with</code> name’s package-prefixed spelling, or <code>NULL</code>.</td></tr>
+<tr><td><a href="#Compiler.package_spelling"><code>Compiler.package_spelling</code></a></td><td>Returns a name in the current package namespace, preserving prefixes.</td></tr>
+<tr><td><a href="#Compiler.record_declaration_visibility"><code>Compiler.record_declaration_visibility</code></a></td><td>Records the visibility of one parsed top-level declaration.</td></tr>
+<tr><td><a href="#Compiler.register_package_alias"><code>Compiler.register_package_alias</code></a></td><td>Registers one local package alias.</td></tr>
+<tr><td><a href="#Compiler.register_package_member"><code>Compiler.register_package_member</code></a></td><td>Registers one package member under a bare local spelling.</td></tr>
+<tr><td><a href="#Compiler.semantic_binding_facts"><code>Compiler.semantic_binding_facts</code></a></td><td>Returns the borrowed semantic-facts map indexed by binding.</td></tr>
+<tr><td><a href="#Compiler.set_fact"><code>Compiler.set_fact</code></a></td><td>Sets one semantic binding fact.</td></tr>
+<tr><td><a href="#Sym.at_file_scope"><code>Sym.at_file_scope</code></a></td><td>Returns whether declarations currently bind at file scope.</td></tr>
+<tr><td><a href="#Sym.base_symbols"><code>Sym.base_symbols</code></a></td><td>Copies all base-scope symbols into a fresh map in source order.</td></tr>
+<tr><td><a href="#Sym.bind_identity"><code>Sym.bind_identity</code></a></td><td>Installs an existing binding with <code>ast</code>’s qualifier-preserving type.</td></tr>
+<tr><td><a href="#Sym.binding_is_local"><code>Sym.binding_is_local</code></a></td><td>Reports whether <code>binding</code> belongs to a scope inside the base scopes.</td></tr>
+<tr><td><a href="#Sym.binding_is_local_before"><code>Sym.binding_is_local_before</code></a></td><td>Reports whether <code>binding</code> belongs to a local scope below <code>scope_count</code>.</td></tr>
+<tr><td><a href="#Sym.current_binding"><code>Sym.current_binding</code></a></td><td>Returns <code>key</code>’s binding in the current scope, or <code>NULL</code>.</td></tr>
+<tr><td><a href="#Sym.current_symbols"><code>Sym.current_symbols</code></a></td><td>Returns the current scope’s mutable symbol map, or <code>NULL</code>.</td></tr>
+<tr><td><a href="#Sym.declare"><code>Sym.declare</code></a></td><td>Analyzes a complete declaration type and installs its stored declared type.</td></tr>
+<tr><td><a href="#Sym.declare_delegate_field"><code>Sym.declare_delegate_field</code></a></td><td>Marks one named aggregate field as a delegate.</td></tr>
+<tr><td><a href="#Sym.declare_enumerator"><code>Sym.declare_enumerator</code></a></td><td>Associates an enumerator key with its owner in the active scope.</td></tr>
+<tr><td><a href="#Sym.declare_field_order"><code>Sym.declare_field_order</code></a></td><td>Records declaration AST fields in source order after binding finishes.</td></tr>
+<tr><td><a href="#Sym.define"><code>Sym.define</code></a></td><td>Defines <code>key</code> and returns its stable binding in the active scope.</td></tr>
+<tr><td><a href="#Sym.define_global"><code>Sym.define_global</code></a></td><td>Defines <code>key</code> in the unit’s writable base scope.</td></tr>
+<tr><td><a href="#Sym.define_macro"><code>Sym.define_macro</code></a></td><td>Defines or replaces a macro in the active lexical scope.</td></tr>
+<tr><td><a href="#Sym.delegate_aggregate"><code>Sym.delegate_aggregate</code></a></td><td>Resolves typedefs or one pointer layer to an aggregate tag, or <code>NULL</code>.</td></tr>
+<tr><td><a href="#Sym.drop"><code>Sym.drop</code></a></td><td>Deletes <code>key</code> from <code>map</code> so that an active transaction can restore it.</td></tr>
+<tr><td><a href="#Sym.enumerator_owner"><code>Sym.enumerator_owner</code></a></td><td>Returns the current scope’s enum owner for <code>key</code>, or zero.</td></tr>
+<tr><td><a href="#Sym.field_order"><code>Sym.field_order</code></a></td><td>Returns recorded fields in source order, or <code>NULL</code>.</td></tr>
+<tr><td><a href="#Sym.file_statics"><code>Sym.file_statics</code></a></td><td>Returns the borrowed set of file-static declaration keys.</td></tr>
+<tr><td><a href="#Sym.get"><code>Sym.get</code></a></td><td>Returns <code>key</code>’s type, retrying a bare key in package space, or <code>NULL</code>.</td></tr>
+<tr><td><a href="#Sym.get_exact"><code>Sym.get_exact</code></a></td><td>Returns <code>key</code>’s type without package fallback, or <code>NULL</code>.</td></tr>
+<tr><td><a href="#Sym.global_symbols"><code>Sym.global_symbols</code></a></td><td>Returns the mutable global symbol map supplied to the latest reset.</td></tr>
+<tr><td><a href="#Sym.has_local_macros"><code>Sym.has_local_macros</code></a></td><td>Returns whether any lexical scope contains a local macro definition.</td></tr>
+<tr><td><a href="#Sym.introduce"><code>Sym.introduce</code></a></td><td>Allocates a fresh binding identity for a compiler-introduced spelling.</td></tr>
+<tr><td><a href="#Sym.is_array_type"><code>Sym.is_array_type</code></a></td><td>Reports whether <code>type</code> reaches the named <code>Array</code> value type.</td></tr>
+<tr><td><a href="#Sym.is_map_type"><code>Sym.is_map_type</code></a></td><td>Reports whether <code>type</code> reaches the named <code>Map</code> value type.</td></tr>
+<tr><td><a href="#Sym.is_named_value_type"><code>Sym.is_named_value_type</code></a></td><td>Reports whether <code>type</code> reaches a named value type before its definition.</td></tr>
+<tr><td><a href="#Sym.is_string_type"><code>Sym.is_string_type</code></a></td><td>Reports whether <code>type</code> reaches the named <code>String</code> value type.</td></tr>
+<tr><td><a href="#Sym.is_var_type"><code>Sym.is_var_type</code></a></td><td>Reports whether <code>type</code> reaches the named <code>Var</code> value type.</td></tr>
+<tr><td><a href="#Sym.local_type"><code>Sym.local_type</code></a></td><td>Resolves a block-local typedef to the type saved at its declaration.</td></tr>
+<tr><td><a href="#Sym.lookup"><code>Sym.lookup</code></a></td><td>Resolves an existing key and optionally stores its semantic type.</td></tr>
+<tr><td><a href="#Sym.lookup_field"><code>Sym.lookup_field</code></a></td><td>Returns an aggregate field’s declared type, or <code>NULL</code>.</td></tr>
+<tr><td><a href="#Sym.lookup_macro"><code>Sym.lookup_macro</code></a></td><td>Returns the innermost visible local macro named <code>name</code>, or <code>NULL</code>.</td></tr>
+<tr><td><a href="#Sym.mark_static"><code>Sym.mark_static</code></a></td><td>Marks a declaration key as file-static.</td></tr>
+<tr><td><a href="#Sym.new"><code>Sym.new</code></a></td><td>Creates the empty symbol table that compiler <code>c</code> owns.</td></tr>
+<tr><td><a href="#Sym.next_typedef"><code>Sym.next_typedef</code></a></td><td>Resolves one typedef hop and counts against the shared cycle budget.</td></tr>
+<tr><td><a href="#Sym.normalize_declared_type"><code>Sym.normalize_declared_type</code></a></td><td>Resolves typedef bases while retaining every declarator qualifier.</td></tr>
+<tr><td><a href="#Sym.pop_scope"><code>Sym.pop_scope</code></a></td><td>Pops the innermost scope, or returns an empty scope when none exists.</td></tr>
+<tr><td><a href="#Sym.push_new_scope"><code>Sym.push_new_scope</code></a></td><td>Pushes a new empty lexical scope.</td></tr>
+<tr><td><a href="#Sym.push_scope"><code>Sym.push_scope</code></a></td><td>Pushes a caller-supplied lexical scope while retaining its map objects.</td></tr>
+<tr><td><a href="#Sym.put"><code>Sym.put</code></a></td><td>Sets <code>map[key]</code> so that an active semantic transaction can restore it.</td></tr>
+<tr><td><a href="#Sym.reference"><code>Sym.reference</code></a></td><td>Resolves <code>key</code> or creates a forward binding in the current scope.</td></tr>
+<tr><td><a href="#Sym.reference_global"><code>Sym.reference_global</code></a></td><td>Resolves a global name or creates its forward binding in the base scope.</td></tr>
+<tr><td><a href="#Sym.reset"><code>Sym.reset</code></a></td><td>Resets symbol state to one base scope backed by <code>globals</code>.</td></tr>
+<tr><td><a href="#Sym.reset_overlay"><code>Sym.reset_overlay</code></a></td><td>Resets symbol state to read <code>base</code> below the writable scope <code>overlay</code>.</td></tr>
+<tr><td><a href="#Sym.resolve_base_type"><code>Sym.resolve_base_type</code></a></td><td>Resolves a typedef name through the base scopes only, ignoring local typedefs, or returns NULL when the base scopes do not declare it.</td></tr>
+<tr><td><a href="#Sym.resolve_global"><code>Sym.resolve_global</code></a></td><td>Resolves a binding through base scopes and optionally stores its type.</td></tr>
+<tr><td><a href="#Sym.resolve_key"><code>Sym.resolve_key</code></a></td><td>Resolves a canonical typedef key to the end of its declared chain.</td></tr>
+<tr><td><a href="#Sym.resolve_numeric_type"><code>Sym.resolve_numeric_type</code></a></td><td>Resolves a numeric typedef without reducing semantic object types.</td></tr>
+<tr><td><a href="#Sym.scope_count"><code>Sym.scope_count</code></a></td><td>Returns the number of semantic scopes, including base scopes.</td></tr>
+<tr><td><a href="#Sym.seed_var_tags"><code>Sym.seed_var_tags</code></a></td><td>Registers declared <code>T_var</code> converters in the active <code>Type</code> unit.</td></tr>
+<tr><td><a href="#Sym.set"><code>Sym.set</code></a></td><td>Sets a semantic type for <code>key</code> in the required active scope.</td></tr>
+<tr><td><a href="#Sym.sole_typedef"><code>Sym.sole_typedef</code></a></td><td>Returns the name of the one file-scope typedef declared directly as <code>type</code>, or NULL when no typedef or several typedefs are.</td></tr>
+<tr><td><a href="#Sym.unit_symbols"><code>Sym.unit_symbols</code></a></td><td>Returns a fresh map of the base symbols with the current scope’s rows merged in.</td></tr>
+<tr><td><a href="#Sym.var_tag_for_type"><code>Sym.var_tag_for_type</code></a></td><td>Returns a type’s <code>Var</code> tag and optionally stores its resolved type.</td></tr>
+<tr><td><a href="#Sym.visible_symbols"><code>Sym.visible_symbols</code></a></td><td>Returns the visible one-part source names and their semantic types.</td></tr>
+<tr><td><a href="#SymTxn.commit"><code>SymTxn.commit</code></a></td><td>Publishes an active semantic transaction and makes rollback a no-op.</td></tr>
+<tr><td><a href="#SymTxn.commit_transient"><code>SymTxn.commit_transient</code></a></td><td>Commits an active transaction, retaining the original counters map.</td></tr>
+<tr><td><a href="#SymTxn.local_macros_changed"><code>SymTxn.local_macros_changed</code></a></td><td>Returns whether the transaction’s active scope changed its macro map.</td></tr>
+<tr><td><a href="#SymTxn.rollback"><code>SymTxn.rollback</code></a></td><td>Restores every semantic value captured by an active transaction.</td></tr>
+</tbody>
+</table>
+</div>
+<h3 id="compiler"><a class="header" href="#compiler"><code>Compiler</code></a></h3>
+<p><a id="Compiler.aggregate_name"></a></p>
+<h4 id="compileraggregate_name"><a class="header" href="#compileraggregate_name">Compiler.aggregate_name</a></h4>
+<p><code>Var Compiler.aggregate_name( Compiler c, Symbol kind, Var name, int definition)</code></p>
+<p>Binds a local aggregate tag before its fields, preserving native spelling.
+A reference reuses the nearest visible tag; a definition or standalone
+forward declaration introduces the tag in the current lexical scope. A
+macro template names its tags as template locals.</p>
+<p>Source: <code>src/symbols.x:682</code></p>
+<p><a id="Compiler.begin_semantic_transaction"></a></p>
+<h4 id="compilerbegin_semantic_transaction"><a class="header" href="#compilerbegin_semantic_transaction">Compiler.begin_semantic_transaction</a></h4>
+<p><code>SymTxn Compiler.begin_semantic_transaction(Compiler c)</code></p>
+<p>Begins a reversible transaction over the current semantic scope.</p>
+<p>The transaction restores the current scope maps, file-static and binding
+facts, binding and generated-name counters, and initializer names. It
+does not snapshot parser position or other compiler state.</p>
+<p>Source: <code>src/symbols.x:1246</code></p>
+<p><a id="Compiler.drop_fact"></a></p>
+<h4 id="compilerdrop_fact"><a class="header" href="#compilerdrop_fact">Compiler.drop_fact</a></h4>
+<p><code>void Compiler.drop_fact(Compiler c, Var key)</code></p>
+<p>Deletes one semantic binding fact.</p>
+<p>Source: <code>src/symbols.x:433</code></p>
+<p><a id="Compiler.imported_providers"></a></p>
+<h4 id="compilerimported_providers"><a class="header" href="#compilerimported_providers">Compiler.imported_providers</a></h4>
+<p><code>List Compiler.imported_providers(Compiler c, String name)</code></p>
+<p>Returns sorted imported packages that publish <code>name</code>.</p>
+<p>Package-owned methods use <code>&lt;package&gt;__&lt;Type&gt;_&lt;member&gt;</code> internally while
+consumers retain the spelling from the package header. Sorting keeps
+ambiguity diagnostics deterministic.</p>
+<p>Source: <code>src/symbols.x:830</code></p>
+<p><a id="Compiler.imported_spelling"></a></p>
+<h4 id="compilerimported_spelling"><a class="header" href="#compilerimported_spelling">Compiler.imported_spelling</a></h4>
+<p><code>String Compiler.imported_spelling(Compiler c, String name)</code></p>
+<p>Returns an unambiguous imported spelling for <code>name</code>, or <code>NULL</code>.</p>
+<p>Source: <code>src/symbols.x:842</code></p>
+<p><a id="Compiler.macro_definition_locals"></a></p>
+<h4 id="compilermacro_definition_locals"><a class="header" href="#compilermacro_definition_locals">Compiler.macro_definition_locals</a></h4>
+<p><code>Map Compiler.macro_definition_locals(Compiler c)</code></p>
+<p>Returns the active macro definition’s borrowed local map, or <code>NULL</code>.</p>
+<p>Source: <code>src/symbols.x:877</code></p>
+<p><a id="Compiler.macro_template_local"></a></p>
+<h4 id="compilermacro_template_local"><a class="header" href="#compilermacro_template_local">Compiler.macro_template_local</a></h4>
+<p><code>int Compiler.macro_template_local(Compiler c, List binding)</code></p>
+<p>Reports whether <code>binding</code> is a local of the active macro definition or
+of a template that encloses it; a nested definition’s literal names
+share the enclosing template’s names.</p>
+<p>Source: <code>src/symbols.x:885</code></p>
+<p><a id="Compiler.package_member_spelling"></a></p>
+<h4 id="compilerpackage_member_spelling"><a class="header" href="#compilerpackage_member_spelling">Compiler.package_member_spelling</a></h4>
+<p><code>String Compiler.package_member_spelling(Compiler c, String name)</code></p>
+<p>Returns a visible <code>with</code> name’s package-prefixed spelling, or <code>NULL</code>.</p>
+<p>An ordinary declaration of the local spelling shadows the <code>with</code> name.</p>
+<p>Source: <code>src/symbols.x:815</code></p>
+<p><a id="Compiler.package_spelling"></a></p>
+<h4 id="compilerpackage_spelling"><a class="header" href="#compilerpackage_spelling">Compiler.package_spelling</a></h4>
+<p><code>String Compiler.package_spelling(Compiler c, String name)</code></p>
+<p>Returns a name in the current package namespace, preserving prefixes.</p>
+<p>Idempotence lets parsing and declaration rewrites share this operation.</p>
+<p>Source: <code>src/symbols.x:752</code></p>
+<p><a id="Compiler.record_declaration_visibility"></a></p>
+<h4 id="compilerrecord_declaration_visibility"><a class="header" href="#compilerrecord_declaration_visibility">Compiler.record_declaration_visibility</a></h4>
+<p><code>void Compiler.record_declaration_visibility(Compiler c, List declaration)</code></p>
+<p>Records the visibility of one parsed top-level declaration.
+Lexical privacy and static storage mark bindings in <code>Sym</code>; typedef rows are
+retained for placing generated protocol declarations at the same boundary.</p>
+<p>Source: <code>src/symbols.x:709</code></p>
+<p><a id="Compiler.register_package_alias"></a></p>
+<h4 id="compilerregister_package_alias"><a class="header" href="#compilerregister_package_alias">Compiler.register_package_alias</a></h4>
+<p><code>void Compiler.register_package_alias( Compiler c, String name, String alias, Token token)</code></p>
+<p>Registers one local package alias.</p>
+<p>Shallow collection and full parsing both see an import, so repeating the
+same package and alias is a no-op. Another binding of the local spelling
+is a parse error.</p>
+<p>Source: <code>src/symbols.x:764</code></p>
+<p><a id="Compiler.register_package_member"></a></p>
+<h4 id="compilerregister_package_member"><a class="header" href="#compilerregister_package_member">Compiler.register_package_member</a></h4>
+<p><code>void Compiler.register_package_member( Compiler c, String name, String member, String local, Token member_token, Token local_token)</code></p>
+<p>Registers one package member under a bare local spelling.</p>
+<p>The package member must already exist in the symbol table. Repeating the
+same binding is a no-op; any conflicting local binding is an error.</p>
+<p>Source: <code>src/symbols.x:777</code></p>
+<p><a id="Compiler.semantic_binding_facts"></a></p>
+<h4 id="compilersemantic_binding_facts"><a class="header" href="#compilersemantic_binding_facts">Compiler.semantic_binding_facts</a></h4>
+<p><code>Map Compiler.semantic_binding_facts(Compiler c)</code></p>
+<p>Returns the borrowed semantic-facts map indexed by binding.</p>
+<p>Write it through <code>set_fact</code> and <code>drop_fact</code>, which a semantic
+transaction can restore.</p>
+<p>Source: <code>src/symbols.x:426</code></p>
+<p><a id="Compiler.set_fact"></a></p>
+<h4 id="compilerset_fact"><a class="header" href="#compilerset_fact">Compiler.set_fact</a></h4>
+<p><code>void Compiler.set_fact(Compiler c, Var key, Var value)</code></p>
+<p>Sets one semantic binding fact.</p>
+<p>Source: <code>src/symbols.x:429</code></p>
+<h3 id="sym"><a class="header" href="#sym"><code>Sym</code></a></h3>
+<p><a id="Sym.at_file_scope"></a></p>
+<h4 id="symat_file_scope"><a class="header" href="#symat_file_scope">Sym.at_file_scope</a></h4>
+<p><code>int Sym.at_file_scope(Sym s)</code></p>
+<p>Returns whether declarations currently bind at file scope.</p>
+<p>Source: <code>src/symbols.x:208</code></p>
+<p><a id="Sym.base_symbols"></a></p>
+<h4 id="symbase_symbols"><a class="header" href="#symbase_symbols">Sym.base_symbols</a></h4>
+<p><code>Map Sym.base_symbols(Sym s)</code></p>
+<p>Copies all base-scope symbols into a fresh map in source order.</p>
+<p>Package collection uses this so it resolves against the prelude and the
+importing unit’s already-visible includes without mutating either.</p>
+<p>Source: <code>src/symbols.x:220</code></p>
+<p><a id="Sym.bind_identity"></a></p>
+<h4 id="symbind_identity"><a class="header" href="#symbind_identity">Sym.bind_identity</a></h4>
+<p><code>List Sym.bind_identity(Sym s, List context, List binding, List ast)</code></p>
+<p>Installs an existing binding with <code>ast</code>’s qualifier-preserving type.</p>
+<p>Source: <code>src/symbols.x:661</code></p>
+<p><a id="Sym.binding_is_local"></a></p>
+<h4 id="symbinding_is_local"><a class="header" href="#symbinding_is_local">Sym.binding_is_local</a></h4>
+<p><code>int Sym.binding_is_local(Sym s, List binding)</code></p>
+<p>Reports whether <code>binding</code> belongs to a scope inside the base scopes.</p>
+<p>Source: <code>src/symbols.x:406</code></p>
+<p><a id="Sym.binding_is_local_before"></a></p>
+<h4 id="symbinding_is_local_before"><a class="header" href="#symbinding_is_local_before">Sym.binding_is_local_before</a></h4>
+<p><code>int Sym.binding_is_local_before(Sym s, List binding, int scope_count)</code></p>
+<p>Reports whether <code>binding</code> belongs to a local scope below <code>scope_count</code>.</p>
+<p>Counts beyond the current scope depth are clamped to that depth.</p>
+<p>Source: <code>src/symbols.x:413</code></p>
+<p><a id="Sym.current_binding"></a></p>
+<h4 id="symcurrent_binding"><a class="header" href="#symcurrent_binding">Sym.current_binding</a></h4>
+<p><code>List Sym.current_binding(Sym s, List key)</code></p>
+<p>Returns <code>key</code>’s binding in the current scope, or <code>NULL</code>.</p>
+<p>Source: <code>src/symbols.x:392</code></p>
+<p><a id="Sym.current_symbols"></a></p>
+<h4 id="symcurrent_symbols"><a class="header" href="#symcurrent_symbols">Sym.current_symbols</a></h4>
+<p><code>Map Sym.current_symbols(Sym s)</code></p>
+<p>Returns the current scope’s mutable symbol map, or <code>NULL</code>.</p>
+<p>Source: <code>src/symbols.x:227</code></p>
+<p><a id="Sym.declare"></a></p>
+<h4 id="symdeclare"><a class="header" href="#symdeclare">Sym.declare</a></h4>
+<p><code>List Sym.declare(Sym s, List context, List key, List ast)</code></p>
+<p>Analyzes a complete declaration type and installs its stored declared type.</p>
+<p>Returns the declared binding. At file scope this also records static
+visibility; local declarations record automatic-storage and declared-type
+facts. Stored types discard storage and <code>inline</code> while retaining <code>const</code>,
+<code>restrict</code>, and <code>volatile</code>.</p>
+<p>Source: <code>src/symbols.x:530</code></p>
+<p><a id="Sym.declare_delegate_field"></a></p>
+<h4 id="symdeclare_delegate_field"><a class="header" href="#symdeclare_delegate_field">Sym.declare_delegate_field</a></h4>
+<p><code>void Sym.declare_delegate_field(Sym s, Type aggregate, String name)</code></p>
+<p>Marks one named aggregate field as a delegate.</p>
+<p>Source: <code>src/symbols.x:1215</code></p>
+<p><a id="Sym.declare_enumerator"></a></p>
+<h4 id="symdeclare_enumerator"><a class="header" href="#symdeclare_enumerator">Sym.declare_enumerator</a></h4>
+<p><code>void Sym.declare_enumerator(Sym s, List key, Symbol owner)</code></p>
+<p>Associates an enumerator key with its owner in the active scope.</p>
+<p>Source: <code>src/symbols.x:338</code></p>
+<p><a id="Sym.declare_field_order"></a></p>
+<h4 id="symdeclare_field_order"><a class="header" href="#symdeclare_field_order">Sym.declare_field_order</a></h4>
+<p><code>void Sym.declare_field_order(Sym s, Type type, List fields)</code></p>
+<p>Records declaration AST fields in source order after binding finishes.</p>
+<p><code>Field</code> types already use member keys. Unnamed rows retain their type
+and an empty name so initializer traversal preserves anonymous subobjects.</p>
+<p>Source: <code>src/symbols.x:1190</code></p>
+<p><a id="Sym.define"></a></p>
+<h4 id="symdefine"><a class="header" href="#symdefine">Sym.define</a></h4>
+<p><code>List Sym.define(Sym s, List key, List type)</code></p>
+<p>Defines <code>key</code> and returns its stable binding in the active scope.</p>
+<p>Source: <code>src/symbols.x:291</code></p>
+<p><a id="Sym.define_global"></a></p>
+<h4 id="symdefine_global"><a class="header" href="#symdefine_global">Sym.define_global</a></h4>
+<p><code>void Sym.define_global(Sym s, List key, List type)</code></p>
+<p>Defines <code>key</code> in the unit’s writable base scope.</p>
+<p>The definition survives the expression scope that first resolved it. Its
+binding is issued at the first reference, as for a row an included file
+contributes, so the unit numbers its bindings the same whether it defined
+the row here or replayed it from an interface.</p>
+<p>Source: <code>src/symbols.x:331</code></p>
+<p><a id="Sym.define_macro"></a></p>
+<h4 id="symdefine_macro"><a class="header" href="#symdefine_macro">Sym.define_macro</a></h4>
+<p><code>void Sym.define_macro(Sym s, Atom name, List definition)</code></p>
+<p>Defines or replaces a macro in the active lexical scope.</p>
+<p>Replacing a name already defined in this scope does not increase the
+local macro count.</p>
+<p>Source: <code>src/symbols.x:855</code></p>
+<p><a id="Sym.delegate_aggregate"></a></p>
+<h4 id="symdelegate_aggregate"><a class="header" href="#symdelegate_aggregate">Sym.delegate_aggregate</a></h4>
+<p><code>Type Sym.delegate_aggregate(Sym s, Type type)</code></p>
+<p>Resolves typedefs or one pointer layer to an aggregate tag, or <code>NULL</code>.</p>
+<p>Source: <code>src/symbols.x:1220</code></p>
+<p><a id="Sym.drop"></a></p>
+<h4 id="symdrop"><a class="header" href="#symdrop">Sym.drop</a></h4>
+<p><code>void Sym.drop(Sym s, Map map, Var key)</code></p>
+<p>Deletes <code>key</code> from <code>map</code> so that an active transaction can restore it.</p>
+<p>Source: <code>src/symbols.x:135</code></p>
+<p><a id="Sym.enumerator_owner"></a></p>
+<h4 id="symenumerator_owner"><a class="header" href="#symenumerator_owner">Sym.enumerator_owner</a></h4>
+<p><code>Symbol Sym.enumerator_owner(Sym s, List key)</code></p>
+<p>Returns the current scope’s enum owner for <code>key</code>, or zero.</p>
+<p>Source: <code>src/symbols.x:399</code></p>
+<p><a id="Sym.field_order"></a></p>
+<h4 id="symfield_order"><a class="header" href="#symfield_order">Sym.field_order</a></h4>
+<p><code>List Sym.field_order(Sym s, Type type)</code></p>
+<p>Returns recorded fields in source order, or <code>NULL</code>.</p>
+<p>Source: <code>src/symbols.x:1212</code></p>
+<p><a id="Sym.file_statics"></a></p>
+<h4 id="symfile_statics"><a class="header" href="#symfile_statics">Sym.file_statics</a></h4>
+<p><code>Map Sym.file_statics(Sym s)</code></p>
+<p>Returns the borrowed set of file-static declaration keys.</p>
+<p>Source: <code>src/symbols.x:241</code></p>
+<p><a id="Sym.get"></a></p>
+<h4 id="symget"><a class="header" href="#symget">Sym.get</a></h4>
+<p><code>List Sym.get(Sym s, List key)</code></p>
+<p>Returns <code>key</code>’s type, retrying a bare key in package space, or <code>NULL</code>.</p>
+<p>Source: <code>src/symbols.x:439</code></p>
+<p><a id="Sym.get_exact"></a></p>
+<h4 id="symget_exact"><a class="header" href="#symget_exact">Sym.get_exact</a></h4>
+<p><code>List Sym.get_exact(Sym s, List key)</code></p>
+<p>Returns <code>key</code>’s type without package fallback, or <code>NULL</code>.</p>
+<p>Source: <code>src/symbols.x:447</code></p>
+<p><a id="Sym.global_symbols"></a></p>
+<h4 id="symglobal_symbols"><a class="header" href="#symglobal_symbols">Sym.global_symbols</a></h4>
+<p><code>Map Sym.global_symbols(Sym s)</code></p>
+<p>Returns the mutable global symbol map supplied to the latest reset.</p>
+<p>Source: <code>src/symbols.x:213</code></p>
+<p><a id="Sym.has_local_macros"></a></p>
+<h4 id="symhas_local_macros"><a class="header" href="#symhas_local_macros">Sym.has_local_macros</a></h4>
+<p><code>int Sym.has_local_macros(Sym s)</code></p>
+<p>Returns whether any lexical scope contains a local macro definition.</p>
+<p>Source: <code>src/symbols.x:863</code></p>
+<p><a id="Sym.introduce"></a></p>
+<h4 id="symintroduce"><a class="header" href="#symintroduce">Sym.introduce</a></h4>
+<p><code>List Sym.introduce(Sym s, String spelling)</code></p>
+<p>Allocates a fresh binding identity for a compiler-introduced spelling.</p>
+<p>Source: <code>src/symbols.x:389</code></p>
+<p><a id="Sym.is_array_type"></a></p>
+<h4 id="symis_array_type"><a class="header" href="#symis_array_type">Sym.is_array_type</a></h4>
+<p><code>int Sym.is_array_type(Sym s, Type type)</code></p>
+<p>Reports whether <code>type</code> reaches the named <code>Array</code> value type.</p>
+<p>Source: <code>src/symbols.x:1148</code></p>
+<p><a id="Sym.is_map_type"></a></p>
+<h4 id="symis_map_type"><a class="header" href="#symis_map_type">Sym.is_map_type</a></h4>
+<p><code>int Sym.is_map_type(Sym s, Type type)</code></p>
+<p>Reports whether <code>type</code> reaches the named <code>Map</code> value type.</p>
+<p>Source: <code>src/symbols.x:1152</code></p>
+<p><a id="Sym.is_named_value_type"></a></p>
+<h4 id="symis_named_value_type"><a class="header" href="#symis_named_value_type">Sym.is_named_value_type</a></h4>
+<p><code>int Sym.is_named_value_type(Sym s, Type type, String name)</code></p>
+<p>Reports whether <code>type</code> reaches a named value type before its definition.</p>
+<p>Source: <code>src/symbols.x:1155</code></p>
+<p><a id="Sym.is_string_type"></a></p>
+<h4 id="symis_string_type"><a class="header" href="#symis_string_type">Sym.is_string_type</a></h4>
+<p><code>int Sym.is_string_type(Sym s, Type type)</code></p>
+<p>Reports whether <code>type</code> reaches the named <code>String</code> value type.</p>
+<p>Source: <code>src/symbols.x:1144</code></p>
+<p><a id="Sym.is_var_type"></a></p>
+<h4 id="symis_var_type"><a class="header" href="#symis_var_type">Sym.is_var_type</a></h4>
+<p><code>int Sym.is_var_type(Sym s, Type type)</code></p>
+<p>Reports whether <code>type</code> reaches the named <code>Var</code> value type.</p>
+<p>Source: <code>src/symbols.x:1141</code></p>
+<p><a id="Sym.local_type"></a></p>
+<h4 id="symlocal_type"><a class="header" href="#symlocal_type">Sym.local_type</a></h4>
+<p><code>Type Sym.local_type(Sym s, Type type)</code></p>
+<p>Resolves a block-local typedef to the type saved at its declaration.
+File-scope names retain their semantic identity. Local alias definitions
+are resolved before they are installed, so one lookup crosses the whole
+local chain without consulting names shadowed since its declaration.</p>
+<p>Source: <code>src/symbols.x:1024</code></p>
+<p><a id="Sym.lookup"></a></p>
+<h4 id="symlookup"><a class="header" href="#symlookup">Sym.lookup</a></h4>
+<p><code>List Sym.lookup(Sym s, List key, Type &amp;?type)</code></p>
+<p>Resolves an existing key and optionally stores its semantic type.</p>
+<p>A symbol row without a binding receives a stable binding identity. A total
+miss returns <code>NULL</code> and stores <code>NULL</code> through <code>type</code> when provided.</p>
+<p>Source: <code>src/symbols.x:474</code></p>
+<p><a id="Sym.lookup_field"></a></p>
+<h4 id="symlookup_field"><a class="header" href="#symlookup_field">Sym.lookup_field</a></h4>
+<p><code>Type Sym.lookup_field(Sym s, Type type, List field)</code></p>
+<p>Returns an aggregate field’s declared type, or <code>NULL</code>.
+A member of an anonymous struct or union belongs to its enclosing
+aggregate in C, so unnamed rows are searched the way a designated
+initializer already reaches them.</p>
+<p>Source: <code>src/symbols.x:1170</code></p>
+<p><a id="Sym.lookup_macro"></a></p>
+<h4 id="symlookup_macro"><a class="header" href="#symlookup_macro">Sym.lookup_macro</a></h4>
+<p><code>List Sym.lookup_macro(Sym s, Atom name)</code></p>
+<p>Returns the innermost visible local macro named <code>name</code>, or <code>NULL</code>.</p>
+<p>Source: <code>src/symbols.x:866</code></p>
+<p><a id="Sym.mark_static"></a></p>
+<h4 id="symmark_static"><a class="header" href="#symmark_static">Sym.mark_static</a></h4>
+<p><code>void Sym.mark_static(Sym s, List key)</code></p>
+<p>Marks a declaration key as file-static.</p>
+<p>Source: <code>src/symbols.x:244</code></p>
+<p><a id="Sym.new"></a></p>
+<h4 id="symnew"><a class="header" href="#symnew">Sym.new</a></h4>
+<p><code>Sym Sym.new(Compiler c)</code></p>
+<p>Creates the empty symbol table that compiler <code>c</code> owns.</p>
+<p>Source: <code>src/symbols.x:116</code></p>
+<p><a id="Sym.next_typedef"></a></p>
+<h4 id="symnext_typedef"><a class="header" href="#symnext_typedef">Sym.next_typedef</a></h4>
+<p><code>Type Sym.next_typedef(Sym s, Type type, int &amp;hops)</code></p>
+<p>Resolves one typedef hop and counts against the shared cycle budget.</p>
+<p><code>hops</code> is an in-out counter initialized by the caller for the whole walk.
+Returns <code>NULL</code> for an unresolved link. The shared budget turns a cycle
+into the same diagnostic as full-chain resolution.</p>
+<p>Source: <code>src/symbols.x:960</code></p>
+<p><a id="Sym.normalize_declared_type"></a></p>
+<h4 id="symnormalize_declared_type"><a class="header" href="#symnormalize_declared_type">Sym.normalize_declared_type</a></h4>
+<p><code>Type Sym.normalize_declared_type(Sym s, Type type)</code></p>
+<p>Resolves typedef bases while retaining every declarator qualifier.</p>
+<p>Source: <code>src/symbols.x:993</code></p>
+<p><a id="Sym.pop_scope"></a></p>
+<h4 id="sympop_scope"><a class="header" href="#sympop_scope">Sym.pop_scope</a></h4>
+<p><code>SymScope Sym.pop_scope(Sym s)</code></p>
+<p>Pops the innermost scope, or returns an empty scope when none exists.</p>
+<p>Source: <code>src/symbols.x:197</code></p>
+<p><a id="Sym.push_new_scope"></a></p>
+<h4 id="sympush_new_scope"><a class="header" href="#sympush_new_scope">Sym.push_new_scope</a></h4>
+<p><code>void Sym.push_new_scope(Sym s)</code></p>
+<p>Pushes a new empty lexical scope.</p>
+<p>Source: <code>src/symbols.x:191</code></p>
+<p><a id="Sym.push_scope"></a></p>
+<h4 id="sympush_scope"><a class="header" href="#sympush_scope">Sym.push_scope</a></h4>
+<p><code>void Sym.push_scope(Sym s, SymScope scope)</code></p>
+<p>Pushes a caller-supplied lexical scope while retaining its map objects.</p>
+<p>Source: <code>src/symbols.x:194</code></p>
+<p><a id="Sym.put"></a></p>
+<h4 id="symput"><a class="header" href="#symput">Sym.put</a></h4>
+<p><code>void Sym.put(Sym s, Map map, Var key, Var value)</code></p>
+<p>Sets <code>map[key]</code> so that an active semantic transaction can restore it.
+Semantic writes to scope, file-static, and binding-fact maps use this.</p>
+<p>Source: <code>src/symbols.x:129</code></p>
+<p><a id="Sym.reference"></a></p>
+<h4 id="symreference"><a class="header" href="#symreference">Sym.reference</a></h4>
+<p><code>List Sym.reference(Sym s, List key, Type &amp;?type)</code></p>
+<p>Resolves <code>key</code> or creates a forward binding in the current scope.</p>
+<p>Stores <code>NULL</code> through <code>type</code> when no declaration supplies a type.</p>
+<p>Source: <code>src/symbols.x:481</code></p>
+<p><a id="Sym.reference_global"></a></p>
+<h4 id="symreference_global"><a class="header" href="#symreference_global">Sym.reference_global</a></h4>
+<p><code>List Sym.reference_global(Sym s, List key)</code></p>
+<p>Resolves a global name or creates its forward binding in the base scope.
+Local declarations cannot capture a retained macro’s global reference.</p>
+<p>Source: <code>src/symbols.x:494</code></p>
+<p><a id="Sym.reset"></a></p>
+<h4 id="symreset"><a class="header" href="#symreset">Sym.reset</a></h4>
+<p><code>void Sym.reset(Sym s, Map globals)</code></p>
+<p>Resets symbol state to one base scope backed by <code>globals</code>.</p>
+<p>Later definitions mutate that caller-supplied map.</p>
+<p>Source: <code>src/symbols.x:160</code></p>
+<p><a id="Sym.reset_overlay"></a></p>
+<h4 id="symreset_overlay"><a class="header" href="#symreset_overlay">Sym.reset_overlay</a></h4>
+<p><code>void Sym.reset_overlay(Sym s, Map base, Map overlay)</code></p>
+<p>Resets symbol state to read <code>base</code> below the writable scope <code>overlay</code>.</p>
+<p>Later definitions mutate <code>overlay</code>; <code>base</code> is only read.</p>
+<p>Source: <code>src/symbols.x:169</code></p>
+<p><a id="Sym.resolve_base_type"></a></p>
+<h4 id="symresolve_base_type"><a class="header" href="#symresolve_base_type">Sym.resolve_base_type</a></h4>
+<p><code>Type Sym.resolve_base_type(Sym s, Type key)</code></p>
+<p>Resolves a typedef name through the base scopes only, ignoring local
+typedefs, or returns NULL when the base scopes do not declare it.</p>
+<p>Source: <code>src/symbols.x:968</code></p>
+<p><a id="Sym.resolve_global"></a></p>
+<h4 id="symresolve_global"><a class="header" href="#symresolve_global">Sym.resolve_global</a></h4>
+<p><code>List Sym.resolve_global(Sym s, List key, Type &amp;?type)</code></p>
+<p>Resolves a binding through base scopes and optionally stores its type.</p>
+<p>Returns <code>NULL</code> when no base scope contains the key.</p>
+<p>Source: <code>src/symbols.x:488</code></p>
+<p><a id="Sym.resolve_key"></a></p>
+<h4 id="symresolve_key"><a class="header" href="#symresolve_key">Sym.resolve_key</a></h4>
+<p><code>Type Sym.resolve_key(Sym s, Type key)</code></p>
+<p>Resolves a canonical typedef key to the end of its declared chain.</p>
+<p>Source: <code>src/symbols.x:913</code></p>
+<p><a id="Sym.resolve_numeric_type"></a></p>
+<h4 id="symresolve_numeric_type"><a class="header" href="#symresolve_numeric_type">Sym.resolve_numeric_type</a></h4>
+<p><code>Type Sym.resolve_numeric_type(Sym s, Type type)</code></p>
+<p>Resolves a numeric typedef without reducing semantic object types.</p>
+<p>Returns <code>NULL</code> when resolution yields neither a numeric type nor a
+recognized builtin numeric typedef.</p>
+<p>Source: <code>src/symbols.x:1062</code></p>
+<p><a id="Sym.scope_count"></a></p>
+<h4 id="symscope_count"><a class="header" href="#symscope_count">Sym.scope_count</a></h4>
+<p><code>int Sym.scope_count(Sym s)</code></p>
+<p>Returns the number of semantic scopes, including base scopes.</p>
+<p>Source: <code>src/symbols.x:205</code></p>
+<p><a id="Sym.seed_var_tags"></a></p>
+<h4 id="symseed_var_tags"><a class="header" href="#symseed_var_tags">Sym.seed_var_tags</a></h4>
+<p><code>void Sym.seed_var_tags(Sym s, Map symbols)</code></p>
+<p>Registers declared <code>T_var</code> converters in the active <code>Type</code> unit.</p>
+<p>Source: <code>src/symbols.x:318</code></p>
+<p><a id="Sym.set"></a></p>
+<h4 id="symset"><a class="header" href="#symset">Sym.set</a></h4>
+<p><code>void Sym.set(Sym s, List key, List type)</code></p>
+<p>Sets a semantic type for <code>key</code> in the required active scope.</p>
+<p>Source: <code>src/symbols.x:279</code></p>
+<p><a id="Sym.sole_typedef"></a></p>
+<h4 id="symsole_typedef"><a class="header" href="#symsole_typedef">Sym.sole_typedef</a></h4>
+<p><code>Type Sym.sole_typedef(Sym s, Type type)</code></p>
+<p>Returns the name of the one file-scope typedef declared directly as
+<code>type</code>, or NULL when no typedef or several typedefs are.</p>
+<p>Source: <code>src/symbols.x:980</code></p>
+<p><a id="Sym.unit_symbols"></a></p>
+<h4 id="symunit_symbols"><a class="header" href="#symunit_symbols">Sym.unit_symbols</a></h4>
+<p><code>Map Sym.unit_symbols(Sym s)</code></p>
+<p>Returns a fresh map of the base symbols with the current scope’s rows
+merged in.</p>
+<p>Source: <code>src/symbols.x:234</code></p>
+<p><a id="Sym.var_tag_for_type"></a></p>
+<h4 id="symvar_tag_for_type"><a class="header" href="#symvar_tag_for_type">Sym.var_tag_for_type</a></h4>
+<p><code>Symbol Sym.var_tag_for_type(Sym s, Type type, Type &amp;?resolved)</code></p>
+<p>Returns a type’s <code>Var</code> tag and optionally stores its resolved type.</p>
+<p><code>resolved</code> receives the final type even when the result is zero because no
+<code>Var</code> tag is registered. A null input stores <code>NULL</code> and returns zero.</p>
+<p>Source: <code>src/symbols.x:1120</code></p>
+<p><a id="Sym.visible_symbols"></a></p>
+<h4 id="symvisible_symbols"><a class="header" href="#symvisible_symbols">Sym.visible_symbols</a></h4>
+<p><code>List Sym.visible_symbols(Sym s)</code></p>
+<p>Returns the visible one-part source names and their semantic types.
+Inner scopes win. The result is a fresh List; types remain borrowed.</p>
+<p>Source: <code>src/symbols.x:248</code></p>
+<h3 id="symtxn"><a class="header" href="#symtxn"><code>SymTxn</code></a></h3>
+<p><a id="SymTxn.commit"></a></p>
+<h4 id="symtxncommit"><a class="header" href="#symtxncommit">SymTxn.commit</a></h4>
+<p><code>void SymTxn.commit(SymTxn &amp;?s)</code></p>
+<p>Publishes an active semantic transaction and makes rollback a no-op.
+Its writes are already in the scope maps, so code holding a borrowed
+map observes a committed expansion. An absent or inactive transaction
+has no effect.</p>
+<p>Source: <code>src/symbols.x:1332</code></p>
+<p><a id="SymTxn.commit_transient"></a></p>
+<h4 id="symtxncommit_transient"><a class="header" href="#symtxncommit_transient">SymTxn.commit_transient</a></h4>
+<p><code>void SymTxn.commit_transient(SymTxn &amp;s)</code></p>
+<p>Commits an active transaction, retaining the original counters map.
+The caller may then release the transaction’s construction scope.
+Parsing and evaluation must allocate outside that temporary scope.</p>
+<p>Source: <code>src/symbols.x:1356</code></p>
+<p><a id="SymTxn.local_macros_changed"></a></p>
+<h4 id="symtxnlocal_macros_changed"><a class="header" href="#symtxnlocal_macros_changed">SymTxn.local_macros_changed</a></h4>
+<p><code>int SymTxn.local_macros_changed(SymTxn &amp;s)</code></p>
+<p>Returns whether the transaction’s active scope changed its macro map.</p>
+<p>Source: <code>src/symbols.x:1309</code></p>
+<p><a id="SymTxn.rollback"></a></p>
+<h4 id="symtxnrollback"><a class="header" href="#symtxnrollback">SymTxn.rollback</a></h4>
+<p><code>void SymTxn.rollback(SymTxn &amp;?s)</code></p>
+<p>Restores every semantic value captured by an active transaction.
+An absent or inactive transaction has no effect.</p>
+<p>Source: <code>src/symbols.x:1376</code></p>
+<h2 id="design-notes"><a class="header" href="#design-notes">Design notes</a></h2>
+<p><code>Sym</code> holds one compiler’s declarations as a stack of scopes searched
+from inner to outer; its lowest scopes hold file-scope declarations.
+It issues the binding identity of each declared name, resolves typedef
+chains and aggregate fields, and records which file-scope names are
+private. A <code>SymTxn</code> stages the rows a macro binds, so a failed expansion
+leaves the table as it was.</p>
+
+                    </main>
+
+                    <nav class="x2c-pager" aria-label="Page navigation">
+                        <a rel="prev" href="../../internals/compiler-api/statements.html" class="x2c-pager-prev" aria-keyshortcuts="Left">
+                            <span class="x2c-pager-label">previous</span>
+                            <span class="x2c-pager-title">src/statements.x</span>
+                        </a>
+                        
+                        <a rel="next prefetch" href="../../internals/compiler-api/toolchain.html" class="x2c-pager-next" aria-keyshortcuts="Right">
+                            <span class="x2c-pager-label">next</span>
+                            <span class="x2c-pager-title">src/toolchain.x</span>
+                        </a>
+                    </nav>
+                    <footer class="x2c-footer">
+                        &copy; 2025&ndash;2026
+                        <a href="https://flake.org">GWF</a>
+                        &middot;
+                        <a href="https://github.com/gwf/x2c/blob/2fb2e7abb7462f842903580f47a5b96c69698937/LICENSE">Apache 2.0</a>
+                        &middot;
+                        <a href="https://github.com/gwf/x2c/blob/2fb2e7abb7462f842903580f47a5b96c69698937/TRADEMARKS.md">Trademarks</a>
+                    </footer>
+                </div>
+            </div>
+
+
+        </div>
+
+        <template id=fa-eye><span class=fa-svg><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 576 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc. --><path d="M288 32c-80.8 0-145.5 36.8-192.6 80.6C48.6 156 17.3 208 2.5 243.7c-3.3 7.9-3.3 16.7 0 24.6C17.3 304 48.6 356 95.4 399.4C142.5 443.2 207.2 480 288 480s145.5-36.8 192.6-80.6c46.8-43.5 78.1-95.4 93-131.1c3.3-7.9 3.3-16.7 0-24.6c-14.9-35.7-46.2-87.7-93-131.1C433.5 68.8 368.8 32 288 32zM432 256c0 79.5-64.5 144-144 144s-144-64.5-144-144s64.5-144 144-144s144 64.5 144 144zM288 192c0 35.3-28.7 64-64 64c-11.5 0-22.3-3-31.6-8.4c-.2 2.8-.4 5.5-.4 8.4c0 53 43 96 96 96s96-43 96-96s-43-96-96-96c-2.8 0-5.6 .1-8.4 .4c5.3 9.3 8.4 20.1 8.4 31.6z"/></svg></span></template>
+        <template id=fa-eye-slash><span class=fa-svg><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 640 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc. --><path d="M38.8 5.1C28.4-3.1 13.3-1.2 5.1 9.2S-1.2 34.7 9.2 42.9l592 464c10.4 8.2 25.5 6.3 33.7-4.1s6.3-25.5-4.1-33.7L525.6 386.7c39.6-40.6 66.4-86.1 79.9-118.4c3.3-7.9 3.3-16.7 0-24.6c-14.9-35.7-46.2-87.7-93-131.1C465.5 68.8 400.8 32 320 32c-68.2 0-125 26.3-169.3 60.8L38.8 5.1zM223.1 149.5C248.6 126.2 282.7 112 320 112c79.5 0 144 64.5 144 144c0 24.9-6.3 48.3-17.4 68.7L408 294.5c5.2-11.8 8-24.8 8-38.5c0-53-43-96-96-96c-2.8 0-5.6 .1-8.4 .4c5.3 9.3 8.4 20.1 8.4 31.6c0 10.2-2.4 19.8-6.6 28.3l-90.3-70.8zm223.1 298L373 389.9c-16.4 6.5-34.3 10.1-53 10.1c-79.5 0-144-64.5-144-144c0-6.9 .5-13.6 1.4-20.2L83.1 161.5C60.3 191.2 44 220.8 34.5 243.7c-3.3 7.9-3.3 16.7 0 24.6c14.9 35.7 46.2 87.7 93 131.1C174.5 443.2 239.2 480 320 480c47.8 0 89.9-12.9 126.2-32.5z"/></svg></span></template>
+        <template id=fa-copy><span class=fa-svg><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc. --><path d="M502.6 70.63l-61.25-61.25C435.4 3.371 427.2 0 418.7 0H255.1c-35.35 0-64 28.66-64 64l.0195 256C192 355.4 220.7 384 256 384h192c35.2 0 64-28.8 64-64V93.25C512 84.77 508.6 76.63 502.6 70.63zM464 320c0 8.836-7.164 16-16 16H255.1c-8.838 0-16-7.164-16-16L239.1 64.13c0-8.836 7.164-16 16-16h128L384 96c0 17.67 14.33 32 32 32h47.1V320zM272 448c0 8.836-7.164 16-16 16H63.1c-8.838 0-16-7.164-16-16L47.98 192.1c0-8.836 7.164-16 16-16H160V128H63.99c-35.35 0-64 28.65-64 64l.0098 256C.002 483.3 28.66 512 64 512h192c35.2 0 64-28.8 64-64v-32h-47.1L272 448z"/></svg></span></template>
+        <template id=fa-play><span class=fa-svg><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 384 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc. --><path d="M73 39c-14.8-9.1-33.4-9.4-48.5-.9S0 62.6 0 80V432c0 17.4 9.4 33.4 24.5 41.9s33.7 8.1 48.5-.9L361 297c14.3-8.7 23-24.2 23-41s-8.7-32.2-23-41L73 39z"/></svg></span></template>
+        <template id=fa-clock-rotate-left><span class=fa-svg><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc. --><path d="M75 75L41 41C25.9 25.9 0 36.6 0 57.9V168c0 13.3 10.7 24 24 24H134.1c21.4 0 32.1-25.9 17-41l-30.8-30.8C155 85.5 203 64 256 64c106 0 192 86 192 192s-86 192-192 192c-40.8 0-78.6-12.7-109.7-34.4c-14.5-10.1-34.4-6.6-44.6 7.9s-6.6 34.4 7.9 44.6C151.2 495 201.7 512 256 512c141.4 0 256-114.6 256-256S397.4 0 256 0C185.3 0 121.3 28.7 75 75zm181 53c-13.3 0-24 10.7-24 24V256c0 6.4 2.5 12.5 7 17l72 72c9.4 9.4 24.6 9.4 33.9 0s9.4-24.6 0-33.9l-65-65V152c0-13.3-10.7-24-24-24z"/></svg></span></template>
+
+
+
+        <script>
+            window.playground_copyable = true;
+        </script>
+
+
+        <script src="../../elasticlunr-ef4e11c1.min.js"></script>
+        <script src="../../mark-09e88c2c.min.js"></script>
+        <script src="../../searcher-09f2665d.js"></script>
+
+        <script src="../../clipboard-1626706a.min.js"></script>
+        <script src="../../highlight-abc7f01d.js"></script>
+        <script src="../../book-609e4cb8.js"></script>
+
+        <script>
+            document.addEventListener('DOMContentLoaded', () => {
+                const sidebar = document.querySelector('#mdbook-sidebar');
+                sidebar.querySelectorAll('ol').forEach(list => {
+                    const numbers = list.querySelectorAll(
+                        ':scope > li > .chapter-link-wrapper > a > strong, :scope > li > a > strong');
+                    if (numbers.length) {
+                        const width = Math.max(...Array.from(numbers,
+                            number => number.textContent.trim().length));
+                        list.style.setProperty('--chapter-number-width', width + 'ch');
+                    }
+                });
+                const chapter = sidebar.querySelector('a.active');
+                const item = chapter?.closest('.chapter-item');
+                if (item?.querySelector(':scope > .on-this-page')) {
+                    const row = chapter.parentElement;
+                    if (!row.querySelector('.chapter-fold-toggle')) {
+                        const toggle = document.createElement('button');
+                        toggle.type = 'button';
+                        toggle.className = 'chapter-fold-toggle';
+                        toggle.appendChild(document.createElement('div'));
+                        toggle.addEventListener('click', () => {
+                            item.classList.toggle('expanded');
+                        });
+                        row.appendChild(toggle);
+                    }
+                }
+                sidebar.querySelectorAll('.chapter-fold-toggle').forEach(toggle => {
+                    const row = toggle.parentElement;
+                    const item = row.parentElement;
+                    const title = row.querySelector('a').textContent.trim();
+                    toggle.setAttribute('aria-label', 'Toggle ' + title);
+                    const update = () => toggle.setAttribute('aria-expanded',
+                        String(item.classList.contains('expanded')));
+                    update();
+                    toggle.addEventListener('click', update);
+                    if (toggle.tagName === 'A') {
+                        toggle.setAttribute('role', 'button');
+                        toggle.tabIndex = 0;
+                        toggle.addEventListener('keydown', event => {
+                            if (event.key === 'Enter' || event.key === ' ') {
+                                event.preventDefault();
+                                toggle.click();
+                            }
+                        });
+                    }
+                });
+            });
+        </script>
+
+        <!-- Custom JS scripts -->
+
+
+
+    </div>
+    </body>
+</html>

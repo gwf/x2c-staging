@@ -1,6 +1,6 @@
 <!DOCTYPE HTML>
 <html lang="en" class="light sidebar-visible" dir="ltr">
-    <head><meta name="x2c-release-channel" content="staging"><meta name="x2c-candidate" content="candidate-0351be4a4d6c00dd246e5190e8dcf5a970560beb-36014113963-1">
+    <head><meta name="x2c-site-source" content="2fb2e7abb7462f842903580f47a5b96c69698937"><meta name="x2c-release-channel" content="staging"><meta name="x2c-candidate" content="candidate-0351be4a4d6c00dd246e5190e8dcf5a970560beb-36014113963-1">
         <!-- Book generated using mdBook -->
         <meta charset="UTF-8">
         <title>Automatic Differentiation - The x2c Book</title>
@@ -39,10 +39,10 @@
             const path_to_root = "../";
             const default_light_theme = "light";
             const default_dark_theme = "light";
-            window.path_to_searchindex_js = "../searchindex-c9145dcc.js";
+            window.path_to_searchindex_js = "../searchindex-94a52d98.js";
         </script>
         <!-- Start loading toc.js asap -->
-        <script src="../toc-b37ed13f.js"></script>
+        <script src="../toc-89ef7d96.js"></script>
         <!-- x2c publication metadata -->
         <link rel="canonical" href="https://staging.x2c-lang.dev/docs/guide/autodiff.html">
         <meta property="og:type" content="website">
@@ -230,17 +230,23 @@ gradient with the tape shrunk by a factor of about <code>K</code>.</li>
 <li><strong><code>autodiff.x</code></strong> records a runtime tape for code whose shape the
 decorators cannot see.</li>
 </ul>
-<p>All four are ordinary <span class="x2c-wordmark">x2c</span>: a macro file, an optional module, and the
-existing protocol and decorator machinery. Nothing in the compiler knows
-about derivatives.</p>
-<p>The <a href="../library/modules/autodiff.html">runtime module reference</a> documents
-<code>AdTape</code> and <code>AdNode</code>. For other specialized capabilities, see
-<a href="../library/advanced-topics.html">Advanced Topics</a>.</p>
+<p>All four are ordinary <span class="x2c-wordmark">x2c</span>: a macro file, a runtime unit, and the existing
+protocol and decorator machinery. Nothing in the compiler knows about
+derivatives. Both files belong to the optional <code>autodiff</code> package in
+<code>packages/autodiff</code>, which has no native dependency. A unit imports the
+macros by their path, as <code>$(import "../src/autodiff.xmacro")</code> does in the
+package’s own examples; the listings below write the short name. The
+package’s <a href="https://github.com/gwf/x2c/blob/2fb2e7abb7462f842903580f47a5b96c69698937/packages/autodiff/README.md">README</a>
+lists its files and checks. Earlier releases shipped the macros with the
+compiler, imported as <code>import "autodiff";</code>; replace that line with the
+package path, such as <code>$(import "&lt;path&gt;/autodiff/src/autodiff.xmacro")</code>.
+For other specialized capabilities, see <a href="../library/advanced-topics.html">Advanced Topics</a>.</p>
 <h2 id="dual-numbers"><a class="header" href="#dual-numbers">Dual numbers</a></h2>
 <p>Declare a struct with <code>value</code> and <code>tangent</code> fields and let <code>$ad.dual</code>
 generate its arithmetic. The scalar type and the primitives it lifts are
 holes, so the same family nests:</p>
-<pre class="shiki shiki-themes x2c-light x2c-dark x2c-code" style="--shiki-light:#24292e;--shiki-dark:#e9e5df;--shiki-light-bg:#fff;--shiki-dark-bg:#101011" tabindex="0"><code class="language-x2c no-highlight"><span class="line boring"><span style="--shiki-light:#D73A49;--shiki-dark:#F0ADA1">#include</span><span style="--shiki-light:#032F62;--shiki-dark:#9EDFB8"> &lt;math.h&gt;</span>
+<!-- ignore: the macros import from the autodiff package path. -->
+<pre class="shiki shiki-themes x2c-light x2c-dark x2c-code" style="--shiki-light:#24292e;--shiki-dark:#e9e5df;--shiki-light-bg:#fff;--shiki-dark-bg:#101011" tabindex="0"><code class="language-x2c no-highlight ignore"><span class="line boring"><span style="--shiki-light:#D73A49;--shiki-dark:#F0ADA1">#include</span><span style="--shiki-light:#032F62;--shiki-dark:#9EDFB8"> &lt;math.h&gt;</span>
 </span><span class="line"><span style="--shiki-light:#24292E;--shiki-dark:#FF715A">$(</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">import </span><span style="--shiki-light:#032F62;--shiki-dark:#9EDFB8">"autodiff.xmacro"</span><span style="--shiki-light:#24292E;--shiki-dark:#FF715A">)</span>
 </span><span class="line">
 </span><span class="line"><span style="--shiki-light:#D73A49;--shiki-dark:#E9E5DF">typedef</span><span style="--shiki-light:#D73A49;--shiki-dark:#F0ADA1"> struct</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF"> Dual { </span><span style="--shiki-light:#D73A49;--shiki-dark:#F0ADA1">double</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF"> value; </span><span style="--shiki-light:#D73A49;--shiki-dark:#F0ADA1">double</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF"> tangent; } Dual;</span>
@@ -279,7 +285,8 @@ perturbation confusion silently.</p>
 <p><code>$ad.forward()</code> decorates a file-scope function that returns <code>double</code> and
 emits <code>NAME_dot</code> beside it. Every <code>double</code> parameter <code>p</code> is followed by a
 tangent parameter <code>p_dot</code>, and the result is the directional derivative:</p>
-<pre class="shiki shiki-themes x2c-light x2c-dark x2c-code" style="--shiki-light:#24292e;--shiki-dark:#e9e5df;--shiki-light-bg:#fff;--shiki-dark-bg:#101011" tabindex="0"><code class="language-x2c no-highlight"><span class="line boring"><span style="--shiki-light:#D73A49;--shiki-dark:#F0ADA1">#include</span><span style="--shiki-light:#032F62;--shiki-dark:#9EDFB8"> &lt;math.h&gt;</span>
+<!-- ignore: the macros import from the autodiff package path. -->
+<pre class="shiki shiki-themes x2c-light x2c-dark x2c-code" style="--shiki-light:#24292e;--shiki-dark:#e9e5df;--shiki-light-bg:#fff;--shiki-dark-bg:#101011" tabindex="0"><code class="language-x2c no-highlight ignore"><span class="line boring"><span style="--shiki-light:#D73A49;--shiki-dark:#F0ADA1">#include</span><span style="--shiki-light:#032F62;--shiki-dark:#9EDFB8"> &lt;math.h&gt;</span>
 </span><span class="line"><span style="--shiki-light:#24292E;--shiki-dark:#FF715A">$(</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">import </span><span style="--shiki-light:#032F62;--shiki-dark:#9EDFB8">"autodiff.xmacro"</span><span style="--shiki-light:#24292E;--shiki-dark:#FF715A">)</span>
 </span><span class="line">
 </span><span class="line"><span style="--shiki-light:#24292E;--shiki-dark:#FF715A">$</span><span style="--shiki-light:#6F42C1;--shiki-dark:#FF715A">ad.forward</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">()</span>
@@ -322,7 +329,8 @@ one <code>double *p_grad</code> per <code>double</code> parameter; the result is
 value, and each slot receives the partial derivative of that result. The
 unit must include <code>typed-array.x</code> because the generated function records
 a tape on an <code>ArrayDbl</code>:</p>
-<pre class="shiki shiki-themes x2c-light x2c-dark x2c-code" style="--shiki-light:#24292e;--shiki-dark:#e9e5df;--shiki-light-bg:#fff;--shiki-dark-bg:#101011" tabindex="0"><code class="language-x2c no-highlight"><span class="line boring"><span style="--shiki-light:#D73A49;--shiki-dark:#F0ADA1">#include</span><span style="--shiki-light:#032F62;--shiki-dark:#9EDFB8"> "typed-array.x"</span>
+<!-- ignore: the macros import from the autodiff package path. -->
+<pre class="shiki shiki-themes x2c-light x2c-dark x2c-code" style="--shiki-light:#24292e;--shiki-dark:#e9e5df;--shiki-light-bg:#fff;--shiki-dark-bg:#101011" tabindex="0"><code class="language-x2c no-highlight ignore"><span class="line boring"><span style="--shiki-light:#D73A49;--shiki-dark:#F0ADA1">#include</span><span style="--shiki-light:#032F62;--shiki-dark:#9EDFB8"> "typed-array.x"</span>
 </span><span class="line boring"><span style="--shiki-light:#D73A49;--shiki-dark:#F0ADA1">#include</span><span style="--shiki-light:#032F62;--shiki-dark:#9EDFB8"> &lt;math.h&gt;</span>
 </span><span class="line"><span style="--shiki-light:#24292E;--shiki-dark:#FF715A">$(</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">import </span><span style="--shiki-light:#032F62;--shiki-dark:#9EDFB8">"autodiff.xmacro"</span><span style="--shiki-light:#24292E;--shiki-dark:#FF715A">)</span>
 </span><span class="line">
@@ -377,7 +385,8 @@ snapshot, replays it with recording, and reverses the replay. Tape memory
 is one block’s tape plus one snapshot per block, so it still grows with
 the trip count, divided by <code>K</code>. <code>break</code> and <code>continue</code> replay exactly as
 before; a checkpointed loop cannot contain <code>return</code>.</p>
-<pre class="shiki shiki-themes x2c-light x2c-dark x2c-code" style="--shiki-light:#24292e;--shiki-dark:#e9e5df;--shiki-light-bg:#fff;--shiki-dark-bg:#101011" tabindex="0"><code class="language-x2c no-highlight"><span class="line boring"><span style="--shiki-light:#D73A49;--shiki-dark:#F0ADA1">#include</span><span style="--shiki-light:#032F62;--shiki-dark:#9EDFB8"> "typed-array.x"</span>
+<!-- ignore: the macros import from the autodiff package path. -->
+<pre class="shiki shiki-themes x2c-light x2c-dark x2c-code" style="--shiki-light:#24292e;--shiki-dark:#e9e5df;--shiki-light-bg:#fff;--shiki-dark-bg:#101011" tabindex="0"><code class="language-x2c no-highlight ignore"><span class="line boring"><span style="--shiki-light:#D73A49;--shiki-dark:#F0ADA1">#include</span><span style="--shiki-light:#032F62;--shiki-dark:#9EDFB8"> "typed-array.x"</span>
 </span><span class="line boring"><span style="--shiki-light:#D73A49;--shiki-dark:#F0ADA1">#include</span><span style="--shiki-light:#032F62;--shiki-dark:#9EDFB8"> &lt;math.h&gt;</span>
 </span><span class="line"><span style="--shiki-light:#24292E;--shiki-dark:#FF715A">$(</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">import </span><span style="--shiki-light:#032F62;--shiki-dark:#9EDFB8">"autodiff.xmacro"</span><span style="--shiki-light:#24292E;--shiki-dark:#FF715A">)</span>
 </span><span class="line">
@@ -395,7 +404,7 @@ before; a checkpointed loop cannot contain <code>return</code>.</p>
 </span><span class="line"><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">}</span></span></code></pre>
 
 <p>Measured on one 2,000,000-step relaxation loop (the benchmark
-<code>unittest/benchmarks/autodiff-checkpoint.x</code>, one process per variant,
+<code>packages/autodiff/benchmarks/autodiff-checkpoint.x</code>, one process per variant,
 Apple M-series, <code>-O2</code>):</p>
 <div class="table-wrapper">
 <table>
@@ -422,7 +431,7 @@ no block size and achieves logarithmic growth, is not implemented; a
 program whose loops outgrow a fixed block can nest the decorated function
 in a caller that is itself decorated.</p>
 <h2 id="a-worked-example"><a class="header" href="#a-worked-example">A worked example</a></h2>
-<p><code>examples/magic/autodiff-fit.x</code> fits the rate and capacity of a logistic
+<p><code>packages/autodiff/examples/autodiff-fit.x</code> fits the rate and capacity of a logistic
 growth model to observations. The loss integrates the model with 4,000
 Euler steps and accumulates squared residuals at ten sample times inside
 the loop, so the gradient runs through a long loop with a branch in it.
@@ -460,8 +469,9 @@ provides the subset its holes name, plus <code>fabs</code> and a <code>pow</code
 <code>exp(b log a)</code>, which unlike C <code>pow</code> needs a positive base.</p>
 <h2 id="runtime-tape"><a class="header" href="#runtime-tape">Runtime tape</a></h2>
 <p>When the shape of the computation depends on data in ways the decorators
-reject, include <code>autodiff.x</code> and record it:</p>
-<pre class="shiki shiki-themes x2c-light x2c-dark x2c-code" style="--shiki-light:#24292e;--shiki-dark:#e9e5df;--shiki-light-bg:#fff;--shiki-dark-bg:#101011" tabindex="0"><code class="language-x2c no-highlight"><span class="line boring"><span style="--shiki-light:#D73A49;--shiki-dark:#F0ADA1">#include</span><span style="--shiki-light:#032F62;--shiki-dark:#9EDFB8"> "autodiff.x"</span>
+reject, import the package’s runtime tape and record it:</p>
+<!-- ignore: an import needs the built autodiff package archive. -->
+<pre class="shiki shiki-themes x2c-light x2c-dark x2c-code" style="--shiki-light:#24292e;--shiki-dark:#e9e5df;--shiki-light-bg:#fff;--shiki-dark-bg:#101011" tabindex="0"><code class="language-x2c no-highlight ignore"><span class="line"><span style="--shiki-light:#A626A4;--shiki-light-font-weight:bold;--shiki-dark:#FF4FD8;--shiki-dark-font-weight:bold">import</span><span style="--shiki-light:#032F62;--shiki-dark:#9EDFB8"> "autodiff"</span><span style="--shiki-light:#A626A4;--shiki-light-font-weight:bold;--shiki-dark:#FF4FD8;--shiki-dark-font-weight:bold"> with</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF"> AdTape, AdNode;</span>
 </span><span class="line"><span style="--shiki-light:#D73A49;--shiki-dark:#F0ADA1">int</span><span style="--shiki-light:#6F42C1;--shiki-dark:#E9E5DF"> main</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">(</span><span style="--shiki-light:#D73A49;--shiki-dark:#F0ADA1">void</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">) {</span>
 </span><span class="line"><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">  AdTape tape </span><span style="--shiki-light:#D73A49;--shiki-dark:#E9E5DF">=</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF"> AdTape.</span><span style="--shiki-light:#6F42C1;--shiki-dark:#E9E5DF">new</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">();</span>
 </span><span class="line"><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">  AdNode x </span><span style="--shiki-light:#D73A49;--shiki-dark:#E9E5DF">=</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF"> tape.</span><span style="--shiki-light:#6F42C1;--shiki-dark:#E9E5DF">input</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">(</span><span style="--shiki-light:#005CC5;--shiki-dark:#A9C9F5">1.5</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">), y </span><span style="--shiki-light:#D73A49;--shiki-dark:#E9E5DF">=</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF"> tape.</span><span style="--shiki-light:#6F42C1;--shiki-dark:#E9E5DF">input</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">(</span><span style="--shiki-light:#005CC5;--shiki-dark:#A9C9F5">2.0</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">);</span>
@@ -479,6 +489,11 @@ operation therefore does not contaminate the requested gradient. Repeating
 <code>backward</code> clears the previous adjoints before seeding the new result.
 Values box through <code>Var</code> and each operation allocates a node in
 the active <code>Scope</code>, so this is the slow path.</p>
+<p>Use one tape for a computation, creating constants with that tape’s <code>input</code>
+as well. Binary arithmetic operations reject nodes from different tapes with
+<code>bad-arg</code> before recording anything. <code>backward</code> rejects a result from another tape
+before clearing or seeding adjoints. Keep the tape and its nodes alive
+together; do not change a recorded node’s <code>tape</code> field.</p>
 <h2 id="choosing"><a class="header" href="#choosing">Choosing</a></h2>
 <p>Use dual numbers for a few derivatives of small functions, or for
 higher-order derivatives through nesting. Use <code>$ad.forward()</code> when the
@@ -555,9 +570,9 @@ Programming</em> 29, 2019.</li>
                         &copy; 2025&ndash;2026
                         <a href="https://flake.org">GWF</a>
                         &middot;
-                        <a href="https://github.com/gwf/x2c/blob/0351be4a4d6c00dd246e5190e8dcf5a970560beb/LICENSE">Apache 2.0</a>
+                        <a href="https://github.com/gwf/x2c/blob/2fb2e7abb7462f842903580f47a5b96c69698937/LICENSE">Apache 2.0</a>
                         &middot;
-                        <a href="https://github.com/gwf/x2c/blob/0351be4a4d6c00dd246e5190e8dcf5a970560beb/TRADEMARKS.md">Trademarks</a>
+                        <a href="https://github.com/gwf/x2c/blob/2fb2e7abb7462f842903580f47a5b96c69698937/TRADEMARKS.md">Trademarks</a>
                     </footer>
                 </div>
             </div>

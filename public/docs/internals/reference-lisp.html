@@ -1,6 +1,6 @@
 <!DOCTYPE HTML>
 <html lang="en" class="light sidebar-visible" dir="ltr">
-    <head><meta name="x2c-release-channel" content="staging"><meta name="x2c-candidate" content="candidate-0351be4a4d6c00dd246e5190e8dcf5a970560beb-36014113963-1">
+    <head><meta name="x2c-site-source" content="2fb2e7abb7462f842903580f47a5b96c69698937"><meta name="x2c-release-channel" content="staging"><meta name="x2c-candidate" content="candidate-0351be4a4d6c00dd246e5190e8dcf5a970560beb-36014113963-1">
         <!-- Book generated using mdBook -->
         <meta charset="UTF-8">
         <title>A Recursive Lisp in x2c - The x2c Book</title>
@@ -39,10 +39,10 @@
             const path_to_root = "../";
             const default_light_theme = "light";
             const default_dark_theme = "light";
-            window.path_to_searchindex_js = "../searchindex-c9145dcc.js";
+            window.path_to_searchindex_js = "../searchindex-94a52d98.js";
         </script>
         <!-- Start loading toc.js asap -->
-        <script src="../toc-b37ed13f.js"></script>
+        <script src="../toc-89ef7d96.js"></script>
         <!-- x2c publication metadata -->
         <link rel="canonical" href="https://staging.x2c-lang.dev/docs/internals/reference-lisp.html">
         <meta property="og:type" content="website">
@@ -219,11 +219,11 @@
                 <div id="mdbook-content" class="content">
                     <main>
                         <h1 id="literate-lisp-in-x2c"><a class="header" href="#literate-lisp-in-x2c">Literate Lisp in <span class="x2c-wordmark">x2c</span></a></h1>
-<p><a href="https://github.com/gwf/x2c/blob/0351be4a4d6c00dd246e5190e8dcf5a970560beb/examples/programs/literate-lisp.x">The reference interpreter</a>
+<p><a href="https://github.com/gwf/x2c/blob/2fb2e7abb7462f842903580f47a5b96c69698937/examples/programs/literate-lisp.x">The reference interpreter</a>
 implements <span class="x2c-wordmark">x2c</span> Lisp in one source file. It owns its reader, environments,
 closures, special forms, native registry, and standard vocabulary. Evaluation
 recurses over ordinary values; it never constructs a Lisp session, calls the
-production evaluator, or prepares or executes word code.</p>
+production evaluator, or uses its call-frame machinery.</p>
 <p>Build it from the repository root:</p>
 <pre><code class="language-sh">./builds/0/x2c build --output /tmp/reference-lisp \
   examples/programs/literate-lisp.x
@@ -268,9 +268,14 @@ needs neither generic record boxing nor field comparison. <code>foreach</code> h
 element traversal. The remaining <code>for</code> loops follow environment links or keep
 the parameter tail needed to bind a dotted rest argument.</p>
 <p>Quasiquotation has two operations with distinct results: <code>quasiquote</code> returns
-one value; <code>quoted_item</code> returns the elements that value contributes to its
-containing List. An active <code>,@</code> can contribute several elements. The nesting
-depth determines when an unquote becomes active.</p>
+one value; <code>quoted_elements</code> builds a containing List from the values
+contributed by its actual elements. An active <code>,@</code> can contribute several
+elements. The nesting depth determines when an unquote becomes active.
+<code>quoted_elements</code> walks siblings once, recursing only into nested forms. A bare
+<code>unquote</code>, <code>unquote-splicing</code>, or <code>quasiquote</code> atom inside an element sequence remains
+data; only a List headed by that name has quotation syntax. For example,
+<code>`(a unquote (+ 1 2))</code> returns <code>(a unquote (+ 1 2))</code>, and
+<code>`(a quasiquote ,(+ 1 2))</code> returns <code>(a quasiquote 3)</code>.</p>
 <p><code>Reader.scan</code> tokenizes one source batch. <code>Reader.read</code> returns successive
 forms, using recursive descent for Lists and reader prefixes. End of input is
 <code>void</code>; an unfinished or malformed form raises an error at its source
@@ -305,10 +310,8 @@ or pattern engine.</p>
 <li>Only the empty List is false; zero and the empty String are true.</li>
 <li>Ordinary arguments run left to right. Macros receive unevaluated forms.</li>
 <li>Special forms are callable identities, so aliases and shadowing work.</li>
-<li>Closures capture free local names in evaluated positions, including scalar
-bodies and nested expressions. Quoted data contributes no names; quasiquote
-captures through unquote. Nested function parameters bind their own names.
-Calls resolve parameters, captures, globals, and reserved names, without
+<li>Closures capture local values where they are made. Calls resolve parameters,
+captures, globals, and reserved names, without
 searching caller locals. Globals remain visible after rebinding.</li>
 <li><code>def</code> writes globals. <code>eval</code> evaluates its supplied expression globally.</li>
 <li><code>apply</code> consumes evaluated values and rejects macros and special forms,
@@ -319,37 +322,33 @@ except for the built-in <code>apply</code> itself.</li>
 <p>Native calls use <span class="x2c-wordmark">x2c</span>’s existing checked <code>Func</code> boundary. Deliberate Lisp
 signature and form errors remain in the evaluator. No additional syntax
 validation or compiler-specific protection of <code>x2c.*</code> names is introduced.</p>
-<p>The reference targets language behavior, not the embedding APIs, AUTO
-instrumentation, word-code introspection, or native stack capacity of the
-production runtime. Calls consume native stack: sufficiently deep recursion
+<p>Production closures also retain local names that mutable global or unknown
+callables may later read from current data. Captured local special identities
+keep quote opacity, quasiquote depth and nested parameter binding. Captures
+belong to the session; borrowed values keep their original owners and must
+remain live. The reference uses the same conservative capture rule: stable
+local special identities control quotation and binding, while global,
+parameter and computed callables retain possible local reads from their data.
+This can retain local values and their referents longer than their immediate
+use would require; it does not copy or promote borrowed objects.</p>
+<p>The reference targets language behavior, not the embedding APIs or native
+stack capacity of the production runtime. Calls consume native stack: sufficiently deep recursion
 can exhaust it. Callable addresses are process-specific, as they are in the
 production implementation. This is a tested reference, not a proof that every
 possible program behaves identically.</p>
 <h2 id="production-execution"><a class="header" href="#production-execution">Production execution</a></h2>
-<p>The production evaluator can prepare repeated Lambda calls as word code.
-Preparation can mix lowered operations with ordinary evaluation: when a form
-has no lowering, its partial words are discarded and that form runs through
-the evaluator with the current parameters and captures. Free names then resolve
-through the session globals and reserved names, never through caller locals.
-For example, an interpreted <code>def</code> can sit inside a lowered <code>cond</code>; it does
-not prevent preparation of the whole body. This changes execution, not
-which Lisp forms are legal or when their effects occur.</p>
-<p>Lowered <code>quote</code>, <code>cond</code>, and <code>quasiquote</code> forms check their binding at the
-start of that form. Prepared macro expansions likewise check the bindings
-used during expansion. If a preceding effect changed a dependency, only the
-original form is evaluated, without replaying earlier effects. Rebinding
-inside a selected special form does not replace that operation midway
-through it; later forms resolve their own bindings.</p>
-<p>Preparation still has parameter and program-capacity limits: dotted rest
-parameters and more parameters than the machine frame supports remain
-interpreted. Prepared calls use bounded frame, local, and operand storage;
-when a call cannot fit, it crosses to recursive evaluation. A lowered self
-call in tail position can reuse its frame when the runtime callee still
-matches. Other recursion, including recursion inside an interpreted form,
-can consume native stack. AUTO therefore does not prepare every Lambda or
-promise unbounded recursion.</p>
+<p>The production evaluator runs each call recursively, except a call in tail
+position, which reuses the frame of the call it ends. A self-recursive loop
+written in tail position therefore runs in constant native stack. Other
+recursion consumes native stack, and the evaluator reports <code>&lt;call-stack&gt;</code>
+before it runs out. Free names resolve through the Lambda’s captures and
+then the session globals and reserved names, never through caller locals.
+The production step budget and interruption flag stop evaluation through
+<code>&lt;call-stack&gt;</code> and <code>&lt;interrupt&gt;</code>. These shared Error causes allow catches,
+but reject returning <code>ignore</code>, <code>log</code>, or <code>collect</code> policies. A later public
+entry opens a fresh budget; the session owner clears its interruption flag.</p>
 <h2 id="the-showcase-and-comparison"><a class="header" href="#the-showcase-and-comparison">The showcase and comparison</a></h2>
-<p><a href="https://github.com/gwf/x2c/blob/0351be4a4d6c00dd246e5190e8dcf5a970560beb/examples/data/reference-lisp/showcase.xlisp">The Lisp demonstration</a>
+<p><a href="https://github.com/gwf/x2c/blob/2fb2e7abb7462f842903580f47a5b96c69698937/examples/data/reference-lisp/showcase.xlisp">The Lisp demonstration</a>
 differentiates <code>x*x + 3*x</code> using recursive pattern matching, simplifies the
 result, evaluates both expressions at <code>x = 5</code>, and maps a captured offset over
 a List. Its result is:</p>
@@ -358,7 +357,7 @@ a List. Its result is:</p>
 <p>The example is listed in <code>examples/manifest.txt</code>, so <code>make examples</code> checks
 its output alongside the existing examples. The optional differential checker
 builds both implementations and compares exit status, stdout, and stderr:</p>
-<pre><code class="language-sh">python3 examples/programs/check-reference-lisp.py --build
+<pre><code class="language-sh">x2c script examples/programs/check-reference-lisp --build
 </code></pre>
 <p>The corpus covers ordinary values, arithmetic, macros, capture, shadowing,
 reader failures, native errors, file imports, optional Lisp libraries, and
@@ -366,8 +365,8 @@ REPL recovery. It avoids printing opaque addresses and performs no output
 normalization. Run it when changing this interpreter or the production Lisp
 semantics; it is not an additional publication gate.</p>
 <h2 id="basic-benchmarks"><a class="header" href="#basic-benchmarks">Basic benchmarks</a></h2>
-<p>The optional runner compares the recursive interpreter with the word-machine
-shell in <code>examples/programs/lisp.x</code>. Run it from the repository root:</p>
+<p>The optional runner compares the recursive interpreter with the production
+Lisp shell in <code>examples/programs/lisp.x</code>. Run it from the repository root:</p>
 <pre><code class="language-sh">python3 examples/programs/benchmark-reference-lisp.py --build
 python3 examples/programs/benchmark-reference-lisp.py --repeat 10
 python3 examples/programs/benchmark-reference-lisp.py --case fibonacci --show-source
@@ -376,7 +375,7 @@ python3 examples/programs/benchmark-reference-lisp.py --case fibonacci --show-so
 captured closures, and runtime Lisp macros. Each sample verifies an expected
 result. The runner alternates execution order and reports median milliseconds
 from fresh processes, including startup, library initialization, reading,
-word-machine compilation, evaluation, and output. These measure complete CLI
+evaluation, and output. These measure complete CLI
 runs; they do not isolate evaluator speed. The startup baseline is reported
 separately, without subtracting it from the other measurements.</p>
 
@@ -393,9 +392,9 @@ separately, without subtracting it from the other measurements.</p>
                         &copy; 2025&ndash;2026
                         <a href="https://flake.org">GWF</a>
                         &middot;
-                        <a href="https://github.com/gwf/x2c/blob/0351be4a4d6c00dd246e5190e8dcf5a970560beb/LICENSE">Apache 2.0</a>
+                        <a href="https://github.com/gwf/x2c/blob/2fb2e7abb7462f842903580f47a5b96c69698937/LICENSE">Apache 2.0</a>
                         &middot;
-                        <a href="https://github.com/gwf/x2c/blob/0351be4a4d6c00dd246e5190e8dcf5a970560beb/TRADEMARKS.md">Trademarks</a>
+                        <a href="https://github.com/gwf/x2c/blob/2fb2e7abb7462f842903580f47a5b96c69698937/TRADEMARKS.md">Trademarks</a>
                     </footer>
                 </div>
             </div>

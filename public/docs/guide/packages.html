@@ -1,6 +1,6 @@
 <!DOCTYPE HTML>
 <html lang="en" class="light sidebar-visible" dir="ltr">
-    <head><meta name="x2c-release-channel" content="staging"><meta name="x2c-candidate" content="candidate-0351be4a4d6c00dd246e5190e8dcf5a970560beb-36014113963-1">
+    <head><meta name="x2c-site-source" content="2fb2e7abb7462f842903580f47a5b96c69698937"><meta name="x2c-release-channel" content="staging"><meta name="x2c-candidate" content="candidate-0351be4a4d6c00dd246e5190e8dcf5a970560beb-36014113963-1">
         <!-- Book generated using mdBook -->
         <meta charset="UTF-8">
         <title>Packages - The x2c Book</title>
@@ -39,10 +39,10 @@
             const path_to_root = "../";
             const default_light_theme = "light";
             const default_dark_theme = "light";
-            window.path_to_searchindex_js = "../searchindex-c9145dcc.js";
+            window.path_to_searchindex_js = "../searchindex-94a52d98.js";
         </script>
         <!-- Start loading toc.js asap -->
-        <script src="../toc-b37ed13f.js"></script>
+        <script src="../toc-89ef7d96.js"></script>
         <!-- x2c publication metadata -->
         <link rel="canonical" href="https://staging.x2c-lang.dev/docs/guide/packages.html">
         <meta property="og:type" content="website">
@@ -271,6 +271,8 @@ include ../package.mk
 builds/libgreet.a        the archive a consumer links
 builds/greet.native.rsp  the native arguments a consumer needs, one per
                          line, empty when none
+builds/greet.module      the compile-time part, only for a package that
+                         has one
 </code></pre>
 <p><code>make test</code> builds and runs <code>tests/test-*.x</code>, and <code>make clean</code> removes
 <code>builds/</code>. A package with a pinned native dependency adds a <code>dependency.json</code>
@@ -332,6 +334,63 @@ crosses the import under its own name. raylib’s <code>Image</code> and <code>V
 raylib’s, so a consumer writes <code>Image.new(...)</code>, reads <code>image.width</code>, and uses
 <code>a + b</code> with no <code>with</code> entry for either type. The types come from the header
 and the methods from <code>raylib__</code>.</p>
+<h2 id="packages-with-compile-time-parts"><a class="header" href="#packages-with-compile-time-parts">Packages with compile-time parts</a></h2>
+<p>A package has a compile-time part when its sources declare a native <code>meta</code>
+function, with a <code>meta native</code> definition or a bodyless <code>meta</code> prototype. Building the package then also builds a
+<a href="meta-functions.html#native-modules">native module</a> from the package’s
+sources, <code>builds/&lt;name&gt;.module</code>, and importing the package loads it:</p>
+<!-- ignore: the sample is the source of a package. -->
+<pre class="shiki shiki-themes x2c-light x2c-dark x2c-code" style="--shiki-light:#24292e;--shiki-dark:#e9e5df;--shiki-light-bg:#fff;--shiki-dark-bg:#101011" tabindex="0"><code class="language-x2c no-highlight ignore"><span class="line"><span style="--shiki-light:#D73A49;--shiki-dark:#F0ADA1">meta</span><span style="--shiki-light:#D73A49;--shiki-dark:#F0ADA1"> native</span><span style="--shiki-light:#D73A49;--shiki-dark:#F0ADA1"> int</span><span style="--shiki-light:#6F42C1;--shiki-dark:#E9E5DF"> tally_sum</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">(</span><span style="--shiki-light:#D73A49;--shiki-dark:#F0ADA1">int</span><span style="--shiki-light:#E36209;--shiki-dark:#E9E5DF"> n</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">) </span><span style="--shiki-light:#A626A4;--shiki-light-font-weight:bold;--shiki-dark:#FF4FD8;--shiki-dark-font-weight:bold">=&gt;</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF"> n </span><span style="--shiki-light:#D73A49;--shiki-dark:#E9E5DF">*</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF"> (n </span><span style="--shiki-light:#D73A49;--shiki-dark:#E9E5DF">+</span><span style="--shiki-light:#005CC5;--shiki-dark:#A9C9F5"> 1</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">) </span><span style="--shiki-light:#D73A49;--shiki-dark:#E9E5DF">/</span><span style="--shiki-light:#005CC5;--shiki-dark:#A9C9F5"> 2</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">;</span></span></code></pre>
+
+<!-- ignore: an import needs a registered --package-dir root. -->
+<pre class="shiki shiki-themes x2c-light x2c-dark x2c-code" style="--shiki-light:#24292e;--shiki-dark:#e9e5df;--shiki-light-bg:#fff;--shiki-dark-bg:#101011" tabindex="0"><code class="language-x2c no-highlight ignore"><span class="line"><span style="--shiki-light:#A626A4;--shiki-light-font-weight:bold;--shiki-dark:#FF4FD8;--shiki-dark-font-weight:bold">import</span><span style="--shiki-light:#032F62;--shiki-dark:#9EDFB8"> "tally"</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">;</span>
+</span><span class="line">
+</span><span class="line"><span style="--shiki-light:#D73A49;--shiki-dark:#F0ADA1">meta</span><span style="--shiki-light:#D73A49;--shiki-dark:#F0ADA1"> static</span><span style="--shiki-light:#D73A49;--shiki-dark:#F0ADA1"> int</span><span style="--shiki-light:#6F42C1;--shiki-dark:#E9E5DF"> ten</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">(</span><span style="--shiki-light:#D73A49;--shiki-dark:#F0ADA1">void</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">) </span><span style="--shiki-light:#A626A4;--shiki-light-font-weight:bold;--shiki-dark:#FF4FD8;--shiki-dark-font-weight:bold">=&gt;</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF"> tally.</span><span style="--shiki-light:#6F42C1;--shiki-dark:#E9E5DF">tally_sum</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">(</span><span style="--shiki-light:#005CC5;--shiki-dark:#A9C9F5">4</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">);</span></span></code></pre>
+
+<p><code>$ten()</code> runs the package’s <code>tally_sum</code> during translation. The import
+alone loads the module; no <code>--native-module</code> option or <code>native-modules</code>
+entry is needed. A module named by either one is still consulted first. A
+package whose sources declare no native <code>meta</code> function builds no module
+and is only linked. <code>x2c install</code> builds the module of a source package, and
+<code>make bundle</code> carries it in the bundle.</p>
+<p>The consumer’s translation records the module as a prerequisite, so
+rebuilding the package retranslates the units that import it. The import
+never builds the package. Only the compiler that built a module loads it,
+so a package with a compile-time part must be rebuilt after the compiler
+changes; until then the import reports:</p>
+<pre><code class="language-text">main.x:1:1: driver: package 'tally' was built by another compiler; rebuild it
+</code></pre>
+<p>Modules load on macOS, Linux and WSL. On other platforms, importing a
+package that has a module reports that native modules are not supported.
+There, link the package’s compile-time part into a compiler built from a
+checkout’s <code>src/*.x</code> instead:</p>
+<pre><code class="language-sh">./x2c build --extension packages/tally --output /tmp/x2c src/*.x
+</code></pre>
+<p>That compiler then calls <code>tally</code>’s <code>meta</code> functions through
+<code>import "tally"</code> alone, never loads a module, and needs no
+<code>builds/tally.module</code>. The build translates the package’s <code>src/*.x</code>
+and compiles its <code>src/*.c</code> with the compiler, so only a package without a
+native dependency links in this way.</p>
+<p>A package can publish macros with its compile-time functions. Put a direct
+<code>.xmacro</code> import in the public part of its entry source:</p>
+<!-- ignore: these are files in a package named tally. -->
+<pre class="shiki shiki-themes x2c-light x2c-dark x2c-code" style="--shiki-light:#24292e;--shiki-dark:#e9e5df;--shiki-light-bg:#fff;--shiki-dark-bg:#101011" tabindex="0"><code class="language-x2c no-highlight ignore"><span class="line"><span style="--shiki-light:#6A737D;--shiki-dark:#8B857F">// src/tally.x</span>
+</span><span class="line"><span style="--shiki-light:#D73A49;--shiki-dark:#F0ADA1">meta</span><span style="--shiki-light:#D73A49;--shiki-dark:#F0ADA1"> int</span><span style="--shiki-light:#6F42C1;--shiki-dark:#E9E5DF"> tally_sum</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">(</span><span style="--shiki-light:#D73A49;--shiki-dark:#F0ADA1">int</span><span style="--shiki-light:#E36209;--shiki-dark:#E9E5DF"> n</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">);</span>
+</span><span class="line"><span style="--shiki-light:#24292E;--shiki-dark:#FF715A">$(</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">import </span><span style="--shiki-light:#032F62;--shiki-dark:#9EDFB8">"tally.xmacro"</span><span style="--shiki-light:#24292E;--shiki-dark:#FF715A">)</span>
+</span><span class="line"><span style="--shiki-light:#D73A49;--shiki-dark:#F0ADA1">#pragma</span><span style="--shiki-light:#6F42C1;--shiki-dark:#E9E5DF"> private</span></span></code></pre>
+
+<pre class="shiki shiki-themes x2c-light x2c-dark x2c-code" style="--shiki-light:#24292e;--shiki-dark:#e9e5df;--shiki-light-bg:#fff;--shiki-dark-bg:#101011" tabindex="0"><code class="language-x2c no-highlight ignore"><span class="line"><span style="--shiki-light:#6A737D;--shiki-dark:#8B857F">// src/tally.xmacro</span>
+</span><span class="line"><span style="--shiki-light:#A626A4;--shiki-light-font-weight:bold;--shiki-dark:#FF4FD8;--shiki-dark-font-weight:bold">macro</span><span style="--shiki-light:#A15C00;--shiki-light-font-style:italic;--shiki-dark:#FFB454;--shiki-dark-font-style:italic"> Expression</span><span style="--shiki-light:#24292E;--shiki-dark:#FF715A"> $</span><span style="--shiki-light:#6F42C1;--shiki-dark:#FF715A">tally.sum4</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">() </span><span style="--shiki-light:#A626A4;--shiki-light-font-weight:bold;--shiki-dark:#FF4FD8;--shiki-dark-font-weight:bold">=&gt;</span><span style="--shiki-light:#6F42C1;--shiki-dark:#E9E5DF"> tally__tally_sum</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">(</span><span style="--shiki-light:#005CC5;--shiki-dark:#A9C9F5">4</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">);</span></span></code></pre>
+
+<p>The consumer needs one import:</p>
+<pre class="shiki shiki-themes x2c-light x2c-dark x2c-code" style="--shiki-light:#24292e;--shiki-dark:#e9e5df;--shiki-light-bg:#fff;--shiki-dark-bg:#101011" tabindex="0"><code class="language-x2c no-highlight ignore"><span class="line"><span style="--shiki-light:#A626A4;--shiki-light-font-weight:bold;--shiki-dark:#FF4FD8;--shiki-dark-font-weight:bold">import</span><span style="--shiki-light:#032F62;--shiki-dark:#9EDFB8"> "tally"</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">;</span>
+</span><span class="line"><span style="--shiki-light:#D73A49;--shiki-dark:#F0ADA1">meta</span><span style="--shiki-light:#D73A49;--shiki-dark:#F0ADA1"> static</span><span style="--shiki-light:#D73A49;--shiki-dark:#F0ADA1"> int</span><span style="--shiki-light:#6F42C1;--shiki-dark:#E9E5DF"> ten</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">(</span><span style="--shiki-light:#D73A49;--shiki-dark:#F0ADA1">void</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">) </span><span style="--shiki-light:#A626A4;--shiki-light-font-weight:bold;--shiki-dark:#FF4FD8;--shiki-dark-font-weight:bold">=&gt;</span><span style="--shiki-light:#24292E;--shiki-dark:#FF715A"> $</span><span style="--shiki-light:#6F42C1;--shiki-dark:#FF715A">tally.sum4</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">();</span></span></code></pre>
+
+<p>The import loads the package’s declarations, compile-time module or linked
+extension, and public macro pack. A <code>.xmacro</code> import below <code>#pragma private</code>
+or in another package source stays private. Macros keep their declared names;
+<code>as</code> changes the package alias, not macro spellings. A macro pack may still be
+imported explicitly without importing its package.</p>
 <h2 id="packages-that-wrap-a-c-library"><a class="header" href="#packages-that-wrap-a-c-library">Packages that wrap a C library</a></h2>
 <p><code>packages/yyjson/</code> is the worked example. It publishes the vendored
 <code>src/yyjson-0.12.h</code> because four of its options methods take yyjson’s own flag
@@ -438,15 +497,15 @@ make -C packages/torch run
 <code>Database.open</code> creates a file-backed or <code>":memory:"</code> connection. Prepare a
 statement once, bind a positional List or a Map of exact parameter names,
 and iterate copied row Lists. Rows preserve column order and duplicate names;
-<code>Statement.columns</code> returns the names separately. Free statements before
+<code>Prepared.columns</code> returns the names separately. Free statements before
 closing their connection, with <code>defer</code> beside each acquisition.</p>
 <!-- ignore: an import needs a registered --package-dir root. -->
-<pre class="shiki shiki-themes x2c-light x2c-dark x2c-code" style="--shiki-light:#24292e;--shiki-dark:#e9e5df;--shiki-light-bg:#fff;--shiki-dark-bg:#101011" tabindex="0"><code class="language-x2c no-highlight ignore"><span class="line"><span style="--shiki-light:#A626A4;--shiki-light-font-weight:bold;--shiki-dark:#FF4FD8;--shiki-dark-font-weight:bold">import</span><span style="--shiki-light:#032F62;--shiki-dark:#9EDFB8"> "sqlite"</span><span style="--shiki-light:#A626A4;--shiki-light-font-weight:bold;--shiki-dark:#FF4FD8;--shiki-dark-font-weight:bold"> with</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF"> Database, Statement;</span>
+<pre class="shiki shiki-themes x2c-light x2c-dark x2c-code" style="--shiki-light:#24292e;--shiki-dark:#e9e5df;--shiki-light-bg:#fff;--shiki-dark-bg:#101011" tabindex="0"><code class="language-x2c no-highlight ignore"><span class="line"><span style="--shiki-light:#A626A4;--shiki-light-font-weight:bold;--shiki-dark:#FF4FD8;--shiki-dark-font-weight:bold">import</span><span style="--shiki-light:#032F62;--shiki-dark:#9EDFB8"> "sqlite"</span><span style="--shiki-light:#A626A4;--shiki-light-font-weight:bold;--shiki-dark:#FF4FD8;--shiki-dark-font-weight:bold"> with</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF"> Database, Prepared;</span>
 </span><span class="line">
 </span><span class="line"><span style="--shiki-light:#D73A49;--shiki-dark:#F0ADA1">void</span><span style="--shiki-light:#6F42C1;--shiki-dark:#E9E5DF"> show_readings</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">(</span><span style="--shiki-light:#007C8A;--shiki-dark:#29D3E2">String</span><span style="--shiki-light:#E36209;--shiki-dark:#E9E5DF"> filename</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">) {</span>
 </span><span class="line"><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">  Database db </span><span style="--shiki-light:#D73A49;--shiki-dark:#E9E5DF">=</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF"> Database.</span><span style="--shiki-light:#6F42C1;--shiki-dark:#E9E5DF">open</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">(filename);</span>
 </span><span class="line"><span style="--shiki-light:#A626A4;--shiki-light-font-weight:bold;--shiki-dark:#FF4FD8;--shiki-dark-font-weight:bold">  defer</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF"> db.</span><span style="--shiki-light:#6F42C1;--shiki-dark:#E9E5DF">close</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">();</span>
-</span><span class="line"><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">  Statement query </span><span style="--shiki-light:#D73A49;--shiki-dark:#E9E5DF">=</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF"> db.</span><span style="--shiki-light:#6F42C1;--shiki-dark:#E9E5DF">prepare</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">(</span>
+</span><span class="line"><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">  Prepared query </span><span style="--shiki-light:#D73A49;--shiki-dark:#E9E5DF">=</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF"> db.</span><span style="--shiki-light:#6F42C1;--shiki-dark:#E9E5DF">prepare</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">(</span>
 </span><span class="line"><span style="--shiki-light:#032F62;--shiki-dark:#9EDFB8">    "SELECT url, status FROM observation WHERE status &gt;= ? ORDER BY url"</span>
 </span><span class="line"><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">  );</span>
 </span><span class="line"><span style="--shiki-light:#A626A4;--shiki-light-font-weight:bold;--shiki-dark:#FF4FD8;--shiki-dark-font-weight:bold">  defer</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF"> query.</span><span style="--shiki-light:#6F42C1;--shiki-dark:#E9E5DF">free</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">();</span>
@@ -641,9 +700,9 @@ compiler/linker escape options are not package metadata.</p>
                         &copy; 2025&ndash;2026
                         <a href="https://flake.org">GWF</a>
                         &middot;
-                        <a href="https://github.com/gwf/x2c/blob/0351be4a4d6c00dd246e5190e8dcf5a970560beb/LICENSE">Apache 2.0</a>
+                        <a href="https://github.com/gwf/x2c/blob/2fb2e7abb7462f842903580f47a5b96c69698937/LICENSE">Apache 2.0</a>
                         &middot;
-                        <a href="https://github.com/gwf/x2c/blob/0351be4a4d6c00dd246e5190e8dcf5a970560beb/TRADEMARKS.md">Trademarks</a>
+                        <a href="https://github.com/gwf/x2c/blob/2fb2e7abb7462f842903580f47a5b96c69698937/TRADEMARKS.md">Trademarks</a>
                     </footer>
                 </div>
             </div>

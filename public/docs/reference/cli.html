@@ -1,6 +1,6 @@
 <!DOCTYPE HTML>
 <html lang="en" class="light sidebar-visible" dir="ltr">
-    <head><meta name="x2c-release-channel" content="staging"><meta name="x2c-candidate" content="candidate-0351be4a4d6c00dd246e5190e8dcf5a970560beb-36014113963-1">
+    <head><meta name="x2c-site-source" content="2fb2e7abb7462f842903580f47a5b96c69698937"><meta name="x2c-release-channel" content="staging"><meta name="x2c-candidate" content="candidate-0351be4a4d6c00dd246e5190e8dcf5a970560beb-36014113963-1">
         <!-- Book generated using mdBook -->
         <meta charset="UTF-8">
         <title>Compiler Options - The x2c Book</title>
@@ -39,10 +39,10 @@
             const path_to_root = "../";
             const default_light_theme = "light";
             const default_dark_theme = "light";
-            window.path_to_searchindex_js = "../searchindex-c9145dcc.js";
+            window.path_to_searchindex_js = "../searchindex-94a52d98.js";
         </script>
         <!-- Start loading toc.js asap -->
-        <script src="../toc-b37ed13f.js"></script>
+        <script src="../toc-89ef7d96.js"></script>
         <!-- x2c publication metadata -->
         <link rel="canonical" href="https://staging.x2c-lang.dev/docs/reference/cli.html">
         <meta property="og:type" content="website">
@@ -230,7 +230,6 @@ a copy of the development compiler. Every invocation begins with a command:
 ./x2c build --help
 ./x2c run --help
 ./x2c script --help
-./x2c bootstrap --help
 </code></pre>
 <h2 id="translate-to-c"><a class="header" href="#translate-to-c">Translate to C</a></h2>
 <p><code>translate</code> writes one matching <code>.c</code>, <code>.h</code>, <code>.xi</code>, and default <code>.d</code> file for
@@ -298,9 +297,10 @@ available for retaining intermediate files on either platform.</p>
 </code></pre>
 <ul>
 <li><code>--dump-tokens</code> prints source tokens and stops.</li>
-<li><code>--dump-source-ast</code> prints experimental deferred source syntax and stops.</li>
 <li><code>--dump-ast</code> prints the parsed, bound AST after macro expansion and stops.</li>
 <li><code>--dump-transforms</code> prints the transformed AST and stops.</li>
+<li><code>--dump-definitions</code> prints each definition’s location and documentation
+and stops.</li>
 <li><code>--dump-code</code> prints unformatted generated code and stops.</li>
 <li><code>--dump-symbols</code> prints the source symbol table and stops.</li>
 <li><code>--dump-cpp</code> prints host-preprocessed text and stops.</li>
@@ -310,21 +310,48 @@ available for retaining intermediate files on either platform.</p>
 <li><code>--dump-cache</code> prints the compiler cache and stops.</li>
 <li><code>--dump-conformance</code> prints protocol conformance and stops.</li>
 </ul>
-<p><code>--dump-source-ast</code> retains macro invocations, method spelling, literal
-construction, and source identifier spelling instead of expanding or resolving
-them in the inspected tree. It reuses the compiler’s deferred template parser;
-it is an experimental analysis representation, not a lossless concrete syntax
-tree or an input format accepted by another compiler stage. Comments and
-whitespace are omitted. Identifier spellings do not establish binding identity,
-and expression types may be absent. Match arms and typed captures retain source
-forms instead of their ordinary binding operations.</p>
-<p>Collection, imports, and file-scope declaration producers still run to
-establish the grammar and visible types. Their generated trees are omitted
-from the inspected output, but they may execute compile-time Lisp or macros
-and report semantic errors. This option does not disable compile-time
-execution. The source tree retains top-level Lisp text and does not proceed
-to protocol adapters, transforms, or C emission. Use <code>--dump-ast</code> when the
-analysis needs resolved bindings and typed, expanded syntax.</p>
+<p><code>--dump-definitions</code> prints what the unit defines after translation has
+selected, expanded, and bound it, one Lisp form per line. Documentation
+generators and repository tools read it instead of scanning source text.
+Each unit starts with <code>(unit PATH)</code>, so one command can inspect several
+files. A file that opens with a block comment, after any directives, then
+prints <code>(module TEXT)</code> with the comment as written. Each function, including
+static functions, foreign aliases, and functions a Unit macro or <code>class</code>
+produced, prints a <code>function</code> row, and each <code>typedef</code> or <code>class</code> prints a
+<code>type</code> row:</p>
+<pre><code class="language-text">(function (name "Point_add") (display "Point.add") (line 11)
+ (span 193 242) (static 0) (origin source) (doc " Adds. ")
+ (text "int Point.add(Point p, int k)")
+ (type ((func (("Point") (int))) int)) (params ("p" "k")))
+(type (name "Point") (kind struct) (line 6) (span 68 113) (private 0)
+ (doc " A point. ") (text "typedef struct Point { int x; int y; } Point"))
+</code></pre>
+<ul>
+<li><code>name</code> is the C name and <code>display</code> the source spelling, such as
+<code>Point.add</code>.</li>
+<li><code>line</code> is the one-based line of a function’s declarator or a type’s
+statement. A decorated function reports its declarator, and a function a
+macro produced reports the invocation.</li>
+<li><code>span</code> holds the byte offsets that start and end the top-level form that
+produced the definition, including decorators and a <code>meta</code> keyword. It is
+empty for a definition the compiler made itself, such as a protocol
+adapter, whose <code>line</code> is 1.</li>
+<li><code>origin</code> is <code>source</code> for a function written in the file, <code>macro</code> for one a
+Unit macro, <code>class</code>, or the compiler produced, and <code>alias</code> for a foreign
+alias, whose <code>line</code> is that of its alias application.</li>
+<li><code>doc</code> is the body of the <code>/**</code> comment that ends on the line before the
+form or on its first line, without its delimiters; it is empty when there
+is none.</li>
+<li><code>text</code> is a written function’s declarator, or a type’s statement without
+its <code>;</code>, with comments removed and each run of whitespace written as one
+space. It is empty for a function the file does not spell.</li>
+<li><code>type</code> and <code>params</code> give a function’s canonical type and parameter names,
+as its unit interface records them.</li>
+<li><code>kind</code> is <code>alias</code>, <code>struct</code>, <code>union</code>, <code>enum</code>, <code>callback</code>, or <code>class</code>, and
+<code>private</code> is 1 for a type declared in a <code>#pragma private</code> region.</li>
+</ul>
+<p>Compile-time-only <code>meta</code> functions are not part of the translated unit and
+are not listed.</p>
 <p>An inspection that does not write generated files does not need <code>--out-dir</code>.
 Only one inspection mode runs; the last option given wins.</p>
 <h2 id="build-native-artifacts"><a class="header" href="#build-native-artifacts">Build native artifacts</a></h2>
@@ -354,9 +381,8 @@ per C source. <code>--kind static-library</code> uses the selected archiver:</p>
 </code></pre>
 <p><code>--kind meta-module</code> builds a native module, whose functions compile-time
 code can call. The module leaves the <span class="x2c-wordmark">x2c</span> runtime unresolved and uses the
-loading compiler’s copy, and it records that compiler’s content hash. On
-macOS the module links against the running compiler, so a call to a runtime
-function the compiler does not link fails the build.
+loading compiler’s copy, which is the whole runtime, and it records that
+compiler’s content hash.
 <code>--native-module &lt;file&gt;</code> loads a module for <code>translate</code>, <code>build</code>, <code>run</code>, and
 <code>repl</code>, and repeats:</p>
 <pre><code class="language-sh">./x2c build --kind meta-module --output helpers.so src/helpers.x
@@ -367,8 +393,15 @@ that the module was built by another compiler before running any of its
 code. The compiler loads a module only on request and keeps it loaded until
 it exits, and a translation binds only the modules its request names. When
 two of them define one name, the first supplies it and the declaration
-reports a warning. Modules work on macOS, Linux and WSL.
-<a href="../guide/meta-functions.html#native-modules">Native modules</a> explains what a
+reports a warning. Modules work on macOS, Linux and WSL.</p>
+<p><code>--extension &lt;dir&gt;</code> links a package’s compile-time part into the
+executable being built, which must be the compiler, and repeats. The
+package’s <code>src/*.x</code> and <code>src/*.c</code> become inputs, and a generated unit
+registers its <code>meta</code> functions under the package’s name. The resulting
+compiler imports the package without loading its module:</p>
+<pre><code class="language-sh">./x2c build --extension packages/tally --output /tmp/x2c src/*.x
+</code></pre>
+<p><a href="../guide/meta-functions.html#native-modules">Native modules</a> explains what a
 module contains.</p>
 <p><code>-c</code>, or <code>--compile-only</code>, stops after compilation. One input may name its
 object with <code>--output</code>. Multiple compile-only inputs require <code>--build-dir</code>, so
@@ -427,32 +460,6 @@ response formats are not a public compiler API.</p>
 <p>Shared libraries are unsupported. Supporting them requires platform-specific
 position-independent code, visibility, runtime linkage, library naming, and
 initialization rules.</p>
-<h2 id="bootstrap-a-native-installation"><a class="header" href="#bootstrap-a-native-installation">Bootstrap a native installation</a></h2>
-<p>The Cosmopolitan APE executable is an experiment for fun only. It can
-bootstrap a minimal native compiler and runtime without a repository checkout,
-but includes no examples, book, or optional packages. Use the full repository
-for normal development; this experiment is no substitute for it. Releases do
-not publish the APE; <code>make ape-build</code> in a checkout produces it.</p>
-<p>To try the experiment:</p>
-<pre><code class="language-sh">./x2c.com bootstrap --prefix "$HOME/.local/x2c"
-</code></pre>
-<p>The command verifies and extracts the source distribution stored in the APE
-ZIP, builds a native runtime archive first, then builds and installs the
-matching native compiler, which then writes the runtime unit interfaces. The
-result includes the compiler, its runtime archive, headers, sources, unit
-interfaces, licenses, and a toolchain record.
-A running bootstrap locks <code>&lt;prefix&gt;/.x2c-bootstrap.lock</code>, and a second
-bootstrap into the same prefix stops with an error. The operating system
-releases the lock when the process exits, and the empty file stays in the
-prefix.</p>
-<p>Bootstrap selects tools in the same order as ordinary builds: <code>--cc</code>, <code>X2C_CC</code>,
-<code>CC</code>, then <code>cc</code>; and <code>--ar</code>, <code>X2C_AR</code>, <code>AR</code>, then <code>ar</code>. It uses <code>-O2</code> unless
-another supported optimization is explicit. The installed compiler and runtime
-are native to the host and do not depend on Cosmopolitan. For every C
-compilation it runs, <span class="x2c-wordmark">x2c</span> selects signed plain <code>char</code>. The runtime requires an
-eight-bit signed <code>char</code>, even on hosts whose C compiler defaults to unsigned
-plain <code>char</code>. Compile-time Lisp bindings keep working in the native result.
-They resolve against compiler-generated targets.</p>
 <h2 id="build-and-run"><a class="header" href="#build-and-run">Build and run</a></h2>
 <p><code>run</code> builds an executable and launches it after the build succeeds:</p>
 <pre><code class="language-sh">./x2c run examples/foreach.x -- first -second input.x
@@ -660,7 +667,9 @@ installed a dependency does not hold it while the program runs.</p>
 <h2 id="environment"><a class="header" href="#environment">Environment</a></h2>
 <p><code>x2c env</code> prints the resolved home, executable, include directory, runtime
 archive, prelude interface, package roots, C compiler, archiver, and script
-cache root as <code>name = value</code> lines. The prelude is the runtime <code>x2c.xi</code>
+cache root as <code>name = value</code> lines. It also reports <code>libexec</code>, the directory
+for external commands, and <code>identity</code>, the compiler executable’s identity.
+The prelude is the runtime <code>x2c.xi</code>
 interface the compiler replays for the runtime declarations. Only an
 interface the same compiler wrote qualifies; an empty value means the
 compiler reads <code>lib/x2c.x</code> from source once per process.
@@ -689,9 +698,32 @@ shared libraries when it runs; a package bundle may include it.
 <code>-framework &lt;name&gt;</code> links a native framework on macOS.</p>
 <p>The C compiler selection order is <code>--cc</code>, <code>X2C_CC</code>, <code>CC</code>, the installed
 toolchain record, then <code>cc</code>. The archiver follows <code>--ar</code>, <code>X2C_AR</code>, <code>AR</code>, the
-installed record, then <code>ar</code>. Omitted optimization, debug, define, and undefine
+installed record, then <code>ar</code>. Project <code>meta</code> code runs inside the compiler’s
+host, so it is built by <code>--meta-cc</code>, <code>X2C_META_CC</code>, <code>META_CC</code>, the installed
+record’s <code>META_CC</code>, then <code>cc</code>, never by the target <code>--cc</code>; <code>translate</code>
+accepts <code>--meta-cc</code> too. <code>X2C_META_TIMEOUT</code> limits one <code>$</code> call in the
+project meta helper to that many seconds, 60 by default; <code>0</code> removes the
+limit. A call past the limit stops the helper and is reported at the
+call. Omitted optimization, debug, define, and undefine
 options preserve host defaults. <code>CFLAGS</code> and <code>LDFLAGS</code> are not shell-split or
-implicitly consumed.</p>
+implicitly consumed.
+For every C compilation it runs, <span class="x2c-wordmark">x2c</span> selects signed plain <code>char</code>. The
+runtime requires an eight-bit signed <code>char</code>, even on hosts whose C compiler
+defaults to unsigned plain <code>char</code>.</p>
+<h2 id="commands"><a class="header" href="#commands">Commands</a></h2>
+<p>The built-in commands are listed by <code>x2c help</code>. External commands are separate
+programs named <code>x2c-&lt;name&gt;</code> in the directory printed by <code>x2c env libexec</code>.
+In a source checkout this is <code>builds/0/libexec</code>; in an installed home it is
+<code>&lt;home&gt;/libexec/x2c</code>. The driver does not search <code>PATH</code> for them.
+<code>x2c help</code> lists their summaries from that directory’s <code>commands.txt</code>.</p>
+<p>The driver passes arguments after an external command name directly to its
+program, including arguments beginning with <code>@</code>. The external command owns
+its options and help, so <code>x2c help &lt;name&gt;</code> and <code>x2c &lt;name&gt; --help</code> run the
+program’s <code>--help</code>. Built-in commands retain response-file expansion.</p>
+<p><code>x2c lint</code> reports an unreadable input’s path and system error on standard
+error and exits <code>1</code>, while checking the other readable inputs. This also
+applies when checking formatting or showing formatting differences. The lint
+command treats <code>-</code> as an ordinary file name in these modes.</p>
 <h2 id="compiler-diagnostics"><a class="header" href="#compiler-diagnostics">Compiler diagnostics</a></h2>
 <p>Translation reports each diagnostic on standard error as
 <code>file:line:column: code: message</code>, followed by the source line, a caret, and
@@ -708,7 +740,7 @@ compiles and the program runs. Warnings do not count against <code>--max-errors<
 and there is no option to suppress or escalate one. A warning describes
 something the compiler can see and you may have arranged deliberately, so
 code that means what it says can be left as written.</p>
-<p>Six codes are reported as warnings:</p>
+<p>Eight codes are reported as warnings:</p>
 <ul>
 <li><code>region</code> says a value allocated inside a region can still be reached after
 the region ends, and names how it leaves. Its note gives the line that
@@ -721,10 +753,12 @@ local’s address, or other storage no Scope allocator returned.</li>
 probably meant, and names the unquoted spelling that inserts the value.</li>
 <li><code>macro</code> carries what a macro reported through <code>x2c.diagnostic.warn</code>, at the
 invocation, with the notes the macro supplied.</li>
-<li><code>warning</code> covers the remaining cases: an unnecessary conversion, a
-protocol binder that shadows a visible type name, a native <code>meta</code>
-prototype whose name both the compiler and a native module define, and
-one that more than one native module defines.</li>
+<li><code>conversion</code> says a cast or explicit converter call spells a conversion
+its destination already performs.</li>
+<li><code>shadow</code> says a protocol binder shadows a visible type name.</li>
+<li><code>native</code> says a native <code>meta</code> prototype names a function that both the
+compiler and a native module define, or that more than one native module
+defines.</li>
 </ul>
 <p><a href="../guide/regions.html">The Region Model</a> explains what the first three cover
 and what they cannot see. <a href="../guide/memory.html">Scopes and Lifetime</a> shows
@@ -769,8 +803,7 @@ to date. Executables always relink so changed libraries and native linker
 inputs take effect.</p>
 <p>On a capable terminal, work lasting at least 125 ms may also use one transient
 progress line. <span class="x2c-wordmark">x2c</span> does not enter raw mode, switch screens, or read terminal
-input. Commands run from Make use stable receipts, since parallel recipes may
-share the terminal. Redirected standard error also uses stable
+input, and Make recipes show it too. Redirected standard error also uses stable
 newline-delimited receipts and no automatic color.</p>
 <p><code>--plain</code> selects stable receipts without terminal rendering or color. <code>-q</code>
 and <code>--quiet</code> suppress successful progress and receipts without suppressing
@@ -831,9 +864,9 @@ error; requested dumps and program output use standard output.</p>
                         &copy; 2025&ndash;2026
                         <a href="https://flake.org">GWF</a>
                         &middot;
-                        <a href="https://github.com/gwf/x2c/blob/0351be4a4d6c00dd246e5190e8dcf5a970560beb/LICENSE">Apache 2.0</a>
+                        <a href="https://github.com/gwf/x2c/blob/2fb2e7abb7462f842903580f47a5b96c69698937/LICENSE">Apache 2.0</a>
                         &middot;
-                        <a href="https://github.com/gwf/x2c/blob/0351be4a4d6c00dd246e5190e8dcf5a970560beb/TRADEMARKS.md">Trademarks</a>
+                        <a href="https://github.com/gwf/x2c/blob/2fb2e7abb7462f842903580f47a5b96c69698937/TRADEMARKS.md">Trademarks</a>
                     </footer>
                 </div>
             </div>

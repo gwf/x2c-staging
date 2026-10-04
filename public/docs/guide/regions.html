@@ -1,6 +1,6 @@
 <!DOCTYPE HTML>
 <html lang="en" class="light sidebar-visible" dir="ltr">
-    <head><meta name="x2c-release-channel" content="staging"><meta name="x2c-candidate" content="candidate-0351be4a4d6c00dd246e5190e8dcf5a970560beb-36014113963-1">
+    <head><meta name="x2c-site-source" content="2fb2e7abb7462f842903580f47a5b96c69698937"><meta name="x2c-release-channel" content="staging"><meta name="x2c-candidate" content="candidate-0351be4a4d6c00dd246e5190e8dcf5a970560beb-36014113963-1">
         <!-- Book generated using mdBook -->
         <meta charset="UTF-8">
         <title>The Region Model - The x2c Book</title>
@@ -39,10 +39,10 @@
             const path_to_root = "../";
             const default_light_theme = "light";
             const default_dark_theme = "light";
-            window.path_to_searchindex_js = "../searchindex-c9145dcc.js";
+            window.path_to_searchindex_js = "../searchindex-94a52d98.js";
         </script>
         <!-- Start loading toc.js asap -->
-        <script src="../toc-b37ed13f.js"></script>
+        <script src="../toc-89ef7d96.js"></script>
         <!-- x2c publication metadata -->
         <link rel="canonical" href="https://staging.x2c-lang.dev/docs/guide/regions.html">
         <meta property="og:type" content="website">
@@ -271,6 +271,10 @@ holding the value.</p>
 parameter given an <code>Array</code>, or a <code>Var</code> given a C string, which it boxes as a
 fresh <code>String</code>. A local C array
 passed on, returned, or stored counts as the address of its first element.</p>
+<p>A number holds no address. A value of integer, floating-point, or enum
+type, or a destination of such a type, carries nothing the pass tracks.
+An address cast to <code>intptr_t</code> and then returned does not report, and a
+pointer cast back from that number is not followed.</p>
 <h2 id="what-the-warnings-do-not-cover"><a class="header" href="#what-the-warnings-do-not-cover">What the warnings do not cover</a></h2>
 <p>The check covers lexical regions and the storage it tracks. It does not
 cover:</p>
@@ -295,6 +299,23 @@ statements after that branch.</li>
 <p>Each of these can still produce a dangling pointer that translates without a
 warning. The pass reports one pattern. A program without warnings is not
 shown to be memory safe.</p>
+<h2 id="optional-lifetime-proof"><a class="header" href="#optional-lifetime-proof">Optional lifetime proof</a></h2>
+<p><code>x2c-graph certify</code> checks selected entry points and the functions they can
+call across the supplied source units. It applies the same region ownership
+and parameter-effect rules as the compiler’s local pass, then asks whether
+every reachable memory effect is covered. A <code>proved</code> result establishes the
+scoped lifetime invariant for those paths under the native effect assumptions
+listed in the report. If a root hands storage to its caller or another owner,
+the report names the remaining release obligation.</p>
+<p>The audit distinguishes a proven lifetime violation from an incomplete
+proof. An unknown call, pointer cast or arithmetic, indirect storage access,
+aggregate copy, or unmodeled scope ending is an obstacle, not a compiler
+warning or error. A project may provide explicit native effect contracts to
+the audit; they are assumptions of its result and do not change compilation.
+The optional command and its contract format are described in the
+<a href="https://github.com/gwf/x2c/blob/2fb2e7abb7462f842903580f47a5b96c69698937/commands/graph/README.md#conditional-lifetime-proof">source graph reference</a>.
+The proof concerns scoped ownership and lifetime. It does not establish
+general C memory safety or correctness of emitted code.</p>
 <h2 id="how-the-check-works"><a class="header" href="#how-the-check-works">How the check works</a></h2>
 <p>Each function gets one summary of two facts: which of Scope and Pool storage
 its result may use (possibly both), and where each parameter is sunk
@@ -312,7 +333,9 @@ local, a parameter, or a compound literal belongs to the function’s own
 storage. An address reached through a pointer, such as <code>&amp;box-&gt;value</code>,
 belongs to whatever that pointer holds, so an address inside a parameter’s
 object counts as that parameter in the summary. A caller of a function that
-returns <code>&amp;box-&gt;value</code> therefore sees its own borrow come back.</p>
+returns <code>&amp;box-&gt;value</code> therefore sees its own borrow come back. An argument
+to a reference parameter is the address of the object it names, so
+<code>bind(object)</code> with <code>T &amp;</code> is checked as <code>bind(&amp;object)</code> with <code>T *</code>.</p>
 <p>A <code>meta</code> function is walked the same way when it is defined, against the
 summaries of the <code>meta</code> functions defined before it. A compile-time call
 frees its locals when it returns, so a finding in a <code>meta</code> body is an error
@@ -367,9 +390,9 @@ within one unit and uses them for warnings.</p>
                         &copy; 2025&ndash;2026
                         <a href="https://flake.org">GWF</a>
                         &middot;
-                        <a href="https://github.com/gwf/x2c/blob/0351be4a4d6c00dd246e5190e8dcf5a970560beb/LICENSE">Apache 2.0</a>
+                        <a href="https://github.com/gwf/x2c/blob/2fb2e7abb7462f842903580f47a5b96c69698937/LICENSE">Apache 2.0</a>
                         &middot;
-                        <a href="https://github.com/gwf/x2c/blob/0351be4a4d6c00dd246e5190e8dcf5a970560beb/TRADEMARKS.md">Trademarks</a>
+                        <a href="https://github.com/gwf/x2c/blob/2fb2e7abb7462f842903580f47a5b96c69698937/TRADEMARKS.md">Trademarks</a>
                     </footer>
                 </div>
             </div>
