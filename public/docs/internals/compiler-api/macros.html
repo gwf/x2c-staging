@@ -1,6 +1,6 @@
 <!DOCTYPE HTML>
 <html lang="en" class="light sidebar-visible" dir="ltr">
-    <head><meta name="x2c-site-source" content="2fb2e7abb7462f842903580f47a5b96c69698937"><meta name="x2c-release-channel" content="staging"><meta name="x2c-candidate" content="candidate-0351be4a4d6c00dd246e5190e8dcf5a970560beb-36014113963-1">
+    <head><meta name="x2c-release-channel" content="staging"><meta name="x2c-candidate" content="candidate-f7b8a969f8236cdd5eb0e7e07b5a658af4d249e9-37397345486-1">
         <!-- Book generated using mdBook -->
         <meta charset="UTF-8">
         <title>src/macros.x - The x2c Book</title>
@@ -30,7 +30,7 @@
         <link rel="stylesheet" id="mdbook-ayu-highlight-css" href="../../ayu-highlight-3fdfc3ac.css">
 
         <!-- Custom theme stylesheets -->
-        <link rel="stylesheet" href="../../theme/header-2c1becca.css">
+        <link rel="stylesheet" href="../../theme/header-f6c12aed.css">
         <link rel="stylesheet" href="../../theme/x2c-fd3d182e.css">
 
 
@@ -39,10 +39,10 @@
             const path_to_root = "../../";
             const default_light_theme = "light";
             const default_dark_theme = "light";
-            window.path_to_searchindex_js = "../../searchindex-94a52d98.js";
+            window.path_to_searchindex_js = "../../searchindex-e3f33cfe.js";
         </script>
         <!-- Start loading toc.js asap -->
-        <script src="../../toc-89ef7d96.js"></script>
+        <script src="../../toc-04d6e3af.js"></script>
         <!-- x2c publication metadata -->
         <link rel="canonical" href="https://staging.x2c-lang.dev/docs/internals/compiler-api/macros.html">
         <meta property="og:type" content="website">
@@ -140,7 +140,7 @@
                                 <svg viewBox="0 0 100 100" width="22" height="22" aria-hidden="true"><g fill="none" stroke="#da291c" stroke-width="17" stroke-linecap="butt"><path d="M9 16 A34.5 34.5 0 0 1 9 84"></path><path d="M91 16 A34.5 34.5 0 0 0 91 84"></path></g></svg>
                                 <span class="x2c-wordmark landing-wordmark">x2c</span>
                             </a>
-                            <span class="landing-tagline">The x2c Book</span>
+                            <button class="landing-tagline menu-title" type="button" title="Scroll to top">The x2c Book</button>
                         </div>
                         <nav class="landing-nav" aria-label="x2c website">
                             <div class="landing-page-nav">
@@ -236,6 +236,9 @@ Compatibility is not yet promised.</p>
 <tr><td><a href="#macro_library_filling"><code>macro_library_filling</code></a></td><td>Answers whether the shared compile-time session is still being filled, before <code>lib/meta.x</code> has defined the syntax builders.</td></tr>
 <tr><td><a href="#macro_library_reset"><code>macro_library_reset</code></a></td><td>Ends the shared compile-time library before its build-target Context is reclaimed.</td></tr>
 <tr><td><a href="#x2c_template_call"><code>x2c_template_call</code></a></td><td>Returns the syntax that invokes the template <code>stored</code>, a macro name spelled as a String or a local definition, with <code>values</code>: what a template call in a staged <code>meta</code> body evaluates to.</td></tr>
+<tr><td><a href="#Compiler.after_hole"><code>Compiler.after_hole</code></a></td><td>Returns the token after the hole at the cursor: after <code>$NAME</code>, or after the braces of <code>${expression}</code>.</td></tr>
+<tr><td><a href="#Compiler.at_import"><code>Compiler.at_import</code></a></td><td>Answers whether the cursor is at a compile-time import, <code>$(import "path")</code>.</td></tr>
+<tr><td><a href="#Compiler.bind_macro_lisp_statement"><code>Compiler.bind_macro_lisp_statement</code></a></td><td>Binds a compile-time Lisp code <code>value</code> returned to a statement at <code>context</code>.</td></tr>
 <tr><td><a href="#Compiler.bind_meta_operation"><code>Compiler.bind_meta_operation</code></a></td><td>Binds <code>function</code>, the operation <code>lib/meta.x</code> declares as <code>name</code>, under its Lisp name in <code>lisp</code>.</td></tr>
 <tr><td><a href="#Compiler.capture_macro_value"><code>Compiler.capture_macro_value</code></a></td><td>Returns an anonymous macro definition as a <code>Macro</code> value.</td></tr>
 <tr><td><a href="#Compiler.ensure_macro_lisp"><code>Compiler.ensure_macro_lisp</code></a></td><td>Opens the unit’s compile-time Lisp session when it has none.</td></tr>
@@ -245,11 +248,14 @@ Compatibility is not yet promised.</p>
 <tr><td><a href="#Compiler.evaluate_macro_slot"><code>Compiler.evaluate_macro_slot</code></a></td><td>Evaluates an active template’s <code>(macro-slot ...)</code> value, or a pending Macro value application into the invocation that expands it.</td></tr>
 <tr><td><a href="#Compiler.evaluate_meta_value"><code>Compiler.evaluate_meta_value</code></a></td><td>Evaluates the explicit meta call <code>expression</code> at <code>site</code> with the active expansion’s captures visible to the SDK.</td></tr>
 <tr><td><a href="#Compiler.expand_macro_invocation_node"><code>Compiler.expand_macro_invocation_node</code></a></td><td>Expands canonical macro capture rows and binds the result at <code>position</code>.</td></tr>
-<tr><td><a href="#Compiler.import_package_macros"><code>Compiler.import_package_macros</code></a></td><td>Loads the public macro imports recorded by a package entry at this consumer’s import position.</td></tr>
+<tr><td><a href="#Compiler.import_exported"><code>Compiler.import_exported</code></a></td><td>Installs the macro file at the home-portable <code>path</code> that an included file exports, as the unit’s own import of it at <code>invocation</code> would.</td></tr>
+<tr><td><a href="#Compiler.import_package_macros"><code>Compiler.import_package_macros</code></a></td><td>Loads the macro imports that the sources of package <code>name</code> export at this consumer’s import position, in the order the package’s include walk reaches them.</td></tr>
 <tr><td><a href="#Compiler.inherit_library_comptime"><code>Compiler.inherit_library_comptime</code></a></td><td>Marks the shared session’s compile-time-only definitions in a fresh compiler pass, which reads them without defining them.</td></tr>
 <tr><td><a href="#Compiler.inherits_import"><code>Compiler.inherits_import</code></a></td><td>Whether the shared session evaluated the file at <code>path</code>.</td></tr>
 <tr><td><a href="#Compiler.install_builtin_macros"><code>Compiler.install_builtin_macros</code></a></td><td>Installs the compiler-shipped source macros into <code>c</code> once.</td></tr>
+<tr><td><a href="#Compiler.keep_imported_meta"><code>Compiler.keep_imported_meta</code></a></td><td>Keeps the runtime <code>meta</code> declarations that a compile-time import contributed, <code>imported</code> or NULL, where the import stands.</td></tr>
 <tr><td><a href="#Compiler.keyword_form_is_definition"><code>Compiler.keyword_form_is_definition</code></a></td><td>Returns whether the current tokens begin a <code>keyword NAME $macro</code> alias.</td></tr>
+<tr><td><a href="#Compiler.land_quotation"><code>Compiler.land_quotation</code></a></td><td>Binds quoted <code>syntax</code> with its <code>fresh</code> rows at <code>position</code>, as the expansion of its quotation would.</td></tr>
 <tr><td><a href="#Compiler.lift_macro_lisp_expression"><code>Compiler.lift_macro_lisp_expression</code></a></td><td>Converts a compile-time Lisp value into a bound expression AST.</td></tr>
 <tr><td><a href="#Compiler.local_macro_form_is_definition"><code>Compiler.local_macro_form_is_definition</code></a></td><td>Returns whether the current tokens begin a local macro definition.</td></tr>
 <tr><td><a href="#Compiler.macro_form_is_definition"><code>Compiler.macro_form_is_definition</code></a></td><td>Returns whether the current tokens have macro-definition introducer form.</td></tr>
@@ -269,7 +275,7 @@ Compatibility is not yet promised.</p>
 <tr><td><a href="#Compiler.parse_macro_lisp_shallow"><code>Compiler.parse_macro_lisp_shallow</code></a></td><td>Imports immediate dependencies and queues other source Lisp effects.</td></tr>
 <tr><td><a href="#Compiler.parse_macro_lisp_top_level"><code>Compiler.parse_macro_lisp_top_level</code></a></td><td>Consumes and evaluates one top-level compile-time Lisp form.</td></tr>
 <tr><td><a href="#Compiler.parse_macro_quotation"><code>Compiler.parse_macro_quotation</code></a></td><td>Parses a quotation at <code>$!</code> into the code it builds from the locals its body names.</td></tr>
-<tr><td><a href="#Compiler.peek_macro_hole"><code>Compiler.peek_macro_hole</code></a></td><td>Returns the registered hole descriptor at the current <code>$NAME</code>.</td></tr>
+<tr><td><a href="#Compiler.peek_macro_hole"><code>Compiler.peek_macro_hole</code></a></td><td>Returns the registered hole descriptor at the current <code>$NAME</code>, or at a quotation’s <code>${expression}</code>.</td></tr>
 <tr><td><a href="#Compiler.publish_macro_definition_node"><code>Compiler.publish_macro_definition_node</code></a></td><td>Publishes a canonical <code>macrodef</code> in source order and returns <code>node</code>.</td></tr>
 <tr><td><a href="#Compiler.publish_macro_library"><code>Compiler.publish_macro_library</code></a></td><td>Prepares and freezes the shared session and makes it every unit’s parent.</td></tr>
 <tr><td><a href="#Compiler.rebuild_expression"><code>Compiler.rebuild_expression</code></a></td><td>Rebuilds an expression from a pending Macro value application, preserving its established root <code>type</code>, child stage, and source wrappers.</td></tr>
@@ -277,6 +283,7 @@ Compatibility is not yet promised.</p>
 <tr><td><a href="#Compiler.rebuild_statement"><code>Compiler.rebuild_statement</code></a></td><td>Rebuilds a statement template as a canonical unbraced <code>seq</code>.</td></tr>
 <tr><td><a href="#Compiler.rebuild_unit_function"><code>Compiler.rebuild_unit_function</code></a></td><td>Constructs a fresh function from a Unit template after lowering.</td></tr>
 <tr><td><a href="#Compiler.record_comptime"><code>Compiler.record_comptime</code></a></td><td>Records that <code>name</code> is compile-time only in <code>c</code>, and in the shared session when it is being filled.</td></tr>
+<tr><td><a href="#Compiler.record_macro_export"><code>Compiler.record_macro_export</code></a></td><td>Records the compile-time import at the cursor in this file’s interface, which every file that includes this one replays at its include, and a package’s consumer where it imports the package.</td></tr>
 <tr><td><a href="#Compiler.report_lisp_failure"><code>Compiler.report_lisp_failure</code></a></td><td>Reports that the compile-time Lisp <code>source</code> failed with <code>error</code> at <code>invocation</code>.</td></tr>
 <tr><td><a href="#Compiler.shared_definitions"><code>Compiler.shared_definitions</code></a></td><td>Returns the published definition keys, or null before publication.</td></tr>
 <tr><td><a href="#Compiler.shares_meta_definition"><code>Compiler.shares_meta_definition</code></a></td><td>Answers whether the published shared session already holds the definition of <code>name</code> from this file, which a unit reading the file again leaves alone.</td></tr>
@@ -298,19 +305,37 @@ Compatibility is not yet promised.</p>
 <p><code>int macro_library_filling(void)</code></p>
 <p>Answers whether the shared compile-time session is still being filled,
 before <code>lib/meta.x</code> has defined the syntax builders.</p>
-<p>Source: <code>src/macros.x:3870</code></p>
+<p>Source: <code>src/macros.x:4468</code></p>
 <h4 id="macro_library_reset"><a class="header" href="#macro_library_reset">macro_library_reset</a></h4>
 <p><code>void macro_library_reset(void)</code></p>
 <p>Ends the shared compile-time library before its build-target Context is
 reclaimed. A later target creates a fresh session in its own Context.</p>
-<p>Source: <code>src/macros.x:4069</code></p>
+<p>Source: <code>src/macros.x:4666</code></p>
 <h4 id="x2c_template_call"><a class="header" href="#x2c_template_call">x2c_template_call</a></h4>
 <p><code>List x2c_template_call(Var stored, List values)</code></p>
 <p>Returns the syntax that invokes the template <code>stored</code>, a macro name
 spelled as a String or a local definition, with <code>values</code>: what a template
 call in a staged <code>meta</code> body evaluates to.</p>
-<p>Source: <code>src/macros.x:2823</code></p>
+<p>Source: <code>src/macros.x:3242</code></p>
 <h3 id="compiler"><a class="header" href="#compiler"><code>Compiler</code></a></h3>
+<p><a id="Compiler.after_hole"></a></p>
+<h4 id="compilerafter_hole"><a class="header" href="#compilerafter_hole">Compiler.after_hole</a></h4>
+<p><code>Token Compiler.after_hole(Compiler c)</code></p>
+<p>Returns the token after the hole at the cursor: after <code>$NAME</code>, or after
+the braces of <code>${expression}</code>.</p>
+<p>Source: <code>src/macros.x:1217</code></p>
+<p><a id="Compiler.at_import"></a></p>
+<h4 id="compilerat_import"><a class="header" href="#compilerat_import">Compiler.at_import</a></h4>
+<p><code>int Compiler.at_import(Compiler c)</code></p>
+<p>Answers whether the cursor is at a compile-time import,
+<code>$(import "path")</code>.</p>
+<p>Source: <code>src/macros.x:3940</code></p>
+<p><a id="Compiler.bind_macro_lisp_statement"></a></p>
+<h4 id="compilerbind_macro_lisp_statement"><a class="header" href="#compilerbind_macro_lisp_statement">Compiler.bind_macro_lisp_statement</a></h4>
+<p><code>List Compiler.bind_macro_lisp_statement( Compiler c, List value, AstPos context)</code></p>
+<p>Binds a compile-time Lisp code <code>value</code> returned to a statement at
+<code>context</code>.</p>
+<p>Source: <code>src/macros.x:4004</code></p>
 <p><a id="Compiler.bind_meta_operation"></a></p>
 <h4 id="compilerbind_meta_operation"><a class="header" href="#compilerbind_meta_operation">Compiler.bind_meta_operation</a></h4>
 <p><code>void Compiler.bind_meta_operation(Lisp lisp, String name, Var function)</code></p>
@@ -318,14 +343,14 @@ call in a staged <code>meta</code> body evaluates to.</p>
 its Lisp name in <code>lisp</code>. A predicate answers a Lisp truth value where the
 <span class="x2c-wordmark">x2c</span> spelling answers <code>int</code>. A definition the compile-time libraries
 already give that name wins, because it adapts the arguments.</p>
-<p>Source: <code>src/macros.x:4009</code></p>
+<p>Source: <code>src/macros.x:4606</code></p>
 <p><a id="Compiler.capture_macro_value"></a></p>
 <h4 id="compilercapture_macro_value"><a class="header" href="#compilercapture_macro_value">Compiler.capture_macro_value</a></h4>
 <p><code>List Compiler.capture_macro_value(Compiler c, List definition)</code></p>
 <p>Returns an anonymous macro definition as a <code>Macro</code> value. Macro values
 the body applies are captured where the literal is written, so a later
 application applies the same children.</p>
-<p>Source: <code>src/macros.x:3159</code></p>
+<p>Source: <code>src/macros.x:3732</code></p>
 <p><a id="Compiler.ensure_macro_lisp"></a></p>
 <h4 id="compilerensure_macro_lisp"><a class="header" href="#compilerensure_macro_lisp">Compiler.ensure_macro_lisp</a></h4>
 <p><code>void Compiler.ensure_macro_lisp(Compiler c)</code></p>
@@ -333,25 +358,25 @@ application applies the same children.</p>
 <code>.xmacro</code> import parser borrows its parent’s session; the parent
 Compiler frees it. Every use records the library files as dependencies,
 and a session loads them once.</p>
-<p>Source: <code>src/macros.x:3263</code></p>
+<p>Source: <code>src/macros.x:3839</code></p>
 <p><a id="Compiler.evaluate_declaration_effect"></a></p>
 <h4 id="compilerevaluate_declaration_effect"><a class="header" href="#compilerevaluate_declaration_effect">Compiler.evaluate_declaration_effect</a></h4>
 <p><code>void Compiler.evaluate_declaration_effect( Compiler c, String form, Token invocation)</code></p>
 <p>Evaluates a queued source Lisp form with its original diagnostic site.</p>
-<p>Source: <code>src/macros.x:3370</code></p>
+<p>Source: <code>src/macros.x:3964</code></p>
 <p><a id="Compiler.evaluate_declaration_recipe"></a></p>
 <h4 id="compilerevaluate_declaration_recipe"><a class="header" href="#compilerevaluate_declaration_recipe">Compiler.evaluate_declaration_recipe</a></h4>
 <p><code>Var Compiler.evaluate_declaration_recipe( Compiler c, Atom callback, List arguments)</code></p>
 <p>Evaluates a declaration recipe after its owning source is collected.
 The callback is a Lisp name and arguments are retained canonical values.</p>
-<p>Source: <code>src/macros.x:2803</code></p>
+<p>Source: <code>src/macros.x:3222</code></p>
 <p><a id="Compiler.evaluate_macro_rows"></a></p>
 <h4 id="compilerevaluate_macro_rows"><a class="header" href="#compilerevaluate_macro_rows">Compiler.evaluate_macro_rows</a></h4>
 <p><code>List Compiler.evaluate_macro_rows(Compiler c, Var value)</code></p>
 <p>Evaluates a macro slot and returns its syntax as a row sequence.
 <code>(seq ...)</code> contributes its children; every other result contributes one
 row.</p>
-<p>Source: <code>src/macros.x:2651</code></p>
+<p>Source: <code>src/macros.x:3070</code></p>
 <p><a id="Compiler.evaluate_macro_slot"></a></p>
 <h4 id="compilerevaluate_macro_slot"><a class="header" href="#compilerevaluate_macro_slot">Compiler.evaluate_macro_slot</a></h4>
 <p><code>Var Compiler.evaluate_macro_slot(Compiler c, Var value)</code></p>
@@ -359,14 +384,14 @@ row.</p>
 Macro value application into the invocation that expands it.
 Non-slots and slots outside an expansion are returned unchanged. A splice
 slot’s <code>List</code> result is wrapped as <code>(seq ...)</code> for its syntax position.</p>
-<p>Source: <code>src/macros.x:2594</code></p>
+<p>Source: <code>src/macros.x:3012</code></p>
 <p><a id="Compiler.evaluate_meta_value"></a></p>
 <h4 id="compilerevaluate_meta_value"><a class="header" href="#compilerevaluate_meta_value">Compiler.evaluate_meta_value</a></h4>
 <p><code>Var Compiler.evaluate_meta_value( Compiler c, List expression, Token site, int slot)</code></p>
 <p>Evaluates the explicit meta call <code>expression</code> at <code>site</code> with the active
 expansion’s captures visible to the SDK. A nonzero <code>slot</code> marks a
 template slot, which reports a call the project meta build leaves.</p>
-<p>Source: <code>src/macros.x:2690</code></p>
+<p>Source: <code>src/macros.x:3109</code></p>
 <p><a id="Compiler.expand_macro_invocation_node"></a></p>
 <h4 id="compilerexpand_macro_invocation_node"><a class="header" href="#compilerexpand_macro_invocation_node">Compiler.expand_macro_invocation_node</a></h4>
 <p><code>List Compiler.expand_macro_invocation_node( Compiler c, Var stored, List arguments, Token invocation, AstPos position)</code></p>
@@ -375,36 +400,55 @@ template slot, which reports a call the project meta build leaves.</p>
 supplies Lisp bindings, source location, and recursion checks; the
 definition’s fresh rows allocate invocation-local names. This method does
 not begin a semantic transaction.</p>
-<p>Source: <code>src/macros.x:65</code></p>
+<p>Source: <code>src/macros.x:67</code></p>
+<p><a id="Compiler.import_exported"></a></p>
+<h4 id="compilerimport_exported"><a class="header" href="#compilerimport_exported">Compiler.import_exported</a></h4>
+<p><code>void Compiler.import_exported(Compiler c, String path, Token invocation)</code></p>
+<p>Installs the macro file at the home-portable <code>path</code> that an included
+file exports, as the unit’s own import of it at <code>invocation</code> would.</p>
+<p>Source: <code>src/macros.x:3959</code></p>
 <p><a id="Compiler.import_package_macros"></a></p>
 <h4 id="compilerimport_package_macros"><a class="header" href="#compilerimport_package_macros">Compiler.import_package_macros</a></h4>
 <p><code>void Compiler.import_package_macros( Compiler c, String name, Token invocation)</code></p>
-<p>Loads the public macro imports recorded by a package entry at this
-consumer’s import position.</p>
-<p>Source: <code>src/macros.x:3665</code></p>
+<p>Loads the macro imports that the sources of package <code>name</code> export at
+this consumer’s import position, in the order the package’s include walk
+reaches them.</p>
+<p>Source: <code>src/macros.x:4275</code></p>
 <p><a id="Compiler.inherit_library_comptime"></a></p>
 <h4 id="compilerinherit_library_comptime"><a class="header" href="#compilerinherit_library_comptime">Compiler.inherit_library_comptime</a></h4>
 <p><code>void Compiler.inherit_library_comptime(Compiler c)</code></p>
 <p>Marks the shared session’s compile-time-only definitions in a fresh
 compiler pass, which reads them without defining them.</p>
-<p>Source: <code>src/macros.x:3863</code></p>
+<p>Source: <code>src/macros.x:4461</code></p>
 <p><a id="Compiler.inherits_import"></a></p>
 <h4 id="compilerinherits_import"><a class="header" href="#compilerinherits_import">Compiler.inherits_import</a></h4>
 <p><code>int Compiler.inherits_import(String path)</code></p>
 <p>Whether the shared session evaluated the file at <code>path</code>. A unit that is
 that file, as when a library is linted, inherits its Lisp forms.</p>
-<p>Source: <code>src/macros.x:3846</code></p>
+<p>Source: <code>src/macros.x:4444</code></p>
 <p><a id="Compiler.install_builtin_macros"></a></p>
 <h4 id="compilerinstall_builtin_macros"><a class="header" href="#compilerinstall_builtin_macros">Compiler.install_builtin_macros</a></h4>
 <p><code>void Compiler.install_builtin_macros(Compiler c)</code></p>
 <p>Installs the compiler-shipped source macros into <code>c</code> once.</p>
-<p>Source: <code>src/macros.x:3908</code></p>
+<p>Source: <code>src/macros.x:4506</code></p>
+<p><a id="Compiler.keep_imported_meta"></a></p>
+<h4 id="compilerkeep_imported_meta"><a class="header" href="#compilerkeep_imported_meta">Compiler.keep_imported_meta</a></h4>
+<p><code>void Compiler.keep_imported_meta(Compiler c, List imported)</code></p>
+<p>Keeps the runtime <code>meta</code> declarations that a compile-time import
+contributed, <code>imported</code> or NULL, where the import stands.</p>
+<p>Source: <code>src/macros.x:3932</code></p>
 <p><a id="Compiler.keyword_form_is_definition"></a></p>
 <h4 id="compilerkeyword_form_is_definition"><a class="header" href="#compilerkeyword_form_is_definition">Compiler.keyword_form_is_definition</a></h4>
 <p><code>int Compiler.keyword_form_is_definition(Compiler c)</code></p>
 <p>Returns whether the current tokens begin a <code>keyword NAME $macro</code> alias.
 This query does not consume tokens.</p>
-<p>Source: <code>src/macros.x:1606</code></p>
+<p>Source: <code>src/macros.x:2019</code></p>
+<p><a id="Compiler.land_quotation"></a></p>
+<h4 id="compilerland_quotation"><a class="header" href="#compilerland_quotation">Compiler.land_quotation</a></h4>
+<p><code>List Compiler.land_quotation( Compiler c, List fresh, Var syntax, AstPos position, Type return_type)</code></p>
+<p>Binds quoted <code>syntax</code> with its <code>fresh</code> rows at <code>position</code>, as the
+expansion of its quotation would.</p>
+<p>Source: <code>src/macros.x:3430</code></p>
 <p><a id="Compiler.lift_macro_lisp_expression"></a></p>
 <h4 id="compilerlift_macro_lisp_expression"><a class="header" href="#compilerlift_macro_lisp_expression">Compiler.lift_macro_lisp_expression</a></h4>
 <p><code>List Compiler.lift_macro_lisp_expression( Compiler c, Var value, Token invocation)</code></p>
@@ -412,25 +456,25 @@ This query does not consume tokens.</p>
 Scalars, immutable values, representable Array/Map roots, compiler-issued
 identifiers, and nonempty code <code>List</code>s are accepted; <code>invocation</code> locates
 an unsupported result.</p>
-<p>Source: <code>src/macros.x:3397</code></p>
+<p>Source: <code>src/macros.x:3991</code></p>
 <p><a id="Compiler.local_macro_form_is_definition"></a></p>
 <h4 id="compilerlocal_macro_form_is_definition"><a class="header" href="#compilerlocal_macro_form_is_definition">Compiler.local_macro_form_is_definition</a></h4>
 <p><code>int Compiler.local_macro_form_is_definition(Compiler c)</code></p>
 <p>Returns whether the current tokens begin a local macro definition.
 This query does not consume tokens.</p>
-<p>Source: <code>src/macros.x:1596</code></p>
+<p>Source: <code>src/macros.x:2009</code></p>
 <p><a id="Compiler.macro_form_is_definition"></a></p>
 <h4 id="compilermacro_form_is_definition"><a class="header" href="#compilermacro_form_is_definition">Compiler.macro_form_is_definition</a></h4>
 <p><code>int Compiler.macro_form_is_definition(Compiler c)</code></p>
 <p>Returns whether the current tokens have macro-definition introducer form.
 This query does not consume tokens.</p>
-<p>Source: <code>src/macros.x:1585</code></p>
+<p>Source: <code>src/macros.x:1998</code></p>
 <p><a id="Compiler.macro_introduced_name"></a></p>
 <h4 id="compilermacro_introduced_name"><a class="header" href="#compilermacro_introduced_name">Compiler.macro_introduced_name</a></h4>
 <p><code>List Compiler.macro_introduced_name(Compiler c, String spelling)</code></p>
 <p>Returns the current declaration’s definition-local identity. An active
 macro-definition locals map is required.</p>
-<p>Source: <code>src/macros.x:1417</code></p>
+<p>Source: <code>src/macros.x:1830</code></p>
 <p><a id="Compiler.macro_invocation_collection"></a></p>
 <h4 id="compilermacro_invocation_collection"><a class="header" href="#compilermacro_invocation_collection">Compiler.macro_invocation_collection</a></h4>
 <p><code>Symbol Compiler.macro_invocation_collection(Compiler c)</code></p>
@@ -439,34 +483,34 @@ macro-definition locals map is required.</p>
 named-type decorator, and local <code>Unit</code> macro whose template contains
 protocol or adoption rows. <code>&lt;tried&gt;</code> covers any other local <code>Unit</code>
 macro. Other invocations return zero.</p>
-<p>Source: <code>src/macros.x:1822</code></p>
+<p>Source: <code>src/macros.x:2237</code></p>
 <p><a id="Compiler.macro_invocation_site"></a></p>
 <h4 id="compilermacro_invocation_site"><a class="header" href="#compilermacro_invocation_site">Compiler.macro_invocation_site</a></h4>
 <p><code>Token Compiler.macro_invocation_site(Compiler c, Var site)</code></p>
 <p>Resolves a stored macro invocation marker to its source token.
 Nested template markers use the active expansion’s invocation; unresolved
 markers return NULL.</p>
-<p>Source: <code>src/macros.x:262</code></p>
+<p>Source: <code>src/macros.x:277</code></p>
 <p><a id="Compiler.macro_lisp_starts_declaration"></a></p>
 <h4 id="compilermacro_lisp_starts_declaration"><a class="header" href="#compilermacro_lisp_starts_declaration">Compiler.macro_lisp_starts_declaration</a></h4>
 <p><code>int Compiler.macro_lisp_starts_declaration(Compiler c)</code></p>
 <p>Returns whether tokens after a Lisp form or explicit meta call continue
 a declaration. The balanced argument group is inspected without moving
 the compiler cursor; a visible source macro retains its own grammar.</p>
-<p>Source: <code>src/macros.x:1311</code></p>
+<p>Source: <code>src/macros.x:1722</code></p>
 <p><a id="Compiler.macro_pattern_at"></a></p>
 <h4 id="compilermacro_pattern_at"><a class="header" href="#compilermacro_pattern_at">Compiler.macro_pattern_at</a></h4>
 <p><code>Token Compiler.macro_pattern_at( Compiler c, Token at, String &amp;spelling, Var &amp;stored)</code></p>
 <p>Returns the <code>(</code> after a visible macro’s <code>$NAME</code> at <code>at</code>, storing its
 spelling and definition, or NULL. The cursor does not move.</p>
-<p>Source: <code>src/macros.x:3046</code></p>
+<p>Source: <code>src/macros.x:3619</code></p>
 <p><a id="Compiler.macro_starts_target_at"></a></p>
 <h4 id="compilermacro_starts_target_at"><a class="header" href="#compilermacro_starts_target_at">Compiler.macro_starts_target_at</a></h4>
 <p><code>int Compiler.macro_starts_target_at(Compiler c, AstPos position)</code></p>
 <p>Returns whether the parser claims the macro invocation at the cursor for
 <code>position</code>. A bare keyword alias is claimed only where its result fits.
 This query does not consume tokens.</p>
-<p>Source: <code>src/macros.x:1665</code></p>
+<p>Source: <code>src/macros.x:2078</code></p>
 <p><a id="Compiler.macro_tag_name"></a></p>
 <h4 id="compilermacro_tag_name"><a class="header" href="#compilermacro_tag_name">Compiler.macro_tag_name</a></h4>
 <p><code>List Compiler.macro_tag_name( Compiler c, Symbol kind, String name, int definition)</code></p>
@@ -475,20 +519,20 @@ when it names a visible public tag. A tag the template defines or
 declares is a template local, apart from ordinary names of the same
 spelling. A tag it only references keeps its public spelling unless the
 template later defines or declares it.</p>
-<p>Source: <code>src/macros.x:1430</code></p>
+<p>Source: <code>src/macros.x:1843</code></p>
 <p><a id="Compiler.macro_targets_unit"></a></p>
 <h4 id="compilermacro_targets_unit"><a class="header" href="#compilermacro_targets_unit">Compiler.macro_targets_unit</a></h4>
 <p><code>int Compiler.macro_targets_unit(Compiler c)</code></p>
 <p>Reports whether the macro invocation at the cursor produces file-scope
 syntax, directly or through the target it decorates. A script unit keeps
 such an invocation at file scope. This query does not consume tokens.</p>
-<p>Source: <code>src/macros.x:1865</code></p>
+<p>Source: <code>src/macros.x:2280</code></p>
 <p><a id="Compiler.macro_value_literal"></a></p>
 <h4 id="compilermacro_value_literal"><a class="header" href="#compilermacro_value_literal">Compiler.macro_value_literal</a></h4>
 <p><code>List Compiler.macro_value_literal(Compiler c, List value)</code></p>
 <p>Returns the literal expression that carries <code>value</code>, a macro definition
 or one of its references, as run-time data.</p>
-<p>Source: <code>src/macros.x:2967</code></p>
+<p>Source: <code>src/macros.x:3542</code></p>
 <p><a id="Compiler.open_macro_library"></a></p>
 <h4 id="compileropen_macro_library"><a class="header" href="#compileropen_macro_library">Compiler.open_macro_library</a></h4>
 <p><code>Lisp Compiler.open_macro_library(Compiler c)</code></p>
@@ -498,35 +542,35 @@ preload, in which case every unit falls back to its own load, which
 reports against the unit that needed it.</p>
 <p>The session is not published until <code>Compiler.publish_macro_library</code>, so a
 unit opened in between still builds its own.</p>
-<p>Source: <code>src/macros.x:3772</code></p>
+<p>Source: <code>src/macros.x:4370</code></p>
 <p><a id="Compiler.parse_keyword_definition"></a></p>
 <h4 id="compilerparse_keyword_definition"><a class="header" href="#compilerparse_keyword_definition">Compiler.parse_keyword_definition</a></h4>
 <p><code>void Compiler.parse_keyword_definition(Compiler c)</code></p>
 <p>Parses and installs one source-local <code>keyword</code> alias.
 The named macro must already be visible; the alias captures that definition
 and consumes its terminating semicolon.</p>
-<p>Source: <code>src/macros.x:1613</code></p>
+<p>Source: <code>src/macros.x:2026</code></p>
 <p><a id="Compiler.parse_macro_definition"></a></p>
 <h4 id="compilerparse_macro_definition"><a class="header" href="#compilerparse_macro_definition">Compiler.parse_macro_definition</a></h4>
 <p><code>List Compiler.parse_macro_definition(Compiler c)</code></p>
 <p>Parses the macro definition at the current token into a <code>macrodef</code> <code>List</code>.
 A source-level definition is published immediately; a definition inside a
 template remains syntax for later binding at its expansion site.</p>
-<p>Source: <code>src/macros.x:374</code></p>
+<p>Source: <code>src/macros.x:398</code></p>
 <p><a id="Compiler.parse_macro_lisp_expression"></a></p>
 <h4 id="compilerparse_macro_lisp_expression"><a class="header" href="#compilerparse_macro_lisp_expression">Compiler.parse_macro_lisp_expression</a></h4>
 <p><code>List Compiler.parse_macro_lisp_expression(Compiler c)</code></p>
 <p>Parses a compile-time Lisp form in an expression position.
 Macro-definition parsing records a deferred slot; ordinary parsing
 evaluates the form in the translation unit’s Lisp session and lifts it.</p>
-<p>Source: <code>src/macros.x:3382</code></p>
+<p>Source: <code>src/macros.x:3976</code></p>
 <p><a id="Compiler.parse_macro_lisp_shallow"></a></p>
 <h4 id="compilerparse_macro_lisp_shallow"><a class="header" href="#compilerparse_macro_lisp_shallow">Compiler.parse_macro_lisp_shallow</a></h4>
 <p><code>void Compiler.parse_macro_lisp_shallow(Compiler c)</code></p>
 <p>Imports immediate dependencies and queues other source Lisp effects.
 Declaration projection forces preceding effects exactly once; otherwise
 full parsing keeps the ordinary source-order evaluation.</p>
-<p>Source: <code>src/macros.x:3328</code></p>
+<p>Source: <code>src/macros.x:3904</code></p>
 <p><a id="Compiler.parse_macro_lisp_top_level"></a></p>
 <h4 id="compilerparse_macro_lisp_top_level"><a class="header" href="#compilerparse_macro_lisp_top_level">Compiler.parse_macro_lisp_top_level</a></h4>
 <p><code>List Compiler.parse_macro_lisp_top_level(Compiler c)</code></p>
@@ -538,31 +582,32 @@ contributed, or NULL when the import declared nothing <code>meta</code> at all.
 The consuming unit retains them and emits the ones it reaches. An import
 whose <code>meta</code> functions are all compile-time only answers an empty <code>seq</code>,
 because the next pass still has to read it to install them.</p>
-<p>Source: <code>src/macros.x:3310</code></p>
+<p>Source: <code>src/macros.x:3886</code></p>
 <p><a id="Compiler.parse_macro_quotation"></a></p>
 <h4 id="compilerparse_macro_quotation"><a class="header" href="#compilerparse_macro_quotation">Compiler.parse_macro_quotation</a></h4>
 <p><code>List Compiler.parse_macro_quotation(Compiler c)</code></p>
 <p>Parses a quotation at <code>$!</code> into the code it builds from the locals its
 body names.</p>
-<p>Source: <code>src/macros.x:1147</code></p>
+<p>Source: <code>src/macros.x:1236</code></p>
 <p><a id="Compiler.peek_macro_hole"></a></p>
 <h4 id="compilerpeek_macro_hole"><a class="header" href="#compilerpeek_macro_hole">Compiler.peek_macro_hole</a></h4>
 <p><code>List Compiler.peek_macro_hole(Compiler c)</code></p>
-<p>Returns the registered hole descriptor at the current <code>$NAME</code>.
-Returns NULL without consuming tokens when the spelling is not a hole.</p>
-<p>Source: <code>src/macros.x:1131</code></p>
+<p>Returns the registered hole descriptor at the current <code>$NAME</code>, or at a
+quotation’s <code>${expression}</code>. Returns NULL without consuming tokens when
+the spelling is not a hole.</p>
+<p>Source: <code>src/macros.x:1205</code></p>
 <p><a id="Compiler.publish_macro_definition_node"></a></p>
 <h4 id="compilerpublish_macro_definition_node"><a class="header" href="#compilerpublish_macro_definition_node">Compiler.publish_macro_definition_node</a></h4>
 <p><code>List Compiler.publish_macro_definition_node(Compiler c, List node)</code></p>
 <p>Publishes a canonical <code>macrodef</code> in source order and returns <code>node</code>.
 A later definition with the same name affects only later invocations.</p>
-<p>Source: <code>src/macros.x:1577</code></p>
+<p>Source: <code>src/macros.x:1990</code></p>
 <p><a id="Compiler.publish_macro_library"></a></p>
 <h4 id="compilerpublish_macro_library"><a class="header" href="#compilerpublish_macro_library">Compiler.publish_macro_library</a></h4>
 <p><code>void Compiler.publish_macro_library(Compiler c, Lisp shared)</code></p>
 <p>Prepares and freezes the shared session and makes it every unit’s parent.
 <code>shared</code> must be the session <code>Compiler.open_macro_library</code> returned.</p>
-<p>Source: <code>src/macros.x:3828</code></p>
+<p>Source: <code>src/macros.x:4426</code></p>
 <p><a id="Compiler.rebuild_expression"></a></p>
 <h4 id="compilerrebuild_expression"><a class="header" href="#compilerrebuild_expression">Compiler.rebuild_expression</a></h4>
 <p><code>List Compiler.rebuild_expression(Compiler c, Type type, List application)</code></p>
@@ -570,70 +615,78 @@ A later definition with the same name affects only later invocations.</p>
 its established root <code>type</code>, child stage, and source wrappers. Binding,
 capture collection, hygiene, and effects do not run, and a statement
 expression’s template-origin wrappers are omitted.</p>
-<p>Source: <code>src/macros.x:2885</code></p>
+<p>Source: <code>src/macros.x:3326</code></p>
 <p><a id="Compiler.rebuild_function"></a></p>
 <h4 id="compilerrebuild_function"><a class="header" href="#compilerrebuild_function">Compiler.rebuild_function</a></h4>
 <p><code>List Compiler.rebuild_function(Compiler c, List target, List application)</code></p>
 <p>Rebuilds a bound function through a Function decorator without binding it
 again. The template keeps the target’s return type and declarator.</p>
-<p>Source: <code>src/macros.x:2907</code></p>
+<p>Source: <code>src/macros.x:3348</code></p>
 <p><a id="Compiler.rebuild_statement"></a></p>
 <h4 id="compilerrebuild_statement"><a class="header" href="#compilerrebuild_statement">Compiler.rebuild_statement</a></h4>
 <p><code>List Compiler.rebuild_statement(Compiler c, List application)</code></p>
 <p>Rebuilds a statement template as a canonical unbraced <code>seq</code>. Bound
 children keep their identities and origins; template-origin wrappers
 are omitted because this path does not open an invocation.</p>
-<p>Source: <code>src/macros.x:2893</code></p>
+<p>Source: <code>src/macros.x:3334</code></p>
 <p><a id="Compiler.rebuild_unit_function"></a></p>
 <h4 id="compilerrebuild_unit_function"><a class="header" href="#compilerrebuild_unit_function">Compiler.rebuild_unit_function</a></h4>
 <p><code>List Compiler.rebuild_unit_function(Compiler c, List application)</code></p>
 <p>Constructs a fresh function from a Unit template after lowering. The
 caller supplies its bound name and lowered children; binding does not
 run.</p>
-<p>Source: <code>src/macros.x:2899</code></p>
+<p>Source: <code>src/macros.x:3340</code></p>
 <p><a id="Compiler.record_comptime"></a></p>
 <h4 id="compilerrecord_comptime"><a class="header" href="#compilerrecord_comptime">Compiler.record_comptime</a></h4>
 <p><code>void Compiler.record_comptime(Compiler c, String name)</code></p>
 <p>Records that <code>name</code> is compile-time only in <code>c</code>, and in the shared
 session when it is being filled.</p>
-<p>Source: <code>src/macros.x:3854</code></p>
+<p>Source: <code>src/macros.x:4452</code></p>
+<p><a id="Compiler.record_macro_export"></a></p>
+<h4 id="compilerrecord_macro_export"><a class="header" href="#compilerrecord_macro_export">Compiler.record_macro_export</a></h4>
+<p><code>void Compiler.record_macro_export(Compiler c)</code></p>
+<p>Records the compile-time import at the cursor in this file’s interface,
+which every file that includes this one replays at its include, and a
+package’s consumer where it imports the package. Paths are spelled
+home-portably, as interfaces spell them.</p>
+<p>Source: <code>src/macros.x:3947</code></p>
 <p><a id="Compiler.report_lisp_failure"></a></p>
 <h4 id="compilerreport_lisp_failure"><a class="header" href="#compilerreport_lisp_failure">Compiler.report_lisp_failure</a></h4>
 <p><code>void Compiler.report_lisp_failure( Compiler c, Token invocation, List error, String source)</code></p>
 <p>Reports that the compile-time Lisp <code>source</code> failed with <code>error</code> at
 <code>invocation</code>.</p>
-<p>Source: <code>src/macros.x:4041</code></p>
+<p>Source: <code>src/macros.x:4638</code></p>
 <p><a id="Compiler.shared_definitions"></a></p>
 <h4 id="compilershared_definitions"><a class="header" href="#compilershared_definitions">Compiler.shared_definitions</a></h4>
 <p><code>Map Compiler.shared_definitions(Compiler c)</code></p>
 <p>Returns the published definition keys, or null before publication.
 The borrowed map is the shared session’s source identity table.</p>
-<p>Source: <code>src/macros.x:3875</code></p>
+<p>Source: <code>src/macros.x:4473</code></p>
 <p><a id="Compiler.shares_meta_definition"></a></p>
 <h4 id="compilershares_meta_definition"><a class="header" href="#compilershares_meta_definition">Compiler.shares_meta_definition</a></h4>
 <p><code>int Compiler.shares_meta_definition(Compiler c, String name)</code></p>
 <p>Answers whether the published shared session already holds the
 definition of <code>name</code> from this file, which a unit reading the file again
 leaves alone.</p>
-<p>Source: <code>src/macros.x:3883</code></p>
+<p>Source: <code>src/macros.x:4481</code></p>
 <p><a id="Compiler.skip_macro_invocation"></a></p>
 <h4 id="compilerskip_macro_invocation"><a class="header" href="#compilerskip_macro_invocation">Compiler.skip_macro_invocation</a></h4>
 <p><code>void Compiler.skip_macro_invocation(Compiler c)</code></p>
 <p>Consumes a macro invocation name and its balanced argument list.
 The invocation terminator or following decorator target remains current.</p>
-<p>Source: <code>src/macros.x:1841</code></p>
+<p>Source: <code>src/macros.x:2256</code></p>
 <p><a id="Compiler.skip_named_type_declaration"></a></p>
 <h4 id="compilerskip_named_type_declaration"><a class="header" href="#compilerskip_named_type_declaration">Compiler.skip_named_type_declaration</a></h4>
 <p><code>int Compiler.skip_named_type_declaration(Compiler c)</code></p>
 <p>Consumes a NamedType target already projected by owning-source collection.
 CPP scanning does not produce the declaration or parse its fields again.</p>
-<p>Source: <code>src/macros.x:1852</code></p>
+<p>Source: <code>src/macros.x:2267</code></p>
 <p><a id="Compiler.source_path"></a></p>
 <h4 id="compilersource_path"><a class="header" href="#compilersource_path">Compiler.source_path</a></h4>
 <p><code>String Compiler.source_path(Compiler c, String file)</code></p>
 <p>Returns the canonical path of the source <code>file</code>. A relative name that
 is not a file resolves against the home.</p>
-<p>Source: <code>src/macros.x:3710</code></p>
+<p>Source: <code>src/macros.x:4308</code></p>
 <p><a id="Compiler.take_code_value"></a></p>
 <h4 id="compilertake_code_value"><a class="header" href="#compilertake_code_value">Compiler.take_code_value</a></h4>
 <p><code>int Compiler.take_code_value( Compiler c, Var input, Var &amp;value, int &amp;retained)</code></p>
@@ -641,28 +694,29 @@ is not a file resolves against the home.</p>
 into a macro value application. Effects are applied in order under the
 application’s transaction, and their tokens are replaced in the code.
 <code>retained</code> reports a bound or lowered stage, which ordinary binding
-leaves untouched. Returns 0 for any other value.</p>
-<p>Source: <code>src/macros.x:3195</code></p>
+leaves untouched. Lowered code is not searched for a leftover binder.
+Returns 0 for any other value.</p>
+<p>Source: <code>src/macros.x:3769</code></p>
 <p><a id="Compiler.try_parse_macro_expression"></a></p>
 <h4 id="compilertry_parse_macro_expression"><a class="header" href="#compilertry_parse_macro_expression">Compiler.try_parse_macro_expression</a></h4>
 <p><code>List Compiler.try_parse_macro_expression(Compiler c)</code></p>
 <p>Parses and resolves a direct or keyword-alias expression macro.
 Returns NULL without consuming an identifier that is not an applicable
 alias; a direct <code>$</code> invocation must resolve to a visible expression form.</p>
-<p>Source: <code>src/macros.x:2443</code></p>
+<p>Source: <code>src/macros.x:2860</code></p>
 <p><a id="Compiler.try_parse_macro_member"></a></p>
 <h4 id="compilertry_parse_macro_member"><a class="header" href="#compilertry_parse_macro_member">Compiler.try_parse_macro_member</a></h4>
 <p><code>List Compiler.try_parse_macro_member(Compiler c)</code></p>
 <p>Parses a member name in a template. A singular <code>Name</code> hole there
 supplies the spelling it captured, without hygienic renaming.</p>
-<p>Source: <code>src/macros.x:1326</code></p>
+<p>Source: <code>src/macros.x:1737</code></p>
 <p><a id="Compiler.try_parse_macro_pattern"></a></p>
 <h4 id="compilertry_parse_macro_pattern"><a class="header" href="#compilertry_parse_macro_pattern">Compiler.try_parse_macro_pattern</a></h4>
 <p><code>List Compiler.try_parse_macro_pattern(Compiler c)</code></p>
 <p>Parses <code>case NAME(?a, *b)</code> where NAME selects a macro, as <code>$name</code> or as
 a <code>Macro</code> variable, into the pattern expression that recognizes code the
 macro builds. Returns NULL without consuming tokens for any other case.</p>
-<p>Source: <code>src/macros.x:2995</code></p>
+<p>Source: <code>src/macros.x:3570</code></p>
 <p><a id="Compiler.try_parse_macro_slot"></a></p>
 <h4 id="compilertry_parse_macro_slot"><a class="header" href="#compilertry_parse_macro_slot">Compiler.try_parse_macro_slot</a></h4>
 <p><code>List Compiler.try_parse_macro_slot(Compiler c, Symbol role)</code></p>
@@ -670,7 +724,7 @@ macro builds. Returns NULL without consuming tokens for any other case.</p>
 Returns role-shaped syntax containing <code>(macro-bind ...)</code> or
 <code>(macro-slot ...)</code>, or NULL when ordinary grammar owns the current tokens;
 successful parsing advances the cursor.</p>
-<p>Source: <code>src/macros.x:1058</code></p>
+<p>Source: <code>src/macros.x:1130</code></p>
 <p><a id="Compiler.try_parse_macro_subpattern"></a></p>
 <h4 id="compilertry_parse_macro_subpattern"><a class="header" href="#compilertry_parse_macro_subpattern">Compiler.try_parse_macro_subpattern</a></h4>
 <p><code>List Compiler.try_parse_macro_subpattern(Compiler c, int content)</code></p>
@@ -680,7 +734,7 @@ hole. It matches the shelled expression or its bare content; <code>content</code
 selects the content alone, for a position whose pattern already writes
 the <code>(expr TYPE ...)</code> shell. Returns NULL without consuming tokens when
 no macro NAME is visible.</p>
-<p>Source: <code>src/macros.x:3082</code></p>
+<p>Source: <code>src/macros.x:3655</code></p>
 <p><a id="Compiler.try_parse_macro_target_at"></a></p>
 <h4 id="compilertry_parse_macro_target_at"><a class="header" href="#compilertry_parse_macro_target_at">Compiler.try_parse_macro_target_at</a></h4>
 <p><code>List Compiler.try_parse_macro_target_at(Compiler c, AstPos position)</code></p>
@@ -689,7 +743,7 @@ Returns NULL without consuming a macro hole or an invocation that
 <code>macro_starts_target_at</code> does not claim; template parsing returns a
 deferred <code>(seq (macro-invoke ...))</code>, and ordinary parsing returns the bound
 expansion.</p>
-<p>Source: <code>src/macros.x:2191</code></p>
+<p>Source: <code>src/macros.x:2605</code></p>
 <h2 id="design-notes"><a class="header" href="#design-notes">Design notes</a></h2>
 <p>This module owns macro expansion. Expansion fills a definition’s
 template from an invocation’s captures and binds the result through the
@@ -716,9 +770,9 @@ session, a child of the shared library session filled once per target.</p>
                         &copy; 2025&ndash;2026
                         <a href="https://flake.org">GWF</a>
                         &middot;
-                        <a href="https://github.com/gwf/x2c/blob/2fb2e7abb7462f842903580f47a5b96c69698937/LICENSE">Apache 2.0</a>
+                        <a href="https://github.com/gwf/x2c/blob/f7b8a969f8236cdd5eb0e7e07b5a658af4d249e9/LICENSE">Apache 2.0</a>
                         &middot;
-                        <a href="https://github.com/gwf/x2c/blob/2fb2e7abb7462f842903580f47a5b96c69698937/TRADEMARKS.md">Trademarks</a>
+                        <a href="https://github.com/gwf/x2c/blob/f7b8a969f8236cdd5eb0e7e07b5a658af4d249e9/TRADEMARKS.md">Trademarks</a>
                     </footer>
                 </div>
             </div>

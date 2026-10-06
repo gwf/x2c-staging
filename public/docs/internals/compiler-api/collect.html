@@ -1,6 +1,6 @@
 <!DOCTYPE HTML>
 <html lang="en" class="light sidebar-visible" dir="ltr">
-    <head><meta name="x2c-site-source" content="2fb2e7abb7462f842903580f47a5b96c69698937"><meta name="x2c-release-channel" content="staging"><meta name="x2c-candidate" content="candidate-0351be4a4d6c00dd246e5190e8dcf5a970560beb-36014113963-1">
+    <head><meta name="x2c-release-channel" content="staging"><meta name="x2c-candidate" content="candidate-f7b8a969f8236cdd5eb0e7e07b5a658af4d249e9-37397345486-1">
         <!-- Book generated using mdBook -->
         <meta charset="UTF-8">
         <title>src/collect.x - The x2c Book</title>
@@ -30,7 +30,7 @@
         <link rel="stylesheet" id="mdbook-ayu-highlight-css" href="../../ayu-highlight-3fdfc3ac.css">
 
         <!-- Custom theme stylesheets -->
-        <link rel="stylesheet" href="../../theme/header-2c1becca.css">
+        <link rel="stylesheet" href="../../theme/header-f6c12aed.css">
         <link rel="stylesheet" href="../../theme/x2c-fd3d182e.css">
 
 
@@ -39,10 +39,10 @@
             const path_to_root = "../../";
             const default_light_theme = "light";
             const default_dark_theme = "light";
-            window.path_to_searchindex_js = "../../searchindex-94a52d98.js";
+            window.path_to_searchindex_js = "../../searchindex-e3f33cfe.js";
         </script>
         <!-- Start loading toc.js asap -->
-        <script src="../../toc-89ef7d96.js"></script>
+        <script src="../../toc-04d6e3af.js"></script>
         <!-- x2c publication metadata -->
         <link rel="canonical" href="https://staging.x2c-lang.dev/docs/internals/compiler-api/collect.html">
         <meta property="og:type" content="website">
@@ -140,7 +140,7 @@
                                 <svg viewBox="0 0 100 100" width="22" height="22" aria-hidden="true"><g fill="none" stroke="#da291c" stroke-width="17" stroke-linecap="butt"><path d="M9 16 A34.5 34.5 0 0 1 9 84"></path><path d="M91 16 A34.5 34.5 0 0 0 91 84"></path></g></svg>
                                 <span class="x2c-wordmark landing-wordmark">x2c</span>
                             </a>
-                            <span class="landing-tagline">The x2c Book</span>
+                            <button class="landing-tagline menu-title" type="button" title="Scroll to top">The x2c Book</button>
                         </div>
                         <nav class="landing-nav" aria-label="x2c website">
                             <div class="landing-page-nav">
@@ -233,44 +233,34 @@ Compatibility is not yet promised.</p>
 <tr><th>Function</th><th>Summary</th></tr>
 </thead>
 <tbody>
-<tr><td><a href="#collect_cached_paths"><code>collect_cached_paths</code></a></td><td>Returns the canonical paths collected so far.</td></tr>
-<tr><td><a href="#collect_forget_entries_since"><code>collect_forget_entries_since</code></a></td><td>Drops the entries collected since <code>before</code> returned by <code>collect_cached_paths</code>.</td></tr>
-<tr><td><a href="#collect_forget_preload_entries"><code>collect_forget_preload_entries</code></a></td><td>Drops the entries collected without declaration defaults while the shared compile-time session was filled.</td></tr>
+<tr><td><a href="#collect_forget_provisional_entries"><code>collect_forget_provisional_entries</code></a></td><td>Drops the entries collected without declaration defaults while the shared compile-time session was filled, or by a project meta build.</td></tr>
 <tr><td><a href="#collect_resolve_include"><code>collect_resolve_include</code></a></td><td>The file the include of <code>target</code> from <code>includer_dir</code> names, searched as collection searches <code>dirs</code>, or NULL.</td></tr>
 <tr><td><a href="#interface_configure"><code>interface_configure</code></a></td><td>Creates the process cache and names the directories searched for <code>.xi</code> interfaces.</td></tr>
 <tr><td><a href="#interface_prelude"><code>interface_prelude</code></a></td><td>Returns the path of the first prelude interface this compiler wrote, or NULL when there is none or the compiler’s identity is unknown.</td></tr>
 <tr><td><a href="#interface_text"><code>interface_text</code></a></td><td>Returns the compiler’s own collected contribution as interface text, or NULL when the unit has not collected its symbols or the compiler’s identity is unknown, since no compiler could replay that interface.</td></tr>
 <tr><td><a href="#Compiler.collect_package"><code>Compiler.collect_package</code></a></td><td>Collects a package once and installs its public surface in the current unit.</td></tr>
 <tr><td><a href="#Compiler.collect_symbols"><code>Compiler.collect_symbols</code></a></td><td>Collects the current translation unit’s declarations into <code>globs</code>.</td></tr>
+<tr><td><a href="#Compiler.import_included_exports"><code>Compiler.import_included_exports</code></a></td><td>Installs, at each include among the directives before the cursor, the macro imports that the included file exports, as the unit’s own imports written there would be installed.</td></tr>
 <tr><td><a href="#Compiler.include_typedef_names"><code>Compiler.include_typedef_names</code></a></td><td>The typedef names published by the files that the current unit’s include of <code>target</code> reaches: the included file and, transitively, the includes above each file’s <code>#pragma private</code>.</td></tr>
 <tr><td><a href="#Compiler.record_generated_symbol"><code>Compiler.record_generated_symbol</code></a></td><td>Records one generated public callable in the declaration map that the current file’s collected entry contributes, which is the map its interface publishes.</td></tr>
-<tr><td><a href="#Compiler.replay_included_package_imports"><code>Compiler.replay_included_package_imports</code></a></td><td>Repeats included imports after full parsing resets macros, in the cache’s original include order.</td></tr>
-<tr><td><a href="#Compiler.replay_package_imports"><code>Compiler.replay_package_imports</code></a></td><td>Replays the import operations retained by this declaration contribution.</td></tr>
+<tr><td><a href="#Compiler.replay_included_package_imports"><code>Compiler.replay_included_package_imports</code></a></td><td>Repeats included package imports after full parsing resets macros, in the cache’s original include order.</td></tr>
+<tr><td><a href="#Compiler.replay_package_imports"><code>Compiler.replay_package_imports</code></a></td><td>Replays the import operations retained by this declaration contribution: its package imports and the macro imports its file exports.</td></tr>
+<tr><td><a href="#Sym.withhold_import_rows"><code>Sym.withhold_import_rows</code></a></td><td>Removes from <code>published</code> the declaration rows that this file’s file-scope imports added and the file did not write again, and their unit-static markers.</td></tr>
 </tbody>
 </table>
 </div>
 <h3 id="functions-1"><a class="header" href="#functions-1">Functions</a></h3>
-<h4 id="collect_cached_paths"><a class="header" href="#collect_cached_paths">collect_cached_paths</a></h4>
-<p><code>List collect_cached_paths(void)</code></p>
-<p>Returns the canonical paths collected so far.</p>
-<p>Source: <code>src/collect.x:1253</code></p>
-<h4 id="collect_forget_entries_since"><a class="header" href="#collect_forget_entries_since">collect_forget_entries_since</a></h4>
-<p><code>void collect_forget_entries_since(List before)</code></p>
-<p>Drops the entries collected since <code>before</code> returned by
-<code>collect_cached_paths</code>. A cached entry replays declarations, not the
-compile-time effects of the file’s imports, which the unit that walked
-it installed in its own session.</p>
-<p>Source: <code>src/collect.x:1259</code></p>
-<h4 id="collect_forget_preload_entries"><a class="header" href="#collect_forget_preload_entries">collect_forget_preload_entries</a></h4>
-<p><code>void collect_forget_preload_entries(void)</code></p>
+<h4 id="collect_forget_provisional_entries"><a class="header" href="#collect_forget_provisional_entries">collect_forget_provisional_entries</a></h4>
+<p><code>void collect_forget_provisional_entries(void)</code></p>
 <p>Drops the entries collected without declaration defaults while the shared
-compile-time session was filled. Call once that session is published.</p>
-<p>Source: <code>src/collect.x:1247</code></p>
+compile-time session was filled, or by a project meta build. Call once
+that session is published, and after the meta build’s parses.</p>
+<p>Source: <code>src/collect.x:1412</code></p>
 <h4 id="collect_resolve_include"><a class="header" href="#collect_resolve_include">collect_resolve_include</a></h4>
 <p><code>String collect_resolve_include( SourceView sources, List dirs, String includer_dir, String target, int angle)</code></p>
 <p>The file the include of <code>target</code> from <code>includer_dir</code> names, searched as
 collection searches <code>dirs</code>, or NULL.</p>
-<p>Source: <code>src/collect.x:519</code></p>
+<p>Source: <code>src/collect.x:583</code></p>
 <h4 id="interface_configure"><a class="header" href="#interface_configure">interface_configure</a></h4>
 <p><code>void interface_configure(String out_dir, int cold)</code></p>
 <p>Creates the process cache and names the directories searched for <code>.xi</code>
@@ -279,13 +269,13 @@ NULL. Home files mirror their home-relative path under the compiler’s
 stage directory when it runs from <code>&lt;home&gt;/builds/</code>, otherwise under the
 home. A <code>cold</code> process reads no interface and still writes its own. Call
 it before opening any translation unit’s Context.</p>
-<p>Source: <code>src/collect.x:974</code></p>
+<p>Source: <code>src/collect.x:1118</code></p>
 <h4 id="interface_prelude"><a class="header" href="#interface_prelude">interface_prelude</a></h4>
 <p><code>String interface_prelude(void)</code></p>
 <p>Returns the path of the first prelude interface this compiler wrote, or
 NULL when there is none or the compiler’s identity is unknown. Its
 source hashes are not checked.</p>
-<p>Source: <code>src/collect.x:1161</code></p>
+<p>Source: <code>src/collect.x:1311</code></p>
 <h4 id="interface_text"><a class="header" href="#interface_text">interface_text</a></h4>
 <p><code>String interface_text(Compiler c, List selected)</code></p>
 <p>Returns the compiler’s own collected contribution as interface text, or
@@ -293,7 +283,7 @@ NULL when the unit has not collected its symbols or the compiler’s
 identity is unknown, since no compiler could replay that interface. A
 contribution that the interface grammar cannot spell is reported as an
 <code>emit</code> diagnostic.</p>
-<p>Source: <code>src/collect.x:1183</code></p>
+<p>Source: <code>src/collect.x:1333</code></p>
 <h3 id="compiler"><a class="header" href="#compiler"><code>Compiler</code></a></h3>
 <p><a id="Compiler.collect_package"></a></p>
 <h4 id="compilercollect_package"><a class="header" href="#compilercollect_package">Compiler.collect_package</a></h4>
@@ -306,7 +296,7 @@ their previously collected declarations. Public declarations and
 protocol rows enter the current symbol state, and dependencies enter the
 importing compiler. Replay also merges recorded function definitions.
 <code>token</code> locates lookup and public-surface errors.</p>
-<p>Source: <code>src/collect.x:735</code></p>
+<p>Source: <code>src/collect.x:805</code></p>
 <p><a id="Compiler.collect_symbols"></a></p>
 <h4 id="compilercollect_symbols"><a class="header" href="#compilercollect_symbols">Compiler.collect_symbols</a></h4>
 <p><code>Map Compiler.collect_symbols(Compiler c, Map globs)</code></p>
@@ -319,7 +309,14 @@ and raw-include closure then merge in source order, and the returned map
 is <code>globs</code>. Collection also updates dependencies, function definitions,
 and macro state. Keyword alias maps and seen-name state are file-local
 and restored when each file walk ends.</p>
-<p>Source: <code>src/collect.x:154</code></p>
+<p>Source: <code>src/collect.x:162</code></p>
+<p><a id="Compiler.import_included_exports"></a></p>
+<h4 id="compilerimport_included_exports"><a class="header" href="#compilerimport_included_exports">Compiler.import_included_exports</a></h4>
+<p><code>void Compiler.import_included_exports(Compiler c)</code></p>
+<p>Installs, at each include among the directives before the cursor, the
+macro imports that the included file exports, as the unit’s own imports
+written there would be installed.</p>
+<p>Source: <code>src/collect.x:1072</code></p>
 <p><a id="Compiler.include_typedef_names"></a></p>
 <h4 id="compilerinclude_typedef_names"><a class="header" href="#compilerinclude_typedef_names">Compiler.include_typedef_names</a></h4>
 <p><code>List Compiler.include_typedef_names( Compiler c, String target, int angle, Map seen)</code></p>
@@ -329,7 +326,7 @@ includes above each file’s <code>#pragma private</code>. A file already in <co
 is skipped with the files it reaches, and each file reached is added to
 <code>seen</code>. NULL when the include does not resolve to <span class="x2c-wordmark">x2c</span> source; a runtime
 module adds nothing the prelude has not declared.</p>
-<p>Source: <code>src/collect.x:532</code></p>
+<p>Source: <code>src/collect.x:597</code></p>
 <p><a id="Compiler.record_generated_symbol"></a></p>
 <h4 id="compilerrecord_generated_symbol"><a class="header" href="#compilerrecord_generated_symbol">Compiler.record_generated_symbol</a></h4>
 <p><code>void Compiler.record_generated_symbol( Compiler c, String name, Type signature)</code></p>
@@ -337,20 +334,34 @@ module adds nothing the prelude has not declared.</p>
 current file’s collected entry contributes, which is the map its
 interface publishes. A file without a collected declaration map records
 nothing. The cache retains <code>signature</code>.</p>
-<p>Source: <code>src/collect.x:666</code></p>
+<p>Source: <code>src/collect.x:735</code></p>
 <p><a id="Compiler.replay_included_package_imports"></a></p>
 <h4 id="compilerreplay_included_package_imports"><a class="header" href="#compilerreplay_included_package_imports">Compiler.replay_included_package_imports</a></h4>
-<p><code>void Compiler.replay_included_package_imports( Compiler c, Map globs, String path, Map visited)</code></p>
-<p>Repeats included imports after full parsing resets macros, in the
-cache’s original include order. The unit’s own imports stay at their
-source sites.</p>
-<p>Source: <code>src/collect.x:938</code></p>
+<p><code>Map Compiler.replay_included_package_imports(Compiler c, Map globs)</code></p>
+<p>Repeats included package imports after full parsing resets macros, in
+the cache’s original include order. The unit’s own imports stay at their
+source sites. Returns the macro imports the included files export, by
+the canonical path of each file the unit includes, for the full parse
+to install at that include.</p>
+<p>Source: <code>src/collect.x:1034</code></p>
 <p><a id="Compiler.replay_package_imports"></a></p>
 <h4 id="compilerreplay_package_imports"><a class="header" href="#compilerreplay_package_imports">Compiler.replay_package_imports</a></h4>
-<p><code>void Compiler.replay_package_imports( Compiler c, Map globs, Map rows, int included_only)</code></p>
-<p>Replays the import operations retained by this declaration contribution.
-The shadow borrows the unit’s macro state and shared package registries.</p>
-<p>Source: <code>src/collect.x:890</code></p>
+<p><code>void Compiler.replay_package_imports( Compiler c, Map globs, Map rows, Array exports)</code></p>
+<p>Replays the import operations retained by this declaration contribution:
+its package imports and the macro imports its file exports. The shadow
+borrows the unit’s macro state and shared package registries. The full
+parse passes <code>exports</code>, which takes the exported imports for the include
+line, and leaves the unit’s own imports at their source sites.</p>
+<p>Source: <code>src/collect.x:976</code></p>
+<h3 id="sym"><a class="header" href="#sym"><code>Sym</code></a></h3>
+<p><a id="Sym.withhold_import_rows"></a></p>
+<h4 id="symwithhold_import_rows"><a class="header" href="#symwithhold_import_rows">Sym.withhold_import_rows</a></h4>
+<p><code>void Sym.withhold_import_rows(Sym s, Map published)</code></p>
+<p>Removes from <code>published</code> the declaration rows that this file’s
+file-scope imports added and the file did not write again, and their
+unit-static markers. An including unit receives an import’s
+declarations only by replaying an exported import itself.</p>
+<p>Source: <code>src/collect.x:401</code></p>
 <h2 id="design-notes"><a class="header" href="#design-notes">Design notes</a></h2>
 <p>Raw collection scans includes without running cpp. Each cold walk
 records declaration maps and included paths at their source positions;
@@ -376,9 +387,9 @@ translated unit writes its own contribution beside its generated C as a
                         &copy; 2025&ndash;2026
                         <a href="https://flake.org">GWF</a>
                         &middot;
-                        <a href="https://github.com/gwf/x2c/blob/2fb2e7abb7462f842903580f47a5b96c69698937/LICENSE">Apache 2.0</a>
+                        <a href="https://github.com/gwf/x2c/blob/f7b8a969f8236cdd5eb0e7e07b5a658af4d249e9/LICENSE">Apache 2.0</a>
                         &middot;
-                        <a href="https://github.com/gwf/x2c/blob/2fb2e7abb7462f842903580f47a5b96c69698937/TRADEMARKS.md">Trademarks</a>
+                        <a href="https://github.com/gwf/x2c/blob/f7b8a969f8236cdd5eb0e7e07b5a658af4d249e9/TRADEMARKS.md">Trademarks</a>
                     </footer>
                 </div>
             </div>

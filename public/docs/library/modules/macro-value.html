@@ -1,6 +1,6 @@
 <!DOCTYPE HTML>
 <html lang="en" class="light sidebar-visible" dir="ltr">
-    <head><meta name="x2c-site-source" content="2fb2e7abb7462f842903580f47a5b96c69698937"><meta name="x2c-release-channel" content="staging"><meta name="x2c-candidate" content="candidate-0351be4a4d6c00dd246e5190e8dcf5a970560beb-36014113963-1">
+    <head><meta name="x2c-release-channel" content="staging"><meta name="x2c-candidate" content="candidate-f7b8a969f8236cdd5eb0e7e07b5a658af4d249e9-37397345486-1">
         <!-- Book generated using mdBook -->
         <meta charset="UTF-8">
         <title>lib/macro-value.x - The x2c Book</title>
@@ -30,7 +30,7 @@
         <link rel="stylesheet" id="mdbook-ayu-highlight-css" href="../../ayu-highlight-3fdfc3ac.css">
 
         <!-- Custom theme stylesheets -->
-        <link rel="stylesheet" href="../../theme/header-2c1becca.css">
+        <link rel="stylesheet" href="../../theme/header-f6c12aed.css">
         <link rel="stylesheet" href="../../theme/x2c-fd3d182e.css">
 
 
@@ -39,10 +39,10 @@
             const path_to_root = "../../";
             const default_light_theme = "light";
             const default_dark_theme = "light";
-            window.path_to_searchindex_js = "../../searchindex-94a52d98.js";
+            window.path_to_searchindex_js = "../../searchindex-e3f33cfe.js";
         </script>
         <!-- Start loading toc.js asap -->
-        <script src="../../toc-89ef7d96.js"></script>
+        <script src="../../toc-04d6e3af.js"></script>
         <!-- x2c publication metadata -->
         <link rel="canonical" href="https://staging.x2c-lang.dev/docs/library/modules/macro-value.html">
         <meta property="og:type" content="website">
@@ -140,7 +140,7 @@
                                 <svg viewBox="0 0 100 100" width="22" height="22" aria-hidden="true"><g fill="none" stroke="#da291c" stroke-width="17" stroke-linecap="butt"><path d="M9 16 A34.5 34.5 0 0 1 9 84"></path><path d="M91 16 A34.5 34.5 0 0 0 91 84"></path></g></svg>
                                 <span class="x2c-wordmark landing-wordmark">x2c</span>
                             </a>
-                            <span class="landing-tagline">The x2c Book</span>
+                            <button class="landing-tagline menu-title" type="button" title="Scroll to top">The x2c Book</button>
                         </div>
                         <nav class="landing-nav" aria-label="x2c website">
                             <div class="landing-page-nav">
@@ -234,7 +234,13 @@
 <tr><td><a href="#Macro_case_pattern"><code>Macro_case_pattern</code></a></td><td>The pattern a macro-valued <code>case</code> compiles to; the compiler lowers a call of this to <code>Macro_case_capture_at</code> over the match subject.</td></tr>
 <tr><td><a href="#Macro_close"><code>Macro_close</code></a></td><td>Records the Macro values an anonymous macro captured where it was created, so applying it later applies the same children.</td></tr>
 <tr><td><a href="#Macro_pattern"><code>Macro_pattern</code></a></td><td>Derives the Match pattern that recognizes code this macro builds, capturing each parameter under the given binder.</td></tr>
+<tr><td><a href="#Macro.declared"><code>Macro.declared</code></a></td><td>Returns the name a typed quotation declares with a Name hole whose local holds <code>value</code>: the name form of an <code>x2c_ident</code> spelling or a String, or a binding as it is.</td></tr>
+<tr><td><a href="#Macro.inserted"><code>Macro.inserted</code></a></td><td>Returns what a typed quotation inserts for one use of a hole whose local holds <code>value</code>, as a rebuild inserts it.</td></tr>
+<tr><td><a href="#Macro.inserted_items"><code>Macro.inserted_items</code></a></td><td>Returns the items a typed quotation splices for an expression sequence hole whose local holds <code>values</code>: each number, String, or Symbol becomes its literal, as a spliced data List’s items do.</td></tr>
+<tr><td><a href="#Macro.number_literal"><code>Macro.number_literal</code></a></td><td>Returns the literal expression of type <code>result</code> that holds <code>value</code>, a number of the scalar type <code>type</code>.</td></tr>
+<tr><td><a href="#Macro.number_type"><code>Macro.number_type</code></a></td><td>Returns the C type of a number’s Var family, or NULL when <code>value</code> is not a number.</td></tr>
 <tr><td><a href="#Macro.subject"><code>Macro.subject</code></a></td><td>Returns the table <code>Macro.use_subject</code> last set, or void.</td></tr>
+<tr><td><a href="#Macro.typed"><code>Macro.typed</code></a></td><td>Returns what a typed quotation builds when its code is one hole whose local holds <code>value</code>: the inserted expression with the type <code>type</code>.</td></tr>
 <tr><td><a href="#Macro.use_subject"><code>Macro.use_subject</code></a></td><td>Sets the <code>(SPELLING BINDING)</code> rows for global references and the <code>(source-spelling BINDING SPELLING)</code> rows for renamed local bindings in a compile-time call’s syntax arguments.</td></tr>
 </tbody>
 </table>
@@ -245,7 +251,7 @@
 <p><code>List Macro_apply(Macro t, List values)</code></p>
 <p>Applies a macro value to code values. The result is a pending
 invocation; inserting it into a program expands and binds it there.</p>
-<p>Source: <code>lib/macro-value.x:70</code></p>
+<p>Source: <code>lib/macro-value.x:72</code></p>
 <p><a id="Macro_case_capture_at"></a></p>
 <h4 id="macro_case_capture_at"><a class="header" href="#macro_case_capture_at">Macro_case_capture_at</a></h4>
 <p><code>int Macro_case_capture_at( MacroCaseSite *site, List code, Macro t, List names, MatchCaptureBuffer *published)</code></p>
@@ -253,31 +259,76 @@ invocation; inserting it into a program expands and binds it there.</p>
 may be NULL, and publishes the captures under <code>names</code>. A pattern that
 does not depend on the current call’s subject is prepared once and kept
 in the site; generated <code>match</code> code calls this for a macro-valued case.</p>
-<p>Source: <code>lib/macro-value.x:339</code></p>
+<p>Source: <code>lib/macro-value.x:484</code></p>
 <p><a id="Macro_case_pattern"></a></p>
 <h4 id="macro_case_pattern"><a class="header" href="#macro_case_pattern">Macro_case_pattern</a></h4>
 <p><code>List Macro_case_pattern(Macro t, List names)</code></p>
 <p>The pattern a macro-valued <code>case</code> compiles to; the compiler lowers a
 call of this to <code>Macro_case_capture_at</code> over the match subject.</p>
-<p>Source: <code>lib/macro-value.x:332</code></p>
+<p>Source: <code>lib/macro-value.x:477</code></p>
 <p><a id="Macro_close"></a></p>
 <h4 id="macro_close"><a class="header" href="#macro_close">Macro_close</a></h4>
 <p><code>Macro Macro_close(Macro value, List captures)</code></p>
 <p>Records the Macro values an anonymous macro captured where it was
 created, so applying it later applies the same children.</p>
-<p>Source: <code>lib/macro-value.x:65</code></p>
+<p>Source: <code>lib/macro-value.x:67</code></p>
 <p><a id="Macro_pattern"></a></p>
 <h4 id="macro_pattern"><a class="header" href="#macro_pattern">Macro_pattern</a></h4>
 <p><code>List Macro_pattern(Macro t, List names)</code></p>
 <p>Derives the Match pattern that recognizes code this macro builds,
 capturing each parameter under the given binder.</p>
-<p>Source: <code>lib/macro-value.x:131</code></p>
+<p>Source: <code>lib/macro-value.x:187</code></p>
 <h3 id="macro"><a class="header" href="#macro"><code>Macro</code></a></h3>
+<p><a id="Macro.declared"></a></p>
+<h4 id="macrodeclared"><a class="header" href="#macrodeclared">Macro.declared</a></h4>
+<p><code>Var Macro.declared(Var value)</code></p>
+<p>Returns the name a typed quotation declares with a Name hole whose local
+holds <code>value</code>: the name form of an <code>x2c_ident</code> spelling or a String,
+or a binding as it is.</p>
+<p>Source: <code>lib/macro-value.x:126</code></p>
+<p><a id="Macro.inserted"></a></p>
+<h4 id="macroinserted"><a class="header" href="#macroinserted">Macro.inserted</a></h4>
+<p><code>Var Macro.inserted(Var value, int lifts, int expression)</code></p>
+<p>Returns what a typed quotation inserts for one use of a hole whose
+local holds <code>value</code>, as a rebuild inserts it. An expression hole
+(<code>lifts</code>) takes a number, String, or Symbol as its literal. Where the
+code takes an expression (<code>expression</code>), a binding, an <code>x2c_ident</code>
+spelling, or a Name hole’s String becomes an identifier expression;
+in a Name hole’s member position, an <code>x2c_ident</code> spelling is its
+String.</p>
+<p>Source: <code>lib/macro-value.x:113</code></p>
+<p><a id="Macro.inserted_items"></a></p>
+<h4 id="macroinserted_items"><a class="header" href="#macroinserted_items">Macro.inserted_items</a></h4>
+<p><code>List Macro.inserted_items(List values)</code></p>
+<p>Returns the items a typed quotation splices for an expression sequence
+hole whose local holds <code>values</code>: each number, String, or Symbol becomes
+its literal, as a spliced data List’s items do.</p>
+<p>Source: <code>lib/macro-value.x:134</code></p>
+<p><a id="Macro.number_literal"></a></p>
+<h4 id="macronumber_literal"><a class="header" href="#macronumber_literal">Macro.number_literal</a></h4>
+<p><code>List Macro.number_literal(List result, List type, Var value)</code></p>
+<p>Returns the literal expression of type <code>result</code> that holds <code>value</code>, a
+number of the scalar type <code>type</code>. An <code>int</code> value is its decimal
+literal; another number is its exact bits cast to <code>type</code>.</p>
+<p>Source: <code>lib/macro-value.x:354</code></p>
+<p><a id="Macro.number_type"></a></p>
+<h4 id="macronumber_type"><a class="header" href="#macronumber_type">Macro.number_type</a></h4>
+<p><code>List Macro.number_type(Var value)</code></p>
+<p>Returns the C type of a number’s Var family, or NULL when <code>value</code> is not
+a number. An untyped integer is an <code>int</code> when it fits one.</p>
+<p>Source: <code>lib/macro-value.x:328</code></p>
 <p><a id="Macro.subject"></a></p>
 <h4 id="macrosubject"><a class="header" href="#macrosubject">Macro.subject</a></h4>
 <p><code>Var Macro.subject(void)</code></p>
 <p>Returns the table <code>Macro.use_subject</code> last set, or void.</p>
-<p>Source: <code>lib/macro-value.x:101</code></p>
+<p>Source: <code>lib/macro-value.x:157</code></p>
+<p><a id="Macro.typed"></a></p>
+<h4 id="macrotyped"><a class="header" href="#macrotyped">Macro.typed</a></h4>
+<p><code>List Macro.typed(List type, Var value)</code></p>
+<p>Returns what a typed quotation builds when its code is one hole whose
+local holds <code>value</code>: the inserted expression with the type <code>type</code>. A
+String typed <code>String</code> is a String literal.</p>
+<p>Source: <code>lib/macro-value.x:139</code></p>
 <p><a id="Macro.use_subject"></a></p>
 <h4 id="macrouse_subject"><a class="header" href="#macrouse_subject">Macro.use_subject</a></h4>
 <p><code>void Macro.use_subject(Var rows)</code></p>
@@ -287,7 +338,7 @@ a compile-time call’s syntax arguments. A macro value’s free reference
 recognizes only the recorded global binding; with void it recognizes
 any binding of its spelling. The compiler sets these rows for each
 <code>meta</code> call and carries them through the helper.</p>
-<p>Source: <code>lib/macro-value.x:109</code></p>
+<p>Source: <code>lib/macro-value.x:165</code></p>
 <h2 id="runtime-internal-callables"><a class="header" href="#runtime-internal-callables">Runtime-internal callables</a></h2>
 <p>These callables connect runtime translation units. They are documented
 for source readers but are not supported as user API.</p>
@@ -309,7 +360,7 @@ for source readers but are not supported as user API.</p>
 whose binder is <code>binder</code>. Splice and construction projections are
 always sequences; return, declarator, and member projections never
 are; source, value, and expression follow the hole’s <code>sequence</code>.</p>
-<p>Source: <code>lib/macro-value.x:177</code></p>
+<p>Source: <code>lib/macro-value.x:233</code></p>
 <h2 id="public-types"><a class="header" href="#public-types">Public types</a></h2>
 <div class="table-wrapper">
 <table>
@@ -378,9 +429,9 @@ the prelude.</p>
                         &copy; 2025&ndash;2026
                         <a href="https://flake.org">GWF</a>
                         &middot;
-                        <a href="https://github.com/gwf/x2c/blob/2fb2e7abb7462f842903580f47a5b96c69698937/LICENSE">Apache 2.0</a>
+                        <a href="https://github.com/gwf/x2c/blob/f7b8a969f8236cdd5eb0e7e07b5a658af4d249e9/LICENSE">Apache 2.0</a>
                         &middot;
-                        <a href="https://github.com/gwf/x2c/blob/2fb2e7abb7462f842903580f47a5b96c69698937/TRADEMARKS.md">Trademarks</a>
+                        <a href="https://github.com/gwf/x2c/blob/f7b8a969f8236cdd5eb0e7e07b5a658af4d249e9/TRADEMARKS.md">Trademarks</a>
                     </footer>
                 </div>
             </div>

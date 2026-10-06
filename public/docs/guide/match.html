@@ -1,6 +1,6 @@
 <!DOCTYPE HTML>
 <html lang="en" class="light sidebar-visible" dir="ltr">
-    <head><meta name="x2c-site-source" content="2fb2e7abb7462f842903580f47a5b96c69698937"><meta name="x2c-release-channel" content="staging"><meta name="x2c-candidate" content="candidate-0351be4a4d6c00dd246e5190e8dcf5a970560beb-36014113963-1">
+    <head><meta name="x2c-release-channel" content="staging"><meta name="x2c-candidate" content="candidate-f7b8a969f8236cdd5eb0e7e07b5a658af4d249e9-37397345486-1">
         <!-- Book generated using mdBook -->
         <meta charset="UTF-8">
         <title>Pattern Matching - The x2c Book</title>
@@ -30,7 +30,7 @@
         <link rel="stylesheet" id="mdbook-ayu-highlight-css" href="../ayu-highlight-3fdfc3ac.css">
 
         <!-- Custom theme stylesheets -->
-        <link rel="stylesheet" href="../theme/header-2c1becca.css">
+        <link rel="stylesheet" href="../theme/header-f6c12aed.css">
         <link rel="stylesheet" href="../theme/x2c-fd3d182e.css">
 
 
@@ -39,10 +39,10 @@
             const path_to_root = "../";
             const default_light_theme = "light";
             const default_dark_theme = "light";
-            window.path_to_searchindex_js = "../searchindex-94a52d98.js";
+            window.path_to_searchindex_js = "../searchindex-e3f33cfe.js";
         </script>
         <!-- Start loading toc.js asap -->
-        <script src="../toc-89ef7d96.js"></script>
+        <script src="../toc-04d6e3af.js"></script>
         <!-- x2c publication metadata -->
         <link rel="canonical" href="https://staging.x2c-lang.dev/docs/guide/match.html">
         <meta property="og:type" content="website">
@@ -140,7 +140,7 @@
                                 <svg viewBox="0 0 100 100" width="22" height="22" aria-hidden="true"><g fill="none" stroke="#da291c" stroke-width="17" stroke-linecap="butt"><path d="M9 16 A34.5 34.5 0 0 1 9 84"></path><path d="M91 16 A34.5 34.5 0 0 0 91 84"></path></g></svg>
                                 <span class="x2c-wordmark landing-wordmark">x2c</span>
                             </a>
-                            <span class="landing-tagline">The x2c Book</span>
+                            <button class="landing-tagline menu-title" type="button" title="Scroll to top">The x2c Book</button>
                         </div>
                         <nav class="landing-nav" aria-label="x2c website">
                             <div class="landing-page-nav">
@@ -257,11 +257,20 @@ with <code>if</code>:</p>
 
 <p>Arm order is also cost order, so put cheap, common shapes first.</p>
 <h3 id="typed-captures-and-expression-guards"><a class="header" href="#typed-captures-and-expression-guards">Typed captures and expression guards</a></h3>
-<p>Write <code>?(Type name)</code> to capture a value as a native typed local. The pattern
+<p>Write <code>?(typename name)</code> to capture a value as a native typed local. The pattern
 tests the value’s <code>Var</code> tag; a different tag fails the pattern without
-converting the value. The supported types are the same as for <code>value is Type</code>.
+converting the value. The tag test precedes the native local declaration.
+The supported types are the same as for <code>value is typename</code>.
 The <code>?(</code> opener must be adjacent; <code>? (String text)</code> remains a wildcard
 followed by a sublist pattern.</p>
+<p>Inside <code>?(</code>, <code>typename</code> uses ordinary source type syntax, so write
+<code>?(String text)</code> or <code>?(List payload)</code>. This is an exception to the pattern’s
+bare-spelling rule. The compiler represents a named type such as <code>String</code>
+with the type List <code>%("String")</code>; <code>%(String)</code> instead contains an <code>Atom</code>.
+See <a href="../reference/language.html#macro-values">type syntax in macro values</a>.</p>
+<p>Typedefs use their underlying <code>Var</code> tag. Since <code>Type</code> is a typedef for
+<code>List</code>, <code>?(Type type)</code> tests for a List payload. It does not check whether
+the List contains valid type syntax.</p>
 <pre class="shiki shiki-themes x2c-light x2c-dark x2c-code" style="--shiki-light:#24292e;--shiki-dark:#e9e5df;--shiki-light-bg:#fff;--shiki-dark-bg:#101011" tabindex="0"><code class="language-x2c no-highlight"><span class="line"><span style="--shiki-light:#007C8A;--shiki-dark:#29D3E2">List</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF"> reply </span><span style="--shiki-light:#D73A49;--shiki-dark:#E9E5DF">=</span><span style="--shiki-light:#24292E;--shiki-dark:#FF715A"> %(</span><span style="--shiki-light:#005CC5;--shiki-dark:#E9E5DF">message</span><span style="--shiki-light:#24292E;--shiki-dark:#FF715A"> "</span><span style="--shiki-light:#032F62;--shiki-dark:#9EDFB8">ready</span><span style="--shiki-light:#24292E;--shiki-dark:#FF715A">"</span><span style="--shiki-light:#24292E;--shiki-dark:#FF715A">)</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">;</span>
 </span><span class="line"><span style="--shiki-light:#A626A4;--shiki-light-font-weight:bold;--shiki-dark:#FF4FD8;--shiki-dark-font-weight:bold">match</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF"> (reply) {</span>
 </span><span class="line"><span style="--shiki-light:#D73A49;--shiki-dark:#F0ADA1">  case</span><span style="--shiki-light:#24292E;--shiki-dark:#FF715A"> %(</span><span style="--shiki-light:#005CC5;--shiki-dark:#E9E5DF">message</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF"> ?(</span><span style="--shiki-light:#007C8A;--shiki-dark:#29D3E2">String</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF"> text)</span><span style="--shiki-light:#24292E;--shiki-dark:#FF715A">)</span><span style="--shiki-light:#D73A49;--shiki-dark:#F0ADA1"> if</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF"> (text.</span><span style="--shiki-light:#6F42C1;--shiki-dark:#E9E5DF">len</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">() </span><span style="--shiki-light:#D73A49;--shiki-dark:#E9E5DF">&gt;</span><span style="--shiki-light:#005CC5;--shiki-dark:#A9C9F5"> 3</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">):</span>
@@ -413,7 +422,7 @@ literal data. The compiler diagnoses a maybe-bound name at the pattern.</p>
 shapes. <code>Array</code>s, <code>Map</code>s, and <code>String</code>s are not <code>match</code> subjects.</p>
 <p>A <code>Var</code> subject works because the compiler inserts the conversion to <code>List</code>
 for you. The conversion does not check the tag, so only <code>match</code> a <code>Var</code> you
-already know holds a <code>List</code>; test <code>Var_is(v, &lt;list&gt;)</code> at the boundary if you do
+already know holds a <code>List</code>; test <code>value is &lt;list&gt;</code> at the boundary if you do
 not. See <a href="values.html">values and Var</a> for the tag rules and
 <a href="symbols.html">symbols and atoms</a> for what a bare pattern spelling means.</p>
 <p>Nil is typed <code>List</code> data, not the absence of a <code>List</code>. A null <code>List</code> is a legal
@@ -551,9 +560,9 @@ operations by API tier.</p>
                         &copy; 2025&ndash;2026
                         <a href="https://flake.org">GWF</a>
                         &middot;
-                        <a href="https://github.com/gwf/x2c/blob/2fb2e7abb7462f842903580f47a5b96c69698937/LICENSE">Apache 2.0</a>
+                        <a href="https://github.com/gwf/x2c/blob/f7b8a969f8236cdd5eb0e7e07b5a658af4d249e9/LICENSE">Apache 2.0</a>
                         &middot;
-                        <a href="https://github.com/gwf/x2c/blob/2fb2e7abb7462f842903580f47a5b96c69698937/TRADEMARKS.md">Trademarks</a>
+                        <a href="https://github.com/gwf/x2c/blob/f7b8a969f8236cdd5eb0e7e07b5a658af4d249e9/TRADEMARKS.md">Trademarks</a>
                     </footer>
                 </div>
             </div>

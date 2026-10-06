@@ -1,6 +1,6 @@
 <!DOCTYPE HTML>
 <html lang="en" class="light sidebar-visible" dir="ltr">
-    <head><meta name="x2c-site-source" content="2fb2e7abb7462f842903580f47a5b96c69698937"><meta name="x2c-release-channel" content="staging"><meta name="x2c-candidate" content="candidate-0351be4a4d6c00dd246e5190e8dcf5a970560beb-36014113963-1">
+    <head><meta name="x2c-release-channel" content="staging"><meta name="x2c-candidate" content="candidate-f7b8a969f8236cdd5eb0e7e07b5a658af4d249e9-37397345486-1">
         <!-- Book generated using mdBook -->
         <meta charset="UTF-8">
         <title>Language Reference - The x2c Book</title>
@@ -30,7 +30,7 @@
         <link rel="stylesheet" id="mdbook-ayu-highlight-css" href="../ayu-highlight-3fdfc3ac.css">
 
         <!-- Custom theme stylesheets -->
-        <link rel="stylesheet" href="../theme/header-2c1becca.css">
+        <link rel="stylesheet" href="../theme/header-f6c12aed.css">
         <link rel="stylesheet" href="../theme/x2c-fd3d182e.css">
 
 
@@ -39,10 +39,10 @@
             const path_to_root = "../";
             const default_light_theme = "light";
             const default_dark_theme = "light";
-            window.path_to_searchindex_js = "../searchindex-94a52d98.js";
+            window.path_to_searchindex_js = "../searchindex-e3f33cfe.js";
         </script>
         <!-- Start loading toc.js asap -->
-        <script src="../toc-89ef7d96.js"></script>
+        <script src="../toc-04d6e3af.js"></script>
         <!-- x2c publication metadata -->
         <link rel="canonical" href="https://staging.x2c-lang.dev/docs/reference/language.html">
         <meta property="og:type" content="website">
@@ -140,7 +140,7 @@
                                 <svg viewBox="0 0 100 100" width="22" height="22" aria-hidden="true"><g fill="none" stroke="#da291c" stroke-width="17" stroke-linecap="butt"><path d="M9 16 A34.5 34.5 0 0 1 9 84"></path><path d="M91 16 A34.5 34.5 0 0 0 91 84"></path></g></svg>
                                 <span class="x2c-wordmark landing-wordmark">x2c</span>
                             </a>
-                            <span class="landing-tagline">The x2c Book</span>
+                            <button class="landing-tagline menu-title" type="button" title="Scroll to top">The x2c Book</button>
                         </div>
                         <nav class="landing-nav" aria-label="x2c website">
                             <div class="landing-page-nav">
@@ -231,13 +231,20 @@ compiler</a> covers the self-host stages behind it.</p>
 header and a C source file.</p>
 <p>A source file whose first line begins with <code>#!</code> is a
 <a href="#script-units">script unit</a>; every other file is an ordinary unit.</p>
-<p><code>#pragma private</code> marks the start of implementation-only content. Declarations
-before it may be emitted to the generated header. A function definition also
-begins source-private output, except that a typedef after it still belongs
-to the header when a later public prototype names it. An include of <span class="x2c-wordmark">x2c</span>
-source below <code>#pragma private</code> also moves to the header when a later public
-prototype names a type it declares. Functions that a class
-or another declaration producer generates do not begin it. Every translated header
+<p><code>#pragma private</code> marks the start of implementation-only content. Everything
+before it belongs to the generated header, including types, enumerators,
+and <code>#define</code> and <code>#undef</code> directives that follow a function definition or
+a <code>static</code> declaration. A public function definition contributes its
+prototype, or its whole body when inline, and a <code>static</code> function or object
+stays in the source. A typedef below <code>#pragma private</code> still belongs to the
+header when a later public prototype names it. An <code>#include</code> that follows
+an item the source holds, such as a function definition, stays in the
+source at its place, so the macros it defines do not reach earlier items.
+Such an include, or an include below <code>#pragma private</code>, moves to the header
+only when it reaches <span class="x2c-wordmark">x2c</span> source declaring a type that a later public
+prototype names. A public object definition gets an
+<code>extern</code> declaration in the header. An object of an anonymous <code>struct</code>,
+<code>union</code>, or <code>enum</code> type has no such declaration. Every translated header
 starts with <code>#pragma once</code> and also carries a conventional include guard, so
 <code>.x</code> programs do not need to write either one.</p>
 <p>A file that includes another sees what that file’s header declares: everything
@@ -252,8 +259,8 @@ file that includes it. An
 may call the functions it declares.</p>
 <p><code>#pragma public</code> ends implementation-only content. Until the next
 <code>#pragma private</code>, what follows it is handled like the top of the file.
-Declarations there may be emitted to the generated header, and files that
-include this one or import its package can use them. A file can use the two
+Declarations there belong to the generated header, and files that include
+this one or import its package can use them. A file can use the two
 pragmas to place a private include or type between public declarations.</p>
 <p>The advanced <code>--cpp-symbols</code> and <code>--live-symbols</code> modes run the host
 preprocessor over raw <code>.x</code> include graphs. A module used with those modes needs
@@ -475,10 +482,14 @@ and examples, are ordinary consumers that reach it through <code>import</code>.<
 <li>any header or runtime module the package’s public part includes, such as a
 vendored foreign header it publishes.</li>
 </ul>
-<p>It also installs direct <code>.xmacro</code> imports in the public part of the package
-entry source. Other macros, private declarations, and the package’s own
-imports are not exposed. Packages have no re-exports or hierarchy. One program
-uses one version of a package.</p>
+<p>It also installs the macro imports that the package’s entry source and
+public include surface <code>export</code>, as described under
+<a href="#exported-imports">exported imports</a>, in the order an <code>#include</code> of the
+entry source would deliver them. Includes below <code>#pragma private</code> do not
+contribute exports, and neither do the consumer’s own files. Other macros,
+private declarations, and the package’s other imports are not exposed.
+Packages have no re-exports or hierarchy. One program uses one version of a
+package.</p>
 <p>A public bodyless <code>meta</code> prototype crosses the import like any function
 declaration. When the package has built its native module,
 <code>&lt;dir&gt;/builds/&lt;name&gt;.module</code>, the import loads it, so compile-time code in
@@ -933,7 +944,29 @@ grammar accepts a definition and a result kind and macro name follow it. It
 remains legal as an ordinary typedef, variable, parameter, field, or function
 name everywhere else. A braced definition places <code>{ ... }</code> directly after the
 signature. An expression definition places <code>=&gt; expression;</code> after it,
-including the trailing semicolon.</p>
+including the trailing semicolon. A <code>Stmt</code> macro may also use the expression
+form; its body is then one statement. That statement is an invocation of a
+<code>Stmt</code> macro or a statement decorator, such as <code>=&gt; $other(args);</code>, or else
+the expression statement <code>expression;</code>. When that expression is a <code>meta</code>
+call, the call may return a statement, as described under
+<a href="#macro-visible-syntax">Macro-visible syntax</a>.</p>
+<p>Here <code>guarded</code> returns an <code>if</code> statement, which an expression position
+would reject:</p>
+<pre class="shiki shiki-themes x2c-light x2c-dark x2c-code" style="--shiki-light:#24292e;--shiki-dark:#e9e5df;--shiki-light-bg:#fff;--shiki-dark-bg:#101011" tabindex="0"><code class="language-x2c no-highlight"><span class="line"><span style="--shiki-light:#D73A49;--shiki-dark:#F0ADA1">#include</span><span style="--shiki-light:#032F62;--shiki-dark:#9EDFB8"> "meta.x"</span>
+</span><span class="line"><span style="--shiki-light:#D73A49;--shiki-dark:#F0ADA1">meta</span><span style="--shiki-light:#D73A49;--shiki-dark:#F0ADA1"> static</span><span style="--shiki-light:#007C8A;--shiki-dark:#29D3E2"> List</span><span style="--shiki-light:#6F42C1;--shiki-dark:#E9E5DF"> guarded</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">(</span><span style="--shiki-light:#007C8A;--shiki-dark:#29D3E2">List</span><span style="--shiki-light:#E36209;--shiki-dark:#E9E5DF"> condition</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">, </span><span style="--shiki-light:#007C8A;--shiki-dark:#29D3E2">List</span><span style="--shiki-light:#E36209;--shiki-dark:#E9E5DF"> body</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">) </span><span style="--shiki-light:#A626A4;--shiki-light-font-weight:bold;--shiki-dark:#FF4FD8;--shiki-dark-font-weight:bold">=&gt;</span>
+</span><span class="line"><span style="--shiki-light:#24292E;--shiki-dark:#FF715A">  $!</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">{ </span><span style="--shiki-light:#D73A49;--shiki-dark:#F0ADA1">if</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF"> (</span><span style="--shiki-light:#24292E;--shiki-dark:#FF715A">$</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">condition) </span><span style="--shiki-light:#24292E;--shiki-dark:#FF715A">$</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">body };</span>
+</span><span class="line">
+</span><span class="line"><span style="--shiki-light:#A626A4;--shiki-light-font-weight:bold;--shiki-dark:#FF4FD8;--shiki-dark-font-weight:bold">macro</span><span style="--shiki-light:#A15C00;--shiki-light-font-style:italic;--shiki-dark:#FFB454;--shiki-dark-font-style:italic"> Stmt</span><span style="--shiki-light:#24292E;--shiki-dark:#FF715A"> $</span><span style="--shiki-light:#6F42C1;--shiki-dark:#FF715A">when</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">(</span><span style="--shiki-light:#A15C00;--shiki-light-font-style:italic;--shiki-dark:#FFB454;--shiki-dark-font-style:italic">Expr</span><span style="--shiki-light:#24292E;--shiki-dark:#FF715A"> $</span><span style="--shiki-light:#E36209;--shiki-dark:#E9E5DF">condition</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">, </span><span style="--shiki-light:#A15C00;--shiki-light-font-style:italic;--shiki-dark:#FFB454;--shiki-dark-font-style:italic">Stmt</span><span style="--shiki-light:#24292E;--shiki-dark:#FF715A"> $</span><span style="--shiki-light:#E36209;--shiki-dark:#E9E5DF">body</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">) </span><span style="--shiki-light:#A626A4;--shiki-light-font-weight:bold;--shiki-dark:#FF4FD8;--shiki-dark-font-weight:bold">=&gt;</span>
+</span><span class="line"><span style="--shiki-light:#24292E;--shiki-dark:#FF715A">  $</span><span style="--shiki-light:#6F42C1;--shiki-dark:#FF715A">guarded</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">(</span><span style="--shiki-light:#24292E;--shiki-dark:#FF715A">$</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">condition, </span><span style="--shiki-light:#24292E;--shiki-dark:#FF715A">$</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">body);</span>
+</span><span class="line">
+</span><span class="line"><span style="--shiki-light:#D73A49;--shiki-dark:#F0ADA1">int</span><span style="--shiki-light:#6F42C1;--shiki-dark:#E9E5DF"> main</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">(</span><span style="--shiki-light:#D73A49;--shiki-dark:#F0ADA1">void</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">) {</span>
+</span><span class="line"><span style="--shiki-light:#D73A49;--shiki-dark:#F0ADA1">  int</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF"> n </span><span style="--shiki-light:#D73A49;--shiki-dark:#E9E5DF">=</span><span style="--shiki-light:#005CC5;--shiki-dark:#A9C9F5"> 3</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">;</span>
+</span><span class="line"><span style="--shiki-light:#24292E;--shiki-dark:#FF715A">  $</span><span style="--shiki-light:#6F42C1;--shiki-dark:#FF715A">when</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">(n </span><span style="--shiki-light:#D73A49;--shiki-dark:#E9E5DF">&gt;</span><span style="--shiki-light:#005CC5;--shiki-dark:#A9C9F5"> 2</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">, </span><span style="--shiki-light:#6F42C1;--shiki-dark:#E9E5DF">printf</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">(</span><span style="--shiki-light:#032F62;--shiki-dark:#9EDFB8">"</span><span style="--shiki-light:#005CC5;--shiki-dark:#9EDFB8">%d\n</span><span style="--shiki-light:#032F62;--shiki-dark:#9EDFB8">"</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">, n););</span>
+</span><span class="line"><span style="--shiki-light:#D73A49;--shiki-dark:#F0ADA1">  return</span><span style="--shiki-light:#005CC5;--shiki-dark:#A9C9F5"> 0</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">;</span>
+</span><span class="line"><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">}</span></span></code></pre>
+
+<pre><code class="language-text">3
+</code></pre>
 <p>For source compatibility, the compiler also accepts the former <code>=&gt; { ... }</code>
 braced form and a complete parenthesized expression body written as
 <code>=&gt; (expression)</code> without a semicolon. New code should use the forms above.</p>
@@ -946,7 +979,8 @@ braced form and a complete parenthesized expression body written as
 invoked as <code>name(arguments)</code>. A source file may also give a visible global
 macro an identifier spelling through a <code>keyword</code> declaration, described under
 <a href="#decorators">Decorators</a>. Macro names are separate from C identifiers and
-global names may be qualified, as in <code>$project.logging.trace</code>. The <code>x2c.*</code> and
+global names may be qualified, as in <code>$project.logging.trace</code>. A part after a
+dot may be a keyword, as in <code>$error.arg.void</code>. The <code>x2c.*</code> and
 <code>lisp.*</code> macro and Lisp namespaces are reserved for compiler-shipped
 facilities; <code>$lisp.bind</code>, <code>$lisp.binding</code>, and <code>$lisp.install</code> are the shipped
 native-binding macros.</p>
@@ -1151,7 +1185,7 @@ the rows when the template is expanded.</p>
 </thead>
 <tbody>
 <tr><td><code>Expression</code></td><td><code>=&gt;</code> expression <code>;</code></td><td>expression</td></tr>
-<tr><td><code>Stmt</code></td><td>braced block items</td><td>statement</td></tr>
+<tr><td><code>Stmt</code></td><td>braced block items, or <code>=&gt;</code> one statement</td><td>statement</td></tr>
 <tr><td><code>Field</code></td><td>braced field declarations</td><td>struct or union body</td></tr>
 <tr><td><code>Entry</code></td><td>braced, comma-separated <code>key: value</code> rows</td><td><code>Map</code> literal</td></tr>
 <tr><td><code>Enumerator</code></td><td>braced, comma-separated enumerators</td><td>enum body</td></tr>
@@ -1162,9 +1196,13 @@ the rows when the template is expanded.</p>
 </div>
 <p>The result kind is required between <code>macro</code> and the <code>$</code> name. <code>Stmt</code> is
 the canonical spelling for block-item results and <code>Expression</code> for expression
-results; <code>Expr</code> is a synonym. Arrow-expression bodies require
-<code>Expression</code>; braced bodies require <code>Stmt</code>, <code>Field</code>, <code>Entry</code>,
-<code>Enumerator</code>, <code>Unit</code>, or <code>Declaration</code>.
+results; <code>Expr</code> is a synonym. An arrow body requires <code>Expression</code> or
+<code>Stmt</code>. A <code>Stmt</code> arrow body is one statement: a <code>Stmt</code> macro or decorator
+invocation or an expression statement, and a <code>meta</code> call written there may
+return any statement that fits where the macro is invoked. An anonymous
+macro’s arrow body omits that statement’s final <code>;</code>, as in
+<code>macro Stmt(Expr $v) =&gt; $again() $hit($v)</code>. Braced bodies require
+<code>Stmt</code>, <code>Field</code>, <code>Entry</code>, <code>Enumerator</code>, <code>Unit</code>, or <code>Declaration</code>.
 Inside a compound statement, a <code>Stmt</code> macro may produce zero or
 more block items. Where the grammar requires one statement, such as an <code>if</code>,
 <code>else</code>, or loop body, the expansion must contain exactly one statement. An
@@ -1364,12 +1402,15 @@ can overlap a declaration beginning with a same-named typedef.</p>
 <p>Aliases are local to the <code>.x</code> file that declares them, including when that file
 is included or is a package source. One alias map spans that file’s
 include-separated segments, while a nested included <code>.x</code> file receives its
-own map. Aliases never leak into the including file.</p>
+own map. An alias a file declares never leaks into the including file.</p>
 <p>An explicitly imported <code>.xmacro</code> file may contain macro definitions and
 <code>keyword</code> declarations. Its aliases become visible in the importing <code>.x</code> file
-at the import position. Every <code>.x</code> file that wants the spellings imports the
-pack itself; an included file’s import does not expose them to its caller, and
-no pack is loaded implicitly by <code>x2c.x</code>. Macro templates are parsed when
+at the import position. Every <code>.x</code> file that wants the spellings or the
+macros imports the pack itself, or includes a file that
+<a href="#exported-imports">exports</a> the import. Any other import of an included
+file, like a macro the included file defines, does not expose them to its
+caller, and no pack is loaded implicitly by <code>x2c.x</code>. Macro templates are
+parsed when
 defined, so a later alias does not reinterpret an earlier template; generated
 <code>List</code>s and strings are not reparsed as alias-bearing source.</p>
 <p>An alias changes spelling, not decorator capability. <span class="x2c-wordmark">x2c</span>’s current thread and
@@ -1465,13 +1506,66 @@ whose kind its position gives, and the quotation applies to the locals’
 values in that order. <code>$name...</code> is a sequence. A local declared <code>Type</code>,
 which <code>lib/meta.x</code> declares as a <code>List</code> of type syntax such as
 <code>%(double)</code>, fills a type hole, so <code>$!{ $type value = $initial; }</code>
-declares <code>value</code> with the type the local holds. A <code>String</code> local fills an
+declares <code>value</code> with the type the local holds. Type syntax spells C type
+keywords and <code>*</code> as Symbols and every other type name as a String, as in
+<code>%(unsigned long)</code>, <code>%("String")</code>, and <code>%(* "Point")</code>. A type whose name
+is a Symbol, such as <code>%(String)</code>, is an error where it fills a type.
+A <code>String</code> local fills an
 expression hole as a string literal and an <code>int</code> local as an integer
 literal. A <code>$name</code> that names no local is a macro invocation or a <code>meta</code>
 call, as in a template, so <code>$rows($items)...</code> splices a <code>meta</code> function’s
-result where the quotation expands. See
+result where the quotation expands. A <code>${expression}</code>, with <code>{</code> directly
+after <code>$</code>, is a hole whose value is an expression of the function that
+contains the quotation. It means the same as a local declared just before
+the quotation and named with <code>$</code>. The function evaluates each such
+expression once, where the quotation is written, in the order the holes are
+written, before the quotation builds its code. Names in the braces resolve
+at the quotation; names the body declares are not visible there. The
+expression’s declared type gives the hole its kind, as a local’s type does:
+a <code>Type</code> fills a type, a <code>String</code>, <code>int</code>, or <code>Symbol</code> inserts a literal, and
+a <code>List</code> inserts its syntax. <code>${expression}...</code> splices a <code>List</code>. Each
+<code>${...}</code> is a separate hole and belongs to the innermost quotation, so
+<code>${$!( ... )}</code> inserts a quotation built first. Inside a <code>%(...)</code>,
+<code>%[...]</code>, <code>%{...}</code>, or <code>%"..."</code> literal in the body, <code>${...}</code> keeps its
+literal meaning and inserts when the built code runs; <code>${${expression}}</code>
+there inserts a value computed at the quotation. After <code>case</code>,
+<code>${$name(...)}</code> is still a macro pattern. These holes exist only in
+quotations; in a named template’s code, <code>${</code> still reports a missing macro
+name. See
 <a href="../guide/meta-functions.html#quoting-code-with-">Quoting code</a> for an
 example.</p>
+<p>A typed quotation is written <code>$!T{ expression }</code>, where <code>T</code> is one
+identifier that names a type, or <code>$!(T){ expression }</code>, where <code>T</code> is any
+type, a <code>Type</code> local, or a <code>${...}</code> hole of type <code>Type</code>. An identifier
+after <code>$!</code> that spells a macro kind in any case, such as <code>Unit</code> or <code>Type</code>,
+always names that kind, so a type with that spelling uses the
+parenthesized form. A <code>$!( ... )</code> group followed directly
+by <code>{</code> is a typed quotation; otherwise it is an expression quotation. A
+typed quotation builds <code>(expr T CONTENT)</code> where it is written. It binds
+nothing, counts no expansion, and opens no transaction. Its holes take the
+values a rebuild gives them: syntax unchanged, a binding identity or
+<code>x2c.ident</code> spelling as an identifier expression, an <code>x2c.ident</code> in a
+member position as its spelling and in a declarator as the name it
+declares, a number as a literal of its own type with its exact value, and
+a String or Symbol as a literal. Each number, String, or Symbol item of an
+expression sequence also becomes its literal. A String is a String
+literal when the whole expression is the hole and <code>T</code> is <code>String</code>; elsewhere
+it is a C string literal. Inner nodes keep the placeholder type of unbound
+syntax, and free names stay names that bind where the code is bound. A
+typed quotation may not declare a name that its own code spells or apply a
+template, and inside
+another quotation it is written as a hole, <code>${$!T{ ... }}</code>. The compiler
+accepts <code>T</code> as the expression’s type without checking it. A typed quotation
+states the type the code has; it converts nothing, so write a cast inside
+the braces when the code needs one. See
+<a href="../guide/meta-functions.html#code-that-knows-its-type">Code that knows its type</a>.</p>
+<p><code>$!Type{ T }</code> builds the type <code>T</code>, written as a cast writes a type name.
+<code>$!Param{ P }</code> builds one parameter declaration. A <code>Type</code> local or a
+<code>${...}</code> hole of type <code>Type</code> may stand for a type or for the base a
+declarator modifies. Both build where they are written: they bind nothing,
+declare no name the braces spell, and apply no template. <code>Type</code> and <code>Param</code>
+after <code>$!</code> always name these kinds. <code>Decl</code> names a hole kind only. See
+<a href="../guide/meta-functions.html#types-and-parameters">Types and parameters</a>.</p>
 <p>When one <code>Name</code> hole appears in a declaration, a reference, and a member
 selection, its case checks that the declaration and reference use the same
 binding and that the member has the binding’s source spelling. This also
@@ -1482,7 +1576,9 @@ the original binding syntax.</p>
 hole written without <code>...</code>; the function receives the captured items as
 one <code>List</code>. Applying a macro value with one <code>List</code> of syntax as the last
 argument passes that List as the whole trailing sequence, so
-<code>outer(head, items)</code> and <code>outer(head, a, b)</code> build the same code. A <code>case</code>
+<code>outer(head, items)</code> and <code>outer(head, a, b)</code> build the same code. A <code>List</code>
+of numbers or Strings, such as <code>%(1 2 3)</code>, passes the whole sequence too,
+and each item becomes its literal. A <code>case</code>
 on a macro value captures what a spliced slot built under the sequence
 hole the slot was given, one element per statement, so each element can
 be recognized with a <code>case</code> on the macro that built it. The pattern a
@@ -1700,7 +1796,7 @@ binds therefore cannot call itself by that name, and the self-call reports
 </code></pre>
 <p>The session that translates a unit inherits the compile-time library and
 cannot replace one of its definitions. <code>def</code> on an inherited name raises
-<code>(bad-state (operation "def") (why "inherited") (name NAME))</code>, which the
+<code>(bad-state (operation "def") (reason "inherited") (name NAME))</code>, which the
 compiler reports as a failed compile-time evaluation at the defining form.
 This covers <code>defun</code> and <code>defmacro</code>, which are <code>def</code>. The library defines
 many ordinary words, including <code>filter</code>, <code>last</code>, <code>map</code>, <code>search</code>, <code>len</code> and
@@ -1880,6 +1976,37 @@ comma-separated initializer. Compose a call to an existing spelling with
 <code>x2c.expr.call</code>, <code>x2c.expr.ident</code>, and <code>x2c.ident</code>.</p>
 <p>Names under <code>x2c.*</code> or <code>_x2c.*</code> with a component beginning <code>_</code> are private
 implementation details.</p>
+<h3 id="exported-imports"><a class="header" href="#exported-imports">Exported imports</a></h3>
+<p>A <code>.x</code> file can give the files that include it one of its macro imports.
+Write <code>export</code> before the import:</p>
+<!-- ignore: the import names a file beside the sample. -->
+<pre class="shiki shiki-themes x2c-light x2c-dark x2c-code" style="--shiki-light:#24292e;--shiki-dark:#e9e5df;--shiki-light-bg:#fff;--shiki-dark-bg:#101011" tabindex="0"><code class="language-x2c no-highlight ignore"><span class="line"><span style="--shiki-light:#D73A49;--shiki-dark:#F0ADA1">#include</span><span style="--shiki-light:#032F62;--shiki-dark:#9EDFB8"> "x2c.x"</span>
+</span><span class="line"><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">export </span><span style="--shiki-light:#24292E;--shiki-dark:#FF715A">$(</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">import </span><span style="--shiki-light:#032F62;--shiki-dark:#9EDFB8">"geometry.xmacro"</span><span style="--shiki-light:#24292E;--shiki-dark:#FF715A">)</span></span></code></pre>
+
+<p>An exported import is part of the file’s interface. Every file that includes
+this file receives the import at its <code>#include</code> line, as if it had written
+the import there. A file that reaches this one through other includes
+receives it too. Each path is imported once per unit, however many includes
+deliver it.</p>
+<p>The import delivers everything the imported file provides: its macros and
+decorators, its <code>keyword</code> aliases, its <code>meta</code> functions and <code>meta static</code>
+values, its top-level Lisp forms, and the files it imports. An exported
+<code>.xlisp</code> import delivers its Lisp definitions.</p>
+<p><code>export</code> applies only to a file-scope <code>$(import ...)</code> in a <code>.x</code> file.
+Unless <code>$(</code> follows it, <code>export</code> is an ordinary identifier, such as the
+name of a C macro. A macro, <code>keyword</code>, <code>meta</code> function, or Lisp definition
+written in the <code>.x</code> file stays in that file. To share one, move it to an
+<code>.xmacro</code> file and export that import. An <code>.xmacro</code> file needs no <code>export</code>,
+because its imports already reach the file that imports it. An import
+without <code>export</code> stays in its file. That includes its <code>meta</code> functions. The
+importing file can call them at compile time and at run time, but a file
+that includes it receives no declaration of them. To call one from the
+including file, export the import or import the <code>.xmacro</code> there. The
+including unit then emits its own weak copy.</p>
+<p>The usual import rules apply at the include line. A delivered definition
+that collides with a visible macro is an error. A later definition in the
+including file replaces the delivered one for the source after it. <code>export</code>
+does not depend on <code>#pragma private</code>.</p>
 <h3 id="meta-functions"><a class="header" href="#meta-functions"><code>meta</code> functions</a></h3>
 <p>A function definition may be marked <code>meta</code>. The marker precedes the whole
 declaration, ahead of any storage class:</p>
@@ -2112,12 +2239,19 @@ target; arbitrary AST <code>List</code>s do not acquire source text by structura
 equality. Diagnostics retain the definition, invocation, import, and generated
 ancestry even after a macro returns a new <code>List</code>. Returned syntax must be valid
 for its expression, field, enumerator, block-item, or translation-unit
-position. Protocol declarations, macro definitions, preprocessor nodes, and
-other compile-time-only source items are retained at translation-unit position
-and apply their source-order effect. The compiler rejects forms that are
-malformed or invalid in that position. As with other constructed ASTs, it does
-not recursively verify annotations or check where a handwritten <code>List</code> came
-from.</p>
+position. A <code>meta</code> call written as a whole expression statement holds that
+statement’s block-item or statement position, so it may return a statement
+as well as an expression. This holds in an ordinary function and in an
+expansion alike, such as the body of <code>macro Stmt $same(Stmt $code) =&gt; $same_of($code);</code>. A <code>meta</code> call inside a larger expression holds an
+expression position. Inside an expansion every <code>List</code> result is code.
+Elsewhere a <code>List</code> result is code when it is an expression node, a macro
+application, a quotation, or an identifier; any other <code>List</code> remains a
+runtime value. Protocol declarations, macro definitions, preprocessor nodes,
+and other compile-time-only source items are retained at translation-unit
+position and apply their source-order effect. The compiler rejects forms that
+are malformed or invalid in that position. As with other constructed ASTs, it
+does not recursively verify annotations or check where a handwritten <code>List</code>
+came from.</p>
 <h3 id="named-types-and-declaration-production"><a class="header" href="#named-types-and-declaration-production">Named types and declaration production</a></h3>
 <p><code>NamedType</code> captures <code>NAME TYPE;</code> or the forward form <code>NAME;</code>. The name comes
 first, with no equals sign. <code>{ FIELDS }</code> abbreviates a value struct;
@@ -3100,14 +3234,22 @@ binders inside <code>!not</code> operands are not definitely assigned; binders u
 <code>!or</code> or membership-style <code>!set</code> must occur in every alternative; <code>!quote</code> is
 opaque.
 Arm binders are semantic <code>Var</code> or <code>List</code> locals and support method syntax.</p>
-<p><code>?(Type name)</code> declares a native typed capture. Its exact <code>Var</code> tag must
-match the tag tested by <code>value is Type</code>; mismatches fail the pattern without
+<p><code>?(typename name)</code> declares a native typed capture. Its exact <code>Var</code> tag must
+match the tag tested by <code>value is typename</code>; mismatches fail the pattern without
 conversion. The type applies to every unquoted occurrence of that binder in
 the arm, including <code>?name</code> and alternative branches. Repeated names retain
 their equality constraint. The shorthand lowers to existing <code>!is</code> predicates
 and ordinary local declarations; explicit <code>!is</code> captures remain <code>Var</code> locals.
 The opener <code>?(</code> is adjacent; <code>? (String text)</code> is a wildcard followed by
 a sublist pattern.</p>
+<p>Inside <code>?(</code>, <code>typename</code> is ordinary source type syntax rather than literal
+List data: write <code>?(String text)</code> or <code>?(List payload)</code>. The compiler stores
+named types such as <code>String</code> as Strings in type syntax. The type List
+<code>%("String")</code> therefore differs from <code>%(String)</code>, which contains an <code>Atom</code>;
+see <a href="#macro-values">macro values</a>. Typedefs use their underlying <code>Var</code> tag,
+so <code>?(Type type)</code>, with <code>typedef List Type</code>, tests for a List payload without
+validating its contents as type syntax. The tag test precedes the native
+local declaration.</p>
 <p>An arm may place <code>if (expression)</code> before its colon. The expression runs
 after matching, with captures visible, and uses ordinary truth conversion.
 False tries the next arm; errors propagate normally. A successful guard runs
@@ -3457,9 +3599,9 @@ callbacks, or <code>Context</code> regions.</p>
                         &copy; 2025&ndash;2026
                         <a href="https://flake.org">GWF</a>
                         &middot;
-                        <a href="https://github.com/gwf/x2c/blob/2fb2e7abb7462f842903580f47a5b96c69698937/LICENSE">Apache 2.0</a>
+                        <a href="https://github.com/gwf/x2c/blob/f7b8a969f8236cdd5eb0e7e07b5a658af4d249e9/LICENSE">Apache 2.0</a>
                         &middot;
-                        <a href="https://github.com/gwf/x2c/blob/2fb2e7abb7462f842903580f47a5b96c69698937/TRADEMARKS.md">Trademarks</a>
+                        <a href="https://github.com/gwf/x2c/blob/f7b8a969f8236cdd5eb0e7e07b5a658af4d249e9/TRADEMARKS.md">Trademarks</a>
                     </footer>
                 </div>
             </div>

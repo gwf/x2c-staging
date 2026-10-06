@@ -1,6 +1,6 @@
 <!DOCTYPE HTML>
 <html lang="en" class="light sidebar-visible" dir="ltr">
-    <head><meta name="x2c-site-source" content="2fb2e7abb7462f842903580f47a5b96c69698937"><meta name="x2c-release-channel" content="staging"><meta name="x2c-candidate" content="candidate-0351be4a4d6c00dd246e5190e8dcf5a970560beb-36014113963-1">
+    <head><meta name="x2c-release-channel" content="staging"><meta name="x2c-candidate" content="candidate-f7b8a969f8236cdd5eb0e7e07b5a658af4d249e9-37397345486-1">
         <!-- Book generated using mdBook -->
         <meta charset="UTF-8">
         <title>src/meta-helper-client.x - The x2c Book</title>
@@ -30,7 +30,7 @@
         <link rel="stylesheet" id="mdbook-ayu-highlight-css" href="../../ayu-highlight-3fdfc3ac.css">
 
         <!-- Custom theme stylesheets -->
-        <link rel="stylesheet" href="../../theme/header-2c1becca.css">
+        <link rel="stylesheet" href="../../theme/header-f6c12aed.css">
         <link rel="stylesheet" href="../../theme/x2c-fd3d182e.css">
 
 
@@ -39,10 +39,10 @@
             const path_to_root = "../../";
             const default_light_theme = "light";
             const default_dark_theme = "light";
-            window.path_to_searchindex_js = "../../searchindex-94a52d98.js";
+            window.path_to_searchindex_js = "../../searchindex-e3f33cfe.js";
         </script>
         <!-- Start loading toc.js asap -->
-        <script src="../../toc-89ef7d96.js"></script>
+        <script src="../../toc-04d6e3af.js"></script>
         <!-- x2c publication metadata -->
         <link rel="canonical" href="https://staging.x2c-lang.dev/docs/internals/compiler-api/meta-helper-client.html">
         <meta property="og:type" content="website">
@@ -140,7 +140,7 @@
                                 <svg viewBox="0 0 100 100" width="22" height="22" aria-hidden="true"><g fill="none" stroke="#da291c" stroke-width="17" stroke-linecap="butt"><path d="M9 16 A34.5 34.5 0 0 1 9 84"></path><path d="M91 16 A34.5 34.5 0 0 0 91 84"></path></g></svg>
                                 <span class="x2c-wordmark landing-wordmark">x2c</span>
                             </a>
-                            <span class="landing-tagline">The x2c Book</span>
+                            <button class="landing-tagline menu-title" type="button" title="Scroll to top">The x2c Book</button>
                         </div>
                         <nav class="landing-nav" aria-label="x2c website">
                             <div class="landing-page-nav">
@@ -236,7 +236,7 @@ Compatibility is not yet promised.</p>
 <tr><td><a href="#Compiler.begin_meta_unit"><code>Compiler.begin_meta_unit</code></a></td><td>Selects the table of the unit at <code>filename</code> for the calls that follow, and resets the unit’s <code>meta static</code> values before the first one.</td></tr>
 <tr><td><a href="#Compiler.meta_helper_call"><code>Compiler.meta_helper_call</code></a></td><td>Calls the project <code>meta</code> function <code>name</code> in the helper with the values <code>arguments</code>, for the call at <code>site</code>, and returns its result.</td></tr>
 <tr><td><a href="#Compiler.stop_meta_helper"><code>Compiler.stop_meta_helper</code></a></td><td>Stops the helper this process runs, which a translation worker does when its units are done and every process does as it ends.</td></tr>
-<tr><td><a href="#Compiler.use_meta_helper"><code>Compiler.use_meta_helper</code></a></td><td>Uses the helper at <code>path</code>, or none when it is NULL, whose tables named in <code>failures</code> could not be built, each with why, and whose table for each input path is in <code>units</code>.</td></tr>
+<tr><td><a href="#Compiler.use_meta_helper"><code>Compiler.use_meta_helper</code></a></td><td>Uses the helper at <code>path</code>, or none when it is NULL, whose tables named in <code>failures</code> could not be built, each with why, and whose table for each input or included file path is in <code>units</code>.</td></tr>
 </tbody>
 </table>
 </div>
@@ -246,7 +246,7 @@ Compatibility is not yet promised.</p>
 <p><code>void Compiler.begin_meta_unit(String filename)</code></p>
 <p>Selects the table of the unit at <code>filename</code> for the calls that follow,
 and resets the unit’s <code>meta static</code> values before the first one.</p>
-<p>Source: <code>src/meta-helper-client.x:386</code></p>
+<p>Source: <code>src/meta-helper-client.x:394</code></p>
 <p><a id="Compiler.meta_helper_call"></a></p>
 <h4 id="compilermeta_helper_call"><a class="header" href="#compilermeta_helper_call">Compiler.meta_helper_call</a></h4>
 <p><code>Var Compiler.meta_helper_call( Compiler c, String name, Token site, List arguments)</code></p>
@@ -255,21 +255,23 @@ and resets the unit’s <code>meta static</code> values before the first one.</p
 the body makes is reported at <code>site</code> and a failure it reports is the
 call’s failure. A body that crashes, exits, or passes the deadline ends
 the helper, which is reported at <code>site</code> and started again for the next
-call.</p>
-<p>Source: <code>src/meta-helper-client.x:75</code></p>
+call. The call runs in the table of the file that wrote it: an included
+file’s own, which runs the constants it computes as its own translation
+does, or else the unit’s.</p>
+<p>Source: <code>src/meta-helper-client.x:79</code></p>
 <p><a id="Compiler.stop_meta_helper"></a></p>
 <h4 id="compilerstop_meta_helper"><a class="header" href="#compilerstop_meta_helper">Compiler.stop_meta_helper</a></h4>
 <p><code>void Compiler.stop_meta_helper(void)</code></p>
 <p>Stops the helper this process runs, which a translation worker does
 when its units are done and every process does as it ends.</p>
-<p>Source: <code>src/meta-helper-client.x:395</code></p>
+<p>Source: <code>src/meta-helper-client.x:408</code></p>
 <p><a id="Compiler.use_meta_helper"></a></p>
 <h4 id="compileruse_meta_helper"><a class="header" href="#compileruse_meta_helper">Compiler.use_meta_helper</a></h4>
 <p><code>void Compiler.use_meta_helper(String path, Map failures, Map units)</code></p>
 <p>Uses the helper at <code>path</code>, or none when it is NULL, whose tables named
 in <code>failures</code> could not be built, each with why, and whose table for
-each input path is in <code>units</code>.</p>
-<p>Source: <code>src/meta-helper-client.x:373</code></p>
+each input or included file path is in <code>units</code>.</p>
+<p>Source: <code>src/meta-helper-client.x:381</code></p>
 <h2 id="design-notes"><a class="header" href="#design-notes">Design notes</a></h2>
 <p>The project meta build (<code>meta-project.x</code>) compiles each unit’s <code>meta</code>
 group (<code>meta-group.x</code>) into one helper program. This file owns the
@@ -293,9 +295,9 @@ per call, and reporting a body that fails, crashes, or runs too long.</p>
                         &copy; 2025&ndash;2026
                         <a href="https://flake.org">GWF</a>
                         &middot;
-                        <a href="https://github.com/gwf/x2c/blob/2fb2e7abb7462f842903580f47a5b96c69698937/LICENSE">Apache 2.0</a>
+                        <a href="https://github.com/gwf/x2c/blob/f7b8a969f8236cdd5eb0e7e07b5a658af4d249e9/LICENSE">Apache 2.0</a>
                         &middot;
-                        <a href="https://github.com/gwf/x2c/blob/2fb2e7abb7462f842903580f47a5b96c69698937/TRADEMARKS.md">Trademarks</a>
+                        <a href="https://github.com/gwf/x2c/blob/f7b8a969f8236cdd5eb0e7e07b5a658af4d249e9/TRADEMARKS.md">Trademarks</a>
                     </footer>
                 </div>
             </div>

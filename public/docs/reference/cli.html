@@ -1,6 +1,6 @@
 <!DOCTYPE HTML>
 <html lang="en" class="light sidebar-visible" dir="ltr">
-    <head><meta name="x2c-site-source" content="2fb2e7abb7462f842903580f47a5b96c69698937"><meta name="x2c-release-channel" content="staging"><meta name="x2c-candidate" content="candidate-0351be4a4d6c00dd246e5190e8dcf5a970560beb-36014113963-1">
+    <head><meta name="x2c-release-channel" content="staging"><meta name="x2c-candidate" content="candidate-f7b8a969f8236cdd5eb0e7e07b5a658af4d249e9-37397345486-1">
         <!-- Book generated using mdBook -->
         <meta charset="UTF-8">
         <title>Compiler Options - The x2c Book</title>
@@ -30,7 +30,7 @@
         <link rel="stylesheet" id="mdbook-ayu-highlight-css" href="../ayu-highlight-3fdfc3ac.css">
 
         <!-- Custom theme stylesheets -->
-        <link rel="stylesheet" href="../theme/header-2c1becca.css">
+        <link rel="stylesheet" href="../theme/header-f6c12aed.css">
         <link rel="stylesheet" href="../theme/x2c-fd3d182e.css">
 
 
@@ -39,10 +39,10 @@
             const path_to_root = "../";
             const default_light_theme = "light";
             const default_dark_theme = "light";
-            window.path_to_searchindex_js = "../searchindex-94a52d98.js";
+            window.path_to_searchindex_js = "../searchindex-e3f33cfe.js";
         </script>
         <!-- Start loading toc.js asap -->
-        <script src="../toc-89ef7d96.js"></script>
+        <script src="../toc-04d6e3af.js"></script>
         <!-- x2c publication metadata -->
         <link rel="canonical" href="https://staging.x2c-lang.dev/docs/reference/cli.html">
         <meta property="og:type" content="website">
@@ -140,7 +140,7 @@
                                 <svg viewBox="0 0 100 100" width="22" height="22" aria-hidden="true"><g fill="none" stroke="#da291c" stroke-width="17" stroke-linecap="butt"><path d="M9 16 A34.5 34.5 0 0 1 9 84"></path><path d="M91 16 A34.5 34.5 0 0 0 91 84"></path></g></svg>
                                 <span class="x2c-wordmark landing-wordmark">x2c</span>
                             </a>
-                            <span class="landing-tagline">The x2c Book</span>
+                            <button class="landing-tagline menu-title" type="button" title="Scroll to top">The x2c Book</button>
                         </div>
                         <nav class="landing-nav" aria-label="x2c website">
                             <div class="landing-page-nav">
@@ -222,7 +222,7 @@
 <p>After building the repository, <code>./x2c</code> links to the development compiler;
 <code>./bin/x2c</code> is the bootstrap compiler until <code>make build-install</code> links it to
 a copy of the development compiler. Every invocation begins with a command:
-<code>translate</code>, <code>build</code>, <code>run</code>, <code>new</code>, <code>script</code>, <code>bootstrap</code>, <code>env</code>, <code>install</code>,
+<code>translate</code>, <code>build</code>, <code>run</code>, <code>new</code>, <code>script</code>, <code>env</code>, <code>install</code>,
 <code>remove</code>, <code>list</code>, or <code>help</code>.</p>
 <p>The generated help is the short option reference:</p>
 <pre><code class="language-sh">./x2c --help
@@ -247,17 +247,30 @@ regular <code>.x</code> files; two inputs with the same basename would collide i
 flat output directory and are rejected.</p>
 <p><code>--out-dir</code> is only the generated-C directory. Native artifacts use
 <code>build --output</code> or <code>run --output</code>.</p>
-<p><code>-j</code>, or <code>--jobs</code>, translates several units at once, in worker processes that
-inherit the collected declarations the parent already read:</p>
+<p>Several inputs translate at once, in worker processes that inherit the
+collected declarations the parent already read. <code>-j</code>, or <code>--jobs</code>, limits the
+number of workers:</p>
 <pre><code class="language-sh">./x2c translate -j 8 --out-dir /tmp/x2c-generated src/*.x
 </code></pre>
 <p>Each unit is translated by exactly one worker and writes only its own files,
 so the generated <code>.c</code> and <code>.h</code> are byte-identical to a serial run. A <code>.d</code> file
 may list more prerequisites than the serial run produces, and never fewer. A
 worker that parses a header records what that parse reads, where a serial run
-replays the header from its process cache. The default is one job. The
-inspection and dump modes stay serial; they write one ordered stream to
-standard output.</p>
+replays the header from its process cache. The default limit is the host’s
+online processor count, or one job under Make, as for <code>build</code> below; <code>-j 1</code>
+translates serially in one process. The inspection and dump modes stay
+serial; they write one ordered stream to standard output.</p>
+<p>A serial translation stops at the first unit that fails. In a parallel
+translation, a worker stops at the first failing unit of its share of the
+inputs while the other workers continue. Diagnostics appear in input order,
+because the command holds each worker’s standard error until the worker
+ends; one unit’s diagnostics are never split by another’s. A parallel
+<code>build</code> translates each unit in its own worker, so it reports every failing
+unit. Stopping the command with <code>SIGTERM</code> or <code>SIGINT</code> also stops its workers.</p>
+<p>Compile-time code runs once per translated unit. When several units import
+the same file, each worker runs that file’s compile-time forms, including
+any side effects, for its own unit. A serial run may share one import
+between the units it translates.</p>
 <p>The depfile options control that <code>.d</code> output. They belong to <code>translate</code>:</p>
 <pre><code class="language-text">--no-deps               Do not write x2c dependency files
 --dep-file &lt;file&gt;       Override the depfile path (one input only)
@@ -341,7 +354,9 @@ Unit macro, <code>class</code>, or the compiler produced, and <code>alias</code>
 alias, whose <code>line</code> is that of its alias application.</li>
 <li><code>doc</code> is the body of the <code>/**</code> comment that ends on the line before the
 form or on its first line, without its delimiters; it is empty when there
-is none.</li>
+is none. In a Unit macro’s template, <code>$name</code> in that comment reads as the
+hole’s argument as the invocation wrote it, so <code>$type</code> documents
+<code>$scalar(char, ...)</code> as <code>char</code>.</li>
 <li><code>text</code> is a written function’s declarator, or a type’s statement without
 its <code>;</code>, with comments removed and each run of whitespace written as one
 space. It is empty for a function the file does not spell.</li>
@@ -362,13 +377,13 @@ input may include another through a directory, as in
 <pre><code class="language-sh">./x2c build --output /tmp/foreach examples/foreach.x
 /tmp/foreach
 </code></pre>
-<p><code>build</code> and <code>run</code> default to the host’s online processor count for translation
-and native compilation. Detection failure falls back to one job. Under Make
-(<code>MAKELEVEL</code> greater than zero), the automatic default is one job so the
-outer build owns concurrency. An explicit <code>-j N</code> or <code>--jobs N</code> overrides either
-default; <code>translate</code> retains its one-job default. The online count does not
-account for Linux CPU affinity, container quotas, or memory limits; use <code>-j</code>
-to choose a smaller limit in those environments.</p>
+<p><code>translate</code>, <code>build</code>, and <code>run</code> default to the host’s online processor count
+for translation and native compilation. Detection failure falls back to one
+job. Under Make (<code>MAKELEVEL</code> greater than zero), the automatic default is one
+job so the outer build owns concurrency. An explicit <code>-j N</code> or <code>--jobs N</code>
+overrides either default. The online count does not account for Linux CPU
+affinity, container quotas, or memory limits; use <code>-j</code> to choose a smaller
+limit in those environments.</p>
 <p>Parallel builds translate each stale unit in its own worker and generated
 directory. Units with the same basename remain separate, and each unit records
 its own prerequisites for subsequent build reuse. Parallel translation preserves
@@ -810,7 +825,7 @@ and <code>--quiet</code> suppress successful progress and receipts without suppr
 diagnostics or a run program’s output.
 <code>--color=auto|always|never</code> controls color; <code>NO_COLOR</code> disables automatic
 color. <code>--debug</code> enables compiler debug logging; <code>translate</code>, <code>build</code>, and
-<code>run</code> accept it, and <code>bootstrap</code> does not.</p>
+<code>run</code> accept it.</p>
 <p><code>--verbose</code> prints each command as it runs. <code>-###</code> prints the same commands
 without running them. Use them first when checking runtime selection, include
 order, or which phase a flag reached. Neither prints completion receipts into
@@ -864,9 +879,9 @@ error; requested dumps and program output use standard output.</p>
                         &copy; 2025&ndash;2026
                         <a href="https://flake.org">GWF</a>
                         &middot;
-                        <a href="https://github.com/gwf/x2c/blob/2fb2e7abb7462f842903580f47a5b96c69698937/LICENSE">Apache 2.0</a>
+                        <a href="https://github.com/gwf/x2c/blob/f7b8a969f8236cdd5eb0e7e07b5a658af4d249e9/LICENSE">Apache 2.0</a>
                         &middot;
-                        <a href="https://github.com/gwf/x2c/blob/2fb2e7abb7462f842903580f47a5b96c69698937/TRADEMARKS.md">Trademarks</a>
+                        <a href="https://github.com/gwf/x2c/blob/f7b8a969f8236cdd5eb0e7e07b5a658af4d249e9/TRADEMARKS.md">Trademarks</a>
                     </footer>
                 </div>
             </div>

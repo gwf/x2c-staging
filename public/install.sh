@@ -5,7 +5,7 @@ usage() {
 Install a released x2c into a dedicated prefix.
 
   curl -fsSL https://staging.x2c-lang.dev/install.sh | sh
-  curl -fsSL https://staging.x2c-lang.dev/install.sh | sh -s -- --version 0.14.0
+  curl -fsSL https://staging.x2c-lang.dev/install.sh | sh -s -- --version 0.15.0
 
 Options:
   --version VERSION  install VERSION instead of the latest release
@@ -65,7 +65,7 @@ case "$version" in
 esac
 version="${version#v}"
 asset="x2c-$version-$platform.tar.gz"
-release_tag="${X2C_RELEASE_TAG:-candidate-0351be4a4d6c00dd246e5190e8dcf5a970560beb-36014113963-1}"
+release_tag="${X2C_RELEASE_TAG:-candidate-f7b8a969f8236cdd5eb0e7e07b5a658af4d249e9-37397345486-1}"
 base="$releases/$release_tag"
 
 work="$(mktemp -d "${TMPDIR:-/tmp}/x2c-install.XXXXXX")"
