@@ -65,7 +65,7 @@ case "$version" in
 esac
 version="${version#v}"
 asset="x2c-$version-$platform.tar.gz"
-release_tag="${X2C_RELEASE_TAG:-candidate-f7b8a969f8236cdd5eb0e7e07b5a658af4d249e9-37397345486-1}"
+release_tag="${X2C_RELEASE_TAG:-candidate-7f0e54f850c5d5776ab2efd4d5d38a6544013cdc-37403975767-1}"
 base="$releases/$release_tag"
 
 work="$(mktemp -d "${TMPDIR:-/tmp}/x2c-install.XXXXXX")"
