@@ -1,6 +1,6 @@
 <!DOCTYPE HTML>
 <html lang="en" class="light sidebar-visible" dir="ltr">
-    <head><meta name="x2c-release-channel" content="staging"><meta name="x2c-candidate" content="candidate-7f0e54f850c5d5776ab2efd4d5d38a6544013cdc-37403975767-1">
+    <head><meta name="x2c-release-channel" content="staging"><meta name="x2c-candidate" content="candidate-00389e131bf1b5c5a33afa59f299746fc3fc5bbb-37654719483-2">
         <!-- Book generated using mdBook -->
         <meta charset="UTF-8">
         <title>Language Reference - The x2c Book</title>
@@ -39,10 +39,10 @@
             const path_to_root = "../";
             const default_light_theme = "light";
             const default_dark_theme = "light";
-            window.path_to_searchindex_js = "../searchindex-e3f33cfe.js";
+            window.path_to_searchindex_js = "../searchindex-830d243b.js";
         </script>
         <!-- Start loading toc.js asap -->
-        <script src="../toc-04d6e3af.js"></script>
+        <script src="../toc-320b946b.js"></script>
         <!-- x2c publication metadata -->
         <link rel="canonical" href="https://staging.x2c-lang.dev/docs/reference/language.html">
         <meta property="og:type" content="website">
@@ -226,42 +226,36 @@ in <a href="../guide/idioms.html">idioms</a>. Flags and the dump options that ex
 phase are in <a href="cli.html">compiler options</a>. If you have not built the compiler
 yet, the website’s install page is the quickest route, and <a href="../internals/building.html">building the
 compiler</a> covers the self-host stages behind it.</p>
-<h2 id="source-files-and-pragmas"><a class="header" href="#source-files-and-pragmas">Source files and pragmas</a></h2>
+<h2 id="source-files-and-visibility"><a class="header" href="#source-files-and-visibility">Source files and visibility</a></h2>
 <p>An <code>.x</code> file combines declarations and definitions. Translation produces a
 header and a C source file.</p>
 <p>A source file whose first line begins with <code>#!</code> is a
 <a href="#script-units">script unit</a>; every other file is an ordinary unit.</p>
-<p><code>#pragma private</code> marks the start of implementation-only content. Everything
-before it belongs to the generated header, including types, enumerators,
-and <code>#define</code> and <code>#undef</code> directives that follow a function definition or
-a <code>static</code> declaration. A public function definition contributes its
-prototype, or its whole body when inline, and a <code>static</code> function or object
-stays in the source. A typedef below <code>#pragma private</code> still belongs to the
-header when a later public prototype names it. An <code>#include</code> that follows
-an item the source holds, such as a function definition, stays in the
-source at its place, so the macros it defines do not reach earlier items.
-Such an include, or an include below <code>#pragma private</code>, moves to the header
-only when it reaches <span class="x2c-wordmark">x2c</span> source declaring a type that a later public
-prototype names. A public object definition gets an
-<code>extern</code> declaration in the header. An object of an anonymous <code>struct</code>,
-<code>union</code>, or <code>enum</code> type has no such declaration. Every translated header
-starts with <code>#pragma once</code> and also carries a conventional include guard, so
-<code>.x</code> programs do not need to write either one.</p>
-<p>A file that includes another sees what that file’s header declares: everything
-above its <code>#pragma private</code> and the functions with external linkage it defines
-below it. Its private types, enumerators, objects, and static functions belong
-to that file, and naming one of them is an error in the including unit. A
-<code>static</code> function is private wherever it appears, above the boundary as well
-as below it, and the error names the file that defines it. A C header is not
-a unit, so the <code>static inline</code> functions it defines still belong to every
-file that includes it. An
-<code>#include</code> below <code>#pragma private</code> still splices, because the including file
-may call the functions it declares.</p>
-<p><code>#pragma public</code> ends implementation-only content. Until the next
-<code>#pragma private</code>, what follows it is handled like the top of the file.
-Declarations there belong to the generated header, and files that include
-this one or import its package can use them. A file can use the two
-pragmas to place a private include or type between public declarations.</p>
+<p>Declarations are public unless marked <code>static</code>. A public function contributes
+its prototype to the generated header, or its whole body when inline. A public
+object has one definition in the generated C and an <code>extern</code> declaration in
+the header. An object of an anonymous <code>struct</code>, <code>union</code>, or <code>enum</code> type has no
+repeatable declaration to publish.</p>
+<p>Standalone types are public by default. <code>static typedef</code>, <code>static struct</code>,
+<code>static union</code>, <code>static enum</code>, and <code>static class</code> declare private types. A type
+needed by a public declaration becomes public automatically. Its complete
+definition and field types are published when the interface requires that
+layout, such as for a value type or field access in a public inline body.
+A public forward pointer type can keep a static aggregate body private.
+A static type used only by static functions remains private.
+The <code>static</code> marker on a type controls publication and emits no C storage.</p>
+<p>An ordinary <code>#include "module.x"</code> makes that module’s public declarations,
+macro definitions, keyword aliases, and meta functions available. The same
+rule applies through transitive includes. Compile-time definitions become
+available at the include’s source position. Static definitions belong to
+the declaring source file. A C header is not an <span class="x2c-wordmark">x2c</span> unit, so its
+<code>static inline</code> functions still belong to every C translation unit that
+includes it.</p>
+<p>Every translated header starts with <code>#pragma once</code> and also carries a
+conventional include guard, so ordinary <code>.x</code> programs need neither directive.
+The generated source preserves native includes at their source positions.
+A late native include enters the header when a later public declaration needs
+its types.</p>
 <p>The advanced <code>--cpp-symbols</code> and <code>--live-symbols</code> modes run the host
 preprocessor over raw <code>.x</code> include graphs. A module used with those modes needs
 a source-level <code>#pragma once</code> only when its own <code>.x</code> includes form a cycle.
@@ -328,8 +322,8 @@ line is not C, so they report an error for a script unit.</p>
 <h3 id="indentation-syntax"><a class="header" href="#indentation-syntax">Indentation syntax</a></h3>
 <p>A file can group statements by indentation and end them at line breaks
 instead of writing braces and semicolons. The file is in the indentation
-syntax when its name ends in <code>.xp</code>, a macro file’s name ends in <code>.xpmacro</code>,
-or <code>#pragma indent</code> appears before its first line of code. Only comments,
+syntax when its name ends in <code>.xp</code>, or <code>#pragma indent</code> appears before its
+first line of code. Only comments,
 blank lines, and other directives may come before the pragma, and it does
 not reach the generated C. A <code>.xp</code> unit is otherwise an ordinary unit:
 <code>#include "shapes.xp"</code> includes its generated <code>shapes.h</code>, and builds,
@@ -427,8 +421,8 @@ indented unit.</p>
 <h2 id="packages-and-import"><a class="header" href="#packages-and-import">Packages and <code>import</code></a></h2>
 <p>A package is a directory whose name is a valid C identifier. Its entry unit is
 <code>&lt;dir&gt;/src/&lt;name&gt;.x</code>, or <code>&lt;dir&gt;/&lt;name&gt;.x</code> for a single-file package. The
-package is everything that entry unit includes. Everything above
-<code>#pragma private</code> is public. There is no manifest and no export list.
+package is everything that entry unit includes. Nonstatic declarations and
+compile-time definitions are public. There is no manifest or export list.
 <code>--package-dir &lt;root&gt;</code> registers a directory of packages; a target in
 <code>x2c.toml</code> may set <code>package-dirs</code> instead.</p>
 <p>An <code>import</code> declaration names a package, binds a local alias, and may name
@@ -477,19 +471,16 @@ package explicitly.</p>
 and examples, are ordinary consumers that reach it through <code>import</code>.</p>
 <p>An import exposes:</p>
 <ul>
-<li>every public declaration, type, and aggregate above <code>#pragma private</code>;</li>
-<li>protocol declarations and adoptions the package makes; and</li>
-<li>any header or runtime module the package’s public part includes, such as a
-vendored foreign header it publishes.</li>
+<li>nonstatic functions, objects, standalone types, and types needed by public
+declarations;</li>
+<li>public macro definitions, keyword aliases, and meta functions;</li>
+<li>public protocol declarations and adoptions; and</li>
+<li>the public declarations of the files the package entry includes.</li>
 </ul>
-<p>It also installs the macro imports that the package’s entry source and
-public include surface <code>export</code>, as described under
-<a href="#exported-imports">exported imports</a>, in the order an <code>#include</code> of the
-entry source would deliver them. Includes below <code>#pragma private</code> do not
-contribute exports, and neither do the consumer’s own files. Other macros,
-private declarations, and the package’s other imports are not exposed.
-Packages have no re-exports or hierarchy. One program uses one version of a
-package.</p>
+<p>Compile-time definitions arrive in the order an include of the entry source
+would deliver them. Static declarations remain in their source files. Macro
+names retain their declared spellings; a package alias changes C names, not
+macro names. One program uses one version of a package.</p>
 <p>A public bodyless <code>meta</code> prototype crosses the import like any function
 declaration. When the package has built its native module,
 <code>&lt;dir&gt;/builds/&lt;name&gt;.module</code>, the import loads it, so compile-time code in
@@ -501,9 +492,9 @@ an error at the import; see
 header directly. A package renames what it declares, not what it includes.</p>
 <p>An unprefixed public declaration from an <span class="x2c-wordmark">x2c</span> file outside the package directory
 would enter the consumer’s namespace unchanged. The compiler rejects it as
-<code>package 'geo' exposes unprefixed top-level declaration '...'</code>. Including that
-file below <code>#pragma private</code> keeps it out of the package’s surface, and a
-runtime module, like a C header, crosses unprefixed. A consumer that
+<code>package 'geo' exposes unprefixed top-level declaration '...'</code>. Including
+the foreign file directly in the consumer avoids that package-prefix conflict.
+A runtime module, like a C header, crosses unprefixed. A consumer that
 declares a name in an imported package’s <code>geo__</code> space is reported as <code>'geo__x' is reserved for imported package 'geo'</code>.</p>
 <h2 id="c-foundation"><a class="header" href="#c-foundation">C foundation</a></h2>
 <p><span class="x2c-wordmark">x2c</span> keeps C declarations, expressions, operators, functions, structs, unions,
@@ -762,7 +753,7 @@ view of an existing representation.</p>
 <p>Both forms are top-level compiler declarations and emit no program object.
 Associated declarations precede members. A declaration binder that shadows a
 visible type receives a warning; use the bodyless form to adopt that type.</p>
-<p><code>static</code> applies only to a concrete adoption:</p>
+<p><code>static</code> may mark a protocol body or a concrete adoption:</p>
 <pre><code class="language-text">static protocol Prepared(LocalPlan);
 </code></pre>
 <p>That adoption applies only within the translation unit that declares it. It
@@ -771,7 +762,8 @@ valid when a private dependency already implies locality; it then records the
 same local relationship explicitly and does not change linkage.</p>
 <p>An adoption is local when its protocol body, participant typedef, required
 converter, required native target, or adoption row is private. A protocol
-body below lexical <code>#pragma private</code> is legal; <code>static protocol BASE(T) { ... }</code> is not, because <code>static</code> applies only to concrete adoption. Local
+body declared as <code>static protocol BASE(T) { ... }</code> is private to its source
+file. <code>static</code> may also mark a concrete adoption. Local
 ordinary adapters are <code>static inline</code>, appear only in generated C, and are
 omitted from generated headers. Local native aliases and their signature
 checks are likewise source-only.</p>
@@ -856,8 +848,9 @@ and within a struct or union. It emits an ordinary C static assertion and adds
 no field, binding, or runtime operation:</p>
 <pre class="shiki shiki-themes x2c-light x2c-dark x2c-code" style="--shiki-light:#24292e;--shiki-dark:#e9e5df;--shiki-light-bg:#fff;--shiki-dark-bg:#101011" tabindex="0"><code class="language-x2c no-highlight"><span class="line"><span style="--shiki-light:#6F42C1;--shiki-dark:#E9E5DF">_Static_assert</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">(</span><span style="--shiki-light:#D73A49;--shiki-dark:#E9E5DF">sizeof</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">(</span><span style="--shiki-light:#D73A49;--shiki-dark:#F0ADA1">int</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">) </span><span style="--shiki-light:#D73A49;--shiki-dark:#E9E5DF">&gt;=</span><span style="--shiki-light:#005CC5;--shiki-dark:#A9C9F5"> 2</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">, </span><span style="--shiki-light:#032F62;--shiki-dark:#9EDFB8">"int is at least 16 bits"</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">);</span></span></code></pre>
 
-<p>The native compiler evaluates the condition and rejects a false or nonconstant
-assertion. Translation and source analysis alone do not perform that check.</p>
+<p>A file-scope assertion stays in its implementation. An aggregate assertion
+travels with the aggregate definition. The native compiler rejects a false or
+nonconstant assertion. Translation and source analysis alone do not perform that check.</p>
 <h3 id="generic-selection"><a class="header" href="#generic-selection">Generic selection</a></h3>
 <p><code>_Generic(controlling, type: value, ..., default: value)</code> is a C11 generic
 selection. <span class="x2c-wordmark">x2c</span> resolves the controlling expression and each value, then emits
@@ -984,12 +977,10 @@ dot may be a keyword, as in <code>$error.arg.void</code>. The <code>x2c.*</code>
 <code>lisp.*</code> macro and Lisp namespaces are reserved for compiler-shipped
 facilities; <code>$lisp.bind</code>, <code>$lisp.binding</code>, and <code>$lisp.install</code> are the shipped
 native-binding macros.</p>
-<p>Definitions and imports become visible in source order. A definition must
-precede its first use. A later same-file definition of the same name shadows
-the earlier definition for later invocations; it does not change expansions
-that already occurred. An imported definition may not collide with a
-definition already visible from the importing translation unit or another
-import.</p>
+<p>Definitions and includes become visible in source order. A definition must
+precede its first use. A later definition of the same name shadows the earlier
+definition for later invocations. Earlier expansions keep their original
+definition, including through transitive includes.</p>
 <h3 id="local-definitions"><a class="header" href="#local-definitions">Local definitions</a></h3>
 <p>A local definition uses one bare identifier and is a compound-statement item:</p>
 <pre class="shiki shiki-themes x2c-light x2c-dark x2c-code" style="--shiki-light:#24292e;--shiki-dark:#e9e5df;--shiki-light-bg:#fff;--shiki-dark-bg:#101011" tabindex="0"><code class="language-x2c no-highlight"><span class="line"><span style="--shiki-light:#D73A49;--shiki-dark:#F0ADA1">static</span><span style="--shiki-light:#D73A49;--shiki-dark:#F0ADA1"> int</span><span style="--shiki-light:#6F42C1;--shiki-dark:#E9E5DF"> scaled_sum</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">(</span><span style="--shiki-light:#D73A49;--shiki-dark:#F0ADA1">int</span><span style="--shiki-light:#E36209;--shiki-dark:#E9E5DF"> scale</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">, </span><span style="--shiki-light:#D73A49;--shiki-dark:#F0ADA1">int</span><span style="--shiki-light:#E36209;--shiki-dark:#E9E5DF"> value</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">) {</span>
@@ -1008,7 +999,7 @@ lexical <code>with</code> statement.</p>
 <code>keyword</code> alias or an ordinary call or typedef-style cast. A bare <code>name</code>
 without parentheses remains an ordinary identifier. <code>(name)(arguments)</code> is an
 explicit ordinary call, while <code>$name(arguments)</code> selects only the global or
-imported macro namespace. A local and global definition may therefore share a
+global macro namespace. A local and global definition may therefore share a
 name without ambiguity.</p>
 <p>A local definition follows the <a href="#hygiene-and-generated-names">hygiene</a> rule
 of every macro: a name its body reads without declaring resolves where the
@@ -1108,18 +1099,16 @@ type, and every expansion produces separately typed declarations and
 definitions. There is no runtime type argument, erased element representation,
 or parameterized type spelling such as <code>Box&lt;T&gt;</code>. A macro generates named
 concrete families such as <code>IntValue</code> and <code>DoubleValue</code>.</p>
-<p>During shallow symbol collection, the compiler expands every file-scope unit
-macro. An imported macro, or one whose template contains protocol
-declarations or adoptions, must expand there, and its errors stop the
-translation. Any other unit macro the source file defines is tried; a failed
-attempt keeps nothing, and the full parse expands the invocation and reports
-its errors. Collection does not evaluate the unit’s own top-level Lisp, so an
-expansion that reads a <code>$(def ...)</code> value from the same file fails this
-attempt. If expansion succeeds, collection retains protocol rows and public
-declarations, then discards private declarations and function bodies. A
-public function definition may therefore follow its prototype inside the same
-expansion; earlier code in the unit and importing translation units discover
-the retained signature.</p>
+<p>During shallow symbol collection, every file-scope <code>Unit</code> macro must expand.
+Collection evaluates preceding top-level Lisp contributions before expanding
+that producer. Its result is retained for the full parse, which binds the
+retained function bodies without running the producer again. Static generated
+declarations stay in their owner; public declarations and protocol rows reach
+includers. A public function definition can follow its prototype inside the
+same expansion.</p>
+<p>A local <code>Unit</code> macro must expand during collection if it contains protocol or
+adoption rows. Other local <code>Unit</code> macros are tried. A failed attempt contributes
+nothing, and the full parse reports its errors at the invocation.</p>
 <p>Protocol declarations and adoption rows are collection-time compiler
 declarations rather than C declarations. A unit macro may emit them, and
 importing units receive the retained rows. A <code>Unit</code> macro may generate
@@ -1399,20 +1388,14 @@ parenthesized delimiter. Its spelling is therefore claimed at each parser
 position compatible with its target kind; a bare expression decorator can
 capture a same-named expression read, and a bare block or function decorator
 can overlap a declaration beginning with a same-named typedef.</p>
-<p>Aliases are local to the <code>.x</code> file that declares them, including when that file
-is included or is a package source. One alias map spans that file’s
-include-separated segments, while a nested included <code>.x</code> file receives its
-own map. An alias a file declares never leaks into the including file.</p>
-<p>An explicitly imported <code>.xmacro</code> file may contain macro definitions and
-<code>keyword</code> declarations. Its aliases become visible in the importing <code>.x</code> file
-at the import position. Every <code>.x</code> file that wants the spellings or the
-macros imports the pack itself, or includes a file that
-<a href="#exported-imports">exports</a> the import. Any other import of an included
-file, like a macro the included file defines, does not expose them to its
-caller, and no pack is loaded implicitly by <code>x2c.x</code>. Macro templates are
-parsed when
-defined, so a later alias does not reinterpret an earlier template; generated
-<code>List</code>s and strings are not reparsed as alias-bearing source.</p>
+<p>Aliases are source ordered. A nonstatic <code>keyword</code> declaration becomes
+available to including files at the include position, together with the macro
+it names. <code>static keyword ALIAS $macro;</code> keeps the alias in its declaring file.
+A reusable ordinary <code>.x</code> module may hold both macro definitions and aliases;
+include that module wherever its syntax is needed.</p>
+<p>Macro templates are parsed when defined, so a later alias does not reinterpret
+an earlier template. Generated <code>List</code>s and strings are not reparsed as
+alias-bearing source.</p>
 <p>An alias changes spelling, not decorator capability. <span class="x2c-wordmark">x2c</span>’s current thread and
 lambda facilities cannot lift a local block with captured variables into a C
 callback. A decorator may wrap an existing callback or a noncapturing
@@ -1457,11 +1440,11 @@ replace it, or produce an empty body. A general <code>Unit</code> decorator can 
 a complete function or declaration, but a public target must retain the same
 public binding and contract and cannot gain new public siblings. Private
 targets and hygienically private siblings may be rewritten freely.</p>
-<p>Shallow declaration collection loads macro imports so imported unit macros can
-publish their declarations and protocol rows; unit macros the source file
-defines publish theirs when collection can expand them. It does not execute
-other top-level Lisp forms. <code>Decorator</code>-shaped adjacency still collects the unchanged
-source target. A public target’s captured source must participate in the
+<p>Declaration collection loads included macro definitions and lets unit macros
+publish their declarations and protocol rows. A declaration producer evaluates
+preceding Lisp effects once when it needs them. Runtime function bodies wait
+for the full parse. <code>Decorator</code> adjacency still collects the unchanged source
+target. A public target’s captured source must participate in the
 decorator’s <code>Match</code> replacement, and dropping it makes the match fail. Imported
 decorators work without an extra prototype.</p>
 <h3 id="macro-values"><a class="header" href="#macro-values">Macro values</a></h3>
@@ -1773,15 +1756,15 @@ unquote. To place a compile-time result there, the outer <code>${</code> first e
 expression grammar: <code>${$helper(...)}</code> calls a meta function, while
 <code>${$(...)}</code> enters Lisp.</p>
 <pre><code class="language-text">$(import "helpers.xlisp")
-$(import "project-macros.xmacro")
+#include "project-macros.x"
 
 macro Expression $computed(Expr $value) =&gt; $(car (list $value));
 </code></pre>
-<p><code>.xlisp</code> files execute in the translation unit’s Lisp session. <code>.xmacro</code>
-files may contain macro definitions, <code>meta</code> declarations and top-level Lisp forms. Import paths are
-relative to the importing file, canonicalized, loaded once, and checked for
-cycles. Direct Lisp file operations remain available but are not tracked as
-compiler dependencies.</p>
+<p><code>.xlisp</code> files execute in the translation unit’s Lisp session. <code>$(import ...)</code>
+is for Lisp files; ordinary <code>.x</code> modules containing macros and meta functions
+use <code>#include</code>. Lisp import paths are relative to the importing file,
+canonicalized, loaded once, and checked for cycles. Direct Lisp file operations
+remain available but are not tracked as compiler dependencies.</p>
 <p>A free name in a lambda or macro body reads the definitions the body was
 written next to, and then the session’s globals. The environment the call was
 written in is not part of that chain, so a caller that binds the same name
@@ -1802,7 +1785,10 @@ This covers <code>defun</code> and <code>defmacro</code>, which are <code>def</c
 many ordinary words, including <code>filter</code>, <code>last</code>, <code>map</code>, <code>search</code>, <code>len</code> and
 <code>apply</code>, so a macro file needs its own names for its own definitions. A
 unit’s own definitions live in its own session, so one unit never changes
-what another reads, and the compiler treats an inherited binding as final.</p>
+what another reads. Lisp definitions treat an inherited binding as final.
+The host API <code>Lisp.set_global</code> can shadow an inherited name in the child’s
+own bindings without changing the ancestor. Lisp <code>def</code> still rejects that
+name, including after a host binding shadows it.</p>
 <p><code>eval</code> is an ordinary procedure. The form it is given is evaluated in the
 session’s globals, not in the bindings around the call, so
 <code>(let ((z 7)) (eval (quote (add z 1))))</code> reports <code>(unbound (name z))</code>. Build
@@ -1878,7 +1864,7 @@ AST rather than its source spelling.</p>
 <code>String</code> that is a valid identifier spelling.</p>
 <p><code>x2c.invocation.file</code>, <code>.line</code>, and <code>.column</code> return the caller’s <span class="x2c-wordmark">x2c</span> source
 location while a macro body is expanding. Lines and columns are one-based; an
-imported macro still names its caller rather than its definition or generated
+included macro still names its caller rather than its definition or generated
 C. For example, <code>$(x2c.invocation.line)</code> produces an integer expression for the
 invocation line.</p>
 <p>The <code>x2c.function.*</code> operations inspect a decorator’s captured function. <code>name</code>
@@ -1976,37 +1962,28 @@ comma-separated initializer. Compose a call to an existing spelling with
 <code>x2c.expr.call</code>, <code>x2c.expr.ident</code>, and <code>x2c.ident</code>.</p>
 <p>Names under <code>x2c.*</code> or <code>_x2c.*</code> with a component beginning <code>_</code> are private
 implementation details.</p>
-<h3 id="exported-imports"><a class="header" href="#exported-imports">Exported imports</a></h3>
-<p>A <code>.x</code> file can give the files that include it one of its macro imports.
-Write <code>export</code> before the import:</p>
-<!-- ignore: the import names a file beside the sample. -->
-<pre class="shiki shiki-themes x2c-light x2c-dark x2c-code" style="--shiki-light:#24292e;--shiki-dark:#e9e5df;--shiki-light-bg:#fff;--shiki-dark-bg:#101011" tabindex="0"><code class="language-x2c no-highlight ignore"><span class="line"><span style="--shiki-light:#D73A49;--shiki-dark:#F0ADA1">#include</span><span style="--shiki-light:#032F62;--shiki-dark:#9EDFB8"> "x2c.x"</span>
-</span><span class="line"><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">export </span><span style="--shiki-light:#24292E;--shiki-dark:#FF715A">$(</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">import </span><span style="--shiki-light:#032F62;--shiki-dark:#9EDFB8">"geometry.xmacro"</span><span style="--shiki-light:#24292E;--shiki-dark:#FF715A">)</span></span></code></pre>
+<h3 id="sharing-compile-time-definitions"><a class="header" href="#sharing-compile-time-definitions">Sharing compile-time definitions</a></h3>
+<p>Keep runtime code and compile-time definitions in the same ordinary source
+module:</p>
+<!-- ignore: the include names a file beside the sample. -->
+<pre class="shiki shiki-themes x2c-light x2c-dark x2c-code" style="--shiki-light:#24292e;--shiki-dark:#e9e5df;--shiki-light-bg:#fff;--shiki-dark-bg:#101011" tabindex="0"><code class="language-x2c no-highlight ignore"><span class="line"><span style="--shiki-light:#D73A49;--shiki-dark:#F0ADA1">#include</span><span style="--shiki-light:#032F62;--shiki-dark:#9EDFB8"> "geometry.x"</span></span></code></pre>
 
-<p>An exported import is part of the file’s interface. Every file that includes
-this file receives the import at its <code>#include</code> line, as if it had written
-the import there. A file that reaches this one through other includes
-receives it too. Each path is imported once per unit, however many includes
-deliver it.</p>
-<p>The import delivers everything the imported file provides: its macros and
-decorators, its <code>keyword</code> aliases, its <code>meta</code> functions and <code>meta static</code>
-values, its top-level Lisp forms, and the files it imports. An exported
-<code>.xlisp</code> import delivers its Lisp definitions.</p>
-<p><code>export</code> applies only to a file-scope <code>$(import ...)</code> in a <code>.x</code> file.
-Unless <code>$(</code> follows it, <code>export</code> is an ordinary identifier, such as the
-name of a C macro. A macro, <code>keyword</code>, <code>meta</code> function, or Lisp definition
-written in the <code>.x</code> file stays in that file. To share one, move it to an
-<code>.xmacro</code> file and export that import. An <code>.xmacro</code> file needs no <code>export</code>,
-because its imports already reach the file that imports it. An import
-without <code>export</code> stays in its file. That includes its <code>meta</code> functions. The
-importing file can call them at compile time and at run time, but a file
-that includes it receives no declaration of them. To call one from the
-including file, export the import or import the <code>.xmacro</code> there. The
-including unit then emits its own weak copy.</p>
-<p>The usual import rules apply at the include line. A delivered definition
-that collides with a visible macro is an error. A later definition in the
-including file replaces the delivered one for the source after it. <code>export</code>
-does not depend on <code>#pragma private</code>.</p>
+<p>Nonstatic macros, decorators, keyword aliases, and meta functions become
+available at the include line. They also reach files that include this one.
+Each canonical include path contributes once per translation unit, including
+when an include cycle reaches a file again.</p>
+<p>Public inline bodies can use ordinary function signatures declared later in
+an include cycle. If a declaration producer creates a required signature,
+place that production before the include that needs it. Looking ahead does
+not execute later Lisp forms or declaration producers.</p>
+<p>A definition marked <code>static</code> stays in its declaring source file. For example,
+<code>static macro Expression $helper(...)</code> declares a private macro, and
+<code>meta static int helper(int value)</code> declares a private meta function.
+Nonstatic top-level Lisp definitions and Lisp imports also follow the
+ordinary include interface; a <code>static $(...)</code> form stays in its file.</p>
+<p>Definition order determines which macro or alias later source uses. Macro
+bodies retain their definition-time syntax; free runtime names follow the
+expansion-site rules under <a href="#hygiene-and-generated-names">macro hygiene</a>.</p>
 <h3 id="meta-functions"><a class="header" href="#meta-functions"><code>meta</code> functions</a></h3>
 <p>A function definition may be marked <code>meta</code>. The marker precedes the whole
 declaration, ahead of any storage class:</p>
@@ -2093,12 +2070,15 @@ returns to <code>int</code>; see
 <p>Compile-time objects belong to the compiler. A file-scope variable that a
 <code>meta</code> body reads is the compiled group’s own instance, initialized from the
 same source initializer; it is never the program’s variable. A <code>meta static</code>
-value says so explicitly, and each unit gets its own instance.</p>
+value says so explicitly, and each unit gets its own instance.
+The project helper runs mutable <code>meta static</code> initializers when a compile-time
+call first reaches their provider in each translation unit. Including an
+unused provider does not run those initializers.</p>
 <p>Native execution replaced the earlier in-process staging and the Lisp
 lowering of <code>meta</code> bodies, with these consequences:</p>
 <ul>
 <li>A <code>meta</code> function defined by a macro expansion or a <code>$</code> call is an
-error; one written in an ordinary <code>.x</code> file or an <code>.xmacro</code> file joins
+error; one written in an ordinary <code>.x</code> file joins
 the project meta module.</li>
 <li>A project <code>meta</code> body receives compiler facts as arguments, such as
 <code>TypeInfo</code> and <code>Source</code> parameters, and does not query the compiler.</li>
@@ -2110,12 +2090,11 @@ default) is stopped instead.</li>
 <li>The autodiff macros moved to the <code>autodiff</code> package; see
 <a href="../guide/autodiff.html">Automatic Differentiation</a>.</li>
 </ul>
-<p>A <code>meta</code> declaration in an imported <code>.xmacro</code> installs its compile-time form in
-every consuming unit; a <code>meta static</code> value gives each unit its own
-compile-time copy. The runtime forms are independent: a unit emits a
-definition only for those it reaches, and the storage class written on the
-declaration says what it emits. Importing the same file twice contributes one
-copy of each definition.</p>
+<p>A nonstatic <code>meta</code> function in an included <code>.x</code> module is callable during
+translation and has an ordinary runtime declaration. Its provider source owns
+the runtime definition. A <code>meta static</code> function stays in that provider, and
+its compile-time state belongs to the provider’s compiled group. Repeated
+includes contribute the public declaration once.</p>
 <p>See <a href="../guide/meta-functions.html">Meta Functions</a> for the authoring guide.</p>
 <h3 id="the-same-operations-from-x2c"><a class="header" href="#the-same-operations-from-x2c">The same operations from <span class="x2c-wordmark">x2c</span></a></h3>
 <p>Every public operation above is also declared in <span class="x2c-wordmark">x2c</span>, in the optional module
@@ -2146,9 +2125,9 @@ declarations.</p>
 function or initialized file-static value the unit has defined so far to a
 String hash of its definition’s code tokens, from the first token after any
 <code>meta</code> marker to the end of its body or initializer. The compiler carries
-native copies of the <code>meta</code> functions in the <code>.xmacro</code> files it ships
+native copies of the <code>meta</code> functions in the source modules it ships
 (<code>src/linked-meta.x</code>, generated from them) and
-records their hashes with it. An imported <code>meta</code> definition runs as its
+records their hashes with it. An included <code>meta</code> definition runs as its
 copy when its hash, and the hash of every definition of the unit that it
 reaches through references, matches the copy’s; an edited one, or one
 that reaches an edited definition, is compiled with the unit’s group like
@@ -2268,8 +2247,8 @@ ordinary typedef and aggregate declarations as the captured source.</p>
 <p>A <code>Declaration</code> macro, or a <code>NamedType</code> decorator, produces declarations once
 while the owning source’s public declarations are collected. Its result is
 retained for full binding; the producer is not evaluated again to obtain its
-bodies. Nested declaration producers share this rule. The source’s private
-boundary and ordinary dependency invalidation apply to the retained result.
+bodies. Nested declaration producers share this rule. Static publication and
+ordinary dependency invalidation apply to the retained result.
 Imported and cached declarations publish the selected signatures of their
 owning source.</p>
 <p>The canonical container is <code>(declaration-bundle (rows ITEM ...))</code>. Rows may
@@ -2277,8 +2256,8 @@ include ordinary top-level syntax and these constructible forms:</p>
 <ul>
 <li><code>(default FUNCTION)</code> supplies a function candidate. An ordinary declaration
 of that exact function in the owning source wins, including a later one.
-Only the selected body is bound. A candidate below <code>#pragma private</code> has
-static linkage. Two ordinary definitions still conflict.</li>
+Only the selected body is bound. A candidate produced by a static type
+declaration has static linkage. Two ordinary definitions still conflict.</li>
 <li><code>(declaration-recipe CALLBACK ARGUMENTS)</code> defers a Lisp producer until the
 owning source’s declarations are available. It is evaluated once, and its
 declarations join the same bundle.</li>
@@ -2962,6 +2941,11 @@ result exists or an operation applies. Failure causes still use the ambient
 <h2 id="indexing-and-slicing"><a class="header" href="#indexing-and-slicing">Indexing and slicing</a></h2>
 <p>Native C arrays and pointers retain C indexing. <code>Array</code>, <code>List</code>, <code>String</code>, and
 <code>Map</code> also define indexed access.</p>
+<p>A typedef of one of these four collections inherits its bracket reads. An
+exact <code>getindex</code> method on the alias takes precedence over the inherited
+getter. A typedef of an ordinary C pointer keeps native indexing unless it
+defines its own <code>getindex</code> method. Indexed writes and updates continue to use
+the collection’s mutation operations; a read override does not replace them.</p>
 <ul>
 <li><code>Array</code>, <code>List</code>, and <code>String</code> accept negative indices.</li>
 <li>An out-of-range <code>Array</code> or <code>List</code> read returns <code>void</code>.</li>
@@ -3121,7 +3105,7 @@ function handles have file-static lifetime.</p>
 <p><span class="x2c-wordmark">x2c</span> accepts C-style <code>if</code>, <code>switch</code>, <code>while</code>, <code>do</code>, classic <code>for</code>, labels,
 <code>goto</code>, <code>return</code>, <code>break</code>, and <code>continue</code> statements.</p>
 <h3 id="system-block-decorators"><a class="header" href="#system-block-decorators">System block decorators</a></h3>
-<p>The built-in macro pack installs <code>$scope</code>, <code>$let</code>, and <code>$lock</code> without a
+<p>The built-in macro module installs <code>$scope</code>, <code>$let</code>, and <code>$lock</code> without a
 per-source import. They retain the normal runtime declaration requirements
 and macro collision policy. None has a bare keyword alias.</p>
 <p><code>$scope()</code> retains one region around its following statement and defers
@@ -3599,9 +3583,9 @@ callbacks, or <code>Context</code> regions.</p>
                         &copy; 2025&ndash;2026
                         <a href="https://flake.org">GWF</a>
                         &middot;
-                        <a href="https://github.com/gwf/x2c/blob/7f0e54f850c5d5776ab2efd4d5d38a6544013cdc/LICENSE">Apache 2.0</a>
+                        <a href="https://github.com/gwf/x2c/blob/00389e131bf1b5c5a33afa59f299746fc3fc5bbb/LICENSE">Apache 2.0</a>
                         &middot;
-                        <a href="https://github.com/gwf/x2c/blob/7f0e54f850c5d5776ab2efd4d5d38a6544013cdc/TRADEMARKS.md">Trademarks</a>
+                        <a href="https://github.com/gwf/x2c/blob/00389e131bf1b5c5a33afa59f299746fc3fc5bbb/TRADEMARKS.md">Trademarks</a>
                     </footer>
                 </div>
             </div>

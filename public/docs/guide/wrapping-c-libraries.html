@@ -1,6 +1,6 @@
 <!DOCTYPE HTML>
 <html lang="en" class="light sidebar-visible" dir="ltr">
-    <head><meta name="x2c-release-channel" content="staging"><meta name="x2c-candidate" content="candidate-7f0e54f850c5d5776ab2efd4d5d38a6544013cdc-37403975767-1">
+    <head><meta name="x2c-release-channel" content="staging"><meta name="x2c-candidate" content="candidate-00389e131bf1b5c5a33afa59f299746fc3fc5bbb-37654719483-2">
         <!-- Book generated using mdBook -->
         <meta charset="UTF-8">
         <title>Wrapping a C Library - The x2c Book</title>
@@ -39,10 +39,10 @@
             const path_to_root = "../";
             const default_light_theme = "light";
             const default_dark_theme = "light";
-            window.path_to_searchindex_js = "../searchindex-e3f33cfe.js";
+            window.path_to_searchindex_js = "../searchindex-830d243b.js";
         </script>
         <!-- Start loading toc.js asap -->
-        <script src="../toc-04d6e3af.js"></script>
+        <script src="../toc-320b946b.js"></script>
         <!-- x2c publication metadata -->
         <link rel="canonical" href="https://staging.x2c-lang.dev/docs/guide/wrapping-c-libraries.html">
         <meta property="og:type" content="website">
@@ -321,11 +321,11 @@ after that unit, so a package called <code>feedparse</code> already produces
 <code>feedparse.h</code>; a vendored header of the same name beside it would be
 unreachable. <code>pcre2-8.h</code> and <code>yyjson-0.12.h</code> are the two spellings here.</p>
 <p>Publish the shim when a public method takes one of the library’s own types.
-Generated C hoists type definitions above the private include block, so a
-private struct over a foreign type will not compile otherwise.</p>
+The generated header needs that foreign declaration before it can publish a
+wrapper type that uses it.</p>
 <h2 id="the-entry-unit-and-its-two-halves"><a class="header" href="#the-entry-unit-and-its-two-halves">The entry unit and its two halves</a></h2>
-<p>Everything above <code>#pragma private</code> is the package’s public surface. The wrapper
-struct and the native calls are below it.</p>
+<p>The entry unit holds the public types and method definitions together.
+Nonstatic declarations are public; static helpers stay in the source.</p>
 <pre class="shiki shiki-themes x2c-light x2c-dark x2c-code" style="--shiki-light:#24292e;--shiki-dark:#e9e5df;--shiki-light-bg:#fff;--shiki-dark-bg:#101011" tabindex="0"><code class="language-x2c no-highlight"><span class="line boring"><span style="--shiki-light:#D73A49;--shiki-dark:#E9E5DF">typedef</span><span style="--shiki-light:#D73A49;--shiki-dark:#F0ADA1"> struct</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF"> feed_parser feed_parser;</span>
 </span><span class="line boring"><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">feed_parser </span><span style="--shiki-light:#D73A49;--shiki-dark:#E9E5DF">*</span><span style="--shiki-light:#6F42C1;--shiki-dark:#E9E5DF">feed_open</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">(</span><span style="--shiki-light:#D73A49;--shiki-dark:#F0ADA1">const</span><span style="--shiki-light:#D73A49;--shiki-dark:#F0ADA1"> char</span><span style="--shiki-light:#D73A49;--shiki-dark:#E9E5DF"> *</span><span style="--shiki-light:#E36209;--shiki-dark:#E9E5DF">bytes</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">, </span><span style="--shiki-light:#D73A49;--shiki-dark:#F0ADA1">unsigned</span><span style="--shiki-light:#D73A49;--shiki-dark:#F0ADA1"> long</span><span style="--shiki-light:#E36209;--shiki-dark:#E9E5DF"> len</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">);</span>
 </span><span class="line boring"><span style="--shiki-light:#D73A49;--shiki-dark:#F0ADA1">void</span><span style="--shiki-light:#6F42C1;--shiki-dark:#E9E5DF"> feed_close</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">(feed_parser </span><span style="--shiki-light:#D73A49;--shiki-dark:#E9E5DF">*</span><span style="--shiki-light:#E36209;--shiki-dark:#E9E5DF">parser</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">);</span>
@@ -335,15 +335,15 @@ struct and the native calls are below it.</p>
 </span><span class="line"><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">Feed Feed.</span><span style="--shiki-light:#6F42C1;--shiki-dark:#E9E5DF">close</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">(Feed </span><span style="--shiki-light:#E36209;--shiki-dark:#E9E5DF">feed</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">);</span>
 </span><span class="line"><span style="--shiki-light:#007C8A;--shiki-dark:#29D3E2">List</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF"> Feed.</span><span style="--shiki-light:#6F42C1;--shiki-dark:#E9E5DF">titles</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">(Feed </span><span style="--shiki-light:#E36209;--shiki-dark:#E9E5DF">feed</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">);</span>
 </span><span class="line">
-</span><span class="line"><span style="--shiki-light:#D73A49;--shiki-dark:#F0ADA1">#pragma</span><span style="--shiki-light:#6F42C1;--shiki-dark:#E9E5DF"> private</span>
-</span><span class="line">
-</span><span class="line"><span style="--shiki-light:#D73A49;--shiki-dark:#F0ADA1">struct</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF"> Feed {</span>
+</span><span class="line"><span style="--shiki-light:#D73A49;--shiki-dark:#F0ADA1">static</span><span style="--shiki-light:#D73A49;--shiki-dark:#F0ADA1"> struct</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF"> Feed {</span>
 </span><span class="line"><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">  feed_parser </span><span style="--shiki-light:#D73A49;--shiki-dark:#E9E5DF">*</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">native;</span>
 </span><span class="line"><span style="--shiki-light:#007C8A;--shiki-dark:#29D3E2">  String</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF"> source;</span>
 </span><span class="line"><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">};</span></span></code></pre>
 
-<p><code>Feed</code> is opaque to consumers: they hold the pointer and call methods on it,
-and only this file knows there is a <code>feed_parser</code> inside.</p>
+<p><code>Feed</code> is opaque to consumers: they hold the pointer and call methods on it.
+The public forward type does not require its static body, so only this source
+file needs the layout. A public value type or inline field access would require
+that definition in the header.</p>
 <p>For functions with no receiver, a package can declare a type used only as a
 namespace. yyjson does this for <code>Json.parse</code>:</p>
 <pre class="shiki shiki-themes x2c-light x2c-dark x2c-code" style="--shiki-light:#24292e;--shiki-dark:#e9e5df;--shiki-light-bg:#fff;--shiki-dark-bg:#101011" tabindex="0"><code class="language-x2c no-highlight"><span class="line"><span style="--shiki-light:#D73A49;--shiki-dark:#E9E5DF">typedef</span><span style="--shiki-light:#D73A49;--shiki-dark:#F0ADA1"> enum</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF"> Json {</span>
@@ -388,18 +388,18 @@ field, so an early release leaves the finalizer nothing to do. See
 <a href="memory.html#attaching-a-finalizer">attaching a finalizer</a>.</p>
 <p>Adopt <code>Cleanup(T)</code> beside the type so a caller can write <code>$auto</code>. Without it
 the managed initializer is refused and every caller repeats the release.
-When one method releases the handle, <code>$cleanup.by</code> from <code>cleanup.xmacro</code>
+When one method releases the handle, <code>$cleanup.by</code> from <code>cleanup.x</code>
 defines <code>Feed.cleanup</code> to call it and adopts the protocol:</p>
 <pre class="shiki shiki-themes x2c-light x2c-dark x2c-code" style="--shiki-light:#24292e;--shiki-dark:#e9e5df;--shiki-light-bg:#fff;--shiki-dark-bg:#101011" tabindex="0"><code class="language-x2c no-highlight"><span class="line boring"><span style="--shiki-light:#D73A49;--shiki-dark:#E9E5DF">typedef</span><span style="--shiki-light:#D73A49;--shiki-dark:#F0ADA1"> struct</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF"> feed_parser feed_parser;</span>
 </span><span class="line boring"><span style="--shiki-light:#D73A49;--shiki-dark:#F0ADA1">void</span><span style="--shiki-light:#6F42C1;--shiki-dark:#E9E5DF"> feed_close</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">(feed_parser </span><span style="--shiki-light:#D73A49;--shiki-dark:#E9E5DF">*</span><span style="--shiki-light:#E36209;--shiki-dark:#E9E5DF">parser</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">);</span>
 </span><span class="line boring"><span style="--shiki-light:#D73A49;--shiki-dark:#E9E5DF">typedef</span><span style="--shiki-light:#D73A49;--shiki-dark:#F0ADA1"> struct</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF"> Feed </span><span style="--shiki-light:#D73A49;--shiki-dark:#E9E5DF">*</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">Feed;</span>
 </span><span class="line boring"><span style="--shiki-light:#D73A49;--shiki-dark:#F0ADA1">struct</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF"> Feed { feed_parser </span><span style="--shiki-light:#D73A49;--shiki-dark:#E9E5DF">*</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">native; </span><span style="--shiki-light:#007C8A;--shiki-dark:#29D3E2">String</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF"> source; };</span>
 </span><span class="line boring"><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">Feed Feed.</span><span style="--shiki-light:#6F42C1;--shiki-dark:#E9E5DF">close</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">(Feed </span><span style="--shiki-light:#E36209;--shiki-dark:#E9E5DF">feed</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">) { </span><span style="--shiki-light:#D73A49;--shiki-dark:#F0ADA1">return</span><span style="--shiki-light:#005CC5;--shiki-dark:#E9E5DF"> NULL</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">; }</span>
-</span><span class="line"><span style="--shiki-light:#24292E;--shiki-dark:#FF715A">$(</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">import </span><span style="--shiki-light:#032F62;--shiki-dark:#9EDFB8">"cleanup.xmacro"</span><span style="--shiki-light:#24292E;--shiki-dark:#FF715A">)</span>
+</span><span class="line"><span style="--shiki-light:#D73A49;--shiki-dark:#F0ADA1">#include</span><span style="--shiki-light:#032F62;--shiki-dark:#9EDFB8"> "cleanup.x"</span>
 </span><span class="line"><span style="--shiki-light:#24292E;--shiki-dark:#FF715A">$</span><span style="--shiki-light:#6F42C1;--shiki-dark:#FF715A">cleanup.by</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">(Feed, close);</span></span></code></pre>
 
-<p>Put the adoption above <code>#pragma private</code> so the package exports it; the
-release method may be defined later with the other private definitions. A
+<p>Keep the public adoption beside its converters. The release method may be
+defined later; its nonstatic declaration remains public. A
 cleanup that does more than one call is written as <code>void Feed.cleanup(Feed)</code>
 with <code>protocol Cleanup(Feed);</code>. A borrowed view over storage another handle
 owns adopts nothing.</p>
@@ -513,8 +513,6 @@ the member itself, hence the cast:</p>
 </span><span class="line"><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">}</span>
 </span><span class="line">
 </span><span class="line"><span style="--shiki-light:#A626A4;--shiki-light-font-weight:bold;--shiki-dark:#FF4FD8;--shiki-dark-font-weight:bold">protocol</span><span style="--shiki-light:#6F42C1;--shiki-dark:#A6D9E5"> FeedItemIndex</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">(</span><span style="--shiki-light:#D73A49;--shiki-dark:#A6D9E5">FeedItem</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">);</span>
-</span><span class="line">
-</span><span class="line"><span style="--shiki-light:#D73A49;--shiki-dark:#F0ADA1">#pragma</span><span style="--shiki-light:#6F42C1;--shiki-dark:#E9E5DF"> private</span>
 </span><span class="line">
 </span><span class="line"><span style="--shiki-light:#007C8A;--shiki-dark:#29D3E2">String</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF"> FeedItem.</span><span style="--shiki-light:#6F42C1;--shiki-dark:#E9E5DF">getindex</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">(FeedItem </span><span style="--shiki-light:#E36209;--shiki-dark:#E9E5DF">item</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">, </span><span style="--shiki-light:#007C8A;--shiki-dark:#29D3E2">Var</span><span style="--shiki-light:#E36209;--shiki-dark:#E9E5DF"> key</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">) {</span>
 </span><span class="line"><span style="--shiki-light:#D73A49;--shiki-dark:#F0ADA1">  return</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF"> key.</span><span style="--shiki-light:#6F42C1;--shiki-dark:#E9E5DF">is_integer</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">()</span>
@@ -636,8 +634,6 @@ other importing programs.</p>
 </span><span class="line"><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">  FEEDLISP_NAMESPACE</span>
 </span><span class="line"><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">} FeedLisp;</span>
 </span><span class="line">
-</span><span class="line"><span style="--shiki-light:#D73A49;--shiki-dark:#F0ADA1">#pragma</span><span style="--shiki-light:#6F42C1;--shiki-dark:#E9E5DF"> private</span>
-</span><span class="line">
 </span><span class="line"><span style="--shiki-light:#24292E;--shiki-dark:#FF715A">$</span><span style="--shiki-light:#6F42C1;--shiki-dark:#FF715A">lisp.binding</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">(feed_lisp, </span><span style="--shiki-light:#032F62;--shiki-dark:#9EDFB8">"feed-titles"</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">)</span>
 </span><span class="line"><span style="--shiki-light:#D73A49;--shiki-dark:#F0ADA1">static</span><span style="--shiki-light:#007C8A;--shiki-dark:#29D3E2"> List</span><span style="--shiki-light:#6F42C1;--shiki-dark:#E9E5DF"> _lisp_feed_titles</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">(</span><span style="--shiki-light:#007C8A;--shiki-dark:#29D3E2">String</span><span style="--shiki-light:#E36209;--shiki-dark:#E9E5DF"> document</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">) {</span>
 </span><span class="line"><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">  Feed feed </span><span style="--shiki-light:#D73A49;--shiki-dark:#E9E5DF">=</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF"> Feed.</span><span style="--shiki-light:#6F42C1;--shiki-dark:#E9E5DF">open</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">(document);</span>
@@ -718,9 +714,9 @@ examples of package documentation.</p>
                         &copy; 2025&ndash;2026
                         <a href="https://flake.org">GWF</a>
                         &middot;
-                        <a href="https://github.com/gwf/x2c/blob/7f0e54f850c5d5776ab2efd4d5d38a6544013cdc/LICENSE">Apache 2.0</a>
+                        <a href="https://github.com/gwf/x2c/blob/00389e131bf1b5c5a33afa59f299746fc3fc5bbb/LICENSE">Apache 2.0</a>
                         &middot;
-                        <a href="https://github.com/gwf/x2c/blob/7f0e54f850c5d5776ab2efd4d5d38a6544013cdc/TRADEMARKS.md">Trademarks</a>
+                        <a href="https://github.com/gwf/x2c/blob/00389e131bf1b5c5a33afa59f299746fc3fc5bbb/TRADEMARKS.md">Trademarks</a>
                     </footer>
                 </div>
             </div>

@@ -1,6 +1,6 @@
 <!DOCTYPE HTML>
 <html lang="en" class="light sidebar-visible" dir="ltr">
-    <head><meta name="x2c-release-channel" content="staging"><meta name="x2c-candidate" content="candidate-7f0e54f850c5d5776ab2efd4d5d38a6544013cdc-37403975767-1">
+    <head><meta name="x2c-release-channel" content="staging"><meta name="x2c-candidate" content="candidate-00389e131bf1b5c5a33afa59f299746fc3fc5bbb-37654719483-2">
         <!-- Book generated using mdBook -->
         <meta charset="UTF-8">
         <title>Meta Functions - The x2c Book</title>
@@ -39,10 +39,10 @@
             const path_to_root = "../";
             const default_light_theme = "light";
             const default_dark_theme = "light";
-            window.path_to_searchindex_js = "../searchindex-e3f33cfe.js";
+            window.path_to_searchindex_js = "../searchindex-830d243b.js";
         </script>
         <!-- Start loading toc.js asap -->
-        <script src="../toc-04d6e3af.js"></script>
+        <script src="../toc-320b946b.js"></script>
         <!-- x2c publication metadata -->
         <link rel="canonical" href="https://staging.x2c-lang.dev/docs/guide/meta-functions.html">
         <meta property="og:type" content="website">
@@ -249,8 +249,8 @@ integer, using the same braces, <code>return</code>, and arithmetic as C:</p>
 translation as well as to the finished program. You can use it for an
 ordinary calculation; it does not have to inspect types or generate code.</p>
 <p>A <code>meta</code> function with a body can sit beside the code that calls it, as
-in the samples of this chapter, or in a <code>.xmacro</code> file that several units
-import; see
+in the samples of this chapter, or in an ordinary <code>.x</code> module that several
+units include; see
 <a href="#sharing-a-meta-function-between-units">Sharing a <code>meta</code> function between units</a>.</p>
 <h2 id="call-it-in-the-program"><a class="header" href="#call-it-in-the-program">Call it in the program</a></h2>
 <p>An ordinary call uses parentheses and commas, just as before. Here the
@@ -755,9 +755,8 @@ no Scope allocator returned.</p>
 <h2 id="how-a-meta-function-runs"><a class="header" href="#how-a-meta-function-runs">How a meta function runs</a></h2>
 <p>A translation runs in two phases. Before any unit is translated, the
 compiler gathers the bodied <code>meta</code> functions the inputs reach: those of
-each <code>.xmacro</code> file an input imports, directly, through an included
-header, or through a package, and those an input or an included <code>.x</code>
-file defines itself. It emits them, with the declarations they use, as C through the ordinary
+each ordinary source module an input reaches, directly, through includes,
+or through a package. It emits them, with the declarations they use, as C through the ordinary
 backend, compiles them with the host C compiler (<code>--meta-cc</code>, default
 <code>cc</code>, never the target <code>--cc</code>), and links them with the host runtime into
 one helper program, the project meta module. A group sees the headers its
@@ -769,15 +768,15 @@ reach no <code>meta</code> function builds nothing extra.</p>
 <p>A call runs with the functions of the file that wrote it. An included
 <code>.x</code> file computes its file-scope constants, such as an enumerator or an
 array size, with its own <code>meta</code> functions, as its own translation does.
-Those functions stay in that file: the including unit receives the
-constants, and cannot call the functions.</p>
+The including unit also receives nonstatic meta functions and can call them
+at compile time. Static meta functions remain private to their provider.</p>
 <p>The helper is kept under the cache directory (<code>$X2C_CACHE_DIR</code>,
 <code>$XDG_CACHE_HOME/x2c</code>, or <code>~/.cache/x2c</code>), named by a hash of the meta
 source paths, the compiler, the C compiler, and the flags, including <code>-D</code>
 and <code>-U</code>. It is built again when any file its build read changes, <span class="x2c-wordmark">x2c</span>
 source or C header; a change to program code alone recompiles the groups
 but keeps the helper when no group object changes. The
-shipped meta code of the compiler’s own <code>.xmacro</code> files and of
+shipped meta code of the compiler’s own source modules and of
 <code>lib/meta.x</code> is linked into the compiler and runs without a helper. The
 REPL evaluates its supported submissions through Lisp. It accepts bodyless
 <code>meta</code> prototypes for linked or explicitly loaded native functions; user
@@ -1118,7 +1117,7 @@ The chosen template expands when the returned code is inserted. Its body
 capture becomes the function’s statements; <code>calls++</code> runs only when <code>tracked</code>
 is called at runtime. The template names are known in source, while <code>meta</code>
 chooses which one to use for each function.</p>
-<p>The reverse gradient generator in <code>packages/autodiff/src/autodiff.xmacro</code>
+<p>The reverse gradient generator in <code>packages/autodiff/src/autodiff-macros.x</code>
 uses this pattern.
 Its <code>ad_reverse_with</code> returns an invocation of the <code>ad.gradient</code> source
 macro. The macro contains the generated function declaration, tape storage,
@@ -1360,7 +1359,7 @@ declarations.</p>
 <code>x2c_diagnostic_warn</code> work in every <code>meta</code> function. The queries that read
 the compiler’s symbol table, such as <code>x2c_syntax_type</code>,
 <code>x2c_type_fields</code> and <code>x2c_type_resolve</code>, run only in the compiler’s own
-<code>meta</code> code: the <code>.xmacro</code> files and <code>lib/meta.x</code> that are linked into
+<code>meta</code> code: the source modules and <code>lib/meta.x</code> that are linked into
 the compiler. A project <code>meta</code> function receives those answers as <code>TypeInfo</code>
 and <code>Source</code> parameters instead; calling such a query from the project
 meta module reports that it is not available to project meta code. Each
@@ -1478,30 +1477,32 @@ one from a runtime body is diagnosed where it is written. Calling
   note: reason: it reaches a compiler operation, so no unit emits a
   definition for it; call it from a macro or another meta function
 </code></pre>
-<p>In the complete shape example below, the generated C mentions none of <code>shape_fields</code>,
-<code>shape_names</code> or <code>shape_reads</code>.</p>
+<p>In the complete shape example below, <code>shape_names</code> and <code>shape_reads</code> construct
+source code and have no runtime forms. The consumer uses their returned code.</p>
 <p>A <code>meta</code> function that needs no compiler query, like <code>poly</code> above,
 keeps both forms and is emitted normally.</p>
 <p>The queries themselves belong to the compiler’s own <code>meta</code> code. A project
 <code>meta</code> function reaches the compiler only through what a call passes it:
 constants, captured syntax, a <code>TypeInfo</code>, or a <code>Source</code>.</p>
 <h2 id="a-complete-example"><a class="header" href="#a-complete-example">A complete example</a></h2>
-<p>Two files. The first is a <code>.xmacro</code> holding the <code>meta</code> functions and the
+<p>Two ordinary source files. <code>shape.x</code> holds the <code>meta</code> functions and the
 macros that call them. <code>shape_fields</code> reads the fields from the <code>TypeInfo</code> the
 compiler sends. <code>shape_names</code> and <code>shape_reads</code> turn them into code.</p>
-<!-- ignore: shape.xmacro is the external file being illustrated -->
-<pre class="shiki shiki-themes x2c-light x2c-dark x2c-code" style="--shiki-light:#24292e;--shiki-dark:#e9e5df;--shiki-light-bg:#fff;--shiki-dark-bg:#101011" tabindex="0"><code class="language-x2c no-highlight ignore"><span class="line"><span style="--shiki-light:#6A737D;--shiki-dark:#8B857F">/* The named fields of a struct-typed expression, in declaration order. */</span>
+<!-- ignore: shape.x is the external file being illustrated -->
+<pre class="shiki shiki-themes x2c-light x2c-dark x2c-code" style="--shiki-light:#24292e;--shiki-dark:#e9e5df;--shiki-light-bg:#fff;--shiki-dark-bg:#101011" tabindex="0"><code class="language-x2c no-highlight ignore"><span class="line"><span style="--shiki-light:#D73A49;--shiki-dark:#F0ADA1">#include</span><span style="--shiki-light:#032F62;--shiki-dark:#9EDFB8"> "meta.x"</span>
+</span><span class="line">
+</span><span class="line"><span style="--shiki-light:#6A737D;--shiki-dark:#8B857F">/* The named fields of a struct-typed expression, in declaration order. */</span>
 </span><span class="line"><span style="--shiki-light:#D73A49;--shiki-dark:#F0ADA1">meta</span><span style="--shiki-light:#D73A49;--shiki-dark:#F0ADA1"> static</span><span style="--shiki-light:#007C8A;--shiki-dark:#29D3E2"> List</span><span style="--shiki-light:#6F42C1;--shiki-dark:#E9E5DF"> shape_fields</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">(TypeInfo </span><span style="--shiki-light:#E36209;--shiki-dark:#E9E5DF">type</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">) </span><span style="--shiki-light:#A626A4;--shiki-light-font-weight:bold;--shiki-dark:#FF4FD8;--shiki-dark-font-weight:bold">=&gt;</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF"> type.</span><span style="--shiki-light:#6F42C1;--shiki-dark:#E9E5DF">assoc</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">(</span><span style="--shiki-light:#24292E;--shiki-dark:#FF715A">&lt;</span><span style="--shiki-light:#005CC5;--shiki-dark:#E9E5DF">fields</span><span style="--shiki-light:#24292E;--shiki-dark:#FF715A">&gt;</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">);</span>
 </span><span class="line">
 </span><span class="line"><span style="--shiki-light:#6A737D;--shiki-dark:#8B857F">/* One `String` literal holding those field names, comma separated. */</span>
-</span><span class="line"><span style="--shiki-light:#D73A49;--shiki-dark:#F0ADA1">meta</span><span style="--shiki-light:#D73A49;--shiki-dark:#F0ADA1"> static</span><span style="--shiki-light:#007C8A;--shiki-dark:#29D3E2"> List</span><span style="--shiki-light:#6F42C1;--shiki-dark:#E9E5DF"> shape_names</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">(TypeInfo </span><span style="--shiki-light:#E36209;--shiki-dark:#E9E5DF">type</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">) {</span>
+</span><span class="line"><span style="--shiki-light:#D73A49;--shiki-dark:#F0ADA1">meta</span><span style="--shiki-light:#007C8A;--shiki-dark:#29D3E2"> List</span><span style="--shiki-light:#6F42C1;--shiki-dark:#E9E5DF"> shape_names</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">(TypeInfo </span><span style="--shiki-light:#E36209;--shiki-dark:#E9E5DF">type</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">) {</span>
 </span><span class="line"><span style="--shiki-light:#007C8A;--shiki-dark:#29D3E2">  Array</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF"> names </span><span style="--shiki-light:#D73A49;--shiki-dark:#E9E5DF">=</span><span style="--shiki-light:#D73A49;--shiki-dark:#F0ADA1"> []</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">;</span>
 </span><span class="line"><span style="--shiki-light:#A626A4;--shiki-light-font-weight:bold;--shiki-dark:#FF4FD8;--shiki-dark-font-weight:bold">  foreach</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF"> (</span><span style="--shiki-light:#007C8A;--shiki-dark:#29D3E2">List</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF"> field, </span><span style="--shiki-light:#6F42C1;--shiki-dark:#E9E5DF">shape_fields</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">(type)) names.</span><span style="--shiki-light:#6F42C1;--shiki-dark:#E9E5DF">push</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">(field.</span><span style="--shiki-light:#6F42C1;--shiki-dark:#E9E5DF">car</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">());</span>
 </span><span class="line"><span style="--shiki-light:#D73A49;--shiki-dark:#F0ADA1">  return</span><span style="--shiki-light:#6F42C1;--shiki-dark:#E9E5DF"> x2c_literal_string</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">(String.</span><span style="--shiki-light:#6F42C1;--shiki-dark:#E9E5DF">join</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">(</span><span style="--shiki-light:#032F62;--shiki-dark:#9EDFB8">", "</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">, names));</span>
 </span><span class="line"><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">}</span>
 </span><span class="line">
 </span><span class="line"><span style="--shiki-light:#6A737D;--shiki-dark:#8B857F">/* `{ p.x, p.y, p.z }`, built from the fields rather than written out. */</span>
-</span><span class="line"><span style="--shiki-light:#D73A49;--shiki-dark:#F0ADA1">meta</span><span style="--shiki-light:#D73A49;--shiki-dark:#F0ADA1"> static</span><span style="--shiki-light:#007C8A;--shiki-dark:#29D3E2"> List</span><span style="--shiki-light:#6F42C1;--shiki-dark:#E9E5DF"> shape_reads</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">(</span><span style="--shiki-light:#007C8A;--shiki-dark:#29D3E2">List</span><span style="--shiki-light:#E36209;--shiki-dark:#E9E5DF"> receiver</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">, TypeInfo </span><span style="--shiki-light:#E36209;--shiki-dark:#E9E5DF">type</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">) {</span>
+</span><span class="line"><span style="--shiki-light:#D73A49;--shiki-dark:#F0ADA1">meta</span><span style="--shiki-light:#007C8A;--shiki-dark:#29D3E2"> List</span><span style="--shiki-light:#6F42C1;--shiki-dark:#E9E5DF"> shape_reads</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">(</span><span style="--shiki-light:#007C8A;--shiki-dark:#29D3E2">List</span><span style="--shiki-light:#E36209;--shiki-dark:#E9E5DF"> receiver</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">, TypeInfo </span><span style="--shiki-light:#E36209;--shiki-dark:#E9E5DF">type</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">) {</span>
 </span><span class="line"><span style="--shiki-light:#007C8A;--shiki-dark:#29D3E2">  Array</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF"> reads </span><span style="--shiki-light:#D73A49;--shiki-dark:#E9E5DF">=</span><span style="--shiki-light:#D73A49;--shiki-dark:#F0ADA1"> []</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">;</span>
 </span><span class="line"><span style="--shiki-light:#A626A4;--shiki-light-font-weight:bold;--shiki-dark:#FF4FD8;--shiki-dark-font-weight:bold">  foreach</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF"> (</span><span style="--shiki-light:#007C8A;--shiki-dark:#29D3E2">List</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF"> field, </span><span style="--shiki-light:#6F42C1;--shiki-dark:#E9E5DF">shape_fields</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">(type)) {</span>
 </span><span class="line"><span style="--shiki-light:#007C8A;--shiki-dark:#29D3E2">    String</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF"> member </span><span style="--shiki-light:#D73A49;--shiki-dark:#E9E5DF">=</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF"> field.</span><span style="--shiki-light:#6F42C1;--shiki-dark:#E9E5DF">car</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">();</span>
@@ -1515,14 +1516,13 @@ compiler sends. <code>shape_names</code> and <code>shape_reads</code> turn them 
 </span><span class="line">
 </span><span class="line"><span style="--shiki-light:#A626A4;--shiki-light-font-weight:bold;--shiki-dark:#FF4FD8;--shiki-dark-font-weight:bold">macro</span><span style="--shiki-light:#A15C00;--shiki-light-font-style:italic;--shiki-dark:#FFB454;--shiki-dark-font-style:italic"> Expression</span><span style="--shiki-light:#24292E;--shiki-dark:#FF715A"> $</span><span style="--shiki-light:#6F42C1;--shiki-dark:#FF715A">shape.reads</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">(</span><span style="--shiki-light:#A15C00;--shiki-light-font-style:italic;--shiki-dark:#FFB454;--shiki-dark-font-style:italic">Expr</span><span style="--shiki-light:#24292E;--shiki-dark:#FF715A"> $</span><span style="--shiki-light:#E36209;--shiki-dark:#E9E5DF">value</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">) </span><span style="--shiki-light:#A626A4;--shiki-light-font-weight:bold;--shiki-dark:#FF4FD8;--shiki-dark-font-weight:bold">=&gt;</span><span style="--shiki-light:#24292E;--shiki-dark:#FF715A"> $</span><span style="--shiki-light:#6F42C1;--shiki-dark:#FF715A">shape_reads</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">(</span><span style="--shiki-light:#24292E;--shiki-dark:#FF715A">$</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">value, </span><span style="--shiki-light:#24292E;--shiki-dark:#FF715A">$</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">value);</span></span></code></pre>
 
-<p>The second file imports it and uses the macros. Imports still use the
-compiler’s <code>$(import "...")</code> form; this is a loading operation, not a meta
-function call.</p>
-<!-- ignore: this program imports the shape.xmacro file above -->
+<p>The second file includes <code>shape.x</code> and uses its public macros. The include
+also makes its nonstatic meta functions available.</p>
+<!-- ignore: this program includes the shape.x file above -->
 <pre class="shiki shiki-themes x2c-light x2c-dark x2c-code" style="--shiki-light:#24292e;--shiki-dark:#e9e5df;--shiki-light-bg:#fff;--shiki-dark-bg:#101011" tabindex="0"><code class="language-x2c no-highlight ignore"><span class="line"><span style="--shiki-light:#D73A49;--shiki-dark:#F0ADA1">#include</span><span style="--shiki-light:#032F62;--shiki-dark:#9EDFB8"> "x2c.x"</span>
 </span><span class="line"><span style="--shiki-light:#D73A49;--shiki-dark:#F0ADA1">#include</span><span style="--shiki-light:#032F62;--shiki-dark:#9EDFB8"> "meta.x"</span>
 </span><span class="line">
-</span><span class="line"><span style="--shiki-light:#24292E;--shiki-dark:#FF715A">$(</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">import </span><span style="--shiki-light:#032F62;--shiki-dark:#9EDFB8">"shape.xmacro"</span><span style="--shiki-light:#24292E;--shiki-dark:#FF715A">)</span>
+</span><span class="line"><span style="--shiki-light:#D73A49;--shiki-dark:#F0ADA1">#include</span><span style="--shiki-light:#032F62;--shiki-dark:#9EDFB8"> "shape.x"</span>
 </span><span class="line">
 </span><span class="line"><span style="--shiki-light:#D73A49;--shiki-dark:#E9E5DF">typedef</span><span style="--shiki-light:#D73A49;--shiki-dark:#F0ADA1"> struct</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF"> Point { </span><span style="--shiki-light:#D73A49;--shiki-dark:#F0ADA1">int</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF"> x, y, z; } Point;</span>
 </span><span class="line">
@@ -1540,40 +1540,24 @@ reads 2 3 4
 <p>The field names never appear in the program. The compiler supplied them, and
 the <code>meta</code> functions built <code>"x, y, z"</code> and <code>{ p.x, p.y, p.z }</code> from them.</p>
 <h2 id="sharing-a-meta-function-between-units"><a class="header" href="#sharing-a-meta-function-between-units">Sharing a <code>meta</code> function between units</a></h2>
-<p>A bodied <code>meta</code> function may be defined in an ordinary <code>.x</code> file or in a
-<code>.xmacro</code> file. Either way the project meta build copies it into the
-project meta module. It must be written in a source file: a <code>meta</code>
-function inside a macro template, or one produced by a <code>$</code> call, is
-reported where it is written.</p>
-<p>To share a <code>meta</code> function between units, put it in a <code>.xmacro</code> that each
-unit imports, or that a file each unit includes
-<a href="../reference/language.html#exported-imports">exports</a>. A <code>.xmacro</code> file
-may hold <code>meta</code> functions beside the macros that call them, and importing it
-installs their compile-time forms in the importing unit. The unit that imports
-the file includes <code>meta.x</code>, because a <code>.xmacro</code> borrows the consuming unit’s
-symbol table:</p>
-<pre><code class="language-text">#include "x2c.x"
-#include "meta.x"
-
-$(import "shape.xmacro")
+<p>Define a shared <code>meta</code> function in an ordinary <code>.x</code> module, beside any macros
+and runtime code that use it. The project meta build compiles the provider’s
+meta code into the project meta module. A meta function must be written in
+source: a definition inside a macro template, or one produced by a <code>$</code> call,
+is reported where it is written.</p>
+<p>The provider includes its own dependencies. A consumer includes the provider:</p>
+<pre><code class="language-text">#include "shape.x"
 </code></pre>
-<p>Importing the same file twice contributes one copy of each definition. A
-<code>.xmacro</code> may import another <code>.xmacro</code>, and a <code>meta</code> function two levels
-down reaches the consuming unit the same way.</p>
-<p>Besides <code>meta</code> functions and bodyless <code>meta</code> prototypes, a <code>.xmacro</code> may
-hold <code>meta static</code> values. Each importing unit gets its own compile-time
-copy of a value, initialized from the declaration, so state that helpers
-keep there never carries from one unit to the next. A unit that defines a
-variable of the same name reports a redefinition. Automatic
-Differentiation keeps its registries of differentiated functions and its
-reverse-mode working state this way.</p>
-<p>The run-time forms are separate from this. A unit emits a definition only
-for the <code>meta</code> functions it calls at run time, and a declaration only for
-the values and prototypes its run-time code uses. The storage class says
-what it emits: <code>static</code> gives that unit its own copy, and a public name is
-the one copy the program links, exported by the reaching unit’s header.
-Units that never include one another may each reach a public function, so
-each emits it as a weak definition and the linker keeps one.</p>
+<p>Nonstatic meta functions become callable during translation at the include
+position, including through transitive includes. A <code>meta static</code> helper and
+its static state remain in the provider. Public meta functions can use those
+helpers inside the provider’s compiled group. The caller does not receive a
+second definition of the helper.</p>
+<p>Repeated includes contribute one public declaration per canonical path. For a
+meta function with a runtime form, ordinary linkage applies: the provider
+owns its runtime definition and including sources receive its declaration.
+Compile and link that provider as you would any other source module. The
+compile-time helper build and the runtime build are separate.</p>
 <h2 id="lisp-interoperability"><a class="header" href="#lisp-interoperability">Lisp interoperability</a></h2>
 <p>Use the <span class="x2c-wordmark">x2c</span> calls above for ordinary meta work. The following notes apply
 when importing or calling Lisp helpers, or working with the compiler session.</p>
@@ -1598,7 +1582,7 @@ that reads it during expansion, without a second copy of its rows:</p>
 
 <pre><code class="language-text">2 4
 </code></pre>
-<p><code>lib/native-scalar-types.xmacro</code> keeps the compiler’s exact C scalar table
+<p><code>lib/native-scalar-types.x</code> keeps the compiler’s exact C scalar table
 this way: <code>src/type.x</code> inserts it, and the <code>lib/lisp.x</code> access records read
 their tags from it.</p>
 <h3 id="names-the-compile-time-library-already-defines"><a class="header" href="#names-the-compile-time-library-already-defines">Names the compile-time library already defines</a></h3>
@@ -1646,9 +1630,9 @@ calls itself by name must be a <code>defun</code>:</p>
                         &copy; 2025&ndash;2026
                         <a href="https://flake.org">GWF</a>
                         &middot;
-                        <a href="https://github.com/gwf/x2c/blob/7f0e54f850c5d5776ab2efd4d5d38a6544013cdc/LICENSE">Apache 2.0</a>
+                        <a href="https://github.com/gwf/x2c/blob/00389e131bf1b5c5a33afa59f299746fc3fc5bbb/LICENSE">Apache 2.0</a>
                         &middot;
-                        <a href="https://github.com/gwf/x2c/blob/7f0e54f850c5d5776ab2efd4d5d38a6544013cdc/TRADEMARKS.md">Trademarks</a>
+                        <a href="https://github.com/gwf/x2c/blob/00389e131bf1b5c5a33afa59f299746fc3fc5bbb/TRADEMARKS.md">Trademarks</a>
                     </footer>
                 </div>
             </div>

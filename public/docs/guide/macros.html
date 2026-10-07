@@ -1,6 +1,6 @@
 <!DOCTYPE HTML>
 <html lang="en" class="light sidebar-visible" dir="ltr">
-    <head><meta name="x2c-release-channel" content="staging"><meta name="x2c-candidate" content="candidate-7f0e54f850c5d5776ab2efd4d5d38a6544013cdc-37403975767-1">
+    <head><meta name="x2c-release-channel" content="staging"><meta name="x2c-candidate" content="candidate-00389e131bf1b5c5a33afa59f299746fc3fc5bbb-37654719483-2">
         <!-- Book generated using mdBook -->
         <meta charset="UTF-8">
         <title>Compile-time Macros - The x2c Book</title>
@@ -39,10 +39,10 @@
             const path_to_root = "../";
             const default_light_theme = "light";
             const default_dark_theme = "light";
-            window.path_to_searchindex_js = "../searchindex-e3f33cfe.js";
+            window.path_to_searchindex_js = "../searchindex-830d243b.js";
         </script>
         <!-- Start loading toc.js asap -->
-        <script src="../toc-04d6e3af.js"></script>
+        <script src="../toc-320b946b.js"></script>
         <!-- x2c publication metadata -->
         <link rel="canonical" href="https://staging.x2c-lang.dev/docs/guide/macros.html">
         <meta property="og:type" content="website">
@@ -509,24 +509,26 @@ name a generated helper function or label as well as an automatic variable.
 All <code>using</code> directives must precede the body’s ordinary items. The older
 signature <code>using</code> form remains accepted for compatibility; lambdas separately
 use <code>using &amp;name</code> for reference capture.</p>
-<h2 id="put-reusable-macros-in-imports"><a class="header" href="#put-reusable-macros-in-imports">Put reusable macros in imports</a></h2>
-<p>An <code>.xmacro</code> file may contain macro definitions, meta functions and top-level
-compile-time Lisp. Imports currently use <code>$(import "...")</code>; authoring the
-macros and meta functions inside the imported file does not require Lisp:</p>
-<!-- ignore: project-macros.xmacro is the external file being illustrated -->
-<pre class="shiki shiki-themes x2c-light x2c-dark x2c-code" style="--shiki-light:#24292e;--shiki-dark:#e9e5df;--shiki-light-bg:#fff;--shiki-dark-bg:#101011" tabindex="0"><code class="language-x2c no-highlight ignore"><span class="line"><span style="--shiki-light:#24292E;--shiki-dark:#FF715A">$(</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">import </span><span style="--shiki-light:#032F62;--shiki-dark:#9EDFB8">"project-macros.xmacro"</span><span style="--shiki-light:#24292E;--shiki-dark:#FF715A">)</span></span></code></pre>
+<h2 id="put-reusable-macros-in-ordinary-source-modules"><a class="header" href="#put-reusable-macros-in-ordinary-source-modules">Put reusable macros in ordinary source modules</a></h2>
+<p>An ordinary <code>.x</code> file may hold runtime code, macro definitions, keyword
+aliases, meta functions, and top-level compile-time Lisp. Include the module
+wherever its public definitions are needed:</p>
+<!-- ignore: project-macros.x is the external file being illustrated -->
+<pre class="shiki shiki-themes x2c-light x2c-dark x2c-code" style="--shiki-light:#24292e;--shiki-dark:#e9e5df;--shiki-light-bg:#fff;--shiki-dark-bg:#101011" tabindex="0"><code class="language-x2c no-highlight ignore"><span class="line"><span style="--shiki-light:#D73A49;--shiki-dark:#F0ADA1">#include</span><span style="--shiki-light:#032F62;--shiki-dark:#9EDFB8"> "project-macros.x"</span></span></code></pre>
 
-<p>Imports resolve relative to the importing file, become tracked translation
-dependencies, load once, and reject cycles. A normal <code>.xlisp</code> import executes
-in the same translation-unit Lisp session but does not contain macro
-definitions.</p>
-<p>A package may publish a pack through a direct <code>$(import "name.xmacro")</code> in
-the public part of its entry source. Then <code>import "name";</code> also installs the
-pack at that point in the consumer. Imports below <code>#pragma private</code> and
-imports in other package sources do not publish macros. Explicit <code>.xmacro</code>
-imports remain useful when the macros do not need the package.</p>
+<p>Nonstatic definitions become available at the include line, including through
+transitive includes. Use <code>static macro</code> or <code>static keyword</code> for helpers that
+belong only to the declaring file. Ordinary includes are tracked translation
+dependencies and each canonical file contributes once per unit; include
+cycles terminate without loading a second copy.</p>
+<p><code>$(import "helpers.xlisp")</code> remains the loading form for Lisp files. A Lisp
+import executes in the translation-unit Lisp session and rejects import
+cycles.</p>
+<p>A package publishes the nonstatic macros and aliases its entry source and
+ordinary includes define. <code>import "name";</code> makes that syntax available at the
+import position.</p>
 <p>Prefer a qualified name such as <code>$test.run</code> or <code>$project.logging.trace</code> in a
-shared import. It identifies the project or library at each call and avoids
+shared module. It identifies the project or library at each call and avoids
 ambiguous short global names.</p>
 <h2 id="decorators-transform-one-target"><a class="header" href="#decorators-transform-one-target">Decorators transform one target</a></h2>
 <p>A decorator receives the following expression or source item as its required
@@ -648,37 +650,17 @@ its trailing semicolon is omitted. It accepts one declarator with an optional
 initializer, or flat destructuring with two or more simple identifier targets.
 For example, <code>foreach(int value, values)</code> supplies <code>int value</code> as one <code>Decl</code>
 argument.</p>
-<p>The declaration and uses are source ordered and local to one <code>.x</code> file. An
-included <code>.x</code> file may declare and use its own aliases, including across its
-own includes, but those aliases do not leak into the including source.</p>
-<p>A <code>.xmacro</code> import may package macro definitions with their aliases:</p>
-<!-- ignore: compiler-keywords.xmacro is the external file being illustrated -->
-<pre class="shiki shiki-themes x2c-light x2c-dark x2c-code" style="--shiki-light:#24292e;--shiki-dark:#e9e5df;--shiki-light-bg:#fff;--shiki-dark-bg:#101011" tabindex="0"><code class="language-x2c no-highlight ignore"><span class="line"><span style="--shiki-light:#24292E;--shiki-dark:#FF715A">$(</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">import </span><span style="--shiki-light:#032F62;--shiki-dark:#9EDFB8">"compiler-keywords.xmacro"</span><span style="--shiki-light:#24292E;--shiki-dark:#FF715A">)</span>
+<p>The declaration and uses are source ordered. A public alias in an included
+module becomes available at that include; a <code>static keyword</code> declaration
+stays in its source file. A module may keep an alias beside its macro:</p>
+<!-- ignore: compiler-keywords.x is the external file being illustrated -->
+<pre class="shiki shiki-themes x2c-light x2c-dark x2c-code" style="--shiki-light:#24292e;--shiki-dark:#e9e5df;--shiki-light-bg:#fff;--shiki-dark-bg:#101011" tabindex="0"><code class="language-x2c no-highlight ignore"><span class="line"><span style="--shiki-light:#D73A49;--shiki-dark:#F0ADA1">#include</span><span style="--shiki-light:#032F62;--shiki-dark:#9EDFB8"> "compiler-keywords.x"</span>
 </span><span class="line">
 </span><span class="line"><span style="--shiki-light:#6F42C1;--shiki-dark:#E9E5DF">swap</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">(left, right);</span></span></code></pre>
 
-<p>The aliases become visible at the import in that <code>.x</code> file only. Every source
-file that wants them imports the pack explicitly; including a file that uses
-the pack does not import its aliases. This lets a project use private keyword
-spellings without placing them in <code>x2c.x</code> or another consumer prelude.</p>
-<p>An alias is a contextual parser match, not a globally reserved word. An
-ordinary or parameterized alias is claimed only as <code>ALIAS(...)</code>, so the name
-may still be a type, declaration, field, label, or uncalled function. Its
-direct call or cast spelling is claimed by the macro. A zero-argument bare
-decorator is broader: the parser claims its name at every position compatible
-with its target, which can overlap an expression read or a declaration
-beginning with a same-named typedef. Prefer parenthesized aliases in shared
-packs and introduce bare decorators only after checking those positions.</p>
-<p>Aliases do not create arbitrary grammar. The lexical <code>with expression { ... }</code>
-statement is contextual grammar built into the language, not a macro alias.
-Other forms such as <code>loop item in values</code> or a semicolon-separated control
-header would require separate parser support. Result positions, decorator
-targets, terminators, hygiene, expansion limits, and compile-time restrictions
-remain those of the aliased macro.</p>
-<p>Use a decorator to place checking, tracing, validation, or checked foreign
-binding directly beside the expression or source item it affects.
-Do not use a decorator for type registration, protocol participation, or
-receiverless startup and shutdown. Those have their own declarations.</p>
+<p>A later alias does not reinterpret an earlier macro template. Use
+<code>static keyword swap $swap;</code> when the short spelling is private, while the
+qualified macro remains public.</p>
 <h2 id="compute-with-meta-functions"><a class="header" href="#compute-with-meta-functions">Compute with meta functions</a></h2>
 <p>Write compile-time calculations as ordinary <span class="x2c-wordmark">x2c</span> functions marked <code>meta</code>.
 A macro calls one with <code>$helper(...)</code>; its captured holes supply code rather
@@ -800,20 +782,17 @@ Changing the table then changes every generated form.</p>
 status values explicitly so a reader can understand the generated code without
 working through the generator. Keep unrelated outputs as direct source.</p>
 <h2 id="declare-methods-and-converters-before-adoption"><a class="header" href="#declare-methods-and-converters-before-adoption">Declare methods and converters before adoption</a></h2>
-<p>Shallow collection loads <code>.xmacro</code> imports and expands file-scope unit
-macros, both imported ones and those the source file defines. A local macro
-whose expansion fails during collection, for example because it reads a
-top-level <code>$(def ...)</code> value that collection has not evaluated, contributes
-nothing until the full parse. Generated private helpers remain available to
-later macro invocations in the same source file, while generated public
-declarations and protocol rows remain visible to earlier code and importing
-units. A generated public function definition may
-complete a prototype earlier in the same expansion when both have the same
-canonical signature and ownership.</p>
+<p>Shallow collection loads included macro definitions and expands file-scope
+<code>Unit</code> macros. It evaluates preceding top-level Lisp contributions when the
+producer needs them. Generated private helpers stay available in their source
+module. Public declarations and protocol rows reach includers. The full parse
+binds the retained result without running its producer again.</p>
+<p>A generated public function definition can complete a preceding prototype in
+the same expansion when their canonical signature and ownership agree.</p>
 <p>Put converter and public method prototypes before an adoption so shallow
 collection can classify the conformance and downstream code can discover the
-functions. Imported macro definitions survive intervening preprocessor
-includes, so a definition can be imported before the headers its invocations
+functions. Included macro definitions survive intervening preprocessor
+includes, so a definition can be included before the headers its invocations
 need.</p>
 <h2 id="choosing-the-smallest-tool"><a class="header" href="#choosing-the-smallest-tool">Choosing the smallest tool</a></h2>
 <p>Use:</p>
@@ -852,9 +831,9 @@ reference</a>.</p>
                         &copy; 2025&ndash;2026
                         <a href="https://flake.org">GWF</a>
                         &middot;
-                        <a href="https://github.com/gwf/x2c/blob/7f0e54f850c5d5776ab2efd4d5d38a6544013cdc/LICENSE">Apache 2.0</a>
+                        <a href="https://github.com/gwf/x2c/blob/00389e131bf1b5c5a33afa59f299746fc3fc5bbb/LICENSE">Apache 2.0</a>
                         &middot;
-                        <a href="https://github.com/gwf/x2c/blob/7f0e54f850c5d5776ab2efd4d5d38a6544013cdc/TRADEMARKS.md">Trademarks</a>
+                        <a href="https://github.com/gwf/x2c/blob/00389e131bf1b5c5a33afa59f299746fc3fc5bbb/TRADEMARKS.md">Trademarks</a>
                     </footer>
                 </div>
             </div>

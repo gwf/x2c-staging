@@ -1,6 +1,6 @@
 <!DOCTYPE HTML>
 <html lang="en" class="light sidebar-visible" dir="ltr">
-    <head><meta name="x2c-release-channel" content="staging"><meta name="x2c-candidate" content="candidate-7f0e54f850c5d5776ab2efd4d5d38a6544013cdc-37403975767-1">
+    <head><meta name="x2c-release-channel" content="staging"><meta name="x2c-candidate" content="candidate-00389e131bf1b5c5a33afa59f299746fc3fc5bbb-37654719483-2">
         <!-- Book generated using mdBook -->
         <meta charset="UTF-8">
         <title>Compiler Architecture - The x2c Book</title>
@@ -39,10 +39,10 @@
             const path_to_root = "../";
             const default_light_theme = "light";
             const default_dark_theme = "light";
-            window.path_to_searchindex_js = "../searchindex-e3f33cfe.js";
+            window.path_to_searchindex_js = "../searchindex-830d243b.js";
         </script>
         <!-- Start loading toc.js asap -->
-        <script src="../toc-04d6e3af.js"></script>
+        <script src="../toc-320b946b.js"></script>
         <!-- x2c publication metadata -->
         <link rel="canonical" href="https://staging.x2c-lang.dev/docs/internals/architecture.html">
         <meta property="og:type" content="website">
@@ -300,7 +300,6 @@ seven phases.</p>
 #include "x2c.h"
 String greet(String name);
 
-
 #endif /* __GUARD_0x10E936D3__ */
 </code></pre>
 <p>and <code>greet.c</code>:</p>
@@ -311,8 +310,6 @@ String greet(String name);
 static String _0;
 
 static int _init_guard_ = 0;
-
-
 
 
 
@@ -381,11 +378,12 @@ includes. <code>src/collect.x</code> shallow-parses source text directly, splici
 quote-includes inline at their include points in the same order the
 preprocessor would have produced them, resolving each through the same search
 order (the including file’s directory, <code>.</code>, <code>src/</code>, <code>lib/</code>, then the <code>-I</code>
-chain), and overlays what it finds on the prelude. Includes that land under
-<code>lib/</code> or <code>include/</code> are already covered by the prelude and are skipped;
-unresolved angle includes are system headers the generated C re-includes
-anyway; unresolved quote includes are driver errors. Each file is spliced once
-by real path, so include cycles terminate.</p>
+chain), and overlays what it finds on the prelude. Source includes install
+their public declarations and compile-time definitions. Native runtime headers
+already covered by the prelude add no declarations. Unresolved angle includes
+are system headers the generated C re-includes; unresolved quote includes are
+driver errors. Each file is spliced once by real path, so include cycles
+terminate.</p>
 <p>Collection also hashes this unit’s function bodies and initialized
 file-static values while it skips them. Full parsing records each
 definition’s referenced names in the same definition metadata. Linked-meta
@@ -393,6 +391,10 @@ generation pairs those names with the hashes. An unchanged forward
 definition can therefore use its shipped reference list to check later
 dependencies before their bodies are parsed. Included source bodies belong
 to their own units and do not enter this unit’s hash map.</p>
+<p>Linked providers retain one source hash and their direct dependency hashes.
+Imported functions refer to that provider record. The collector checks the
+dependency graph once per translation process, using its existing source
+hashes. A changed provider or dependency requires rebuilding its meta code.</p>
 <p>The public <code>x2c_meta_definition_hashes()</code> query still returns String hashes
 for definitions parsed so far. The private Lisp query
 <code>_x2c.meta.definition.calls</code> reads their existing reference lists for linked
@@ -400,21 +402,27 @@ generation; it adds no public library callable or separate stored inventory.</p>
 <p>A file’s contribution is collected once per process. Translating a unit
 also writes it beside the generated C as a unit interface, <code>&lt;stem&gt;.xi</code>: the
 identity of the compiler that wrote it, the ordered declaration maps,
-include placeholders, and <code>private</code> and <code>public</code> markers for the visibility
-pragmas, the source content hash, function definitions, and the macro, Lisp,
-and embedded-text files the walk read with their hashes. A declaration map
-below a <code>private</code> marker holds only what that region publishes, so an
-including unit never sees a private type or static helper, and a package’s
-surface stops at that marker. The file holds one
-<code>(interface 5 "compiler" "path" "hash" (PARTS...) (DEFINITIONS...) (SELECTED-DEFINITIONS...) (DEPENDENCIES...) (INCLUDE-DIRS...))</code> form in
+include placeholders, the source content hash, function definitions, and the
+macro, Lisp, and embedded-text files the walk read with their hashes. Each
+declaration map holds its public rows: nonstatic declarations and complete
+type families needed by public declarations. Source-position rows also retain
+public macro and keyword definitions, Lisp effects, and provider meta-function
+identities. Cold collection and interface replay use the same ordered parts,
+while the full parser installs included compile-time definitions at their
+include positions. Macro names become visible immediately; their templates
+are decoded into the current unit only on first use. The existing semantic
+write log restores that decode if its expansion rolls back.
+Local declaration productions stay in their owning unit’s
+Context until full parsing consumes them. Their syntax, macro frames, and
+binding facts are not exported. Static helpers remain in their provider.
+Each provider has one function-hash table. Its meta advertisements identify
+the provider; collection and replay install the table before advertisements.
+The file holds one
+<code>(interface 6 "compiler" "path" "hash" (PARTS...) (DEFINITIONS...) (DEPENDENCIES...) (INCLUDE-DIRS...))</code> form in
 <code>%()</code> List syntax, with bare Atoms for its structural words and Strings for
-identifiers; the reader reads that one form without evaluating it. Selected
-definitions carry
-the local function’s native and source names, canonical type, parameter
-spellings, source line, and documentation. They include macro output and
-compiler-only <code>meta</code> definitions, while prototypes and imported functions
-do not become local definitions. The API reference enumerates these rows and
-joins authored prose to them. Before walking a file’s source, collection looks
+identifiers; the reader reads that one form without evaluating it.
+The API reference reads <code>--dump-definitions</code> output and joins authored prose
+to those definitions. Before walking a file’s source, collection looks
 for its interface in the output directory, then in the directory that mirrors
 the file’s home-relative path under the compiler’s stage directory (or under
 an installed home), then in a package’s <code>builds/</code>. An interface is used only
@@ -460,7 +468,7 @@ forms, including initializer recognition and the function-body boundary,
 <code>src/literals.x</code> for collection, interpolated <code>String</code>, and lambda literals.
 <code>src/meta-group.x</code> stages a unit’s bodied <code>meta</code> functions as native code,
 and <code>src/stage.x</code> carries values across that boundary. The built-in source macro
-in <code>src/macros.x</code>, <code>etc/builtin-macros.xmacro</code>, and the algorithms in
+in <code>src/macros.x</code>, <code>etc/builtin-macros.x</code>, and the algorithms in
 <code>src/builtins.x</code> expand <code>foreach</code> during this pass. <code>src/type.x</code>
 owns the <code>List</code>-backed <code>Type</code> representation those modules consult; <code>src/ast.x</code>
 owns sequence placement and binding helpers; <code>src/symbols.x</code> owns lexical
@@ -652,12 +660,16 @@ and executing a current or freshly built script;</li>
 <li><code>src/deps.x</code> – <span class="x2c-wordmark">x2c</span> dependency parsing and atomic depfile publication;</li>
 <li><code>src/compiler.x</code> – shared compiler state, token navigation, generated
 names, phase entry points, and phase recovery;</li>
+<li><code>src/fields.x</code> – macros that copy or set named fields and transfer a
+segment’s compile-time state;</li>
 <li><code>src/symbols.x</code> – the symbol table: scopes, bindings, lookup, typedef
 resolution, and semantic transactions;</li>
 <li><code>src/preprocess.x</code> – preprocessor directive lines, conditional arms, and
 the directives before each form;</li>
 <li><code>src/parse.x</code>, <code>src/expressions.x</code>, <code>src/statements.x</code>, <code>src/literals.x</code> –
 grammar and AST construction;</li>
+<li><code>src/parse-report-macros.x</code>, <code>src/expressions-reports.x</code> – package and
+alias diagnostics, and expression typing diagnostics;</li>
 <li><code>src/initializers.x</code> – brace initializer conversion by C’s
 initialization order;</li>
 <li><code>src/lambdas.x</code> – lambda parsing and the capture resolution shared by
@@ -675,6 +687,9 @@ in-process staging;</li>
 <li><code>src/builtins.x</code>, <code>src/linked-meta.x</code> – the built-in macro algorithms and
 the shipped compile-time code compiled into the compiler;</li>
 <li><code>src/ast.x</code> – AST sequence placement and binding helpers;</li>
+<li><code>src/ast-rewrite.x</code> – AST child rewriting and iterative tree traversal;</li>
+<li><code>src/grammar.x</code> – source-form patterns and parsed-node accessors used by
+lowering;</li>
 <li><code>src/type.x</code>, <code>src/protocol.x</code> – type representation, conversions, protocol
 declarations, conformance, and generated adapters;</li>
 <li><code>src/type-ledger.x</code> – the <code>Var</code> tag lookups projected from the tag ledger,
@@ -685,6 +700,8 @@ forked translation workers;</li>
 <li><code>src/transform.x</code> – lowering to emitter-ready AST;</li>
 <li><code>src/callables.x</code> – lambdas, typed callback adapters, and <code>Func</code>
 conversions lowered to C helpers;</li>
+<li><code>src/adapter-memo.x</code> – macros that cache compiler adapters and reuse
+each result by key;</li>
 <li><code>src/cleanup.x</code> – which exits leave a cleanup region and which locals an
 error transfer preserves;</li>
 <li><code>src/regions.x</code> – per-function region summaries and the warnings for a
@@ -828,9 +845,9 @@ same phase run twice has to produce the same bytes.</p>
                         &copy; 2025&ndash;2026
                         <a href="https://flake.org">GWF</a>
                         &middot;
-                        <a href="https://github.com/gwf/x2c/blob/7f0e54f850c5d5776ab2efd4d5d38a6544013cdc/LICENSE">Apache 2.0</a>
+                        <a href="https://github.com/gwf/x2c/blob/00389e131bf1b5c5a33afa59f299746fc3fc5bbb/LICENSE">Apache 2.0</a>
                         &middot;
-                        <a href="https://github.com/gwf/x2c/blob/7f0e54f850c5d5776ab2efd4d5d38a6544013cdc/TRADEMARKS.md">Trademarks</a>
+                        <a href="https://github.com/gwf/x2c/blob/00389e131bf1b5c5a33afa59f299746fc3fc5bbb/TRADEMARKS.md">Trademarks</a>
                     </footer>
                 </div>
             </div>

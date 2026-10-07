@@ -1,6 +1,6 @@
 <!DOCTYPE HTML>
 <html lang="en" class="light sidebar-visible" dir="ltr">
-    <head><meta name="x2c-release-channel" content="staging"><meta name="x2c-candidate" content="candidate-7f0e54f850c5d5776ab2efd4d5d38a6544013cdc-37403975767-1">
+    <head><meta name="x2c-release-channel" content="staging"><meta name="x2c-candidate" content="candidate-00389e131bf1b5c5a33afa59f299746fc3fc5bbb-37654719483-2">
         <!-- Book generated using mdBook -->
         <meta charset="UTF-8">
         <title>lib/lisp.x - The x2c Book</title>
@@ -39,10 +39,10 @@
             const path_to_root = "../../";
             const default_light_theme = "light";
             const default_dark_theme = "light";
-            window.path_to_searchindex_js = "../../searchindex-e3f33cfe.js";
+            window.path_to_searchindex_js = "../../searchindex-830d243b.js";
         </script>
         <!-- Start loading toc.js asap -->
-        <script src="../../toc-04d6e3af.js"></script>
+        <script src="../../toc-320b946b.js"></script>
         <!-- x2c publication metadata -->
         <link rel="canonical" href="https://staging.x2c-lang.dev/docs/library/modules/lisp.html">
         <meta property="og:type" content="website">
@@ -257,55 +257,56 @@
 <p><code>Var lisp_car(Var value)</code></p>
 <p>Returns the first element of <code>value</code>, or <code>void</code> when it is <code>nil</code>.
 A nonlist operand raises <code>&lt;bad-types&gt;</code>.</p>
-<p>Source: <code>lib/lisp.x:1125</code></p>
+<p>Source: <code>lib/lisp.x:1266</code></p>
 <h4 id="lisp_cdr"><a class="header" href="#lisp_cdr">lisp_cdr</a></h4>
 <p><code>Var lisp_cdr(Var value)</code></p>
 <p>Returns the tail of <code>value</code>, or <code>nil</code> when it is <code>nil</code>.
 A nonlist operand raises <code>&lt;bad-types&gt;</code>.</p>
-<p>Source: <code>lib/lisp.x:1134</code></p>
+<p>Source: <code>lib/lisp.x:1275</code></p>
 <h4 id="lisp_match_replace"><a class="header" href="#lisp_match_replace">lisp_match_replace</a></h4>
 <p><code>Var lisp_match_replace(List input, Var pat, Var template)</code></p>
 <p>Returns the instantiated <code>template</code> when <code>input</code> matches <code>pat</code>.
 <code>List.match_replace</code> returns a <code>List</code>, so a template that is a bare binder
 loses a scalar result. Lisp sees the replacement itself. A miss, malformed
 pattern, cache pressure, or machine error returns <code>input</code> unchanged.</p>
-<p>Source: <code>lib/lisp.x:1345</code></p>
+<p>Source: <code>lib/lisp.x:1486</code></p>
 <h4 id="lisp_string_lstrip"><a class="header" href="#lisp_string_lstrip">lisp_string_lstrip</a></h4>
 <p><code>String lisp_string_lstrip(String string, Var chars)</code></p>
 <p>Trims leading bytes, accepting the same charset values as <code>strip</code>.</p>
-<p>Source: <code>lib/lisp.x:1333</code></p>
+<p>Source: <code>lib/lisp.x:1474</code></p>
 <h4 id="lisp_string_rstrip"><a class="header" href="#lisp_string_rstrip">lisp_string_rstrip</a></h4>
 <p><code>String lisp_string_rstrip(String string, Var chars)</code></p>
 <p>Trims trailing bytes, accepting the same charset values as <code>strip</code>.</p>
-<p>Source: <code>lib/lisp.x:1337</code></p>
+<p>Source: <code>lib/lisp.x:1478</code></p>
 <h4 id="lisp_string_strip"><a class="header" href="#lisp_string_strip">lisp_string_strip</a></h4>
 <p><code>String lisp_string_strip(String string, Var chars)</code></p>
 <p>Trims the bytes in <code>chars</code>, using whitespace for an empty String.</p>
-<p>Source: <code>lib/lisp.x:1329</code></p>
+<p>Source: <code>lib/lisp.x:1470</code></p>
 <h4 id="lisp_truth"><a class="header" href="#lisp_truth">lisp_truth</a></h4>
 <p><code>Var lisp_truth(Var value)</code></p>
 <p>Returns Lisp true for every value except nil and <code>void</code>.</p>
-<p>Source: <code>lib/lisp.x:1113</code></p>
+<p>Source: <code>lib/lisp.x:1254</code></p>
 <h4 id="native_scalar_access"><a class="header" href="#native_scalar_access">native_scalar_access</a></h4>
 <p><code>NativeScalarAccess native_scalar_access(List exact_type)</code></p>
 <p>Returns the access record for an exact C scalar type such as
 <code>(unsigned long)</code>, or NULL for any other type.</p>
-<p>Source: <code>lib/lisp.x:50</code></p>
+<p>Source: <code>lib/lisp.x:51</code></p>
 <h3 id="lisp"><a class="header" href="#lisp"><code>Lisp</code></a></h3>
 <p><a id="Lisp.adopt"></a></p>
 <h4 id="lispadopt"><a class="header" href="#lispadopt">Lisp.adopt</a></h4>
 <p><code>void Lisp.adopt(Lisp lisp, Lisp parent)</code></p>
 <p>Makes <code>lisp</code> read <code>parent</code>’s definitions for names it does not bind.</p>
-<p>A child may define new names but cannot replace names supplied by an
-ancestor. Writes to child-owned names remain in that child. The
-child also takes the parent’s special forms in place of its own, because
+<p>Lisp definitions cannot replace names supplied by an ancestor.
+<code>Lisp.set_global</code> may shadow them in the child. Child writes never
+reach the parent or another child. The child also takes the parent’s
+special forms in place of its own, because
 the evaluator recognizes a special form by the identity of the <code>Func</code> a
 name resolves to, and the child resolves reserved names in the parent.</p>
 <p>The caller keeps <code>parent</code> alive for as long as any child names it, and
 freezes it with <code>Lisp.freeze</code> before the first child runs: a child’s
 values belong to a narrower <code>Context</code> than the parent’s, so nothing a
 child produces may become reachable from the parent.</p>
-<p>Source: <code>lib/lisp.x:1689</code></p>
+<p>Source: <code>lib/lisp.x:1831</code></p>
 <p><a id="Lisp.apply"></a></p>
 <h4 id="lispapply"><a class="header" href="#lispapply">Lisp.apply</a></h4>
 <p><code>Var Lisp.apply(Lisp lisp, Var callable, List values)</code></p>
@@ -319,7 +320,7 @@ responsibility for <code>callable</code>, <code>values</code>, and their referen
 <p><strong>Raises:</strong> <code>&lt;bad-arg&gt;</code> for a null session, <code>&lt;not-call&gt;</code> for a non-procedure
 or evaluator-only callable, <code>&lt;bad-arity&gt;</code> or <code>&lt;bad-types&gt;</code> at the call
 boundary, or a cause raised by the called procedure.</p>
-<p>Source: <code>lib/lisp.x:1776</code></p>
+<p>Source: <code>lib/lisp.x:1918</code></p>
 <p><a id="Lisp.bind"></a></p>
 <h4 id="lispbind"><a class="header" href="#lispbind">Lisp.bind</a></h4>
 <p><code>void Lisp.bind(Lisp lisp, String name, Func function)</code></p>
@@ -332,7 +333,7 @@ may borrow the pointer while the session lives. A direct function or
 noncapturing lambda converts to a shared handle that lives for the
 program; the session only borrows it. Values inside the <code>Func</code>,
 including its signature graph, retain their existing owners.</p>
-<p>Source: <code>lib/lisp.x:1876</code></p>
+<p>Source: <code>lib/lisp.x:2019</code></p>
 <p><a id="Lisp.call_budget"></a></p>
 <h4 id="lispcall_budget"><a class="header" href="#lispcall_budget">Lisp.call_budget</a></h4>
 <p><code>void Lisp.call_budget(Lisp lisp, long budget)</code></p>
@@ -344,7 +345,7 @@ reach it quickly.</p>
 <p>The budget belongs to the public entry. <code>Lisp.eval</code>, <code>Lisp.apply</code>, and
 <code>Lisp.eval_string</code> each open one, and a call that runs it out does not
 renew it, so one entry reports a runaway once however many calls follow.</p>
-<p>Source: <code>lib/lisp.x:907</code></p>
+<p>Source: <code>lib/lisp.x:1048</code></p>
 <p><a id="Lisp.eval"></a></p>
 <h4 id="lispeval"><a class="header" href="#lispeval">Lisp.eval</a></h4>
 <p><code>Var Lisp.eval(Lisp lisp, Var expression)</code></p>
@@ -354,7 +355,7 @@ reaches in session globals, Lambdas, or captures as described by the module
 ownership rule. Effects completed before a later failure are not rolled
 back. Raises: <code>&lt;bad-arg&gt;</code> for a null session, or any evaluator, imported
 operation, or called-procedure cause.</p>
-<p>Source: <code>lib/lisp.x:1759</code></p>
+<p>Source: <code>lib/lisp.x:1901</code></p>
 <p><a id="Lisp.eval_file"></a></p>
 <h4 id="lispeval_file"><a class="header" href="#lispeval_file">Lisp.eval_file</a></h4>
 <p><code>Var Lisp.eval_file(Lisp l, File source)</code></p>
@@ -367,7 +368,7 @@ the stream has been consumed.</p>
 <p><strong>Raises:</strong> <code>&lt;bad-arg&gt;</code> for a null stream or embedded NUL, <code>&lt;io-fail&gt;</code>,
 <code>&lt;size-limit&gt;</code>, or <code>&lt;alloc-fail&gt;</code> while reading, or any cause from
 <code>Lisp.eval_string</code>.</p>
-<p>Source: <code>lib/lisp.x:1817</code></p>
+<p>Source: <code>lib/lisp.x:1959</code></p>
 <p><a id="Lisp.eval_string"></a></p>
 <h4 id="lispeval_string"><a class="header" href="#lispeval_string">Lisp.eval_string</a></h4>
 <p><code>Var Lisp.eval_string(Lisp lisp, String source)</code></p>
@@ -380,7 +381,7 @@ changes, including names in current data. These captures belong to the
 session; borrowed referents keep their original lifetimes.</p>
 <p><strong>Raises:</strong> <code>&lt;bad-arg&gt;</code> for a null session, <code>&lt;incomplete&gt;</code> or <code>&lt;malformed&gt;</code>
 while reading, or any cause from <code>Lisp.eval</code>.</p>
-<p>Source: <code>lib/lisp.x:1792</code></p>
+<p>Source: <code>lib/lisp.x:1934</code></p>
 <p><a id="Lisp.freeze"></a></p>
 <h4 id="lispfreeze"><a class="header" href="#lispfreeze">Lisp.freeze</a></h4>
 <p><code>void Lisp.freeze(Lisp lisp)</code></p>
@@ -388,7 +389,7 @@ while reading, or any cause from <code>Lisp.eval</code>.</p>
 <p>A frozen session rejects <code>def</code> and <code>Lisp.set_global</code>: a value produced
 while a narrower <code>Context</code> is current would leave the session holding
 values that die with that <code>Context</code>.</p>
-<p>Source: <code>lib/lisp.x:1703</code></p>
+<p>Source: <code>lib/lisp.x:1845</code></p>
 <p><a id="Lisp.kernel"></a></p>
 <h4 id="lispkernel"><a class="header" href="#lispkernel">Lisp.kernel</a></h4>
 <p><code>Lisp Lisp.kernel(void)</code></p>
@@ -399,7 +400,7 @@ chain. Failure of native once initialization writes a diagnostic and
 aborts the process.</p>
 <p><strong>Raises:</strong> <code>&lt;alloc-fail&gt;</code> or <code>&lt;size-limit&gt;</code> while creating session storage, or
 <code>&lt;bad-enc&gt;</code> while interning shared or special-form names.</p>
-<p>Source: <code>lib/lisp.x:1622</code></p>
+<p>Source: <code>lib/lisp.x:1763</code></p>
 <p><a id="Lisp.new"></a></p>
 <h4 id="lispnew"><a class="header" href="#lispnew">Lisp.new</a></h4>
 <p><code>Lisp Lisp.new(void)</code></p>
@@ -408,7 +409,7 @@ The caller owns the result and must pass it to <code>Lisp.destroy</code>.
 If standard-source evaluation transfers, no handle is returned and the
 constructed session remains allocated.
 Raises any cause from <code>Lisp.kernel</code> or <code>Lisp.eval_string</code>.</p>
-<p>Source: <code>lib/lisp.x:1658</code></p>
+<p>Source: <code>lib/lisp.x:1799</code></p>
 <p><a id="Lisp.set_interrupted"></a></p>
 <h4 id="lispset_interrupted"><a class="header" href="#lispset_interrupted">Lisp.set_interrupted</a></h4>
 <p><code>void Lisp.set_interrupted(Lisp lisp, int interrupted)</code></p>
@@ -417,7 +418,7 @@ nonzero, every interpreted call raises <code>&lt;interrupt&gt;</code>, including
 made after a catch. The store is async-signal-safe, so a signal handler
 may interrupt a running evaluation; the owner clears the flag before the
 next one. <code>lisp</code> must be a live session.</p>
-<p>Source: <code>lib/lisp.x:916</code></p>
+<p>Source: <code>lib/lisp.x:1057</code></p>
 <p><a id="Lisp.try_get"></a></p>
 <h4 id="lisptry_get"><a class="header" href="#lisptry_get">Lisp.try_get</a></h4>
 <p><code>int Lisp.try_get(Lisp lisp, String name, Var &amp;?out)</code></p>
@@ -426,7 +427,7 @@ Returns 1 only after writing the borrowed value. A null session, name, or
 output, or an absent name returns 0 and leaves <code>out</code> unchanged. Raises
 <code>&lt;alloc-fail&gt;</code> or <code>&lt;bad-enc&gt;</code> when a nonempty lookup name cannot be
 canonicalized.</p>
-<p>Source: <code>lib/lisp.x:1840</code></p>
+<p>Source: <code>lib/lisp.x:1982</code></p>
 <h2 id="advanced-and-interop-api"><a class="header" href="#advanced-and-interop-api">Advanced and interop API</a></h2>
 <div class="table-wrapper">
 <table>
@@ -446,7 +447,7 @@ canonicalized.</p>
 <h4 id="lispcleanup"><a class="header" href="#lispcleanup">Lisp.cleanup</a></h4>
 <p><code>void Lisp.cleanup(Lisp value)</code></p>
 <p>Ends the owned lifetime when a managed local leaves its block.</p>
-<p>Source: <code>lib/lisp.x:63</code></p>
+<p>Source: <code>lib/lisp.x:64</code></p>
 <p><a id="Lisp.destroy"></a></p>
 <h4 id="lispdestroy"><a class="header" href="#lispdestroy">Lisp.destroy</a></h4>
 <p><code>void Lisp.destroy(Lisp lisp)</code></p>
@@ -455,7 +456,7 @@ This includes its global and reserved <code>Map</code>s, Lambdas, and transferre
 <code>Func</code>s. Borrowed values are not released. A null session does nothing;
 no evaluation may remain active.
 Destroying its still-active <code>Scope</code> raises <code>&lt;bad-state&gt;</code>.</p>
-<p>Source: <code>lib/lisp.x:1670</code></p>
+<p>Source: <code>lib/lisp.x:1811</code></p>
 <p><a id="Lisp.read"></a></p>
 <h4 id="lispread"><a class="header" href="#lispread">Lisp.read</a></h4>
 <p><code>Symbol Lisp.read(Lisp lisp, String source, unsigned &amp;?cursor, Var &amp;?out)</code></p>
@@ -473,7 +474,7 @@ construction must first initialize the shared reader names; afterward
 <p><strong>Raises:</strong> <code>&lt;incomplete&gt;</code> for a truncated form, <code>&lt;malformed&gt;</code> for invalid
 reader syntax, or <code>&lt;alloc-fail&gt;</code>, <code>&lt;size-limit&gt;</code>, or <code>&lt;bad-enc&gt;</code> while
 tokenizing, constructing, interning, or boxing the form.</p>
-<p>Source: <code>lib/lisp.x:1741</code></p>
+<p>Source: <code>lib/lisp.x:1883</code></p>
 <p><a id="Lisp.set_global"></a></p>
 <h4 id="lispset_global"><a class="header" href="#lispset_global">Lisp.set_global</a></h4>
 <p><code>void Lisp.set_global(Lisp lisp, String name, Var value)</code></p>
@@ -481,12 +482,15 @@ tokenizing, constructing, interning, or boxing the form.</p>
 The session stores the value in a raw slot, so <code>void</code> remains distinct
 from Lisp <code>nil</code>. The binding does not take ownership of value referents;
 their canonical graphs or other owners must outlive the binding or
-session. Binding an <code>x2c.</code> name protects that namespace from later Lisp
+session. A host binding may shadow an inherited name in this session;
+it does not change the ancestor. Lisp <code>def</code> still rejects inherited
+names, including a name the host has shadowed locally.
+Binding an <code>x2c.</code> name protects that namespace from later Lisp
 <code>def</code> forms, but direct calls to this function may replace such a
 binding.</p>
 <p><strong>Raises:</strong> <code>&lt;bad-arg&gt;</code> for a null session or name, or <code>&lt;alloc-fail&gt;</code>,
 <code>&lt;size-limit&gt;</code>, or <code>&lt;bad-enc&gt;</code> while canonicalizing or storing the binding.</p>
-<p>Source: <code>lib/lisp.x:1853</code></p>
+<p>Source: <code>lib/lisp.x:1998</code></p>
 <h2 id="runtime-internal-callables"><a class="header" href="#runtime-internal-callables">Runtime-internal callables</a></h2>
 <p>These callables connect runtime translation units. They are documented
 for source readers but are not supported as user API.</p>
@@ -535,127 +539,127 @@ for source readers but are not supported as user API.</p>
 <h4 id="lisp_add"><a class="header" href="#lisp_add">lisp_add</a></h4>
 <p><code>Var lisp_add(Var a, Var b)</code></p>
 <p>Concatenates when either operand is <code>String</code>, otherwise adds dynamically.</p>
-<p>Source: <code>lib/lisp.x:1213</code></p>
+<p>Source: <code>lib/lisp.x:1354</code></p>
 <h4 id="lisp_atom"><a class="header" href="#lisp_atom">lisp_atom</a></h4>
 <p><code>Var lisp_atom(Var value)</code></p>
 <p>Returns Lisp true unless <code>value</code> is a nonempty <code>List</code>.</p>
-<p>Source: <code>lib/lisp.x:1116</code></p>
+<p>Source: <code>lib/lisp.x:1257</code></p>
 <h4 id="lisp_compare"><a class="header" href="#lisp_compare">lisp_compare</a></h4>
 <p><code>Var lisp_compare(Var a, Var b)</code></p>
 <p>Compares Lisp numbers by value and returns a boxed negative, zero, or
 positive. Integer and floating encodings of one number compare equal.
 A nonnumeric operand raises <code>&lt;bad-types&gt;</code>.</p>
-<p>Source: <code>lib/lisp.x:1204</code></p>
+<p>Source: <code>lib/lisp.x:1345</code></p>
 <h4 id="lisp_divide"><a class="header" href="#lisp_divide">lisp_divide</a></h4>
 <p><code>Var lisp_divide(List values)</code></p>
 <p>Divides the first value by each later one; one value reciprocates it.
 An empty input raises <code>&lt;bad-arity&gt;</code>.</p>
-<p>Source: <code>lib/lisp.x:1250</code></p>
+<p>Source: <code>lib/lisp.x:1391</code></p>
 <h4 id="lisp_eq"><a class="header" href="#lisp_eq">lisp_eq</a></h4>
 <p><code>Var lisp_eq(Var a, Var b)</code></p>
 <p>Returns Lisp true when <code>a</code> and <code>b</code> are equal by <code>Var.equal</code>.</p>
-<p>Source: <code>lib/lisp.x:1141</code></p>
+<p>Source: <code>lib/lisp.x:1282</code></p>
 <h4 id="lisp_eq_chain"><a class="header" href="#lisp_eq_chain">lisp_eq_chain</a></h4>
 <p><code>Var lisp_eq_chain(List values)</code></p>
 <p>Reports whether every neighbouring pair of numbers compares equal.
 Fewer than two values raise <code>&lt;bad-arity&gt;</code>; a nonnumber raises
 <code>&lt;bad-types&gt;</code>.</p>
-<p>Source: <code>lib/lisp.x:1280</code></p>
+<p>Source: <code>lib/lisp.x:1421</code></p>
 <h4 id="lisp_ge_chain"><a class="header" href="#lisp_ge_chain">lisp_ge_chain</a></h4>
 <p><code>Var lisp_ge_chain(List values)</code></p>
 <p>Reports whether two or more numbers never increase.
 Fewer than two values raise <code>&lt;bad-arity&gt;</code>; a nonnumber raises
 <code>&lt;bad-types&gt;</code>.</p>
-<p>Source: <code>lib/lisp.x:1304</code></p>
+<p>Source: <code>lib/lisp.x:1445</code></p>
 <h4 id="lisp_gt_chain"><a class="header" href="#lisp_gt_chain">lisp_gt_chain</a></h4>
 <p><code>Var lisp_gt_chain(List values)</code></p>
 <p>Reports whether two or more numbers strictly decrease.
 Fewer than two values raise <code>&lt;bad-arity&gt;</code>; a nonnumber raises
 <code>&lt;bad-types&gt;</code>.</p>
-<p>Source: <code>lib/lisp.x:1298</code></p>
+<p>Source: <code>lib/lisp.x:1439</code></p>
 <h4 id="lisp_le_chain"><a class="header" href="#lisp_le_chain">lisp_le_chain</a></h4>
 <p><code>Var lisp_le_chain(List values)</code></p>
 <p>Reports whether two or more numbers never decrease.
 Fewer than two values raise <code>&lt;bad-arity&gt;</code>; a nonnumber raises
 <code>&lt;bad-types&gt;</code>.</p>
-<p>Source: <code>lib/lisp.x:1292</code></p>
+<p>Source: <code>lib/lisp.x:1433</code></p>
 <h4 id="lisp_list"><a class="header" href="#lisp_list">lisp_list</a></h4>
 <p><code>Var lisp_list(Var value)</code></p>
 <p>Returns Lisp true when <code>value</code> is <code>List</code>-typed, including <code>nil</code>.</p>
-<p>Source: <code>lib/lisp.x:1147</code></p>
+<p>Source: <code>lib/lisp.x:1288</code></p>
 <h4 id="lisp_lt_chain"><a class="header" href="#lisp_lt_chain">lisp_lt_chain</a></h4>
 <p><code>Var lisp_lt_chain(List values)</code></p>
 <p>Reports whether two or more numbers strictly increase.
 Fewer than two values raise <code>&lt;bad-arity&gt;</code>; a nonnumber raises
 <code>&lt;bad-types&gt;</code>.</p>
-<p>Source: <code>lib/lisp.x:1286</code></p>
+<p>Source: <code>lib/lisp.x:1427</code></p>
 <h4 id="lisp_minus"><a class="header" href="#lisp_minus">lisp_minus</a></h4>
 <p><code>Var lisp_minus(List values)</code></p>
 <p>Subtracts each later value from the first; one value negates it.
 An empty input raises <code>&lt;bad-arity&gt;</code>.</p>
-<p>Source: <code>lib/lisp.x:1229</code></p>
+<p>Source: <code>lib/lisp.x:1370</code></p>
 <h4 id="lisp_number"><a class="header" href="#lisp_number">lisp_number</a></h4>
 <p><code>Var lisp_number(Var value)</code></p>
 <p>Returns Lisp true when <code>value</code> has an integer or floating kind.</p>
-<p>Source: <code>lib/lisp.x:1155</code></p>
+<p>Source: <code>lib/lisp.x:1296</code></p>
 <h4 id="lisp_pair"><a class="header" href="#lisp_pair">lisp_pair</a></h4>
 <p><code>Var lisp_pair(Var value)</code></p>
 <p>Returns Lisp true when <code>value</code> is a nonempty <code>List</code>.</p>
-<p>Source: <code>lib/lisp.x:1144</code></p>
+<p>Source: <code>lib/lisp.x:1285</code></p>
 <h4 id="lisp_plus"><a class="header" href="#lisp_plus">lisp_plus</a></h4>
 <p><code>Var lisp_plus(List values)</code></p>
 <p>Adds or concatenates every value left to right; no values gives 0.</p>
-<p>Source: <code>lib/lisp.x:1219</code></p>
+<p>Source: <code>lib/lisp.x:1360</code></p>
 <h4 id="lisp_procedure"><a class="header" href="#lisp_procedure">lisp_procedure</a></h4>
 <p><code>Var lisp_procedure(Var value)</code></p>
 <p>Returns Lisp true when <code>value</code> is a native function or Lambda.</p>
-<p>Source: <code>lib/lisp.x:1164</code></p>
+<p>Source: <code>lib/lisp.x:1305</code></p>
 <h4 id="lisp_read_file"><a class="header" href="#lisp_read_file">lisp_read_file</a></h4>
 <p><code>Var lisp_read_file(String path)</code></p>
 <p>Reads <code>path</code> completely, closes it, and returns its boxed <code>String</code>
 contents. Raises the open, read, size, or allocation cause reported by
 <code>File</code>. An opened stream is still closed on transfer.</p>
-<p>Source: <code>lib/lisp.x:1355</code></p>
+<p>Source: <code>lib/lisp.x:1496</code></p>
 <h4 id="lisp_repr"><a class="header" href="#lisp_repr">lisp_repr</a></h4>
 <p><code>Var lisp_repr(Var value)</code></p>
 <p>Boxes the readable representation of <code>value</code>.</p>
-<p>Source: <code>lib/lisp.x:1312</code></p>
+<p>Source: <code>lib/lisp.x:1453</code></p>
 <h4 id="lisp_source_function"><a class="header" href="#lisp_source_function">lisp_source_function</a></h4>
 <p><code>Var lisp_source_function(Var callable)</code></p>
 <p>Marks the actual Lambda installed for one lowered source function.</p>
-<p>Source: <code>lib/lisp.x:1896</code></p>
+<p>Source: <code>lib/lisp.x:2039</code></p>
 <h4 id="lisp_str"><a class="header" href="#lisp_str">lisp_str</a></h4>
 <p><code>Var lisp_str(Var value)</code></p>
 <p>Boxes the display <code>String</code> of <code>value</code>.</p>
-<p>Source: <code>lib/lisp.x:1309</code></p>
+<p>Source: <code>lib/lisp.x:1450</code></p>
 <h4 id="lisp_string"><a class="header" href="#lisp_string">lisp_string</a></h4>
 <p><code>Var lisp_string(Var value)</code></p>
 <p>Returns Lisp true when <code>value</code> is a <code>String</code>.</p>
-<p>Source: <code>lib/lisp.x:1158</code></p>
+<p>Source: <code>lib/lisp.x:1299</code></p>
 <h4 id="lisp_string_append"><a class="header" href="#lisp_string_append">lisp_string_append</a></h4>
 <p><code>Var lisp_string_append(String left, String right)</code></p>
 <p>Returns the boxed concatenation of <code>left</code> and <code>right</code>.</p>
-<p>Source: <code>lib/lisp.x:1315</code></p>
+<p>Source: <code>lib/lisp.x:1456</code></p>
 <h4 id="lisp_string_downcase"><a class="header" href="#lisp_string_downcase">lisp_string_downcase</a></h4>
 <p><code>Var lisp_string_downcase(String string)</code></p>
 <p>Returns a boxed lower-case copy of <code>string</code>.</p>
-<p>Source: <code>lib/lisp.x:1322</code></p>
+<p>Source: <code>lib/lisp.x:1463</code></p>
 <h4 id="lisp_substring"><a class="header" href="#lisp_substring">lisp_substring</a></h4>
 <p><code>Var lisp_substring(String string, int start, int stop)</code></p>
 <p>Returns the boxed unit-step slice <code>string[start:stop]</code>.</p>
-<p>Source: <code>lib/lisp.x:1318</code></p>
+<p>Source: <code>lib/lisp.x:1459</code></p>
 <h4 id="lisp_symbol"><a class="header" href="#lisp_symbol">lisp_symbol</a></h4>
 <p><code>Var lisp_symbol(Var value)</code></p>
 <p>Returns Lisp true when <code>value</code> has <code>Symbol</code> kind.</p>
-<p>Source: <code>lib/lisp.x:1161</code></p>
+<p>Source: <code>lib/lisp.x:1302</code></p>
 <h4 id="lisp_times"><a class="header" href="#lisp_times">lisp_times</a></h4>
 <p><code>Var lisp_times(List values)</code></p>
 <p>Multiplies every value; no values gives 1.</p>
-<p>Source: <code>lib/lisp.x:1241</code></p>
+<p>Source: <code>lib/lisp.x:1382</code></p>
 <h4 id="lisp_type"><a class="header" href="#lisp_type">lisp_type</a></h4>
 <p><code>Symbol lisp_type(Var value)</code></p>
 <p>Returns the runtime tag of <code>value</code>.</p>
-<p>Source: <code>lib/lisp.x:1167</code></p>
+<p>Source: <code>lib/lisp.x:1308</code></p>
 <h4 id="lisp_write_file"><a class="header" href="#lisp_write_file">lisp_write_file</a></h4>
 <p><code>Var lisp_write_file(String path, String text)</code></p>
 <p>Replaces <code>path</code> with <code>text</code> and reports Lisp success.
@@ -663,28 +667,28 @@ The file is opened with truncation and always closed. A write or close
 failure returns <code>nil</code> after any accepted bytes; this operation is not
 atomic. An open failure transfers its <code>File</code> cause. <code>Null</code> text writes
 an empty file.</p>
-<p>Source: <code>lib/lisp.x:1363</code></p>
+<p>Source: <code>lib/lisp.x:1504</code></p>
 <h3 id="lisp-2"><a class="header" href="#lisp-2"><code>Lisp</code></a></h3>
 <p><a id="Lisp.active"></a></p>
 <h4 id="lispactive"><a class="header" href="#lispactive">Lisp.active</a></h4>
 <p><code>Lisp Lisp.active(void)</code></p>
 <p>Borrows the session executing the current native Lisp callback.</p>
-<p>Source: <code>lib/lisp.x:1885</code></p>
+<p>Source: <code>lib/lisp.x:2028</code></p>
 <p><a id="Lisp.automatic_storage"></a></p>
 <h4 id="lispautomatic_storage"><a class="header" href="#lispautomatic_storage">Lisp.automatic_storage</a></h4>
 <p><code>Scope *Lisp.automatic_storage(Lisp lisp)</code></p>
 <p>Borrows the current lowered source activation’s automatic storage.</p>
-<p>Source: <code>lib/lisp.x:1889</code></p>
+<p>Source: <code>lib/lisp.x:2032</code></p>
 <p><a id="Lisp.result_storage"></a></p>
 <h4 id="lispresult_storage"><a class="header" href="#lispresult_storage">Lisp.result_storage</a></h4>
 <p><code>Scope *Lisp.result_storage(Lisp lisp)</code></p>
 <p>Borrows the caller’s storage for a lowered record result.</p>
-<p>Source: <code>lib/lisp.x:1892</code></p>
+<p>Source: <code>lib/lisp.x:2035</code></p>
 <p><a id="Lisp.storage"></a></p>
 <h4 id="lispstorage"><a class="header" href="#lispstorage">Lisp.storage</a></h4>
 <p><code>Scope *Lisp.storage(Lisp lisp)</code></p>
 <p>Borrows the storage owner for callback state retained by this session.</p>
-<p>Source: <code>lib/lisp.x:1887</code></p>
+<p>Source: <code>lib/lisp.x:2030</code></p>
 <h2 id="public-types"><a class="header" href="#public-types">Public types</a></h2>
 <div class="table-wrapper">
 <table>
@@ -706,7 +710,7 @@ an empty file.</p>
 Create it with <code>Lisp.new</code> or <code>Lisp.kernel</code> and end it with
 <code>Lisp.destroy</code>. The module header describes its owned and borrowed state.
 A session is mutable and requires caller serialization.</p>
-<p>Source: <code>lib/lisp.x:58</code></p>
+<p>Source: <code>lib/lisp.x:59</code></p>
 <p><a id="NativeScalarAccess"></a></p>
 <h3 id="nativescalaraccess"><a class="header" href="#nativescalaraccess">NativeScalarAccess</a></h3>
 <p><code>typedef struct NativeScalarAccess { Symbol tag; size_t size, alignment; NativeScalarLoad load; NativeScalarStore store; } *NativeScalarAccess</code></p>
@@ -714,18 +718,18 @@ A session is mutable and requires caller serialization.</p>
 alignment, load, and store. Compile-time code that keeps C objects in
 bytes, and the compiler’s layouts, select a row with
 <code>native_scalar_access</code>.</p>
-<p>Source: <code>lib/lisp.x:36</code></p>
+<p>Source: <code>lib/lisp.x:37</code></p>
 <p><a id="NativeScalarLoad"></a></p>
 <h3 id="nativescalarload"><a class="header" href="#nativescalarload">NativeScalarLoad</a></h3>
 <p><code>typedef Var (*NativeScalarLoad)(const void *bytes, Scope *owner)</code></p>
 <p>Reads one exact C scalar from <code>bytes</code>; a wide result is boxed in
 <code>owner</code>.</p>
-<p>Source: <code>lib/lisp.x:29</code></p>
+<p>Source: <code>lib/lisp.x:30</code></p>
 <p><a id="NativeScalarStore"></a></p>
 <h3 id="nativescalarstore"><a class="header" href="#nativescalarstore">NativeScalarStore</a></h3>
 <p><code>typedef void (*NativeScalarStore)(void *bytes, Var value)</code></p>
 <p>Writes <code>value</code>, converted to one exact C scalar type, to <code>bytes</code>.</p>
-<p>Source: <code>lib/lisp.x:31</code></p>
+<p>Source: <code>lib/lisp.x:32</code></p>
 <h2 id="design-notes"><a class="header" href="#design-notes">Design notes</a></h2>
 <p>Lisp owns embedded compile-time Lisp sessions: the reader, the evaluator,
 and each session’s global environment. Lambdas and natives receive their
@@ -759,9 +763,9 @@ returned.</p>
                         &copy; 2025&ndash;2026
                         <a href="https://flake.org">GWF</a>
                         &middot;
-                        <a href="https://github.com/gwf/x2c/blob/7f0e54f850c5d5776ab2efd4d5d38a6544013cdc/LICENSE">Apache 2.0</a>
+                        <a href="https://github.com/gwf/x2c/blob/00389e131bf1b5c5a33afa59f299746fc3fc5bbb/LICENSE">Apache 2.0</a>
                         &middot;
-                        <a href="https://github.com/gwf/x2c/blob/7f0e54f850c5d5776ab2efd4d5d38a6544013cdc/TRADEMARKS.md">Trademarks</a>
+                        <a href="https://github.com/gwf/x2c/blob/00389e131bf1b5c5a33afa59f299746fc3fc5bbb/TRADEMARKS.md">Trademarks</a>
                     </footer>
                 </div>
             </div>

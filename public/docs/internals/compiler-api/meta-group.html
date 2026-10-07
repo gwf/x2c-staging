@@ -1,6 +1,6 @@
 <!DOCTYPE HTML>
 <html lang="en" class="light sidebar-visible" dir="ltr">
-    <head><meta name="x2c-release-channel" content="staging"><meta name="x2c-candidate" content="candidate-7f0e54f850c5d5776ab2efd4d5d38a6544013cdc-37403975767-1">
+    <head><meta name="x2c-release-channel" content="staging"><meta name="x2c-candidate" content="candidate-00389e131bf1b5c5a33afa59f299746fc3fc5bbb-37654719483-2">
         <!-- Book generated using mdBook -->
         <meta charset="UTF-8">
         <title>src/meta-group.x - The x2c Book</title>
@@ -39,10 +39,10 @@
             const path_to_root = "../../";
             const default_light_theme = "light";
             const default_dark_theme = "light";
-            window.path_to_searchindex_js = "../../searchindex-e3f33cfe.js";
+            window.path_to_searchindex_js = "../../searchindex-830d243b.js";
         </script>
         <!-- Start loading toc.js asap -->
-        <script src="../../toc-04d6e3af.js"></script>
+        <script src="../../toc-320b946b.js"></script>
         <!-- x2c publication metadata -->
         <link rel="canonical" href="https://staging.x2c-lang.dev/docs/internals/compiler-api/meta-group.html">
         <meta property="og:type" content="website">
@@ -234,6 +234,7 @@ Compatibility is not yet promised.</p>
 </thead>
 <tbody>
 <tr><td><a href="#Compiler.bind_meta_group"><code>Compiler.bind_meta_group</code></a></td><td>Binds the session’s group function <code>name</code> when it is not bound yet, by staging the group, and reports at <code>site</code> a function that cannot run.</td></tr>
+<tr><td><a href="#Compiler.finish_meta_functions"><code>Compiler.finish_meta_functions</code></a></td><td>Closes compile-time-only calls across later meta definitions.</td></tr>
 <tr><td><a href="#Compiler.group_meta_function"><code>Compiler.group_meta_function</code></a></td><td>Records the bodied <code>meta</code> function <code>fn</code> in the unit’s group.</td></tr>
 <tr><td><a href="#Compiler.groups_meta"><code>Compiler.groups_meta</code></a></td><td>Answers whether a <code>meta</code> function or value belongs to the unit’s group: a parse meets it outside a macro definition while the project meta build parses the unit or a session stages it.</td></tr>
 <tr><td><a href="#Compiler.meta_call_missing"><code>Compiler.meta_call_missing</code></a></td><td>Returns why the group function <code>name</code> has no compile-time entry, from its type.</td></tr>
@@ -241,11 +242,10 @@ Compatibility is not yet promised.</p>
 <tr><td><a href="#Compiler.meta_cc_identity"><code>Compiler.meta_cc_identity</code></a></td><td>Returns the identity of the C compiler at <code>cc</code>: its path and content hash.</td></tr>
 <tr><td><a href="#Compiler.meta_cc_run"><code>Compiler.meta_cc_run</code></a></td><td>Runs <code>arguments</code>, a C compiler command building the group C in <code>directory</code>, and returns NULL, or else its first error, which names <code>directory</code> when a group’s C is the cause.</td></tr>
 <tr><td><a href="#Compiler.meta_reaches_compile_time"><code>Compiler.meta_reaches_compile_time</code></a></td><td>Answers whether a <code>meta</code> body reaches the compiler itself: it names a compile-time-only function or a compiler operation, or constructs a template.</td></tr>
-<tr><td><a href="#Compiler.record_meta_import"><code>Compiler.record_meta_import</code></a></td><td>Records the point where a compile-time import added its <code>meta</code> definitions to the unit, so the group places them where the import stands.</td></tr>
 <tr><td><a href="#Compiler.refuse_meta_call"><code>Compiler.refuse_meta_call</code></a></td><td>Reports at <code>site</code> that the <code>meta</code> function <code>name</code> cannot run at compile time, and <code>why</code>.</td></tr>
 <tr><td><a href="#Compiler.refuse_record_meta_call"><code>Compiler.refuse_record_meta_call</code></a></td><td>Reports at <code>site</code> that the group function <code>name</code> cannot run at compile time when its result is a struct or union, which its type alone decides.</td></tr>
 <tr><td><a href="#Compiler.stage_meta_in_process"><code>Compiler.stage_meta_in_process</code></a></td><td>Enables in-process staging of <code>meta</code> groups for compiler sessions.</td></tr>
-<tr><td><a href="#Compiler.use_meta_build_directory"><code>Compiler.use_meta_build_directory</code></a></td><td>Directs the group of each unit the project meta build parses into <code>directory</code>, or stops that when it is NULL.</td></tr>
+<tr><td><a href="#Compiler.use_meta_build_directory"><code>Compiler.use_meta_build_directory</code></a></td><td>Directs each provider group into <code>directory</code>, using <code>owners</code> to name their headers by table, or stops that when <code>directory</code> is NULL.</td></tr>
 <tr><td><a href="#Compiler.use_meta_toolchain"><code>Compiler.use_meta_toolchain</code></a></td><td>Selects the C compiler <code>cc</code> that builds the <code>meta</code> code of the units this process translates, with the runtime headers this compiler was built with, found from its installed headers in <code>include_dir</code>.</td></tr>
 <tr><td><a href="#Compiler.write_meta_build"><code>Compiler.write_meta_build</code></a></td><td>Writes the group of a unit the project meta build parsed into the build directory as <code>group-K.c</code> and <code>group-K.h</code>, K being its table, with the <span class="x2c-wordmark">x2c</span> sources it read in <code>group-K.deps</code>, or its failure in <code>group-K.failure</code>.</td></tr>
 </tbody>
@@ -257,98 +257,98 @@ Compatibility is not yet promised.</p>
 <p><code>void Compiler.bind_meta_group(Compiler c, String name, Token site)</code></p>
 <p>Binds the session’s group function <code>name</code> when it is not bound yet, by
 staging the group, and reports at <code>site</code> a function that cannot run.</p>
-<p>Source: <code>src/meta-group.x:794</code></p>
+<p>Source: <code>src/meta-group.x:897</code></p>
+<p><a id="Compiler.finish_meta_functions"></a></p>
+<h4 id="compilerfinish_meta_functions"><a class="header" href="#compilerfinish_meta_functions">Compiler.finish_meta_functions</a></h4>
+<p><code>void Compiler.finish_meta_functions(Compiler c, Array nodes)</code></p>
+<p>Closes compile-time-only calls across later meta definitions.
+Retained group bodies hold the bound calls, including literal insertions.
+Select runtime definitions only after that relation is complete.</p>
+<p>Source: <code>src/meta-group.x:168</code></p>
 <p><a id="Compiler.group_meta_function"></a></p>
 <h4 id="compilergroup_meta_function"><a class="header" href="#compilergroup_meta_function">Compiler.group_meta_function</a></h4>
 <p><code>void Compiler.group_meta_function(Compiler c, List fn)</code></p>
 <p>Records the bodied <code>meta</code> function <code>fn</code> in the unit’s group.</p>
-<p>Source: <code>src/meta-group.x:136</code></p>
+<p>Source: <code>src/meta-group.x:134</code></p>
 <p><a id="Compiler.groups_meta"></a></p>
 <h4 id="compilergroups_meta"><a class="header" href="#compilergroups_meta">Compiler.groups_meta</a></h4>
 <p><code>int Compiler.groups_meta(Compiler c)</code></p>
 <p>Answers whether a <code>meta</code> function or value belongs to the unit’s group:
 a parse meets it outside a macro definition while the project meta build
-parses the unit or a session stages it. A <code>.xmacro</code> import, and each
-compiler that collects a segment of the unit, shares the unit’s group.</p>
-<p>Source: <code>src/meta-group.x:131</code></p>
+parses the unit or a session stages it.</p>
+<p>Source: <code>src/meta-group.x:129</code></p>
 <p><a id="Compiler.meta_call_missing"></a></p>
 <h4 id="compilermeta_call_missing"><a class="header" href="#compilermeta_call_missing">Compiler.meta_call_missing</a></h4>
 <p><code>String Compiler.meta_call_missing(Compiler c, String name)</code></p>
 <p>Returns why the group function <code>name</code> has no compile-time entry, from
 its type.</p>
-<p>Source: <code>src/meta-group.x:687</code></p>
+<p>Source: <code>src/meta-group.x:786</code></p>
 <p><a id="Compiler.meta_cc"></a></p>
 <h4 id="compilermeta_cc"><a class="header" href="#compilermeta_cc">Compiler.meta_cc</a></h4>
 <p><code>String Compiler.meta_cc(String &amp;include_dir)</code></p>
 <p>Returns the C compiler and the runtime header directory that build
 <code>meta</code> code, or NULL before <code>Compiler.use_meta_toolchain</code>.</p>
-<p>Source: <code>src/meta-group.x:73</code></p>
+<p>Source: <code>src/meta-group.x:72</code></p>
 <p><a id="Compiler.meta_cc_identity"></a></p>
 <h4 id="compilermeta_cc_identity"><a class="header" href="#compilermeta_cc_identity">Compiler.meta_cc_identity</a></h4>
 <p><code>String Compiler.meta_cc_identity(String cc)</code></p>
 <p>Returns the identity of the C compiler at <code>cc</code>: its path and content
 hash.</p>
-<p>Source: <code>src/meta-group.x:80</code></p>
+<p>Source: <code>src/meta-group.x:79</code></p>
 <p><a id="Compiler.meta_cc_run"></a></p>
 <h4 id="compilermeta_cc_run"><a class="header" href="#compilermeta_cc_run">Compiler.meta_cc_run</a></h4>
 <p><code>String Compiler.meta_cc_run(List arguments, String directory)</code></p>
 <p>Runs <code>arguments</code>, a C compiler command building the group C in
 <code>directory</code>, and returns NULL, or else its first error, which names
 <code>directory</code> when a group’s C is the cause.</p>
-<p>Source: <code>src/meta-group.x:89</code></p>
+<p>Source: <code>src/meta-group.x:88</code></p>
 <p><a id="Compiler.meta_reaches_compile_time"></a></p>
 <h4 id="compilermeta_reaches_compile_time"><a class="header" href="#compilermeta_reaches_compile_time">Compiler.meta_reaches_compile_time</a></h4>
 <p><code>int Compiler.meta_reaches_compile_time(Compiler c, Var node)</code></p>
 <p>Answers whether a <code>meta</code> body reaches the compiler itself: it names a
 compile-time-only function or a compiler operation, or constructs a
 template. Such a function has no runtime form.</p>
-<p>Source: <code>src/meta-group.x:158</code></p>
-<p><a id="Compiler.record_meta_import"></a></p>
-<h4 id="compilerrecord_meta_import"><a class="header" href="#compilerrecord_meta_import">Compiler.record_meta_import</a></h4>
-<p><code>void Compiler.record_meta_import(Compiler c)</code></p>
-<p>Records the point where a compile-time import added its <code>meta</code>
-definitions to the unit, so the group places them where the import
-stands.</p>
-<p>Source: <code>src/meta-group.x:149</code></p>
+<p>Source: <code>src/meta-group.x:147</code></p>
 <p><a id="Compiler.refuse_meta_call"></a></p>
 <h4 id="compilerrefuse_meta_call"><a class="header" href="#compilerrefuse_meta_call">Compiler.refuse_meta_call</a></h4>
 <p><code>void Compiler.refuse_meta_call( Compiler c, String name, Token site, String why)</code></p>
 <p>Reports at <code>site</code> that the <code>meta</code> function <code>name</code> cannot run at compile
 time, and <code>why</code>.</p>
-<p>Source: <code>src/meta-group.x:706</code></p>
+<p>Source: <code>src/meta-group.x:805</code></p>
 <p><a id="Compiler.refuse_record_meta_call"></a></p>
 <h4 id="compilerrefuse_record_meta_call"><a class="header" href="#compilerrefuse_record_meta_call">Compiler.refuse_record_meta_call</a></h4>
 <p><code>void Compiler.refuse_record_meta_call(Compiler c, String name, Token site)</code></p>
 <p>Reports at <code>site</code> that the group function <code>name</code> cannot run at compile
 time when its result is a struct or union, which its type alone
 decides.</p>
-<p>Source: <code>src/meta-group.x:714</code></p>
+<p>Source: <code>src/meta-group.x:813</code></p>
 <p><a id="Compiler.stage_meta_in_process"></a></p>
 <h4 id="compilerstage_meta_in_process"><a class="header" href="#compilerstage_meta_in_process">Compiler.stage_meta_in_process</a></h4>
 <p><code>void Compiler.stage_meta_in_process(void)</code></p>
 <p>Enables in-process staging of <code>meta</code> groups for compiler sessions.</p>
-<p>Source: <code>src/meta-group.x:125</code></p>
+<p>Source: <code>src/meta-group.x:124</code></p>
 <p><a id="Compiler.use_meta_build_directory"></a></p>
 <h4 id="compileruse_meta_build_directory"><a class="header" href="#compileruse_meta_build_directory">Compiler.use_meta_build_directory</a></h4>
-<p><code>void Compiler.use_meta_build_directory(String directory)</code></p>
-<p>Directs the group of each unit the project meta build parses into
-<code>directory</code>, or stops that when it is NULL.</p>
-<p>Source: <code>src/meta-group.x:758</code></p>
+<p><code>void Compiler.use_meta_build_directory(String directory, Array owners)</code></p>
+<p>Directs each provider group into <code>directory</code>, using <code>owners</code> to name
+their headers by table, or stops that when <code>directory</code> is NULL.</p>
+<p>Source: <code>src/meta-group.x:858</code></p>
 <p><a id="Compiler.use_meta_toolchain"></a></p>
 <h4 id="compileruse_meta_toolchain"><a class="header" href="#compileruse_meta_toolchain">Compiler.use_meta_toolchain</a></h4>
 <p><code>void Compiler.use_meta_toolchain(String cc, String include_dir)</code></p>
 <p>Selects the C compiler <code>cc</code> that builds the <code>meta</code> code of the units
 this process translates, with the runtime headers this compiler was
 built with, found from its installed headers in <code>include_dir</code>.</p>
-<p>Source: <code>src/meta-group.x:51</code></p>
+<p>Source: <code>src/meta-group.x:50</code></p>
 <p><a id="Compiler.write_meta_build"></a></p>
 <h4 id="compilerwrite_meta_build"><a class="header" href="#compilerwrite_meta_build">Compiler.write_meta_build</a></h4>
 <p><code>void Compiler.write_meta_build(Compiler c)</code></p>
 <p>Writes the group of a unit the project meta build parsed into the build
 directory as <code>group-K.c</code> and <code>group-K.h</code>, K being its table, with the
 <span class="x2c-wordmark">x2c</span> sources it read in <code>group-K.deps</code>, or its failure in
-<code>group-K.failure</code>. A unit without <code>meta</code> functions writes nothing.</p>
-<p>Source: <code>src/meta-group.x:766</code></p>
+<code>group-K.failure</code>. Included native and type providers use the same
+group header and object even when they have no <code>meta</code> functions.</p>
+<p>Source: <code>src/meta-group.x:870</code></p>
 <h2 id="design-notes"><a class="header" href="#design-notes">Design notes</a></h2>
 <p>A bodied <code>meta</code> function a project defines runs as native code: in the
 project’s helper program, which the project meta build compiles from
@@ -373,9 +373,9 @@ group, from the functions it holds to the C it emits.</p>
                         &copy; 2025&ndash;2026
                         <a href="https://flake.org">GWF</a>
                         &middot;
-                        <a href="https://github.com/gwf/x2c/blob/7f0e54f850c5d5776ab2efd4d5d38a6544013cdc/LICENSE">Apache 2.0</a>
+                        <a href="https://github.com/gwf/x2c/blob/00389e131bf1b5c5a33afa59f299746fc3fc5bbb/LICENSE">Apache 2.0</a>
                         &middot;
-                        <a href="https://github.com/gwf/x2c/blob/7f0e54f850c5d5776ab2efd4d5d38a6544013cdc/TRADEMARKS.md">Trademarks</a>
+                        <a href="https://github.com/gwf/x2c/blob/00389e131bf1b5c5a33afa59f299746fc3fc5bbb/TRADEMARKS.md">Trademarks</a>
                     </footer>
                 </div>
             </div>

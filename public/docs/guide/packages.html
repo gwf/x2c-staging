@@ -1,6 +1,6 @@
 <!DOCTYPE HTML>
 <html lang="en" class="light sidebar-visible" dir="ltr">
-    <head><meta name="x2c-release-channel" content="staging"><meta name="x2c-candidate" content="candidate-7f0e54f850c5d5776ab2efd4d5d38a6544013cdc-37403975767-1">
+    <head><meta name="x2c-release-channel" content="staging"><meta name="x2c-candidate" content="candidate-00389e131bf1b5c5a33afa59f299746fc3fc5bbb-37654719483-2">
         <!-- Book generated using mdBook -->
         <meta charset="UTF-8">
         <title>Packages - The x2c Book</title>
@@ -39,10 +39,10 @@
             const path_to_root = "../";
             const default_light_theme = "light";
             const default_dark_theme = "light";
-            window.path_to_searchindex_js = "../searchindex-e3f33cfe.js";
+            window.path_to_searchindex_js = "../searchindex-830d243b.js";
         </script>
         <!-- Start loading toc.js asap -->
-        <script src="../toc-04d6e3af.js"></script>
+        <script src="../toc-320b946b.js"></script>
         <!-- x2c publication metadata -->
         <link rel="canonical" href="https://staging.x2c-lang.dev/docs/guide/packages.html">
         <meta property="og:type" content="website">
@@ -228,7 +228,7 @@ holds package sources; everything else in the directory consumes it like any
 other program.</p>
 <pre><code class="language-text">packages/greet/
   Makefile          PACKAGE := greet, then include ../package.mk
-  src/greet.x       the entry unit; public surface above #pragma private
+  src/greet.x       the entry unit; nonstatic definitions are public
   tests/            consumers that import the package
   examples/
 </code></pre>
@@ -243,8 +243,6 @@ wraps a C library adds the pin, licence texts, and profile that
 </span><span class="line">
 </span><span class="line"><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">Greeting Greeting.</span><span style="--shiki-light:#6F42C1;--shiki-dark:#E9E5DF">new</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">(</span><span style="--shiki-light:#007C8A;--shiki-dark:#29D3E2">String</span><span style="--shiki-light:#E36209;--shiki-dark:#E9E5DF"> subject</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">);</span>
 </span><span class="line"><span style="--shiki-light:#007C8A;--shiki-dark:#29D3E2">String</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF"> Greeting.</span><span style="--shiki-light:#6F42C1;--shiki-dark:#E9E5DF">line</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">(Greeting </span><span style="--shiki-light:#E36209;--shiki-dark:#E9E5DF">greeting</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">);</span>
-</span><span class="line">
-</span><span class="line"><span style="--shiki-light:#D73A49;--shiki-dark:#F0ADA1">#pragma</span><span style="--shiki-light:#6F42C1;--shiki-dark:#E9E5DF"> private</span>
 </span><span class="line">
 </span><span class="line"><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">Greeting Greeting.</span><span style="--shiki-light:#6F42C1;--shiki-dark:#E9E5DF">new</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">(</span><span style="--shiki-light:#007C8A;--shiki-dark:#29D3E2">String</span><span style="--shiki-light:#E36209;--shiki-dark:#E9E5DF"> subject</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">) {</span>
 </span><span class="line"><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">  Greeting greeting </span><span style="--shiki-light:#D73A49;--shiki-dark:#E9E5DF">=</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF"> Scope.</span><span style="--shiki-light:#6F42C1;--shiki-dark:#E9E5DF">malloc</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">(</span><span style="--shiki-light:#D73A49;--shiki-dark:#E9E5DF">sizeof</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">(</span><span style="--shiki-light:#D73A49;--shiki-dark:#F0ADA1">struct</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF"> GreetingData));</span>
@@ -266,6 +264,12 @@ second package may publish its own <code>Greeting</code> in the same program.</p
 <pre><code class="language-make">PACKAGE := greet
 include ../package.mk
 </code></pre>
+<p>An explicit <code>--package-dir</code>, or a target’s <code>package-dirs</code> in <code>x2c.toml</code>,
+selects package ownership when compiling that package’s source files. For
+<code>packages/greet/src/greet.x</code>, pass <code>--package-dir packages</code>; its public names
+then use the <code>greet__</code> prefix. <code>package.mk</code> supplies this directory for you.
+The automatic <code>&lt;home&gt;/packages</code> search locates imports; source compilation
+uses explicit package directories.</p>
 <p><code>make build</code> translates every <code>src/*.x</code> in package mode and produces:</p>
 <pre><code class="language-text">builds/greet.h           the generated public header
 builds/libgreet.a        the archive a consumer links
@@ -371,45 +375,33 @@ checkout’s <code>src/*.x</code> instead:</p>
 <code>builds/tally.module</code>. The build translates the package’s <code>src/*.x</code>
 and compiles its <code>src/*.c</code> with the compiler, so only a package without a
 native dependency links in this way.</p>
-<p>A package can publish macros with its compile-time functions. Export the
-<code>.xmacro</code> import from one of its sources:</p>
-<!-- ignore: these are files in a package named tally. -->
+<p>A package can publish macros beside its compile-time functions in ordinary
+source:</p>
+<!-- ignore: this is a source file in a package named tally. -->
 <pre class="shiki shiki-themes x2c-light x2c-dark x2c-code" style="--shiki-light:#24292e;--shiki-dark:#e9e5df;--shiki-light-bg:#fff;--shiki-dark-bg:#101011" tabindex="0"><code class="language-x2c no-highlight ignore"><span class="line"><span style="--shiki-light:#6A737D;--shiki-dark:#8B857F">// src/tally.x</span>
 </span><span class="line"><span style="--shiki-light:#D73A49;--shiki-dark:#F0ADA1">meta</span><span style="--shiki-light:#D73A49;--shiki-dark:#F0ADA1"> int</span><span style="--shiki-light:#6F42C1;--shiki-dark:#E9E5DF"> tally_sum</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">(</span><span style="--shiki-light:#D73A49;--shiki-dark:#F0ADA1">int</span><span style="--shiki-light:#E36209;--shiki-dark:#E9E5DF"> n</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">);</span>
-</span><span class="line"><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">export </span><span style="--shiki-light:#24292E;--shiki-dark:#FF715A">$(</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">import </span><span style="--shiki-light:#032F62;--shiki-dark:#9EDFB8">"tally.xmacro"</span><span style="--shiki-light:#24292E;--shiki-dark:#FF715A">)</span>
-</span><span class="line"><span style="--shiki-light:#D73A49;--shiki-dark:#F0ADA1">#pragma</span><span style="--shiki-light:#6F42C1;--shiki-dark:#E9E5DF"> private</span></span></code></pre>
-
-<pre class="shiki shiki-themes x2c-light x2c-dark x2c-code" style="--shiki-light:#24292e;--shiki-dark:#e9e5df;--shiki-light-bg:#fff;--shiki-dark-bg:#101011" tabindex="0"><code class="language-x2c no-highlight ignore"><span class="line"><span style="--shiki-light:#6A737D;--shiki-dark:#8B857F">// src/tally.xmacro</span>
 </span><span class="line"><span style="--shiki-light:#A626A4;--shiki-light-font-weight:bold;--shiki-dark:#FF4FD8;--shiki-dark-font-weight:bold">macro</span><span style="--shiki-light:#A15C00;--shiki-light-font-style:italic;--shiki-dark:#FFB454;--shiki-dark-font-style:italic"> Expression</span><span style="--shiki-light:#24292E;--shiki-dark:#FF715A"> $</span><span style="--shiki-light:#6F42C1;--shiki-dark:#FF715A">tally.sum4</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">() </span><span style="--shiki-light:#A626A4;--shiki-light-font-weight:bold;--shiki-dark:#FF4FD8;--shiki-dark-font-weight:bold">=&gt;</span><span style="--shiki-light:#6F42C1;--shiki-dark:#E9E5DF"> tally__tally_sum</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">(</span><span style="--shiki-light:#005CC5;--shiki-dark:#A9C9F5">4</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">);</span></span></code></pre>
 
 <p>The consumer needs one import:</p>
 <pre class="shiki shiki-themes x2c-light x2c-dark x2c-code" style="--shiki-light:#24292e;--shiki-dark:#e9e5df;--shiki-light-bg:#fff;--shiki-dark-bg:#101011" tabindex="0"><code class="language-x2c no-highlight ignore"><span class="line"><span style="--shiki-light:#A626A4;--shiki-light-font-weight:bold;--shiki-dark:#FF4FD8;--shiki-dark-font-weight:bold">import</span><span style="--shiki-light:#032F62;--shiki-dark:#9EDFB8"> "tally"</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">;</span>
 </span><span class="line"><span style="--shiki-light:#D73A49;--shiki-dark:#F0ADA1">meta</span><span style="--shiki-light:#D73A49;--shiki-dark:#F0ADA1"> static</span><span style="--shiki-light:#D73A49;--shiki-dark:#F0ADA1"> int</span><span style="--shiki-light:#6F42C1;--shiki-dark:#E9E5DF"> ten</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">(</span><span style="--shiki-light:#D73A49;--shiki-dark:#F0ADA1">void</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">) </span><span style="--shiki-light:#A626A4;--shiki-light-font-weight:bold;--shiki-dark:#FF4FD8;--shiki-dark-font-weight:bold">=&gt;</span><span style="--shiki-light:#24292E;--shiki-dark:#FF715A"> $</span><span style="--shiki-light:#6F42C1;--shiki-dark:#FF715A">tally.sum4</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">();</span></span></code></pre>
 
-<p>The import loads the package’s declarations, compile-time module or linked
-extension, and the macro imports its entry source and public include
-surface <a href="../reference/language.html#exported-imports">export</a>. An include below
-<code>#pragma private</code> does not contribute the included file’s exports. The
-<code>export</code> marker itself works on either side of the exporting file’s private
-boundary. An import without <code>export</code> stays private, wherever it is written.
-Macros keep their declared names; <code>as</code> changes the package alias, not macro
-spellings. A macro pack may still be imported explicitly without importing
-its package.</p>
+<p>The import loads the package’s public declarations, compile-time module or
+linked extension, and its nonstatic macros and keyword aliases. Ordinary
+includes propagate those definitions through the entry source. Static
+helpers stay in their declaring files.</p>
+<p>Macros keep their declared names; <code>as</code> changes the package alias, not macro
+spellings. For a direct <code>#include</code>, compile the provider as ordinary source
+so its public names stay flat. Consume a provider compiled in package mode
+through <code>import</code>, which reaches its prefixed names through a package alias.</p>
 <h3 id="expose-macros-through-one-import"><a class="header" href="#expose-macros-through-one-import">Expose macros through one import</a></h3>
-<p>Before, an autodiff consumer wrote:</p>
-<!-- ignore: an import needs a registered --package-dir root. -->
-<pre class="shiki shiki-themes x2c-light x2c-dark x2c-code" style="--shiki-light:#24292e;--shiki-dark:#e9e5df;--shiki-light-bg:#fff;--shiki-dark-bg:#101011" tabindex="0"><code class="language-x2c no-highlight ignore"><span class="line"><span style="--shiki-light:#D73A49;--shiki-dark:#F0ADA1">#include</span><span style="--shiki-light:#032F62;--shiki-dark:#9EDFB8"> "typed-array.x"</span>
-</span><span class="line"><span style="--shiki-light:#A626A4;--shiki-light-font-weight:bold;--shiki-dark:#FF4FD8;--shiki-dark-font-weight:bold">import</span><span style="--shiki-light:#032F62;--shiki-dark:#9EDFB8"> "autodiff"</span><span style="--shiki-light:#A626A4;--shiki-light-font-weight:bold;--shiki-dark:#FF4FD8;--shiki-dark-font-weight:bold"> with</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF"> AdTape, AdNode;</span>
-</span><span class="line"><span style="--shiki-light:#24292E;--shiki-dark:#FF715A">$(</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">import </span><span style="--shiki-light:#032F62;--shiki-dark:#9EDFB8">"&lt;path&gt;/autodiff/src/autodiff.xmacro"</span><span style="--shiki-light:#24292E;--shiki-dark:#FF715A">)</span></span></code></pre>
-
-<p><code>src/autodiff.x</code> now exports its macro pack and includes what the macros
-need:</p>
+<p>The <code>autodiff</code> entry source includes its runtime dependencies and macro module:</p>
 <!-- ignore: this is a fragment of the package source. -->
 <pre class="shiki shiki-themes x2c-light x2c-dark x2c-code" style="--shiki-light:#24292e;--shiki-dark:#e9e5df;--shiki-light-bg:#fff;--shiki-dark-bg:#101011" tabindex="0"><code class="language-x2c no-highlight ignore"><span class="line"><span style="--shiki-light:#D73A49;--shiki-dark:#F0ADA1">#include</span><span style="--shiki-light:#032F62;--shiki-dark:#9EDFB8"> "typed-array.x"</span>
-</span><span class="line"><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">export </span><span style="--shiki-light:#24292E;--shiki-dark:#FF715A">$(</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">import </span><span style="--shiki-light:#032F62;--shiki-dark:#9EDFB8">"autodiff.xmacro"</span><span style="--shiki-light:#24292E;--shiki-dark:#FF715A">)</span></span></code></pre>
+</span><span class="line"><span style="--shiki-light:#D73A49;--shiki-dark:#F0ADA1">#include</span><span style="--shiki-light:#032F62;--shiki-dark:#9EDFB8"> "autodiff-macros.x"</span></span></code></pre>
 
-<p>A consumer writes one line, <code>import "autodiff" with AdTape, AdNode;</code>. A
-source library works the same way through <code>#include</code>.</p>
+<p>A consumer writes one line, <code>import "autodiff" with AdTape, AdNode;</code>. The
+same include rules apply to macros and ordinary runtime declarations.</p>
 <h2 id="packages-that-wrap-a-c-library"><a class="header" href="#packages-that-wrap-a-c-library">Packages that wrap a C library</a></h2>
 <p><code>packages/yyjson/</code> is the worked example. It publishes the vendored
 <code>src/yyjson-0.12.h</code> because four of its options methods take yyjson’s own flag
@@ -719,9 +711,9 @@ compiler/linker escape options are not package metadata.</p>
                         &copy; 2025&ndash;2026
                         <a href="https://flake.org">GWF</a>
                         &middot;
-                        <a href="https://github.com/gwf/x2c/blob/7f0e54f850c5d5776ab2efd4d5d38a6544013cdc/LICENSE">Apache 2.0</a>
+                        <a href="https://github.com/gwf/x2c/blob/00389e131bf1b5c5a33afa59f299746fc3fc5bbb/LICENSE">Apache 2.0</a>
                         &middot;
-                        <a href="https://github.com/gwf/x2c/blob/7f0e54f850c5d5776ab2efd4d5d38a6544013cdc/TRADEMARKS.md">Trademarks</a>
+                        <a href="https://github.com/gwf/x2c/blob/00389e131bf1b5c5a33afa59f299746fc3fc5bbb/TRADEMARKS.md">Trademarks</a>
                     </footer>
                 </div>
             </div>

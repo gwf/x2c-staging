@@ -1,6 +1,6 @@
 <!DOCTYPE HTML>
 <html lang="en" class="light sidebar-visible" dir="ltr">
-    <head><meta name="x2c-release-channel" content="staging"><meta name="x2c-candidate" content="candidate-7f0e54f850c5d5776ab2efd4d5d38a6544013cdc-37403975767-1">
+    <head><meta name="x2c-release-channel" content="staging"><meta name="x2c-candidate" content="candidate-00389e131bf1b5c5a33afa59f299746fc3fc5bbb-37654719483-2">
         <!-- Book generated using mdBook -->
         <meta charset="UTF-8">
         <title>src/preprocess.x - The x2c Book</title>
@@ -39,10 +39,10 @@
             const path_to_root = "../../";
             const default_light_theme = "light";
             const default_dark_theme = "light";
-            window.path_to_searchindex_js = "../../searchindex-e3f33cfe.js";
+            window.path_to_searchindex_js = "../../searchindex-830d243b.js";
         </script>
         <!-- Start loading toc.js asap -->
-        <script src="../../toc-04d6e3af.js"></script>
+        <script src="../../toc-320b946b.js"></script>
         <!-- x2c publication metadata -->
         <link rel="canonical" href="https://staging.x2c-lang.dev/docs/internals/compiler-api/preprocess.html">
         <meta property="og:type" content="website">
@@ -240,12 +240,11 @@ Compatibility is not yet promised.</p>
 <tr><td><a href="#preproc_marker_file"><code>preproc_marker_file</code></a></td><td>Returns the file that the host preprocessor’s line marker <code>text</code>, <code># N "file" flags</code>, names and sets <code>line</code> to N, or returns <code>NULL</code> for any other line.</td></tr>
 <tr><td><a href="#preproc_open_state"><code>preproc_open_state</code></a></td><td>Returns the hidden-arm state of the conditional group that <code>text</code> opens: 2 when C never takes its first arm, because the condition requires a never-defined name or is <code>0</code>; 1 when C never takes the arms after its first <code>#else</code>, because the condition is exactly <code>!defined(NAME)</code>; and 0 otherwise.</td></tr>
 <tr><td><a href="#preproc_track_arms"><code>preproc_track_arms</code></a></td><td>Follows the conditional groups open after the preprocessor line <code>text</code>.</td></tr>
-<tr><td><a href="#preproc_visibility"><code>preproc_visibility</code></a></td><td>Returns 1 when the preprocessor line <code>text</code> is <code>#pragma private</code>, 0 when it is <code>#pragma public</code>, and -1 otherwise.</td></tr>
 <tr><td><a href="#preproc_within_arms"><code>preproc_within_arms</code></a></td><td>Returns <code>items</code> inside the conditional arms <code>arms</code> tracked by <code>preproc_track_arms</code>: the directives that reopen each group, outermost first, then <code>items</code>, then one <code>#endif</code> per group.</td></tr>
 <tr><td><a href="#Compiler.leading_preproc"><code>Compiler.leading_preproc</code></a></td><td>Returns source-ordered preprocessor nodes in the preceding trivia.</td></tr>
 <tr><td><a href="#Compiler.note_object_macro"><code>Compiler.note_object_macro</code></a></td><td>Records the name of the <code>#define</code> line <code>content</code> so a bare atom spelled the same way inside a literal can be flagged and a declaration prefix can be read.</td></tr>
+<tr><td><a href="#Compiler.note_preprocessor_macros"><code>Compiler.note_preprocessor_macros</code></a></td><td>Records object-like <code>#define</code> names and removes names after <code>#undef</code>.</td></tr>
 <tr><td><a href="#Compiler.scan_conditionals"><code>Compiler.scan_conditionals</code></a></td><td>Records the open groups after each conditional directive of the tokenized unit, and marks layout attributes where written or where a macro expands to one.</td></tr>
-<tr><td><a href="#Compiler.update_source_visibility"><code>Compiler.update_source_visibility</code></a></td><td>Applies public and private pragma directives to source visibility state and records each object-like <code>#define</code> name, less those <code>#undef</code> drops, for the literal warning.</td></tr>
 </tbody>
 </table>
 </div>
@@ -254,30 +253,30 @@ Compatibility is not yet promised.</p>
 <p><code>int preproc_branch_state(int state)</code></p>
 <p>Returns a group’s hidden-arm state after its <code>#elif</code> or <code>#else</code>: 2 when
 the group’s state was 1, and 0 otherwise.</p>
-<p>Source: <code>src/preprocess.x:80</code></p>
+<p>Source: <code>src/preprocess.x:79</code></p>
 <h4 id="preproc_conditional_kind"><a class="header" href="#preproc_conditional_kind">preproc_conditional_kind</a></h4>
 <p><code>Symbol preproc_conditional_kind(String text)</code></p>
 <p>Classifies the preprocessor line <code>text</code> as a conditional directive:
 <code>&lt;open&gt;</code> for <code>#if</code>, <code>#ifdef</code>, and <code>#ifndef</code>, <code>&lt;branch&gt;</code> for <code>#elif</code>
 and <code>#else</code> forms, <code>&lt;close&gt;</code> for <code>#endif</code>, or 0 for any other line.</p>
-<p>Source: <code>src/preprocess.x:30</code></p>
+<p>Source: <code>src/preprocess.x:29</code></p>
 <h4 id="preproc_directive"><a class="header" href="#preproc_directive">preproc_directive</a></h4>
 <p><code>String preproc_directive(String text)</code></p>
 <p>Returns the preprocessor line <code>text</code> without its <code>#</code> and the blanks
 around the directive.</p>
-<p>Source: <code>src/preprocess.x:23</code></p>
+<p>Source: <code>src/preprocess.x:22</code></p>
 <h4 id="preproc_include_target"><a class="header" href="#preproc_include_target">preproc_include_target</a></h4>
 <p><code>String preproc_include_target(String text, int &amp;angle)</code></p>
 <p>Returns the file named by the <code>#include</code> line <code>text</code>, or <code>NULL</code> for any
 other line. <code>angle</code> is 1 for a <code>&lt;...&gt;</code> name and 0 otherwise. Text after
 the name, such as a comment, is ignored.</p>
-<p>Source: <code>src/preprocess.x:97</code></p>
+<p>Source: <code>src/preprocess.x:85</code></p>
 <h4 id="preproc_marker_file"><a class="header" href="#preproc_marker_file">preproc_marker_file</a></h4>
 <p><code>String preproc_marker_file(String text, int &amp;line)</code></p>
 <p>Returns the file that the host preprocessor’s line marker <code>text</code>,
 <code># N "file" flags</code>, names and sets <code>line</code> to N, or returns <code>NULL</code> for
 any other line.</p>
-<p>Source: <code>src/preprocess.x:111</code></p>
+<p>Source: <code>src/preprocess.x:99</code></p>
 <h4 id="preproc_open_state"><a class="header" href="#preproc_open_state">preproc_open_state</a></h4>
 <p><code>int preproc_open_state(String text)</code></p>
 <p>Returns the hidden-arm state of the conditional group that <code>text</code> opens:
@@ -285,32 +284,26 @@ any other line.</p>
 never-defined name or is <code>0</code>; 1 when C never takes the arms after its
 first <code>#else</code>, because the condition is exactly <code>!defined(NAME)</code>; and 0
 otherwise.</p>
-<p>Source: <code>src/preprocess.x:43</code></p>
+<p>Source: <code>src/preprocess.x:42</code></p>
 <h4 id="preproc_track_arms"><a class="header" href="#preproc_track_arms">preproc_track_arms</a></h4>
 <p><code>List preproc_track_arms(List arms, String text)</code></p>
 <p>Follows the conditional groups open after the preprocessor line <code>text</code>.
 <code>arms</code> holds one entry per open group, innermost first, listing the
 <code>preproc</code> nodes that select that group’s current arm.</p>
-<p>Source: <code>src/preprocess.x:433</code></p>
-<h4 id="preproc_visibility"><a class="header" href="#preproc_visibility">preproc_visibility</a></h4>
-<p><code>int preproc_visibility(String text)</code></p>
-<p>Returns 1 when the preprocessor line <code>text</code> is <code>#pragma private</code>, 0 when
-it is <code>#pragma public</code>, and -1 otherwise. A comment in the line reads as
-a blank, as it does in C.</p>
-<p>Source: <code>src/preprocess.x:85</code></p>
+<p>Source: <code>src/preprocess.x:411</code></p>
 <h4 id="preproc_within_arms"><a class="header" href="#preproc_within_arms">preproc_within_arms</a></h4>
 <p><code>List preproc_within_arms(List arms, List items)</code></p>
 <p>Returns <code>items</code> inside the conditional arms <code>arms</code> tracked by
 <code>preproc_track_arms</code>: the directives that reopen each group, outermost
 first, then <code>items</code>, then one <code>#endif</code> per group.</p>
-<p>Source: <code>src/preprocess.x:446</code></p>
+<p>Source: <code>src/preprocess.x:424</code></p>
 <h3 id="compiler"><a class="header" href="#compiler"><code>Compiler</code></a></h3>
 <p><a id="Compiler.leading_preproc"></a></p>
 <h4 id="compilerleading_preproc"><a class="header" href="#compilerleading_preproc">Compiler.leading_preproc</a></h4>
 <p><code>List Compiler.leading_preproc(Compiler c)</code></p>
 <p>Returns source-ordered preprocessor nodes in the preceding trivia.</p>
 <p>Spaces and comments remain trivia rather than becoming AST nodes.</p>
-<p>Source: <code>src/preprocess.x:299</code></p>
+<p>Source: <code>src/preprocess.x:287</code></p>
 <p><a id="Compiler.note_object_macro"></a></p>
 <h4 id="compilernote_object_macro"><a class="header" href="#compilernote_object_macro">Compiler.note_object_macro</a></h4>
 <p><code>void Compiler.note_object_macro(Compiler c, String content)</code></p>
@@ -319,29 +312,26 @@ the same way inside a literal can be flagged and a declaration prefix
 can be read. The directive after <code>#define</code> is scanned as <span class="x2c-wordmark">x2c</span> tokens. An
 <code>#undef</code> drops the name, so later source reads it as an ordinary
 identifier.</p>
-<p>Source: <code>src/preprocess.x:332</code></p>
+<p>Source: <code>src/preprocess.x:310</code></p>
+<p><a id="Compiler.note_preprocessor_macros"></a></p>
+<h4 id="compilernote_preprocessor_macros"><a class="header" href="#compilernote_preprocessor_macros">Compiler.note_preprocessor_macros</a></h4>
+<p><code>void Compiler.note_preprocessor_macros(Compiler c, List directives)</code></p>
+<p>Records object-like <code>#define</code> names and removes names after <code>#undef</code>.
+Source storage determines visibility independently of directives.</p>
+<p>Source: <code>src/preprocess.x:300</code></p>
 <p><a id="Compiler.scan_conditionals"></a></p>
 <h4 id="compilerscan_conditionals"><a class="header" href="#compilerscan_conditionals">Compiler.scan_conditionals</a></h4>
 <p><code>void Compiler.scan_conditionals(Compiler c)</code></p>
 <p>Records the open groups after each conditional directive of the
 tokenized unit, and marks layout attributes where written or where a
 macro expands to one.</p>
-<p>Source: <code>src/preprocess.x:158</code></p>
-<p><a id="Compiler.update_source_visibility"></a></p>
-<h4 id="compilerupdate_source_visibility"><a class="header" href="#compilerupdate_source_visibility">Compiler.update_source_visibility</a></h4>
-<p><code>void Compiler.update_source_visibility(Compiler c, List directives)</code></p>
-<p>Applies public and private pragma directives to source visibility state
-and records each object-like <code>#define</code> name, less those <code>#undef</code> drops,
-for the literal warning.</p>
-<p>A negative visibility state disables pragma tracking for this token
-stream; macro names are recorded regardless.</p>
-<p>Source: <code>src/preprocess.x:317</code></p>
+<p>Source: <code>src/preprocess.x:146</code></p>
 <h2 id="design-notes"><a class="header" href="#design-notes">Design notes</a></h2>
 <p>Preprocessor lines stay in the token stream and become <code>preproc</code> nodes,
 so generated C keeps them where they were written. This module owns
 what <span class="x2c-wordmark">x2c</span> reads from those lines without running a preprocessor: which
 conditional arms C can reach, and what the directives before each form
-say about visibility, layout, and the unit’s <code>#define</code> names.</p>
+say about layout and the unit’s <code>#define</code> names.</p>
 
                     </main>
 
@@ -360,9 +350,9 @@ say about visibility, layout, and the unit’s <code>#define</code> names.</p>
                         &copy; 2025&ndash;2026
                         <a href="https://flake.org">GWF</a>
                         &middot;
-                        <a href="https://github.com/gwf/x2c/blob/7f0e54f850c5d5776ab2efd4d5d38a6544013cdc/LICENSE">Apache 2.0</a>
+                        <a href="https://github.com/gwf/x2c/blob/00389e131bf1b5c5a33afa59f299746fc3fc5bbb/LICENSE">Apache 2.0</a>
                         &middot;
-                        <a href="https://github.com/gwf/x2c/blob/7f0e54f850c5d5776ab2efd4d5d38a6544013cdc/TRADEMARKS.md">Trademarks</a>
+                        <a href="https://github.com/gwf/x2c/blob/00389e131bf1b5c5a33afa59f299746fc3fc5bbb/TRADEMARKS.md">Trademarks</a>
                     </footer>
                 </div>
             </div>
