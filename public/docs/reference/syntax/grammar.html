@@ -1,0 +1,989 @@
+<!DOCTYPE HTML>
+<html lang="en" class="light sidebar-visible" dir="ltr">
+    <head><meta name="x2c-release-channel" content="staging"><meta name="x2c-candidate" content="candidate-7e946b86663f9f069fe14e284c41e2aed73c57e0-37713265223-2">
+        <!-- Book generated using mdBook -->
+        <meta charset="UTF-8">
+        <title>Source Grammar - The x2c Book</title>
+
+
+        <!-- Custom HTML head -->
+        <link rel="preconnect" href="https://fonts.googleapis.com">
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=Archivo:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">
+
+        <meta name="description" content="The x2c language, standard library, and compiler.">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <meta name="theme-color" content="#ffffff">
+
+        <link rel="icon" href="../../favicon-995a3c20.svg">
+        <link rel="stylesheet" href="../../css/variables-8adf115d.css">
+        <link rel="stylesheet" href="../../css/general-e96d0476.css">
+        <link rel="stylesheet" href="../../css/chrome-d279d366.css">
+        <link rel="stylesheet" href="../../css/print-9e4910d8.css" media="print">
+
+        <!-- Fonts -->
+        <link rel="stylesheet" href="../../fonts/fonts-9644e21d.css">
+
+        <!-- Highlight.js Stylesheets -->
+        <link rel="stylesheet" id="mdbook-highlight-css" href="../../highlight-493f70e1.css">
+        <link rel="stylesheet" id="mdbook-tomorrow-night-css" href="../../tomorrow-night-4c0ae647.css">
+        <link rel="stylesheet" id="mdbook-ayu-highlight-css" href="../../ayu-highlight-3fdfc3ac.css">
+
+        <!-- Custom theme stylesheets -->
+        <link rel="stylesheet" href="../../theme/header-f6c12aed.css">
+        <link rel="stylesheet" href="../../theme/x2c-fd3d182e.css">
+
+
+        <!-- Provide site root and default themes to javascript -->
+        <script>
+            const path_to_root = "../../";
+            const default_light_theme = "light";
+            const default_dark_theme = "light";
+            window.path_to_searchindex_js = "../../searchindex-1d8e23b0.js";
+        </script>
+        <!-- Start loading toc.js asap -->
+        <script src="../../toc-58dd3732.js"></script>
+        <!-- x2c publication metadata -->
+        <link rel="canonical" href="https://staging.x2c-lang.dev/docs/reference/syntax/grammar.html">
+        <meta property="og:type" content="website">
+        <meta property="og:title" content="Source Grammar - The x2c Book">
+        <meta property="og:description" content="The x2c language, standard library, and compiler.">
+        <meta property="og:url" content="https://staging.x2c-lang.dev/docs/reference/syntax/grammar.html">
+        <meta property="og:image" content="https://staging.x2c-lang.dev/x2c-social.png">
+        <meta property="og:image:width" content="1200">
+        <meta property="og:image:height" content="630">
+        <meta name="twitter:card" content="summary_large_image">
+        <meta name="twitter:title" content="Source Grammar - The x2c Book">
+        <meta name="twitter:description" content="The x2c language, standard library, and compiler.">
+        <meta name="twitter:image" content="https://staging.x2c-lang.dev/x2c-social.png">
+    </head>
+    <body>
+    <div id="mdbook-help-container">
+        <div id="mdbook-help-popup">
+            <h2 class="mdbook-help-title">Keyboard shortcuts</h2>
+            <div>
+                <p>Press <kbd>←</kbd> or <kbd>→</kbd> to navigate between chapters</p>
+                <p>Press <kbd>S</kbd> or <kbd>/</kbd> to search in the book</p>
+                <p>Press <kbd>?</kbd> to show this help</p>
+                <p>Press <kbd>Esc</kbd> to hide this help</p>
+            </div>
+        </div>
+    </div>
+    <div id="mdbook-body-container">
+        <!-- Work around some values being stored in localStorage wrapped in quotes -->
+        <script>
+            try {
+                let theme = localStorage.getItem('mdbook-theme');
+                let sidebar = localStorage.getItem('mdbook-sidebar');
+
+                if (theme.startsWith('"') && theme.endsWith('"')) {
+                    localStorage.setItem('mdbook-theme', theme.slice(1, theme.length - 1));
+                }
+
+                if (sidebar.startsWith('"') && sidebar.endsWith('"')) {
+                    localStorage.setItem('mdbook-sidebar', sidebar.slice(1, sidebar.length - 1));
+                }
+            } catch (e) { }
+        </script>
+
+        <!-- Set the theme before any content is loaded, prevents flash -->
+        <script>
+            const default_theme = window.matchMedia("(prefers-color-scheme: dark)").matches ? default_dark_theme : default_light_theme;
+            let theme;
+            try { theme = localStorage.getItem('mdbook-theme'); } catch(e) { }
+            if (theme === null || theme === undefined) { theme = default_theme; }
+            const html = document.documentElement;
+            html.classList.remove('light')
+            html.classList.add(theme);
+            html.classList.add("js");
+        </script>
+
+        <input type="checkbox" id="mdbook-sidebar-toggle-anchor" class="hidden">
+
+        <!-- Hide / unhide sidebar before it is displayed -->
+        <script>
+            let sidebar = null;
+            const sidebar_toggle = document.getElementById("mdbook-sidebar-toggle-anchor");
+            if (document.body.clientWidth >= 1080) {
+                try { sidebar = localStorage.getItem('mdbook-sidebar'); } catch(e) { }
+                sidebar = sidebar || 'visible';
+            } else {
+                sidebar = 'hidden';
+                sidebar_toggle.checked = false;
+            }
+            if (sidebar === 'visible') {
+                sidebar_toggle.checked = true;
+            } else {
+                html.classList.remove('sidebar-visible');
+            }
+        </script>
+
+        <nav id="mdbook-sidebar" class="sidebar" aria-label="Table of contents">
+            <!-- populated by js -->
+            <mdbook-sidebar-scrollbox class="sidebar-scrollbox"></mdbook-sidebar-scrollbox>
+            <noscript>
+                <iframe class="sidebar-iframe-outer" src="../../toc.html"></iframe>
+            </noscript>
+            <div id="mdbook-sidebar-resize-handle" class="sidebar-resize-handle">
+                <div class="sidebar-resize-indicator"></div>
+            </div>
+        </nav>
+
+        <div id="mdbook-page-wrapper" class="page-wrapper">
+
+            <div class="page">
+                <div id="mdbook-menu-bar" class="hidden"></div>
+                <header class="landing-header x2c-header">
+                    <div class="landing-header-inner">
+                        <div class="landing-branding">
+                            <a class="landing-brand" href="../../../" aria-label="x2c home">
+                                <svg viewBox="0 0 100 100" width="22" height="22" aria-hidden="true"><g fill="none" stroke="#da291c" stroke-width="17" stroke-linecap="butt"><path d="M9 16 A34.5 34.5 0 0 1 9 84"></path><path d="M91 16 A34.5 34.5 0 0 0 91 84"></path></g></svg>
+                                <span class="x2c-wordmark landing-wordmark">x2c</span>
+                            </a>
+                            <button class="landing-tagline menu-title" type="button" title="Scroll to top">The x2c Book</button>
+                        </div>
+                        <nav class="landing-nav" aria-label="x2c website">
+                            <div class="landing-page-nav">
+                                <a href="../../../#love">love</a>
+                                <a href="../../../#power">power</a>
+                                <a href="../../../#magic">magic</a>
+                            </div>
+                            <div class="landing-site-nav">
+                                <a href="../../../#install">install</a>
+                                <a href="../../../#packages">packages</a>
+                            </div>
+                            <div class="landing-reference-nav">
+                                <a href="../../../about/">about</a>
+                                <a href="../../" aria-current="page">docs</a>
+                                <a href="https://github.com/gwf/x2c">source</a>
+                            </div>
+                        </nav>
+                    </div>
+                    <div class="x2c-book-tools">
+                        <div class="x2c-header-tools">
+                            <label id="mdbook-sidebar-toggle" class="icon-button" for="mdbook-sidebar-toggle-anchor" title="Toggle Table of Contents" aria-label="Toggle Table of Contents" aria-controls="mdbook-sidebar">
+                                <span class=fa-svg><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc. --><path d="M0 96C0 78.3 14.3 64 32 64H416c17.7 0 32 14.3 32 32s-14.3 32-32 32H32C14.3 128 0 113.7 0 96zM0 256c0-17.7 14.3-32 32-32H416c17.7 0 32 14.3 32 32s-14.3 32-32 32H32c-17.7 0-32-14.3-32-32zM448 416c0 17.7-14.3 32-32 32H32c-17.7 0-32-14.3-32-32s14.3-32 32-32H416c17.7 0 32 14.3 32 32z"/></svg></span>
+                            </label>
+                        </div>
+                        <div class="x2c-header-tools x2c-header-tools-right">
+                            <button id="mdbook-search-toggle" class="icon-button" type="button" title="Search (`/`)" aria-label="Toggle Searchbar" aria-expanded="false" aria-keyshortcuts="/ s" aria-controls="mdbook-searchbar">
+                                <span class=fa-svg><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc. --><path d="M416 208c0 45.9-14.9 88.3-40 122.7L502.6 457.4c12.5 12.5 12.5 32.8 0 45.3s-32.8 12.5-45.3 0L330.7 376c-34.4 25.2-76.8 40-122.7 40C93.1 416 0 322.9 0 208S93.1 0 208 0S416 93.1 416 208zM208 352c79.5 0 144-64.5 144-144s-64.5-144-144-144S64 128.5 64 208s64.5 144 144 144z"/></svg></span>
+                            </button>
+                            <button id="mdbook-theme-toggle" class="icon-button" type="button" title="Change theme" aria-label="Change theme" aria-haspopup="true" aria-expanded="false" aria-controls="mdbook-theme-list">
+                                <span class=fa-svg><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc. --><path d="M448 256c0-106-86-192-192-192V448c106 0 192-86 192-192zm64 0c0 141.4-114.6 256-256 256S0 397.4 0 256S114.6 0 256 0S512 114.6 512 256z"/></svg></span>
+                            </button>
+                            <ul id="mdbook-theme-list" class="theme-popup" aria-label="Themes" role="menu">
+                                <li role="none"><button role="menuitem" class="theme" id="mdbook-theme-default_theme">Auto</button></li>
+                                <li role="none"><button role="menuitem" class="theme" id="mdbook-theme-light">Light</button></li>
+                                <li role="none"><button role="menuitem" class="theme" id="mdbook-theme-ayu">Dark</button></li>
+                            </ul>
+                            <a href="https://github.com/gwf/x2c/edit/main/docs/src/reference/syntax/grammar.md" title="Suggest an edit" aria-label="Suggest an edit" rel="edit" class="icon-button">
+                                <span class=fa-svg id="git-edit-button"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc. --><path d="M421.7 220.3l-11.3 11.3-22.6 22.6-205 205c-6.6 6.6-14.8 11.5-23.8 14.1L30.8 511c-8.4 2.5-17.5 .2-23.7-6.1S-1.5 489.7 1 481.2L38.7 353.1c2.6-9 7.5-17.2 14.1-23.8l205-205 22.6-22.6 11.3-11.3 33.9 33.9 62.1 62.1 33.9 33.9zM96 353.9l-9.3 9.3c-.9 .9-1.6 2.1-2 3.4l-25.3 86 86-25.3c1.3-.4 2.5-1.1 3.4-2l9.3-9.3H112c-8.8 0-16-7.2-16-16V353.9zM453.3 19.3l39.4 39.4c25 25 25 65.5 0 90.5l-14.5 14.5-22.6 22.6-11.3 11.3-33.9-33.9-62.1-62.1L314.3 67.7l11.3-11.3 22.6-22.6 14.5-14.5c25-25 65.5-25 90.5 0z"/></svg></span>
+                            </a>
+                        </div>
+                    </div>
+                </header>
+                <script>
+                    const bookHeader = document.querySelector('.x2c-header');
+                    new ResizeObserver(() => {
+                        document.documentElement.style.setProperty(
+                            '--menu-bar-height', `${bookHeader.getBoundingClientRect().height}px`);
+                    }).observe(bookHeader);
+                </script>
+
+                <div id="mdbook-search-wrapper" class="hidden">
+                    <form id="mdbook-searchbar-outer" class="searchbar-outer">
+                        <div class="search-wrapper">
+                            <input type="search" id="mdbook-searchbar" name="searchbar" placeholder="Search this book ..." aria-controls="mdbook-searchresults-outer" aria-describedby="searchresults-header">
+                            <div class="spinner-wrapper">
+                                <span class=fa-svg id="fa-spin"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc. --><path d="M304 48c0-26.5-21.5-48-48-48s-48 21.5-48 48s21.5 48 48 48s48-21.5 48-48zm0 416c0-26.5-21.5-48-48-48s-48 21.5-48 48s21.5 48 48 48s48-21.5 48-48zM48 304c26.5 0 48-21.5 48-48s-21.5-48-48-48s-48 21.5-48 48s21.5 48 48 48zm464-48c0-26.5-21.5-48-48-48s-48 21.5-48 48s21.5 48 48 48s48-21.5 48-48zM142.9 437c18.7-18.7 18.7-49.1 0-67.9s-49.1-18.7-67.9 0s-18.7 49.1 0 67.9s49.1 18.7 67.9 0zm0-294.2c18.7-18.7 18.7-49.1 0-67.9S93.7 56.2 75 75s-18.7 49.1 0 67.9s49.1 18.7 67.9 0zM369.1 437c18.7 18.7 49.1 18.7 67.9 0s18.7-49.1 0-67.9s-49.1-18.7-67.9 0s-18.7 49.1 0 67.9z"/></svg></span>
+                            </div>
+                        </div>
+                    </form>
+                    <div id="mdbook-searchresults-outer" class="searchresults-outer hidden">
+                        <div id="mdbook-searchresults-header" class="searchresults-header"></div>
+                        <ul id="mdbook-searchresults">
+                        </ul>
+                    </div>
+                </div>
+
+                <!-- Apply ARIA attributes after the sidebar and the sidebar toggle button are added to the DOM -->
+                <script>
+                    document.getElementById('mdbook-sidebar-toggle').setAttribute('aria-expanded', sidebar === 'visible');
+                    document.getElementById('mdbook-sidebar').setAttribute('aria-hidden', sidebar !== 'visible');
+                    Array.from(document.querySelectorAll('#mdbook-sidebar a')).forEach(function(link) {
+                        link.setAttribute('tabIndex', sidebar === 'visible' ? 0 : -1);
+                    });
+                </script>
+
+                <div id="mdbook-content" class="content">
+                    <main>
+                        <h1 id="source-grammar"><a class="header" href="#source-grammar">Source grammar</a></h1>
+<p>The <a href="x2c.ebnf">EBNF file</a>, generated from <a href="data.html">ordinary List data</a>, describes <span class="x2c-wordmark">x2c</span>’s source forms at the
+<a href="index.html">extraction revision</a>. It consumes tokens after the
+<a href="lexical.html">lexical transformations</a>. It is a descriptive grammar with
+explicit contextual recognizers, not a ready-to-run parser-generator input.
+The <a href="../language.html">language reference</a> owns semantics and restrictions.</p>
+<h2 id="notation-and-entry-points"><a class="header" href="#notation-and-entry-points">Notation and entry points</a></h2>
+<p><code>A = B ;</code> defines a production. <code>,</code> concatenates, <code>|</code> selects alternatives,
+<code>[ ... ]</code> is optional, <code>{ ... }</code> repeats zero or more times, and parentheses
+group. Double-quoted strings denote terminal token spellings. Backslash
+escapes a quotation mark, apostrophe, or backslash inside a terminal string.
+<code>(* ... *)</code> is a comment. <code>? description ?</code> is an external recognizer,
+whose contract is stated below or in the lexical specification.</p>
+<p>A quoted keyword can mean a token kind or a contextual identifier spelling.
+For example, <code>is</code> is initially an identifier; <code>inline</code> includes normalized
+GNU spellings. Productions do not accept a token of an incompatible mode
+merely because its text matches a terminal. Trivia can separate code tokens
+unless the lexical specification requires adjacent bytes for one token.</p>
+<p>Alternatives are not a PEG priority list. The contextual rules below select
+ambiguous alternatives before semantic checks. Repetition in the binary
+expression ladder folds left; assignment and conditional tails recurse right.
+The grammar permits some syntactic structures whose types or placement later
+fail. It does not enumerate invalid programs by duplicating the type system.</p>
+<p>The ordinary entry is <code>translation-unit</code>. <code>source-unit</code> also names script
+input. After frontend shebang handling, a script with an explicit <code>main</code>
+uses ordinary file scope. A script without <code>main</code> retains file-level
+functions, types, imports, macros, and explicit static declarations, while
+its executable block items become the implicit script body. This partition
+uses <code>Compiler.script_statement_starts</code>, <code>_declaration_stays</code>, and
+<code>defines_main</code> in <code>src/parse.x</code>; arbitrary interleaving is not permission to
+refer to script locals from file-level functions.</p>
+<h2 id="declaration-contracts"><a class="header" href="#declaration-contracts">Declaration contracts</a></h2>
+<p><strong>D1: names and declaration starts.</strong> <code>Compiler.test_declaration</code> uses
+storage/type keywords, native prefix macros, typedef bindings, package
+aliases, and template-hole kinds. A known non-typedef object name does not
+start a declaration. An unknown identifier can start one when the following
+token looks like a declarator. Thus the grammar does not assume a lexer token
+named <code>TYPE_NAME</code>. Import aliases fold through the current symbol table;
+local bindings can shadow them. An imported package string must decode to
+an identifier, and each imported member must exist.</p>
+<p><code>identifier</code> normally consumes <code>ident</code>. Method/declarator name positions
+also accept identifier-shaped keyword text when their parser explicitly
+does so. <code>method-owner</code> is the owner recognized by
+<code>Compiler._complex_identifier</code>: a built-in type word or known typedef,
+including package-qualified type names. <code>Self</code> is resolved as a contextual
+type. Type existence and a valid scalar combination remain semantic checks.
+The scalar-word production does not include <code>_Bool</code>: the current parser
+handles names outside that list through its named-type path.</p>
+<p><strong>D2: declaration commas and parentheses.</strong> In a declaration row, a comma
+starts a new group only when <code>_group_comma</code> recognizes a declaration start
+with a following declarator. Otherwise it joins declarators of the current
+type. For example, <code>int i, T;</code> declares two integers, whereas
+<code>int i, T value;</code> can introduce a new group. Within parentheses,
+<code>_parameters_follow</code> distinguishes an abstract function declarator from a
+parenthesized name using the current typedef environment.</p>
+<p>A declarator can have no direct name: this represents an abstract declarator,
+an unnamed bit-field, or a type-only declaration, as allowed by its context.
+Function declarator parameter lists are nonempty: <code>(void)</code> is the no-argument
+form. Calls and lambdas separately permit <code>()</code>. Array dimensions use an
+expression; bit-field widths use a primary expression, which can be grouped.
+A full <code>type-operand</code> can contain abstract declarators; <code>type-name</code> only
+contains qualifiers, a specifier, and pointer/reference modifiers. These
+are different entry points, notably in casts versus <code>_Generic</code> associations.</p>
+<p><strong>D3: native declarations.</strong> The storage parser permits one ordinary storage
+class and one <code>threaded</code>, with <code>inline</code> and recognized attributes. <code>typedef</code>
+has its own declaration path and cannot appear as trailing storage. Known
+native macros can supply storage, qualifiers, types, annotation invocations,
+or a wrapper around a type. Shallow C-header collection can ignore an unseen
+prefix before a declaration keyword. <code>prefix-macro</code> names that existing
+operation; it does not authorize arbitrary token expansion.</p>
+<p><code>attribute</code> retains the balanced source text of <code>__attribute__(...)</code> or a
+known annotation macro. Placement follows <code>_attribute</code>, <code>_storage_class</code>,
+and <code>_declarator_suffix</code>; tag attributes handled by <code>_skip_attributes</code> belong
+to shallow imported-header collection. The EBNF shows their structural
+positions, not a grammar for GNU attribute arguments. Native C still checks
+the resulting declaration. Reference placement, bit-field legality, storage
+compatibility, and initializer conversion are outside these productions.</p>
+<p>Ordinary aggregate bodies enter the field parser even when the next token
+is <code>}</code>; the grammar therefore requires a field item. Named-type record
+bodies explicitly permit an empty body. A protocol definition’s participant
+is a binder; an adoption’s participant is a type. Protocol members must be
+single function declarations owned by that binder. Associated types precede
+members; <code>as</code> and <code>tag</code> are mutually exclusive Var-adoption modifiers.</p>
+<p>A leading <code>static</code> on a typedef, protocol, class, or top-level Lisp form
+also controls source visibility. <code>meta native</code> applies to function
+interfaces. See the reference for the public/private and compile-time rules.</p>
+<h2 id="expression-contracts"><a class="header" href="#expression-contracts">Expression contracts</a></h2>
+<p><strong>E1: casts, selectors, and braces.</strong> A parenthesized declaration start
+selects a cast; otherwise parentheses group an expression. At statement
+start, named parameters in the parentheses select a typed destructuring
+declaration; one anonymous parameter can instead be a cast.</p>
+<p><code>is [not]</code> shares relational precedence. Its right operand is a type when
+<code>_is_type_selector_start</code> recognizes a declaration, <code>Void</code>, or an unbound
+identifier; otherwise it parses one cast expression for the Symbol selector.
+An explicit pointer type requires parentheses. Arrays and function types
+are not accepted as direct <code>is</code> type selectors.</p>
+<p>A brace in expression position is a Map when <code>_brace_starts_map</code> sees an
+Entry macro or the first non-conditional colon before a top-level comma or
+terminator. Otherwise it is an initializer. Consequently <code>{}</code> initially
+parses as an empty composite; its destination can establish Map meaning.
+The productions alone do not select <code>map</code> for every brace expression.</p>
+<p>Immediately after <code>(</code>, a leading brace with a top-level semicolon selects
+a statement expression. A template hole can also select it when there is
+no top-level comma. Otherwise the brace remains data. Bare statements in
+parentheses without braces do not form a statement expression.</p>
+<p><strong>E2: precedence.</strong> From lowest to highest:</p>
+<div class="table-wrapper">
+<table>
+<thead>
+<tr><th>Level</th><th>Operators</th><th>Association</th></tr>
+</thead>
+<tbody>
+<tr><td>Comma</td><td><code>,</code></td><td>Left</td></tr>
+<tr><td>Assignment</td><td><code>= += -= *= /= %= &lt;&lt;= &gt;&gt;= &amp;= ^= |=</code></td><td>Right</td></tr>
+<tr><td>Conditional</td><td><code>? :</code></td><td>Right</td></tr>
+<tr><td>Binary 1</td><td><code>||</code></td><td>Left</td></tr>
+<tr><td>Binary 2</td><td><code>&amp;&amp;</code></td><td>Left</td></tr>
+<tr><td>Binary 3</td><td><code>|</code></td><td>Left</td></tr>
+<tr><td>Binary 4</td><td><code>^</code></td><td>Left</td></tr>
+<tr><td>Binary 5</td><td><code>&amp;</code></td><td>Left</td></tr>
+<tr><td>Binary 6</td><td><code>== != === !==</code></td><td>Left</td></tr>
+<tr><td>Binary 7</td><td><code>&lt; &lt;= &gt; &gt;= in is</code> (<code>is not</code> included)</td><td>Left</td></tr>
+<tr><td>Binary 8</td><td><code>&lt;&lt; &gt;&gt;</code></td><td>Left</td></tr>
+<tr><td>Binary 9</td><td><code>+ -</code></td><td>Left</td></tr>
+<tr><td>Binary 10</td><td><code>* / % @</code></td><td>Left</td></tr>
+<tr><td>Cast/unary</td><td>Cast, prefix update, address, dereference, sign, <code>~ ! sizeof</code></td><td>Prefix nesting</td></tr>
+<tr><td>Postfix</td><td>Call, index, slice, member selection, postfix update</td><td>Left</td></tr>
+</tbody>
+</table>
+</div>
+<p><code>src/operator-ledger.x</code> owns the binary rows except the contextual <code>is</code>
+handler in <code>src/expressions.x</code>. Assignment parses a conditional left side;
+whether that side is assignable is a semantic question. An expression-bodied
+function uses a full expression, while a lambda expression body uses an
+assignment expression. Calls and literal element lists permit trailing commas.</p>
+<p><strong>E3: special primaries.</strong> <code>_Generic</code>, <code>va_arg</code>, and <code>offsetof</code> are recognized
+by identifier spelling in <code>_parse_ident_primary</code>. Adjacent C strings join.
+A following identifier joins that sequence when it names a recorded native
+string macro or is unbound, except <code>in</code>; a bound runtime name does not.
+This is the external <code>native-string-word</code> recognizer. The native compiler
+owns the ultimate validity of those C macro spellings.</p>
+<h2 id="statement-directive-and-pattern-contracts"><a class="header" href="#statement-directive-and-pattern-contracts">Statement, directive, and pattern contracts</a></h2>
+<p><strong>G1: positions and directives.</strong> A block accepts declarations and statements;
+a governed position requires one statement. A macro expansion yielding
+multiple block items must respect that difference. <code>parse_governed</code> retains
+preprocessor groups while parsing one governed statement per applicable arm.
+<code>src/preprocess.x</code> owns conditional selection; this grammar treats a retained
+directive as one token, not an arbitrary statement or expression.</p>
+<p><code>else</code> belongs to the nearest eligible <code>if</code>. Match defaults and unfiltered
+catches must be last in their applicable arm sequence. A label, <code>case</code>, or
+<code>default</code> is a parsed row by itself. <code>do ... while (...)</code> does not consume
+a semicolon; a conventional following <code>;</code> is an empty statement. This
+matters when comparing parser consumption, even though emitted C uses its
+required do-while punctuation. The statement parser also accepts a <code>%{</code>
+token as a compound-statement opener; its contents still arrive from Map
+lexical mode, so it is not a general substitute for a code-mode <code>{</code>.</p>
+<p><strong>P1: patterns and error payloads.</strong> A match pattern must reduce to a static
+List pattern. Besides a List expression, a visible macro can supply a derived
+pattern. Its arguments are <code>?</code>/<code>*</code> binders with optional identifiers, nested
+macro patterns, or List patterns. <code>${$macro(...)}</code> embeds a derived pattern
+inside a List; in an <code>(expr TYPE CONTENT)</code> pattern its position can request
+only the content. Typed captures use <code>?(Type name)</code> and the type’s Var tag.
+<code>src/literals.x</code> and <code>src/macros.x</code> own these rules; <code>lib/match.x</code> and its
+plan operations own pattern meaning, not source token recognition.</p>
+<p>Raise and catch payloads have narrower rules than an arbitrary List.
+Raise detail keys are bare exact Symbols; each detail contains one value.
+Catch details are a <code>*</code>-prefixed pattern or <code>(key pattern)</code> pair. A pair’s
+value/pattern cannot be an outer splice, and a raise/catch code is required.
+Cause and key Symbols must round-trip through the compact representation.
+Template slots can produce the corresponding expression or argument rows;
+they do not create a separate unchecked payload grammar.</p>
+<h2 id="literal-and-lisp-contracts"><a class="header" href="#literal-and-lisp-contracts">Literal and Lisp contracts</a></h2>
+<p><strong>L1: tokens versus bytes.</strong> In data mode, bare <code>[</code>, <code>{</code>, and <code>"</code> emit the
+same opener kinds as code <code>%[</code>, <code>%{</code>, and <code>%"</code>. The EBNF uses these normalized
+kinds for nested data. Bare <code>(</code> remains the nested-list opener. List elements
+are separated by token boundaries, not by C commas: a comma is a reader
+prefix there. Array/Map entries use commas. Arrays and Maps accept value
+insertion, while List <code>@</code> additionally splices. An inserted value expression
+uses code mode. Literal meaning, caching, Symbol limits, and pattern binders
+remain subject to the reference’s rules.</p>
+<p>A percent List containing just one reader-prefixed form returns that form
+rather than adding another surrounding list. Quoted Map entries can contain
+<code>${...}</code> with either a computed key followed by <code>:</code> or an Entry macro/slot.
+A String interpolation uses <code>$name</code> or <code>${expression}</code>; the latter also
+supports macro sequence handling where the template parser permits it.</p>
+<p><code>lisp-escape</code> records the contents inside <code>$(</code>, whose outer parentheses also
+form the compile-time Lisp call/list. It is not a sequence of C expressions.
+Templates use <code>@(form)</code> to splice a Lisp result at a sequence slot.
+The ordinary Lisp reader supports lists, four reader prefixes, and atomic
+values; it has no special dotted-pair production. Compiler templates add
+hole capture before evaluation. The EBNF covers reading; it does not specify
+Lisp evaluation, imports, or the available compile-time operations.</p>
+<h2 id="macro-extension-contracts"><a class="header" href="#macro-extension-contracts">Macro extension contracts</a></h2>
+<p>The macro mechanism makes a fixed enumeration of every source spelling
+impossible. These contracts specify how visible definitions extend the
+productions, without treating extension contents as unrestricted text.</p>
+<p><strong>M1: arguments and positions.</strong> Look up the macro or keyword alias in the
+active compiler state, then parse each argument using its signature category.
+An untyped hole initially reads an assignment expression. A final sequence
+parameter repeats its category with commas; it can capture zero elements.
+After a <code>Decl</code> argument, <code>in</code> may replace the separating comma, which is how
+<code>foreach (T value in collection)</code> uses the ordinary macro parser.</p>
+<div class="table-wrapper">
+<table>
+<thead>
+<tr><th>Hole kind</th><th>Argument recognizer</th></tr>
+</thead>
+<tbody>
+<tr><td><code>Expr</code>, <code>Expression</code>, untyped</td><td>Assignment expression</td></tr>
+<tr><td><code>Type</code></td><td>Type name</td></tr>
+<tr><td><code>NamedType</code></td><td>Named-type declaration, including its semicolon</td></tr>
+<tr><td><code>Decl</code></td><td>One non-function, non-typedef declaration; destructuring can omit its initializer</td></tr>
+<tr><td><code>DeclaratorRow</code></td><td>One declarator with optional initializer; base type supplied at expansion</td></tr>
+<tr><td><code>Param</code></td><td>Parameter declaration or ellipsis</td></tr>
+<tr><td><code>Name</code></td><td>Identifier spelling</td></tr>
+<tr><td><code>Literal</code></td><td>Atomic literal</td></tr>
+<tr><td><code>Stmt</code></td><td>Block item</td></tr>
+<tr><td><code>Field</code></td><td>Field item</td></tr>
+<tr><td><code>Entry</code></td><td>Map entry</td></tr>
+<tr><td><code>Enumerator</code></td><td>Enumerator</td></tr>
+<tr><td><code>MatchRow</code></td><td>One match arm</td></tr>
+<tr><td><code>Unit</code></td><td>Top-level item</td></tr>
+<tr><td><code>Function</code></td><td>Function definition</td></tr>
+<tr><td><code>Catch</code>, <code>Captures</code></td><td>Structured template sequence positions; not generic invocation arguments</td></tr>
+</tbody>
+</table>
+</div>
+<p>Result/argument kind spellings are case-insensitive; EBNF lists their usual
+capitalization. <code>macro_categories</code> in <code>src/macros.x</code> is the complete table.
+Expression, statement, field, entry, enumerator, unit, declaration, and
+decorator results must be applied in compatible positions. Local macro values
+and keyword aliases use their bound signatures too. <code>class</code> and <code>foreach</code>
+are built-in aliases, whose definitions live in <code>etc/builtin-macros.x</code>.
+The remaining built-ins and library macros need no new core productions.
+A bare visible <code>$name</code> can also denote a Macro value without invoking it.
+A direct non-decorator invocation consumes <code>;</code> in unit, block, statement,
+and field positions. Enumerator and Entry invocations use their enclosing
+comma list instead. Anonymous open arrow statements omit that terminator.</p>
+<p><strong>M2: definitions and bodies.</strong> A global definition uses a <code>$</code> name; a named
+local definition omits <code>$</code>; an anonymous macro expression omits the name.
+An Expression result, or expression-target Decorator, requires an arrow
+expression body. A Stmt result uses a braced block-item template or an arrow
+statement (a Stmt macro/decorator invocation or an expression statement). Other results use a braced category-specific sequence,
+optionally preceded by <code>=&gt;</code>. The arrow is two tokens. A named expression
+body normally ends with <code>;</code>; an anonymous arrow body omits that terminator,
+which belongs to the enclosing expression. The implementation also accepts
+a legacy parenthesized expression body after the arrow without its own
+semicolon when the next token cannot extend that expression. A following
+semicolon selects the canonical form. See <code>_legacy_expression_body</code> and
+<code>Definition.expression_body</code>.</p>
+<p>A braced template can begin with <code>using</code> lines terminated by semicolons.
+<code>using $name</code> declares fresh names; <code>using name</code> retains a file-level binding.
+A signature can also have a <code>using</code> clause. Sequence parameters must be last.
+Local definitions cannot produce Unit/Declaration results or decorate
+Function/Unit/NamedType targets. These restrictions are enforced by
+<code>Definition</code> in <code>src/macros.x</code>.</p>
+<p><strong>M3: decorators.</strong> The first signature parameter is the target; invocation
+arguments supply the remaining parameters and the following source supplies
+the target category. Targets can be Expr, Stmt, Field, Unit, Function, or
+NamedType. An identifier alias omits parentheses when there are no ordinary arguments;
+a <code>$</code> invocation still has its argument parentheses.
+Unit/Function/NamedType decorators therefore extend file scope as well as
+block/expression positions. In indentation syntax, the leading <code>@</code> in
+<code>@$decorator(...)</code> is a layout marker removed before parsing. Sequence
+prefixes <code>@name</code>, <code>@producer(...)</code>, and <code>@(form)</code> remain. Brace-source decorators compose directly before their target.
+A naked file-scope <code>@</code> is rejected. Target placement and alias shadowing
+follow <code>try_parse_macro_target_at</code>, not arbitrary grammar substitution.</p>
+<p><strong>M4: quotations.</strong> <code>$!(expression)</code> quotes an expression; <code>$!{...}</code> quotes
+block items. <code>$!Kind{...}</code> selects a result kind, Type, or Param. A typed
+quotation <code>$!T{expression}</code> or <code>$!(type){expression}</code> uses a type operand;
+the parenthesized form also accepts <code>$name</code> or <code>${expression}</code> carrying a
+type. Category names take priority over an ordinary type spelling. The
+quotation captures local <code>$name</code> references and braced value holes according
+to <code>parse_macro_quotation</code>. Typed quotations have context and nesting
+restrictions described in the reference.</p>
+<p><strong>M5: slots and sequences.</strong> Inside a template, <code>$name</code> inserts a declared
+hole in a category-compatible position, and <code>@name</code> splices a sequence.
+<code>${expression}</code> and <code>$(...)</code> supply computed syntax in the applicable slot;
+meta calls use the same binding operations. The parser selects the slot’s
+role (expression, type, name, parameter, declarator row, field, entry,
+enumerator, match row, catch, captures, block, or unit) and whether a sequence
+is permitted. In a meta call, a whole <code>$name</code> hole passes its captured value;
+a whole sequence hole passes one List, rather than splicing call arguments.
+Meta argument lists do not allow a trailing comma.
+Call arguments, initializer elements, quoted Array elements,
+and raise details also have argument-sequence positions. A sequence marker
+is not permission to insert multiple statements where one statement is needed.</p>
+<p>This is syntax construction over canonical Lists. Ordinary binder operations
+accept structurally valid constructed forms without authenticating their
+origin. The grammar must not be used to add origin tracking or to reject a
+legal AST merely because it was built with Lisp rather than parsed text.</p>
+<h2 id="complete-production-inventory"><a class="header" href="#complete-production-inventory">Complete production inventory</a></h2>
+<p>The following is included directly from the standalone file. There is only
+one copy of the production inventory.</p>
+<pre><code class="language-ebnf">(* Generated by tools/syntax-spec write from etc/syntax/grammar.x.
+   Read grammar.md and lexical.md for contextual contracts.
+   Strings are token spellings; ? ... ? marks external recognition. *)
+
+source-unit = ( translation-unit | script-unit ) ;
+script-unit = ? script partition described in grammar.md entry points ? ;
+translation-unit = { unit-item } ;
+unit-item = ( directive |
+    static-assert |
+    import-declaration |
+    protocol-form |
+    macro-definition |
+    keyword-definition |
+    ( [ "static" ] , lisp-escape ) |
+    linkage-group |
+    declaration-definition |
+    unit-extension ) ;
+linkage-group = ( "extern" , c-string , "{" , { unit-item } , "}" ) ;
+declaration-definition = ( [ ( "meta" , [ "native" ] ) ] , declaration-row , ( ";" | function-body ) ) ;
+function-body = ( block | ( "=" , "&gt;" , expression , ";" ) ) ;
+import-declaration = ( "import" ,
+    c-string ,
+    [ ( "as" , identifier ) ] ,
+    [ ( "with" , import-member , { ( "," , import-member ) } ) ] ,
+    ";" ) ;
+import-member = ( identifier , [ ( "as" , identifier ) ] ) ;
+static-assert = ( "_Static_assert" , "(" , assignment , "," , assignment , ")" , ";" ) ;
+declaration-row = ( declaration-group , { ( "," , declaration-group ) } ) ;
+declaration-group = ( ( specifiers , declarator-list ) |
+    ( specifiers , destructuring-targets , "=" , assignment ) ) ;
+specifiers = ( { declaration-prefix } , { qualifier } , type-specifier , { trailing-storage } ) ;
+declaration-prefix = ( storage | "inline" | "_Noreturn" | attribute | prefix-macro ) ;
+trailing-storage = ( storage | "inline" | prefix-macro ) ;
+storage = ( "typedef" | ( "extern" , [ c-string ] ) | "static" | "auto" | "register" | "threaded" ) ;
+qualifier = ( "const" | "restrict" | "volatile" ) ;
+type-specifier = ( scalar-specifiers | aggregate | enumeration | type-reference | type-slot ) ;
+scalar-specifiers = ( scalar-word , { scalar-word } ) ;
+scalar-word = ( "void" | "char" | "short" | "int" | "long" | "float" | "double" | "signed" | "unsigned" ) ;
+type-reference = ( identifier , [ ( "." , identifier ) ] ) ;
+type-name = ( { qualifier } , type-specifier , { pointer-part } ) ;
+type-operand = declaration-group ;
+declarator-list = ( init-declarator , { ( "," , init-declarator ) } ) ;
+init-declarator = ( ( declarator | declarator-row-slot ) , [ ( "=" , assignment ) ] ) ;
+declarator = ( { pointer-part } , [ direct-declarator ] , { declarator-suffix } ) ;
+pointer-part = ( "*" | "^" | ( "&amp;" , [ "?" ] ) | qualifier | qualifier-macro ) ;
+direct-declarator = ( declaration-name | ( "(" , declarator , ")" ) ) ;
+declaration-name = ( identifier | method-name | name-slot ) ;
+method-name = ( method-owner , "." , identifier ) ;
+method-owner = ? contextual type owner under D1 ? ;
+declarator-suffix = ( ( "[" , [ expression ] , "]" ) |
+    ( "(" , parameter-list , ")" ) |
+    ( ":" , primary ) |
+    attribute ) ;
+parameter-list = ( parameter , { ( "," , parameter ) } ) ;
+parameter = ( ( { qualifier } , type-specifier , declarator ) | "..." | parameter-slot ) ;
+destructuring-targets = ( "(" , identifier , "," , identifier , { ( "," , identifier ) } , ")" ) ;
+typed-destructuring = ( "(" , parameter-list , ")" , "=" , assignment , ";" ) ;
+aggregate = ( ( "struct" | "union" ) ,
+    { attribute } ,
+    [ declaration-name ] ,
+    [ ( "{" , field , { field } , "}" , { attribute } ) ] ) ;
+field = ( ( [ "delegate" ] , declaration-row , ";" ) | static-assert | field-extension ) ;
+enumeration = ( "enum" ,
+    { attribute } ,
+    [ declaration-name ] ,
+    [ ( "{" , [ ( enumerator , { ( "," , enumerator ) } , [ "," ] ) ] , "}" , { attribute } ) ] ) ;
+enumerator = ( ( declaration-name , [ ( "=" , conditional ) ] ) | enumerator-extension ) ;
+named-type = ( ( identifier ,
+    ( ";" |
+    ( { qualifier } ,
+    ( type-specifier | ( [ ( "struct" | "union" ) ] , "{" , { field } , "}" ) ) ,
+    abstract-declarator ,
+    ";" ) ) ) |
+    named-type-slot ) ;
+abstract-declarator = ? declarator with no declared name ? ;
+attribute = ? balanced GNU attribute or known annotation-macro invocation ? ;
+prefix-macro = ? known native declaration-prefix macro; contract D3 ? ;
+qualifier-macro = ? known native macro supplying qualifiers ? ;
+protocol-form = ( ( "protocol" ,
+    type-name ,
+    "(" ,
+    identifier ,
+    ")" ,
+    "{" ,
+    { associated-type } ,
+    { protocol-member } ,
+    "}" ) |
+    ( [ "meta" ] ,
+    [ "static" ] ,
+    "protocol" ,
+    type-name ,
+    "(" ,
+    type-name ,
+    ")" ,
+    [ ( ( "as" , type-name ) | ( "tag" , ( atomic | expression-slot ) ) ) ] ,
+    ";" ) ) ;
+associated-type = ( "associated" , identifier , "=" , type-name , ";" ) ;
+protocol-member = ( specifiers , declarator , [ ( "=" , identifier ) ] , ";" ) ;
+block = ( "{" , { block-item } , "}" ) ;
+block-item = ( directive |
+    static-assert |
+    ( declaration-row , ";" ) |
+    local-macro-definition |
+    statement |
+    block-extension ) ;
+statement = ( block |
+    ";" |
+    ( expression , ";" ) |
+    typed-destructuring |
+    ( ( identifier | name-slot ) , ":" ) |
+    ( "case" , expression , ":" ) |
+    ( "default" , ":" ) |
+    ( "if" , "(" , expression , ")" , governed , [ ( "else" , governed ) ] ) |
+    ( "while" , "(" , expression , ")" , governed ) |
+    ( "do" , governed , "while" , "(" , expression , ")" ) |
+    ( "for" ,
+    "(" ,
+    [ for-init ] ,
+    ";" ,
+    [ expression ] ,
+    ";" ,
+    [ expression ] ,
+    ")" ,
+    governed ) |
+    ( "switch" , "(" , expression , ")" , governed ) |
+    ( "return" , [ expression ] , ";" ) |
+    ( ( "break" | "continue" ) , ";" ) |
+    ( "goto" , declaration-name , ";" ) |
+    ( "defer" , governed ) |
+    with-statement |
+    match-statement |
+    try-statement |
+    raise-statement |
+    statement-extension ) ;
+for-init = ( type-operand | expression ) ;
+governed = ? one statement, with directive handling G1 ? ;
+with-statement = ( "with" , expression , [ ( "as" , identifier ) ] , block ) ;
+match-statement = ( "match" ,
+    "(" ,
+    expression ,
+    ")" ,
+    ( ( "{" , { ( directive | match-row ) } , "}" ) | match-row ) ) ;
+match-row = ( ( ( ( "case" , pattern ) | "default" ) ,
+    [ ( "if" , "(" , expression , ")" ) ] ,
+    ":" ,
+    governed ) |
+    match-row-slot ) ;
+pattern = ? expression yielding a static List pattern, or macro pattern P1 ? ;
+try-statement = ( "try" ,
+    governed ,
+    ( ( catch-arm , { catch-arm } , [ ( "finally" , governed ) ] ) | ( "finally" , governed ) ) ) ;
+catch-arm = ( "catch" , ( ( [ catch-payload ] , ":" , governed ) | catch-slot ) ) ;
+catch-payload = ( "%(" , list-element , { catch-detail } , ")" ) ;
+catch-detail = ( sequence-pattern | ( "(" , bare-symbol , list-element , ")" ) ) ;
+sequence-pattern = ? list-mode atom beginning with '*' ? ;
+raise-statement = ( "raise" ,
+    "%(" ,
+    ( bare-symbol | insertion | expression-slot ) ,
+    { ( raise-detail | argument-slot ) } ,
+    ")" ,
+    ";" ) ;
+raise-detail = ( "(" , ( bare-symbol | expression-slot ) , list-element , ")" ) ;
+bare-symbol = ? bare lit-atom whose decoded spelling is an exact Symbol ? ;
+expression = ( assignment , { ( "," , assignment ) } ) ;
+assignment = ( conditional , [ ( assignment-op , assignment ) ] ) ;
+assignment-op = ( "=" | "+=" | "-=" | "*=" | "/=" | "%=" | "&lt;&lt;=" | "&gt;&gt;=" | "&amp;=" | "^=" | "|=" ) ;
+conditional = ( logical-or , [ ( "?" , expression , ":" , conditional ) ] ) ;
+logical-or = ( logical-and , { ( "||" , logical-and ) } ) ;
+logical-and = ( bitwise-or , { ( "&amp;&amp;" , bitwise-or ) } ) ;
+bitwise-or = ( bitwise-xor , { ( "|" , bitwise-xor ) } ) ;
+bitwise-xor = ( bitwise-and , { ( "^" , bitwise-and ) } ) ;
+bitwise-and = ( equality , { ( "&amp;" , equality ) } ) ;
+equality = ( relational , { ( ( "==" | "!=" | "===" | "!==" ) , relational ) } ) ;
+relational = ( shift ,
+    { ( ( ( "&lt;" | "&lt;=" | "&gt;" | "&gt;=" | "in" ) , shift ) | ( "is" , [ "not" ] , type-selector ) ) } ) ;
+type-selector = ( type-name | ( "(" , type-name , ")" ) | cast ) ;
+shift = ( additive , { ( ( "&lt;&lt;" | "&gt;&gt;" ) , additive ) } ) ;
+additive = ( multiplicative , { ( ( "+" | "-" ) , multiplicative ) } ) ;
+multiplicative = ( cast , { ( ( "*" | "/" | "%" ) , cast ) } ) ;
+cast = ( ( "(" , type-operand , ")" , cast ) | unary ) ;
+unary = ( ( ( "++" | "--" ) , unary ) |
+    ( ( "&amp;" | "*" | "+" | "-" | "~" | "!" ) , cast ) |
+    ( "sizeof" , ( ( "(" , ( type-operand | expression ) , ")" ) | type-operand | unary ) ) |
+    postfix ) ;
+postfix = ( primary , { postfix-part } ) ;
+postfix-part = ( ( "[" , expression , "]" ) |
+    ( "[" , [ expression ] , ":" , [ expression ] , [ ( ":" , [ expression ] ) ] , "]" ) |
+    ( "(" , [ arguments ] , ")" ) |
+    ( ( "." | "-&gt;" ) , member-name ) |
+    "++" |
+    "--" ) ;
+arguments = ( argument , { ( "," , argument ) } , [ "," ] ) ;
+argument = ( assignment | argument-slot ) ;
+member-name = ( identifier | name-slot ) ;
+primary = ( atomic |
+    c-string-run |
+    identifier |
+    ( "(" , expression , ")" ) |
+    statement-expression |
+    initializer |
+    array |
+    map |
+    quoted-list |
+    quoted-array |
+    quoted-map |
+    percent-string |
+    symbol-set |
+    lambda |
+    generic |
+    va-arg |
+    offsetof |
+    lisp-escape |
+    macro-expression |
+    quotation |
+    expression-slot ) ;
+atomic = ( integer | floating | character | c-string | symbol | atom | "void" ) ;
+c-string-run = ( c-string , { ( c-string | native-string-word ) } ) ;
+native-string-word = ? adjacent native macro or unbound word accepted by E3 ? ;
+statement-expression = ( "(" , block , ")" ) ;
+initializer = ( "{" , [ ( initializer-item , { ( "," , initializer-item ) } , [ "," ] ) ] , "}" ) ;
+initializer-item = ( assignment | argument-slot | ( designator , { designator } , "=" , assignment ) ) ;
+designator = ( ( "." , identifier ) | ( "[" , assignment , "]" ) ) ;
+array = ( "[" , [ ( assignment , { ( "," , assignment ) } , [ "," ] ) ] , "]" ) ;
+map = ( "{" , [ ( map-entry , { ( "," , map-entry ) } , [ "," ] ) ] , "}" ) ;
+map-entry = ( ( ( identifier | assignment ) , ":" , assignment ) | entry-extension ) ;
+generic = ( "_Generic" ,
+    "(" ,
+    assignment ,
+    { ( "," , ( type-name | "default" ) , ":" , assignment ) } ,
+    ")" ) ;
+va-arg = ( "va_arg" , "(" , assignment , "," , type-operand , ")" ) ;
+offsetof = ( "offsetof" ,
+    "(" ,
+    type-name ,
+    "," ,
+    identifier ,
+    { ( ( "." , identifier ) | ( "[" , expression , "]" ) ) } ,
+    ")" ) ;
+lambda = ( "%!" ,
+    "(" ,
+    [ ( parameter-list | bare-parameters ) ] ,
+    ")" ,
+    [ ( "using" , capture-list ) ] ,
+    "=" ,
+    "&gt;" ,
+    ( block | assignment ) ) ;
+bare-parameters = ( identifier , { ( "," , identifier ) } ) ;
+capture-list = ( ( "&amp;" , declaration-name , { ( "," , "&amp;" , declaration-name ) } ) | captures-slot ) ;
+quoted-list = ( "%(" , { list-element } , ")" ) ;
+nested-list = ( "(" , { list-element } , ")" ) ;
+list-element = ( literal-element | insertion | splice | ( reader-prefix , list-element ) ) ;
+literal-element = ( atomic | nested-list | quoted-array | quoted-map | percent-string | typed-capture ) ;
+insertion = ( ( "$" , identifier ) | ( "${" , expression , "}" ) ) ;
+splice = ( ( "@" , identifier ) | ( "@{" , expression , "}" ) ) ;
+reader-prefix = ( "\'" | "`" | "," | ",@" ) ;
+typed-capture = ( "?(" , type-name , identifier , ")" ) ;
+quoted-array = ( "%[" , [ ( quoted-array-item , { ( "," , quoted-array-item ) } , [ "," ] ) ] , "]" ) ;
+quoted-array-item = ( data-element | argument-slot ) ;
+data-element = ( literal-element | insertion ) ;
+quoted-map = ( "%{" , [ ( quoted-entry , { ( "," , quoted-entry ) } , [ "," ] ) ] , "}" ) ;
+quoted-entry = ( ( data-element , ":" , data-element ) | quoted-entry-extension ) ;
+quoted-entry-extension = ( "${" , entry-extension , "}" ) ;
+percent-string = ( "%\"" , { ( string-segment | insertion ) } , "\"" ) ;
+symbol-set = ( "%&lt;&lt;" , { symbol-set-member } , "&gt;&gt;" ) ;
+symbol-set-member = ? symbol-set-mode lit-atom or lit-symbol ? ;
+unit-extension = ( class-declaration | unit-macro | decorator ) ;
+class-declaration = ( [ "static" ] , "class" , named-type ) ;
+statement-extension = ( foreach-statement | statement-macro | decorator ) ;
+foreach-statement = ( "foreach" , "(" , declaration-argument , ( "in" | "," ) , assignment , ")" , governed ) ;
+declaration-argument = ( specifiers , ( init-declarator | destructuring-targets ) ) ;
+keyword-definition = ( [ "static" ] , "keyword" , identifier , macro-name , ";" ) ;
+macro-name = ( "$" , identifier , { ( "." , identifier ) } ) ;
+macro-definition = ( [ "static" ] , "macro" , result-kind , macro-name , macro-signature , macro-body ) ;
+local-macro-definition = ( "macro" , result-kind , identifier , macro-signature , macro-body ) ;
+anonymous-macro = ( "macro" , result-kind , macro-signature , macro-body ) ;
+macro-expression = ( macro-call | local-macro-call | anonymous-macro | meta-call | macro-name ) ;
+macro-signature = ( "(" ,
+    [ ( hole-parameter , { ( "," , hole-parameter ) } ) ] ,
+    ")" ,
+    [ ( "using" , using-list ) ] ) ;
+hole-parameter = ( [ hole-kind ] , ( "$" | "@" ) , identifier ) ;
+using-list = ( ( "$" , identifier , { ( "," , "$" , identifier ) } ) |
+    ( identifier , { ( "," , identifier ) } ) ) ;
+macro-body = ? body selected by result/target kind; contract M2 ? ;
+macro-call = ( macro-name , "(" , macro-arguments , ")" ) ;
+local-macro-call = ( identifier , "(" , macro-arguments , ")" ) ;
+meta-call = ( macro-name , "(" , [ ( meta-argument , { ( "," , meta-argument ) } ) ] , ")" ) ;
+meta-argument = ( assignment | meta-value-hole ) ;
+meta-value-hole = ? whole template hole passed as a value, under M5 ? ;
+macro-arguments = ? signature-directed argument sequence; contract M1 ? ;
+decorator = ? visible decorator invocation followed by its target; M3 ? ;
+quotation = ( "$" ,
+    "!" ,
+    ( ( "(" , expression , ")" ) |
+    ( [ quotation-kind ] , "{" , quotation-items , "}" ) |
+    ( quotation-type , "{" , expression , "}" ) ) ) ;
+quotation-kind = ( result-kind | "Type" | "Param" ) ;
+quotation-type = ? type operand or computed type under M4 ? ;
+quotation-items = ? contents selected by quotation kind, with ${expr} and @{expr} holes; M4 ? ;
+result-kind = ( "Expr" |
+    "Expression" |
+    "Stmt" |
+    "Field" |
+    "Entry" |
+    "Enumerator" |
+    "Unit" |
+    "Declaration" |
+    "Decorator" ) ;
+hole-kind = ( "Expr" |
+    "Expression" |
+    "Stmt" |
+    "Field" |
+    "Entry" |
+    "Enumerator" |
+    "Unit" |
+    "Function" |
+    "NamedType" |
+    "Type" |
+    "Decl" |
+    "DeclaratorRow" |
+    "Name" |
+    "Literal" |
+    "Param" |
+    "Catch" |
+    "Captures" |
+    "MatchRow" ) ;
+expression-slot = ? expression slot under M5 ? ;
+argument-slot = ? argument sequence slot: @name, @call(...), or @(form); M5 ? ;
+declarator-row-slot = ? declarator row slot under M5 ? ;
+named-type-slot = ? named type slot under M5 ? ;
+type-slot = ? type slot under M5 ? ;
+name-slot = ? name slot under M5 ? ;
+parameter-slot = ? parameter slot under M5 ? ;
+captures-slot = ? capture slot under M5 ? ;
+catch-slot = ? catch-arm slot under M5 ? ;
+match-row-slot = ? match-row slot under M5 ? ;
+unit-macro = ? unit-position macro/slot under M1-M5 ? ;
+block-extension = ? block-position macro/slot under M1-M5 ? ;
+statement-macro = ? statement-position macro/slot under M1-M5 ? ;
+field-extension = ? field-position macro/slot under M1-M5 ? ;
+enumerator-extension = ? enumerator-position macro/slot under M1-M5 ? ;
+entry-extension = ? map-entry-position macro/slot under M1-M5 ? ;
+lisp-escape = ( "$(" , { lisp-form } , ")" ) ;
+lisp-form = ( lisp-atom | ( "(" , { lisp-form } , ")" ) | ( reader-prefix , lisp-form ) | lisp-hole ) ;
+lisp-atom = ( integer | floating | c-string | symbol | lisp-identifier ) ;
+lisp-hole = ? template hole in compiler Lisp; M5 ? ;
+lisp-identifier = ? ident token in Lisp mode ? ;
+identifier = ? identifier accepted in the current name position; D1 ? ;
+integer = ? lit-int ? ;
+floating = ? lit-float ? ;
+character = ? lit-char ? ;
+c-string = ? lit-char* ? ;
+symbol = ? lit-symbol ? ;
+atom = ? lit-atom ? ;
+string-segment = ? segment ? ;
+directive = ? preproc token retained/selected by preprocessing; G1 ? ;
+</code></pre>
+<h2 id="coverage-and-validation-limits"><a class="header" href="#coverage-and-validation-limits">Coverage and validation limits</a></h2>
+<p>The inventory covers declarations, types, expressions, statements, literals,
+protocols, macro syntax, embedded Lisp reading, and script entry selection.
+External recognizers name deliberate boundaries: native annotation contents,
+dynamic macro signatures, context-sensitive names, slots, and static patterns.
+The accompanying lexical specification covers raw source and layout spelling.</p>
+<p>Source comparison, existing fixtures, and focused probes can establish
+specific correspondences. They do not prove that this grammar and the
+compiler accept exactly the same language. In particular, no independent
+parser has yet consumed this EBNF over the entire repository corpus. Full
+semantic validity, imported C dialects, and arbitrary compile-time evaluation
+remain outside that claim.</p>
+
+                    </main>
+
+                    <nav class="x2c-pager" aria-label="Page navigation">
+                        <a rel="prev" href="../../reference/syntax/index.html" class="x2c-pager-prev" aria-keyshortcuts="Left">
+                            <span class="x2c-pager-label">previous</span>
+                            <span class="x2c-pager-title">Syntax Specifications</span>
+                        </a>
+                        
+                        <a rel="next prefetch" href="../../reference/syntax/lexical.html" class="x2c-pager-next" aria-keyshortcuts="Right">
+                            <span class="x2c-pager-label">next</span>
+                            <span class="x2c-pager-title">Lexical Specification</span>
+                        </a>
+                    </nav>
+                    <footer class="x2c-footer">
+                        &copy; 2025&ndash;2026
+                        <a href="https://flake.org">GWF</a>
+                        &middot;
+                        <a href="https://github.com/gwf/x2c/blob/7e946b86663f9f069fe14e284c41e2aed73c57e0/LICENSE">Apache 2.0</a>
+                        &middot;
+                        <a href="https://github.com/gwf/x2c/blob/7e946b86663f9f069fe14e284c41e2aed73c57e0/TRADEMARKS.md">Trademarks</a>
+                    </footer>
+                </div>
+            </div>
+
+
+        </div>
+
+        <template id=fa-eye><span class=fa-svg><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 576 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc. --><path d="M288 32c-80.8 0-145.5 36.8-192.6 80.6C48.6 156 17.3 208 2.5 243.7c-3.3 7.9-3.3 16.7 0 24.6C17.3 304 48.6 356 95.4 399.4C142.5 443.2 207.2 480 288 480s145.5-36.8 192.6-80.6c46.8-43.5 78.1-95.4 93-131.1c3.3-7.9 3.3-16.7 0-24.6c-14.9-35.7-46.2-87.7-93-131.1C433.5 68.8 368.8 32 288 32zM432 256c0 79.5-64.5 144-144 144s-144-64.5-144-144s64.5-144 144-144s144 64.5 144 144zM288 192c0 35.3-28.7 64-64 64c-11.5 0-22.3-3-31.6-8.4c-.2 2.8-.4 5.5-.4 8.4c0 53 43 96 96 96s96-43 96-96s-43-96-96-96c-2.8 0-5.6 .1-8.4 .4c5.3 9.3 8.4 20.1 8.4 31.6z"/></svg></span></template>
+        <template id=fa-eye-slash><span class=fa-svg><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 640 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc. --><path d="M38.8 5.1C28.4-3.1 13.3-1.2 5.1 9.2S-1.2 34.7 9.2 42.9l592 464c10.4 8.2 25.5 6.3 33.7-4.1s6.3-25.5-4.1-33.7L525.6 386.7c39.6-40.6 66.4-86.1 79.9-118.4c3.3-7.9 3.3-16.7 0-24.6c-14.9-35.7-46.2-87.7-93-131.1C465.5 68.8 400.8 32 320 32c-68.2 0-125 26.3-169.3 60.8L38.8 5.1zM223.1 149.5C248.6 126.2 282.7 112 320 112c79.5 0 144 64.5 144 144c0 24.9-6.3 48.3-17.4 68.7L408 294.5c5.2-11.8 8-24.8 8-38.5c0-53-43-96-96-96c-2.8 0-5.6 .1-8.4 .4c5.3 9.3 8.4 20.1 8.4 31.6c0 10.2-2.4 19.8-6.6 28.3l-90.3-70.8zm223.1 298L373 389.9c-16.4 6.5-34.3 10.1-53 10.1c-79.5 0-144-64.5-144-144c0-6.9 .5-13.6 1.4-20.2L83.1 161.5C60.3 191.2 44 220.8 34.5 243.7c-3.3 7.9-3.3 16.7 0 24.6c14.9 35.7 46.2 87.7 93 131.1C174.5 443.2 239.2 480 320 480c47.8 0 89.9-12.9 126.2-32.5z"/></svg></span></template>
+        <template id=fa-copy><span class=fa-svg><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc. --><path d="M502.6 70.63l-61.25-61.25C435.4 3.371 427.2 0 418.7 0H255.1c-35.35 0-64 28.66-64 64l.0195 256C192 355.4 220.7 384 256 384h192c35.2 0 64-28.8 64-64V93.25C512 84.77 508.6 76.63 502.6 70.63zM464 320c0 8.836-7.164 16-16 16H255.1c-8.838 0-16-7.164-16-16L239.1 64.13c0-8.836 7.164-16 16-16h128L384 96c0 17.67 14.33 32 32 32h47.1V320zM272 448c0 8.836-7.164 16-16 16H63.1c-8.838 0-16-7.164-16-16L47.98 192.1c0-8.836 7.164-16 16-16H160V128H63.99c-35.35 0-64 28.65-64 64l.0098 256C.002 483.3 28.66 512 64 512h192c35.2 0 64-28.8 64-64v-32h-47.1L272 448z"/></svg></span></template>
+        <template id=fa-play><span class=fa-svg><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 384 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc. --><path d="M73 39c-14.8-9.1-33.4-9.4-48.5-.9S0 62.6 0 80V432c0 17.4 9.4 33.4 24.5 41.9s33.7 8.1 48.5-.9L361 297c14.3-8.7 23-24.2 23-41s-8.7-32.2-23-41L73 39z"/></svg></span></template>
+        <template id=fa-clock-rotate-left><span class=fa-svg><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc. --><path d="M75 75L41 41C25.9 25.9 0 36.6 0 57.9V168c0 13.3 10.7 24 24 24H134.1c21.4 0 32.1-25.9 17-41l-30.8-30.8C155 85.5 203 64 256 64c106 0 192 86 192 192s-86 192-192 192c-40.8 0-78.6-12.7-109.7-34.4c-14.5-10.1-34.4-6.6-44.6 7.9s-6.6 34.4 7.9 44.6C151.2 495 201.7 512 256 512c141.4 0 256-114.6 256-256S397.4 0 256 0C185.3 0 121.3 28.7 75 75zm181 53c-13.3 0-24 10.7-24 24V256c0 6.4 2.5 12.5 7 17l72 72c9.4 9.4 24.6 9.4 33.9 0s9.4-24.6 0-33.9l-65-65V152c0-13.3-10.7-24-24-24z"/></svg></span></template>
+
+
+
+        <script>
+            window.playground_copyable = true;
+        </script>
+
+
+        <script src="../../elasticlunr-ef4e11c1.min.js"></script>
+        <script src="../../mark-09e88c2c.min.js"></script>
+        <script src="../../searcher-09f2665d.js"></script>
+
+        <script src="../../clipboard-1626706a.min.js"></script>
+        <script src="../../highlight-abc7f01d.js"></script>
+        <script src="../../book-609e4cb8.js"></script>
+
+        <script>
+            document.addEventListener('DOMContentLoaded', () => {
+                const sidebar = document.querySelector('#mdbook-sidebar');
+                sidebar.querySelectorAll('ol').forEach(list => {
+                    const numbers = list.querySelectorAll(
+                        ':scope > li > .chapter-link-wrapper > a > strong, :scope > li > a > strong');
+                    if (numbers.length) {
+                        const width = Math.max(...Array.from(numbers,
+                            number => number.textContent.trim().length));
+                        list.style.setProperty('--chapter-number-width', width + 'ch');
+                    }
+                });
+                const chapter = sidebar.querySelector('a.active');
+                const item = chapter?.closest('.chapter-item');
+                if (item?.querySelector(':scope > .on-this-page')) {
+                    const row = chapter.parentElement;
+                    if (!row.querySelector('.chapter-fold-toggle')) {
+                        const toggle = document.createElement('button');
+                        toggle.type = 'button';
+                        toggle.className = 'chapter-fold-toggle';
+                        toggle.appendChild(document.createElement('div'));
+                        toggle.addEventListener('click', () => {
+                            item.classList.toggle('expanded');
+                        });
+                        row.appendChild(toggle);
+                    }
+                }
+                sidebar.querySelectorAll('.chapter-fold-toggle').forEach(toggle => {
+                    const row = toggle.parentElement;
+                    const item = row.parentElement;
+                    const title = row.querySelector('a').textContent.trim();
+                    toggle.setAttribute('aria-label', 'Toggle ' + title);
+                    const update = () => toggle.setAttribute('aria-expanded',
+                        String(item.classList.contains('expanded')));
+                    update();
+                    toggle.addEventListener('click', update);
+                    if (toggle.tagName === 'A') {
+                        toggle.setAttribute('role', 'button');
+                        toggle.tabIndex = 0;
+                        toggle.addEventListener('keydown', event => {
+                            if (event.key === 'Enter' || event.key === ' ') {
+                                event.preventDefault();
+                                toggle.click();
+                            }
+                        });
+                    }
+                });
+            });
+        </script>
+
+        <!-- Custom JS scripts -->
+
+
+
+    </div>
+    </body>
+</html>

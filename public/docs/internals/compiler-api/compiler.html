@@ -1,6 +1,6 @@
 <!DOCTYPE HTML>
 <html lang="en" class="light sidebar-visible" dir="ltr">
-    <head><meta name="x2c-release-channel" content="staging"><meta name="x2c-candidate" content="candidate-00389e131bf1b5c5a33afa59f299746fc3fc5bbb-37654719483-2">
+    <head><meta name="x2c-release-channel" content="staging"><meta name="x2c-candidate" content="candidate-7e946b86663f9f069fe14e284c41e2aed73c57e0-37713265223-2">
         <!-- Book generated using mdBook -->
         <meta charset="UTF-8">
         <title>src/compiler.x - The x2c Book</title>
@@ -39,10 +39,10 @@
             const path_to_root = "../../";
             const default_light_theme = "light";
             const default_dark_theme = "light";
-            window.path_to_searchindex_js = "../../searchindex-830d243b.js";
+            window.path_to_searchindex_js = "../../searchindex-1d8e23b0.js";
         </script>
         <!-- Start loading toc.js asap -->
-        <script src="../../toc-320b946b.js"></script>
+        <script src="../../toc-58dd3732.js"></script>
         <!-- x2c publication metadata -->
         <link rel="canonical" href="https://staging.x2c-lang.dev/docs/internals/compiler-api/compiler.html">
         <meta property="og:type" content="website">
@@ -243,8 +243,8 @@ Compatibility is not yet promised.</p>
 <tr><td><a href="#reference_guard_exits"><code>reference_guard_exits</code></a></td><td>Returns whether <code>arm</code> ends with a return or non-returning raise.</td></tr>
 <tr><td><a href="#Compiler._at_function_arrow"><code>Compiler._at_function_arrow</code></a></td><td>Reports whether the current two tokens are <code>=&gt;</code>.</td></tr>
 <tr><td><a href="#Compiler._skip_shallow_expression"><code>Compiler._skip_shallow_expression</code></a></td><td>Skips a balanced shallow expression without consuming its terminator.</td></tr>
-<tr><td><a href="#Compiler.add_early"><code>Compiler.add_early</code></a></td><td>Appends a generated declaration to the early-declaration queue.</td></tr>
-<tr><td><a href="#Compiler.add_init"><code>Compiler.add_init</code></a></td><td>Appends a statement to file initialization order under <code>phase</code>, which is <code>&lt;protocol&gt;</code> for protocol setup, or <code>&lt;early&gt;</code>, <code>&lt;mid&gt;</code>, or <code>&lt;late&gt;</code> for the file initializer’s three stages.</td></tr>
+<tr><td><a href="#Compiler.add_early"><code>Compiler.add_early</code></a></td><td>Appends a generated declaration to the unit’s pending support.</td></tr>
+<tr><td><a href="#Compiler.add_init"><code>Compiler.add_init</code></a></td><td>Appends the lowered statement <code>stmt</code> to the file initialization area <code>phase</code>.</td></tr>
 <tr><td><a href="#Compiler.add_translation_dependency"><code>Compiler.add_translation_dependency</code></a></td><td>Records a path dependency not embedded in generated C.</td></tr>
 <tr><td><a href="#Compiler.anchor_origin"><code>Compiler.anchor_origin</code></a></td><td>Wraps a parsed node in the source location of its opening token.</td></tr>
 <tr><td><a href="#Compiler.at_completion"><code>Compiler.at_completion</code></a></td><td>Reports whether the parser is at the private REPL completion marker.</td></tr>
@@ -310,6 +310,11 @@ Compatibility is not yet promised.</p>
 <tr><td><a href="#Compiler.tokenize"><code>Compiler.tokenize</code></a></td><td>Scans source and positions the compiler at its first non-trivia token.</td></tr>
 <tr><td><a href="#Compiler.var"><code>Compiler.var</code></a></td><td>Boxes the compiler’s pointer; the caller keeps the compiler.</td></tr>
 <tr><td><a href="#Map.merge_translation_dependency"><code>Map.merge_translation_dependency</code></a></td><td>Merges one translation dependency, preserving an existing content hash.</td></tr>
+<tr><td><a href="#Pending.area"><code>Pending.area</code></a></td><td>Returns the storage of the destination <code>area</code>.</td></tr>
+<tr><td><a href="#Pending.checkpoint"><code>Pending.checkpoint</code></a></td><td>Returns the mark that <code>restore</code> returns every destination to.</td></tr>
+<tr><td><a href="#Pending.initializes"><code>Pending.initializes</code></a></td><td>Whether any file initialization area holds a statement.</td></tr>
+<tr><td><a href="#Pending.reset"><code>Pending.reset</code></a></td><td>Gives every destination fresh, empty storage.</td></tr>
+<tr><td><a href="#Pending.restore"><code>Pending.restore</code></a></td><td>Drops the code queued since <code>mark</code>.</td></tr>
 <tr><td><a href="#Symbol.group_step"><code>Symbol.group_step</code></a></td><td>Returns 1 for a token type that opens a delimited group, -1 for one that closes a group, and 0 otherwise.</td></tr>
 <tr><td><a href="#Token.after_group"><code>Token.after_group</code></a></td><td>Returns the first non-trivia token after the group <code>t</code> opens, or after <code>t</code> when it opens no group.</td></tr>
 <tr><td><a href="#Token.group_close"><code>Token.group_close</code></a></td><td>Returns the token that closes the group <code>t</code> opens, <code>t</code> itself when it opens no group, or the <code>eof</code> token when the group never closes.</td></tr>
@@ -323,129 +328,127 @@ Compatibility is not yet promised.</p>
 <p><code>String absolute_path(String path)</code></p>
 <p>Returns <code>Path.absolute(path)</code>, resolving an existing file through
 <code>real_path</code>.</p>
-<p>Source: <code>src/compiler.x:2660</code></p>
+<p>Source: <code>src/compiler.x:2698</code></p>
 <h4 id="home_absolute_path"><a class="header" href="#home_absolute_path">home_absolute_path</a></h4>
 <p><code>String home_absolute_path(String spelling)</code></p>
 <p>Returns the absolute path that a <code>home_portable_path</code> spelling names.</p>
-<p>Source: <code>src/compiler.x:2691</code></p>
+<p>Source: <code>src/compiler.x:2729</code></p>
 <h4 id="home_portable_path"><a class="header" href="#home_portable_path">home_portable_path</a></h4>
 <p><code>String home_portable_path(String path)</code></p>
 <p>Returns <code>path</code> relative to the canonical <span class="x2c-wordmark">x2c</span> home when it lies below the
 home, otherwise <code>path</code>. Interfaces, macro definitions, retained
 declarations, and generated identities spell paths this way, so they do
 not depend on where the home is installed.</p>
-<p>Source: <code>src/compiler.x:2685</code></p>
+<p>Source: <code>src/compiler.x:2723</code></p>
 <h4 id="match_value_flat_head"><a class="header" href="#match_value_flat_head">match_value_flat_head</a></h4>
 <p><code>Symbol match_value_flat_head(Var value, List binders, List &amp;?tags)</code></p>
 <p>Returns the head of a flat Symbol-and-captures pattern value, or zero.</p>
 <p>Each element after the head is a unique named <code>?</code> binder or a typed
 capture of one. When <code>tags</code> is non-null, stores one entry per binder
 in order: the capture’s tag Symbol, or integer zero when untyped.</p>
-<p>Source: <code>src/compiler.x:2466</code></p>
+<p>Source: <code>src/compiler.x:2504</code></p>
 <h4 id="match_value_head"><a class="header" href="#match_value_head">match_value_head</a></h4>
 <p><code>Symbol match_value_head(Var value)</code></p>
 <p>Returns a recovered pattern value’s fixed literal head symbol, or zero.</p>
 <p>A binder, guard, non-list value, or computed head has no fixed symbol.
 Other pattern elements may remain dynamic because a literal head alone
 constrains the first input element.</p>
-<p>Source: <code>src/compiler.x:2451</code></p>
+<p>Source: <code>src/compiler.x:2489</code></p>
 <h4 id="match_value_is_static"><a class="header" href="#match_value_is_static">match_value_is_static</a></h4>
 <p><code>int match_value_is_static(Var value)</code></p>
 <p>Reports whether a recovered pattern value graph is fully static.</p>
-<p>Source: <code>src/compiler.x:2434</code></p>
+<p>Source: <code>src/compiler.x:2472</code></p>
 <h4 id="real_path"><a class="header" href="#real_path">real_path</a></h4>
 <p><code>String real_path(String path)</code></p>
 <p>Returns the real path of the existing file at <code>path</code>, or NULL when
 <code>path</code> is NULL or does not resolve. Each spelling is resolved once per
 process.</p>
-<p>Source: <code>src/compiler.x:2647</code></p>
+<p>Source: <code>src/compiler.x:2685</code></p>
 <h4 id="reference_guard_exits"><a class="header" href="#reference_guard_exits">reference_guard_exits</a></h4>
 <p><code>int reference_guard_exits(List arm)</code></p>
 <p>Returns whether <code>arm</code> ends with a return or non-returning raise.</p>
-<p>Source: <code>src/compiler.x:2230</code></p>
+<p>Source: <code>src/compiler.x:2242</code></p>
 <h3 id="compiler"><a class="header" href="#compiler"><code>Compiler</code></a></h3>
 <p><a id="Compiler._at_function_arrow"></a></p>
 <h4 id="compiler_at_function_arrow"><a class="header" href="#compiler_at_function_arrow">Compiler._at_function_arrow</a></h4>
 <p><code>int Compiler._at_function_arrow(Compiler c)</code></p>
 <p>Reports whether the current two tokens are <code>=&gt;</code>.</p>
-<p>Source: <code>src/compiler.x:503</code></p>
+<p>Source: <code>src/compiler.x:514</code></p>
 <p><a id="Compiler._skip_shallow_expression"></a></p>
 <h4 id="compiler_skip_shallow_expression"><a class="header" href="#compiler_skip_shallow_expression">Compiler._skip_shallow_expression</a></h4>
 <p><code>void Compiler._skip_shallow_expression(Compiler c, int stop_at_comma)</code></p>
 <p>Skips a balanced shallow expression without consuming its terminator.
 A top-level comma also terminates the expression when <code>stop_at_comma</code> is
 nonzero.</p>
-<p>Source: <code>src/compiler.x:510</code></p>
+<p>Source: <code>src/compiler.x:521</code></p>
 <p><a id="Compiler.add_early"></a></p>
 <h4 id="compileradd_early"><a class="header" href="#compileradd_early">Compiler.add_early</a></h4>
 <p><code>void Compiler.add_early(Compiler c, List decl)</code></p>
-<p>Appends a generated declaration to the early-declaration queue.</p>
-<p>Source: <code>src/compiler.x:2271</code></p>
+<p>Appends a generated declaration to the unit’s pending support.</p>
+<p>Source: <code>src/compiler.x:2283</code></p>
 <p><a id="Compiler.add_init"></a></p>
 <h4 id="compileradd_init"><a class="header" href="#compileradd_init">Compiler.add_init</a></h4>
 <p><code>void Compiler.add_init(Compiler c, Symbol phase, List stmt)</code></p>
-<p>Appends a statement to file initialization order under <code>phase</code>, which is
-<code>&lt;protocol&gt;</code> for protocol setup, or <code>&lt;early&gt;</code>, <code>&lt;mid&gt;</code>, or <code>&lt;late&gt;</code> for
-the file initializer’s three stages. Generation splices the statement
-after the transform has run, so it must already be lowered: bound code
-that still needs lowering, such as a <code>String</code> literal, reaches C as is.</p>
-<p>Source: <code>src/compiler.x:2281</code></p>
+<p>Appends the lowered statement <code>stmt</code> to the file initialization area
+<code>phase</code>. Bound code that still needs lowering, such as a <code>String</code>
+literal, would reach C as is.</p>
+<p>Source: <code>src/compiler.x:2290</code></p>
 <p><a id="Compiler.add_translation_dependency"></a></p>
 <h4 id="compileradd_translation_dependency"><a class="header" href="#compileradd_translation_dependency">Compiler.add_translation_dependency</a></h4>
 <p><code>void Compiler.add_translation_dependency(Compiler c, String path)</code></p>
 <p>Records a path dependency not embedded in generated C.</p>
-<p>Source: <code>src/compiler.x:2703</code></p>
+<p>Source: <code>src/compiler.x:2741</code></p>
 <p><a id="Compiler.anchor_origin"></a></p>
 <h4 id="compileranchor_origin"><a class="header" href="#compileranchor_origin">Compiler.anchor_origin</a></h4>
 <p><code>List Compiler.anchor_origin(Compiler c, List node, Token token)</code></p>
 <p>Wraps a parsed node in the source location of its opening token.</p>
 <p>A null node remains null. Macro construction uses its active <code>m-origin</code>
 marker; otherwise a node without a token remains unwrapped.</p>
-<p>Source: <code>src/compiler.x:2066</code></p>
+<p>Source: <code>src/compiler.x:2078</code></p>
 <p><a id="Compiler.at_completion"></a></p>
 <h4 id="compilerat_completion"><a class="header" href="#compilerat_completion">Compiler.at_completion</a></h4>
 <p><code>int Compiler.at_completion(Compiler c)</code></p>
 <p>Reports whether the parser is at the private REPL completion marker.</p>
-<p>Source: <code>src/compiler.x:2029</code></p>
+<p>Source: <code>src/compiler.x:2041</code></p>
 <p><a id="Compiler.at_word"></a></p>
 <h4 id="compilerat_word"><a class="header" href="#compilerat_word">Compiler.at_word</a></h4>
 <p><code>int Compiler.at_word(Compiler c, String word)</code></p>
 <p>Reports whether the current token is the identifier <code>word</code>. A contextual
 keyword such as <code>with</code> or <code>as</code> is an ordinary identifier elsewhere. This
 query does not consume tokens.</p>
-<p>Source: <code>src/compiler.x:1967</code></p>
+<p>Source: <code>src/compiler.x:1978</code></p>
 <p><a id="Compiler.borrow_diagnostics"></a></p>
 <h4 id="compilerborrow_diagnostics"><a class="header" href="#compilerborrow_diagnostics">Compiler.borrow_diagnostics</a></h4>
 <p><code>void Compiler.borrow_diagnostics(Compiler c, Compiler owner)</code></p>
 <p>Shares a caller’s diagnostic stream while preserving its emission policy.
 The caller restores the saved printer after this child finishes.</p>
-<p>Source: <code>src/compiler.x:2574</code></p>
+<p>Source: <code>src/compiler.x:2612</code></p>
 <p><a id="Compiler.cache"></a></p>
 <h4 id="compilercache"><a class="header" href="#compilercache">Compiler.cache</a></h4>
 <p><code>List Compiler.cache(Compiler c, List key)</code></p>
 <p>Interns a constant key and returns its stable <code>(cache id)</code> reference.</p>
-<p>Source: <code>src/compiler.x:2288</code></p>
+<p>Source: <code>src/compiler.x:2326</code></p>
 <p><a id="Compiler.cache_cons_cell"></a></p>
 <h4 id="compilercache_cons_cell"><a class="header" href="#compilercache_cons_cell">Compiler.cache_cons_cell</a></h4>
 <p><code>List Compiler.cache_cons_cell(Compiler c, List head, List tail)</code></p>
 <p>Caches a cons cell when both parts have immutable cache forms.</p>
 <p>Returns <code>NULL</code> when runtime literals are required or either part cannot
 be represented by the immutable cache graph.</p>
-<p>Source: <code>src/compiler.x:2311</code></p>
+<p>Source: <code>src/compiler.x:2349</code></p>
 <p><a id="Compiler.cache_literal_list"></a></p>
 <h4 id="compilercache_literal_list"><a class="header" href="#compilercache_literal_list">Compiler.cache_literal_list</a></h4>
 <p><code>List Compiler.cache_literal_list(Compiler c, List values)</code></p>
 <p>Returns a runtime <code>List</code> expression for cached compiler-owned syntax.</p>
 <p><code>values</code> may contain nested <code>List</code>s, <code>String</code>s, integer <code>Var</code>s, and
 <code>Symbol</code>s.</p>
-<p>Source: <code>src/compiler.x:2373</code></p>
+<p>Source: <code>src/compiler.x:2411</code></p>
 <p><a id="Compiler.cache_literal_var"></a></p>
 <h4 id="compilercache_literal_var"><a class="header" href="#compilercache_literal_var">Compiler.cache_literal_var</a></h4>
 <p><code>List Compiler.cache_literal_var(Compiler c, Var value)</code></p>
 <p>Interns an immutable value and returns its <code>(cache id)</code> reference.
 <code>value</code> is a <code>List</code> of such values, a <code>String</code>, a number with its tag, or
 a <code>Symbol</code>; any other value returns NULL.</p>
-<p>Source: <code>src/compiler.x:2328</code></p>
+<p>Source: <code>src/compiler.x:2366</code></p>
 <p><a id="Compiler.canonical_path"></a></p>
 <h4 id="compilercanonical_path"><a class="header" href="#compilercanonical_path">Compiler.canonical_path</a></h4>
 <p><code>String Compiler.canonical_path(Compiler c, String path)</code></p>
@@ -453,24 +456,24 @@ a <code>Symbol</code>; any other value returns NULL.</p>
 source view it is the absolute path, because an unsaved file need not
 exist on disk; otherwise it is the real path, or <code>path</code> itself when that
 does not resolve.</p>
-<p>Source: <code>src/compiler.x:2631</code></p>
+<p>Source: <code>src/compiler.x:2669</code></p>
 <p><a id="Compiler.catch_binder_declarations"></a></p>
 <h4 id="compilercatch_binder_declarations"><a class="header" href="#compilercatch_binder_declarations">Compiler.catch_binder_declarations</a></h4>
 <p><code>List Compiler.catch_binder_declarations( Compiler c, List bindings, List handle)</code></p>
 <p>Builds ordinary declarations from a catch scope’s issued bindings.</p>
-<p>Source: <code>src/compiler.x:2538</code></p>
+<p>Source: <code>src/compiler.x:2576</code></p>
 <p><a id="Compiler.close_child"></a></p>
 <h4 id="compilerclose_child"><a class="header" href="#compilerclose_child">Compiler.close_child</a></h4>
 <p><code>void Compiler.close_child(Compiler c, Compiler child)</code></p>
 <p>Retains a child’s final diagnostics and closes its owned Lisp session.</p>
-<p>Source: <code>src/compiler.x:2580</code></p>
+<p>Source: <code>src/compiler.x:2618</code></p>
 <p><a id="Compiler.collect_compile_time_definition"></a></p>
 <h4 id="compilercollect_compile_time_definition"><a class="header" href="#compilercollect_compile_time_definition">Compiler.collect_compile_time_definition</a></h4>
 <p><code>void Compiler.collect_compile_time_definition(Compiler c, int keyword)</code></p>
 <p>Collects macro definitions or keyword aliases before the full source parse.
 The owning source reports malformed definitions during its full parse,
 which can recover at later forms. Included providers reject them here.</p>
-<p>Source: <code>src/compiler.x:423</code></p>
+<p>Source: <code>src/compiler.x:434</code></p>
 <p><a id="Compiler.collect_unit_macro"></a></p>
 <h4 id="compilercollect_unit_macro"><a class="header" href="#compilercollect_unit_macro">Compiler.collect_unit_macro</a></h4>
 <p><code>int Compiler.collect_unit_macro(Compiler c)</code></p>
@@ -478,41 +481,41 @@ which can recover at later forms. Included providers reject them here.</p>
 reports whether it did. A required expansion reports its errors. A tried
 expansion that fails keeps nothing and leaves the cursor at the
 invocation, so collection skips it and the full parse reports it.</p>
-<p>Source: <code>src/compiler.x:596</code></p>
+<p>Source: <code>src/compiler.x:607</code></p>
 <p><a id="Compiler.copy_source_declaration"></a></p>
 <h4 id="compilercopy_source_declaration"><a class="header" href="#compilercopy_source_declaration">Compiler.copy_source_declaration</a></h4>
 <p><code>void Compiler.copy_source_declaration( Compiler c, Map target, Map source, List key)</code></p>
 <p>Carries declaration metadata with one actual symbol contribution.</p>
-<p>Source: <code>src/compiler.x:2116</code></p>
+<p>Source: <code>src/compiler.x:2128</code></p>
 <p><a id="Compiler.define_catch_binders"></a></p>
 <h4 id="compilerdefine_catch_binders"><a class="header" href="#compilerdefine_catch_binders">Compiler.define_catch_binders</a></h4>
 <p><code>List Compiler.define_catch_binders(Compiler c, List pattern)</code></p>
 <p>Defines catch binders and returns their capture-token/binding pairs.</p>
-<p>Source: <code>src/compiler.x:2524</code></p>
+<p>Source: <code>src/compiler.x:2562</code></p>
 <p><a id="Compiler.define_match_binders"></a></p>
 <h4 id="compilerdefine_match_binders"><a class="header" href="#compilerdefine_match_binders">Compiler.define_match_binders</a></h4>
 <p><code>void Compiler.define_match_binders(Compiler c, List pattern)</code></p>
 <p>Defines a typed <code>Match</code> pattern’s definite binders in the current scope.</p>
-<p>Source: <code>src/compiler.x:2516</code></p>
+<p>Source: <code>src/compiler.x:2554</code></p>
 <p><a id="Compiler.emitted_binding_name"></a></p>
 <h4 id="compileremitted_binding_name"><a class="header" href="#compileremitted_binding_name">Compiler.emitted_binding_name</a></h4>
 <p><code>String Compiler.emitted_binding_name(Compiler c, List binding)</code></p>
 <p>Returns a binding’s selected emitted spelling.</p>
 <p>A binding without an explicit emission rename uses its identity spelling.</p>
-<p>Source: <code>src/compiler.x:2142</code></p>
+<p>Source: <code>src/compiler.x:2154</code></p>
 <p><a id="Compiler.expect"></a></p>
 <h4 id="compilerexpect"><a class="header" href="#compilerexpect">Compiler.expect</a></h4>
 <p><code>Symbol Compiler.expect(Compiler c, Symbol type)</code></p>
 <p>Requires and consumes the current token type.</p>
 <p>A mismatch reports a parse diagnostic. An active recovery boundary raises
 <code>&lt;malformed&gt;</code>; without one, diagnostic reporting exits.</p>
-<p>Source: <code>src/compiler.x:1922</code></p>
+<p>Source: <code>src/compiler.x:1933</code></p>
 <p><a id="Compiler.finish_collected_declaration"></a></p>
 <h4 id="compilerfinish_collected_declaration"><a class="header" href="#compilerfinish_collected_declaration">Compiler.finish_collected_declaration</a></h4>
 <p><code>void Compiler.finish_collected_declaration( Compiler c, List declaration, Token meta, int native)</code></p>
 <p>Records declaration visibility and meta facts, then skips its body.
 The declaration is already bound by the shared top-level parser.</p>
-<p>Source: <code>src/compiler.x:445</code></p>
+<p>Source: <code>src/compiler.x:456</code></p>
 <p><a id="Compiler.free_lisp"></a></p>
 <h4 id="compilerfree_lisp"><a class="header" href="#compilerfree_lisp">Compiler.free_lisp</a></h4>
 <p><code>void Compiler.free_lisp(Compiler c)</code></p>
@@ -522,20 +525,20 @@ destroyed when the compiler’s Scope ends. This is final compiler cleanup:
 it clears the diagnostic store and the compiler must not be reused.
 At process exit, root Scope cleanup follows shutdown hooks and canonical
 pool cleanup. Close explicitly while any native session dependencies live.</p>
-<p>Source: <code>src/compiler.x:2793</code></p>
+<p>Source: <code>src/compiler.x:2824</code></p>
 <p><a id="Compiler.freeze_declaration_syntax"></a></p>
 <h4 id="compilerfreeze_declaration_syntax"><a class="header" href="#compilerfreeze_declaration_syntax">Compiler.freeze_declaration_syntax</a></h4>
 <p><code>Var Compiler.freeze_declaration_syntax(Compiler c, Var syntax)</code></p>
 <p>Retains exported syntax across translation units and cached interfaces.
 Tokens and origin indices become portable source data; marker-shaped user
 Lists are escaped so thawing preserves their values.</p>
-<p>Source: <code>src/compiler.x:698</code></p>
+<p>Source: <code>src/compiler.x:709</code></p>
 <p><a id="Compiler.fresh_name"></a></p>
 <h4 id="compilerfresh_name"><a class="header" href="#compilerfresh_name">Compiler.fresh_name</a></h4>
 <p><code>String Compiler.fresh_name(Compiler c, String stem)</code></p>
 <p>Allocates the next compiler-private C spelling for <code>stem</code>.
 Related compilers increment the same per-stem counter.</p>
-<p>Source: <code>src/compiler.x:2246</code></p>
+<p>Source: <code>src/compiler.x:2258</code></p>
 <p><a id="Compiler.full_parse"></a></p>
 <h4 id="compilerfull_parse"><a class="header" href="#compilerfull_parse">Compiler.full_parse</a></h4>
 <p><code>List Compiler.full_parse(Compiler c, Map globs, int generated_symbols)</code></p>
@@ -543,7 +546,7 @@ Related compilers increment the same per-stem counter.</p>
 <p>The result is a source-ordered top-level AST. This resets macro state
 and protocol resolution; origins live for the whole unit.
 <code>generated_symbols</code> publishes external adapter signatures before parsing.</p>
-<p>Source: <code>src/compiler.x:1164</code></p>
+<p>Source: <code>src/compiler.x:1175</code></p>
 <p><a id="Compiler.gensym"></a></p>
 <h4 id="compilergensym"><a class="header" href="#compilergensym">Compiler.gensym</a></h4>
 <p><code>List Compiler.gensym(Compiler c)</code></p>
@@ -551,105 +554,105 @@ and protocol resolution; origins live for the whole unit.
 Identities are scoped to the compiler’s current file and numbered per
 file, so every process mints the same sequence for one file and two
 files never share an identity. No emission path prints one.</p>
-<p>Source: <code>src/compiler.x:2260</code></p>
+<p>Source: <code>src/compiler.x:2272</code></p>
 <p><a id="Compiler.mark_completion"></a></p>
 <h4 id="compilermark_completion"><a class="header" href="#compilermark_completion">Compiler.mark_completion</a></h4>
 <p><code>void Compiler.mark_completion(Compiler c, int position)</code></p>
 <p>Retags the token beginning at <code>position</code> as a private completion marker.</p>
-<p>Source: <code>src/compiler.x:2018</code></p>
+<p>Source: <code>src/compiler.x:2030</code></p>
 <p><a id="Compiler.mark_reference_present"></a></p>
 <h4 id="compilermark_reference_present"><a class="header" href="#compilermark_reference_present">Compiler.mark_reference_present</a></h4>
 <p><code>void Compiler.mark_reference_present(Compiler c, List binding)</code></p>
 <p>Records a nonnull optional parameter for the current lexical path.</p>
-<p>Source: <code>src/compiler.x:2160</code></p>
+<p>Source: <code>src/compiler.x:2172</code></p>
 <p><a id="Compiler.match_pattern_binders"></a></p>
 <h4 id="compilermatch_pattern_binders"><a class="header" href="#compilermatch_pattern_binders">Compiler.match_pattern_binders</a></h4>
 <p><code>List Compiler.match_pattern_binders( Compiler c, List pattern, List &amp;?possible)</code></p>
 <p>Returns definite binders from a typed <code>Match</code> pattern AST.</p>
 <p>When <code>possible</code> is non-null, stores every binder appearing on any path.</p>
-<p>Source: <code>src/compiler.x:2505</code></p>
+<p>Source: <code>src/compiler.x:2543</code></p>
 <p><a id="Compiler.match_pattern_is_static"></a></p>
 <h4 id="compilermatch_pattern_is_static"><a class="header" href="#compilermatch_pattern_is_static">Compiler.match_pattern_is_static</a></h4>
 <p><code>int Compiler.match_pattern_is_static(Compiler c, List pattern)</code></p>
 <p>Reports whether a typed <code>Match</code> pattern has a fully static value graph.</p>
-<p>Source: <code>src/compiler.x:2442</code></p>
+<p>Source: <code>src/compiler.x:2480</code></p>
 <p><a id="Compiler.match_pattern_value"></a></p>
 <h4 id="compilermatch_pattern_value"><a class="header" href="#compilermatch_pattern_value">Compiler.match_pattern_value</a></h4>
 <p><code>Var Compiler.match_pattern_value(Compiler c, Var node)</code></p>
 <p>Recovers a pattern value graph, using <code>x2c-dyn</code> for computed values.</p>
-<p>Source: <code>src/compiler.x:2385</code></p>
+<p>Source: <code>src/compiler.x:2423</code></p>
 <p><a id="Compiler.merge_source_declarations"></a></p>
 <h4 id="compilermerge_source_declarations"><a class="header" href="#compilermerge_source_declarations">Compiler.merge_source_declarations</a></h4>
 <p><code>void Compiler.merge_source_declarations(Compiler c, Map target, Map source)</code></p>
 <p>Carries declaration metadata beside a completed symbol-map merge.</p>
-<p>Source: <code>src/compiler.x:2127</code></p>
+<p>Source: <code>src/compiler.x:2139</code></p>
 <p><a id="Compiler.merge_translation_dependencies"></a></p>
 <h4 id="compilermerge_translation_dependencies"><a class="header" href="#compilermerge_translation_dependencies">Compiler.merge_translation_dependencies</a></h4>
 <p><code>void Compiler.merge_translation_dependencies(Compiler c, Map dependencies)</code></p>
 <p>Merges another translation’s dependency rows into this compiler.</p>
-<p>Source: <code>src/compiler.x:2708</code></p>
+<p>Source: <code>src/compiler.x:2746</code></p>
 <p><a id="Compiler.new"></a></p>
 <h4 id="compilernew"><a class="header" href="#compilernew">Compiler.new</a></h4>
 <p><code>Compiler Compiler.new(void)</code></p>
 <p>Creates a compiler with independent package and generated-name state.</p>
-<p>Source: <code>src/compiler.x:2716</code></p>
+<p>Source: <code>src/compiler.x:2754</code></p>
 <p><a id="Compiler.new_shared"></a></p>
 <h4 id="compilernew_shared"><a class="header" href="#compilernew_shared">Compiler.new_shared</a></h4>
 <p><code>Compiler Compiler.new_shared(Compiler owner)</code></p>
 <p>Creates a compiler sharing its owner’s package and generated-name state.</p>
-<p>Source: <code>src/compiler.x:2719</code></p>
+<p>Source: <code>src/compiler.x:2757</code></p>
 <p><a id="Compiler.next"></a></p>
 <h4 id="compilernext"><a class="header" href="#compilernext">Compiler.next</a></h4>
 <p><code>void Compiler.next(Compiler c)</code></p>
 <p>Consumes the current token and advances past following trivia.</p>
 <p>This updates the unmatched-brace stack. An unmatched <code>}</code> reports a parse
 diagnostic, which raises <code>&lt;malformed&gt;</code> under recovery and otherwise exits.</p>
-<p>Source: <code>src/compiler.x:1936</code></p>
+<p>Source: <code>src/compiler.x:1947</code></p>
 <p><a id="Compiler.optional_reference_test"></a></p>
 <h4 id="compileroptional_reference_test"><a class="header" href="#compileroptional_reference_test">Compiler.optional_reference_test</a></h4>
 <p><code>List Compiler.optional_reference_test( Compiler c, List condition, int &amp;truth)</code></p>
 <p>Returns the optional-reference parameter tested by <code>condition</code>, or NULL.
 <code>truth</code> is set to whether the condition’s true arm proves that the caller
 supplied an object. Only a direct truth or null test proves presence.</p>
-<p>Source: <code>src/compiler.x:2186</code></p>
+<p>Source: <code>src/compiler.x:2198</code></p>
 <p><a id="Compiler.own_diagnostics"></a></p>
 <h4 id="compilerown_diagnostics"><a class="header" href="#compilerown_diagnostics">Compiler.own_diagnostics</a></h4>
 <p><code>void Compiler.own_diagnostics(Compiler c)</code></p>
 <p>Routes this compiler’s diagnostic store through its own printer.</p>
 <p>Compilers that share a store call this when taking the diagnostic stream
 back from another compiler.</p>
-<p>Source: <code>src/compiler.x:2567</code></p>
+<p>Source: <code>src/compiler.x:2605</code></p>
 <p><a id="Compiler.peek"></a></p>
 <h4 id="compilerpeek"><a class="header" href="#compilerpeek">Compiler.peek</a></h4>
 <p><code>Symbol Compiler.peek(Compiler c, int steps)</code></p>
 <p>Returns the non-trivia token type <code>steps</code> from parser position.</p>
 <p>Zero reads the current token; positive and negative steps count forward
 and backward through non-trivia tokens. The parser cursor is unchanged.</p>
-<p>Source: <code>src/compiler.x:1869</code></p>
+<p>Source: <code>src/compiler.x:1880</code></p>
 <p><a id="Compiler.present_references"></a></p>
 <h4 id="compilerpresent_references"><a class="header" href="#compilerpresent_references">Compiler.present_references</a></h4>
 <p><code>List Compiler.present_references(Compiler c)</code></p>
 <p>Returns the optional references proven present in this lexical path.</p>
-<p>Source: <code>src/compiler.x:2156</code></p>
+<p>Source: <code>src/compiler.x:2168</code></p>
 <p><a id="Compiler.queue_declaration_effect"></a></p>
 <h4 id="compilerqueue_declaration_effect"><a class="header" href="#compilerqueue_declaration_effect">Compiler.queue_declaration_effect</a></h4>
 <p><code>void Compiler.queue_declaration_effect( Compiler c, String form, Token first, Token after)</code></p>
 <p>Queues a source Lisp form until declaration production needs its state.
 Files without declaration producers keep ordinary full-parse evaluation.
 A null <code>after</code> replays an included effect without an owning source span.</p>
-<p>Source: <code>src/compiler.x:541</code></p>
+<p>Source: <code>src/compiler.x:552</code></p>
 <p><a id="Compiler.read_source"></a></p>
 <h4 id="compilerread_source"><a class="header" href="#compilerread_source">Compiler.read_source</a></h4>
 <p><code>int Compiler.read_source(Compiler c, String path, String volatile &amp;text)</code></p>
 <p>Reads a source through the request view and retains exact response
 bytes.</p>
-<p>Source: <code>src/compiler.x:2620</code></p>
+<p>Source: <code>src/compiler.x:2658</code></p>
 <p><a id="Compiler.record_inline_function"></a></p>
 <h4 id="compilerrecord_inline_function"><a class="header" href="#compilerrecord_inline_function">Compiler.record_inline_function</a></h4>
 <p><code>void Compiler.record_inline_function(Compiler c, List declaration)</code></p>
 <p>Records the header linkage of a public inline definition. Semantic
 function types discard storage, so this declaration fact survives there.</p>
-<p>Source: <code>src/compiler.x:486</code></p>
+<p>Source: <code>src/compiler.x:497</code></p>
 <p><a id="Compiler.record_origin"></a></p>
 <h4 id="compilerrecord_origin"><a class="header" href="#compilerrecord_origin">Compiler.record_origin</a></h4>
 <p><code>int Compiler.record_origin(Compiler c, Token token)</code></p>
@@ -657,48 +660,48 @@ function types discard storage, so this declaration fact survives there.</p>
 <p>A null token returns zero. Callers pass the token that opened a construct,
 so an <code>(at N node)</code> wrapper retains its start for transform diagnostics
 after <code>c.token</code> has reached end of file.</p>
-<p>Source: <code>src/compiler.x:2052</code></p>
+<p>Source: <code>src/compiler.x:2064</code></p>
 <p><a id="Compiler.record_source_declaration"></a></p>
 <h4 id="compilerrecord_source_declaration"><a class="header" href="#compilerrecord_source_declaration">Compiler.record_source_declaration</a></h4>
 <p><code>void Compiler.record_source_declaration( Compiler c, List binding, Token first, Token after)</code></p>
 <p>Records a physical declaration using the binding’s actual scope and key.</p>
-<p>Source: <code>src/compiler.x:2075</code></p>
+<p>Source: <code>src/compiler.x:2087</code></p>
 <p><a id="Compiler.record_source_reference"></a></p>
 <h4 id="compilerrecord_source_reference"><a class="header" href="#compilerrecord_source_reference">Compiler.record_source_reference</a></h4>
 <p><code>void Compiler.record_source_reference( Compiler c, List binding, Type type, Token first, Token after)</code></p>
 <p>Records a resolved reference without inventing spans for constructed
 ASTs.</p>
-<p>Source: <code>src/compiler.x:2107</code></p>
+<p>Source: <code>src/compiler.x:2119</code></p>
 <p><a id="Compiler.replay_declaration_source"></a></p>
 <h4 id="compilerreplay_declaration_source"><a class="header" href="#compilerreplay_declaration_source">Compiler.replay_declaration_source</a></h4>
 <p><code>List Compiler.replay_declaration_source(Compiler c)</code></p>
 <p>Binds a retained declaration production at the cursor, then advances
 past its source. Returns NULL when collection retained no production.</p>
-<p>Source: <code>src/compiler.x:657</code></p>
+<p>Source: <code>src/compiler.x:668</code></p>
 <p><a id="Compiler.require_input"></a></p>
 <h4 id="compilerrequire_input"><a class="header" href="#compilerrequire_input">Compiler.require_input</a></h4>
 <p><code>void Compiler.require_input(Compiler c)</code></p>
 <p>Raises <code>&lt;incomplete&gt;</code> when a required grammar item reaches the supplied
 input boundary. The caller sets a token in the current token stream after
 tokenizing; tokenization clears it. Semantic failures do not call this.</p>
-<p>Source: <code>src/compiler.x:1913</code></p>
+<p>Source: <code>src/compiler.x:1924</code></p>
 <p><a id="Compiler.restore_reference_presence"></a></p>
 <h4 id="compilerrestore_reference_presence"><a class="header" href="#compilerrestore_reference_presence">Compiler.restore_reference_presence</a></h4>
 <p><code>void Compiler.restore_reference_presence(Compiler c, List before)</code></p>
 <p>Restores the optional-reference facts saved before a lexical path.</p>
-<p>Source: <code>src/compiler.x:2176</code></p>
+<p>Source: <code>src/compiler.x:2188</code></p>
 <p><a id="Compiler.return_unit_state"></a></p>
 <h4 id="compilerreturn_unit_state"><a class="header" href="#compilerreturn_unit_state">Compiler.return_unit_state</a></h4>
 <p><code>void Compiler.return_unit_state(Compiler c, Compiler owner)</code></p>
 <p>Returns that state to <code>owner</code>, so the next segment starts where this one
 finished and any Lisp environment this segment created stays alive after
 the shadow is released.</p>
-<p>Source: <code>src/compiler.x:2609</code></p>
+<p>Source: <code>src/compiler.x:2647</code></p>
 <p><a id="Compiler.run_declaration_effects"></a></p>
 <h4 id="compilerrun_declaration_effects"><a class="header" href="#compilerrun_declaration_effects">Compiler.run_declaration_effects</a></h4>
 <p><code>void Compiler.run_declaration_effects(Compiler c)</code></p>
 <p>Runs pending effects for declaration production or CPP macro evaluation.</p>
-<p>Source: <code>src/compiler.x:557</code></p>
+<p>Source: <code>src/compiler.x:568</code></p>
 <p><a id="Compiler.select_declaration_defaults"></a></p>
 <h4 id="compilerselect_declaration_defaults"><a class="header" href="#compilerselect_declaration_defaults">Compiler.select_declaration_defaults</a></h4>
 <p><code>Map Compiler.select_declaration_defaults( Compiler c, String path, Map symbols, Array parts, Map definitions, Map statics)</code></p>
@@ -706,52 +709,52 @@ the shadow is released.</p>
 The selected signatures join ordinary declarations before protocol and
 body binding; discarded candidates never bind their bodies. Returns added
 signatures for the caller to retain in the header-cache lifetime.</p>
-<p>Source: <code>src/compiler.x:884</code></p>
+<p>Source: <code>src/compiler.x:895</code></p>
 <p><a id="Compiler.settle_reference"></a></p>
 <h4 id="compilersettle_reference"><a class="header" href="#compilersettle_reference">Compiler.settle_reference</a></h4>
 <p><code>void Compiler.settle_reference( Compiler c, List binding, int true_is_present, List yes, List no)</code></p>
 <p>Marks the optional reference <code>binding</code> present after an <code>if</code> when the
 arm that runs without it cannot fall through: <code>no</code> when the true arm
 proves presence, <code>yes</code> otherwise. A missing <code>no</code> arm falls through.</p>
-<p>Source: <code>src/compiler.x:2169</code></p>
+<p>Source: <code>src/compiler.x:2181</code></p>
 <p><a id="Compiler.shallow_parse"></a></p>
 <h4 id="compilershallow_parse"><a class="header" href="#compilershallow_parse">Compiler.shallow_parse</a></h4>
 <p><code>void Compiler.shallow_parse(Compiler c, Map globals)</code></p>
 <p>Collects file-scope declarations into <code>globals</code> without parsing bodies.</p>
-<p>Source: <code>src/compiler.x:356</code></p>
+<p>Source: <code>src/compiler.x:367</code></p>
 <p><a id="Compiler.shallow_parse_overlay"></a></p>
 <h4 id="compilershallow_parse_overlay"><a class="header" href="#compilershallow_parse_overlay">Compiler.shallow_parse_overlay</a></h4>
 <p><code>void Compiler.shallow_parse_overlay(Compiler c, Map base, Map overlay)</code></p>
 <p>Collects declarations with reads over <code>base</code> then <code>overlay</code>.</p>
 <p>Writes go to <code>overlay</code>, which captures exactly what this translation
 contributes above <code>base</code>.</p>
-<p>Source: <code>src/compiler.x:370</code></p>
+<p>Source: <code>src/compiler.x:381</code></p>
 <p><a id="Compiler.share_meta_group"></a></p>
 <h4 id="compilershare_meta_group"><a class="header" href="#compilershare_meta_group">Compiler.share_meta_group</a></h4>
 <p><code>void Compiler.share_meta_group(Compiler c, Compiler owner)</code></p>
 <p>Shares <code>owner</code>’s pending <code>meta</code> group and the definitions it reads, which
 belong with the Lisp session that holds the group’s stubs.</p>
-<p>Source: <code>src/compiler.x:2589</code></p>
+<p>Source: <code>src/compiler.x:2627</code></p>
 <p><a id="Compiler.skip_collected_script_statement"></a></p>
 <h4 id="compilerskip_collected_script_statement"><a class="header" href="#compilerskip_collected_script_statement">Compiler.skip_collected_script_statement</a></h4>
 <p><code>int Compiler.skip_collected_script_statement(Compiler c)</code></p>
 <p>Skips a collected script statement, or diagnoses one beside <code>main</code>.
 Called after top-level directives establish source visibility.</p>
-<p>Source: <code>src/compiler.x:1355</code></p>
+<p>Source: <code>src/compiler.x:1366</code></p>
 <p><a id="Compiler.skip_script_statement"></a></p>
 <h4 id="compilerskip_script_statement"><a class="header" href="#compilerskip_script_statement">Compiler.skip_script_statement</a></h4>
 <p><code>void Compiler.skip_script_statement(Compiler c)</code></p>
 <p>Moves past one run of a script unit’s statement tokens, through a <code>;</code> or
 a closing <code>}</code> outside every bracket. A statement that ends early this
 way leaves its remainder as the next run, and runs are rejoined in order.</p>
-<p>Source: <code>src/compiler.x:1369</code></p>
+<p>Source: <code>src/compiler.x:1380</code></p>
 <p><a id="Compiler.start_collection"></a></p>
 <h4 id="compilerstart_collection"><a class="header" href="#compilerstart_collection">Compiler.start_collection</a></h4>
 <p><code>void Compiler.start_collection(Compiler c)</code></p>
 <p>Starts a collection pass with the built-in macros. It parses no bodies,
 and an import it reads installs the protocols visible to it when a
 template or <code>meta</code> body first asks for one.</p>
-<p>Source: <code>src/compiler.x:404</code></p>
+<p>Source: <code>src/compiler.x:415</code></p>
 <p><a id="Compiler.take_unit_state"></a></p>
 <h4 id="compilertake_unit_state"><a class="header" href="#compilertake_unit_state">Compiler.take_unit_state</a></h4>
 <p><code>void Compiler.take_unit_state(Compiler c, Compiler owner)</code></p>
@@ -759,41 +762,67 @@ template or <code>meta</code> body first asks for one.</p>
 literal cache, and Lisp state for one segment of a collected file.
 Segments are one translation unit, so retained macro bodies index the
 unit’s literal cache and use its Lisp environment.</p>
-<p>Source: <code>src/compiler.x:2598</code></p>
+<p>Source: <code>src/compiler.x:2636</code></p>
 <p><a id="Compiler.take_word"></a></p>
 <h4 id="compilertake_word"><a class="header" href="#compilertake_word">Compiler.take_word</a></h4>
 <p><code>int Compiler.take_word(Compiler c, String word)</code></p>
 <p>Consumes the identifier <code>word</code> when current and reports whether it
 matched.</p>
-<p>Source: <code>src/compiler.x:1972</code></p>
+<p>Source: <code>src/compiler.x:1983</code></p>
 <p><a id="Compiler.test"></a></p>
 <h4 id="compilertest"><a class="header" href="#compilertest">Compiler.test</a></h4>
 <p><code>inline int Compiler.test(Compiler c, Symbol type)</code></p>
 <p>Consumes <code>type</code> when current and reports whether it matched.</p>
-<p>Source: <code>src/compiler.x:1958</code></p>
+<p>Source: <code>src/compiler.x:1969</code></p>
 <p><a id="Compiler.thaw_declaration_syntax"></a></p>
 <h4 id="compilerthaw_declaration_syntax"><a class="header" href="#compilerthaw_declaration_syntax">Compiler.thaw_declaration_syntax</a></h4>
 <p><code>Var Compiler.thaw_declaration_syntax(Compiler c, Var syntax)</code></p>
 <p>Restores exported syntax in the importing unit’s parsing lifetime.</p>
-<p>Source: <code>src/compiler.x:753</code></p>
+<p>Source: <code>src/compiler.x:764</code></p>
 <p><a id="Compiler.tokenize"></a></p>
 <h4 id="compilertokenize"><a class="header" href="#compilertokenize">Compiler.tokenize</a></h4>
 <p><code>void Compiler.tokenize(Compiler c, char *text)</code></p>
 <p>Scans source and positions the compiler at its first non-trivia token.</p>
 <p>The compiler borrows <code>text</code> for diagnostics and macro source capture until
 translation finishes.</p>
-<p>Source: <code>src/compiler.x:1785</code></p>
+<p>Source: <code>src/compiler.x:1796</code></p>
 <p><a id="Compiler.var"></a></p>
 <h4 id="compilervar"><a class="header" href="#compilervar">Compiler.var</a></h4>
 <p><code>Var Compiler.var(Compiler c)</code></p>
 <p>Boxes the compiler’s pointer; the caller keeps the compiler.</p>
-<p>Source: <code>src/compiler.x:239</code></p>
+<p>Source: <code>src/compiler.x:250</code></p>
 <h3 id="map"><a class="header" href="#map"><code>Map</code></a></h3>
 <p><a id="Map.merge_translation_dependency"></a></p>
 <h4 id="mapmerge_translation_dependency"><a class="header" href="#mapmerge_translation_dependency">Map.merge_translation_dependency</a></h4>
 <p><code>void Map.merge_translation_dependency(Map m, String path, Var content_hash)</code></p>
 <p>Merges one translation dependency, preserving an existing content hash.</p>
-<p>Source: <code>src/compiler.x:2695</code></p>
+<p>Source: <code>src/compiler.x:2733</code></p>
+<h3 id="pending"><a class="header" href="#pending"><code>Pending</code></a></h3>
+<p><a id="Pending.area"></a></p>
+<h4 id="pendingarea"><a class="header" href="#pendingarea">Pending.area</a></h4>
+<p><code>Array Pending.area(Pending &amp;p, Symbol area)</code></p>
+<p>Returns the storage of the destination <code>area</code>.</p>
+<p>Source: <code>src/compiler.x:2300</code></p>
+<p><a id="Pending.checkpoint"></a></p>
+<h4 id="pendingcheckpoint"><a class="header" href="#pendingcheckpoint">Pending.checkpoint</a></h4>
+<p><code>PendingMark Pending.checkpoint(Pending &amp;p)</code></p>
+<p>Returns the mark that <code>restore</code> returns every destination to.</p>
+<p>Source: <code>src/compiler.x:2310</code></p>
+<p><a id="Pending.initializes"></a></p>
+<h4 id="pendinginitializes"><a class="header" href="#pendinginitializes">Pending.initializes</a></h4>
+<p><code>int Pending.initializes(Pending &amp;p)</code></p>
+<p>Whether any file initialization area holds a statement.</p>
+<p>Source: <code>src/compiler.x:2304</code></p>
+<p><a id="Pending.reset"></a></p>
+<h4 id="pendingreset"><a class="header" href="#pendingreset">Pending.reset</a></h4>
+<p><code>void Pending.reset(Pending &amp;p)</code></p>
+<p>Gives every destination fresh, empty storage.</p>
+<p>Source: <code>src/compiler.x:2295</code></p>
+<p><a id="Pending.restore"></a></p>
+<h4 id="pendingrestore"><a class="header" href="#pendingrestore">Pending.restore</a></h4>
+<p><code>void Pending.restore(Pending &amp;p, PendingMark mark)</code></p>
+<p>Drops the code queued since <code>mark</code>.</p>
+<p>Source: <code>src/compiler.x:2318</code></p>
 <h3 id="symbol"><a class="header" href="#symbol"><code>Symbol</code></a></h3>
 <p><a id="Symbol.group_step"></a></p>
 <h4 id="symbolgroup_step"><a class="header" href="#symbolgroup_step">Symbol.group_step</a></h4>
@@ -801,32 +830,32 @@ translation finishes.</p>
 <p>Returns 1 for a token type that opens a delimited group, -1 for one that
 closes a group, and 0 otherwise. Every opener spelling ends in the <code>(</code>,
 <code>[</code>, or <code>{</code> that its closer matches.</p>
-<p>Source: <code>src/compiler.x:1987</code></p>
+<p>Source: <code>src/compiler.x:1998</code></p>
 <h3 id="token"><a class="header" href="#token"><code>Token</code></a></h3>
 <p><a id="Token.after_group"></a></p>
 <h4 id="tokenafter_group"><a class="header" href="#tokenafter_group">Token.after_group</a></h4>
 <p><code>Token Token.after_group(Token t)</code></p>
 <p>Returns the first non-trivia token after the group <code>t</code> opens, or after
 <code>t</code> when it opens no group. A group that never closes yields <code>eof</code>.</p>
-<p>Source: <code>src/compiler.x:2010</code></p>
+<p>Source: <code>src/compiler.x:2022</code></p>
 <p><a id="Token.group_close"></a></p>
 <h4 id="tokengroup_close"><a class="header" href="#tokengroup_close">Token.group_close</a></h4>
 <p><code>Token Token.group_close(Token t)</code></p>
 <p>Returns the token that closes the group <code>t</code> opens, <code>t</code> itself when it
 opens no group, or the <code>eof</code> token when the group never closes.</p>
-<p>Source: <code>src/compiler.x:2001</code></p>
+<p>Source: <code>src/compiler.x:2013</code></p>
 <p><a id="Token.skip_trivia"></a></p>
 <h4 id="tokenskip_trivia"><a class="header" href="#tokenskip_trivia">Token.skip_trivia</a></h4>
 <p><code>Token Token.skip_trivia(Token token)</code></p>
 <p>Returns the first token at or after <code>token</code> that is not a space,
 comment, or preprocessor line. The stream must end in <code>eof</code>.</p>
-<p>Source: <code>src/compiler.x:1889</code></p>
+<p>Source: <code>src/compiler.x:1900</code></p>
 <h3 id="var"><a class="header" href="#var"><code>Var</code></a></h3>
 <p><a id="Var.compiler"></a></p>
 <h4 id="varcompiler"><a class="header" href="#varcompiler">Var.compiler</a></h4>
 <p><code>Compiler Var.compiler(Var value)</code></p>
 <p>Recovers the compiler pointer boxed by <code>Compiler.var</code>.</p>
-<p>Source: <code>src/compiler.x:242</code></p>
+<p>Source: <code>src/compiler.x:253</code></p>
 <h2 id="public-types"><a class="header" href="#public-types">Public types</a></h2>
 <div class="table-wrapper">
 <table>
@@ -837,6 +866,8 @@ comment, or preprocessor line. The stream must end in <code>eof</code>.</p>
 <tr><td><a href="#Compiler"><code>Compiler</code></a></td><td>struct</td><td>Holds mutable state for one source translation.</td></tr>
 <tr><td><a href="#Diagnostics"><code>Diagnostics</code></a></td><td>struct</td><td>Names the positioned diagnostic store routed by a <code>Compiler</code>.</td></tr>
 <tr><td><a href="#GenNames"><code>GenNames</code></a></td><td>struct</td><td>Holds scope-owned generated-name state shared by related compilers.</td></tr>
+<tr><td><a href="#Pending"><code>Pending</code></a></td><td>struct</td><td>Holds generated code awaiting insertion, by <code>Pending.area</code> destination: unit support declarations, which <code>Compiler.transform</code> lowers after the unit, then the lowered statements of each file initialization area.</td></tr>
+<tr><td><a href="#PendingMark"><code>PendingMark</code></a></td><td>struct</td><td>Holds each destination’s length for <code>Pending.restore</code>.</td></tr>
 <tr><td><a href="#ScriptUnit"><code>ScriptUnit</code></a></td><td>struct</td><td>Describes the <code>#!</code> script unit a translation unit was started from: its canonical path, its first line as written, and whether it defines <code>main</code> itself.</td></tr>
 <tr><td><a href="#Sym"><code>Sym</code></a></td><td>struct</td><td>Names the scope-owned semantic table belonging to one compiler.</td></tr>
 <tr><td><a href="#SymScope"><code>SymScope</code></a></td><td>struct</td><td>Holds the three mutable maps that form one lexical semantic scope.</td></tr>
@@ -846,12 +877,12 @@ comment, or preprocessor line. The stream must end in <code>eof</code>.</p>
 </div>
 <p><a id="Compiler"></a></p>
 <h3 id="compiler-1"><a class="header" href="#compiler-1">Compiler</a></h3>
-<p><code>typedef struct Compiler { String filename, text, root_dir; String package, List package_dirs; Map package_roots, package_aliases, package_members, package_effects; Token token; Token input_boundary; Tokenizer tokenizer; Array line_markers; List return_type, include_dirs; Map deps; List aggregate_type, macro_stack, declaration_effects, Sym sym; Map evaluated_effects; int expansion_floor; SymScope params; Map key_ids, macros, kw_aliases; Map object_macros; List arms; Map arm_stacks; Array layout_marks, packed_marks; Token directives_taken; Map protocols, conforms, protocol_helpers; Map proto_cache; Map adoptions; Map macro_holes; Map local_macro_captures; int macro_application; List lambda_scopes; Array match_types; Map imports; Map included_effects; Map init_tokens, static_init_deps, fn_defs; Array id_keys, inits; String init_fn, fini_fn; Array early_decls, int prelude; Map meta_comptime, meta_regions, meta_hashes, meta_calls; Map native_meta; Map project_meta; Array unit_nodes, meta_group; Map meta_group_bound; int meta_build; int runtime_inc, runtime_hdrs, collect_protocols, shallow, source_private; int public_bodies; int interface_provider, signature_only; Array pending_inline_bodies; int layout; int meta_body; Token meta_statement; int import_protocols; int in_pattern, match_is, runtime_literals, inline_header; int builtin_defs, in_proto, macro_count, recovery_depth; int declaration_produced; int needs_exception; int local_macro_capture_scopes; int open_linkage; String fn_name, Diagnostics diagnostics, Array braces, import_stack; String lines_text, Array line_starts; ScriptUnit unit_script, script; Lisp macro_lisp, int borrowed_lisp; int inherited_lisp; GenNames names; Array origins, int origin, source_map; SourceView sources; int source_facts, source_primary; Array source_occurrences; Map source_definitions, source_declarations, source_texts; } *Compiler</code></p>
+<p><code>typedef struct Compiler { String filename, text, root_dir; String package, List package_dirs; Map package_roots, package_aliases, package_members, package_effects; Token token; Token input_boundary; Tokenizer tokenizer; Array line_markers; List return_type, include_dirs; Map deps; List aggregate_type, macro_stack, declaration_effects, Sym sym; Map evaluated_effects; int expansion_floor; SymScope params; Map key_ids, macros, kw_aliases; Map object_macros; List arms; Map arm_stacks; Array layout_marks, packed_marks; Token directives_taken; Map protocols, conforms, protocol_helpers; Map proto_cache; Map adoptions; Map macro_holes; Map local_macro_captures; int macro_application; List lambda_scopes; Array match_types; Map imports; Map included_effects; Map init_tokens, static_init_deps, fn_defs; Array id_keys; String init_fn, fini_fn; Pending pending, int prelude; Map meta_comptime, meta_regions, meta_hashes, meta_calls; Map native_meta; Map project_meta; Array unit_nodes, meta_group; Map meta_group_bound; int meta_build; int runtime_inc, runtime_hdrs, collect_protocols, shallow, source_private; int public_bodies; int interface_provider, signature_only; Array pending_inline_bodies; int layout; int meta_body; Token meta_statement; int import_protocols; int in_pattern, match_is, runtime_literals, inline_header; int builtin_defs, in_proto, macro_count, recovery_depth; int declaration_produced; int needs_exception; int local_macro_capture_scopes; int open_linkage; String fn_name, Diagnostics diagnostics, Array braces, import_stack; String lines_text, Array line_starts; ScriptUnit unit_script, script; Lisp macro_lisp, int borrowed_lisp; int inherited_lisp; GenNames names; Array origins, int origin, source_map; SourceView sources; int source_facts, source_primary; Array source_occurrences; Map source_definitions, source_declarations, source_texts; } *Compiler</code></p>
 <p>Holds mutable state for one source translation.</p>
 <p>The structure, its state, and its owned compile-time <code>Lisp</code> session belong
 to the current <code>Scope</code>. <code>Compiler.free_lisp</code> permits early session cleanup;
 otherwise Scope teardown releases it. All Lisp calls must return first.</p>
-<p>Source: <code>src/compiler.x:71</code></p>
+<p>Source: <code>src/compiler.x:82</code></p>
 <p><a id="Diagnostics"></a></p>
 <h3 id="diagnostics"><a class="header" href="#diagnostics">Diagnostics</a></h3>
 <p><code>typedef struct Diagnostics *Diagnostics</code></p>
@@ -869,6 +900,18 @@ number names one live declaration across every symbol table in the unit.
 Exported rows use their interface’s own numbering, which starts at 1;
 imported templates rebind those references in the consuming unit.</p>
 <p>Source: <code>src/compiler.x:48</code></p>
+<p><a id="Pending"></a></p>
+<h3 id="pending-1"><a class="header" href="#pending-1">Pending</a></h3>
+<p><code>typedef struct Pending { Array areas[PENDING_AREAS]; } Pending</code></p>
+<p>Holds generated code awaiting insertion, by <code>Pending.area</code> destination:
+unit support declarations, which <code>Compiler.transform</code> lowers after the
+unit, then the lowered statements of each file initialization area.</p>
+<p>Source: <code>src/compiler.x:68</code></p>
+<p><a id="PendingMark"></a></p>
+<h3 id="pendingmark"><a class="header" href="#pendingmark">PendingMark</a></h3>
+<p><code>typedef struct PendingMark { int lengths[PENDING_AREAS]; } PendingMark</code></p>
+<p>Holds each destination’s length for <code>Pending.restore</code>.</p>
+<p>Source: <code>src/compiler.x:71</code></p>
 <p><a id="ScriptUnit"></a></p>
 <h3 id="scriptunit"><a class="header" href="#scriptunit">ScriptUnit</a></h3>
 <p><code>typedef struct ScriptUnit { String path, shebang; int defines_main; } *ScriptUnit</code></p>
@@ -881,7 +924,7 @@ the same script settings the full parse does.</p>
 <h3 id="sym"><a class="header" href="#sym">Sym</a></h3>
 <p><code>typedef struct Sym *Sym</code></p>
 <p>Names the scope-owned semantic table belonging to one compiler.</p>
-<p>Source: <code>src/compiler.x:63</code></p>
+<p>Source: <code>src/compiler.x:74</code></p>
 <p><a id="SymScope"></a></p>
 <h3 id="symscope"><a class="header" href="#symscope">SymScope</a></h3>
 <p><code>typedef struct SymScope { Map symbols, bindings, enumerators, macros; } SymScope</code></p>
@@ -891,13 +934,13 @@ returned when an empty scope stack is popped.</p>
 <p>Source: <code>src/compiler.x:58</code></p>
 <p><a id="SymTxn"></a></p>
 <h3 id="symtxn"><a class="header" href="#symtxn">SymTxn</a></h3>
-<p><code>typedef struct SymTxn { Compiler c; int scope_index, next_binding, active, String initializer_name; String shutdown_name, Map counters; int local_macro_names, mark; SymScope scope; Map statics, binding_facts; Map source_definitions; int source_occurrences; int extended, Map adapters; int early_count, init_count, origin_count, origin, needs_exception; } SymTxn</code></p>
+<p><code>typedef struct SymTxn { Compiler c; int scope_index, next_binding, active, String initializer_name; String shutdown_name, Map counters; int local_macro_names, mark; SymScope scope; Map statics, binding_facts; Map source_definitions; int source_occurrences; int extended, Map adapters; PendingMark pending, int origin_count, origin, needs_exception; } SymTxn</code></p>
 <p>Holds one reversible semantic transaction in caller storage.
 The zero value is inactive. Keep an active transaction in one object;
 copying it does not coordinate completion. The symbol table’s undo log
 holds the rows it may restore from <code>mark</code>; the staged generated-name
 counters and other snapshots live in its initial Scope.</p>
-<p>Source: <code>src/compiler.x:216</code></p>
+<p>Source: <code>src/compiler.x:227</code></p>
 <h2 id="design-notes"><a class="header" href="#design-notes">Design notes</a></h2>
 <p>A <code>Compiler</code> owns the translation state of one unit: its token cursor,
 symbol table, and declaration state. Collection parses the unit
@@ -925,9 +968,9 @@ boundary is active.</p>
                         &copy; 2025&ndash;2026
                         <a href="https://flake.org">GWF</a>
                         &middot;
-                        <a href="https://github.com/gwf/x2c/blob/00389e131bf1b5c5a33afa59f299746fc3fc5bbb/LICENSE">Apache 2.0</a>
+                        <a href="https://github.com/gwf/x2c/blob/7e946b86663f9f069fe14e284c41e2aed73c57e0/LICENSE">Apache 2.0</a>
                         &middot;
-                        <a href="https://github.com/gwf/x2c/blob/00389e131bf1b5c5a33afa59f299746fc3fc5bbb/TRADEMARKS.md">Trademarks</a>
+                        <a href="https://github.com/gwf/x2c/blob/7e946b86663f9f069fe14e284c41e2aed73c57e0/TRADEMARKS.md">Trademarks</a>
                     </footer>
                 </div>
             </div>

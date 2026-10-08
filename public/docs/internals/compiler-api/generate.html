@@ -1,6 +1,6 @@
 <!DOCTYPE HTML>
 <html lang="en" class="light sidebar-visible" dir="ltr">
-    <head><meta name="x2c-release-channel" content="staging"><meta name="x2c-candidate" content="candidate-00389e131bf1b5c5a33afa59f299746fc3fc5bbb-37654719483-2">
+    <head><meta name="x2c-release-channel" content="staging"><meta name="x2c-candidate" content="candidate-7e946b86663f9f069fe14e284c41e2aed73c57e0-37713265223-2">
         <!-- Book generated using mdBook -->
         <meta charset="UTF-8">
         <title>src/generate.x - The x2c Book</title>
@@ -39,10 +39,10 @@
             const path_to_root = "../../";
             const default_light_theme = "light";
             const default_dark_theme = "light";
-            window.path_to_searchindex_js = "../../searchindex-830d243b.js";
+            window.path_to_searchindex_js = "../../searchindex-1d8e23b0.js";
         </script>
         <!-- Start loading toc.js asap -->
-        <script src="../../toc-320b946b.js"></script>
+        <script src="../../toc-58dd3732.js"></script>
         <!-- x2c publication metadata -->
         <link rel="canonical" href="https://staging.x2c-lang.dev/docs/internals/compiler-api/generate.html">
         <meta property="og:type" content="website">
@@ -239,6 +239,7 @@ Compatibility is not yet promised.</p>
 <tr><td><a href="#Compiler.dump_definitions"><code>Compiler.dump_definitions</code></a></td><td>Prints the <code>--dump-definitions</code> projection of the lowered unit <code>ast</code>: <code>(unit PATH)</code>, the module comment as <code>(module TEXT)</code> when the file opens with one, then one row per <code>Compiler.definition_rows</code> entry.</td></tr>
 <tr><td><a href="#Compiler.init_statements"><code>Compiler.init_statements</code></a></td><td>Returns the statements queued for <code>phase</code>, in the order they were added.</td></tr>
 <tr><td><a href="#Compiler.place_source_prelude"><code>Compiler.place_source_prelude</code></a></td><td>Places generated <code>declarations</code> after source types and includes, before the first function or captured initializer that can use them.</td></tr>
+<tr><td><a href="#Init.enter"><code>Init.enter</code></a></td><td>Returns <code>function</code> with its entry setup: the protocol initializer and the type initializer run once, and a <code>guarded</code> entry calls the region’s initializer unless its guard is set.</td></tr>
 </tbody>
 </table>
 </div>
@@ -273,7 +274,7 @@ is the token range of an authored function’s declarator, and <code>SPAN</code>
 token range and privacy of the top-level form that produced the
 definition; either is empty when the compiler made the definition.
 <code>LINE</code> is 1 and <code>DOC</code> empty for a definition without authored source.</p>
-<p>Source: <code>src/generate.x:1533</code></p>
+<p>Source: <code>src/generate.x:1514</code></p>
 <p><a id="Compiler.dump_definitions"></a></p>
 <h4 id="compilerdump_definitions"><a class="header" href="#compilerdump_definitions">Compiler.dump_definitions</a></h4>
 <p><code>void Compiler.dump_definitions(Compiler c, List ast)</code></p>
@@ -281,19 +282,50 @@ definition; either is empty when the compiler made the definition.
 <code>(unit PATH)</code>, the module comment as <code>(module TEXT)</code> when the file opens
 with one, then one row per <code>Compiler.definition_rows</code> entry. The
 command-line reference in the book describes the fields.</p>
-<p>Source: <code>src/generate.x:1626</code></p>
+<p>Source: <code>src/generate.x:1607</code></p>
 <p><a id="Compiler.init_statements"></a></p>
 <h4 id="compilerinit_statements"><a class="header" href="#compilerinit_statements">Compiler.init_statements</a></h4>
 <p><code>List Compiler.init_statements(Compiler c, Symbol phase)</code></p>
 <p>Returns the statements queued for <code>phase</code>, in the order they were added.</p>
-<p>Source: <code>src/generate.x:1076</code></p>
+<p>Source: <code>src/generate.x:1061</code></p>
 <p><a id="Compiler.place_source_prelude"></a></p>
 <h4 id="compilerplace_source_prelude"><a class="header" href="#compilerplace_source_prelude">Compiler.place_source_prelude</a></h4>
 <p><code>List Compiler.place_source_prelude( Compiler c, List source, List declarations)</code></p>
 <p>Places generated <code>declarations</code> after source types and includes, before
 the first function or captured initializer that can use them. An outer
-conditional containing that first use follows the declarations.</p>
-<p>Source: <code>src/generate.x:887</code></p>
+conditional containing that first use follows the declarations. A unit
+without such a use gets them at its end, after the declarations they
+may assign.</p>
+<p>Source: <code>src/generate.x:884</code></p>
+<h3 id="init"><a class="header" href="#init"><code>Init</code></a></h3>
+<p><a id="Init.enter"></a></p>
+<h4 id="initenter"><a class="header" href="#initenter">Init.enter</a></h4>
+<p><code>List Init.enter(Init &amp;i, List function, int guarded)</code></p>
+<p>Returns <code>function</code> with its entry setup: the protocol initializer and
+the type initializer run once, and a <code>guarded</code> entry calls the region’s
+initializer unless its guard is set.</p>
+<p>Source: <code>src/generate.x:849</code></p>
+<h2 id="public-types"><a class="header" href="#public-types">Public types</a></h2>
+<div class="table-wrapper">
+<table>
+<thead>
+<tr><th>Type</th><th>Kind</th><th>Summary</th></tr>
+</thead>
+<tbody>
+<tr><td><a href="#Init"><code>Init</code></a></td><td>struct</td><td>Holds one region’s initialization.</td></tr>
+</tbody>
+</table>
+</div>
+<p><a id="Init"></a></p>
+<h3 id="init-1"><a class="header" href="#init-1">Init</a></h3>
+<p><code>typedef struct Init { Compiler c, String initializer, List guard, entry, shutdown, synthetic; Map reachable; } Init</code></p>
+<p>Holds one region’s initialization. <code>guard</code> is set once the region has
+initialized, and <code>entry</code> is the function a guarded entry calls. In the
+source, <code>initializer</code> names the type initializer, <code>shutdown</code> registers
+the unit’s shutdown function, <code>synthetic</code> is the synthetic initializer or
+NULL, and <code>reachable</code> holds the entries a cache-only file guards, or is
+NULL when every public entry is guarded.</p>
+<p>Source: <code>src/generate.x:813</code></p>
 <h2 id="design-notes"><a class="header" href="#design-notes">Design notes</a></h2>
 <p>This module owns a unit’s generated files: it splits the lowered AST into
 header and source without changing source order, gives the source its
@@ -319,9 +351,9 @@ lowered AST.</p>
                         &copy; 2025&ndash;2026
                         <a href="https://flake.org">GWF</a>
                         &middot;
-                        <a href="https://github.com/gwf/x2c/blob/00389e131bf1b5c5a33afa59f299746fc3fc5bbb/LICENSE">Apache 2.0</a>
+                        <a href="https://github.com/gwf/x2c/blob/7e946b86663f9f069fe14e284c41e2aed73c57e0/LICENSE">Apache 2.0</a>
                         &middot;
-                        <a href="https://github.com/gwf/x2c/blob/00389e131bf1b5c5a33afa59f299746fc3fc5bbb/TRADEMARKS.md">Trademarks</a>
+                        <a href="https://github.com/gwf/x2c/blob/7e946b86663f9f069fe14e284c41e2aed73c57e0/TRADEMARKS.md">Trademarks</a>
                     </footer>
                 </div>
             </div>

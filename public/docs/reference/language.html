@@ -1,6 +1,6 @@
 <!DOCTYPE HTML>
 <html lang="en" class="light sidebar-visible" dir="ltr">
-    <head><meta name="x2c-release-channel" content="staging"><meta name="x2c-candidate" content="candidate-00389e131bf1b5c5a33afa59f299746fc3fc5bbb-37654719483-2">
+    <head><meta name="x2c-release-channel" content="staging"><meta name="x2c-candidate" content="candidate-7e946b86663f9f069fe14e284c41e2aed73c57e0-37713265223-2">
         <!-- Book generated using mdBook -->
         <meta charset="UTF-8">
         <title>Language Reference - The x2c Book</title>
@@ -39,10 +39,10 @@
             const path_to_root = "../";
             const default_light_theme = "light";
             const default_dark_theme = "light";
-            window.path_to_searchindex_js = "../searchindex-830d243b.js";
+            window.path_to_searchindex_js = "../searchindex-1d8e23b0.js";
         </script>
         <!-- Start loading toc.js asap -->
-        <script src="../toc-320b946b.js"></script>
+        <script src="../toc-58dd3732.js"></script>
         <!-- x2c publication metadata -->
         <link rel="canonical" href="https://staging.x2c-lang.dev/docs/reference/language.html">
         <meta property="og:type" content="website">
@@ -226,6 +226,8 @@ in <a href="../guide/idioms.html">idioms</a>. Flags and the dump options that ex
 phase are in <a href="cli.html">compiler options</a>. If you have not built the compiler
 yet, the website’s install page is the quickest route, and <a href="../internals/building.html">building the
 compiler</a> covers the self-host stages behind it.</p>
+<p>The <a href="syntax/index.html">syntax specifications</a> catalog the source rules and
+provide an extracted EBNF grammar and lexical transition specification.</p>
 <h2 id="source-files-and-visibility"><a class="header" href="#source-files-and-visibility">Source files and visibility</a></h2>
 <p>An <code>.x</code> file combines declarations and definitions. Translation produces a
 header and a C source file.</p>
@@ -364,7 +366,7 @@ header starts with <code>typedef</code>, and enumerators keep their commas.</li>
 <li><strong>One-line bodies.</strong> <code>if cond: statement</code> puts the body after the first
 colon outside brackets that does not belong to a <code>?:</code>.</li>
 <li><strong>Statements.</strong> Every other line ends with an implied <code>;</code>. Directives,
-enum bodies, a line that is one whole <code>$(...)</code> form, and a statement
+enum bodies, a line that is one whole <code>$(...)</code> or <code>@(...)</code> form, and a statement
 that is only a macro hole, alone or after a control header, take none.</li>
 <li><strong>Bare blocks.</strong> <code>do:</code> whose block is not followed by a <code>while</code> line at
 the same indentation is a bare <code>{ ... }</code> scope. With that trailer it is a
@@ -1054,8 +1056,8 @@ hole-kind annotations:</p>
 </tbody>
 </table>
 </div>
-<p>A <code>Catch $arms...</code> hole fills the catch arms of a <code>try</code> template, as in
-<code>try $body catch $arms... finally $cleanup</code>. <code>Captures</code> and <code>MatchRow</code> are
+<p>A <code>Catch @arms</code> hole fills the catch arms of a <code>try</code> template, as in
+<code>try $body catch @arms finally $cleanup</code>. <code>Captures</code> and <code>MatchRow</code> are
 described below with the templates that use them. Compile-time code supplies
 <code>Catch</code> and <code>Captures</code> rows by applying the macro as a value; a source
 invocation has no argument syntax for them.</p>
@@ -1074,9 +1076,9 @@ identifier targets, but it may not contain multiple comma-separated
 declarators.</p>
 <p>A <code>DeclaratorRow</code> argument has no leading type or trailing semicolon. A
 declaration template supplies the shared type, and a trailing
-<code>DeclaratorRow $rows...</code> hole forwards comma-separated declarators in order:</p>
-<pre class="shiki shiki-themes x2c-light x2c-dark x2c-code" style="--shiki-light:#24292e;--shiki-dark:#e9e5df;--shiki-light-bg:#fff;--shiki-dark-bg:#101011" tabindex="0"><code class="language-x2c no-highlight"><span class="line"><span style="--shiki-light:#A626A4;--shiki-light-font-weight:bold;--shiki-dark:#FF4FD8;--shiki-dark-font-weight:bold">macro</span><span style="--shiki-light:#A15C00;--shiki-light-font-style:italic;--shiki-dark:#FFB454;--shiki-dark-font-style:italic"> Stmt</span><span style="--shiki-light:#24292E;--shiki-dark:#FF715A"> $</span><span style="--shiki-light:#6F42C1;--shiki-dark:#FF715A">group</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">(</span><span style="--shiki-light:#A15C00;--shiki-light-font-style:italic;--shiki-dark:#FFB454;--shiki-dark-font-style:italic">Type</span><span style="--shiki-light:#24292E;--shiki-dark:#FF715A"> $</span><span style="--shiki-light:#E36209;--shiki-dark:#E9E5DF">type</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">, </span><span style="--shiki-light:#A15C00;--shiki-light-font-style:italic;--shiki-dark:#FFB454;--shiki-dark-font-style:italic">DeclaratorRow</span><span style="--shiki-light:#24292E;--shiki-dark:#FF715A"> $</span><span style="--shiki-light:#E36209;--shiki-dark:#E9E5DF">rows</span><span style="--shiki-light:#24292E;--shiki-dark:#FF715A">...</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">) {</span>
-</span><span class="line"><span style="--shiki-light:#24292E;--shiki-dark:#FF715A">  $</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">type </span><span style="--shiki-light:#24292E;--shiki-dark:#FF715A">$</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">rows</span><span style="--shiki-light:#24292E;--shiki-dark:#FF715A">...</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">;</span>
+<code>DeclaratorRow @rows</code> hole forwards comma-separated declarators in order:</p>
+<pre class="shiki shiki-themes x2c-light x2c-dark x2c-code" style="--shiki-light:#24292e;--shiki-dark:#e9e5df;--shiki-light-bg:#fff;--shiki-dark-bg:#101011" tabindex="0"><code class="language-x2c no-highlight"><span class="line"><span style="--shiki-light:#A626A4;--shiki-light-font-weight:bold;--shiki-dark:#FF4FD8;--shiki-dark-font-weight:bold">macro</span><span style="--shiki-light:#A15C00;--shiki-light-font-style:italic;--shiki-dark:#FFB454;--shiki-dark-font-style:italic"> Stmt</span><span style="--shiki-light:#24292E;--shiki-dark:#FF715A"> $</span><span style="--shiki-light:#6F42C1;--shiki-dark:#FF715A">group</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">(</span><span style="--shiki-light:#A15C00;--shiki-light-font-style:italic;--shiki-dark:#FFB454;--shiki-dark-font-style:italic">Type</span><span style="--shiki-light:#24292E;--shiki-dark:#FF715A"> $</span><span style="--shiki-light:#E36209;--shiki-dark:#E9E5DF">type</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">, </span><span style="--shiki-light:#A15C00;--shiki-light-font-style:italic;--shiki-dark:#FFB454;--shiki-dark-font-style:italic">DeclaratorRow</span><span style="--shiki-light:#24292E;--shiki-dark:#FF715A"> @</span><span style="--shiki-light:#E36209;--shiki-dark:#E9E5DF">rows</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">) {</span>
+</span><span class="line"><span style="--shiki-light:#24292E;--shiki-dark:#FF715A">  $</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">type </span><span style="--shiki-light:#24292E;--shiki-dark:#FF715A">@</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">rows;</span>
 </span><span class="line"><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">}</span>
 </span><span class="line">
 </span><span class="line"><span style="--shiki-light:#D73A49;--shiki-dark:#F0ADA1">int</span><span style="--shiki-light:#6F42C1;--shiki-dark:#E9E5DF"> main</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">(</span><span style="--shiki-light:#D73A49;--shiki-dark:#F0ADA1">void</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">) {</span>
@@ -1119,28 +1121,28 @@ the functions visible to later code. Collection discards private declarations
 with generated bodies,
 so a private converter needed only within the defining unit can be generated
 before the adoption.</p>
-<p><code>$name...</code> is a sequence hole. It captures zero or more arguments of one
-element kind, must be the final argument, and <code>$name...</code> in the body is the
+<p><code>@name</code> is a sequence hole. It captures zero or more arguments of one
+element kind, must be the final argument, and <code>@name</code> in the body is the
 splice point:</p>
 <pre class="shiki shiki-themes x2c-light x2c-dark x2c-code" style="--shiki-light:#24292e;--shiki-dark:#e9e5df;--shiki-light-bg:#fff;--shiki-dark-bg:#101011" tabindex="0"><code class="language-x2c no-highlight"><span class="line"><span style="--shiki-light:#D73A49;--shiki-dark:#F0ADA1">static</span><span style="--shiki-light:#D73A49;--shiki-dark:#F0ADA1"> int</span><span style="--shiki-light:#6F42C1;--shiki-dark:#E9E5DF"> sum</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">(</span><span style="--shiki-light:#D73A49;--shiki-dark:#F0ADA1">int</span><span style="--shiki-light:#E36209;--shiki-dark:#E9E5DF"> a</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">, </span><span style="--shiki-light:#D73A49;--shiki-dark:#F0ADA1">int</span><span style="--shiki-light:#E36209;--shiki-dark:#E9E5DF"> b</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">) {</span>
 </span><span class="line"><span style="--shiki-light:#D73A49;--shiki-dark:#F0ADA1">  return</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF"> a </span><span style="--shiki-light:#D73A49;--shiki-dark:#E9E5DF">+</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF"> b;</span>
 </span><span class="line"><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">}</span>
 </span><span class="line">
-</span><span class="line"><span style="--shiki-light:#A626A4;--shiki-light-font-weight:bold;--shiki-dark:#FF4FD8;--shiki-dark-font-weight:bold">macro</span><span style="--shiki-light:#A15C00;--shiki-light-font-style:italic;--shiki-dark:#FFB454;--shiki-dark-font-style:italic"> Expression</span><span style="--shiki-light:#24292E;--shiki-dark:#FF715A"> $</span><span style="--shiki-light:#6F42C1;--shiki-dark:#FF715A">call</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">(</span><span style="--shiki-light:#A15C00;--shiki-light-font-style:italic;--shiki-dark:#FFB454;--shiki-dark-font-style:italic">Expr</span><span style="--shiki-light:#24292E;--shiki-dark:#FF715A"> $</span><span style="--shiki-light:#E36209;--shiki-dark:#E9E5DF">callee</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">, </span><span style="--shiki-light:#A15C00;--shiki-light-font-style:italic;--shiki-dark:#FFB454;--shiki-dark-font-style:italic">Expr</span><span style="--shiki-light:#24292E;--shiki-dark:#FF715A"> $</span><span style="--shiki-light:#E36209;--shiki-dark:#E9E5DF">arguments</span><span style="--shiki-light:#24292E;--shiki-dark:#FF715A">...</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">) </span><span style="--shiki-light:#A626A4;--shiki-light-font-weight:bold;--shiki-dark:#FF4FD8;--shiki-dark-font-weight:bold">=&gt;</span>
-</span><span class="line"><span style="--shiki-light:#24292E;--shiki-dark:#FF715A">  $</span><span style="--shiki-light:#6F42C1;--shiki-dark:#FF715A">callee</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">(</span><span style="--shiki-light:#24292E;--shiki-dark:#FF715A">$</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">arguments</span><span style="--shiki-light:#24292E;--shiki-dark:#FF715A">...</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">);</span>
+</span><span class="line"><span style="--shiki-light:#A626A4;--shiki-light-font-weight:bold;--shiki-dark:#FF4FD8;--shiki-dark-font-weight:bold">macro</span><span style="--shiki-light:#A15C00;--shiki-light-font-style:italic;--shiki-dark:#FFB454;--shiki-dark-font-style:italic"> Expression</span><span style="--shiki-light:#24292E;--shiki-dark:#FF715A"> $</span><span style="--shiki-light:#6F42C1;--shiki-dark:#FF715A">call</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">(</span><span style="--shiki-light:#A15C00;--shiki-light-font-style:italic;--shiki-dark:#FFB454;--shiki-dark-font-style:italic">Expr</span><span style="--shiki-light:#24292E;--shiki-dark:#FF715A"> $</span><span style="--shiki-light:#E36209;--shiki-dark:#E9E5DF">callee</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">, </span><span style="--shiki-light:#A15C00;--shiki-light-font-style:italic;--shiki-dark:#FFB454;--shiki-dark-font-style:italic">Expr</span><span style="--shiki-light:#24292E;--shiki-dark:#FF715A"> @</span><span style="--shiki-light:#E36209;--shiki-dark:#E9E5DF">arguments</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">) </span><span style="--shiki-light:#A626A4;--shiki-light-font-weight:bold;--shiki-dark:#FF4FD8;--shiki-dark-font-weight:bold">=&gt;</span>
+</span><span class="line"><span style="--shiki-light:#24292E;--shiki-dark:#FF715A">  $</span><span style="--shiki-light:#6F42C1;--shiki-dark:#FF715A">callee</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">(</span><span style="--shiki-light:#24292E;--shiki-dark:#FF715A">@</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">arguments);</span>
 </span><span class="line">
 </span><span class="line"><span style="--shiki-light:#D73A49;--shiki-dark:#F0ADA1">static</span><span style="--shiki-light:#D73A49;--shiki-dark:#F0ADA1"> int</span><span style="--shiki-light:#6F42C1;--shiki-dark:#E9E5DF"> answer</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">(</span><span style="--shiki-light:#D73A49;--shiki-dark:#F0ADA1">void</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">) {</span>
 </span><span class="line"><span style="--shiki-light:#D73A49;--shiki-dark:#F0ADA1">  return</span><span style="--shiki-light:#24292E;--shiki-dark:#FF715A"> $</span><span style="--shiki-light:#6F42C1;--shiki-dark:#FF715A">call</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">(sum, </span><span style="--shiki-light:#005CC5;--shiki-dark:#A9C9F5">19</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">, </span><span style="--shiki-light:#005CC5;--shiki-dark:#A9C9F5">23</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">);</span>
 </span><span class="line"><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">}</span></span></code></pre>
 
 <p>The element kind is inferred in the same way as a singular hole and may be
-overridden, for example <code>Field $members...</code>. Argument-hole names must be
+overridden, for example <code>Field @members</code>. Argument-hole names must be
 unique, and a name cannot be both singular and sequence-valued.
 In a quoted <code>Array</code> template, an <code>Expr</code> sequence hole occupies an element
 position and inserts its captured expressions in order. It may be empty:</p>
 <pre class="shiki shiki-themes x2c-light x2c-dark x2c-code" style="--shiki-light:#24292e;--shiki-dark:#e9e5df;--shiki-light-bg:#fff;--shiki-dark-bg:#101011" tabindex="0"><code class="language-x2c no-highlight"><span class="line boring"><span style="--shiki-light:#D73A49;--shiki-dark:#F0ADA1">#include</span><span style="--shiki-light:#032F62;--shiki-dark:#9EDFB8"> "x2c.x"</span>
-</span><span class="line"><span style="--shiki-light:#A626A4;--shiki-light-font-weight:bold;--shiki-dark:#FF4FD8;--shiki-dark-font-weight:bold">macro</span><span style="--shiki-light:#A15C00;--shiki-light-font-style:italic;--shiki-dark:#FFB454;--shiki-dark-font-style:italic"> Expression</span><span style="--shiki-light:#24292E;--shiki-dark:#FF715A"> $</span><span style="--shiki-light:#6F42C1;--shiki-dark:#FF715A">values</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">(</span><span style="--shiki-light:#A15C00;--shiki-light-font-style:italic;--shiki-dark:#FFB454;--shiki-dark-font-style:italic">Expr</span><span style="--shiki-light:#24292E;--shiki-dark:#FF715A"> $</span><span style="--shiki-light:#E36209;--shiki-dark:#E9E5DF">items</span><span style="--shiki-light:#24292E;--shiki-dark:#FF715A">...</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">) </span><span style="--shiki-light:#A626A4;--shiki-light-font-weight:bold;--shiki-dark:#FF4FD8;--shiki-dark-font-weight:bold">=&gt;</span>
-</span><span class="line"><span style="--shiki-light:#24292E;--shiki-dark:#FF715A">  %[${</span><span style="--shiki-light:#005CC5;--shiki-dark:#A9C9F5">10</span><span style="--shiki-light:#24292E;--shiki-dark:#FF715A">}</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">, </span><span style="--shiki-light:#24292E;--shiki-dark:#FF715A">$</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">items</span><span style="--shiki-light:#005CC5;--shiki-dark:#E9E5DF">...</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">, </span><span style="--shiki-light:#24292E;--shiki-dark:#FF715A">${</span><span style="--shiki-light:#005CC5;--shiki-dark:#A9C9F5">40</span><span style="--shiki-light:#24292E;--shiki-dark:#FF715A">}]</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">;</span>
+</span><span class="line"><span style="--shiki-light:#A626A4;--shiki-light-font-weight:bold;--shiki-dark:#FF4FD8;--shiki-dark-font-weight:bold">macro</span><span style="--shiki-light:#A15C00;--shiki-light-font-style:italic;--shiki-dark:#FFB454;--shiki-dark-font-style:italic"> Expression</span><span style="--shiki-light:#24292E;--shiki-dark:#FF715A"> $</span><span style="--shiki-light:#6F42C1;--shiki-dark:#FF715A">values</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">(</span><span style="--shiki-light:#A15C00;--shiki-light-font-style:italic;--shiki-dark:#FFB454;--shiki-dark-font-style:italic">Expr</span><span style="--shiki-light:#24292E;--shiki-dark:#FF715A"> @</span><span style="--shiki-light:#E36209;--shiki-dark:#E9E5DF">items</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">) </span><span style="--shiki-light:#A626A4;--shiki-light-font-weight:bold;--shiki-dark:#FF4FD8;--shiki-dark-font-weight:bold">=&gt;</span>
+</span><span class="line"><span style="--shiki-light:#24292E;--shiki-dark:#FF715A">  %[${</span><span style="--shiki-light:#005CC5;--shiki-dark:#A9C9F5">10</span><span style="--shiki-light:#24292E;--shiki-dark:#FF715A">}</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">, </span><span style="--shiki-light:#24292E;--shiki-dark:#FF715A">@</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">items, </span><span style="--shiki-light:#24292E;--shiki-dark:#FF715A">${</span><span style="--shiki-light:#005CC5;--shiki-dark:#A9C9F5">40</span><span style="--shiki-light:#24292E;--shiki-dark:#FF715A">}]</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">;</span>
 </span><span class="line">
 </span><span class="line"><span style="--shiki-light:#D73A49;--shiki-dark:#F0ADA1">int</span><span style="--shiki-light:#6F42C1;--shiki-dark:#E9E5DF"> main</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">(</span><span style="--shiki-light:#D73A49;--shiki-dark:#F0ADA1">void</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">) {</span>
 </span><span class="line"><span style="--shiki-light:#007C8A;--shiki-dark:#29D3E2">  Array</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF"> values </span><span style="--shiki-light:#D73A49;--shiki-dark:#E9E5DF">=</span><span style="--shiki-light:#24292E;--shiki-dark:#FF715A"> $</span><span style="--shiki-light:#6F42C1;--shiki-dark:#FF715A">values</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">(</span><span style="--shiki-light:#005CC5;--shiki-dark:#A9C9F5">20</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">, </span><span style="--shiki-light:#005CC5;--shiki-dark:#A9C9F5">30</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">);</span>
@@ -1148,18 +1150,18 @@ position and inserts its captured expressions in order. It may be empty:</p>
 </span><span class="line"><span style="--shiki-light:#D73A49;--shiki-dark:#F0ADA1">  return</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF"> values.</span><span style="--shiki-light:#6F42C1;--shiki-dark:#E9E5DF">len</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">() </span><span style="--shiki-light:#D73A49;--shiki-dark:#E9E5DF">==</span><span style="--shiki-light:#005CC5;--shiki-dark:#A9C9F5"> 4</span><span style="--shiki-light:#D73A49;--shiki-dark:#E9E5DF"> &amp;&amp;</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF"> empty.</span><span style="--shiki-light:#6F42C1;--shiki-dark:#E9E5DF">len</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">() </span><span style="--shiki-light:#D73A49;--shiki-dark:#E9E5DF">==</span><span style="--shiki-light:#005CC5;--shiki-dark:#A9C9F5"> 2</span><span style="--shiki-light:#D73A49;--shiki-dark:#E9E5DF"> ?</span><span style="--shiki-light:#005CC5;--shiki-dark:#A9C9F5"> 0</span><span style="--shiki-light:#D73A49;--shiki-dark:#E9E5DF"> :</span><span style="--shiki-light:#005CC5;--shiki-dark:#A9C9F5"> 1</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">;</span>
 </span><span class="line"><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">}</span></span></code></pre>
 
-<p>The <code>$items...</code> position is part of the macro template; <code>${expression}</code>
+<p>The <code>@items</code> position is part of the macro template; <code>${expression}</code>
 inside an ordinary quoted <code>Array</code> still inserts one value.</p>
-<p><code>Entry</code> holes capture one <code>key: value</code> row; <code>Entry $rows...</code> captures and
+<p><code>Entry</code> holes capture one <code>key: value</code> row; <code>Entry @rows</code> captures and
 forwards zero or more complete rows.</p>
 <p>A <code>Captures</code> hole carries a complete lambda capture clause as one value.
-In a template, <code>%!($params...) using $captures =&gt; $body</code> preserves its
-value and reference capture rows, with <code>Param $params...</code> as the trailing
+In a template, <code>%!(@params) using $captures =&gt; $body</code> preserves its
+value and reference capture rows, with <code>Param @params</code> as the trailing
 sequence. Apply this template as a macro value with the captured rows;
 recognition binds those rows with <code>*captures</code>. Like <code>Catch</code> rows, capture
 rows retain their canonical structure when supplied by compile-time code.</p>
-<p><code>MatchRow $rows...</code> carries complete <code>match</code> arms in a <code>Stmt</code> template:
-<code>match ($subject) { $rows... }</code>. Each captured row retains its pattern,
+<p><code>MatchRow @rows</code> carries complete <code>match</code> arms in a <code>Stmt</code> template:
+<code>match ($subject) { @rows }</code>. Each captured row retains its pattern,
 guarded body, typed captures, and position; preprocessor directive rows stay
 interleaved with the arms. A <code>default</code> arm is one row. Source macro calls may
 pass comma-separated <code>case</code> and <code>default</code> arms; compile-time code may pass a
@@ -1262,7 +1264,7 @@ any number of rows. In a bare <code>{...}</code> literal a direct or keyword-ali
 invocation is written as a row. In the quoted <code>%{...}</code> literal it must sit
 inside <code>${...}</code>, which leaves the quoted Map syntax to parse <span class="x2c-wordmark">x2c</span>. Elsewhere in
 an entry macro body, ordinary expression grammar applies, so an expression
-macro may generate a key. <code>$(form)...</code> inserts a <code>List</code> of explicit <code>(map-entry KEY VALUE)</code> nodes; without <code>...</code>, <code>$(form): value</code> constructs a generated key.</p>
+macro may generate a key. <code>@(form)</code> inserts a <code>List</code> of explicit <code>(map-entry KEY VALUE)</code> nodes; singular <code>$(form): value</code> constructs a generated key.</p>
 <p>The semicolon belongs to the invocation context, not the definition.
 <code>Enumerator</code> and entry invocations occupy comma-delimited positions and have no
 semicolon. A result used in the wrong position is rejected at the invocation.</p>
@@ -1282,7 +1284,7 @@ from the expression or source item following its application:</p>
 </span><span class="line"><span style="--shiki-light:#24292E;--shiki-dark:#FF715A">    $</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">channel,</span>
 </span><span class="line"><span style="--shiki-light:#24292E;--shiki-dark:#FF715A">    $</span><span style="--shiki-light:#6F42C1;--shiki-dark:#FF715A">trace_name</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">(</span><span style="--shiki-light:#24292E;--shiki-dark:#FF715A">$</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">function)</span>
 </span><span class="line"><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">  );</span>
-</span><span class="line"><span style="--shiki-light:#24292E;--shiki-dark:#FF715A">  $</span><span style="--shiki-light:#6F42C1;--shiki-dark:#FF715A">trace_body</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">(</span><span style="--shiki-light:#24292E;--shiki-dark:#FF715A">$</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">function)...</span>
+</span><span class="line"><span style="--shiki-light:#24292E;--shiki-dark:#FF715A">  @</span><span style="--shiki-light:#6F42C1;--shiki-dark:#FF715A">trace_body</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">(</span><span style="--shiki-light:#24292E;--shiki-dark:#FF715A">$</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">function)</span>
 </span><span class="line"><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">}</span>
 </span><span class="line">
 </span><span class="line"><span style="--shiki-light:#24292E;--shiki-dark:#FF715A">$</span><span style="--shiki-light:#6F42C1;--shiki-dark:#FF715A">trace</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">(</span><span style="--shiki-light:#032F62;--shiki-dark:#9EDFB8">"request"</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">)</span>
@@ -1423,10 +1425,10 @@ target of the required kind for the outer decorator:</p>
 <pre class="shiki shiki-themes x2c-light x2c-dark x2c-code" style="--shiki-light:#24292e;--shiki-dark:#e9e5df;--shiki-light-bg:#fff;--shiki-dark-bg:#101011" tabindex="0"><code class="language-x2c no-highlight"><span class="line boring"><span style="--shiki-light:#D73A49;--shiki-dark:#F0ADA1">#include</span><span style="--shiki-light:#032F62;--shiki-dark:#9EDFB8"> "meta.x"</span>
 </span><span class="line boring"><span style="--shiki-light:#D73A49;--shiki-dark:#F0ADA1">meta</span><span style="--shiki-light:#D73A49;--shiki-dark:#F0ADA1"> static</span><span style="--shiki-light:#007C8A;--shiki-dark:#29D3E2"> List</span><span style="--shiki-light:#6F42C1;--shiki-dark:#E9E5DF"> old_body</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">(</span><span style="--shiki-light:#007C8A;--shiki-dark:#29D3E2">List</span><span style="--shiki-light:#E36209;--shiki-dark:#E9E5DF"> fn</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">) </span><span style="--shiki-light:#A626A4;--shiki-light-font-weight:bold;--shiki-dark:#FF4FD8;--shiki-dark-font-weight:bold">=&gt;</span><span style="--shiki-light:#6F42C1;--shiki-dark:#E9E5DF"> x2c_function_body</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">(fn);</span>
 </span><span class="line boring"><span style="--shiki-light:#A626A4;--shiki-light-font-weight:bold;--shiki-dark:#FF4FD8;--shiki-dark-font-weight:bold">macro</span><span style="--shiki-light:#A15C00;--shiki-light-font-style:italic;--shiki-dark:#FFB454;--shiki-dark-font-style:italic"> Decorator</span><span style="--shiki-light:#24292E;--shiki-dark:#FF715A"> $</span><span style="--shiki-light:#6F42C1;--shiki-dark:#FF715A">logged</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">(</span><span style="--shiki-light:#A15C00;--shiki-light-font-style:italic;--shiki-dark:#FFB454;--shiki-dark-font-style:italic">Function</span><span style="--shiki-light:#24292E;--shiki-dark:#FF715A"> $</span><span style="--shiki-light:#E36209;--shiki-dark:#E9E5DF">function</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">) {</span>
-</span><span class="line boring"><span style="--shiki-light:#24292E;--shiki-dark:#FF715A">  $</span><span style="--shiki-light:#6F42C1;--shiki-dark:#FF715A">old_body</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">(</span><span style="--shiki-light:#24292E;--shiki-dark:#FF715A">$</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">function)...</span>
+</span><span class="line boring"><span style="--shiki-light:#24292E;--shiki-dark:#FF715A">  @</span><span style="--shiki-light:#6F42C1;--shiki-dark:#FF715A">old_body</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">(</span><span style="--shiki-light:#24292E;--shiki-dark:#FF715A">$</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">function)</span>
 </span><span class="line boring"><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">}</span>
 </span><span class="line boring"><span style="--shiki-light:#A626A4;--shiki-light-font-weight:bold;--shiki-dark:#FF4FD8;--shiki-dark-font-weight:bold">macro</span><span style="--shiki-light:#A15C00;--shiki-light-font-style:italic;--shiki-dark:#FFB454;--shiki-dark-font-style:italic"> Decorator</span><span style="--shiki-light:#24292E;--shiki-dark:#FF715A"> $</span><span style="--shiki-light:#6F42C1;--shiki-dark:#FF715A">validated</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">(</span><span style="--shiki-light:#A15C00;--shiki-light-font-style:italic;--shiki-dark:#FFB454;--shiki-dark-font-style:italic">Function</span><span style="--shiki-light:#24292E;--shiki-dark:#FF715A"> $</span><span style="--shiki-light:#E36209;--shiki-dark:#E9E5DF">function</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">) {</span>
-</span><span class="line boring"><span style="--shiki-light:#24292E;--shiki-dark:#FF715A">  $</span><span style="--shiki-light:#6F42C1;--shiki-dark:#FF715A">old_body</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">(</span><span style="--shiki-light:#24292E;--shiki-dark:#FF715A">$</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">function)...</span>
+</span><span class="line boring"><span style="--shiki-light:#24292E;--shiki-dark:#FF715A">  @</span><span style="--shiki-light:#6F42C1;--shiki-dark:#FF715A">old_body</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">(</span><span style="--shiki-light:#24292E;--shiki-dark:#FF715A">$</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">function)</span>
 </span><span class="line boring"><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">}</span>
 </span><span class="line"><span style="--shiki-light:#24292E;--shiki-dark:#FF715A">$</span><span style="--shiki-light:#6F42C1;--shiki-dark:#FF715A">logged</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">()</span>
 </span><span class="line"><span style="--shiki-light:#24292E;--shiki-dark:#FF715A">$</span><span style="--shiki-light:#6F42C1;--shiki-dark:#FF715A">validated</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">()</span>
@@ -1486,7 +1488,7 @@ value without a global name.</p>
 <code>$!Kind{ ... }</code> for another category, such as <code>$!Unit{ ... }</code>. Each <code>$name</code>
 in its body names the visible local <code>name</code>; its first use declares a hole
 whose kind its position gives, and the quotation applies to the locals’
-values in that order. <code>$name...</code> is a sequence. A local declared <code>Type</code>,
+values in that order. <code>@name</code> is a sequence. A local declared <code>Type</code>,
 which <code>lib/meta.x</code> declares as a <code>List</code> of type syntax such as
 <code>%(double)</code>, fills a type hole, so <code>$!{ $type value = $initial; }</code>
 declares <code>value</code> with the type the local holds. Type syntax spells C type
@@ -1496,7 +1498,7 @@ is a Symbol, such as <code>%(String)</code>, is an error where it fills a type.
 A <code>String</code> local fills an
 expression hole as a string literal and an <code>int</code> local as an integer
 literal. A <code>$name</code> that names no local is a macro invocation or a <code>meta</code>
-call, as in a template, so <code>$rows($items)...</code> splices a <code>meta</code> function’s
+call, as in a template, so <code>@rows($items)</code> splices a <code>meta</code> function’s
 result where the quotation expands. A <code>${expression}</code>, with <code>{</code> directly
 after <code>$</code>, is a hole whose value is an expression of the function that
 contains the quotation. It means the same as a local declared just before
@@ -1506,12 +1508,18 @@ written, before the quotation builds its code. Names in the braces resolve
 at the quotation; names the body declares are not visible there. The
 expression’s declared type gives the hole its kind, as a local’s type does:
 a <code>Type</code> fills a type, a <code>String</code>, <code>int</code>, or <code>Symbol</code> inserts a literal, and
-a <code>List</code> inserts its syntax. <code>${expression}...</code> splices a <code>List</code>. Each
-<code>${...}</code> is a separate hole and belongs to the innermost quotation, so
+a <code>List</code> inserts its syntax. <code>@{expression}</code> splices a <code>List</code>. Each
+<code>${...}</code> or <code>@{...}</code> is a separate hole and belongs to the innermost quotation, so
 <code>${$!( ... )}</code> inserts a quotation built first. Inside a <code>%(...)</code>,
 <code>%[...]</code>, <code>%{...}</code>, or <code>%"..."</code> literal in the body, <code>${...}</code> keeps its
 literal meaning and inserts when the built code runs; <code>${${expression}}</code>
-there inserts a value computed at the quotation. After <code>case</code>,
+there inserts a value computed at the quotation. For a template Array,
+<code>%[${@{items}}]</code> splices a sequence computed while the quotation is built.
+It does not add runtime Array splicing. In a List, <code>@{expression}</code> retains
+runtime splicing and does not evaluate during template construction.
+Literal strings such as <code>"$ @"</code>, percent strings such as <code>%"\$ @"</code>, and
+quoted atom escapes such as <code>%(\$ \@)</code> preserve sigils as data.
+After <code>case</code>,
 <code>${$name(...)}</code> is still a macro pattern. These holes exist only in
 quotations; in a named template’s code, <code>${</code> still reports a missing macro
 name. See
@@ -1556,7 +1564,7 @@ recognizes a local that another macro renamed for hygiene. A different
 same-spelled binding or a different member does not match. The case captures
 the original binding syntax.</p>
 <p>A template can call a <code>meta</code> function in a slot and pass it a sequence
-hole written without <code>...</code>; the function receives the captured items as
+hole written with <code>$name</code>; the function receives the captured items as
 one <code>List</code>. Applying a macro value with one <code>List</code> of syntax as the last
 argument passes that List as the whole trailing sequence, so
 <code>outer(head, items)</code> and <code>outer(head, a, b)</code> build the same code. A <code>List</code>
@@ -1713,7 +1721,7 @@ introduce it, place <code>using $name, $other;</code> at the start of the braced
 Each name is a compiler-allocated singular <code>Name</code> hole. Every occurrence
 within one expansion receives the same binding, while different expansions
 receive different bindings. A generated name may not duplicate an argument
-hole or another generated name and takes no kind annotation or <code>...</code>. The
+hole or another generated name and takes no kind annotation or <code>@</code> prefix. The
 directives must precede all other body items.</p>
 <p>Compile-time Lisp uses <code>x2c.ident</code> to mark an exact public spelling. In a
 declarator slot that spelling creates a declaration and is normally rejected if
@@ -1870,7 +1878,7 @@ invocation line.</p>
 <p>The <code>x2c.function.*</code> operations inspect a decorator’s captured function. <code>name</code>
 returns its free-function or dotted method name as written in source,
 <code>parameter</code> resolves a named parameter to bound identifier syntax, and <code>body</code>
-returns the block-item sequence for an explicit <code>...</code> splice. Use
+returns the block-item sequence for an explicit <code>@</code> splice. Use
 <code>x2c.syntax.type</code> on a resolved parameter when its canonical <code>Type</code> is needed.
 These operations do not construct or mutate functions.</p>
 <p><code>x2c.method.resolve</code> performs direct method lookup for a <code>Type</code> and identifier
@@ -2481,8 +2489,9 @@ the Lisp reader construct the same <code>List</code> data from the same text. Re
 punctuation also ends a bare <code>Atom</code>: <code>%(a,b)</code> is <code>a</code> followed by
 <code>(unquote b)</code>. These spellings do not replace <span class="x2c-wordmark">x2c</span>’s <code>$</code> and <code>@</code>: those still
 insert or splice <span class="x2c-wordmark">x2c</span> values while the <code>List</code> itself is being constructed.
-A <code>@</code> followed by whitespace, <code>)</code>, or <code>=</code> is the ordinary <code>@</code> or <code>@=</code>
-operator atom, so <code>%(op @ a b)</code> spells the same <code>List</code> the parser builds.</p>
+A <code>@</code> followed by whitespace, <code>)</code>, or <code>=</code> is ordinary <code>@</code> or <code>@=</code>
+atom data. <code>%(op @ a b)</code> remains a List of atoms; it does not authorize
+matrix operator syntax.</p>
 <p><code>%&lt;&lt;...&gt;&gt;</code> is an immutable ordered <code>SymbolSet</code>. Bare entries are compact
 <code>Symbol</code>s rather than <code>Atom</code>s, and their source positions are their numeric
 indexes. Entries must be literal spellings; interpolation, splicing, and
@@ -2882,8 +2891,8 @@ concatenates.</p>
 <code>&amp;&amp;</code>/<code>||</code>. The compiler does not use that eager logical path. It converts each
 <code>Var</code> operand at its original C short-circuit position.</p>
 <h3 id="protocol-backed-direct-updates"><a class="header" href="#protocol-backed-direct-updates">Protocol-backed direct updates</a></h3>
-<p>A direct participant lvalue supports <code>+=</code>, <code>-=</code>, <code>*=</code>, <code>/=</code>, <code>%=</code>, or <code>@=</code>
-when its protocol-resolved <code>add</code>, <code>sub</code>, <code>mul</code>, <code>div</code>, <code>mod</code>, or <code>matmul</code>
+<p>A direct participant lvalue supports <code>+=</code>, <code>-=</code>, <code>*=</code>, <code>/=</code>, or <code>%=</code>
+when its protocol-resolved <code>add</code>, <code>sub</code>, <code>mul</code>, <code>div</code>, or <code>mod</code>
 member has signature
 <code>Participant member(Participant, RHS)</code>. The right operand is converted to
 <code>RHS</code>. Prefix and postfix <code>++</code>/<code>--</code> use <code>add</code> or <code>sub</code> with the integer <code>1</code>
@@ -3574,18 +3583,18 @@ callbacks, or <code>Context</code> regions.</p>
                             <span class="x2c-pager-title">Programming Idioms</span>
                         </a>
                         
-                        <a rel="next prefetch" href="../reference/cli.html" class="x2c-pager-next" aria-keyshortcuts="Right">
+                        <a rel="next prefetch" href="../reference/syntax/index.html" class="x2c-pager-next" aria-keyshortcuts="Right">
                             <span class="x2c-pager-label">next</span>
-                            <span class="x2c-pager-title">Compiler Options</span>
+                            <span class="x2c-pager-title">Syntax Specifications</span>
                         </a>
                     </nav>
                     <footer class="x2c-footer">
                         &copy; 2025&ndash;2026
                         <a href="https://flake.org">GWF</a>
                         &middot;
-                        <a href="https://github.com/gwf/x2c/blob/00389e131bf1b5c5a33afa59f299746fc3fc5bbb/LICENSE">Apache 2.0</a>
+                        <a href="https://github.com/gwf/x2c/blob/7e946b86663f9f069fe14e284c41e2aed73c57e0/LICENSE">Apache 2.0</a>
                         &middot;
-                        <a href="https://github.com/gwf/x2c/blob/00389e131bf1b5c5a33afa59f299746fc3fc5bbb/TRADEMARKS.md">Trademarks</a>
+                        <a href="https://github.com/gwf/x2c/blob/7e946b86663f9f069fe14e284c41e2aed73c57e0/TRADEMARKS.md">Trademarks</a>
                     </footer>
                 </div>
             </div>
