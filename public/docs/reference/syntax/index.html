@@ -1,6 +1,6 @@
 <!DOCTYPE HTML>
 <html lang="en" class="light sidebar-visible" dir="ltr">
-    <head><meta name="x2c-release-channel" content="staging"><meta name="x2c-candidate" content="candidate-7e946b86663f9f069fe14e284c41e2aed73c57e0-37713265223-2">
+    <head><meta name="x2c-release-channel" content="staging"><meta name="x2c-candidate" content="candidate-444c1cb3846093a07c3a0754b5795508173f8721-38981359362-1">
         <!-- Book generated using mdBook -->
         <meta charset="UTF-8">
         <title>Syntax Specifications - The x2c Book</title>
@@ -39,10 +39,10 @@
             const path_to_root = "../../";
             const default_light_theme = "light";
             const default_dark_theme = "light";
-            window.path_to_searchindex_js = "../../searchindex-1d8e23b0.js";
+            window.path_to_searchindex_js = "../../searchindex-43b59c62.js";
         </script>
         <!-- Start loading toc.js asap -->
-        <script src="../../toc-58dd3732.js"></script>
+        <script src="../../toc-0edf2de5.js"></script>
         <!-- x2c publication metadata -->
         <link rel="canonical" href="https://staging.x2c-lang.dev/docs/reference/syntax/">
         <meta property="og:type" content="website">
@@ -220,10 +220,13 @@
                     <main>
                         <h1 id="syntax-specifications"><a class="header" href="#syntax-specifications">Syntax specifications</a></h1>
 <p><span class="x2c-wordmark">x2c</span>’s syntax is specified here as a token grammar plus lexical transition
-rules. This first extraction describes the implementation at revision
-<code>48715bde0d16f1a22c5a19a00e5568080a92367c</code> on <code>dev</code>. It introduces no language
-change. The <a href="../language.html">language reference</a> supplies the meaning and
-constraints of the forms.</p>
+rules that describe the current parser. The first extraction matched revision
+<code>48715bde</code> on <code>dev</code>. Parser changes update these pages and <code>etc/syntax/</code> by
+hand. <code>tools/syntax-spec check</code> verifies grammar references and reports
+generated files that differ from their data. It does not compare the data
+with the parser, and no gate runs it. The
+<a href="../language.html">language reference</a> supplies the meaning and constraints of
+the forms.</p>
 <ul>
 <li><a href="grammar.html">Source grammar</a>: EBNF, precedence, contextual decisions, and
 macro extension contracts. The <a href="x2c.ebnf">EBNF file</a> is the same grammar
@@ -239,12 +242,12 @@ grouped for onboarding and linked to the specification data.</li>
 <p>The grammar describes source after tokenization and indentation rewriting.
 It is not a claim that a context-free recognizer can decide whether an <span class="x2c-wordmark">x2c</span>
 program is valid. Names, types, macro signatures, and preprocessor state
-participate in parsing. The grammar names these dependencies explicitly.
-Constructed macro ASTs also enter binding without passing through source
-text; source productions do not restrict their provenance.</p>
+participate in parsing. The grammar marks these dependencies as external
+recognizers.</p>
 <h2 id="catalog-of-existing-material"><a class="header" href="#catalog-of-existing-material">Catalog of existing material</a></h2>
-<p>This catalog records what existed before this extraction. Paths below are
-repository-relative. Function names locate the rules even when lines move.</p>
+<p>This catalog lists the existing sources of syntax rules. Paths below are
+repository-relative. The table gives function names because line numbers
+change.</p>
 <div class="table-wrapper">
 <table>
 <thead>
@@ -263,7 +266,7 @@ repository-relative. Function names locate the rules even when lines move.</p>
 <tr><td>Character scanners</td><td><code>lib/scan.x</code></td><td>Allocation-free byte recognizers, keywords, longest operator prefix, literal escapes, failure statuses</td><td>A scanner in isolation does not specify tokenizer dispatch or context</td></tr>
 <tr><td>Tokenizer and layout</td><td><code>lib/tokenizer.x</code></td><td>Ordered scanning, mode stack, operand context, keyword reclassification, indentation rewrite, positions</td><td>Contextual and stateful, not a single token regex table</td></tr>
 <tr><td>Preprocessor handling</td><td><code>src/preprocess.x</code>, <code>src/frontend.x</code></td><td>Directive handling, conditional groups, configured units and host-preprocessed imports</td><td>Host C preprocessing has its own language and target configuration</td></tr>
-<tr><td>Compiler token preparation</td><td><code>src/compiler.x</code> (<code>Compiler.tokenize</code>, <code>_retag_keywords</code>)</td><td>Phase ordering and contextual <code>in</code>/<code>match</code> token types</td><td>Runs after raw tokenization and conditional scanning</td></tr>
+<tr><td>Compiler token preparation</td><td><code>src/compiler/parsing/tokens.x</code> (<code>Compiler.tokenize</code>, <code>_retag_keywords</code>)</td><td>Phase ordering and contextual <code>in</code>/<code>match</code> token types</td><td>Runs after raw tokenization and conditional scanning</td></tr>
 <tr><td>Lisp reader</td><td><code>lib/lisp.x</code> (<code>LispReader</code>)</td><td>Lists, reader prefixes and atomic forms over Lisp-mode tokens</td><td>Evaluation and compile-time operations are not source grammar</td></tr>
 <tr><td>Generated API pages</td><td><code>docs/src/internals/compiler-api/</code>, notably <code>parse.md</code> and <code>grammar.md</code></td><td>Public signatures and source doc comments</td><td>Derived API documentation, not an independent grammar</td></tr>
 <tr><td>Architecture and ownership map</td><td><code>docs/src/internals/{architecture,implementation-map}.md</code></td><td>Phase order and syntax owners</td><td>Describes organization, not acceptance rules</td></tr>
@@ -277,10 +280,6 @@ repository-relative. Function names locate the rules even when lines move.</p>
 </tbody>
 </table>
 </div>
-<p>No standalone BNF, EBNF, PEG, yacc/lex, or tree-sitter source grammar was
-found in the tracked tree at the extraction revision. The parser and
-scanners were the closest executable specifications; the book was the
-principal prose specification.</p>
 <h2 id="status-and-boundaries"><a class="header" href="#status-and-boundaries">Status and boundaries</a></h2>
 <p>The extraction has three layers:</p>
 <ol>
@@ -290,9 +289,9 @@ with explicit external recognizers.</li>
 <li>Context and semantic constraints in the grammar chapter and language
 reference.</li>
 </ol>
-<p>This is a manually reviewed descriptive specification, not a generated
-parser, a proof of equivalence, or a replacement implementation. Named
-external recognizers cover the deliberately extensible macro surface and
+<p>This specification is written and reviewed by hand. No parser is generated
+from it, and nothing proves it equal to the compiler. Named external
+recognizers cover the macro syntax, which definitions extend, and
 host-specific syntax. The lexical chapter identifies observed implementation
 edges separately from the supported spelling described by the book.</p>
 <p>C translation constraints, preprocessing expressions, type checking,
@@ -300,23 +299,6 @@ ownership, overload/protocol resolution, macro evaluation, AST lowering,
 and emitted C are outside the source grammar. The host compiler still
 checks the generated C. Resource limits and diagnostic wording are not
 productions.</p>
-<h2 id="possible-later-uses"><a class="header" href="#possible-later-uses">Possible later uses</a></h2>
-<p>These are possible consumers, not work implemented by this extraction:</p>
-<ul>
-<li>Generate positive and negative source cases, with environments for typedefs,
-macro signatures, and imports rather than only random terminal strings.</li>
-<li>Compare token streams across scanner implementations and test each mode
-transition, numeric boundary, and indentation rewrite.</li>
-<li>Check documentation and editor highlighting against shared terminal and
-precedence inventories.</li>
-<li>Prototype a parser or code generator for a selected syntax category, then
-compare it with the existing compiler on the same corpus.</li>
-<li>State proof obligations for recognition, normalization, or AST round trips,
-keeping lexical, syntactic, and semantic claims separate.</li>
-</ul>
-<p>There is no new recurring check or generation pipeline. Future consumers
-must choose their own executable representation and demonstrate agreement
-with the compiler before relying on this extraction as an oracle.</p>
 
                     </main>
 
@@ -335,9 +317,9 @@ with the compiler before relying on this extraction as an oracle.</p>
                         &copy; 2025&ndash;2026
                         <a href="https://flake.org">GWF</a>
                         &middot;
-                        <a href="https://github.com/gwf/x2c/blob/7e946b86663f9f069fe14e284c41e2aed73c57e0/LICENSE">Apache 2.0</a>
+                        <a href="https://github.com/gwf/x2c/blob/444c1cb3846093a07c3a0754b5795508173f8721/LICENSE">Apache 2.0</a>
                         &middot;
-                        <a href="https://github.com/gwf/x2c/blob/7e946b86663f9f069fe14e284c41e2aed73c57e0/TRADEMARKS.md">Trademarks</a>
+                        <a href="https://github.com/gwf/x2c/blob/444c1cb3846093a07c3a0754b5795508173f8721/TRADEMARKS.md">Trademarks</a>
                     </footer>
                 </div>
             </div>

@@ -1,6 +1,6 @@
 <!DOCTYPE HTML>
 <html lang="en" class="light sidebar-visible" dir="ltr">
-    <head><meta name="x2c-release-channel" content="staging"><meta name="x2c-candidate" content="candidate-7e946b86663f9f069fe14e284c41e2aed73c57e0-37713265223-2">
+    <head><meta name="x2c-release-channel" content="staging"><meta name="x2c-candidate" content="candidate-444c1cb3846093a07c3a0754b5795508173f8721-38981359362-1">
         <!-- Book generated using mdBook -->
         <meta charset="UTF-8">
         <title>Automatic Differentiation - The x2c Book</title>
@@ -39,10 +39,10 @@
             const path_to_root = "../";
             const default_light_theme = "light";
             const default_dark_theme = "light";
-            window.path_to_searchindex_js = "../searchindex-1d8e23b0.js";
+            window.path_to_searchindex_js = "../searchindex-43b59c62.js";
         </script>
         <!-- Start loading toc.js asap -->
-        <script src="../toc-58dd3732.js"></script>
+        <script src="../toc-0edf2de5.js"></script>
         <!-- x2c publication metadata -->
         <link rel="canonical" href="https://staging.x2c-lang.dev/docs/guide/autodiff.html">
         <meta property="og:type" content="website">
@@ -221,24 +221,24 @@
                         <h1 id="automatic-differentiation"><a class="header" href="#automatic-differentiation">Automatic Differentiation</a></h1>
 <p><code>autodiff-macros.x</code> differentiates ordinary <code>double</code> code four ways:</p>
 <ul>
-<li><strong>Dual numbers</strong> carry a derivative through operators at runtime.</li>
-<li><strong><code>$ad.forward()</code></strong> generates a tangent function beside a decorated
-function, at compile time, from the typed AST.</li>
-<li><strong><code>$ad.reverse()</code></strong> generates a gradient function the same way, recording
-a tape during the forward sweep. <strong><code>$ad.checkpoint(K)</code></strong> is the same
-gradient with the tape shrunk by a factor of about <code>K</code>.</li>
-<li><strong><code>autodiff.x</code></strong> records a runtime tape for code whose shape the
-decorators cannot see.</li>
+<li>Dual numbers carry a derivative through operators at runtime.</li>
+<li><code>$ad.forward()</code> generates a tangent function beside a decorated function,
+at compile time, from the typed AST.</li>
+<li><code>$ad.reverse()</code> generates a gradient function the same way, recording a
+tape during the forward sweep. <code>$ad.checkpoint(K)</code> computes the same
+gradient with a tape about <code>K</code> times smaller.</li>
+<li><code>autodiff.x</code> records a runtime tape for code that the decorators cannot
+transform.</li>
 </ul>
 <p>All four are ordinary <span class="x2c-wordmark">x2c</span>: a macro file, a runtime unit, and the existing
-protocol and decorator machinery. Nothing in the compiler knows about
-derivatives. Both files belong to the optional <code>autodiff</code> package in
+protocol and decorator machinery. The compiler has no derivative support
+of its own. Both files belong to the optional <code>autodiff</code> package in
 <code>packages/autodiff</code>, which has no native dependency. <code>import "autodiff";</code>
 gives a unit the macros and the runtime tape, because the package’s
 <code>autodiff.x</code> includes its macro module. A unit can also include that module
 directly by its path, as <code>#include "../src/autodiff-macros.x"</code> does in the
 package’s fixtures; the listings below write the short name. The
-package’s <a href="https://github.com/gwf/x2c/blob/7e946b86663f9f069fe14e284c41e2aed73c57e0/packages/autodiff/README.md">README</a>
+package’s <a href="https://github.com/gwf/x2c/blob/444c1cb3846093a07c3a0754b5795508173f8721/packages/autodiff/README.md">README</a>
 lists its files and checks.
 For other specialized capabilities, see <a href="../library/advanced-topics.html">Advanced Topics</a>.</p>
 <h2 id="dual-numbers"><a class="header" href="#dual-numbers">Dual numbers</a></h2>
@@ -252,8 +252,8 @@ holes, so the same family nests:</p>
 </span><span class="line"><span style="--shiki-light:#D73A49;--shiki-dark:#E9E5DF">typedef</span><span style="--shiki-light:#D73A49;--shiki-dark:#F0ADA1"> struct</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF"> Dual { </span><span style="--shiki-light:#D73A49;--shiki-dark:#F0ADA1">double</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF"> value; </span><span style="--shiki-light:#D73A49;--shiki-dark:#F0ADA1">double</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF"> tangent; } Dual;</span>
 </span><span class="line"><span style="--shiki-light:#D73A49;--shiki-dark:#E9E5DF">typedef</span><span style="--shiki-light:#D73A49;--shiki-dark:#F0ADA1"> struct</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF"> Dual2 { Dual value; Dual tangent; } Dual2;</span>
 </span><span class="line">
-</span><span class="line"><span style="--shiki-light:#24292E;--shiki-dark:#FF715A">$</span><span style="--shiki-light:#6F42C1;--shiki-dark:#FF715A">ad.dual</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">(Dual, dual, </span><span style="--shiki-light:#24292E;--shiki-dark:#FF715A">&lt;</span><span style="--shiki-light:#005CC5;--shiki-dark:#E9E5DF">dual</span><span style="--shiki-light:#24292E;--shiki-dark:#FF715A">&gt;</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">, </span><span style="--shiki-light:#D73A49;--shiki-dark:#F0ADA1">double</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">, sin, cos, exp, log, sqrt, tanh);</span>
-</span><span class="line"><span style="--shiki-light:#24292E;--shiki-dark:#FF715A">$</span><span style="--shiki-light:#6F42C1;--shiki-dark:#FF715A">ad.dual</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">(Dual2, dual2, </span><span style="--shiki-light:#24292E;--shiki-dark:#FF715A">&lt;</span><span style="--shiki-light:#005CC5;--shiki-dark:#E9E5DF">dual2</span><span style="--shiki-light:#24292E;--shiki-dark:#FF715A">&gt;</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">, Dual,</span>
+</span><span class="line"><span style="--shiki-light:#A626A4;--shiki-light-font-weight:bold;--shiki-dark:#FF4FD8;--shiki-dark-font-weight:bold">$</span><span style="--shiki-light:#6F42C1;--shiki-dark:#FF715A">ad.dual</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">(Dual, dual, </span><span style="--shiki-light:#A626A4;--shiki-light-font-weight:bold;--shiki-dark:#FF4FD8;--shiki-dark-font-weight:bold">&lt;</span><span style="--shiki-light:#005CC5;--shiki-dark:#E9E5DF">dual</span><span style="--shiki-light:#A626A4;--shiki-light-font-weight:bold;--shiki-dark:#FF4FD8;--shiki-dark-font-weight:bold">&gt;</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">, </span><span style="--shiki-light:#D73A49;--shiki-dark:#F0ADA1">double</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">, sin, cos, exp, log, sqrt, tanh);</span>
+</span><span class="line"><span style="--shiki-light:#A626A4;--shiki-light-font-weight:bold;--shiki-dark:#FF4FD8;--shiki-dark-font-weight:bold">$</span><span style="--shiki-light:#6F42C1;--shiki-dark:#FF715A">ad.dual</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">(Dual2, dual2, </span><span style="--shiki-light:#A626A4;--shiki-light-font-weight:bold;--shiki-dark:#FF4FD8;--shiki-dark-font-weight:bold">&lt;</span><span style="--shiki-light:#005CC5;--shiki-dark:#E9E5DF">dual2</span><span style="--shiki-light:#A626A4;--shiki-light-font-weight:bold;--shiki-dark:#FF4FD8;--shiki-dark-font-weight:bold">&gt;</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">, Dual,</span>
 </span><span class="line"><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">         Dual.sin, Dual.cos, Dual.exp, Dual.log, Dual.sqrt, Dual.tanh);</span>
 </span><span class="line">
 </span><span class="line"><span style="--shiki-light:#D73A49;--shiki-dark:#F0ADA1">static</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF"> Dual2 </span><span style="--shiki-light:#6F42C1;--shiki-dark:#E9E5DF">cube</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">(Dual2 </span><span style="--shiki-light:#E36209;--shiki-dark:#E9E5DF">x</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">) </span><span style="--shiki-light:#A626A4;--shiki-light-font-weight:bold;--shiki-dark:#FF4FD8;--shiki-dark-font-weight:bold">=&gt;</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF"> x </span><span style="--shiki-light:#D73A49;--shiki-dark:#E9E5DF">*</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF"> x </span><span style="--shiki-light:#D73A49;--shiki-dark:#E9E5DF">*</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF"> x;</span>
@@ -289,10 +289,10 @@ tangent parameter <code>p_dot</code>, and the result is the directional derivati
 <pre class="shiki shiki-themes x2c-light x2c-dark x2c-code" style="--shiki-light:#24292e;--shiki-dark:#e9e5df;--shiki-light-bg:#fff;--shiki-dark-bg:#101011" tabindex="0"><code class="language-x2c no-highlight ignore"><span class="line boring"><span style="--shiki-light:#D73A49;--shiki-dark:#F0ADA1">#include</span><span style="--shiki-light:#032F62;--shiki-dark:#9EDFB8"> &lt;math.h&gt;</span>
 </span><span class="line"><span style="--shiki-light:#D73A49;--shiki-dark:#F0ADA1">#include</span><span style="--shiki-light:#032F62;--shiki-dark:#9EDFB8"> "autodiff-macros.x"</span>
 </span><span class="line">
-</span><span class="line"><span style="--shiki-light:#24292E;--shiki-dark:#FF715A">$</span><span style="--shiki-light:#6F42C1;--shiki-dark:#FF715A">ad.forward</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">()</span>
+</span><span class="line"><span style="--shiki-light:#A626A4;--shiki-light-font-weight:bold;--shiki-dark:#FF4FD8;--shiki-dark-font-weight:bold">$</span><span style="--shiki-light:#6F42C1;--shiki-dark:#FF715A">ad.forward</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">()</span>
 </span><span class="line"><span style="--shiki-light:#D73A49;--shiki-dark:#F0ADA1">static</span><span style="--shiki-light:#D73A49;--shiki-dark:#F0ADA1"> double</span><span style="--shiki-light:#6F42C1;--shiki-dark:#E9E5DF"> scale</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">(</span><span style="--shiki-light:#D73A49;--shiki-dark:#F0ADA1">double</span><span style="--shiki-light:#E36209;--shiki-dark:#E9E5DF"> a</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">, </span><span style="--shiki-light:#D73A49;--shiki-dark:#F0ADA1">int</span><span style="--shiki-light:#E36209;--shiki-dark:#E9E5DF"> k</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">) </span><span style="--shiki-light:#A626A4;--shiki-light-font-weight:bold;--shiki-dark:#FF4FD8;--shiki-dark-font-weight:bold">=&gt;</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF"> a </span><span style="--shiki-light:#D73A49;--shiki-dark:#E9E5DF">*</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF"> (</span><span style="--shiki-light:#D73A49;--shiki-dark:#F0ADA1">double</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">) k;</span>
 </span><span class="line">
-</span><span class="line"><span style="--shiki-light:#24292E;--shiki-dark:#FF715A">$</span><span style="--shiki-light:#6F42C1;--shiki-dark:#FF715A">ad.forward</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">()</span>
+</span><span class="line"><span style="--shiki-light:#A626A4;--shiki-light-font-weight:bold;--shiki-dark:#FF4FD8;--shiki-dark-font-weight:bold">$</span><span style="--shiki-light:#6F42C1;--shiki-dark:#FF715A">ad.forward</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">()</span>
 </span><span class="line"><span style="--shiki-light:#D73A49;--shiki-dark:#F0ADA1">static</span><span style="--shiki-light:#D73A49;--shiki-dark:#F0ADA1"> double</span><span style="--shiki-light:#6F42C1;--shiki-dark:#E9E5DF"> model</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">(</span><span style="--shiki-light:#D73A49;--shiki-dark:#F0ADA1">double</span><span style="--shiki-light:#E36209;--shiki-dark:#E9E5DF"> x</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">, </span><span style="--shiki-light:#D73A49;--shiki-dark:#F0ADA1">double</span><span style="--shiki-light:#E36209;--shiki-dark:#E9E5DF"> y</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">, </span><span style="--shiki-light:#D73A49;--shiki-dark:#F0ADA1">int</span><span style="--shiki-light:#E36209;--shiki-dark:#E9E5DF"> n</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">) {</span>
 </span><span class="line"><span style="--shiki-light:#D73A49;--shiki-dark:#F0ADA1">  double</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF"> s </span><span style="--shiki-light:#D73A49;--shiki-dark:#E9E5DF">=</span><span style="--shiki-light:#005CC5;--shiki-dark:#A9C9F5"> 0.0</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">;</span>
 </span><span class="line"><span style="--shiki-light:#D73A49;--shiki-dark:#F0ADA1">  for</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF"> (</span><span style="--shiki-light:#D73A49;--shiki-dark:#F0ADA1">int</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF"> i </span><span style="--shiki-light:#D73A49;--shiki-dark:#E9E5DF">=</span><span style="--shiki-light:#005CC5;--shiki-dark:#A9C9F5"> 1</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">; i </span><span style="--shiki-light:#D73A49;--shiki-dark:#E9E5DF">&lt;=</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF"> n; i</span><span style="--shiki-light:#D73A49;--shiki-dark:#E9E5DF">++</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">) s </span><span style="--shiki-light:#D73A49;--shiki-dark:#E9E5DF">+=</span><span style="--shiki-light:#6F42C1;--shiki-dark:#E9E5DF"> scale</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">(x, i) </span><span style="--shiki-light:#D73A49;--shiki-dark:#E9E5DF">/</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF"> y;</span>
@@ -334,7 +334,7 @@ a tape on an <code>ArrayDbl</code>:</p>
 </span><span class="line boring"><span style="--shiki-light:#D73A49;--shiki-dark:#F0ADA1">#include</span><span style="--shiki-light:#032F62;--shiki-dark:#9EDFB8"> &lt;math.h&gt;</span>
 </span><span class="line"><span style="--shiki-light:#D73A49;--shiki-dark:#F0ADA1">#include</span><span style="--shiki-light:#032F62;--shiki-dark:#9EDFB8"> "autodiff-macros.x"</span>
 </span><span class="line">
-</span><span class="line"><span style="--shiki-light:#24292E;--shiki-dark:#FF715A">$</span><span style="--shiki-light:#6F42C1;--shiki-dark:#FF715A">ad.reverse</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">()</span>
+</span><span class="line"><span style="--shiki-light:#A626A4;--shiki-light-font-weight:bold;--shiki-dark:#FF4FD8;--shiki-dark-font-weight:bold">$</span><span style="--shiki-light:#6F42C1;--shiki-dark:#FF715A">ad.reverse</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">()</span>
 </span><span class="line"><span style="--shiki-light:#D73A49;--shiki-dark:#F0ADA1">static</span><span style="--shiki-light:#D73A49;--shiki-dark:#F0ADA1"> double</span><span style="--shiki-light:#6F42C1;--shiki-dark:#E9E5DF"> model</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">(</span><span style="--shiki-light:#D73A49;--shiki-dark:#F0ADA1">double</span><span style="--shiki-light:#E36209;--shiki-dark:#E9E5DF"> x</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">, </span><span style="--shiki-light:#D73A49;--shiki-dark:#F0ADA1">double</span><span style="--shiki-light:#E36209;--shiki-dark:#E9E5DF"> y</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">, </span><span style="--shiki-light:#D73A49;--shiki-dark:#F0ADA1">int</span><span style="--shiki-light:#E36209;--shiki-dark:#E9E5DF"> n</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">) {</span>
 </span><span class="line"><span style="--shiki-light:#D73A49;--shiki-dark:#F0ADA1">  double</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF"> s </span><span style="--shiki-light:#D73A49;--shiki-dark:#E9E5DF">=</span><span style="--shiki-light:#005CC5;--shiki-dark:#A9C9F5"> 0.0</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">;</span>
 </span><span class="line"><span style="--shiki-light:#D73A49;--shiki-dark:#F0ADA1">  for</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF"> (</span><span style="--shiki-light:#D73A49;--shiki-dark:#F0ADA1">int</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF"> i </span><span style="--shiki-light:#D73A49;--shiki-dark:#E9E5DF">=</span><span style="--shiki-light:#005CC5;--shiki-dark:#A9C9F5"> 0</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">; i </span><span style="--shiki-light:#D73A49;--shiki-dark:#E9E5DF">&lt;</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF"> n; i</span><span style="--shiki-light:#D73A49;--shiki-dark:#E9E5DF">++</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">) {</span>
@@ -363,8 +363,8 @@ mirror order, restoring each overwritten value before accumulating the
 adjoints of the assignment that produced it, so every partial derivative
 is evaluated at the values the forward sweep saw. There is no renaming
 into single-assignment form; restoring values makes it unnecessary.</p>
-<p>For every exit the transformation knows statically which statements ran
-before it, and it generates the reverse of exactly that prefix. A loop’s
+<p>For every exit, the statements that ran before it are known at compile
+time, and the transformation generates the reverse of exactly that prefix. A loop’s
 reverse pops the trip count and then, per iteration, the exit code that
 selects among those prefixes. Loops nest, <code>do</code> becomes a <code>while</code> with a
 first-iteration flag, and a <code>return</code> inside a loop reverses the partial
@@ -390,7 +390,7 @@ before; a checkpointed loop cannot contain <code>return</code>.</p>
 </span><span class="line boring"><span style="--shiki-light:#D73A49;--shiki-dark:#F0ADA1">#include</span><span style="--shiki-light:#032F62;--shiki-dark:#9EDFB8"> &lt;math.h&gt;</span>
 </span><span class="line"><span style="--shiki-light:#D73A49;--shiki-dark:#F0ADA1">#include</span><span style="--shiki-light:#032F62;--shiki-dark:#9EDFB8"> "autodiff-macros.x"</span>
 </span><span class="line">
-</span><span class="line"><span style="--shiki-light:#24292E;--shiki-dark:#FF715A">$</span><span style="--shiki-light:#6F42C1;--shiki-dark:#FF715A">ad.checkpoint</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">(</span><span style="--shiki-light:#005CC5;--shiki-dark:#A9C9F5">64</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">)</span>
+</span><span class="line"><span style="--shiki-light:#A626A4;--shiki-light-font-weight:bold;--shiki-dark:#FF4FD8;--shiki-dark-font-weight:bold">$</span><span style="--shiki-light:#6F42C1;--shiki-dark:#FF715A">ad.checkpoint</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">(</span><span style="--shiki-light:#005CC5;--shiki-dark:#A9C9F5">64</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">)</span>
 </span><span class="line"><span style="--shiki-light:#D73A49;--shiki-dark:#F0ADA1">static</span><span style="--shiki-light:#D73A49;--shiki-dark:#F0ADA1"> double</span><span style="--shiki-light:#6F42C1;--shiki-dark:#E9E5DF"> relax</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">(</span><span style="--shiki-light:#D73A49;--shiki-dark:#F0ADA1">double</span><span style="--shiki-light:#E36209;--shiki-dark:#E9E5DF"> x</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">, </span><span style="--shiki-light:#D73A49;--shiki-dark:#F0ADA1">double</span><span style="--shiki-light:#E36209;--shiki-dark:#E9E5DF"> y</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">, </span><span style="--shiki-light:#D73A49;--shiki-dark:#F0ADA1">int</span><span style="--shiki-light:#E36209;--shiki-dark:#E9E5DF"> steps</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">) {</span>
 </span><span class="line"><span style="--shiki-light:#D73A49;--shiki-dark:#F0ADA1">  double</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF"> s </span><span style="--shiki-light:#D73A49;--shiki-dark:#E9E5DF">=</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF"> x;</span>
 </span><span class="line"><span style="--shiki-light:#D73A49;--shiki-dark:#F0ADA1">  for</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF"> (</span><span style="--shiki-light:#D73A49;--shiki-dark:#F0ADA1">int</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF"> i </span><span style="--shiki-light:#D73A49;--shiki-dark:#E9E5DF">=</span><span style="--shiki-light:#005CC5;--shiki-dark:#A9C9F5"> 0</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">; i </span><span style="--shiki-light:#D73A49;--shiki-dark:#E9E5DF">&lt;</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF"> steps; i</span><span style="--shiki-light:#D73A49;--shiki-dark:#E9E5DF">++</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">) s </span><span style="--shiki-light:#D73A49;--shiki-dark:#E9E5DF">+=</span><span style="--shiki-light:#005CC5;--shiki-dark:#A9C9F5"> 0.001</span><span style="--shiki-light:#D73A49;--shiki-dark:#E9E5DF"> *</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF"> (y </span><span style="--shiki-light:#D73A49;--shiki-dark:#E9E5DF">-</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF"> s) </span><span style="--shiki-light:#D73A49;--shiki-dark:#E9E5DF">*</span><span style="--shiki-light:#6F42C1;--shiki-dark:#E9E5DF"> cos</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">(s </span><span style="--shiki-light:#D73A49;--shiki-dark:#E9E5DF">*</span><span style="--shiki-light:#005CC5;--shiki-dark:#A9C9F5"> 0.01</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">);</span>
@@ -570,9 +570,9 @@ Programming</em> 29, 2019.</li>
                         &copy; 2025&ndash;2026
                         <a href="https://flake.org">GWF</a>
                         &middot;
-                        <a href="https://github.com/gwf/x2c/blob/7e946b86663f9f069fe14e284c41e2aed73c57e0/LICENSE">Apache 2.0</a>
+                        <a href="https://github.com/gwf/x2c/blob/444c1cb3846093a07c3a0754b5795508173f8721/LICENSE">Apache 2.0</a>
                         &middot;
-                        <a href="https://github.com/gwf/x2c/blob/7e946b86663f9f069fe14e284c41e2aed73c57e0/TRADEMARKS.md">Trademarks</a>
+                        <a href="https://github.com/gwf/x2c/blob/444c1cb3846093a07c3a0754b5795508173f8721/TRADEMARKS.md">Trademarks</a>
                     </footer>
                 </div>
             </div>

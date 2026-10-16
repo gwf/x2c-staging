@@ -1,6 +1,6 @@
 <!DOCTYPE HTML>
 <html lang="en" class="light sidebar-visible" dir="ltr">
-    <head><meta name="x2c-release-channel" content="staging"><meta name="x2c-candidate" content="candidate-7e946b86663f9f069fe14e284c41e2aed73c57e0-37713265223-2">
+    <head><meta name="x2c-release-channel" content="staging"><meta name="x2c-candidate" content="candidate-444c1cb3846093a07c3a0754b5795508173f8721-38981359362-1">
         <!-- Book generated using mdBook -->
         <meta charset="UTF-8">
         <title>lib/file.x - The x2c Book</title>
@@ -39,10 +39,10 @@
             const path_to_root = "../../";
             const default_light_theme = "light";
             const default_dark_theme = "light";
-            window.path_to_searchindex_js = "../../searchindex-1d8e23b0.js";
+            window.path_to_searchindex_js = "../../searchindex-43b59c62.js";
         </script>
         <!-- Start loading toc.js asap -->
-        <script src="../../toc-58dd3732.js"></script>
+        <script src="../../toc-0edf2de5.js"></script>
         <!-- x2c publication metadata -->
         <link rel="canonical" href="https://staging.x2c-lang.dev/docs/library/modules/file.html">
         <meta property="og:type" content="website">
@@ -247,7 +247,7 @@
 <h4 id="filecleanup"><a class="header" href="#filecleanup">File.cleanup</a></h4>
 <p><code>void File.cleanup(File value)</code></p>
 <p>Ends the owned lifetime when a managed local leaves its block.</p>
-<p>Source: <code>lib/file.x:71</code></p>
+<p>Source: <code>lib/file.x:67</code></p>
 <p><a id="File.copy_to"></a></p>
 <h4 id="filecopy_to"><a class="header" href="#filecopy_to">File.copy_to</a></h4>
 <p><code>int File.copy_to(File source, File output, size_t &amp;?copied)</code></p>
@@ -257,14 +257,14 @@ nonzero or transfers. When <code>copied</code> is nonnull it receives the number
 bytes written, including the partial count a catch observes after a
 failure.</p>
 <p><strong>Raises:</strong> <code>&lt;io-fail&gt;</code> on a source read or destination write failure.</p>
-<p>Source: <code>lib/file.x:315</code></p>
+<p>Source: <code>lib/file.x:313</code></p>
 <p><a id="File.getw"></a></p>
 <h4 id="filegetw"><a class="header" href="#filegetw">File.getw</a></h4>
 <p><code>inline int File.getw(File file)</code></p>
 <p>Reads and returns one native <code>int</code>, or EOF when a full word is unavailable.
 A stored value equal to EOF is indistinguishable from the sentinel without
 inspecting the stream indicators.</p>
-<p>Source: <code>lib/file.x:408</code></p>
+<p>Source: <code>lib/file.x:406</code></p>
 <p><a id="File.iter"></a></p>
 <h4 id="fileiter"><a class="header" href="#fileiter">File.iter</a></h4>
 <p><code>Iter File.iter(File file, Iter dest)</code></p>
@@ -280,7 +280,7 @@ exhausted.</p>
 <p><strong>Raises:</strong> <code>&lt;alloc-fail&gt;</code> while initializing. Pulling may raise the same
 causes as <code>File.readline</code>; none return to the pull, and a transfer releases
 the iterator’s line storage.</p>
-<p>Source: <code>lib/file.x:356</code></p>
+<p>Source: <code>lib/file.x:354</code></p>
 <p><a id="File.open"></a></p>
 <h4 id="fileopen"><a class="header" href="#fileopen">File.open</a></h4>
 <p><code>File File.open(const char *path, const char *mode)</code></p>
@@ -289,35 +289,37 @@ The caller owns a successful stream and must close it. A missing path
 raises <code>&lt;not-found&gt;</code>; another host failure raises <code>&lt;io-fail&gt;</code>; and a null
 path or mode raises <code>&lt;bad-arg&gt;</code>. Host failures carry the path, operation,
 and captured errno.</p>
-<p>Source: <code>lib/file.x:530</code></p>
+<p>Source: <code>lib/file.x:528</code></p>
 <p><a id="File.path_error"></a></p>
 <h4 id="filepath_error"><a class="header" href="#filepath_error">File.path_error</a></h4>
 <p><code>void File.path_error(Var operation, String path, int error)</code></p>
 <p>Raises <code>&lt;not-found&gt;</code> when <code>error</code> is <code>ENOENT</code> and <code>&lt;io-fail&gt;</code> otherwise,
 with <code>operation</code>, <code>path</code>, and <code>errno</code> details.</p>
-<p>Source: <code>lib/file.x:498</code></p>
+<p>Source: <code>lib/file.x:496</code></p>
 <p><a id="File.read_into"></a></p>
 <h4 id="fileread_into"><a class="header" href="#fileread_into">File.read_into</a></h4>
 <p><code>FileReadStatus File.read_into(File f, Block dest)</code></p>
 <p>Reads the remaining stream bytes into caller-owned storage.
-Valid inputs clear <code>dest</code> first. <code>Null</code> inputs or a <code>Block</code> width other
-than one report ERROR without raising and leave a nonnull <code>dest</code>
+Valid inputs clear <code>dest</code> first. Returns <code>&lt;data&gt;</code> when bytes were read or
+<code>&lt;eof&gt;</code> at clean EOF. <code>Null</code> inputs or a <code>Block</code> width other than one
+report <code>&lt;error&gt;</code> without raising and leave a nonnull <code>dest</code>
 unchanged; a read failure transfers instead, leaving its partial bytes in
 <code>dest</code>.</p>
 <p><strong>Raises:</strong> <code>&lt;io-fail&gt;</code> on a stream read error, or the cause reported by
 <code>Block.append</code> when the destination cannot grow.</p>
-<p>Source: <code>lib/file.x:275</code></p>
+<p>Source: <code>lib/file.x:273</code></p>
 <p><a id="File.readline_into"></a></p>
 <h4 id="filereadline_into"><a class="header" href="#filereadline_into">File.readline_into</a></h4>
 <p><code>FileReadStatus File.readline_into(File f, Block dest)</code></p>
 <p>Reads one raw line into caller-owned byte storage.
 Valid inputs clear <code>dest</code>, then include the newline when one is read.
-<code>Null</code> inputs or a <code>Block</code> width other than one report ERROR without
+Returns <code>&lt;data&gt;</code> when bytes were read or <code>&lt;eof&gt;</code> at clean EOF.
+<code>Null</code> inputs or a <code>Block</code> width other than one report <code>&lt;error&gt;</code> without
 raising and leave a nonnull <code>dest</code> unchanged; a read failure transfers
 instead, leaving its partial bytes in <code>dest</code>.</p>
 <p><strong>Raises:</strong> <code>&lt;io-fail&gt;</code> on a stream read error, or <code>&lt;size-limit&gt;</code> or
 <code>&lt;alloc-fail&gt;</code> when the destination cannot grow.</p>
-<p>Source: <code>lib/file.x:246</code></p>
+<p>Source: <code>lib/file.x:243</code></p>
 <p><a id="File.write_all"></a></p>
 <h4 id="filewrite_all"><a class="header" href="#filewrite_all">File.write_all</a></h4>
 <p><code>int File.write_all(File file, const void *ptr, size_t size)</code></p>
@@ -327,7 +329,7 @@ raising; every other outcome returns nonzero or transfers. A transfer may
 leave a prefix already written.</p>
 <p><strong>Raises:</strong> <code>&lt;io-fail&gt;</code> on a short or failed write, which does not return
 here.</p>
-<p>Source: <code>lib/file.x:302</code></p>
+<p>Source: <code>lib/file.x:300</code></p>
 <h3 id="string"><a class="header" href="#string"><code>String</code></a></h3>
 <p><a id="String.open"></a></p>
 <h4 id="stringopen"><a class="header" href="#stringopen">String.open</a></h4>
@@ -337,7 +339,7 @@ The caller owns a successful stream and must close it. A missing path
 raises <code>&lt;not-found&gt;</code>; another host failure raises <code>&lt;io-fail&gt;</code>; and a null
 path or mode raises <code>&lt;bad-arg&gt;</code>. Host failures carry the path, operation,
 and captured errno.</p>
-<p>Source: <code>lib/file.x:522</code></p>
+<p>Source: <code>lib/file.x:520</code></p>
 <h2 id="advanced-and-interop-api"><a class="header" href="#advanced-and-interop-api">Advanced and interop API</a></h2>
 <div class="table-wrapper">
 <table>
@@ -375,7 +377,7 @@ and captured errno.</p>
 <h4 id="fileequal"><a class="header" href="#fileequal">File.equal</a></h4>
 <p><code>int File.equal(File x, File y)</code></p>
 <p>Reports whether <code>x</code> and <code>y</code> are the same native stream handle.</p>
-<p>Source: <code>lib/file.x:471</code></p>
+<p>Source: <code>lib/file.x:469</code></p>
 <p><a id="File.fdopen"></a></p>
 <h4 id="filefdopen"><a class="header" href="#filefdopen">File.fdopen</a></h4>
 <p><code>File File.fdopen(int fildes, const char *mode)</code></p>
@@ -384,19 +386,19 @@ On success the returned stream owns <code>fildes</code>, which must be closed th
 the stream. On failure the caller still owns the descriptor. A host failure
 raises <code>&lt;io-fail&gt;</code> with the operation and captured errno; a null mode
 raises <code>&lt;bad-arg&gt;</code>.</p>
-<p>Source: <code>lib/file.x:539</code></p>
+<p>Source: <code>lib/file.x:537</code></p>
 <p><a id="File.gets"></a></p>
 <h4 id="filegets"><a class="header" href="#filegets">File.gets</a></h4>
 <p><code>inline char *File.gets(File f, char *str, int size)</code></p>
 <p>Reads a native line into <code>str</code> and returns <code>str</code>, or NULL at EOF or error.
 At most <code>size - 1</code> bytes are stored followed by NUL, and a newline is kept
 when it fits.</p>
-<p>Source: <code>lib/file.x:390</code></p>
+<p>Source: <code>lib/file.x:388</code></p>
 <p><a id="File.hash"></a></p>
 <h4 id="filehash"><a class="header" href="#filehash">File.hash</a></h4>
 <p><code>unsigned File.hash(File file)</code></p>
 <p>Returns a handle-identity hash consistent with <code>File.equal</code>.</p>
-<p>Source: <code>lib/file.x:468</code></p>
+<p>Source: <code>lib/file.x:466</code></p>
 <p><a id="File.popen"></a></p>
 <h4 id="filepopen"><a class="header" href="#filepopen">File.popen</a></h4>
 <p><code>File File.popen(const char *cmd, const char *mode)</code></p>
@@ -406,34 +408,34 @@ to close the pipe and collect the child status. A host failure raises
 <code>&lt;not-found&gt;</code> for <code>ENOENT</code> or <code>&lt;io-fail&gt;</code> otherwise, with the command as
 <code>path</code>, operation, and captured errno; a null command or mode raises
 <code>&lt;bad-arg&gt;</code>.</p>
-<p>Source: <code>lib/file.x:554</code></p>
+<p>Source: <code>lib/file.x:552</code></p>
 <p><a id="File.printf"></a></p>
 <h4 id="fileprintf"><a class="header" href="#fileprintf">File.printf</a></h4>
 <p><code>int File.printf(File file, const char *format, ...)</code></p>
 <p>Formats values into <code>file</code>.
 Returns the character count or a negative value on failure.</p>
-<p>Source: <code>lib/file.x:448</code></p>
+<p>Source: <code>lib/file.x:446</code></p>
 <p><a id="File.putc"></a></p>
 <h4 id="fileputc"><a class="header" href="#fileputc">File.putc</a></h4>
 <p><code>inline int File.putc(File file, int c)</code></p>
 <p>Writes one byte and returns it as an unsigned char, or EOF on failure.</p>
-<p>Source: <code>lib/file.x:393</code></p>
+<p>Source: <code>lib/file.x:391</code></p>
 <p><a id="File.puts"></a></p>
 <h4 id="fileputs"><a class="header" href="#fileputs">File.puts</a></h4>
 <p><code>inline int File.puts(File file, const char *s)</code></p>
 <p>Writes a NUL-terminated C string.
 Returns a nonnegative value on success or EOF on failure.</p>
-<p>Source: <code>lib/file.x:398</code></p>
+<p>Source: <code>lib/file.x:396</code></p>
 <p><a id="File.putw"></a></p>
 <h4 id="fileputw"><a class="header" href="#fileputw">File.putw</a></h4>
 <p><code>inline int File.putw(File file, int w)</code></p>
 <p>Writes one native <code>int</code> and returns <code>w</code>, or EOF on a short write.</p>
-<p>Source: <code>lib/file.x:401</code></p>
+<p>Source: <code>lib/file.x:399</code></p>
 <p><a id="File.read"></a></p>
 <h4 id="fileread"><a class="header" href="#fileread">File.read</a></h4>
 <p><code>inline size_t File.read(File file, void *ptr, size_t size, size_t nitems)</code></p>
 <p>Reads up to <code>nitems</code> elements and returns the number read.</p>
-<p>Source: <code>lib/file.x:425</code></p>
+<p>Source: <code>lib/file.x:423</code></p>
 <p><a id="File.reopen"></a></p>
 <h4 id="filereopen"><a class="header" href="#filereopen">File.reopen</a></h4>
 <p><code>Self File.reopen(Self file, const char *path, const char *mode)</code></p>
@@ -443,35 +445,35 @@ a transfer the caller must not close or reuse the old handle. A missing
 path raises <code>&lt;not-found&gt;</code>; another host failure raises <code>&lt;io-fail&gt;</code>; and a
 null stream, path, or mode raises <code>&lt;bad-arg&gt;</code>. Host failures carry the
 path, operation, and captured errno.</p>
-<p>Source: <code>lib/file.x:569</code></p>
+<p>Source: <code>lib/file.x:567</code></p>
 <p><a id="File.repr"></a></p>
 <h4 id="filerepr"><a class="header" href="#filerepr">File.repr</a></h4>
 <p><code>String File.repr(File file)</code></p>
 <p>Returns a readable handle and descriptor representation without reading.</p>
-<p>Source: <code>lib/file.x:474</code></p>
+<p>Source: <code>lib/file.x:472</code></p>
 <p><a id="File.scanf"></a></p>
 <h4 id="filescanf"><a class="header" href="#filescanf">File.scanf</a></h4>
 <p><code>int File.scanf(File file, const char *format, ...)</code></p>
 <p>Scans values from <code>file</code>, returning the assignment count or EOF.</p>
-<p>Source: <code>lib/file.x:457</code></p>
+<p>Source: <code>lib/file.x:455</code></p>
 <p><a id="File.setbuffer"></a></p>
 <h4 id="filesetbuffer"><a class="header" href="#filesetbuffer">File.setbuffer</a></h4>
 <p><code>inline void File.setbuffer(File file, char *buf, int size)</code></p>
 <p>Installs caller-supplied buffering, or disables buffering for a null <code>buf</code>.
 A nonnull buffer is borrowed until the stream closes or buffering changes.</p>
-<p>Source: <code>lib/file.x:436</code></p>
+<p>Source: <code>lib/file.x:434</code></p>
 <p><a id="File.setlinebuf"></a></p>
 <h4 id="filesetlinebuf"><a class="header" href="#filesetlinebuf">File.setlinebuf</a></h4>
 <p><code>inline int File.setlinebuf(File file)</code></p>
 <p>Requests line buffering for <code>file</code> and returns zero.
 The underlying <code>setvbuf</code> result is intentionally not exposed.</p>
-<p>Source: <code>lib/file.x:416</code></p>
+<p>Source: <code>lib/file.x:414</code></p>
 <p><a id="File.stat"></a></p>
 <h4 id="filestat"><a class="header" href="#filestat">File.stat</a></h4>
 <p><code>inline int File.stat(File file, struct stat *buf)</code></p>
 <p>Writes metadata for <code>file</code> into <code>buf</code>.
 Returns zero on success or -1 on a native error.</p>
-<p>Source: <code>lib/file.x:443</code></p>
+<p>Source: <code>lib/file.x:441</code></p>
 <p><a id="File.str"></a></p>
 <h4 id="filestr"><a class="header" href="#filestr">File.str</a></h4>
 <p><code>String File.str(File file)</code></p>
@@ -480,7 +482,7 @@ A nonnull file follows <code>File.string</code>. It advances through EOF, return
 canonical result under the pool-chain lifetime described above or NULL
 when empty, and transfers the same causes. A null handle returns its
 pointer representation without reading.</p>
-<p>Source: <code>lib/file.x:485</code></p>
+<p>Source: <code>lib/file.x:483</code></p>
 <p><a id="File.string"></a></p>
 <h4 id="filestring"><a class="header" href="#filestring">File.string</a></h4>
 <p><code>String File.string(File file)</code></p>
@@ -490,7 +492,7 @@ no bytes remain.</p>
 <p><strong>Raises:</strong> <code>&lt;io-fail&gt;</code> on a stream read error, <code>&lt;bad-arg&gt;</code> when returned bytes
 contain an embedded NUL, <code>&lt;size-limit&gt;</code> when the <code>String</code> cannot be
 represented, or <code>&lt;alloc-fail&gt;</code> while constructing the result.</p>
-<p>Source: <code>lib/file.x:97</code></p>
+<p>Source: <code>lib/file.x:93</code></p>
 <p><a id="File.string_close"></a></p>
 <h4 id="filestring_close"><a class="header" href="#filestring_close">File.string_close</a></h4>
 <p><code>String File.string_close(File file)</code></p>
@@ -498,22 +500,22 @@ represented, or <code>&lt;alloc-fail&gt;</code> while constructing the result.</
 The close result is discarded, so a close failure is not reported. The
 stream and all of its aliases are invalid afterward.</p>
 <p><strong>Raises:</strong> the same causes as <code>File.string</code>.</p>
-<p>Source: <code>lib/file.x:151</code></p>
+<p>Source: <code>lib/file.x:147</code></p>
 <p><a id="File.ungetc"></a></p>
 <h4 id="fileungetc"><a class="header" href="#fileungetc">File.ungetc</a></h4>
 <p><code>inline int File.ungetc(File file, int c)</code></p>
 <p>Pushes one byte back and returns it, or EOF when it cannot be pushed.</p>
-<p>Source: <code>lib/file.x:422</code></p>
+<p>Source: <code>lib/file.x:420</code></p>
 <p><a id="File.write"></a></p>
 <h4 id="filewrite"><a class="header" href="#filewrite">File.write</a></h4>
 <p><code>inline size_t File.write( File file, const void *ptr, size_t size, size_t nitems)</code></p>
 <p>Writes up to <code>nitems</code> elements and returns the number written.</p>
-<p>Source: <code>lib/file.x:429</code></p>
+<p>Source: <code>lib/file.x:427</code></p>
 <p><a id="File.write_repr"></a></p>
 <h4 id="filewrite_repr"><a class="header" href="#filewrite_repr">File.write_repr</a></h4>
 <p><code>Buffer File.write_repr(File file, Buffer out)</code></p>
 <p>Appends the readable pointer representation of <code>file</code> to <code>out</code>.</p>
-<p>Source: <code>lib/file.x:488</code></p>
+<p>Source: <code>lib/file.x:486</code></p>
 <h2 id="convenience-api"><a class="header" href="#convenience-api">Convenience API</a></h2>
 <div class="table-wrapper">
 <table>
@@ -537,18 +539,18 @@ bytes are read. Prefer <code>File.read_into</code> for raw bytes and explicit st
 requested <code>String</code> cannot be represented, <code>&lt;bad-arg&gt;</code> when the bytes
 contain an embedded NUL, <code>&lt;io-fail&gt;</code> on a stream read error, or
 <code>&lt;alloc-fail&gt;</code> while constructing the result.</p>
-<p>Source: <code>lib/file.x:134</code></p>
+<p>Source: <code>lib/file.x:130</code></p>
 <p><a id="File.readline"></a></p>
 <h4 id="filereadline"><a class="header" href="#filereadline">File.readline</a></h4>
 <p><code>String File.readline(File file)</code></p>
 <p>Reads one raw line into a canonical <code>String</code>.
-Includes the newline when present. Clean EOF and <code>FILE_READ_ERROR</code> both map
+Includes the newline when present. Clean EOF and <code>&lt;error&gt;</code> both map
 to NULL. Prefer <code>File.readline_into</code> or <code>File.iter</code> when raw status and
 bytes should remain separate.</p>
 <p><strong>Raises:</strong> <code>&lt;io-fail&gt;</code> on a stream read error, <code>&lt;bad-arg&gt;</code> when returned bytes
 are not valid <code>String</code> text, <code>&lt;size-limit&gt;</code> when the line cannot be
 represented, or <code>&lt;alloc-fail&gt;</code> while constructing the result.</p>
-<p>Source: <code>lib/file.x:119</code></p>
+<p>Source: <code>lib/file.x:115</code></p>
 <h2 id="runtime-internal-callables"><a class="header" href="#runtime-internal-callables">Runtime-internal callables</a></h2>
 <p>These callables connect runtime translation units. They are documented
 for source readers but are not supported as user API.</p>
@@ -568,7 +570,7 @@ for source readers but are not supported as user API.</p>
 <p><code>void File.initialize(void)</code></p>
 <p>Publishes the process’s borrowed standard streams as <code>File</code> globals.
 The globals do not take ownership or arrange cleanup of the native streams.</p>
-<p>Source: <code>lib/file.x:588</code></p>
+<p>Source: <code>lib/file.x:586</code></p>
 <h2 id="public-types"><a class="header" href="#public-types">Public types</a></h2>
 <div class="table-wrapper">
 <table>
@@ -577,7 +579,7 @@ The globals do not take ownership or arrange cleanup of the native streams.</p>
 </thead>
 <tbody>
 <tr><td><a href="#File"><code>File</code></a></td><td>alias</td><td>Names a native stdio stream handle.</td></tr>
-<tr><td><a href="#FileReadStatus"><code>FileReadStatus</code></a></td><td>enum</td><td>Reports whether a raw <code>File</code> read produced bytes, reached clean EOF, or rejected its arguments.</td></tr>
+<tr><td><a href="#FileReadStatus"><code>FileReadStatus</code></a></td><td>alias</td><td>Reports <code>&lt;data&gt;</code> when a raw <code>File</code> read produced bytes, <code>&lt;eof&gt;</code> at clean EOF, or <code>&lt;error&gt;</code> for invalid arguments.</td></tr>
 </tbody>
 </table>
 </div>
@@ -591,10 +593,10 @@ invalidates every alias.</p>
 <p>Source: <code>lib/file.x:30</code></p>
 <p><a id="FileReadStatus"></a></p>
 <h3 id="filereadstatus"><a class="header" href="#filereadstatus">FileReadStatus</a></h3>
-<p><code>typedef enum FileReadStatus { FILE_READ_ERROR = -1, FILE_READ_EOF = 0, FILE_READ_DATA = 1 } FileReadStatus</code></p>
-<p>Reports whether a raw <code>File</code> read produced bytes, reached clean EOF, or
-rejected its arguments. Host read failures transfer <code>&lt;io-fail&gt;</code> instead of
-returning <code>FILE_READ_ERROR</code>.</p>
+<p><code>typedef Symbol FileReadStatus</code></p>
+<p>Reports <code>&lt;data&gt;</code> when a raw <code>File</code> read produced bytes, <code>&lt;eof&gt;</code> at clean
+EOF, or <code>&lt;error&gt;</code> for invalid arguments. Host read failures transfer
+<code>&lt;io-fail&gt;</code> instead of returning <code>&lt;error&gt;</code>.</p>
 <p>Source: <code>lib/file.x:65</code></p>
 <h2 id="design-notes"><a class="header" href="#design-notes">Design notes</a></h2>
 <p>A <code>File</code> is a native stdio stream whose handle identity serves hashing,
@@ -625,9 +627,9 @@ owning pool is released; NULL is the empty <code>String</code>.</p>
                         &copy; 2025&ndash;2026
                         <a href="https://flake.org">GWF</a>
                         &middot;
-                        <a href="https://github.com/gwf/x2c/blob/7e946b86663f9f069fe14e284c41e2aed73c57e0/LICENSE">Apache 2.0</a>
+                        <a href="https://github.com/gwf/x2c/blob/444c1cb3846093a07c3a0754b5795508173f8721/LICENSE">Apache 2.0</a>
                         &middot;
-                        <a href="https://github.com/gwf/x2c/blob/7e946b86663f9f069fe14e284c41e2aed73c57e0/TRADEMARKS.md">Trademarks</a>
+                        <a href="https://github.com/gwf/x2c/blob/444c1cb3846093a07c3a0754b5795508173f8721/TRADEMARKS.md">Trademarks</a>
                     </footer>
                 </div>
             </div>

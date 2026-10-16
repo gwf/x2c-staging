@@ -1,6 +1,6 @@
 <!DOCTYPE HTML>
 <html lang="en" class="light sidebar-visible" dir="ltr">
-    <head><meta name="x2c-release-channel" content="staging"><meta name="x2c-candidate" content="candidate-7e946b86663f9f069fe14e284c41e2aed73c57e0-37713265223-2">
+    <head><meta name="x2c-release-channel" content="staging"><meta name="x2c-candidate" content="candidate-444c1cb3846093a07c3a0754b5795508173f8721-38981359362-1">
         <!-- Book generated using mdBook -->
         <meta charset="UTF-8">
         <title>Building the Compiler - The x2c Book</title>
@@ -39,10 +39,10 @@
             const path_to_root = "../";
             const default_light_theme = "light";
             const default_dark_theme = "light";
-            window.path_to_searchindex_js = "../searchindex-1d8e23b0.js";
+            window.path_to_searchindex_js = "../searchindex-43b59c62.js";
         </script>
         <!-- Start loading toc.js asap -->
-        <script src="../toc-58dd3732.js"></script>
+        <script src="../toc-0edf2de5.js"></script>
         <!-- x2c publication metadata -->
         <link rel="canonical" href="https://staging.x2c-lang.dev/docs/internals/building.html">
         <meta property="og:type" content="website">
@@ -234,7 +234,7 @@ same report. <code>make build</code> and <code>make build-safe</code> run it aut
 bootstrap work or cleaning.</p>
 <p>For optional packages, use <code>./configure --packages</code>, or name only the ones
 you intend to build, such as <code>./configure --packages termbox2</code>. See the
-<a href="https://github.com/gwf/x2c/blob/7e946b86663f9f069fe14e284c41e2aed73c57e0/packages/README.md">package instructions</a> for native dependencies.
+<a href="https://github.com/gwf/x2c/blob/444c1cb3846093a07c3a0754b5795508173f8721/packages/README.md">package instructions</a> for native dependencies.
 These reports check command availability and required OpenSSL Perl modules;
 upstream configure scripts and compilers still check platform support.</p>
 <h2 id="why-a-bootstrap-exists"><a class="header" href="#why-a-bootstrap-exists">Why a bootstrap exists</a></h2>
@@ -247,14 +247,12 @@ therefore carries portable C emitted by an earlier verified compiler.</p>
   -&gt; stage 0 compiler and runtime
   -&gt; self-host stages 1, 2, and 3
 </code></pre>
-<p><code>make build-safe</code> builds through stage 0. Language users stop there.
-<code>builds/0/x2c</code> is the current development compiler; <code>bin/x2c</code> is the bootstrap
-compiler until stage 0 is installed over it.</p>
-<h2 id="why-later-stages-exist"><a class="header" href="#why-later-stages-exist">Why later stages exist</a></h2>
-<p>The self-host stages translate the same compiler repeatedly. A stable compiler
-makes stages 1 through 3 emit identical C and headers. The repository uses that
-agreement to catch compiler regressions. You do not need it to run your own
-programs.</p>
+<p><code>make build-safe</code> builds through stage 0 and links <code>bin/x2c</code> to
+<code>bin/x2c-bootstrap</code>. <code>builds/0/x2c</code> is the development compiler.
+<code>make build-install</code> copies it to <code>bin/x2c-&lt;branch&gt;</code> and links <code>bin/x2c</code>
+there; see <a href="../guide/installation.html#developer-workflow">developer workflow</a>.
+Language users stop at stage 0. <code>make stage-3</code> builds the self-host stages,
+which <a href="architecture.html#the-self-host-build">the self-host build</a> explains.</p>
 <h2 id="generated-and-tracked-boundaries"><a class="header" href="#generated-and-tracked-boundaries">Generated and tracked boundaries</a></h2>
 <ul>
 <li>Runtime and compiler behavior is written in <code>.x</code> sources.</li>
@@ -266,14 +264,13 @@ programs.</p>
 <code>site/public/llms.txt</code> with <code>llms-full.txt</code>.</li>
 </ul>
 <p>Do not hand-edit any of them; regenerate them with their targets.</p>
-<p>Contributor instructions cover when to regenerate the bootstrap snapshot and
-which checks to run; see <a href="#contributor-checks">Contributor checks</a>.</p>
 <h2 id="unit-interfaces-and-native-bindings"><a class="header" href="#unit-interfaces-and-native-bindings">Unit interfaces and native bindings</a></h2>
 <p>Each translated unit writes a unit interface, <code>&lt;stem&gt;.xi</code>, beside its <code>.c</code>
-and <code>.h</code>. A stage build leaves the runtime’s interfaces under <code>builds/N/lib</code>,
-and <code>lib/x2c.xi</code> there is the prelude every later translation replays. These
-interfaces are untracked build output;
-<a href="architecture.html#shallow-parse-and-global-environment-discovery">Compiler Architecture</a>
+and <code>.h</code>. A stage build leaves the runtime’s interfaces under <code>builds/N/lib</code>.
+A later translation replays <code>lib/x2c.xi</code> from there as its prelude only when
+the same compiler wrote it; otherwise it reads <code>lib/x2c.x</code> from source once
+per process. These interfaces are untracked build output;
+<a href="architecture.html#unit-interfaces">Compiler Architecture</a>
 describes their contents and validation.</p>
 <p>Native <code>Func</code> bindings use canonical function <code>Type</code> <code>List</code>s, for example
 <code>((func (("String"))) "String")</code>. Structural words are lowercase <code>Symbol</code>s,
@@ -308,9 +305,9 @@ the <a href="implementation-map.html">Implementation Map</a> for feature ownersh
                         &copy; 2025&ndash;2026
                         <a href="https://flake.org">GWF</a>
                         &middot;
-                        <a href="https://github.com/gwf/x2c/blob/7e946b86663f9f069fe14e284c41e2aed73c57e0/LICENSE">Apache 2.0</a>
+                        <a href="https://github.com/gwf/x2c/blob/444c1cb3846093a07c3a0754b5795508173f8721/LICENSE">Apache 2.0</a>
                         &middot;
-                        <a href="https://github.com/gwf/x2c/blob/7e946b86663f9f069fe14e284c41e2aed73c57e0/TRADEMARKS.md">Trademarks</a>
+                        <a href="https://github.com/gwf/x2c/blob/444c1cb3846093a07c3a0754b5795508173f8721/TRADEMARKS.md">Trademarks</a>
                     </footer>
                 </div>
             </div>

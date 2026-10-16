@@ -1,6 +1,6 @@
 <!DOCTYPE HTML>
 <html lang="en" class="light sidebar-visible" dir="ltr">
-    <head><meta name="x2c-release-channel" content="staging"><meta name="x2c-candidate" content="candidate-7e946b86663f9f069fe14e284c41e2aed73c57e0-37713265223-2">
+    <head><meta name="x2c-release-channel" content="staging"><meta name="x2c-candidate" content="candidate-444c1cb3846093a07c3a0754b5795508173f8721-38981359362-1">
         <!-- Book generated using mdBook -->
         <meta charset="UTF-8">
         <title>Protocols - The x2c Book</title>
@@ -39,10 +39,10 @@
             const path_to_root = "../";
             const default_light_theme = "light";
             const default_dark_theme = "light";
-            window.path_to_searchindex_js = "../searchindex-1d8e23b0.js";
+            window.path_to_searchindex_js = "../searchindex-43b59c62.js";
         </script>
         <!-- Start loading toc.js asap -->
-        <script src="../toc-58dd3732.js"></script>
+        <script src="../toc-0edf2de5.js"></script>
         <!-- x2c publication metadata -->
         <link rel="canonical" href="https://staging.x2c-lang.dev/docs/guide/protocols.html">
         <meta property="og:type" content="website">
@@ -294,20 +294,12 @@ carry <code>&lt;arraystr&gt;</code>. The tag must be a <code>Symbol</code> liter
 and must be unique across the process. <code>tag</code> registers the participant’s own
 descriptor; <code>as</code> reuses another type’s descriptor. The two modifiers cannot
 be combined.</p>
-<p>Any concrete adoption may be translation-unit-local:</p>
+<p>Any adoption may be local to its translation unit:</p>
 <!-- ignore: adoption excerpt; Prepared and LocalPlan are application-defined types -->
 <pre class="shiki shiki-themes x2c-light x2c-dark x2c-code" style="--shiki-light:#24292e;--shiki-dark:#e9e5df;--shiki-light-bg:#fff;--shiki-dark-bg:#101011" tabindex="0"><code class="language-x2c no-highlight ignore"><span class="line"><span style="--shiki-light:#D73A49;--shiki-dark:#F0ADA1">static</span><span style="--shiki-light:#A626A4;--shiki-light-font-weight:bold;--shiki-dark:#FF4FD8;--shiki-dark-font-weight:bold"> protocol</span><span style="--shiki-light:#6F42C1;--shiki-dark:#A6D9E5"> Prepared</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">(</span><span style="--shiki-light:#D73A49;--shiki-dark:#A6D9E5">LocalPlan</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">);</span></span></code></pre>
 
-<p><code>static</code> makes an adoption local to its translation unit, even when all its
-dependencies are public. It is also valid when the protocol, participant, or
-converters are already private; then it states explicitly what the compiler
-would infer. The resulting linkage is the same. Only an adoption can be
-<code>static</code>, not a protocol body.</p>
-<p>An adoption marked <code>meta</code>, such as <code>meta protocol Iter(List);</code>, also makes
-that conformance’s witnesses available to compile-time code, as described in
-<a href="meta-functions.html#native-c-functions">native C functions</a>. Only an adoption
-can be <code>meta</code>, so availability stays explicit for each conformance.</p>
-<p>Three visibility patterns cover most code:</p>
+<p>A protocol body may also be <code>static</code>, which keeps it private to its source
+file. Three visibility patterns cover most code:</p>
 <div class="table-wrapper">
 <table>
 <thead>
@@ -323,227 +315,59 @@ can be <code>meta</code>, so availability stays explicit for each conformance.</
 <p>A private type can therefore participate in the public <code>Var(T)</code> protocol
 without becoming public itself:</p>
 <pre class="shiki shiki-themes x2c-light x2c-dark x2c-code" style="--shiki-light:#24292e;--shiki-dark:#e9e5df;--shiki-light-bg:#fff;--shiki-dark-bg:#101011" tabindex="0"><code class="language-x2c no-highlight"><span class="line"><span style="--shiki-light:#D73A49;--shiki-dark:#F0ADA1">static</span><span style="--shiki-light:#D73A49;--shiki-dark:#E9E5DF"> typedef</span><span style="--shiki-light:#D73A49;--shiki-dark:#F0ADA1"> struct</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF"> LocalPlan </span><span style="--shiki-light:#D73A49;--shiki-dark:#E9E5DF">*</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">LocalPlan;</span>
-</span><span class="line"><span style="--shiki-light:#D73A49;--shiki-dark:#F0ADA1">static</span><span style="--shiki-light:#007C8A;--shiki-dark:#29D3E2"> Var</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF"> LocalPlan.</span><span style="--shiki-light:#6F42C1;--shiki-dark:#E9E5DF">var</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">(LocalPlan </span><span style="--shiki-light:#E36209;--shiki-dark:#E9E5DF">plan</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">) </span><span style="--shiki-light:#A626A4;--shiki-light-font-weight:bold;--shiki-dark:#FF4FD8;--shiki-dark-font-weight:bold">=&gt;</span><span style="--shiki-light:#007C8A;--shiki-dark:#29D3E2"> Var</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">.</span><span style="--shiki-light:#6F42C1;--shiki-dark:#E9E5DF">new</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">(</span><span style="--shiki-light:#24292E;--shiki-dark:#FF715A">&lt;</span><span style="--shiki-light:#005CC5;--shiki-dark:#E9E5DF">localplan</span><span style="--shiki-light:#24292E;--shiki-dark:#FF715A">&gt;</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">, plan);</span>
+</span><span class="line"><span style="--shiki-light:#D73A49;--shiki-dark:#F0ADA1">static</span><span style="--shiki-light:#007C8A;--shiki-dark:#29D3E2"> Var</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF"> LocalPlan.</span><span style="--shiki-light:#6F42C1;--shiki-dark:#E9E5DF">var</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">(LocalPlan </span><span style="--shiki-light:#E36209;--shiki-dark:#E9E5DF">plan</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">) </span><span style="--shiki-light:#A626A4;--shiki-light-font-weight:bold;--shiki-dark:#FF4FD8;--shiki-dark-font-weight:bold">=&gt;</span><span style="--shiki-light:#007C8A;--shiki-dark:#29D3E2"> Var</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">.</span><span style="--shiki-light:#6F42C1;--shiki-dark:#E9E5DF">new</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">(</span><span style="--shiki-light:#A626A4;--shiki-light-font-weight:bold;--shiki-dark:#FF4FD8;--shiki-dark-font-weight:bold">&lt;</span><span style="--shiki-light:#005CC5;--shiki-dark:#E9E5DF">localplan</span><span style="--shiki-light:#A626A4;--shiki-light-font-weight:bold;--shiki-dark:#FF4FD8;--shiki-dark-font-weight:bold">&gt;</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">, plan);</span>
 </span><span class="line"><span style="--shiki-light:#D73A49;--shiki-dark:#F0ADA1">static</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF"> LocalPlan </span><span style="--shiki-light:#007C8A;--shiki-dark:#29D3E2">Var</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">.</span><span style="--shiki-light:#6F42C1;--shiki-dark:#E9E5DF">localplan</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">(</span><span style="--shiki-light:#007C8A;--shiki-dark:#29D3E2">Var</span><span style="--shiki-light:#E36209;--shiki-dark:#E9E5DF"> value</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">) </span><span style="--shiki-light:#A626A4;--shiki-light-font-weight:bold;--shiki-dark:#FF4FD8;--shiki-dark-font-weight:bold">=&gt;</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF"> (LocalPlan) value.</span><span style="--shiki-light:#6F42C1;--shiki-dark:#E9E5DF">pointer</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">();</span>
 </span><span class="line"><span style="--shiki-light:#A626A4;--shiki-light-font-weight:bold;--shiki-dark:#FF4FD8;--shiki-dark-font-weight:bold">protocol</span><span style="--shiki-light:#6F42C1;--shiki-dark:#A6D9E5"> Var</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">(</span><span style="--shiki-light:#D73A49;--shiki-dark:#A6D9E5">LocalPlan</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">);</span></span></code></pre>
 
-<p>A protocol body declared as <code>static protocol Prepared(T) { ... }</code> is private
-to its source file. A concrete adoption may also be static. A local ordinary adapter is emitted as <code>static inline</code> in the
-participant’s C file. Local native aliases and their signature checks also
-stay in that file; none of these names appears in the generated header.</p>
-<p>The same linkage rules apply to <code>Var(T)</code> adapters and descriptor thunks.
-Descriptor registration is separate and process-wide. The participant’s unit
-registers either its lowercase type name or its explicit <code>tag</code> for boxed
-dispatch. Keep that tag unique, including across private types in different
-translation units. The compiler retains the full lowercase name to diagnose
-two types claiming the same encoded tag. <code>Var(T) as R</code> reuses <code>R</code>’s descriptor
-and registers nothing for <code>T</code>.</p>
-<p>A generated method cannot have both local and external linkage. If a
-participant requires both, the compiler reports an error at the source
-location. Local native aliases and local descriptor registration are still
-allowed.</p>
-<p>Protocol declarations and adoptions appear at the top level. Neither creates
-a program object or an AST node. The compiler collects them with surrounding
-declarations for each translation unit; reading source, cached declarations,
-or a unit interface gives the same result. Repeating a byte-identical
-declaration has no effect. Conflicting declarations produce errors at their
-source locations.</p>
-<h3 id="placement-and-visibility"><a class="header" href="#placement-and-visibility">Placement and visibility</a></h3>
-<p>The compiler resolves an adoption in the translation unit that declares it.
-That unit must include the protocol, participant type, required converters,
-and any participant methods needed to determine associated types. Put the
-adoption beside its converters. A shared protocol module is suitable only
-when it already includes these declarations.</p>
-<p>The runtime keeps built-in protocol bodies in <code>lib/protocols.x</code> and native
-protocols and adoptions beside the participant typedef. User modules have no
-required filename. A fully public native adoption emits aliases in the header;
-a private adoption or one with a private dependency keeps them in the
-participant’s C file.</p>
-<p>Two private typedefs may adopt a private protocol in one translation unit:
-<code>static protocol PrivateA(PrivateB);</code>. Omitting <code>static</code> has the same effect
-because the dependencies are private. If the selected methods need
-conversions in both directions, define <code>PrivateB.privatea</code> and
-<code>PrivateA.privateb</code>. The entire relationship stays within the translation
-unit.</p>
-<h2 id="conversions-are-demanded-by-adapters"><a class="header" href="#conversions-are-demanded-by-adapters">Conversions are demanded by adapters</a></h2>
-<p>The selected methods determine which conversions an adoption needs. The
-compiler generates adapters for those methods and requires only the
-conversions each adapter uses:</p>
-<div class="table-wrapper">
-<table>
-<thead>
-<tr><th>Adapter</th><th>Required conversion</th></tr>
-</thead>
-<tbody>
-<tr><td>Ordinary default parameter exactly <code>T</code></td><td>participant to base</td></tr>
-<tr><td>Ordinary default result exactly <code>T</code></td><td>base to participant</td></tr>
-<tr><td>Dispatcher thunk parameter of <code>T</code></td><td>base to participant</td></tr>
-<tr><td>Dispatcher thunk result of <code>T</code></td><td>participant to base</td></tr>
-<tr><td>Native alias occurrence of <code>T</code></td><td>the implicit C direction at that position</td></tr>
-</tbody>
-</table>
-</div>
-<p>For a participant <code>P</code> and base <code>Base</code>, name the forward conversion:</p>
-<!-- ignore: signature notation; Base and P stand for arbitrary types -->
-<pre class="shiki shiki-themes x2c-light x2c-dark x2c-code" style="--shiki-light:#24292e;--shiki-dark:#e9e5df;--shiki-light-bg:#fff;--shiki-dark-bg:#101011" tabindex="0"><code class="language-x2c no-highlight ignore"><span class="line"><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">Base P.</span><span style="--shiki-light:#6F42C1;--shiki-dark:#E9E5DF">base</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">(P)</span></span></code></pre>
-
-<p>The forward converter is a <strong>total view</strong>: every value of the declared
-participant must produce a valid base value. A reverse converter has the
-conventional spelling <code>P Base.p(Base)</code>, with <code>Base.as_p</code> reserved for a real
-name collision. It may be checked and partial because not every base value
-must contain a <code>P</code>. Signatures cannot express this totality distinction, so it
-is part of the protocol’s rules.</p>
-<p>For example, <code>Var(T)</code> descriptor thunks both unbox arguments and box results,
-so most object participants need both directions:</p>
+<p>An adoption marked <code>meta</code>, such as <code>meta protocol Iter(List);</code>, also makes
+that conformance’s witnesses available to compile-time code, as described in
+<a href="meta-functions.html#native-c-functions">native C functions</a>.</p>
+<h3 id="placement"><a class="header" href="#placement">Placement</a></h3>
+<p>Put an adoption beside its converters. The compiler resolves it in the
+declaring unit, which must see the protocol, the participant, the
+converters, and the participant methods that fix its associated types. A
+unit that includes the declaring unit reuses that result. The reference
+gives the <a href="../reference/language.html#protocols">linkage and visibility rules</a>.</p>
+<h2 id="conversions"><a class="header" href="#conversions">Conversions</a></h2>
+<p>An adoption needs only the conversions that its generated adapters use. Name
+the forward conversion <code>Base P.base(P)</code> and the reverse <code>P Base.p(Base)</code>. The
+forward conversion must accept every participant value. The reverse may fail
+for a base value that holds no <code>P</code>. <code>Var(T)</code> descriptor thunks both unbox
+arguments and box results, so most object participants need both:</p>
 <pre class="shiki shiki-themes x2c-light x2c-dark x2c-code" style="--shiki-light:#24292e;--shiki-dark:#e9e5df;--shiki-light-bg:#fff;--shiki-dark-bg:#101011" tabindex="0"><code class="language-x2c no-highlight"><span class="line boring"><span style="--shiki-light:#D73A49;--shiki-dark:#E9E5DF">typedef</span><span style="--shiki-light:#D73A49;--shiki-dark:#F0ADA1"> struct</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF"> Vec </span><span style="--shiki-light:#D73A49;--shiki-dark:#E9E5DF">*</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">Vec;</span>
 </span><span class="line"><span style="--shiki-light:#007C8A;--shiki-dark:#29D3E2">Var</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF"> Vec.</span><span style="--shiki-light:#6F42C1;--shiki-dark:#E9E5DF">var</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">(Vec </span><span style="--shiki-light:#E36209;--shiki-dark:#E9E5DF">value</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">);</span>
 </span><span class="line"><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">Vec </span><span style="--shiki-light:#007C8A;--shiki-dark:#29D3E2">Var</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">.</span><span style="--shiki-light:#6F42C1;--shiki-dark:#E9E5DF">vec</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">(</span><span style="--shiki-light:#007C8A;--shiki-dark:#29D3E2">Var</span><span style="--shiki-light:#E36209;--shiki-dark:#E9E5DF"> value</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">);</span>
 </span><span class="line"><span style="--shiki-light:#A626A4;--shiki-light-font-weight:bold;--shiki-dark:#FF4FD8;--shiki-dark-font-weight:bold">protocol</span><span style="--shiki-light:#6F42C1;--shiki-dark:#A6D9E5"> Var</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">(</span><span style="--shiki-light:#D73A49;--shiki-dark:#A6D9E5">Vec</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">);</span></span></code></pre>
 
-<p>A forwarding protocol whose defaults use <code>T</code> only as a parameter may need
-only the forward conversion. A default returning <code>T</code> also needs the reverse
-conversion to turn its base result into the participant type. The adapter
-generator does not convert <code>T</code> inside compound parameter or result types, so
-those types are rejected. A missing or unsupported conversion produces an
-error at the adoption, naming the method that needs it.</p>
-<h2 id="member-resolution"><a class="header" href="#member-resolution">Member resolution</a></h2>
-<p>Each adopted member resolves independently. Omitting one does not prevent the
-others from working.</p>
-<div class="table-wrapper">
-<table>
-<thead>
-<tr><th>Resolution</th><th>Dot call</th><th>Mapped punctuation</th><th>Descriptor-backed box</th></tr>
-</thead>
-<tbody>
-<tr><td><code>implemented</code></td><td>participant member</td><td>participant member</td><td>typed thunk</td></tr>
-<tr><td><code>native</code></td><td>checked native alias</td><td>checked native alias</td><td>not implied</td></tr>
-<tr><td>ordinary <code>base-default</code></td><td>generated forwarding member</td><td>forwarding member</td><td>routes through the same winner</td></tr>
-<tr><td><code>no-member</code></td><td>no</td><td>no</td><td>another protocol’s owner, else the base fallback</td></tr>
-<tr><td><code>sig-conflict</code></td><td>compile error</td><td>compile error</td><td>compile error</td></tr>
-</tbody>
-</table>
-</div>
-<p>An ordinary base default calls a base implementation after converting the
-participant through its total forward view. Dot syntax and punctuation use that
-same semantic member, and <code>Var(T)</code> publishes it on <code>T</code>’s descriptor even
-though <code>Var(T)</code> itself resolves the member as <code>no-member</code>. A <code>Var</code> fallback
-such as <code>Var.fallback_truth</code> is only last-resort boxed behavior: a descriptor
-slot that no protocol filled reaches it directly and does not grant a static
-participant method or replace native C punctuation.</p>
-<p>An explicit adoption can use a compatible method inherited through the
-participant’s typedef chain:</p>
+<p>A missing conversion is an error at the adoption, naming the method that needs
+it. The reference lists <a href="../reference/language.html#conversions-required-by-adapters">which adapter needs which
+conversion</a>.</p>
+<h2 id="how-members-are-chosen"><a class="header" href="#how-members-are-chosen">How members are chosen</a></h2>
+<p>Each adopted member resolves on its own. The participant’s own method wins,
+then the nearest inherited method, then the protocol’s default. An explicit
+adoption can use a method inherited through the participant’s typedef chain:</p>
 <pre class="shiki shiki-themes x2c-light x2c-dark x2c-code" style="--shiki-light:#24292e;--shiki-dark:#e9e5df;--shiki-light-bg:#fff;--shiki-dark-bg:#101011" tabindex="0"><code class="language-x2c no-highlight"><span class="line"><span style="--shiki-light:#D73A49;--shiki-dark:#E9E5DF">typedef</span><span style="--shiki-light:#007C8A;--shiki-dark:#29D3E2"> List</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF"> Domain;</span>
 </span><span class="line"><span style="--shiki-light:#A626A4;--shiki-light-font-weight:bold;--shiki-dark:#FF4FD8;--shiki-dark-font-weight:bold">protocol</span><span style="--shiki-light:#6F42C1;--shiki-dark:#A6D9E5"> Iter</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">(</span><span style="--shiki-light:#D73A49;--shiki-dark:#A6D9E5">Domain</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">);</span></span></code></pre>
 
-<p><code>Domain</code> can already iterate through its inherited <code>List</code> adoption. The
-explicit adoption resolves <code>Iter</code> again and selects <code>List.iter</code>. Iteration
-therefore calls <code>List_iter</code> directly, with no <code>Domain.iter</code> forwarding method
-or participant-to-base adapter.</p>
-<p>Selection tries the participant’s own method first, then the nearest inherited
-method, then an ordinary base default. Reaching the protocol base uses the
-same default rule. When checking a method, the compiler treats parameters
-with the method’s exact receiver type as participant parameters. Thus
-<code>List.equal(List, List)</code> can satisfy <code>int T.equal(T, T)</code> for a <code>List</code> typedef.
-A concrete result keeps its declared type; a <code>Self</code> result preserves the
-participant’s static typedef.</p>
-<p><code>Var(T)</code> normally remains exact: an ordinary adoption does not search the
-participant’s typedef chain. <code>protocol Var(P) as R</code> is the exception. When
-<code>P</code> inherits from the explicitly named representation <code>R</code>, compatible
-methods owned by <code>R</code> satisfy the adoption without <code>P</code> forwarding methods.
-Boxed values already use <code>R</code>’s descriptor, so compile-time conformance uses
-the same implementation without changing runtime dispatch.</p>
-<p>A participant method with the right name but an incompatible signature is a
-<code>sig-conflict</code>. The compiler reports an error at the adoption and identifies
-the protocol member and conflicting definition. It does not treat the method
-as omitted or issue only a warning.</p>
-<h3 id="associated-types"><a class="header" href="#associated-types">Associated types</a></h3>
-<p><code>associated Name = Default;</code> declares a type variable local to the protocol.
-The compiler infers a participant’s binding by unifying the member signatures
-the participant declares. Every occurrence must resolve to one type, and the
-default applies only when no declared member constrains the name.</p>
-<p>This lets one protocol preserve different static APIs. For example, <code>Array</code> can
-bind an index <code>Key</code> to <code>int</code>, while <code>Map</code> binds it to <code>Var</code>. Calls through a
-boxed value pass associated arguments and results as <code>Var</code>; the generated thunk
-converts each exactly once. Direct calls keep the participant’s static
-signature.</p>
-<h2 id="punctuation"><a class="header" href="#punctuation">Punctuation</a></h2>
-<p>Operators call the same resolved methods as dot syntax. The mappings include:</p>
-<div class="table-wrapper">
-<table>
-<thead>
-<tr><th>Syntax</th><th>Member</th></tr>
-</thead>
-<tbody>
-<tr><td><code>+ - * / %</code></td><td><code>add sub mul div mod</code></td></tr>
-<tr><td>direct <code>+= -= *= /= %=</code></td><td><code>add sub mul div mod</code></td></tr>
-<tr><td>direct prefix/postfix <code>++ --</code></td><td><code>add sub</code> with a converted <code>1</code></td></tr>
-<tr><td>unary <code>-</code></td><td><code>neg</code></td></tr>
-<tr><td><code>== !=</code></td><td><code>equal</code></td></tr>
-<tr><td><code>&lt; &lt;= &gt; &gt;=</code></td><td><code>compare</code> against zero</td></tr>
-<tr><td>conditions, <code>!</code>, <code>&amp;&amp;</code>, `</td><td></td></tr>
-<tr><td><code>needle in value</code></td><td><code>contains</code>, with the right operand as receiver</td></tr>
-<tr><td>indexing and indexed mutation</td><td><code>getindex</code>, <code>setindex</code>, <code>updateindex</code>, <code>postfixindex</code></td></tr>
-</tbody>
-</table>
-</div>
-<p>Matrix multiplication uses the ordinary <code>left.matmul(right)</code> method.
-<code>Var.matmul</code> dispatches a registered <code>matmul</code> witness. The <code>@</code> prefix
-splices macro syntax; <code>@</code> and <code>@=</code> are not arithmetic operators.</p>
-<p>An operand with no <span class="x2c-wordmark">x2c</span> type, such as a preprocessor macro’s name, cannot
-convert for a participant that implements the operator; <code>images - MEAN</code>
-with <code>#define MEAN 0.1307</code> is a compile-time type error rather than C the
-host compiler rejects. Cast the macro, <code>(double) MEAN</code>, or bind its value
-to a local.</p>
-<p>A participant may also declare <code>void T.discard(T)</code>. The compiler calls it on
-an unnamed temporary it made for one operator, such as the product in
-<code>a * b + c</code> or the converted <code>2.0</code> in <code>2.0 * x</code>, immediately after the
-operator that consumes the temporary returns. A value bound to a name is
-never discarded. A handle type whose values own native storage uses this to
-release each intermediate of a long operator chain before the enclosing
-scope ends; a value type needs no such member.</p>
-<p>A method or function returning a scalar or <code>void</code> also discards such arguments
-after the call. An ordinary call returning a pointer or aggregate may borrow
-its input, return an interior pointer, or contain a borrowed handle. Unless
-the callee is a known fresh operator or numeric converter, its temporary
-arguments remain alive in their enclosing scope. The call’s result does not
-acquire fresh ownership just because one of its arguments was temporary.</p>
-<p>An implemented or native member is eligible. An ordinary base default is also
-eligible because it is an inherited member reached through a total view. An
-empty <code>Var</code> descriptor slot is not a resolved static member. If no eligible
-member exists, valid native C behavior still applies; otherwise the compiler
-reports the ordinary operator error. When exactly one operand of a binary
-operator is a struct or union participant with the member, or a handle
-typedef pointing at one, the other operand converts to that type through
-its declared converter, so <code>meters + 2.0</code> and <code>10.0 - meters</code> resolve when
-<code>double.meters</code> exists. Scalar pointers and numeric participants keep
-native C behavior for a mixed operand, so <code>text + 1</code> remains pointer
-arithmetic. The runtime uses the
-same rows itself:
-<code>String.add</code> implements <code>add</code> for <code>protocol Var(String)</code>, so <code>String</code> <code>+</code> and
-<code>+=</code> are ordinary resolved punctuation, not compiler special cases.</p>
-<p>Logical operators preserve C short-circuit evaluation: each operand’s <code>truth</code>
-method runs only when C would evaluate that operand. Indexed compound and
-postfix operations evaluate the receiver, key, and value once, then call the
-update method once.</p>
-<p>A direct participant update requires a resolved binary member with signature
-<code>Participant member(Participant, RHS)</code>. Compound assignment converts its
-right operand to <code>RHS</code>. Increment and decrement convert the integer <code>1</code> to
-<code>RHS</code> and use <code>add</code> or <code>sub</code>. The addressable participant lvalue is evaluated
-once, its current value is passed to the member once, and the returned
-<code>Participant</code> is stored once. Compound assignment and prefix forms return the
-stored value; postfix forms return the value from before the call.</p>
-<p>Plain <code>=</code>, <code>===</code>, and <code>!==</code> are never overloaded. <code>===</code> and <code>!==</code> retain
-native identity for static participants and <code>Var</code>-bit identity for boxed
-values.</p>
+<p><code>Domain</code> already iterates through its inherited <code>List</code> adoption. The
+explicit adoption selects <code>List.iter</code>, so iteration calls <code>List_iter</code>
+directly, with no <code>Domain.iter</code> forwarding method.</p>
+<p><code>associated Name = Default;</code> declares a type that each participant binds from
+its own signatures. <code>Array</code> binds an index <code>Key</code> to <code>int</code>, while <code>Map</code> binds
+it to <code>Var</code>. <a href="../reference/language.html#member-resolution">Member resolution</a>
+gives the full rules, including signature conflicts and <code>Var(T)</code>.</p>
+<h2 id="operators"><a class="header" href="#operators">Operators</a></h2>
+<p>Operators call the same members as dot syntax: <code>+</code> calls <code>add</code>, <code>==</code> calls
+<code>equal</code>, <code>&lt;</code> compares through <code>compare</code>, conditions call <code>truth</code>, and indexing
+calls <code>getindex</code>. A participant may also declare <code>void T.discard(T)</code> to
+release each unnamed temporary in an operator chain. The reference lists
+<a href="../reference/language.html#operators">every operator and its member</a>, with the
+rules for mixed operands and updates.</p>
 <h2 id="when-protocols-share-a-method"><a class="header" href="#when-protocols-share-a-method">When protocols share a method</a></h2>
-<p>A participant implementation satisfies every adopted protocol that declares
-the same compatible member, and no protocol generates that member.</p>
-<p>Two ordinary defaults are an error. The diagnostic names both protocols.
-Implement the member on the participant to choose its semantics. Declaration
-order does not decide.</p>
-<p>A <code>Var(T)</code> adoption puts that same generated member on <code>T</code>’s descriptor when
-<code>Var(T)</code> declares the member and <code>T</code> does not implement it, so static and
-boxed behavior agree on one generated C name.</p>
+<p>A participant method satisfies every protocol that declares the same
+compatible member. Two protocol defaults for one member are an error;
+implement the member on the participant to choose. The reference gives
+<a href="../reference/language.html#members-shared-by-several-protocols">the full rule</a>.</p>
 <p>Before adding a protocol member, inspect the conformance dump for every
 participant homonym and its signature:</p>
 <pre><code class="language-sh">./builds/0/x2c translate --dump-conformance path/to/unit.x
@@ -561,7 +385,7 @@ only <code>str</code>, and explicitly adopts the protocol:</p>
 </span><span class="line"><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">} </span><span style="--shiki-light:#D73A49;--shiki-dark:#E9E5DF">*</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">Vec;</span>
 </span><span class="line">
 </span><span class="line"><span style="--shiki-light:#007C8A;--shiki-dark:#29D3E2">Var</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF"> Vec.</span><span style="--shiki-light:#6F42C1;--shiki-dark:#E9E5DF">var</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">(Vec </span><span style="--shiki-light:#E36209;--shiki-dark:#E9E5DF">value</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">) {</span>
-</span><span class="line"><span style="--shiki-light:#D73A49;--shiki-dark:#F0ADA1">  return</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF"> Var.</span><span style="--shiki-light:#6F42C1;--shiki-dark:#E9E5DF">new</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">(</span><span style="--shiki-light:#24292E;--shiki-dark:#FF715A">&lt;</span><span style="--shiki-light:#005CC5;--shiki-dark:#E9E5DF">vec</span><span style="--shiki-light:#24292E;--shiki-dark:#FF715A">&gt;</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">, value);</span>
+</span><span class="line"><span style="--shiki-light:#D73A49;--shiki-dark:#F0ADA1">  return</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF"> Var.</span><span style="--shiki-light:#6F42C1;--shiki-dark:#E9E5DF">new</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">(</span><span style="--shiki-light:#A626A4;--shiki-light-font-weight:bold;--shiki-dark:#FF4FD8;--shiki-dark-font-weight:bold">&lt;</span><span style="--shiki-light:#005CC5;--shiki-dark:#E9E5DF">vec</span><span style="--shiki-light:#A626A4;--shiki-light-font-weight:bold;--shiki-dark:#FF4FD8;--shiki-dark-font-weight:bold">&gt;</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">, value);</span>
 </span><span class="line"><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">}</span>
 </span><span class="line">
 </span><span class="line"><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">Vec </span><span style="--shiki-light:#007C8A;--shiki-dark:#29D3E2">Var</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">.</span><span style="--shiki-light:#6F42C1;--shiki-dark:#E9E5DF">vec</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">(</span><span style="--shiki-light:#007C8A;--shiki-dark:#29D3E2">Var</span><span style="--shiki-light:#E36209;--shiki-dark:#E9E5DF"> value</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">) {</span>
@@ -569,7 +393,7 @@ only <code>str</code>, and explicitly adopts the protocol:</p>
 </span><span class="line"><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">}</span>
 </span><span class="line">
 </span><span class="line"><span style="--shiki-light:#007C8A;--shiki-dark:#29D3E2">String</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF"> Vec.</span><span style="--shiki-light:#6F42C1;--shiki-dark:#E9E5DF">str</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">(Vec </span><span style="--shiki-light:#E36209;--shiki-dark:#E9E5DF">value</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">) {</span>
-</span><span class="line"><span style="--shiki-light:#D73A49;--shiki-dark:#F0ADA1">  return</span><span style="--shiki-light:#24292E;--shiki-dark:#FF715A"> %"</span><span style="--shiki-light:#032F62;--shiki-dark:#9EDFB8">Vec(</span><span style="--shiki-light:#032F62;--shiki-dark:#FF715A">${</span><span style="--shiki-light:#032F62;--shiki-dark:#9EDFB8">value.x</span><span style="--shiki-light:#032F62;--shiki-dark:#FF715A">}</span><span style="--shiki-light:#032F62;--shiki-dark:#9EDFB8">,</span><span style="--shiki-light:#032F62;--shiki-dark:#FF715A">${</span><span style="--shiki-light:#032F62;--shiki-dark:#9EDFB8">value.y</span><span style="--shiki-light:#032F62;--shiki-dark:#FF715A">}</span><span style="--shiki-light:#032F62;--shiki-dark:#9EDFB8">)</span><span style="--shiki-light:#24292E;--shiki-dark:#FF715A">"</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">;</span>
+</span><span class="line"><span style="--shiki-light:#D73A49;--shiki-dark:#F0ADA1">  return</span><span style="--shiki-light:#A626A4;--shiki-light-font-weight:bold;--shiki-dark:#FF4FD8;--shiki-dark-font-weight:bold"> %"</span><span style="--shiki-light:#032F62;--shiki-dark:#9EDFB8">Vec(</span><span style="--shiki-light:#A626A4;--shiki-light-font-weight:bold;--shiki-dark:#FF4FD8;--shiki-dark-font-weight:bold">${</span><span style="--shiki-light:#032F62;--shiki-dark:#9EDFB8">value.x</span><span style="--shiki-light:#A626A4;--shiki-light-font-weight:bold;--shiki-dark:#FF4FD8;--shiki-dark-font-weight:bold">}</span><span style="--shiki-light:#032F62;--shiki-dark:#9EDFB8">,</span><span style="--shiki-light:#A626A4;--shiki-light-font-weight:bold;--shiki-dark:#FF4FD8;--shiki-dark-font-weight:bold">${</span><span style="--shiki-light:#032F62;--shiki-dark:#9EDFB8">value.y</span><span style="--shiki-light:#A626A4;--shiki-light-font-weight:bold;--shiki-dark:#FF4FD8;--shiki-dark-font-weight:bold">}</span><span style="--shiki-light:#032F62;--shiki-dark:#9EDFB8">)</span><span style="--shiki-light:#A626A4;--shiki-light-font-weight:bold;--shiki-dark:#FF4FD8;--shiki-dark-font-weight:bold">"</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">;</span>
 </span><span class="line"><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">}</span>
 </span><span class="line">
 </span><span class="line"><span style="--shiki-light:#A626A4;--shiki-light-font-weight:bold;--shiki-dark:#FF4FD8;--shiki-dark-font-weight:bold">protocol</span><span style="--shiki-light:#6F42C1;--shiki-dark:#A6D9E5"> Var</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">(</span><span style="--shiki-light:#D73A49;--shiki-dark:#A6D9E5">Vec</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">);</span>
@@ -642,7 +466,7 @@ a hard error at <code>protocol Cartesian(Polar);</code>.</p>
 <h3 id="bytes-ordinary-defaults-and-punctuation"><a class="header" href="#bytes-ordinary-defaults-and-punctuation">Bytes: ordinary defaults and punctuation</a></h3>
 <p>The built-in manifest declares <code>protocol Block(Bytes);</code> centrally. The
 <code>Bytes.block</code> forward view is declared in <code>common.x</code> and implemented in
-<code>block.x</code>; no reverse <code>Block.as_bytes</code> adapter is needed. Members such as
+<code>block.x</code>; no reverse <code>Block.bytes</code> adapter is needed. Members such as
 <code>len</code>, <code>truth</code>, <code>pop</code>, <code>free</code>, and <code>truncate</code> forward through that view.</p>
 <pre class="shiki shiki-themes x2c-light x2c-dark x2c-code" style="--shiki-light:#24292e;--shiki-dark:#e9e5df;--shiki-light-bg:#fff;--shiki-dark-bg:#101011" tabindex="0"><code class="language-x2c no-highlight"><span class="line"><span style="--shiki-light:#D73A49;--shiki-dark:#F0ADA1">int</span><span style="--shiki-light:#6F42C1;--shiki-dark:#E9E5DF"> main</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">(</span><span style="--shiki-light:#D73A49;--shiki-dark:#F0ADA1">void</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">) {</span>
 </span><span class="line"><span style="--shiki-light:#007C8A;--shiki-dark:#29D3E2">  Bytes</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF"> bytes </span><span style="--shiki-light:#D73A49;--shiki-dark:#E9E5DF">=</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF"> Bytes.</span><span style="--shiki-light:#6F42C1;--shiki-dark:#E9E5DF">new</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">(</span><span style="--shiki-light:#D73A49;--shiki-dark:#E9E5DF">sizeof</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">(</span><span style="--shiki-light:#D73A49;--shiki-dark:#F0ADA1">int</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">));</span>
@@ -676,8 +500,8 @@ is required.</p>
 signature check and an alias such as <code>#define Handle_release free</code>. A fully
 public adoption places them in the participant’s generated header. If the
 protocol, participant, native target, or adoption is private, both remain in
-the participant’s C file.
-Variadic native targets and unsafe conversion directions are rejected.</p>
+the participant’s C file. Variadic native targets and unsafe conversion
+directions are rejected.</p>
 
                     </main>
 
@@ -696,9 +520,9 @@ Variadic native targets and unsafe conversion directions are rejected.</p>
                         &copy; 2025&ndash;2026
                         <a href="https://flake.org">GWF</a>
                         &middot;
-                        <a href="https://github.com/gwf/x2c/blob/7e946b86663f9f069fe14e284c41e2aed73c57e0/LICENSE">Apache 2.0</a>
+                        <a href="https://github.com/gwf/x2c/blob/444c1cb3846093a07c3a0754b5795508173f8721/LICENSE">Apache 2.0</a>
                         &middot;
-                        <a href="https://github.com/gwf/x2c/blob/7e946b86663f9f069fe14e284c41e2aed73c57e0/TRADEMARKS.md">Trademarks</a>
+                        <a href="https://github.com/gwf/x2c/blob/444c1cb3846093a07c3a0754b5795508173f8721/TRADEMARKS.md">Trademarks</a>
                     </footer>
                 </div>
             </div>

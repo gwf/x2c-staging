@@ -1,6 +1,6 @@
 <!DOCTYPE HTML>
 <html lang="en" class="light sidebar-visible" dir="ltr">
-    <head><meta name="x2c-release-channel" content="staging"><meta name="x2c-candidate" content="candidate-7e946b86663f9f069fe14e284c41e2aed73c57e0-37713265223-2">
+    <head><meta name="x2c-release-channel" content="staging"><meta name="x2c-candidate" content="candidate-444c1cb3846093a07c3a0754b5795508173f8721-38981359362-1">
         <!-- Book generated using mdBook -->
         <meta charset="UTF-8">
         <title>Wrapping a C Library - The x2c Book</title>
@@ -39,10 +39,10 @@
             const path_to_root = "../";
             const default_light_theme = "light";
             const default_dark_theme = "light";
-            window.path_to_searchindex_js = "../searchindex-1d8e23b0.js";
+            window.path_to_searchindex_js = "../searchindex-43b59c62.js";
         </script>
         <!-- Start loading toc.js asap -->
-        <script src="../toc-58dd3732.js"></script>
+        <script src="../toc-0edf2de5.js"></script>
         <!-- x2c publication metadata -->
         <link rel="canonical" href="https://staging.x2c-lang.dev/docs/guide/wrapping-c-libraries.html">
         <meta property="og:type" content="website">
@@ -224,8 +224,8 @@ This chapter explains how to design one around a C library.</p>
 <p>Provide an <span class="x2c-wordmark">x2c</span> API for ordinary use, with strings, collections, indexing,
 iteration, <code>defer</code>, and <code>Error</code> where they simplify the caller’s work. Keep the
 pinned C API available under its own names for features the wrapper does not
-expose. A raw header makes the library callable; the wrapper makes it pleasant
-to use without hiding it behind unrelated names.</p>
+expose. The raw header exposes every C function; the wrapper adds <span class="x2c-wordmark">x2c</span> types
+and keeps the C names recognizable.</p>
 <p>PCRE2 and yyjson illustrate the choices. Their packages are in
 <code>packages/pcre2/</code> and <code>packages/yyjson/</code>.</p>
 <h2 id="the-library-we-are-wrapping"><a class="header" href="#the-library-we-are-wrapping">The library we are wrapping</a></h2>
@@ -264,11 +264,11 @@ as a native C value.</p>
 <p>Also check for conditions this library does not have: process-global or
 thread-local state, callbacks on threads the caller did not start, and bytes
 that <code>String</code> cannot hold, such as embedded NUL.</p>
-<h2 id="start-with-the-tasks-not-with-the-header"><a class="header" href="#start-with-the-tasks-not-with-the-header">Start with the tasks, not with the header</a></h2>
+<h2 id="start-with-the-tasks"><a class="header" href="#start-with-the-tasks">Start with the tasks</a></h2>
 <p>Start by listing the tasks a developer brings to this kind of library. Then
 ask whether the imported <span class="x2c-wordmark">x2c</span> API can perform each task without requiring the
-raw C header or a hand-written loop over lower-level operations. This gives
-you a better measure of usefulness than the fraction of entry points wrapped.</p>
+raw C header or a hand-written loop over lower-level operations. Measure the
+wrapper by the tasks the <span class="x2c-wordmark">x2c</span> API performs.</p>
 <p>For a regular-expression library such as PCRE2, the list might be:</p>
 <ul>
 <li>Compile a pattern, match, and read named and numbered captures.</li>
@@ -323,7 +323,7 @@ unreachable. <code>pcre2-8.h</code> and <code>yyjson-0.12.h</code> are the two s
 <p>Publish the shim when a public method takes one of the library’s own types.
 The generated header needs that foreign declaration before it can publish a
 wrapper type that uses it.</p>
-<h2 id="the-entry-unit-and-its-two-halves"><a class="header" href="#the-entry-unit-and-its-two-halves">The entry unit and its two halves</a></h2>
+<h2 id="the-entry-unit"><a class="header" href="#the-entry-unit">The entry unit</a></h2>
 <p>The entry unit holds the public types and method definitions together.
 Nonstatic declarations are public; static helpers stay in the source.</p>
 <pre class="shiki shiki-themes x2c-light x2c-dark x2c-code" style="--shiki-light:#24292e;--shiki-dark:#e9e5df;--shiki-light-bg:#fff;--shiki-dark-bg:#101011" tabindex="0"><code class="language-x2c no-highlight"><span class="line boring"><span style="--shiki-light:#D73A49;--shiki-dark:#E9E5DF">typedef</span><span style="--shiki-light:#D73A49;--shiki-dark:#F0ADA1"> struct</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF"> feed_parser feed_parser;</span>
@@ -345,16 +345,13 @@ The public forward type does not require its static body, so only this source
 file needs the layout. A public value type or inline field access would require
 that definition in the header.</p>
 <p>For functions with no receiver, a package can declare a type used only as a
-namespace. yyjson does this for <code>Json.parse</code>:</p>
-<pre class="shiki shiki-themes x2c-light x2c-dark x2c-code" style="--shiki-light:#24292e;--shiki-dark:#e9e5df;--shiki-light-bg:#fff;--shiki-dark-bg:#101011" tabindex="0"><code class="language-x2c no-highlight"><span class="line"><span style="--shiki-light:#D73A49;--shiki-dark:#E9E5DF">typedef</span><span style="--shiki-light:#D73A49;--shiki-dark:#F0ADA1"> enum</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF"> Json {</span>
-</span><span class="line"><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">  JSON_NAMESPACE</span>
-</span><span class="line"><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">} Json;</span></span></code></pre>
+namespace. The runtime does this for <code>Json.parse</code>:</p>
+<pre class="shiki shiki-themes x2c-light x2c-dark x2c-code" style="--shiki-light:#24292e;--shiki-dark:#e9e5df;--shiki-light-bg:#fff;--shiki-dark-bg:#101011" tabindex="0"><code class="language-x2c no-highlight"><span class="line"><span style="--shiki-light:#D73A49;--shiki-dark:#E9E5DF">typedef</span><span style="--shiki-light:#007C8A;--shiki-dark:#29D3E2"> Symbol</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF"> Json;</span></span></code></pre>
 
 <h2 id="ownership-and-defer"><a class="header" href="#ownership-and-defer">Ownership and defer</a></h2>
-<p>The acquisition function and the release function are one design decision, so
-write them together. Release should be idempotent and return <code>NULL</code>, which
-makes a double close harmless and lets the caller clear their handle in the
-same expression.</p>
+<p>Write the acquisition and release functions together. Release should be
+idempotent and return <code>NULL</code>, which makes a double close harmless and lets the
+caller clear their handle in the same expression.</p>
 <pre class="shiki shiki-themes x2c-light x2c-dark x2c-code" style="--shiki-light:#24292e;--shiki-dark:#e9e5df;--shiki-light-bg:#fff;--shiki-dark-bg:#101011" tabindex="0"><code class="language-x2c no-highlight"><span class="line boring"><span style="--shiki-light:#D73A49;--shiki-dark:#E9E5DF">typedef</span><span style="--shiki-light:#D73A49;--shiki-dark:#F0ADA1"> struct</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF"> feed_parser feed_parser;</span>
 </span><span class="line boring"><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">feed_parser </span><span style="--shiki-light:#D73A49;--shiki-dark:#E9E5DF">*</span><span style="--shiki-light:#6F42C1;--shiki-dark:#E9E5DF">feed_open</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">(</span><span style="--shiki-light:#D73A49;--shiki-dark:#F0ADA1">const</span><span style="--shiki-light:#D73A49;--shiki-dark:#F0ADA1"> char</span><span style="--shiki-light:#D73A49;--shiki-dark:#E9E5DF"> *</span><span style="--shiki-light:#E36209;--shiki-dark:#E9E5DF">bytes</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">, </span><span style="--shiki-light:#D73A49;--shiki-dark:#F0ADA1">unsigned</span><span style="--shiki-light:#D73A49;--shiki-dark:#F0ADA1"> long</span><span style="--shiki-light:#E36209;--shiki-dark:#E9E5DF"> len</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">);</span>
 </span><span class="line boring"><span style="--shiki-light:#D73A49;--shiki-dark:#F0ADA1">void</span><span style="--shiki-light:#6F42C1;--shiki-dark:#E9E5DF"> feed_close</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">(feed_parser </span><span style="--shiki-light:#D73A49;--shiki-dark:#E9E5DF">*</span><span style="--shiki-light:#E36209;--shiki-dark:#E9E5DF">parser</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">);</span>
@@ -377,15 +374,13 @@ same expression.</p>
 </span><span class="line"><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">}</span></span></code></pre>
 
 <p><code>Regexp.free</code> and <code>JsonDocument.free</code> are both shaped this way.</p>
-<p><code>Scope</code> owns the small <span class="x2c-wordmark">x2c</span> record. With <code>Scope.calloc</code> it releases the
-<code>struct Feed</code> when its scope ends and knows nothing about <code>feed_close</code>, so
-the caller must release the native resource. With <code>Scope.malloc_finalized</code>
-the record carries a finalizer that calls <code>feed_close</code> when the scope
-reclaims it, so temporaries a library creates faster than a caller can name
-them, such as the results of operator expressions, are released with the
-region. Keep the explicit <code>free</code> method either way: it clears the native
-field, so an early release leaves the finalizer nothing to do. See
-<a href="memory.html#attaching-a-finalizer">attaching a finalizer</a>.</p>
+<p><code>Scope</code> owns the small <span class="x2c-wordmark">x2c</span> record. With <code>Scope.calloc</code> it releases the <code>struct Feed</code> when its scope ends and does not call <code>feed_close</code>, so the caller must
+release the native resource. With <code>Scope.malloc_finalized</code> the record carries
+a finalizer that calls <code>feed_close</code> when the scope reclaims it, so unnamed
+temporaries, such as the results of operator expressions, are released with
+the region. Keep the explicit <code>free</code> method either way: it clears the native
+field, so after an early release the finalizer does nothing. See <a href="memory.html#attaching-a-finalizer">attaching a
+finalizer</a>.</p>
 <p>Adopt <code>Cleanup(T)</code> beside the type so a caller can write <code>$auto</code>. Without it
 the managed initializer is refused and every caller repeats the release.
 When one method releases the handle, <code>$cleanup.by</code> from <code>cleanup.x</code>
@@ -396,7 +391,7 @@ defines <code>Feed.cleanup</code> to call it and adopts the protocol:</p>
 </span><span class="line boring"><span style="--shiki-light:#D73A49;--shiki-dark:#F0ADA1">struct</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF"> Feed { feed_parser </span><span style="--shiki-light:#D73A49;--shiki-dark:#E9E5DF">*</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">native; </span><span style="--shiki-light:#007C8A;--shiki-dark:#29D3E2">String</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF"> source; };</span>
 </span><span class="line boring"><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">Feed Feed.</span><span style="--shiki-light:#6F42C1;--shiki-dark:#E9E5DF">close</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">(Feed </span><span style="--shiki-light:#E36209;--shiki-dark:#E9E5DF">feed</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">) { </span><span style="--shiki-light:#D73A49;--shiki-dark:#F0ADA1">return</span><span style="--shiki-light:#005CC5;--shiki-dark:#E9E5DF"> NULL</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">; }</span>
 </span><span class="line"><span style="--shiki-light:#D73A49;--shiki-dark:#F0ADA1">#include</span><span style="--shiki-light:#032F62;--shiki-dark:#9EDFB8"> "cleanup.x"</span>
-</span><span class="line"><span style="--shiki-light:#24292E;--shiki-dark:#FF715A">$</span><span style="--shiki-light:#6F42C1;--shiki-dark:#FF715A">cleanup.by</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">(Feed, close);</span></span></code></pre>
+</span><span class="line"><span style="--shiki-light:#A626A4;--shiki-light-font-weight:bold;--shiki-dark:#FF4FD8;--shiki-dark-font-weight:bold">$</span><span style="--shiki-light:#6F42C1;--shiki-dark:#FF715A">cleanup.by</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">(Feed, close);</span></span></code></pre>
 
 <p>Keep the public adoption beside its converters. The release method may be
 defined later; its nonstatic declaration remains public. A
@@ -413,7 +408,7 @@ owns adopts nothing.</p>
 </span><span class="line boring"><span style="--shiki-light:#A626A4;--shiki-light-font-weight:bold;--shiki-dark:#FF4FD8;--shiki-dark-font-weight:bold">protocol</span><span style="--shiki-light:#6F42C1;--shiki-dark:#A6D9E5"> Cleanup</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">(</span><span style="--shiki-light:#D73A49;--shiki-dark:#A6D9E5">Feed</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">);</span>
 </span><span class="line boring"><span style="--shiki-light:#007C8A;--shiki-dark:#29D3E2">List</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF"> Feed.</span><span style="--shiki-light:#6F42C1;--shiki-dark:#E9E5DF">titles</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">(Feed </span><span style="--shiki-light:#E36209;--shiki-dark:#E9E5DF">feed</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">) { </span><span style="--shiki-light:#D73A49;--shiki-dark:#F0ADA1">return</span><span style="--shiki-light:#005CC5;--shiki-dark:#E9E5DF"> NULL</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">; }</span>
 </span><span class="line"><span style="--shiki-light:#D73A49;--shiki-dark:#F0ADA1">static</span><span style="--shiki-light:#D73A49;--shiki-dark:#F0ADA1"> int</span><span style="--shiki-light:#6F42C1;--shiki-dark:#E9E5DF"> count_titles</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">(</span><span style="--shiki-light:#007C8A;--shiki-dark:#29D3E2">String</span><span style="--shiki-light:#E36209;--shiki-dark:#E9E5DF"> document</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">) {</span>
-</span><span class="line"><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">  Feed feed </span><span style="--shiki-light:#D73A49;--shiki-dark:#E9E5DF">=</span><span style="--shiki-light:#24292E;--shiki-dark:#FF715A"> $</span><span style="--shiki-light:#005CC5;--shiki-dark:#E9E5DF">auto</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">(Feed.</span><span style="--shiki-light:#6F42C1;--shiki-dark:#E9E5DF">open</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">(document));</span>
+</span><span class="line"><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">  Feed feed </span><span style="--shiki-light:#D73A49;--shiki-dark:#E9E5DF">=</span><span style="--shiki-light:#A626A4;--shiki-light-font-weight:bold;--shiki-dark:#FF4FD8;--shiki-dark-font-weight:bold"> $</span><span style="--shiki-light:#005CC5;--shiki-dark:#E9E5DF">auto</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">(Feed.</span><span style="--shiki-light:#6F42C1;--shiki-dark:#E9E5DF">open</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">(document));</span>
 </span><span class="line"><span style="--shiki-light:#D73A49;--shiki-dark:#F0ADA1">  return</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF"> feed.</span><span style="--shiki-light:#6F42C1;--shiki-dark:#E9E5DF">titles</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">().</span><span style="--shiki-light:#6F42C1;--shiki-dark:#E9E5DF">len</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">();</span>
 </span><span class="line"><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">}</span></span></code></pre>
 
@@ -434,14 +429,13 @@ acquisition:</p>
 </span><span class="line"><span style="--shiki-light:#D73A49;--shiki-dark:#F0ADA1">  return</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF"> feed.</span><span style="--shiki-light:#6F42C1;--shiki-dark:#E9E5DF">titles</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">().</span><span style="--shiki-light:#6F42C1;--shiki-dark:#E9E5DF">len</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">();</span>
 </span><span class="line"><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">}</span></span></code></pre>
 
-<p>A <code>defer</code> in a function that <em>returns</em> the handle closes it before the caller
+<p>A <code>defer</code> in a function that returns the handle closes it before the caller
 ever sees it. The release belongs to whoever will finish with it. A handle
-whose operations reuse internal state is not reentrant: say so in the README
-rather than letting silence imply that concurrent calls are safe. One <code>Regexp</code>
-cannot be shared across threads for this reason.</p>
+whose operations reuse internal state is not reentrant: state that in the
+README. One <code>Regexp</code> cannot be shared across threads for this reason.</p>
 <h2 id="copy-borrow-convert-or-stay-raw"><a class="header" href="#copy-borrow-convert-or-stay-raw">Copy, borrow, convert, or stay raw</a></h2>
-<p>Four choices, each selected by a question.</p>
-<p><strong>Will another native call invalidate this result?</strong> Then copy it, or retain a
+<h3 id="copy-results-a-later-call-invalidates"><a class="header" href="#copy-results-a-later-call-invalidates">Copy results a later call invalidates</a></h3>
+<p>Copy a result that another native call will invalidate, or retain a
 separate owner for it. <code>feed_next</code> hands back a pointer into storage the next
 call reuses, so the wrapper copies each title into an immutable <code>String</code> as it
 goes:</p>
@@ -450,7 +444,7 @@ goes:</p>
 </span><span class="line boring"><span style="--shiki-light:#D73A49;--shiki-dark:#F0ADA1">const</span><span style="--shiki-light:#D73A49;--shiki-dark:#F0ADA1"> char</span><span style="--shiki-light:#D73A49;--shiki-dark:#E9E5DF"> *</span><span style="--shiki-light:#6F42C1;--shiki-dark:#E9E5DF">feed_strerror</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">(</span><span style="--shiki-light:#D73A49;--shiki-dark:#F0ADA1">int</span><span style="--shiki-light:#E36209;--shiki-dark:#E9E5DF"> code</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">);</span>
 </span><span class="line boring"><span style="--shiki-light:#D73A49;--shiki-dark:#E9E5DF">typedef</span><span style="--shiki-light:#D73A49;--shiki-dark:#F0ADA1"> struct</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF"> Feed </span><span style="--shiki-light:#D73A49;--shiki-dark:#E9E5DF">*</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">Feed;</span>
 </span><span class="line boring"><span style="--shiki-light:#D73A49;--shiki-dark:#F0ADA1">struct</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF"> Feed { feed_parser </span><span style="--shiki-light:#D73A49;--shiki-dark:#E9E5DF">*</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">native; };</span>
-</span><span class="line boring"><span style="--shiki-light:#D73A49;--shiki-dark:#F0ADA1">static</span><span style="--shiki-light:#D73A49;--shiki-dark:#F0ADA1"> void</span><span style="--shiki-light:#6F42C1;--shiki-dark:#E9E5DF"> _feed_error</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">(</span><span style="--shiki-light:#007C8A;--shiki-dark:#29D3E2">String</span><span style="--shiki-light:#E36209;--shiki-dark:#E9E5DF"> operation</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">, </span><span style="--shiki-light:#D73A49;--shiki-dark:#F0ADA1">int</span><span style="--shiki-light:#E36209;--shiki-dark:#E9E5DF"> code</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">) { </span><span style="--shiki-light:#A626A4;--shiki-light-font-weight:bold;--shiki-dark:#FF4FD8;--shiki-dark-font-weight:bold">raise</span><span style="--shiki-light:#D73A49;--shiki-dark:#E9E5DF"> %</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">(</span><span style="--shiki-light:#6F42C1;--shiki-dark:#E9E5DF">malformed</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF"> (code </span><span style="--shiki-light:#24292E;--shiki-dark:#FF715A">$</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">code)); }</span>
+</span><span class="line boring"><span style="--shiki-light:#D73A49;--shiki-dark:#F0ADA1">static</span><span style="--shiki-light:#D73A49;--shiki-dark:#F0ADA1"> void</span><span style="--shiki-light:#6F42C1;--shiki-dark:#E9E5DF"> _feed_error</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">(</span><span style="--shiki-light:#007C8A;--shiki-dark:#29D3E2">String</span><span style="--shiki-light:#E36209;--shiki-dark:#E9E5DF"> operation</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">, </span><span style="--shiki-light:#D73A49;--shiki-dark:#F0ADA1">int</span><span style="--shiki-light:#E36209;--shiki-dark:#E9E5DF"> code</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">) { </span><span style="--shiki-light:#A626A4;--shiki-light-font-weight:bold;--shiki-dark:#FF4FD8;--shiki-dark-font-weight:bold">raise</span><span style="--shiki-light:#D73A49;--shiki-dark:#E9E5DF"> %</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">(</span><span style="--shiki-light:#6F42C1;--shiki-dark:#E9E5DF">malformed</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF"> (code </span><span style="--shiki-light:#A626A4;--shiki-light-font-weight:bold;--shiki-dark:#FF4FD8;--shiki-dark-font-weight:bold">$</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">code)); }</span>
 </span><span class="line"><span style="--shiki-light:#007C8A;--shiki-dark:#29D3E2">List</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF"> Feed.</span><span style="--shiki-light:#6F42C1;--shiki-dark:#E9E5DF">titles</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">(Feed </span><span style="--shiki-light:#E36209;--shiki-dark:#E9E5DF">feed</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">) {</span>
 </span><span class="line"><span style="--shiki-light:#007C8A;--shiki-dark:#29D3E2">  Array</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF"> titles </span><span style="--shiki-light:#D73A49;--shiki-dark:#E9E5DF">=</span><span style="--shiki-light:#D73A49;--shiki-dark:#F0ADA1"> []</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">;</span>
 </span><span class="line"><span style="--shiki-light:#D73A49;--shiki-dark:#F0ADA1">  const</span><span style="--shiki-light:#D73A49;--shiki-dark:#F0ADA1"> char</span><span style="--shiki-light:#D73A49;--shiki-dark:#E9E5DF"> *</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">title </span><span style="--shiki-light:#D73A49;--shiki-dark:#E9E5DF">=</span><span style="--shiki-light:#005CC5;--shiki-dark:#E9E5DF"> NULL</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">;</span>
@@ -458,7 +452,7 @@ goes:</p>
 </span><span class="line"><span style="--shiki-light:#D73A49;--shiki-dark:#F0ADA1">  int</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF"> status;</span>
 </span><span class="line">
 </span><span class="line"><span style="--shiki-light:#D73A49;--shiki-dark:#F0ADA1">  while</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF"> ((status </span><span style="--shiki-light:#D73A49;--shiki-dark:#E9E5DF">=</span><span style="--shiki-light:#6F42C1;--shiki-dark:#E9E5DF"> feed_next</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">(feed.native, </span><span style="--shiki-light:#D73A49;--shiki-dark:#E9E5DF">&amp;</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">title, </span><span style="--shiki-light:#D73A49;--shiki-dark:#E9E5DF">&amp;</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">length)) </span><span style="--shiki-light:#D73A49;--shiki-dark:#E9E5DF">&gt;</span><span style="--shiki-light:#005CC5;--shiki-dark:#A9C9F5"> 0</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">)</span>
-</span><span class="line"><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">    titles.</span><span style="--shiki-light:#6F42C1;--shiki-dark:#E9E5DF">push</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">(String.</span><span style="--shiki-light:#6F42C1;--shiki-dark:#E9E5DF">new_len</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">(title, (</span><span style="--shiki-light:#D73A49;--shiki-dark:#F0ADA1">int</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">) length));</span>
+</span><span class="line"><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">    titles.</span><span style="--shiki-light:#6F42C1;--shiki-dark:#E9E5DF">push</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">(</span><span style="--shiki-light:#007C8A;--shiki-dark:#29D3E2">String</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">.</span><span style="--shiki-light:#6F42C1;--shiki-dark:#E9E5DF">new_len</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">(title, (</span><span style="--shiki-light:#D73A49;--shiki-dark:#F0ADA1">int</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">) length));</span>
 </span><span class="line"><span style="--shiki-light:#D73A49;--shiki-dark:#F0ADA1">  if</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF"> (status </span><span style="--shiki-light:#D73A49;--shiki-dark:#E9E5DF">&lt;</span><span style="--shiki-light:#005CC5;--shiki-dark:#A9C9F5"> 0</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">) </span><span style="--shiki-light:#6F42C1;--shiki-dark:#E9E5DF">_feed_error</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">(</span><span style="--shiki-light:#032F62;--shiki-dark:#9EDFB8">"next"</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">, status);</span>
 </span><span class="line"><span style="--shiki-light:#D73A49;--shiki-dark:#F0ADA1">  return</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF"> titles.</span><span style="--shiki-light:#6F42C1;--shiki-dark:#E9E5DF">list_free</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">();</span>
 </span><span class="line"><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">}</span></span></code></pre>
@@ -466,7 +460,8 @@ goes:</p>
 <p>PCRE2 reuses match data on the next call. The wrapper copies captures into
 immutable <code>List</code>s so later matches do not change earlier results. The copied
 results have the lifetime of their canonical pools.</p>
-<p><strong>Is the native graph large, ordered, duplicated, or lazily walked?</strong> Then own
+<h3 id="borrow-views-into-an-owned-document"><a class="header" href="#borrow-views-into-an-owned-document">Borrow views into an owned document</a></h3>
+<p>When the native graph is large, ordered, duplicated, or lazily walked, own
 the document and hand out borrowed views, with an explicit invalidation rule. A
 view keeps a reference to its owner and checks it:</p>
 <pre class="shiki shiki-themes x2c-light x2c-dark x2c-code" style="--shiki-light:#24292e;--shiki-dark:#e9e5df;--shiki-light-bg:#fff;--shiki-dark-bg:#101011" tabindex="0"><code class="language-x2c no-highlight"><span class="line boring"><span style="--shiki-light:#D73A49;--shiki-dark:#E9E5DF">typedef</span><span style="--shiki-light:#D73A49;--shiki-dark:#F0ADA1"> struct</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF"> feed_parser feed_parser;</span>
@@ -494,9 +489,11 @@ view keeps a reference to its owner and checks it:</p>
 signed, unsigned, and real numbers. Its wrapper owns the native document and
 returns borrowed views that retain those distinctions. Call <code>to_x2c</code>
 explicitly when that information is unnecessary.</p>
-<p><strong>Does conversion cover the native value’s whole domain?</strong> If not, name the
+<h3 id="make-lossy-conversion-opt-in"><a class="header" href="#make-lossy-conversion-opt-in">Make lossy conversion opt-in</a></h3>
+<p>When conversion does not cover the native value’s whole domain, name the
 loss and make conversion opt-in.</p>
-<p><strong>Can <span class="x2c-wordmark">x2c</span> represent the bytes at all?</strong> If not, keep that path raw. <code>String</code>
+<h3 id="keep-bytes-x2c-cannot-hold-on-the-raw-api"><a class="header" href="#keep-bytes-x2c-cannot-hold-on-the-raw-api">Keep bytes <span class="x2c-wordmark">x2c</span> cannot hold on the raw API</a></h3>
+<p>When <span class="x2c-wordmark">x2c</span> cannot represent the bytes, keep that path raw. <code>String</code>
 excludes embedded NUL, so PCRE2’s explicit-length binary matching stays on the
 raw header.</p>
 <p>Add indexing and iteration when they simplify the caller’s code. Inside a
@@ -515,15 +512,15 @@ the member itself, hence the cast:</p>
 </span><span class="line"><span style="--shiki-light:#A626A4;--shiki-light-font-weight:bold;--shiki-dark:#FF4FD8;--shiki-dark-font-weight:bold">protocol</span><span style="--shiki-light:#6F42C1;--shiki-dark:#A6D9E5"> FeedItemIndex</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">(</span><span style="--shiki-light:#D73A49;--shiki-dark:#A6D9E5">FeedItem</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">);</span>
 </span><span class="line">
 </span><span class="line"><span style="--shiki-light:#007C8A;--shiki-dark:#29D3E2">String</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF"> FeedItem.</span><span style="--shiki-light:#6F42C1;--shiki-dark:#E9E5DF">getindex</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">(FeedItem </span><span style="--shiki-light:#E36209;--shiki-dark:#E9E5DF">item</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">, </span><span style="--shiki-light:#007C8A;--shiki-dark:#29D3E2">Var</span><span style="--shiki-light:#E36209;--shiki-dark:#E9E5DF"> key</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">) {</span>
-</span><span class="line"><span style="--shiki-light:#D73A49;--shiki-dark:#F0ADA1">  return</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF"> key.</span><span style="--shiki-light:#6F42C1;--shiki-dark:#E9E5DF">is_integer</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">()</span>
-</span><span class="line"><span style="--shiki-light:#D73A49;--shiki-dark:#E9E5DF">    ?</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF"> ((</span><span style="--shiki-light:#007C8A;--shiki-dark:#29D3E2">List</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">) item).</span><span style="--shiki-light:#6F42C1;--shiki-dark:#E9E5DF">getindex</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">(key.</span><span style="--shiki-light:#6F42C1;--shiki-dark:#E9E5DF">int</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">()).</span><span style="--shiki-light:#6F42C1;--shiki-dark:#E9E5DF">string</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">() </span><span style="--shiki-light:#D73A49;--shiki-dark:#E9E5DF">:</span><span style="--shiki-light:#005CC5;--shiki-dark:#E9E5DF"> NULL</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">;</span>
+</span><span class="line"><span style="--shiki-light:#D73A49;--shiki-dark:#F0ADA1">  if</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF"> (</span><span style="--shiki-light:#D73A49;--shiki-dark:#E9E5DF">!</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">key.</span><span style="--shiki-light:#6F42C1;--shiki-dark:#E9E5DF">is_integer</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">()) </span><span style="--shiki-light:#D73A49;--shiki-dark:#F0ADA1">return</span><span style="--shiki-light:#005CC5;--shiki-dark:#E9E5DF"> NULL</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">;</span>
+</span><span class="line"><span style="--shiki-light:#D73A49;--shiki-dark:#F0ADA1">  return</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF"> ((</span><span style="--shiki-light:#007C8A;--shiki-dark:#29D3E2">List</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">) item).</span><span style="--shiki-light:#6F42C1;--shiki-dark:#E9E5DF">getindex</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">(key.</span><span style="--shiki-light:#6F42C1;--shiki-dark:#E9E5DF">int</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">());</span>
 </span><span class="line"><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">}</span></span></code></pre>
 
 <p>Do not add a protocol, operator, macro, or wrapper type to display a language
 feature. An operator that creates native resources must also give its
 intermediate results an automatic lifetime; concise syntax must not hide
 manual cleanup.</p>
-<h2 id="errors-keep-the-librarys-own-codes"><a class="header" href="#errors-keep-the-librarys-own-codes">Errors keep the library’s own codes</a></h2>
+<h2 id="errors-carry-the-librarys-codes"><a class="header" href="#errors-carry-the-librarys-codes">Errors carry the library’s codes</a></h2>
 <p>A failure raises one structured <code>Error</code> carrying the library name, the
 operation, the library’s own numeric code, its own message, and a location when
 it has one. Do not invent a second set of status codes that callers have to
@@ -532,14 +529,15 @@ translate back.</p>
 </span><span class="line boring"><span style="--shiki-light:#D73A49;--shiki-dark:#F0ADA1">const</span><span style="--shiki-light:#D73A49;--shiki-dark:#F0ADA1"> char</span><span style="--shiki-light:#D73A49;--shiki-dark:#E9E5DF"> *</span><span style="--shiki-light:#6F42C1;--shiki-dark:#E9E5DF">feed_strerror</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">(</span><span style="--shiki-light:#D73A49;--shiki-dark:#F0ADA1">int</span><span style="--shiki-light:#E36209;--shiki-dark:#E9E5DF"> code</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">);</span>
 </span><span class="line"><span style="--shiki-light:#D73A49;--shiki-dark:#F0ADA1">static</span><span style="--shiki-light:#D73A49;--shiki-dark:#F0ADA1"> void</span><span style="--shiki-light:#6F42C1;--shiki-dark:#E9E5DF"> _feed_error</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">(</span><span style="--shiki-light:#007C8A;--shiki-dark:#29D3E2">String</span><span style="--shiki-light:#E36209;--shiki-dark:#E9E5DF"> operation</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">, </span><span style="--shiki-light:#D73A49;--shiki-dark:#F0ADA1">int</span><span style="--shiki-light:#E36209;--shiki-dark:#E9E5DF"> code</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">) {</span>
 </span><span class="line"><span style="--shiki-light:#007C8A;--shiki-dark:#29D3E2">  String</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF"> message </span><span style="--shiki-light:#D73A49;--shiki-dark:#E9E5DF">=</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF"> String.</span><span style="--shiki-light:#6F42C1;--shiki-dark:#E9E5DF">new</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">((</span><span style="--shiki-light:#D73A49;--shiki-dark:#F0ADA1">char</span><span style="--shiki-light:#D73A49;--shiki-dark:#E9E5DF"> *</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">) </span><span style="--shiki-light:#6F42C1;--shiki-dark:#E9E5DF">feed_strerror</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">(code));</span>
-</span><span class="line"><span style="--shiki-light:#A626A4;--shiki-light-font-weight:bold;--shiki-dark:#FF4FD8;--shiki-dark-font-weight:bold">  raise</span><span style="--shiki-light:#D73A49;--shiki-dark:#E9E5DF"> %</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">(</span><span style="--shiki-light:#6F42C1;--shiki-dark:#E9E5DF">malformed</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF"> (library </span><span style="--shiki-light:#032F62;--shiki-dark:#9EDFB8">"feedparse"</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">) (operation </span><span style="--shiki-light:#24292E;--shiki-dark:#FF715A">$</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">operation)</span>
-</span><span class="line"><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">          (code </span><span style="--shiki-light:#24292E;--shiki-dark:#FF715A">$</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">code) (message </span><span style="--shiki-light:#24292E;--shiki-dark:#FF715A">$</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">message));</span>
+</span><span class="line"><span style="--shiki-light:#A626A4;--shiki-light-font-weight:bold;--shiki-dark:#FF4FD8;--shiki-dark-font-weight:bold">  raise</span><span style="--shiki-light:#D73A49;--shiki-dark:#E9E5DF"> %</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">(</span><span style="--shiki-light:#6F42C1;--shiki-dark:#E9E5DF">malformed</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF"> (library </span><span style="--shiki-light:#032F62;--shiki-dark:#9EDFB8">"feedparse"</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">) (operation </span><span style="--shiki-light:#A626A4;--shiki-light-font-weight:bold;--shiki-dark:#FF4FD8;--shiki-dark-font-weight:bold">$</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">operation)</span>
+</span><span class="line"><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">          (code </span><span style="--shiki-light:#A626A4;--shiki-light-font-weight:bold;--shiki-dark:#FF4FD8;--shiki-dark-font-weight:bold">$</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">code) (message </span><span style="--shiki-light:#A626A4;--shiki-light-font-weight:bold;--shiki-dark:#FF4FD8;--shiki-dark-font-weight:bold">$</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">message));</span>
 </span><span class="line"><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">}</span></span></code></pre>
 
 <p>Pick the cause from the shared codes described in
 <a href="exceptions.html">Exceptions and Cleanup</a>: <code>&lt;malformed&gt;</code> for bad external input,
 <code>&lt;bad-state&gt;</code> for a stale or released handle, <code>&lt;alloc-fail&gt;</code> for a failed
-native allocation.</p>
+native allocation. When the library reports only a message and no code, raise
+one documented cause with the text under <code>(message ...)</code> and no <code>code</code>.</p>
 <p>An error helper shared by several callers must take the operation name as an
 argument. Otherwise a failed file write, for example, could be reported as a
 failed string conversion.</p>
@@ -564,7 +562,7 @@ library understands, and <code>raise</code> once <span class="x2c-wordmark">x2c<
 </span><span class="line"><span style="--shiki-light:#D73A49;--shiki-dark:#F0ADA1">static</span><span style="--shiki-light:#D73A49;--shiki-dark:#F0ADA1"> int</span><span style="--shiki-light:#6F42C1;--shiki-dark:#E9E5DF"> _feed_visit</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">(</span><span style="--shiki-light:#D73A49;--shiki-dark:#F0ADA1">const</span><span style="--shiki-light:#D73A49;--shiki-dark:#F0ADA1"> char</span><span style="--shiki-light:#D73A49;--shiki-dark:#E9E5DF"> *</span><span style="--shiki-light:#E36209;--shiki-dark:#E9E5DF">title</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">, </span><span style="--shiki-light:#D73A49;--shiki-dark:#F0ADA1">void</span><span style="--shiki-light:#D73A49;--shiki-dark:#E9E5DF"> *</span><span style="--shiki-light:#E36209;--shiki-dark:#E9E5DF">user</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">) {</span>
 </span><span class="line"><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">  FeedScan scan </span><span style="--shiki-light:#D73A49;--shiki-dark:#E9E5DF">=</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF"> (FeedScan) user;</span>
 </span><span class="line"><span style="--shiki-light:#A626A4;--shiki-light-font-weight:bold;--shiki-dark:#FF4FD8;--shiki-dark-font-weight:bold">  try</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF"> {</span>
-</span><span class="line"><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">    scan.titles.</span><span style="--shiki-light:#6F42C1;--shiki-dark:#E9E5DF">push</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">(String.</span><span style="--shiki-light:#6F42C1;--shiki-dark:#E9E5DF">new</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">((</span><span style="--shiki-light:#D73A49;--shiki-dark:#F0ADA1">char</span><span style="--shiki-light:#D73A49;--shiki-dark:#E9E5DF"> *</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">) title));</span>
+</span><span class="line"><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">    scan.titles.</span><span style="--shiki-light:#6F42C1;--shiki-dark:#E9E5DF">push</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">(</span><span style="--shiki-light:#007C8A;--shiki-dark:#29D3E2">String</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">.</span><span style="--shiki-light:#6F42C1;--shiki-dark:#E9E5DF">new</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">((</span><span style="--shiki-light:#D73A49;--shiki-dark:#F0ADA1">char</span><span style="--shiki-light:#D73A49;--shiki-dark:#E9E5DF"> *</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">) title));</span>
 </span><span class="line"><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">  }</span>
 </span><span class="line"><span style="--shiki-light:#A626A4;--shiki-light-font-weight:bold;--shiki-dark:#FF4FD8;--shiki-dark-font-weight:bold">  catch</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">: {</span>
 </span><span class="line"><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">    scan.failed </span><span style="--shiki-light:#D73A49;--shiki-dark:#E9E5DF">=</span><span style="--shiki-light:#005CC5;--shiki-dark:#A9C9F5"> 1</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">;</span>
@@ -584,14 +582,14 @@ library understands, and <code>raise</code> once <span class="x2c-wordmark">x2c<
 </span><span class="line"><span style="--shiki-light:#D73A49;--shiki-dark:#F0ADA1">  if</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF"> (status </span><span style="--shiki-light:#D73A49;--shiki-dark:#E9E5DF">&lt;</span><span style="--shiki-light:#005CC5;--shiki-dark:#A9C9F5"> 0</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">) {</span>
 </span><span class="line"><span style="--shiki-light:#007C8A;--shiki-dark:#29D3E2">    String</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF"> message </span><span style="--shiki-light:#D73A49;--shiki-dark:#E9E5DF">=</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF"> String.</span><span style="--shiki-light:#6F42C1;--shiki-dark:#E9E5DF">new</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">((</span><span style="--shiki-light:#D73A49;--shiki-dark:#F0ADA1">char</span><span style="--shiki-light:#D73A49;--shiki-dark:#E9E5DF"> *</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">) </span><span style="--shiki-light:#6F42C1;--shiki-dark:#E9E5DF">feed_strerror</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">(status));</span>
 </span><span class="line"><span style="--shiki-light:#A626A4;--shiki-light-font-weight:bold;--shiki-dark:#FF4FD8;--shiki-dark-font-weight:bold">    raise</span><span style="--shiki-light:#D73A49;--shiki-dark:#E9E5DF"> %</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">(</span><span style="--shiki-light:#6F42C1;--shiki-dark:#E9E5DF">malformed</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF"> (library </span><span style="--shiki-light:#032F62;--shiki-dark:#9EDFB8">"feedparse"</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">) (operation </span><span style="--shiki-light:#032F62;--shiki-dark:#9EDFB8">"scan"</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">)</span>
-</span><span class="line"><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">            (code </span><span style="--shiki-light:#24292E;--shiki-dark:#FF715A">$</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">status) (message </span><span style="--shiki-light:#24292E;--shiki-dark:#FF715A">$</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">message));</span>
+</span><span class="line"><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">            (code </span><span style="--shiki-light:#A626A4;--shiki-light-font-weight:bold;--shiki-dark:#FF4FD8;--shiki-dark-font-weight:bold">$</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">status) (message </span><span style="--shiki-light:#A626A4;--shiki-light-font-weight:bold;--shiki-dark:#FF4FD8;--shiki-dark-font-weight:bold">$</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">message));</span>
 </span><span class="line"><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">  }</span>
 </span><span class="line"><span style="--shiki-light:#D73A49;--shiki-dark:#F0ADA1">  return</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF"> scan.titles;</span>
 </span><span class="line"><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">}</span></span></code></pre>
 
 <p>Check which thread invokes each callback. It must be safe to use the <span class="x2c-wordmark">x2c</span>
 runtime on that thread before the callback calls into it.</p>
-<h2 id="two-examples-decide-the-design"><a class="header" href="#two-examples-decide-the-design">Two examples decide the design</a></h2>
+<h2 id="write-two-example-applications-first"><a class="header" href="#write-two-example-applications-first">Write two example applications first</a></h2>
 <p>Sketch two applications before implementing the wrapper: one short and one
 more complete. Read the short one first.</p>
 <p>One short application should fit on a screen, do one useful thing, and make the
@@ -602,18 +600,18 @@ still performing a task rather than enumerating outcomes.</p>
 <pre class="shiki shiki-themes x2c-light x2c-dark x2c-code" style="--shiki-light:#24292e;--shiki-dark:#e9e5df;--shiki-light-bg:#fff;--shiki-dark-bg:#101011" tabindex="0"><code class="language-x2c no-highlight ignore"><span class="line"><span style="--shiki-light:#A626A4;--shiki-light-font-weight:bold;--shiki-dark:#FF4FD8;--shiki-dark-font-weight:bold">import</span><span style="--shiki-light:#032F62;--shiki-dark:#9EDFB8"> "feedparse"</span><span style="--shiki-light:#A626A4;--shiki-light-font-weight:bold;--shiki-dark:#FF4FD8;--shiki-dark-font-weight:bold"> with</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF"> Feed;</span>
 </span><span class="line">
 </span><span class="line"><span style="--shiki-light:#D73A49;--shiki-dark:#F0ADA1">int</span><span style="--shiki-light:#6F42C1;--shiki-dark:#E9E5DF"> main</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">(</span><span style="--shiki-light:#D73A49;--shiki-dark:#F0ADA1">void</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">) {</span>
-</span><span class="line"><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">  Feed feed </span><span style="--shiki-light:#D73A49;--shiki-dark:#E9E5DF">=</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF"> Feed.</span><span style="--shiki-light:#6F42C1;--shiki-dark:#E9E5DF">open</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">(File.</span><span style="--shiki-light:#6F42C1;--shiki-dark:#E9E5DF">open</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">(</span><span style="--shiki-light:#032F62;--shiki-dark:#9EDFB8">"headlines.xml"</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">, </span><span style="--shiki-light:#032F62;--shiki-dark:#9EDFB8">"r"</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">).</span><span style="--shiki-light:#6F42C1;--shiki-dark:#E9E5DF">string_close</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">());</span>
+</span><span class="line"><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">  Feed feed </span><span style="--shiki-light:#D73A49;--shiki-dark:#E9E5DF">=</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF"> Feed.</span><span style="--shiki-light:#6F42C1;--shiki-dark:#E9E5DF">open</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">(</span><span style="--shiki-light:#007C8A;--shiki-dark:#29D3E2">File</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">.</span><span style="--shiki-light:#6F42C1;--shiki-dark:#E9E5DF">open</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">(</span><span style="--shiki-light:#032F62;--shiki-dark:#9EDFB8">"headlines.xml"</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">, </span><span style="--shiki-light:#032F62;--shiki-dark:#9EDFB8">"r"</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">).</span><span style="--shiki-light:#6F42C1;--shiki-dark:#E9E5DF">string_close</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">());</span>
 </span><span class="line"><span style="--shiki-light:#A626A4;--shiki-light-font-weight:bold;--shiki-dark:#FF4FD8;--shiki-dark-font-weight:bold">  defer</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF"> feed.</span><span style="--shiki-light:#6F42C1;--shiki-dark:#E9E5DF">close</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">();</span>
 </span><span class="line">
 </span><span class="line"><span style="--shiki-light:#A626A4;--shiki-light-font-weight:bold;--shiki-dark:#FF4FD8;--shiki-dark-font-weight:bold">  foreach</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">(</span><span style="--shiki-light:#007C8A;--shiki-dark:#29D3E2">String</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF"> title, feed.</span><span style="--shiki-light:#6F42C1;--shiki-dark:#E9E5DF">titles</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">())</span>
-</span><span class="line"><span style="--shiki-light:#6F42C1;--shiki-dark:#E9E5DF">    printf</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">(</span><span style="--shiki-light:#032F62;--shiki-dark:#9EDFB8">"</span><span style="--shiki-light:#005CC5;--shiki-dark:#9EDFB8">%s</span><span style="--shiki-light:#032F62;--shiki-dark:#9EDFB8">"</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">,</span><span style="--shiki-light:#24292E;--shiki-dark:#FF715A"> %"</span><span style="--shiki-light:#032F62;--shiki-dark:#9EDFB8">- </span><span style="--shiki-light:#032F62;--shiki-dark:#FF715A">$</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">title</span><span style="--shiki-light:#005CC5;--shiki-dark:#9EDFB8">\n</span><span style="--shiki-light:#24292E;--shiki-dark:#FF715A">"</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">);</span>
+</span><span class="line"><span style="--shiki-light:#6F42C1;--shiki-dark:#E9E5DF">    printf</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">(</span><span style="--shiki-light:#032F62;--shiki-dark:#9EDFB8">"</span><span style="--shiki-light:#005CC5;--shiki-dark:#9EDFB8">%s</span><span style="--shiki-light:#032F62;--shiki-dark:#9EDFB8">"</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">,</span><span style="--shiki-light:#A626A4;--shiki-light-font-weight:bold;--shiki-dark:#FF4FD8;--shiki-dark-font-weight:bold"> %"</span><span style="--shiki-light:#032F62;--shiki-dark:#9EDFB8">- </span><span style="--shiki-light:#A626A4;--shiki-light-font-weight:bold;--shiki-dark:#FF4FD8;--shiki-dark-font-weight:bold">$</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">title</span><span style="--shiki-light:#005CC5;--shiki-dark:#9EDFB8">\n</span><span style="--shiki-light:#A626A4;--shiki-light-font-weight:bold;--shiki-dark:#FF4FD8;--shiki-dark-font-weight:bold">"</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">);</span>
 </span><span class="line"><span style="--shiki-light:#D73A49;--shiki-dark:#F0ADA1">  return</span><span style="--shiki-light:#005CC5;--shiki-dark:#A9C9F5"> 0</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">;</span>
 </span><span class="line"><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">}</span></span></code></pre>
 
 <p>If the applications still require the same setup, conversion, and cleanup as
 the C API, revise the wrapper around those tasks. Keep exhaustive tests of
 malformed input, limits, and cleanup separate from the examples.</p>
-<p>The four in this repository are worth reading in this order:
+<p>Read the four in this repository in this order:
 <code>packages/pcre2/examples/parse-log.x</code> (35 lines),
 <code>packages/yyjson/examples/service-health.x</code> (24 lines), then
 <code>packages/pcre2/examples/request-report.x</code> and
@@ -634,7 +632,7 @@ other importing programs.</p>
 </span><span class="line"><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">  FEEDLISP_NAMESPACE</span>
 </span><span class="line"><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">} FeedLisp;</span>
 </span><span class="line">
-</span><span class="line"><span style="--shiki-light:#24292E;--shiki-dark:#FF715A">$</span><span style="--shiki-light:#6F42C1;--shiki-dark:#FF715A">lisp.binding</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">(feed_lisp, </span><span style="--shiki-light:#032F62;--shiki-dark:#9EDFB8">"feed-titles"</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">)</span>
+</span><span class="line"><span style="--shiki-light:#A626A4;--shiki-light-font-weight:bold;--shiki-dark:#FF4FD8;--shiki-dark-font-weight:bold">$</span><span style="--shiki-light:#6F42C1;--shiki-dark:#FF715A">lisp.binding</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">(feed_lisp, </span><span style="--shiki-light:#032F62;--shiki-dark:#9EDFB8">"feed-titles"</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">)</span>
 </span><span class="line"><span style="--shiki-light:#D73A49;--shiki-dark:#F0ADA1">static</span><span style="--shiki-light:#007C8A;--shiki-dark:#29D3E2"> List</span><span style="--shiki-light:#6F42C1;--shiki-dark:#E9E5DF"> _lisp_feed_titles</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">(</span><span style="--shiki-light:#007C8A;--shiki-dark:#29D3E2">String</span><span style="--shiki-light:#E36209;--shiki-dark:#E9E5DF"> document</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">) {</span>
 </span><span class="line"><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">  Feed feed </span><span style="--shiki-light:#D73A49;--shiki-dark:#E9E5DF">=</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF"> Feed.</span><span style="--shiki-light:#6F42C1;--shiki-dark:#E9E5DF">open</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">(document);</span>
 </span><span class="line"><span style="--shiki-light:#A626A4;--shiki-light-font-weight:bold;--shiki-dark:#FF4FD8;--shiki-dark-font-weight:bold">  defer</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF"> feed.</span><span style="--shiki-light:#6F42C1;--shiki-dark:#E9E5DF">close</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">();</span>
@@ -642,7 +640,7 @@ other importing programs.</p>
 </span><span class="line"><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">}</span>
 </span><span class="line">
 </span><span class="line"><span style="--shiki-light:#D73A49;--shiki-dark:#F0ADA1">void</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF"> FeedLisp.</span><span style="--shiki-light:#6F42C1;--shiki-dark:#E9E5DF">install</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">(</span><span style="--shiki-light:#007C8A;--shiki-dark:#29D3E2">Lisp</span><span style="--shiki-light:#E36209;--shiki-dark:#E9E5DF"> lisp</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">) {</span>
-</span><span class="line"><span style="--shiki-light:#24292E;--shiki-dark:#FF715A">  $</span><span style="--shiki-light:#6F42C1;--shiki-dark:#FF715A">lisp.install</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">(lisp, feed_lisp);</span>
+</span><span class="line"><span style="--shiki-light:#A626A4;--shiki-light-font-weight:bold;--shiki-dark:#FF4FD8;--shiki-dark-font-weight:bold">  $</span><span style="--shiki-light:#6F42C1;--shiki-dark:#FF715A">lisp.install</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">(lisp, feed_lisp);</span>
 </span><span class="line"><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">}</span></span></code></pre>
 
 <p>The group compiles into the archive, so a consumer that only links it gets
@@ -655,7 +653,7 @@ every binding from one call:</p>
 </span><span class="line"><span style="--shiki-light:#A626A4;--shiki-light-font-weight:bold;--shiki-dark:#FF4FD8;--shiki-dark-font-weight:bold">  defer</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF"> lisp.</span><span style="--shiki-light:#6F42C1;--shiki-dark:#E9E5DF">destroy</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">();</span>
 </span><span class="line"><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">  FeedLisp.</span><span style="--shiki-light:#6F42C1;--shiki-dark:#E9E5DF">install</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">(lisp);</span>
 </span><span class="line">
-</span><span class="line"><span style="--shiki-light:#6F42C1;--shiki-dark:#E9E5DF">  printf</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">(</span><span style="--shiki-light:#032F62;--shiki-dark:#9EDFB8">"</span><span style="--shiki-light:#005CC5;--shiki-dark:#9EDFB8">%d\n</span><span style="--shiki-light:#032F62;--shiki-dark:#9EDFB8">"</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">, lisp.</span><span style="--shiki-light:#6F42C1;--shiki-dark:#E9E5DF">eval</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">(</span><span style="--shiki-light:#24292E;--shiki-dark:#FF715A">%(</span><span style="--shiki-light:#005CC5;--shiki-dark:#E9E5DF">length</span><span style="--shiki-light:#24292E;--shiki-dark:#FF715A"> (</span><span style="--shiki-light:#005CC5;--shiki-dark:#E9E5DF">feed-titles</span><span style="--shiki-light:#24292E;--shiki-dark:#FF715A"> "</span><span style="--shiki-light:#032F62;--shiki-dark:#9EDFB8">&lt;rss/&gt;</span><span style="--shiki-light:#24292E;--shiki-dark:#FF715A">"</span><span style="--shiki-light:#24292E;--shiki-dark:#FF715A">))</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">).</span><span style="--shiki-light:#6F42C1;--shiki-dark:#E9E5DF">int</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">());</span>
+</span><span class="line"><span style="--shiki-light:#6F42C1;--shiki-dark:#E9E5DF">  printf</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">(</span><span style="--shiki-light:#032F62;--shiki-dark:#9EDFB8">"</span><span style="--shiki-light:#005CC5;--shiki-dark:#9EDFB8">%d\n</span><span style="--shiki-light:#032F62;--shiki-dark:#9EDFB8">"</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">, lisp.</span><span style="--shiki-light:#6F42C1;--shiki-dark:#E9E5DF">eval</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">(</span><span style="--shiki-light:#A626A4;--shiki-light-font-weight:bold;--shiki-dark:#FF4FD8;--shiki-dark-font-weight:bold">%(</span><span style="--shiki-light:#005CC5;--shiki-dark:#E9E5DF">length</span><span style="--shiki-light:#A626A4;--shiki-light-font-weight:bold;--shiki-dark:#FF4FD8;--shiki-dark-font-weight:bold"> (</span><span style="--shiki-light:#005CC5;--shiki-dark:#E9E5DF">feed-titles</span><span style="--shiki-light:#A626A4;--shiki-light-font-weight:bold;--shiki-dark:#FF4FD8;--shiki-dark-font-weight:bold"> "</span><span style="--shiki-light:#032F62;--shiki-dark:#9EDFB8">&lt;rss/&gt;</span><span style="--shiki-light:#A626A4;--shiki-light-font-weight:bold;--shiki-dark:#FF4FD8;--shiki-dark-font-weight:bold">"</span><span style="--shiki-light:#A626A4;--shiki-light-font-weight:bold;--shiki-dark:#FF4FD8;--shiki-dark-font-weight:bold">))</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">).</span><span style="--shiki-light:#6F42C1;--shiki-dark:#E9E5DF">int</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">());</span>
 </span><span class="line"><span style="--shiki-light:#D73A49;--shiki-dark:#F0ADA1">  return</span><span style="--shiki-light:#005CC5;--shiki-dark:#A9C9F5"> 0</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">;</span>
 </span><span class="line"><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">}</span></span></code></pre>
 
@@ -681,7 +679,7 @@ upstream’s own test suite.</p>
 <p>A test must check the effect rather than a round trip. Writing a document with
 a pretty-print flag and then re-reading and re-serializing it compactly passes
 identically with the flag absent. Assert on the bytes in between.</p>
-<h2 id="how-you-know-you-are-done"><a class="header" href="#how-you-know-you-are-done">How you know you are done</a></h2>
+<h2 id="completion-checklist"><a class="header" href="#completion-checklist">Completion checklist</a></h2>
 <ul>
 <li>The imported <span class="x2c-wordmark">x2c</span> API supports every task on your list.</li>
 <li>Everything left off it is reachable through the shim and documented as such.</li>
@@ -692,8 +690,8 @@ written down and tested.</li>
 <li>Lisp bindings, if provided, are in the package.</li>
 <li>The source version, build options, hashes, and licenses are recorded.</li>
 </ul>
-<p>Reread the short application as a new reader would. Passing tests do not
-make an awkward first page acceptable.</p>
+<p>Reread the short application as a new reader would, and revise it until a
+new reader can follow it.</p>
 <p>See <code>packages/pcre2/README.md</code> and <code>packages/yyjson/README.md</code> for complete
 examples of package documentation.</p>
 
@@ -714,9 +712,9 @@ examples of package documentation.</p>
                         &copy; 2025&ndash;2026
                         <a href="https://flake.org">GWF</a>
                         &middot;
-                        <a href="https://github.com/gwf/x2c/blob/7e946b86663f9f069fe14e284c41e2aed73c57e0/LICENSE">Apache 2.0</a>
+                        <a href="https://github.com/gwf/x2c/blob/444c1cb3846093a07c3a0754b5795508173f8721/LICENSE">Apache 2.0</a>
                         &middot;
-                        <a href="https://github.com/gwf/x2c/blob/7e946b86663f9f069fe14e284c41e2aed73c57e0/TRADEMARKS.md">Trademarks</a>
+                        <a href="https://github.com/gwf/x2c/blob/444c1cb3846093a07c3a0754b5795508173f8721/TRADEMARKS.md">Trademarks</a>
                     </footer>
                 </div>
             </div>

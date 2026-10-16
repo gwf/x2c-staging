@@ -1,6 +1,6 @@
 <!DOCTYPE HTML>
 <html lang="en" class="light sidebar-visible" dir="ltr">
-    <head><meta name="x2c-release-channel" content="staging"><meta name="x2c-candidate" content="candidate-7e946b86663f9f069fe14e284c41e2aed73c57e0-37713265223-2">
+    <head><meta name="x2c-release-channel" content="staging"><meta name="x2c-candidate" content="candidate-444c1cb3846093a07c3a0754b5795508173f8721-38981359362-1">
         <!-- Book generated using mdBook -->
         <meta charset="UTF-8">
         <title>Install a Native Compiler - The x2c Book</title>
@@ -39,10 +39,10 @@
             const path_to_root = "../";
             const default_light_theme = "light";
             const default_dark_theme = "light";
-            window.path_to_searchindex_js = "../searchindex-1d8e23b0.js";
+            window.path_to_searchindex_js = "../searchindex-43b59c62.js";
         </script>
         <!-- Start loading toc.js asap -->
-        <script src="../toc-58dd3732.js"></script>
+        <script src="../toc-0edf2de5.js"></script>
         <!-- x2c publication metadata -->
         <link rel="canonical" href="https://staging.x2c-lang.dev/docs/guide/installation.html">
         <meta property="og:type" content="website">
@@ -220,7 +220,8 @@
                     <main>
                         <h1 id="install-a-native-compiler"><a class="header" href="#install-a-native-compiler">Install a Native Compiler</a></h1>
 <p>Install a release with one command, or build and install from a source
-checkout. The release route needs <code>curl</code>, <code>tar</code>, and a C compiler:</p>
+checkout. The release route needs <code>curl</code>, <code>tar</code>, <code>shasum</code> or <code>sha256sum</code>,
+and a C compiler named <code>cc</code>:</p>
 <pre><code class="language-sh">curl -fsSL https://x2c-lang.dev/install.sh | sh
 export PATH="$HOME/.local/x2c/bin:$PATH"
 </code></pre>
@@ -235,11 +236,14 @@ export PATH="$HOME/.local/x2c/bin:$PATH"
 x2c build hello.x --output hello
 ./hello
 </code></pre>
-<p>Use the project’s supported GNU Make. The install command builds the compiler
-and installs its matching runtime, headers, compile-time Lisp SDK, unit
-interfaces written by the installed compiler, runnable examples, an empty
-package directory, and license. With no <code>PREFIX</code>, <code>make install</code> keeps its development behavior: it installs into the checkout’s
-<code>bin/</code> under the current branch name.</p>
+<p>A source build needs a C compiler, <code>ar</code>, GNU Make, Python 3, and <code>/bin/bash</code>;
+see <a href="../internals/building.html">building the compiler</a>. The install command
+builds the compiler and installs its matching runtime, headers, compile-time
+Lisp SDK, unit interfaces written by the installed compiler, runnable
+examples, an empty package directory, and license. With no <code>PREFIX</code>,
+<code>make install</code> runs <code>make build-install</code>: it copies the development compiler
+to <code>bin/x2c-&lt;branch&gt;</code>, links <code>bin/x2c</code> to that copy, and installs the shipped
+commands under <code>libexec/x2c/</code>.</p>
 <h3 id="upgrading-from-0140"><a class="header" href="#upgrading-from-0140">Upgrading from 0.14.0</a></h3>
 <p>Version 0.15.0 reads package native arguments from <code>&lt;name&gt;.native.rsp</code> instead
 of <code>&lt;name&gt;.link</code>. The installer keeps existing packages, so rebuild source
@@ -262,7 +266,8 @@ of <code>Var.truthy</code>.</p>
 &lt;home&gt;/etc/              compile-time Lisp and macro sources
 &lt;home&gt;/packages/         installed packages, one directory each
 &lt;home&gt;/examples/         runnable examples (installed prefix)
-&lt;home&gt;/src/              compiler sources (checkout only)
+&lt;home&gt;/src/              language component sources (installed prefix);
+                         all compiler sources (checkout)
 </code></pre>
 <p>The compiler finds its home by walking up from its own executable, then from
 the current directory, to the nearest directory holding <code>include/</code> and
@@ -295,23 +300,22 @@ writes <code>dist/x2c-&lt;version&gt;-&lt;platform&gt;.tar.gz</code> with a <cod
 owns and any directory that becomes empty. Packages installed under
 <code>&lt;prefix&gt;/packages</code> are not owned by the compiler inventory: an upgrade keeps
 them, and an uninstall leaves the prefix in place when they remain.
-System-wide merged layouts such as installing these support directories
-directly into <code>/usr</code> are outside this dedicated-prefix contract. Native
-executables and archives remain specific to their host platform and
-architecture; relocating them does not make them cross-platform binaries.</p>
-<p>The installed tool defaults are <code>cc</code> and <code>ar</code> from <code>PATH</code>. Explicit <code>--cc</code> and
-<code>--ar</code> options take precedence, followed by <code>X2C_CC</code>/<code>X2C_AR</code>, then <code>CC</code>/<code>AR</code>,
-then the defaults in <code>lib/x2c/toolchain</code>. Build identity is recorded separately
-in the installation inventory, not as a path to the producer’s compiler tools.</p>
+Installing these support directories directly into a shared tree such as
+<code>/usr</code> is not supported. Native executables and archives run only on the
+platform and architecture that built them.</p>
+<p>An installed prefix records <code>cc</code> and <code>ar</code> in <code>lib/x2c/toolchain</code>;
+<a href="../reference/cli.html#environment">Environment</a> gives the full tool selection
+order.</p>
 <h2 id="windows"><a class="header" href="#windows">Windows</a></h2>
 <p>Use WSL2. Inside an Ubuntu 24.04 or newer distribution the Linux release
-installs with the same command, and the compiler needs only <code>clang</code> or
-<code>gcc</code>, <code>make</code>, and <code>curl</code> from the distribution’s packages:</p>
+installs with the same command. The installer needs <code>curl</code> and a <code>cc</code>
+(clang 15 or newer, or gcc); <code>make</code> is needed only for a source checkout or
+package builds:</p>
 <pre><code class="language-sh">sudo apt-get install -y clang make curl
 curl -fsSL https://x2c-lang.dev/install.sh | sh
 </code></pre>
 <p>Keep the prefix and your projects on the Linux filesystem, under your WSL
-home rather than under <code>/mnt/c</code>, so builds run at native speed. Use clang
+home, because builds under <code>/mnt/c</code> are slower. Use clang
 15 or newer, or <code>gcc</code>: Ubuntu 22.04 ships clang 14, which rejects two static
 initializers in the runtime.</p>
 <p>A source checkout also builds under MSYS2 with its <code>gcc</code>, given three
@@ -329,7 +333,8 @@ releases. Start new development checkouts and branches from <code>dev</code>. A 
 checkout is the development install. After <code>make build-safe</code>, the
 checkout is a complete home with its own <code>packages/</code> directory, and <code>bin/x2c</code>
 is the bootstrap compiler. Run <code>make build-install</code> before putting <code>bin/</code> on
-<code>PATH</code>; it links <code>bin/x2c</code> to a copy of the current branch’s compiler. A
+<code>PATH</code>; it links <code>bin/x2c</code> to a copy of the current branch’s compiler and
+copies its shipped commands into <code>libexec/x2c/</code>. A
 compiler in the checkout’s <code>bin/</code> links <code>builds/0/libx2c.a</code>, the runtime built
 with the headers in <code>include/x2c</code>. Select the checkout for one shell with
 <code>PATH</code>, or for one command with <code>X2C_HOME</code>:</p>
@@ -359,12 +364,10 @@ locations:</p>
 <pre><code class="language-sh">x2c build -g --source-map hello.x --output hello
 lldb ./hello
 </code></pre>
-<p>On macOS this also produces <code>hello.dSYM</code>. Move that companion directory
-with the executable when debugging elsewhere. Generated objects may be removed
-after the build; <code>--build-dir</code> remains available when you want to retain them.</p>
-<p>See <a href="../reference/cli.html">source mapping</a> for the source-location
-contract and platform debug-artifact behavior. Source mapping changes native
-<code>__FILE__</code> and <code>__LINE__</code> to refer to the original <span class="x2c-wordmark">x2c</span> source.</p>
+<p>On macOS this also produces <code>hello.dSYM</code>; move that directory with the
+executable. The build removes generated objects; pass <code>--build-dir</code> to keep
+them. <a href="../reference/cli.html#source-mapping">Source mapping</a> gives the
+location rules.</p>
 <h3 id="compile-c-against-the-x2c-runtime"><a class="header" href="#compile-c-against-the-x2c-runtime">Compile C against the <span class="x2c-wordmark">x2c</span> runtime</a></h3>
 <p>A C program can call <span class="x2c-wordmark">x2c</span> code through the generated header. Point <code>-I</code> at the
 include root and write the runtime header as <code>&lt;x2c/x2c.h&gt;</code>, so every system
@@ -375,41 +378,30 @@ header still resolves to the C library:</p>
 <pre><code class="language-sh">cc app.c -I "$HOME/.local/x2c/include" \
   "$HOME/.local/x2c/lib/libx2c.a" -pthread -lm -o app
 </code></pre>
-<p>C generated by <code>x2c translate</code> keeps its own quoted includes. To compile it
-by hand, pass <code>-iquote "$HOME/.local/x2c/include/x2c"</code> instead. <code>x2c build</code>
-passes that option itself.</p>
-<p>For a <a href="packages.html">package source distribution</a>, unpack the source archive,
-select the installed compiler, and use a dependency cache outside its prefix:</p>
-<pre><code class="language-sh">export X2C_DEPS_DIR="$HOME/.cache/x2c-dependencies"
-make -C packages/yyjson prepare build X2C="$HOME/.local/x2c/bin/x2c"
-x2c build --package-dir packages \
-  --c-include-dir packages/yyjson/deps/include app.x --output app
-</code></pre>
-<p>Source package builds retain their existing producer-path restrictions; an
-installed compiler path containing spaces is supported. Native dependency
-preparation can download sources. Ordinary consumer builds do not install a
-compiler or fetch missing native dependencies automatically.</p>
+<p>To compile C generated by <code>x2c translate</code> by hand, see
+<a href="../reference/cli.html#dependencies-and-external-builds">external builds</a>. To
+build a package from a source archive, see <a href="packages.html">packages</a>.</p>
 
                     </main>
 
                     <nav class="x2c-pager" aria-label="Page navigation">
-                        <a rel="prev" href="../reference/cli.html" class="x2c-pager-prev" aria-keyshortcuts="Left">
+                        <a rel="prev" href="../index.html" class="x2c-pager-prev" aria-keyshortcuts="Left">
                             <span class="x2c-pager-label">previous</span>
-                            <span class="x2c-pager-title">Compiler Options</span>
+                            <span class="x2c-pager-title">The x2c Book</span>
                         </a>
                         
-                        <a rel="next prefetch" href="../library/index.html" class="x2c-pager-next" aria-keyshortcuts="Right">
+                        <a rel="next prefetch" href="../guide/from-c.html" class="x2c-pager-next" aria-keyshortcuts="Right">
                             <span class="x2c-pager-label">next</span>
-                            <span class="x2c-pager-title">Standard Library</span>
+                            <span class="x2c-pager-title">From C to x2c</span>
                         </a>
                     </nav>
                     <footer class="x2c-footer">
                         &copy; 2025&ndash;2026
                         <a href="https://flake.org">GWF</a>
                         &middot;
-                        <a href="https://github.com/gwf/x2c/blob/7e946b86663f9f069fe14e284c41e2aed73c57e0/LICENSE">Apache 2.0</a>
+                        <a href="https://github.com/gwf/x2c/blob/444c1cb3846093a07c3a0754b5795508173f8721/LICENSE">Apache 2.0</a>
                         &middot;
-                        <a href="https://github.com/gwf/x2c/blob/7e946b86663f9f069fe14e284c41e2aed73c57e0/TRADEMARKS.md">Trademarks</a>
+                        <a href="https://github.com/gwf/x2c/blob/444c1cb3846093a07c3a0754b5795508173f8721/TRADEMARKS.md">Trademarks</a>
                     </footer>
                 </div>
             </div>

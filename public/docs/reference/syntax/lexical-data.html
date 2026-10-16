@@ -1,6 +1,6 @@
 <!DOCTYPE HTML>
 <html lang="en" class="light sidebar-visible" dir="ltr">
-    <head><meta name="x2c-release-channel" content="staging"><meta name="x2c-candidate" content="candidate-7e946b86663f9f069fe14e284c41e2aed73c57e0-37713265223-2">
+    <head><meta name="x2c-release-channel" content="staging"><meta name="x2c-candidate" content="candidate-444c1cb3846093a07c3a0754b5795508173f8721-38981359362-1">
         <!-- Book generated using mdBook -->
         <meta charset="UTF-8">
         <title>Lexical Data Inventory - The x2c Book</title>
@@ -39,10 +39,10 @@
             const path_to_root = "../../";
             const default_light_theme = "light";
             const default_dark_theme = "light";
-            window.path_to_searchindex_js = "../../searchindex-1d8e23b0.js";
+            window.path_to_searchindex_js = "../../searchindex-43b59c62.js";
         </script>
         <!-- Start loading toc.js asap -->
-        <script src="../../toc-58dd3732.js"></script>
+        <script src="../../toc-0edf2de5.js"></script>
         <!-- x2c publication metadata -->
         <link rel="canonical" href="https://staging.x2c-lang.dev/docs/reference/syntax/lexical-data.html">
         <meta property="og:type" content="website">
@@ -366,7 +366,7 @@ See <a href="lexical.html">the lexical specification</a> for explanations and
  (rule string-segment
   (repeat 1
    (ordered (seq (byte 92) (byte 36)) (ref x2c-escape)
-    (bytes "$") (except (byte 0) (byte 34) (byte 36) (byte 92))))
+    (bytes "$$") (except (byte 0) (byte 34) (byte 36) (byte 92))))
   (stop-before (choice (byte 34) (byte 36)))
   (on-nul malformed) (emit segment))
  (rule common
@@ -543,9 +543,15 @@ See <a href="lexical.html">the lexical specification</a> for explanations and
 </code></pre>
 <h2 id="passes"><a class="header" href="#passes">passes</a></h2>
 <pre><code class="language-text">(passes
+ (pass module-collection
+  (external "src/collect.x; active file-scope module blocks before tokenizing")
+  (splice member-text-in-order)
+  (resolve under-containing-file-companion-directory)
+  (recursive true) (word "module" ident))
  (pass pipeline
-  (ordered frontend-shebang scan layout lexical-diagnostics
-   conditionals keyword-retag parser))
+  (ordered frontend-shebang module-collection
+   scan layout lexical-diagnostics conditionals
+   keyword-retag parser))
  (pass frontend-shebang (external "src/frontend.x")
   (replace-with scripting-include) (preserve subsequent-line-numbers))
  (pass layout
@@ -586,7 +592,8 @@ See <a href="lexical.html">the lexical specification</a> for explanations and
    (dedent (append-stored-closers) (require remaining-level)
     (fail indent)) (eof close-all)) (external-details "lib/tokenizer.x:_Layout")
   (inserted-width 0) (reclassified-width preserve))
- (pass lexical-diagnostics (external "src/compiler.x:Compiler.tokenize"))
+ (pass lexical-diagnostics
+  (external "src/compiler/parsing/tokens.x:Compiler.tokenize"))
  (pass conditionals (external "src/preprocess.x:Compiler.scan_conditionals")
   (after scan) (hide inactive-branches) (retain conditional-structure))
  (pass keyword-retag
@@ -649,25 +656,24 @@ See <a href="lexical.html">the lexical specification</a> for explanations and
 <pre><code class="language-text">(failures
  (scanner-result (positive matched-byte-count)
   (zero no-match) (negative failure))
- (unsupported-start (scan_keyword -1l) (scan_c_operator -1l))
- (empty-input (scan_white_space -1l)) (status-aware ok incomplete malformed)
+ (unsupported-start (scan_keyword -1) (scan_c_operator -1))
+ (empty-input (scan_white_space -1)) (status-aware ok incomplete malformed)
  (statusless-failure malformed) (record-first-status)
  (append (token error (width 0)) (token eof (width 0)))
  (callback-result 0) (dispatch-may-continue true)
  (semantic-stop first-eof) (unclosed-mode-at-eof parser-responsibility)
  (layout-status indent) (prefix-preconditions external-error)
  (numeric-signed-invalid-prefix may-return-zero)
- (string-leading-dollar dispatch-before-segment)
  (legacy-number-type-helper skip-minus-only))
 </code></pre>
 <h2 id="sources"><a class="header" href="#sources">sources</a></h2>
 <pre><code class="language-text">(sources (source "lib/scan.x") (source "lib/tokenizer.x")
- (source "src/compiler.x") (source "src/literals.x")
- (source "docs/src/reference/syntax/lexical.md"))
+ (source "src/compiler/parsing/tokens.x")
+ (source "src/literals.x") (source "docs/src/reference/syntax/lexical.md"))
 </code></pre>
 <h2 id="boundaries"><a class="header" href="#boundaries">boundaries</a></h2>
 <pre><code class="language-text">(boundaries
- (external percent-string-decoding "src/literals.x:Compiler._parse_text_segment"
+ (external percent-string-decoding "src/literals.x:_parse_text_segment"
   (remove continuations) (normalize cr-and-crlf-to-lf)
   (decode escapes)) (external symbol-representability "src/literals.x")
  (external host-preprocessing host-preprocessor)
@@ -691,9 +697,9 @@ See <a href="lexical.html">the lexical specification</a> for explanations and
                         &copy; 2025&ndash;2026
                         <a href="https://flake.org">GWF</a>
                         &middot;
-                        <a href="https://github.com/gwf/x2c/blob/7e946b86663f9f069fe14e284c41e2aed73c57e0/LICENSE">Apache 2.0</a>
+                        <a href="https://github.com/gwf/x2c/blob/444c1cb3846093a07c3a0754b5795508173f8721/LICENSE">Apache 2.0</a>
                         &middot;
-                        <a href="https://github.com/gwf/x2c/blob/7e946b86663f9f069fe14e284c41e2aed73c57e0/TRADEMARKS.md">Trademarks</a>
+                        <a href="https://github.com/gwf/x2c/blob/444c1cb3846093a07c3a0754b5795508173f8721/TRADEMARKS.md">Trademarks</a>
                     </footer>
                 </div>
             </div>

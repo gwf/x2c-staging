@@ -1,6 +1,6 @@
 <!DOCTYPE HTML>
 <html lang="en" class="light sidebar-visible" dir="ltr">
-    <head><meta name="x2c-release-channel" content="staging"><meta name="x2c-candidate" content="candidate-7e946b86663f9f069fe14e284c41e2aed73c57e0-37713265223-2">
+    <head><meta name="x2c-release-channel" content="staging"><meta name="x2c-candidate" content="candidate-444c1cb3846093a07c3a0754b5795508173f8721-38981359362-1">
         <!-- Book generated using mdBook -->
         <meta charset="UTF-8">
         <title>Lexical Specification - The x2c Book</title>
@@ -39,10 +39,10 @@
             const path_to_root = "../../";
             const default_light_theme = "light";
             const default_dark_theme = "light";
-            window.path_to_searchindex_js = "../../searchindex-1d8e23b0.js";
+            window.path_to_searchindex_js = "../../searchindex-43b59c62.js";
         </script>
         <!-- Start loading toc.js asap -->
-        <script src="../../toc-58dd3732.js"></script>
+        <script src="../../toc-0edf2de5.js"></script>
         <!-- x2c publication metadata -->
         <link rel="canonical" href="https://staging.x2c-lang.dev/docs/reference/syntax/lexical.html">
         <meta property="og:type" content="website">
@@ -219,12 +219,13 @@
                 <div id="mdbook-content" class="content">
                     <main>
                         <h1 id="lexical-specification"><a class="header" href="#lexical-specification">Lexical specification</a></h1>
-<p>This is an operational specification of <code>lib/scan.x</code>, <code>lib/tokenizer.x</code>,
-and the token reclassification in <code>src/compiler.x</code> at the
-<a href="index.html">extraction revision</a>. Rules are ordered where order affects
-recognition. The <a href="grammar.html">source grammar</a> consumes their output.
-The same rules are available as <a href="data.html">structured List data</a>, with a
-<a href="lexical-data.html">generated inventory</a>.</p>
+<p>This is an operational specification of <code>lib/scan.x</code>, <code>lib/tokenizer.x</code>, and
+the keyword retagging in <code>src/compiler/parsing/tokens.x</code>. Rules are ordered
+where order affects recognition. The <a href="grammar.html">source grammar</a> consumes
+their output. The same rules are available as <a href="data.html">structured List data</a>,
+with a <a href="lexical-data.html">generated inventory</a>.</p>
+<p>File-scope <code>module</code> blocks are spliced before tokenizing; see
+<a href="grammar.html#notation-and-entry-points">module collection</a>.</p>
 <h2 id="input-and-output"><a class="header" href="#input-and-output">Input and output</a></h2>
 <p>Input is a NUL-terminated byte sequence. The first NUL ends scanning in
 every mode. There is no global UTF-8 validation pass. Identifiers use ASCII
@@ -270,6 +271,9 @@ expand the directive or validate its directive-specific grammar.</p>
  long match protocol raise register restrict return short signed sizeof
  static struct switch threaded try typedef union unsigned void volatile while
 </code></pre>
+<p>The scanner emits <code>in</code> and <code>match</code> as keywords. After scanning, the compiler
+retags each to <code>ident</code> unless its context is the operator or statement form;
+see <a href="#compiler-reclassification-and-preprocessing">compiler reclassification</a>.</p>
 <p>Matching is case-sensitive. The following spellings normalize token type
 while retaining original token text:</p>
 <div class="table-wrapper">
@@ -286,7 +290,7 @@ while retaining original token text:</p>
 </div>
 <p>Other words initially emit <code>ident</code>, including <code>is</code>, <code>not</code>, <code>with</code>, <code>as</code>,
 <code>tag</code>, <code>macro</code>, <code>keyword</code>, <code>using</code>, <code>meta</code>, <code>native</code>, <code>Self</code>, <code>class</code>,
-<code>foreach</code>, <code>_Static_assert</code>, <code>_Generic</code>, <code>offsetof</code>, and <code>va_arg</code>.
+<code>foreach</code>, <code>module</code>, <code>_Static_assert</code>, <code>_Generic</code>, <code>offsetof</code>, and <code>va_arg</code>.
 Parser context or visible macro definitions give these words their roles.
 A named-reference sigil scans the immediately following identifier as
 <code>ident</code> without applying the keyword table.</p>
@@ -302,7 +306,7 @@ not by this operator scanner. The same bytes can therefore have different
 roles in different modes.</p>
 <h2 id="numeric-tokens"><a class="header" href="#numeric-tokens">Numeric tokens</a></h2>
 <p>Numeric recognition first chooses a radix, then scans the selected form.
-It is not simply the union of C numeric regular expressions.</p>
+The rules below differ from C in the cases listed.</p>
 <ol>
 <li>An explicit <code>0x</code>/<code>0X</code>, <code>0b</code>/<code>0B</code>, or <code>0o</code>/<code>0O</code> selects hexadecimal,
 binary, or octal.</li>
@@ -339,8 +343,7 @@ hex-float = ( "0x" | "0X" ) ,
 <p>A hexadecimal point requires a <code>p</code>/<code>P</code> exponent. Integer suffix letters can
 mix case. <code>1f</code> is malformed; <code>1.f</code> is a float. <code>08</code>, <code>09</code>, and <code>00</code> take
 the decimal path, <code>018</code> is malformed, and <code>017e3</code> is decimal floating.
-These are scanner facts, not promises that every spelling is valid native C
-or fits its eventual value type.</p>
+The native C compiler still checks each spelling and its range.</p>
 <p>The numeric helper accepts an optional leading sign. Code mode emits <code>+</code>
 and <code>-</code> as operators. List, Lisp, and quoted Array/Map modes invoke signed
 numeric recognition only when the sign immediately precedes a decimal digit.
@@ -375,12 +378,12 @@ a prefix such as <code>L</code> is scanned separately as an identifier.</p>
 <p>Widths describe recognition. Unicode scalar validity, decoded numeric range,
 and host compiler acceptance are separate questions. Percent-string decoding
 removes continuations, normalizes raw CR and CRLF to LF, and decodes escapes.
-See <code>Compiler._parse_text_segment</code> in <code>src/literals.x</code>.</p>
+See <code>_parse_text_segment</code> in <code>src/literals.x</code>.</p>
 <p>A simple Symbol spelling is <code>&lt;</code> followed by one or more non-whitespace,
 non-NUL bytes, through the first <code>&gt;</code>. A quoted spelling is <code>&lt;"</code> followed by
 quoted-Symbol contents, then <code>"&gt;</code>. Quoted Symbols permit raw line breaks
 and <span class="x2c-wordmark">x2c</span> byte escapes. Compact-Symbol representability and exact round trips
-are checked by literal processing, not this scanner.</p>
+are checked later, by literal processing.</p>
 <h2 id="atom-boundaries"><a class="header" href="#atom-boundaries">Atom boundaries</a></h2>
 <p>An ordinary List/Lisp atom stops before any of these unescaped boundaries:
 <code>(</code>, <code>)</code>, apostrophe, backtick, comma, <code>"</code>, <code>$</code>, <code>@</code>, <code>{</code>, <code>[</code>, whitespace,
@@ -396,8 +399,8 @@ leading comment, digit, apostrophe, or <code>#</code> before the set-atom scanne
 <p>Maintain a stack with root mode <code>x2c</code> for source or <code>lisp</code> for a standalone
 Lisp reader. At each position, first test for NUL. Otherwise apply the first
 matching successful rule in the current mode. Recognition of a malformed
-prefix records failure. Some failure callbacks return zero, so chained
-dispatch can still append later tokens; the first EOF ends semantic traversal.</p>
+prefix records failure. See <a href="#failure-and-implementation-edges">failure edges</a>
+for how scanning stops.</p>
 <p><strong>Common rules</strong>, in order of starting byte, recognize whitespace, <code>#</code>
 directives, <code>//</code> or <code>/*</code> comments, C characters at apostrophe, numbers at
 a digit, and numbers at <code>.</code> followed by a digit.</p>
@@ -435,7 +438,7 @@ a Symbol literal. Standalone Lisp <code>$</code> scanning does not provide the d
 <p>In String mode a segment stops before a closing quote or a single unescaped
 <code>$</code>. Inside a segment, <code>$$</code> is consumed as literal content. Dispatch handles
 a <code>$</code> at the beginning of a segment before calling the segment scanner;
-see the implementation edges below.</p>
+see the <code>string</code> row of the table above.</p>
 <h2 id="mode-transitions"><a class="header" href="#mode-transitions">Mode transitions</a></h2>
 <p>A transition emits the opener/closer token as well as changing the stack.
 Other recognized tokens leave the mode unchanged.</p>
@@ -531,11 +534,11 @@ top. If a following statement matches no remaining level, report <code>indent</c
 Close all outstanding blocks at EOF.</li>
 </ol>
 <p>The pass checks tabs after the last LF in the whitespace token immediately
-before a new statement line. That describes the current detector; the
-supported spelling uses spaces for indentation. New punctuation has zero
+before a new statement line. Indentation uses spaces. New punctuation has zero
 width at its neighboring token’s start or end. Reclassified source punctuation
-retains its source extent. See <code>_Layout</code> in <code>lib/tokenizer.x</code> for the transition
-owners and the <a href="../../guide/indentation.html">indentation guide</a> for examples.</p>
+retains its source extent. See <code>_Layout</code> in <code>lib/tokenizer.x</code> for the
+transitions and the <a href="../../guide/indentation.html">indentation guide</a> for
+examples.</p>
 <h2 id="compiler-reclassification-and-preprocessing"><a class="header" href="#compiler-reclassification-and-preprocessing">Compiler reclassification and preprocessing</a></h2>
 <p>After scanning/layout, <code>Compiler.tokenize</code> reports malformed tokens, calls
 <code>scan_conditionals</code>, then <code>_retag_keywords</code>. This last operation differs
@@ -573,17 +576,6 @@ that first EOF because failure callbacks return zero to chained dispatch.
 <code>Tokenizer.next</code> stops at the first EOF. Layout failure uses <code>indent</code>.
 Consumers must not equate lexical
 success with balanced delimiters or a valid program.</p>
-<p>Two dispatch/detection details need care in a future independent lexer:</p>
-<ul>
-<li>The segment scanner accepts <code>$$</code> inside a segment, but String dispatch
-consumes a leading <code>$</code> first. The book’s doubled-dollar description alone
-does not describe that boundary case. <code>\$</code> has an unambiguous escape path.</li>
-<li>The tab detector examines the immediately preceding whitespace token only
-when it contains LF. This is narrower than a universal scan for indentation
-tabs, although the documented source convention requires spaces.</li>
-</ul>
-<p>These are source-derived implementation observations. They do not silently
-change the language contract or claim a repaired implementation.</p>
 
                     </main>
 
@@ -602,9 +594,9 @@ change the language contract or claim a repaired implementation.</p>
                         &copy; 2025&ndash;2026
                         <a href="https://flake.org">GWF</a>
                         &middot;
-                        <a href="https://github.com/gwf/x2c/blob/7e946b86663f9f069fe14e284c41e2aed73c57e0/LICENSE">Apache 2.0</a>
+                        <a href="https://github.com/gwf/x2c/blob/444c1cb3846093a07c3a0754b5795508173f8721/LICENSE">Apache 2.0</a>
                         &middot;
-                        <a href="https://github.com/gwf/x2c/blob/7e946b86663f9f069fe14e284c41e2aed73c57e0/TRADEMARKS.md">Trademarks</a>
+                        <a href="https://github.com/gwf/x2c/blob/444c1cb3846093a07c3a0754b5795508173f8721/TRADEMARKS.md">Trademarks</a>
                     </footer>
                 </div>
             </div>

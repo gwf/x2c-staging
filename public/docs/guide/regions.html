@@ -1,6 +1,6 @@
 <!DOCTYPE HTML>
 <html lang="en" class="light sidebar-visible" dir="ltr">
-    <head><meta name="x2c-release-channel" content="staging"><meta name="x2c-candidate" content="candidate-7e946b86663f9f069fe14e284c41e2aed73c57e0-37713265223-2">
+    <head><meta name="x2c-release-channel" content="staging"><meta name="x2c-candidate" content="candidate-444c1cb3846093a07c3a0754b5795508173f8721-38981359362-1">
         <!-- Book generated using mdBook -->
         <meta charset="UTF-8">
         <title>The Region Model - The x2c Book</title>
@@ -39,10 +39,10 @@
             const path_to_root = "../";
             const default_light_theme = "light";
             const default_dark_theme = "light";
-            window.path_to_searchindex_js = "../searchindex-1d8e23b0.js";
+            window.path_to_searchindex_js = "../searchindex-43b59c62.js";
         </script>
         <!-- Start loading toc.js asap -->
-        <script src="../toc-58dd3732.js"></script>
+        <script src="../toc-0edf2de5.js"></script>
         <!-- x2c publication metadata -->
         <link rel="canonical" href="https://staging.x2c-lang.dev/docs/guide/regions.html">
         <meta property="og:type" content="website">
@@ -235,13 +235,13 @@ them, so a region is still the call that opens it and the <code>defer</code> bes
 that closes it.</p>
 <h2 id="exemptions"><a class="header" href="#exemptions">Exemptions</a></h2>
 <p>The pass exempts these ways of leaving a region.</p>
-<p>A <code>List</code> pool owns each canonical value, so ending a Scope region does not
-free it. A value made inside a <code>Pool.open</code> bracket belongs to that bracket’s
-pool and is tracked like scope-born storage. This includes <code>String.new</code>,
-<code>String.malloc</code>, and List cells returned by a helper. <code>cons(a, rest)</code> and
-<code>%($a)</code> retain their arguments in the cell’s pool: a value from that same
-pool stays there, while a value from a shorter-lived region reports at the
-store.</p>
+<p>A canonical-value pool owns each canonical <code>String</code> and <code>List</code>, so ending a
+<code>Scope</code> region does not free it. A value made inside a <code>Pool.open</code> bracket
+belongs to that bracket’s pool and is tracked like scope-born storage. This
+includes <code>String.new</code>, <code>String.malloc</code>, and List cells returned by a helper.
+<code>cons(a, rest)</code> and <code>%($a)</code> retain their arguments in the cell’s pool: a value
+from that same pool stays there, while a value from a shorter-lived region
+reports at the store.</p>
 <p><code>Scope.move</code> and <code>Context.export</code> change the storage’s owner. After the
 move, the region the pass was tracking no longer holds the allocation, so
 the allocation survives the end of that region. The promote family -
@@ -261,7 +261,7 @@ gets no exemption.</p>
 address of a local can therefore be stored into another local, or into an
 object of a region the function opens, without a warning. A reference
 capture, <code>using &amp;name</code>, moves the local into a cell of the active region, so
-the closure holds that cell rather than the function’s storage.</p>
+the closure holds that cell, which the active region owns.</p>
 <p>A store into a place that an earlier <code>defer</code> in the same block writes
 back, as <code>$let</code> does, is undone before the block ends and is not reported.
 A store made before that <code>defer</code>, or after a <code>defer</code> that runs on only one
@@ -286,6 +286,9 @@ as one storage, so an address kept in a field of a struct that is copied
 out is not followed;</li>
 <li>callbacks and function pointers, including entry points a Lisp binding
 calls;</li>
+<li>calls into functions defined in other units, except the runtime
+operations the pass knows; such a call is assumed to keep none of its
+arguments and to return no tracked storage;</li>
 <li>other aliases of storage that <code>Scope.free</code> or <code>Scope.realloc</code> ended; the
 pass ends only the local passed to the call, and it reports a free only
 of storage it can see is not from a Scope allocator: a literal, the
@@ -296,9 +299,8 @@ function’s own storage, or a pooled value;</li>
 <li>a release inside a branch, which leaves the region open for the
 statements after that branch.</li>
 </ul>
-<p>Each of these can still produce a dangling pointer that translates without a
-warning. The pass reports one pattern. A program without warnings is not
-shown to be memory safe.</p>
+<p>Each of these can produce a dangling pointer with no warning. A program
+without warnings is not proven memory safe.</p>
 <h2 id="optional-lifetime-proof"><a class="header" href="#optional-lifetime-proof">Optional lifetime proof</a></h2>
 <p><code>x2c-graph certify</code> checks selected entry points and the functions they can
 call across the supplied source units. It applies the same region ownership
@@ -306,14 +308,14 @@ and parameter-effect rules as the compiler’s local pass, then asks whether
 every reachable memory effect is covered. A <code>proved</code> result establishes the
 scoped lifetime invariant for those paths under the native effect assumptions
 listed in the report. If a root hands storage to its caller or another owner,
-the report names the remaining release obligation.</p>
+the report lists the remaining release obligation.</p>
 <p>The audit distinguishes a proven lifetime violation from an incomplete
 proof. An unknown call, pointer cast or arithmetic, indirect storage access,
 aggregate copy, or unmodeled scope ending is an obstacle, not a compiler
 warning or error. A project may provide explicit native effect contracts to
 the audit; they are assumptions of its result and do not change compilation.
 The optional command and its contract format are described in the
-<a href="https://github.com/gwf/x2c/blob/7e946b86663f9f069fe14e284c41e2aed73c57e0/commands/graph/README.md#conditional-lifetime-proof">source graph reference</a>.
+<a href="https://github.com/gwf/x2c/blob/444c1cb3846093a07c3a0754b5795508173f8721/commands/graph/README.md#conditional-lifetime-proof">source graph reference</a>.
 The proof concerns scoped ownership and lifetime. It does not establish
 general C memory safety or correctness of emitted code.</p>
 <h2 id="how-the-check-works"><a class="header" href="#how-the-check-works">How the check works</a></h2>
@@ -330,16 +332,16 @@ that changes no summary walked every body against final summaries, so its
 warnings are the ones reported.</p>
 <p>An address taken with <code>&amp;</code> belongs to the storage it names. The address of a
 local, a parameter, or a compound literal belongs to the function’s own
-storage. An address reached through a pointer, such as <code>&amp;box-&gt;value</code>,
-belongs to whatever that pointer holds, so an address inside a parameter’s
-object counts as that parameter in the summary. A caller of a function that
-returns <code>&amp;box-&gt;value</code> therefore sees its own borrow come back. An argument
-to a reference parameter is the address of the object it names, so
+storage. An address reached through a pointer, such as <code>&amp;box-&gt;value</code>, belongs
+to whatever that pointer holds, so an address inside a parameter’s object
+counts as that parameter in the summary. A caller of a function that returns
+<code>&amp;box-&gt;value</code> therefore receives its own borrowed address as the result. An
+argument to a reference parameter is the address of the object it names, so
 <code>bind(object)</code> with <code>T &amp;</code> is checked as <code>bind(&amp;object)</code> with <code>T *</code>.</p>
 <p>A <code>meta</code> function is walked the same way when it is defined, against the
 summaries of the <code>meta</code> functions defined before it. A compile-time call
 frees its locals when it returns, so a finding in a <code>meta</code> body is an error
-that rejects the definition rather than a warning; see
+and the definition is rejected; see
 <a href="meta-functions.html">Meta Functions</a>. A native function outside the runtime table
 described below takes a summary its signature implies; see
 <a href="meta-functions.html#native-modules">Native modules</a>.</p>
@@ -353,7 +355,7 @@ order, the job count, and interfaces left by an earlier translation. As a
 result, the pass reports no warning when a caller passes a region-born value
 to a function in another unit that stores its argument into a static.</p>
 <h2 id="where-the-design-sits"><a class="header" href="#where-the-design-sits">Where the design sits</a></h2>
-<p>The region check descends from the ML Kit and Cyclone. The ML Kit inferred
+<p>The region check is based on the ML Kit and Cyclone. The ML Kit inferred
 regions and a region-annotated program from an unannotated one. Cyclone made
 regions part of the type system of a C-like language and checked pointer
 lifetimes against them. From the ML Kit, <span class="x2c-wordmark">x2c</span> takes the idea that regions are
@@ -390,9 +392,9 @@ within one unit and uses them for warnings.</p>
                         &copy; 2025&ndash;2026
                         <a href="https://flake.org">GWF</a>
                         &middot;
-                        <a href="https://github.com/gwf/x2c/blob/7e946b86663f9f069fe14e284c41e2aed73c57e0/LICENSE">Apache 2.0</a>
+                        <a href="https://github.com/gwf/x2c/blob/444c1cb3846093a07c3a0754b5795508173f8721/LICENSE">Apache 2.0</a>
                         &middot;
-                        <a href="https://github.com/gwf/x2c/blob/7e946b86663f9f069fe14e284c41e2aed73c57e0/TRADEMARKS.md">Trademarks</a>
+                        <a href="https://github.com/gwf/x2c/blob/444c1cb3846093a07c3a0754b5795508173f8721/TRADEMARKS.md">Trademarks</a>
                     </footer>
                 </div>
             </div>

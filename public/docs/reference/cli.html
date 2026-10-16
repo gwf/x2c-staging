@@ -1,6 +1,6 @@
 <!DOCTYPE HTML>
 <html lang="en" class="light sidebar-visible" dir="ltr">
-    <head><meta name="x2c-release-channel" content="staging"><meta name="x2c-candidate" content="candidate-7e946b86663f9f069fe14e284c41e2aed73c57e0-37713265223-2">
+    <head><meta name="x2c-release-channel" content="staging"><meta name="x2c-candidate" content="candidate-444c1cb3846093a07c3a0754b5795508173f8721-38981359362-1">
         <!-- Book generated using mdBook -->
         <meta charset="UTF-8">
         <title>Compiler Options - The x2c Book</title>
@@ -39,10 +39,10 @@
             const path_to_root = "../";
             const default_light_theme = "light";
             const default_dark_theme = "light";
-            window.path_to_searchindex_js = "../searchindex-1d8e23b0.js";
+            window.path_to_searchindex_js = "../searchindex-43b59c62.js";
         </script>
         <!-- Start loading toc.js asap -->
-        <script src="../toc-58dd3732.js"></script>
+        <script src="../toc-0edf2de5.js"></script>
         <!-- x2c publication metadata -->
         <link rel="canonical" href="https://staging.x2c-lang.dev/docs/reference/cli.html">
         <meta property="og:type" content="website">
@@ -282,6 +282,7 @@ between the units it translates.</p>
 --live-symbols          Collect symbols through the host preprocessor
 --cpp-symbols           Use CPP collection for this translation
 </code></pre>
+<h3 id="source-mapping"><a class="header" href="#source-mapping">Source mapping</a></h3>
 <p><code>--source-map</code> adds source locations to generated C for <code>translate</code>, <code>build</code>,
 and <code>run</code>. It is off by default. Combine it with native debug information to
 set breakpoints, step through statements, and read backtraces in the original
@@ -312,6 +313,8 @@ available for retaining intermediate files on either platform.</p>
 <li><code>--dump-tokens</code> prints source tokens and stops.</li>
 <li><code>--dump-ast</code> prints the parsed, bound AST after macro expansion and stops.</li>
 <li><code>--dump-transforms</code> prints the transformed AST and stops.</li>
+<li>Both AST dumps number bindings from 1 in order of first appearance, so a
+dump does not depend on how many bindings collection issued.</li>
 <li><code>--dump-definitions</code> prints each definition’s location and documentation
 and stops.</li>
 <li><code>--dump-code</code> prints unformatted generated code and stops.</li>
@@ -333,10 +336,12 @@ static functions, foreign aliases, and functions a Unit macro or <code>class</co
 produced, prints a <code>function</code> row, and each <code>typedef</code> or <code>class</code> prints a
 <code>type</code> row:</p>
 <pre><code class="language-text">(function (name "Point_add") (display "Point.add") (line 11)
+ (source "point.x" 11)
  (span 193 242) (static 0) (origin source) (doc " Adds. ")
  (text "int Point.add(Point p, int k)")
  (type ((func (("Point") (int))) int)) (params ("p" "k")))
 (type (name "Point") (kind struct) (line 6) (span 68 113) (private 0)
+ (source "point.x" 6)
  (doc " A point. ") (text "typedef struct Point { int x; int y; } Point"))
 </code></pre>
 <ul>
@@ -344,7 +349,11 @@ produced, prints a <code>function</code> row, and each <code>typedef</code> or <
 <code>Point.add</code>.</li>
 <li><code>line</code> is the one-based line of a function’s declarator or a type’s
 statement. A decorated function reports its declarator, and a function a
-macro produced reports the invocation.</li>
+macro produced reports the invocation. This line is in the expanded unit.</li>
+<li><code>source</code> holds the authored path and one-based line, resolving module
+members and preprocessor line markers. It is empty for a definition
+without an authored source location. Documentation uses this location;
+<code>line</code> and <code>span</code> retain their positions in the expanded unit.</li>
 <li><code>span</code> holds the byte offsets that start and end the top-level form that
 produced the definition, including decorators and a <code>meta</code> keyword. It is
 empty for a definition the compiler made itself, such as a protocol
@@ -380,7 +389,7 @@ input may include another through a directory, as in
 <p><code>translate</code>, <code>build</code>, and <code>run</code> default to the host’s online processor count
 for translation and native compilation. Detection failure falls back to one
 job. Under Make (<code>MAKELEVEL</code> greater than zero), the automatic default is one
-job so the outer build owns concurrency. An explicit <code>-j N</code> or <code>--jobs N</code>
+job so the outer <code>make</code> controls parallelism. An explicit <code>-j N</code> or <code>--jobs N</code>
 overrides either default. The online count does not account for Linux CPU
 affinity, container quotas, or memory limits; use <code>-j</code> to choose a smaller
 limit in those environments.</p>
@@ -461,7 +470,7 @@ macro file outside that input list, open its owning source or configure a
 <code>translate</code> command with the needed include and package options. Unsaved
 included files still affect analysis of their owning source.</p>
 <p>Diagnostics, definition navigation, and type hover include unsaved source
-text. Each request runs in a fresh compiler process with snapshots of open
+text. Each request runs in a fresh <code>x2c-editor</code> process with snapshots of open
 files; editing cancels obsolete results without writing buffers to disk.
 Native CPP symbol modes cannot consume unsaved source snapshots and report
 that limitation. Macro-generated syntax may lack a physical definition or
@@ -470,8 +479,8 @@ identifier location.</p>
 run macros. Untrusted and virtual workspaces retain syntax highlighting. Set
 <code>"x2c.semantic.enabled": false</code> to disable semantic execution. Completion,
 rename, workspace indexing, and general LSP support are separate features.
-The private <code>x2c editor</code> transport serves these providers; its argument and
-response formats are not a public compiler API.</p>
+The shipped <code>x2c-editor</code> command serves these providers through <code>x2c editor</code>.
+Its argument and response formats are not a public compiler API.</p>
 <p>Shared libraries are unsupported. Supporting them requires platform-specific
 position-independent code, visibility, runtime linkage, library naming, and
 initialization rules.</p>
@@ -563,7 +572,8 @@ character. A first-non-whitespace <code>#</code> begins a comment. Response file
 include other response files, but cycles are rejected. <code>@@name</code> passes the
 literal operand <code>@name</code>.</p>
 <h2 id="start-a-project"><a class="header" href="#start-a-project">Start a project</a></h2>
-<p><code>new</code> creates a project that builds and runs as written:</p>
+<p><code>new</code> invokes the shipped <code>x2c-new</code> command to create a project that builds
+and runs as written:</p>
 <pre><code class="language-sh">x2c new hello
 cd hello
 x2c run -q            # Hello, world!
@@ -576,10 +586,10 @@ named after the directory:</p>
 sources = ["src/*.x"]
 </code></pre>
 <p>The directory may be missing or empty; <code>x2c new .</code> fills the current empty
-directory. <code>new</code> refuses any other existing path and never overwrites a
-file. The target name is the directory’s last component and may contain
-letters, digits, <code>_</code>, and <code>-</code>. <code>-q</code> suppresses the <code>x2c: created &lt;dir&gt;</code>
-line.</p>
+directory. <code>new</code> exits with an error for any other existing path and never
+overwrites a file. The target name is the directory’s last component and may
+contain letters, digits, <code>_</code>, and <code>-</code>. <code>-q</code> suppresses the
+<code>x2c: created &lt;dir&gt;</code> line.</p>
 <h2 id="project-manifests"><a class="header" href="#project-manifests">Project manifests</a></h2>
 <p>When <code>build</code> or <code>run</code> has no explicit input operands, <span class="x2c-wordmark">x2c</span> searches the current
 directory and its parents for the nearest <code>x2c.toml</code>. <code>--manifest-path</code> selects
@@ -652,7 +662,7 @@ pin the lockfile does not cover reaches the index. The lockfile is then
 rewritten to the manifest’s pins. A version the index cannot supply stops the
 build with an error that includes both versions. A dry run installs nothing
 and writes no lockfile, and the editor adapter never installs.</p>
-<h2 id="include-and-tool-ownership"><a class="header" href="#include-and-tool-ownership">Include and tool ownership</a></h2>
+<h2 id="include-and-package-directories"><a class="header" href="#include-and-package-directories">Include and package directories</a></h2>
 <p><code>-I &lt;dir&gt;</code> is the shared include option. Repeated paths keep command order,
 and the first matching path wins in <span class="x2c-wordmark">x2c</span> quote-include collection, any
 requested <span class="x2c-wordmark">x2c</span> host preprocessing, and generated C compilation.</p>
@@ -674,6 +684,11 @@ package directories. Compile providers for direct <code>#include</code> as ordin
 sources with flat names, and consume package-compiled providers through
 <code>import</code>.</p>
 <h2 id="packages"><a class="header" href="#packages">Packages</a></h2>
+<p><code>install</code>, <code>remove</code>, and <code>list</code> dispatch to the shipped package command.
+The driver expands response files once. The package command handles their
+options and help with the legacy CLI parser.
+The equivalent <code>x2c package install</code>, <code>x2c package remove</code>, and
+<code>x2c package list</code> forms pass arguments literally, like other external commands.</p>
 <p><code>install</code>, <code>remove</code>, and <code>list</code> manage <code>&lt;home&gt;/packages</code>; see
 <a href="../guide/packages.html#install-packages">install packages</a>. <code>install</code> takes
 one operand: a local directory, a local <code>.tar.gz</code>, a URL with <code>--sha256 &lt;hex&gt;</code>, or a name resolved through the index (<code>--index &lt;url-or-path&gt;</code>
@@ -735,8 +750,8 @@ defaults to unsigned plain <code>char</code>.</p>
 <h2 id="commands"><a class="header" href="#commands">Commands</a></h2>
 <p>The built-in commands are listed by <code>x2c help</code>. External commands are separate
 programs named <code>x2c-&lt;name&gt;</code> in the directory printed by <code>x2c env libexec</code>.
-In a source checkout this is <code>builds/0/libexec</code>; in an installed home it is
-<code>&lt;home&gt;/libexec/x2c</code>. The driver does not search <code>PATH</code> for them.
+For the stage 0 checkout compiler this is <code>builds/0/libexec</code>. A development
+install in <code>bin/</code> and an installed prefix use <code>&lt;home&gt;/libexec/x2c</code>. The driver does not search <code>PATH</code> for them.
 <code>x2c help</code> lists their summaries from that directory’s <code>commands.txt</code>.</p>
 <p>The driver passes arguments after an external command name directly to its
 program, including arguments beginning with <code>@</code>. The external command owns
@@ -757,11 +772,11 @@ output ends after its first error. The
 <a href="language.html#diagnostics">diagnostics section</a> of the language reference
 describes which errors are reported together.</p>
 <h3 id="warnings"><a class="header" href="#warnings">Warnings</a></h3>
-<p>Translation also reports warnings, which never stop a build: the unit
-compiles and the program runs. Warnings do not count against <code>--max-errors</code>,
-and there is no option to suppress or escalate one. A warning describes
-something the compiler can see and you may have arranged deliberately, so
-code that means what it says can be left as written.</p>
+<p>Ordinary translation reports warnings without stopping the build. Warnings
+do not count against <code>--max-errors</code>. The internal self-host stage option
+<code>--fatal-warnings</code> makes warnings fail those builds; it is not a public
+per-warning suppression or escalation control. A warning reports code that
+may be deliberate; leave the code unchanged when it is.</p>
 <p>Eight codes are reported as warnings:</p>
 <ul>
 <li><code>region</code> says a value allocated inside a region can still be reached after
@@ -772,7 +787,7 @@ or <code>Array.list_free</code> consumed it.</li>
 <li><code>bad-free</code> says <code>Scope.free</code> or <code>Scope.realloc</code> was given a literal, a
 local’s address, or other storage no Scope allocator returned.</li>
 <li><code>literal</code> says a bare word inside a macro is a <code>Symbol</code> where a value was
-probably meant, and names the unquoted spelling that inserts the value.</li>
+probably meant, and shows the unquoted spelling that inserts the value.</li>
 <li><code>macro</code> carries what a macro reported through <code>x2c.diagnostic.warn</code>, at the
 invocation, with the notes the macro supplied.</li>
 <li><code>conversion</code> says a cast or explicit converter call spells a conversion
@@ -783,7 +798,7 @@ compiler and a native module define, or that more than one native module
 defines.</li>
 </ul>
 <p><a href="../guide/regions.html">The Region Model</a> explains what the first three cover
-and what they cannot see. <a href="../guide/memory.html">Scopes and Lifetime</a> shows
+and what they do not detect. <a href="../guide/memory.html">Scopes and Lifetime</a> shows
 the patterns that avoid them.</p>
 <p><code>--diagnostics-file &lt;file&gt;</code> writes the same diagnostics to <code>&lt;file&gt;</code> as JSON
 Lines instead of standard error:</p>
@@ -853,7 +868,7 @@ Manifest comments and whitespace do not invalidate reuse; changed effective
 settings still rebuild the affected actions.</p>
 <p>External Make builds are supported. They can call <code>translate --out-dir</code>,
 include its <code>.d</code> files, and set their own C compiler and linker flags. The
-compiler driver does not replace a project that runs its own native build.</p>
+A project can run its own native build instead of using the driver.</p>
 <p>For example, from the repository directory you can translate an example and
 compile its C output yourself:</p>
 <pre><code class="language-sh">mkdir -p /tmp/x2c-example
@@ -877,18 +892,18 @@ error; requested dumps and program output use standard output.</p>
                             <span class="x2c-pager-title">Lexical Data Inventory</span>
                         </a>
                         
-                        <a rel="next prefetch" href="../guide/installation.html" class="x2c-pager-next" aria-keyshortcuts="Right">
+                        <a rel="next prefetch" href="../library/index.html" class="x2c-pager-next" aria-keyshortcuts="Right">
                             <span class="x2c-pager-label">next</span>
-                            <span class="x2c-pager-title">Install a Native Compiler</span>
+                            <span class="x2c-pager-title">Standard Library</span>
                         </a>
                     </nav>
                     <footer class="x2c-footer">
                         &copy; 2025&ndash;2026
                         <a href="https://flake.org">GWF</a>
                         &middot;
-                        <a href="https://github.com/gwf/x2c/blob/7e946b86663f9f069fe14e284c41e2aed73c57e0/LICENSE">Apache 2.0</a>
+                        <a href="https://github.com/gwf/x2c/blob/444c1cb3846093a07c3a0754b5795508173f8721/LICENSE">Apache 2.0</a>
                         &middot;
-                        <a href="https://github.com/gwf/x2c/blob/7e946b86663f9f069fe14e284c41e2aed73c57e0/TRADEMARKS.md">Trademarks</a>
+                        <a href="https://github.com/gwf/x2c/blob/444c1cb3846093a07c3a0754b5795508173f8721/TRADEMARKS.md">Trademarks</a>
                     </footer>
                 </div>
             </div>

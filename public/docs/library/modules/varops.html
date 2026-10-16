@@ -1,6 +1,6 @@
 <!DOCTYPE HTML>
 <html lang="en" class="light sidebar-visible" dir="ltr">
-    <head><meta name="x2c-release-channel" content="staging"><meta name="x2c-candidate" content="candidate-7e946b86663f9f069fe14e284c41e2aed73c57e0-37713265223-2">
+    <head><meta name="x2c-release-channel" content="staging"><meta name="x2c-candidate" content="candidate-444c1cb3846093a07c3a0754b5795508173f8721-38981359362-1">
         <!-- Book generated using mdBook -->
         <meta charset="UTF-8">
         <title>lib/varops.x - The x2c Book</title>
@@ -39,10 +39,10 @@
             const path_to_root = "../../";
             const default_light_theme = "light";
             const default_dark_theme = "light";
-            window.path_to_searchindex_js = "../../searchindex-1d8e23b0.js";
+            window.path_to_searchindex_js = "../../searchindex-43b59c62.js";
         </script>
         <!-- Start loading toc.js asap -->
-        <script src="../../toc-58dd3732.js"></script>
+        <script src="../../toc-0edf2de5.js"></script>
         <!-- x2c publication metadata -->
         <link rel="canonical" href="https://staging.x2c-lang.dev/docs/library/modules/varops.html">
         <meta property="og:type" content="website">
@@ -229,6 +229,9 @@
 <tr><th>Function</th><th>Summary</th></tr>
 </thead>
 <tbody>
+<tr><td><a href="#x2c_var_equal"><code>x2c_var_equal</code></a></td><td>Evaluates <code>==</code> on two <code>Var</code> operands.</td></tr>
+<tr><td><a href="#x2c_var_identical"><code>x2c_var_identical</code></a></td><td>Evaluates <code>===</code> on two <code>Var</code> operands.</td></tr>
+<tr><td><a href="#x2c_var_order"><code>x2c_var_order</code></a></td><td>Orders two <code>Var</code> operands for <code>&lt;</code>, <code>&lt;=</code>, <code>&gt;</code>, and <code>&gt;=</code>.</td></tr>
 <tr><td><a href="#x2c_var_postfix_volatile"><code>x2c_var_postfix_volatile</code></a></td><td>Applies <code>Var.postfix</code> semantics to a volatile destination in generated code.</td></tr>
 <tr><td><a href="#x2c_var_update_volatile"><code>x2c_var_update_volatile</code></a></td><td>Applies <code>Var.update</code> semantics to a volatile destination in generated code.</td></tr>
 <tr><td><a href="#Var.add"><code>Var.add</code></a></td><td>Adds dynamic values through numeric, <code>String</code>, or registered <code>add</code> behavior.</td></tr>
@@ -247,18 +250,44 @@
 </table>
 </div>
 <h3 id="functions"><a class="header" href="#functions">Functions</a></h3>
+<h4 id="x2c_var_equal"><a class="header" href="#x2c_var_equal">x2c_var_equal</a></h4>
+<p><code>int x2c_var_equal(Var a, Var b)</code></p>
+<p>Evaluates <code>==</code> on two <code>Var</code> operands.
+Two numbers compare as their native values do in C after the usual
+arithmetic conversions, so <code>3 == 3L</code> and <code>-1 == 4294967295u</code> hold and a
+NaN equals nothing. Other values compare through <code>Var.equal</code>.</p>
+<p><strong>Raises:</strong> <code>&lt;bad-enc&gt;</code> when a numeric comparison meets invalid <code>Var</code> bits.</p>
+<p>Source: <code>lib/varops.x:475</code></p>
+<h4 id="x2c_var_identical"><a class="header" href="#x2c_var_identical">x2c_var_identical</a></h4>
+<p><code>int x2c_var_identical(Var a, Var b)</code></p>
+<p>Evaluates <code>===</code> on two <code>Var</code> operands.
+Two numbers are identical when they have the same tag and the same bits,
+so two boxes of one <code>long</code> are identical, <code>NaN === NaN</code> holds, and
+<code>+0.0 === -0.0</code> does not. Other values are identical when their <code>Var</code>
+bits are, as <code>Var.same</code> reports.</p>
+<p>Source: <code>lib/varops.x:487</code></p>
+<h4 id="x2c_var_order"><a class="header" href="#x2c_var_order">x2c_var_order</a></h4>
+<p><code>double x2c_var_order(Var a, Var b)</code></p>
+<p>Orders two <code>Var</code> operands for <code>&lt;</code>, <code>&lt;=</code>, <code>&gt;</code>, and <code>&gt;=</code>.
+Two numbers order as their native values do in C after the usual
+arithmetic conversions. The result is -1, 0, or 1, or NaN when a NaN
+leaves the pair unordered, so each relation to zero is false. Other
+values return the order <code>Var.compare</code> gives.</p>
+<p><strong>Raises:</strong> <code>&lt;void-op&gt;</code> when either operand is <code>void</code>, and <code>&lt;bad-enc&gt;</code> when
+a numeric comparison meets invalid <code>Var</code> bits.</p>
+<p>Source: <code>lib/varops.x:497</code></p>
 <h4 id="x2c_var_postfix_volatile"><a class="header" href="#x2c_var_postfix_volatile">x2c_var_postfix_volatile</a></h4>
 <p><code>Var x2c_var_postfix_volatile(volatile Var &amp;?lhs, Symbol op)</code></p>
 <p>Applies <code>Var.postfix</code> semantics to a volatile destination in generated
 code. Volatile preserves accesses across exception transfer, without
 providing thread synchronization.</p>
-<p>Source: <code>lib/varops.x:582</code></p>
+<p>Source: <code>lib/varops.x:667</code></p>
 <h4 id="x2c_var_update_volatile"><a class="header" href="#x2c_var_update_volatile">x2c_var_update_volatile</a></h4>
 <p><code>Var x2c_var_update_volatile(volatile Var &amp;?lhs, Symbol op, Var rhs)</code></p>
 <p>Applies <code>Var.update</code> semantics to a volatile destination in generated code.
 Volatile preserves accesses across exception transfer, without providing
 thread synchronization.</p>
-<p>Source: <code>lib/varops.x:538</code></p>
+<p>Source: <code>lib/varops.x:623</code></p>
 <h3 id="var"><a class="header" href="#var"><code>Var</code></a></h3>
 <p><a id="Var.add"></a></p>
 <h4 id="varadd"><a class="header" href="#varadd">Var.add</a></h4>
@@ -268,7 +297,7 @@ behavior.
 Numeric promotion, failure, and result ownership follow <code>Var.binary</code>;
 <code>String</code> addition returns a canonical concatenation, and a protocol result
 keeps the ownership chosen by its callback.</p>
-<p>Source: <code>lib/varops.x:225</code></p>
+<p>Source: <code>lib/varops.x:216</code></p>
 <p><a id="Var.binary"></a></p>
 <h4 id="varbinary"><a class="header" href="#varbinary">Var.binary</a></h4>
 <p><code>Var Var.binary(Var lhs, Symbol op, Var rhs)</code></p>
@@ -276,6 +305,8 @@ keeps the ownership chosen by its callback.</p>
 Integers use C-style promotion and wrap to the result type’s width;
 shifts use the promoted left operand’s type and sign-fill signed right
 shifts. Floating arithmetic uses the widest floating-point operand type.
+Comparisons and identity tests give the operators’ results on <code>Var</code>
+operands, so two numbers compare as their native values do in C.
 The logical operators are eager in this direct API. Equality and identity
 are the only operations that accept <code>void</code> and return an <code>&lt;i32&gt;</code> predicate.
 Immediate results are self-contained, canonical <code>String</code>s keep their pool
@@ -285,7 +316,7 @@ numeric operations may additionally raise <code>&lt;bad-types&gt;</code>, <code>
 or <code>&lt;bad-shift&gt;</code>, and <code>String</code> concatenation or wide boxing may raise
 <code>&lt;size-limit&gt;</code>, <code>&lt;alloc-fail&gt;</code>, or <code>&lt;bad-enc&gt;</code>.
 A selected protocol, truth, or comparison callback may raise its own cause.</p>
-<p>Source: <code>lib/varops.x:181</code></p>
+<p>Source: <code>lib/varops.x:172</code></p>
 <p><a id="Var.div"></a></p>
 <h4 id="vardiv"><a class="header" href="#vardiv">Var.div</a></h4>
 <p><code>meta native Var Var.div(Var lhs, Var rhs)</code></p>
@@ -293,7 +324,7 @@ A selected protocol, truth, or comparison callback may raise its own cause.</p>
 Numeric integer zero divisors raise; floating division uses host infinity
 and NaN behavior. Other promotion, failure, and ownership follow
 <code>Var.binary</code>.</p>
-<p>Source: <code>lib/varops.x:254</code></p>
+<p>Source: <code>lib/varops.x:245</code></p>
 <p><a id="Var.fallback_truth"></a></p>
 <h4 id="varfallback_truth"><a class="header" href="#varfallback_truth">Var.fallback_truth</a></h4>
 <p><code>int Var.fallback_truth(Var value)</code></p>
@@ -302,14 +333,14 @@ Numeric and <code>Symbol</code> zero and null pointer-bearing values are false; 
 supported built-ins are true. Container-specific truth comes from dispatch.</p>
 <p><strong>Raises:</strong> <code>&lt;bad-enc&gt;</code> for invalid <code>Var</code> bits, <code>&lt;void-op&gt;</code> for <code>void</code>, or
 <code>&lt;bad-types&gt;</code> when no truthiness rule exists.</p>
-<p>Source: <code>lib/varops.x:500</code></p>
+<p>Source: <code>lib/varops.x:585</code></p>
 <p><a id="Var.matmul"></a></p>
 <h4 id="varmatmul"><a class="header" href="#varmatmul">Var.matmul</a></h4>
 <p><code>Var Var.matmul(Var lhs, Var rhs)</code></p>
 <p>Multiplies matrices through a registered <code>matmul</code> behavior.
 <code>@</code> has no numeric meaning, so numeric operands raise <code>&lt;bad-op&gt;</code>; a
 protocol result keeps the ownership chosen by its callback.</p>
-<p>Source: <code>lib/varops.x:246</code></p>
+<p>Source: <code>lib/varops.x:237</code></p>
 <p><a id="Var.mod"></a></p>
 <h4 id="varmod"><a class="header" href="#varmod">Var.mod</a></h4>
 <p><code>meta native Var Var.mod(Var lhs, Var rhs)</code></p>
@@ -317,14 +348,14 @@ protocol result keeps the ownership chosen by its callback.</p>
 Numeric operands use the common promoted integer type and reject a zero
 divisor; floating operands are not accepted. Other failure and ownership
 follow <code>Var.binary</code>.</p>
-<p>Source: <code>lib/varops.x:262</code></p>
+<p>Source: <code>lib/varops.x:253</code></p>
 <p><a id="Var.mul"></a></p>
 <h4 id="varmul"><a class="header" href="#varmul">Var.mul</a></h4>
 <p><code>meta native Var Var.mul(Var lhs, Var rhs)</code></p>
 <p>Multiplies dynamic values through numeric or registered <code>mul</code> behavior.
 Numeric promotion, failure, and result ownership follow <code>Var.binary</code>; a
 protocol result keeps the ownership chosen by its callback.</p>
-<p>Source: <code>lib/varops.x:239</code></p>
+<p>Source: <code>lib/varops.x:230</code></p>
 <p><a id="Var.neg"></a></p>
 <h4 id="varneg"><a class="header" href="#varneg">Var.neg</a></h4>
 <p><code>meta native Var Var.neg(Var value)</code></p>
@@ -334,7 +365,7 @@ promotion and wrapping, so a narrow integer promotes before negation.</p>
 <p><strong>Raises:</strong> <code>&lt;bad-enc&gt;</code> for invalid bits, <code>&lt;void-op&gt;</code> for <code>void</code>, <code>&lt;no-member&gt;</code>
 for an object without <code>neg</code>, or any cause from protocol or numeric
 subtraction.</p>
-<p>Source: <code>lib/varops.x:291</code></p>
+<p>Source: <code>lib/varops.x:282</code></p>
 <p><a id="Var.postfix"></a></p>
 <h4 id="varpostfix"><a class="header" href="#varpostfix">Var.postfix</a></h4>
 <p><code>Var Var.postfix(Var &amp;?lhs, Symbol op)</code></p>
@@ -346,14 +377,14 @@ preserving the destination tag. If a delegated protocol operation returns
 bits, <code>&lt;void-op&gt;</code> for <code>void</code>, <code>&lt;bad-op&gt;</code> for an operator other than
 <code>++</code> or <code>--</code>, or any cause from <code>Var.update</code>. These failures leave the
 stored value unchanged.</p>
-<p>Source: <code>lib/varops.x:576</code></p>
+<p>Source: <code>lib/varops.x:661</code></p>
 <p><a id="Var.sub"></a></p>
 <h4 id="varsub"><a class="header" href="#varsub">Var.sub</a></h4>
 <p><code>meta native Var Var.sub(Var lhs, Var rhs)</code></p>
 <p>Subtracts dynamic values through numeric or registered <code>sub</code> behavior.
 Numeric promotion, failure, and result ownership follow <code>Var.binary</code>; a
 protocol result keeps the ownership chosen by its callback.</p>
-<p>Source: <code>lib/varops.x:232</code></p>
+<p>Source: <code>lib/varops.x:223</code></p>
 <p><a id="Var.truth"></a></p>
 <h4 id="vartruth"><a class="header" href="#vartruth">Var.truth</a></h4>
 <p><code>meta native int Var.truth(Var value)</code></p>
@@ -366,7 +397,7 @@ return false independently of object state. The call does not retain
 <p><strong>Raises:</strong> <code>&lt;bad-enc&gt;</code> for invalid <code>Var</code> bits, <code>&lt;void-op&gt;</code> for <code>void</code>, or
 <code>&lt;bad-types&gt;</code> when no truthiness rule exists, plus any cause raised by a
 selected descriptor callback.</p>
-<p>Source: <code>lib/varops.x:488</code></p>
+<p>Source: <code>lib/varops.x:573</code></p>
 <p><a id="Var.update"></a></p>
 <h4 id="varupdate"><a class="header" href="#varupdate">Var.update</a></h4>
 <p><code>Var Var.update(Var &amp;?lhs, Symbol op, Var rhs)</code></p>
@@ -379,7 +410,7 @@ returns <code>void</code>, the function leaves the destination unchanged.</p>
 <p><strong>Raises:</strong> <code>&lt;bad-arg&gt;</code> for a null destination, or any cause from
 <code>Var.binary</code> and <code>Var.convert</code>. These failures leave the stored value
 unchanged.</p>
-<p>Source: <code>lib/varops.x:531</code></p>
+<p>Source: <code>lib/varops.x:616</code></p>
 <h2 id="advanced-and-interop-api"><a class="header" href="#advanced-and-interop-api">Advanced and interop API</a></h2>
 <div class="table-wrapper">
 <table>
@@ -416,7 +447,7 @@ thread synchronization despite accepting a volatile pointer.</p>
 <code>Var.convert</code>, or wide boxing. A transferring failure leaves the lvalue
 unchanged. If a delegated protocol operation returns <code>void</code>, the helper
 also leaves it unchanged and returns the native zero for <code>float</code>.</p>
-<p>Source: <code>lib/varops.x:135</code></p>
+<p>Source: <code>lib/varops.x:124</code></p>
 <h4 id="x2c_var_update_f64"><a class="header" href="#x2c_var_update_f64">x2c_var_update_f64</a></h4>
 <p><code>double x2c_var_update_f64(volatile double *lhs, Symbol op, Var rhs)</code></p>
 <p>Applies a dynamic compound <code>op</code> to a native <code>double</code> lvalue.
@@ -428,7 +459,7 @@ thread synchronization despite accepting a volatile pointer.</p>
 <code>Var.convert</code>, or wide boxing. A transferring failure leaves the lvalue
 unchanged. If a delegated protocol operation returns <code>void</code>, the helper
 also leaves it unchanged and returns the native zero for <code>double</code>.</p>
-<p>Source: <code>lib/varops.x:136</code></p>
+<p>Source: <code>lib/varops.x:125</code></p>
 <h4 id="x2c_var_update_i16"><a class="header" href="#x2c_var_update_i16">x2c_var_update_i16</a></h4>
 <p><code>short x2c_var_update_i16(volatile short *lhs, Symbol op, Var rhs)</code></p>
 <p>Applies a dynamic compound <code>op</code> to a native <code>short</code> lvalue.
@@ -440,7 +471,7 @@ thread synchronization despite accepting a volatile pointer.</p>
 <code>Var.convert</code>, or wide boxing. A transferring failure leaves the lvalue
 unchanged. If a delegated protocol operation returns <code>void</code>, the helper
 also leaves it unchanged and returns the native zero for <code>short</code>.</p>
-<p>Source: <code>lib/varops.x:127</code></p>
+<p>Source: <code>lib/varops.x:116</code></p>
 <h4 id="x2c_var_update_i32"><a class="header" href="#x2c_var_update_i32">x2c_var_update_i32</a></h4>
 <p><code>int x2c_var_update_i32(volatile int *lhs, Symbol op, Var rhs)</code></p>
 <p>Applies a dynamic compound <code>op</code> to a native <code>int</code> lvalue.
@@ -452,7 +483,7 @@ thread synchronization despite accepting a volatile pointer.</p>
 <code>Var.convert</code>, or wide boxing. A transferring failure leaves the lvalue
 unchanged. If a delegated protocol operation returns <code>void</code>, the helper
 also leaves it unchanged and returns the native zero for <code>int</code>.</p>
-<p>Source: <code>lib/varops.x:129</code></p>
+<p>Source: <code>lib/varops.x:118</code></p>
 <h4 id="x2c_var_update_i8"><a class="header" href="#x2c_var_update_i8">x2c_var_update_i8</a></h4>
 <p><code>char x2c_var_update_i8(volatile char *lhs, Symbol op, Var rhs)</code></p>
 <p>Applies a dynamic compound <code>op</code> to a native <code>char</code> lvalue.
@@ -464,7 +495,7 @@ thread synchronization despite accepting a volatile pointer.</p>
 <code>Var.convert</code>, or wide boxing. A transferring failure leaves the lvalue
 unchanged. If a delegated protocol operation returns <code>void</code>, the helper
 also leaves it unchanged and returns the native zero for <code>char</code>.</p>
-<p>Source: <code>lib/varops.x:124</code></p>
+<p>Source: <code>lib/varops.x:113</code></p>
 <h4 id="x2c_var_update_long"><a class="header" href="#x2c_var_update_long">x2c_var_update_long</a></h4>
 <p><code>long x2c_var_update_long(volatile long *lhs, Symbol op, Var rhs)</code></p>
 <p>Applies a dynamic compound <code>op</code> to a native <code>long</code> lvalue.
@@ -476,7 +507,7 @@ thread synchronization despite accepting a volatile pointer.</p>
 <code>Var.convert</code>, or wide boxing. A transferring failure leaves the lvalue
 unchanged. If a delegated protocol operation returns <code>void</code>, the helper
 also leaves it unchanged and returns the native zero for <code>long</code>.</p>
-<p>Source: <code>lib/varops.x:131</code></p>
+<p>Source: <code>lib/varops.x:120</code></p>
 <h4 id="x2c_var_update_long_double"><a class="header" href="#x2c_var_update_long_double">x2c_var_update_long_double</a></h4>
 <p><code>long double x2c_var_update_long_double(volatile long double *lhs, Symbol op, Var rhs)</code></p>
 <p>Applies a dynamic compound <code>op</code> to a native <code>long double</code> lvalue.
@@ -488,7 +519,7 @@ thread synchronization despite accepting a volatile pointer.</p>
 <code>Var.convert</code>, or wide boxing. A transferring failure leaves the lvalue
 unchanged. If a delegated protocol operation returns <code>void</code>, the helper
 also leaves it unchanged and returns the native zero for <code>long double</code>.</p>
-<p>Source: <code>lib/varops.x:137</code></p>
+<p>Source: <code>lib/varops.x:126</code></p>
 <h4 id="x2c_var_update_long_long"><a class="header" href="#x2c_var_update_long_long">x2c_var_update_long_long</a></h4>
 <p><code>long long x2c_var_update_long_long(volatile long long *lhs, Symbol op, Var rhs)</code></p>
 <p>Applies a dynamic compound <code>op</code> to a native <code>long long</code> lvalue.
@@ -500,7 +531,7 @@ thread synchronization despite accepting a volatile pointer.</p>
 <code>Var.convert</code>, or wide boxing. A transferring failure leaves the lvalue
 unchanged. If a delegated protocol operation returns <code>void</code>, the helper
 also leaves it unchanged and returns the native zero for <code>long long</code>.</p>
-<p>Source: <code>lib/varops.x:133</code></p>
+<p>Source: <code>lib/varops.x:122</code></p>
 <h4 id="x2c_var_update_schar"><a class="header" href="#x2c_var_update_schar">x2c_var_update_schar</a></h4>
 <p><code>signed char x2c_var_update_schar(volatile signed char *lhs, Symbol op, Var rhs)</code></p>
 <p>Applies a dynamic compound <code>op</code> to a native <code>signed char</code> lvalue.
@@ -512,7 +543,7 @@ thread synchronization despite accepting a volatile pointer.</p>
 <code>Var.convert</code>, or wide boxing. A transferring failure leaves the lvalue
 unchanged. If a delegated protocol operation returns <code>void</code>, the helper
 also leaves it unchanged and returns the native zero for <code>signed char</code>.</p>
-<p>Source: <code>lib/varops.x:125</code></p>
+<p>Source: <code>lib/varops.x:114</code></p>
 <h4 id="x2c_var_update_u16"><a class="header" href="#x2c_var_update_u16">x2c_var_update_u16</a></h4>
 <p><code>ushort x2c_var_update_u16(volatile ushort *lhs, Symbol op, Var rhs)</code></p>
 <p>Applies a dynamic compound <code>op</code> to a native <code>ushort</code> lvalue.
@@ -524,7 +555,7 @@ thread synchronization despite accepting a volatile pointer.</p>
 <code>Var.convert</code>, or wide boxing. A transferring failure leaves the lvalue
 unchanged. If a delegated protocol operation returns <code>void</code>, the helper
 also leaves it unchanged and returns the native zero for <code>ushort</code>.</p>
-<p>Source: <code>lib/varops.x:128</code></p>
+<p>Source: <code>lib/varops.x:117</code></p>
 <h4 id="x2c_var_update_u32"><a class="header" href="#x2c_var_update_u32">x2c_var_update_u32</a></h4>
 <p><code>uint x2c_var_update_u32(volatile uint *lhs, Symbol op, Var rhs)</code></p>
 <p>Applies a dynamic compound <code>op</code> to a native <code>uint</code> lvalue.
@@ -536,7 +567,7 @@ thread synchronization despite accepting a volatile pointer.</p>
 <code>Var.convert</code>, or wide boxing. A transferring failure leaves the lvalue
 unchanged. If a delegated protocol operation returns <code>void</code>, the helper
 also leaves it unchanged and returns the native zero for <code>uint</code>.</p>
-<p>Source: <code>lib/varops.x:130</code></p>
+<p>Source: <code>lib/varops.x:119</code></p>
 <h4 id="x2c_var_update_u8"><a class="header" href="#x2c_var_update_u8">x2c_var_update_u8</a></h4>
 <p><code>uchar x2c_var_update_u8(volatile uchar *lhs, Symbol op, Var rhs)</code></p>
 <p>Applies a dynamic compound <code>op</code> to a native <code>uchar</code> lvalue.
@@ -548,7 +579,7 @@ thread synchronization despite accepting a volatile pointer.</p>
 <code>Var.convert</code>, or wide boxing. A transferring failure leaves the lvalue
 unchanged. If a delegated protocol operation returns <code>void</code>, the helper
 also leaves it unchanged and returns the native zero for <code>uchar</code>.</p>
-<p>Source: <code>lib/varops.x:126</code></p>
+<p>Source: <code>lib/varops.x:115</code></p>
 <h4 id="x2c_var_update_ulong"><a class="header" href="#x2c_var_update_ulong">x2c_var_update_ulong</a></h4>
 <p><code>ulong x2c_var_update_ulong(volatile ulong *lhs, Symbol op, Var rhs)</code></p>
 <p>Applies a dynamic compound <code>op</code> to a native <code>ulong</code> lvalue.
@@ -560,7 +591,7 @@ thread synchronization despite accepting a volatile pointer.</p>
 <code>Var.convert</code>, or wide boxing. A transferring failure leaves the lvalue
 unchanged. If a delegated protocol operation returns <code>void</code>, the helper
 also leaves it unchanged and returns the native zero for <code>ulong</code>.</p>
-<p>Source: <code>lib/varops.x:132</code></p>
+<p>Source: <code>lib/varops.x:121</code></p>
 <h4 id="x2c_var_update_ulong_long"><a class="header" href="#x2c_var_update_ulong_long">x2c_var_update_ulong_long</a></h4>
 <p><code>unsigned long long x2c_var_update_ulong_long(volatile unsigned long long *lhs, Symbol op, Var rhs)</code></p>
 <p>Applies a dynamic compound <code>op</code> to a native <code>unsigned long long</code> lvalue.
@@ -572,12 +603,13 @@ thread synchronization despite accepting a volatile pointer.</p>
 <code>Var.convert</code>, or wide boxing. A transferring failure leaves the lvalue
 unchanged. If a delegated protocol operation returns <code>void</code>, the helper
 also leaves it unchanged and returns the native zero for <code>unsigned long long</code>.</p>
-<p>Source: <code>lib/varops.x:134</code></p>
+<p>Source: <code>lib/varops.x:123</code></p>
 <h2 id="design-notes"><a class="header" href="#design-notes">Design notes</a></h2>
 <p><code>Var</code> arithmetic applies C-style numeric promotion to runtime tags, wraps
 integer results to the selected type’s width, and delegates eligible object
-operations through registered protocols. Compound updates compute and
-convert completely before changing their destination.</p>
+operations through registered protocols. Comparisons of two numbers use
+the same promotion. Compound updates compute and convert completely before
+changing their destination.</p>
 <h2 id="tests-and-examples"><a class="header" href="#tests-and-examples">Tests and examples</a></h2>
 <p><code>make verify</code> (<code>unittest/test-varops.x</code>).</p>
 
@@ -598,9 +630,9 @@ convert completely before changing their destination.</p>
                         &copy; 2025&ndash;2026
                         <a href="https://flake.org">GWF</a>
                         &middot;
-                        <a href="https://github.com/gwf/x2c/blob/7e946b86663f9f069fe14e284c41e2aed73c57e0/LICENSE">Apache 2.0</a>
+                        <a href="https://github.com/gwf/x2c/blob/444c1cb3846093a07c3a0754b5795508173f8721/LICENSE">Apache 2.0</a>
                         &middot;
-                        <a href="https://github.com/gwf/x2c/blob/7e946b86663f9f069fe14e284c41e2aed73c57e0/TRADEMARKS.md">Trademarks</a>
+                        <a href="https://github.com/gwf/x2c/blob/444c1cb3846093a07c3a0754b5795508173f8721/TRADEMARKS.md">Trademarks</a>
                     </footer>
                 </div>
             </div>
