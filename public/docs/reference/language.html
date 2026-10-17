@@ -1,6 +1,6 @@
 <!DOCTYPE HTML>
 <html lang="en" class="light sidebar-visible" dir="ltr">
-    <head><meta name="x2c-release-channel" content="staging"><meta name="x2c-candidate" content="candidate-444c1cb3846093a07c3a0754b5795508173f8721-38981359362-1">
+    <head><meta name="x2c-release-channel" content="staging"><meta name="x2c-candidate" content="candidate-314994819f7fad4f4d97c6df9cf622aa7edec575-38995554323-1">
         <!-- Book generated using mdBook -->
         <meta charset="UTF-8">
         <title>Language Reference - The x2c Book</title>
@@ -39,10 +39,10 @@
             const path_to_root = "../";
             const default_light_theme = "light";
             const default_dark_theme = "light";
-            window.path_to_searchindex_js = "../searchindex-43b59c62.js";
+            window.path_to_searchindex_js = "../searchindex-430ab4ed.js";
         </script>
         <!-- Start loading toc.js asap -->
-        <script src="../toc-0edf2de5.js"></script>
+        <script src="../toc-f2c88270.js"></script>
         <!-- x2c publication metadata -->
         <link rel="canonical" href="https://staging.x2c-lang.dev/docs/reference/language.html">
         <meta property="og:type" content="website">
@@ -286,14 +286,13 @@ the compiler reads each member’s text in place of the block. The result
 translates as one unit with two private storage classes: <code>static</code> is visible
 in the file that declares it, and <code>module</code> is visible in every file of the
 unit.</p>
-<p>The entry <code>calculations.x</code> lists members under its companion directory
-<code>calculations/</code>:</p>
+<p>The entry <code>calculations/calculations.x</code> lists members beside it:</p>
 <!-- ignore: These two source files must be saved at the displayed paths. -->
-<pre class="shiki shiki-themes x2c-light x2c-dark x2c-code" style="--shiki-light:#24292e;--shiki-dark:#e9e5df;--shiki-light-bg:#fff;--shiki-dark-bg:#101011" tabindex="0"><code class="language-x2c no-highlight ignore"><span class="line"><span style="--shiki-light:#6A737D;--shiki-dark:#8B857F">/* calculations.x */</span>
+<pre class="shiki shiki-themes x2c-light x2c-dark x2c-code" style="--shiki-light:#24292e;--shiki-dark:#e9e5df;--shiki-light-bg:#fff;--shiki-dark-bg:#101011" tabindex="0"><code class="language-x2c no-highlight ignore"><span class="line"><span style="--shiki-light:#6A737D;--shiki-dark:#8B857F">/* calculations/calculations.x */</span>
 </span><span class="line"><span style="--shiki-light:#D73A49;--shiki-dark:#F0ADA1">#include</span><span style="--shiki-light:#032F62;--shiki-dark:#9EDFB8"> &lt;stdio.h&gt;</span>
 </span><span class="line">
 </span><span class="line"><span style="--shiki-light:#D73A49;--shiki-dark:#F0ADA1">module</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF"> {</span>
-</span><span class="line"><span style="--shiki-light:#032F62;--shiki-dark:#9EDFB8">  "calculations/implementation.x"</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">,</span>
+</span><span class="line"><span style="--shiki-light:#032F62;--shiki-dark:#9EDFB8">  "implementation.x"</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">,</span>
 </span><span class="line"><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">}</span>
 </span><span class="line">
 </span><span class="line"><span style="--shiki-light:#D73A49;--shiki-dark:#F0ADA1">int</span><span style="--shiki-light:#6F42C1;--shiki-dark:#E9E5DF"> main</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">(</span><span style="--shiki-light:#D73A49;--shiki-dark:#F0ADA1">void</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">) {</span>
@@ -311,10 +310,10 @@ trailing comma, and <code>}</code>, with no final semicolon. It appears at file 
 once per file. Before a file-scope declaration <code>module</code> is a storage class,
 described below. Elsewhere it is an ordinary identifier, and
 <code>struct module {</code> declares a tag. Each path is relative to the file that holds
-the block and must lead to a file under that file’s companion directory,
-<code>NAME/</code> for <code>NAME.x</code>, once <code>..</code> and symbolic links are resolved. A path that
-leads elsewhere, a member that is already being spliced, an unreadable member,
-a malformed block, or a second block is a driver error at the block.</p>
+the block. Members may be siblings, descendants, or files elsewhere; no
+same-named companion directory is required. A member that is already being
+spliced, an unreadable member, a malformed block, or a second block is a driver
+error at the block.</p>
 <p>The block is spliced before C preprocessing, so a preprocessor condition does
 not choose members. <span class="x2c-wordmark">x2c</span> skips a block only inside a conditional arm that C
 never takes by <span class="x2c-wordmark">x2c</span>’s own reading: <code>#if 0</code>, <code>#ifdef</code> or <code>#if defined</code> of a
@@ -331,8 +330,8 @@ a member must use its entry’s syntax.</p>
 share the entry’s translation unit. Function declarations are collected across
 that complete unit, so a function can call a later-defined function without an
 explicit prototype. Other declarations retain their ordinary placement rules.
-A member may hold its own block, whose members lie under the member’s companion
-directory; their text is spliced in turn, and the namespace stays flat.</p>
+A member may hold its own block, whose paths are relative to that member;
+their text is spliced in turn, and the namespace stays flat.</p>
 <p>The <code>module</code> storage class declares a file-scope name for every file of the
 module unit. It is written where <code>static</code> would be, before an object,
 function, <code>typedef</code>, or <code>class</code> declaration:</p>
@@ -357,11 +356,11 @@ enumerators of an enum declared without a typedef stay unit-wide, even under
 <code>static</code>. A later declaration without <code>static</code> refers to the file’s static, as
 in C. Examples are the definition after a <code>static</code> prototype and a block-scope
 <code>extern</code> declaration or prototype. A file’s statics take a prefix in the
-generated C: the file’s path under the entry’s companion directory without its
+generated C: the file’s path relative to the entry’s directory without its
 extension, with each character that cannot continue a C identifier made <code>_</code>,
 then <code>___</code>. The prefix starts with <code>f</code>, the normalized path’s length, and <code>_</code>;
 a path that starts with a digit gets a leading <code>x</code> before its length is
-measured. Under the entry <code>parser.x</code>, a static <code>advance</code> in
+measured. Under the entry <code>parser/parser.x</code>, a static <code>advance</code> in
 <code>parser/statements/loops.x</code> emits as <code>f16_statements_loops___advance</code>, and one
 in the entry itself as <code>f6_parser___advance</code>. Trailing <code>_</code> of the path’s
 spelling are dropped first, so <code>a.x</code> and <code>a-.x</code> give one prefix. A package
@@ -793,7 +792,7 @@ temporary, runtime check, symbol, or dispatch table.</p>
 <p>Ordinary <a href="#dot-call-lookup">dot-call lookup</a> runs first. Delegate fields are
 searched only if those lookups fail, and a member rewrite a program registers
 for the receiver’s own type is tried before them. The shipped component
-<code>src/components/component-delegate.x</code> does this search. <code>$rewrite</code> registers
+<code>src/components/delegate-members.x</code> does this search. <code>$rewrite</code> registers
 it with the receiver pattern <code>%(expr &lt;delegate&gt; *)</code>. It runs only when the
 receiver’s aggregate declares a delegate field. The search visits marked
 fields in source order to produce consistent diagnostics. One resolving path
@@ -2802,7 +2801,7 @@ the same crossing but splices the evaluated <code>List</code>’s elements. Coll
 insertion converts to the representation required by the literal; <code>String</code>
 insertion accepts <code>String</code>, <code>Symbol</code>, declared converters, <code>Var</code>, aliases of
 <code>Var</code>, and supported numeric values under the existing conversion rules. The
-shipped component <code>src/components/component-interpolation.x</code> joins a <code>%""</code>
+shipped component <code>src/components/interpolation.x</code> joins a <code>%""</code>
 literal’s parts, a translator that <code>$rewrite(%(expr ("String") (segments *)))</code>
 registers on the literal’s <code>segments</code> head. A program’s rule for <code>String.join</code>
 receives only the calls that the program writes, including one inside a <code>$</code>
@@ -3132,7 +3131,7 @@ static format literal. Automatic lowering covers numeric conversions, <code>%c</
 <code>%s</code>, <code>*</code> width and precision, and the <code>hh</code>, <code>h</code>, <code>l</code>, <code>ll</code>, and <code>L</code> modifiers.
 Other modifiers, pointer and count conversions, wide strings and characters,
 and positional formats require explicit native arguments. This lowering is
-the compiler component <code>src/components/component-printf.x</code>, which registers a <code>$rewrite</code>
+the compiler component <code>src/components/printf-format.x</code>, which registers a <code>$rewrite</code>
 call pattern for each family member. A project can register its own call
 pattern the same way, for example for its own logging function.</p>
 <h3 id="dynamic-truthiness-and-binary-operators"><a class="header" href="#dynamic-truthiness-and-binary-operators">Dynamic truthiness and binary operators</a></h3>
@@ -3194,7 +3193,7 @@ retain their native comparison behavior. <code>===</code> and <code>!==</code> d
 <code>char</code> array, a <code>char *</code>, or a <code>const char *</code>, both convert to <code>String</code> and
 the result is the <code>String</code> that <code>String.add</code> returns, so <code>path + ".o"</code>
 concatenates.</p>
-<p>The shipped component <code>src/components/component-operators.x</code> implements these
+<p>The shipped component <code>src/components/dynamic-operators.x</code> implements these
 lowerings. It also implements the dynamic compound assignments and increments
 below, and unary fallback rejection after protocol resolution. It registers
 each translator with <code>$rewrite</code> and a Match pattern typed <code>Var</code>, such as
@@ -3616,7 +3615,7 @@ local declaration.</p>
 after matching, with captures visible, and uses ordinary truth conversion.
 False tries the next arm; errors propagate normally. A successful guard runs
 the body once.</p>
-<p>The shipped component <code>src/components/component-match.x</code> lowers <code>match</code>.
+<p>The shipped component <code>src/components/pattern-match.x</code> lowers <code>match</code>.
 <code>$rewrite($matched)</code> registers it on the <code>match</code> statement head; a rule a
 program registers there runs first. A program’s <code>switch</code> rule receives the
 statements in the arms. It does not receive the <code>switch</code> that the lowering
@@ -3632,7 +3631,7 @@ pointers, mutable containers, resources, custom objects, and other
 identity-bearing values are invalid. A value whose own type is invalid is a
 compiler error; invalid contents of a <code>List</code> or <code>Var</code> value reach <code>Error</code>’s
 <code>&lt;bad-types&gt;</code> raw floor when the <code>raise</code> runs. The shipped component
-<code>src/components/component-raise.x</code> performs the conversions and the check.
+<code>src/components/raise.x</code> performs the conversions and the check.
 <code>$rewrite($raised)</code> registers on the <code>raise</code> statement head. The compiler
 evaluates the converted code and values once each, left to right, and builds
 their literals when the <code>raise</code> runs. A <code>try</code> may have adjacent <code>catch</code> arms:</p>
@@ -4023,9 +4022,9 @@ callbacks, or <code>Context</code> regions.</p>
                         &copy; 2025&ndash;2026
                         <a href="https://flake.org">GWF</a>
                         &middot;
-                        <a href="https://github.com/gwf/x2c/blob/444c1cb3846093a07c3a0754b5795508173f8721/LICENSE">Apache 2.0</a>
+                        <a href="https://github.com/gwf/x2c/blob/314994819f7fad4f4d97c6df9cf622aa7edec575/LICENSE">Apache 2.0</a>
                         &middot;
-                        <a href="https://github.com/gwf/x2c/blob/444c1cb3846093a07c3a0754b5795508173f8721/TRADEMARKS.md">Trademarks</a>
+                        <a href="https://github.com/gwf/x2c/blob/314994819f7fad4f4d97c6df9cf622aa7edec575/TRADEMARKS.md">Trademarks</a>
                     </footer>
                 </div>
             </div>

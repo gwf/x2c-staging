@@ -1,6 +1,6 @@
 <!DOCTYPE HTML>
 <html lang="en" class="light sidebar-visible" dir="ltr">
-    <head><meta name="x2c-release-channel" content="staging"><meta name="x2c-candidate" content="candidate-444c1cb3846093a07c3a0754b5795508173f8721-38981359362-1">
+    <head><meta name="x2c-release-channel" content="staging"><meta name="x2c-candidate" content="candidate-314994819f7fad4f4d97c6df9cf622aa7edec575-38995554323-1">
         <!-- Book generated using mdBook -->
         <meta charset="UTF-8">
         <title>Compiler Architecture - The x2c Book</title>
@@ -39,10 +39,10 @@
             const path_to_root = "../";
             const default_light_theme = "light";
             const default_dark_theme = "light";
-            window.path_to_searchindex_js = "../searchindex-43b59c62.js";
+            window.path_to_searchindex_js = "../searchindex-430ab4ed.js";
         </script>
         <!-- Start loading toc.js asap -->
-        <script src="../toc-0edf2de5.js"></script>
+        <script src="../toc-f2c88270.js"></script>
         <!-- x2c publication metadata -->
         <link rel="canonical" href="https://staging.x2c-lang.dev/docs/internals/architecture.html">
         <meta property="og:type" content="website">
@@ -262,7 +262,7 @@ instead of edited by hand. The compiler under development is <code>builds/0/x2c<
 <a href="building.html">building the compiler</a> for how it is built.</p>
 <h2 id="the-compiler-pipeline"><a class="header" href="#the-compiler-pipeline">The compiler pipeline</a></h2>
 <p>The compiler lives under <code>src/</code>. <code>src/main.x</code> dispatches commands and runs the
-translation loop; <code>src/cli.x</code> parses the command line. <code>src/frontend.x</code> owns
+translation loop; <code>src/cli/cli.x</code> parses the command line. <code>src/frontend.x</code> owns
 configured source stages and isolated unit lifetimes shared with internal
 tools. Nested interning pools keep batch translation close to single-file peak
 memory. For each input file the translator runs one pipeline:</p>
@@ -375,7 +375,7 @@ typed lowering has to know the type of every name in scope, including names
 that come from C headers the compiler never parses in full.</p>
 <p>The default path does not run the C preprocessor. Every unit starts from the
 implicit runtime prelude, the declarations of <code>lib/x2c.x</code> and everything it
-includes. <code>src/collect.x</code> shallow-parses source text directly, splicing
+includes. <code>src/collect/collect.x</code> shallow-parses source text directly, splicing
 quote-includes inline at their include points in the same order the
 preprocessor would have produced them, resolving each through the same search
 order (the including file’s directory, <code>.</code>, <code>src/</code>, <code>lib/</code>, then the <code>-I</code>
@@ -473,18 +473,18 @@ implicit runtime contributes a few thousand rows, so grep the output.</p>
 <p>The full parse reads tokens and the global environment and produces the parsed
 AST: immutable <code>List</code>s, tagged by node kind, annotated with resolved types.
 <code>Compiler.full_parse</code> in <code>src/compiler/parsing/parse.x</code> drives a
-recursive-descent grammar split across four modules – <code>src/parse.x</code> for
+recursive-descent grammar split across four modules – <code>src/parse/parse.x</code> for
 declarations and top-level forms, including initializer recognition and the
-function-body boundary, <code>src/expressions.x</code> for the C precedence ladder plus
+function-body boundary, <code>src/expressions/expressions.x</code> for the C precedence ladder plus
 dotted method sugar, <code>src/statements.x</code> for control flow, <code>match</code>,
-<code>try</code>/<code>catch</code>, and <code>defer</code>, and <code>src/literals.x</code> for collection, interpolated
-<code>String</code>, and lambda literals. <code>src/meta-group.x</code> stages a unit’s bodied
+<code>try</code>/<code>catch</code>, and <code>defer</code>, and <code>src/literals/literals.x</code> for collection, interpolated
+<code>String</code>, and lambda literals. <code>src/meta-group/meta-group.x</code> stages a unit’s bodied
 <code>meta</code> functions as native code, and <code>src/stage.x</code> carries values across that
-boundary. The built-in source macro in <code>src/macros.x</code>, <code>etc/builtin-macros.x</code>,
+boundary. The built-in source macro in <code>src/macros/macros.x</code>, <code>etc/builtin-macros.x</code>,
 and the algorithms in <code>src/builtins.x</code> expand <code>foreach</code> during this pass.
 <code>src/type.x</code> owns the <code>List</code>-backed <code>Type</code> representation those modules
 consult; <code>src/ast.x</code> owns sequence placement and binding helpers;
-<code>src/symbols.x</code> owns lexical scopes and symbol lookup from inner to outer;
+<code>src/symtab/symtab.x</code> owns lexical scopes and symbol lookup from inner to outer;
 <code>src/compiler/names.x</code> owns generated names; <code>src/compiler/parsing/tokens.x</code>
 raises <code>&lt;malformed&gt;</code> for a token mismatch, and <code>src/compiler/parsing/parse.x</code>
 holds the filtered recovery boundary that synchronizes after a parse
@@ -517,7 +517,7 @@ Source preprocessor lines survive as <code>preproc</code> nodes, kept in source 
 the top level and inside compound statements. The implicit runtime prelude is
 not a source token or AST node.</p>
 <p>The parser has already cached the literal. The literal segment <code>"hello, "</code> holds
-no dynamic references, so <code>src/literals.x</code> recorded it as a cacheable
+no dynamic references, so <code>src/literals/literals.x</code> recorded it as a cacheable
 constant and the AST refers to it by slot:</p>
 <pre><code class="language-sh">./builds/0/x2c translate --dump-cache greet.x
 </code></pre>
@@ -525,11 +525,11 @@ constant and the AST refers to it by slot:</p>
 </code></pre>
 <h3 id="lowering"><a class="header" href="#lowering">Lowering</a></h3>
 <p>Lowering turns the parsed AST into a lowered AST that the emitter can walk
-without knowing about <span class="x2c-wordmark">x2c</span>. <code>src/transform.x</code> normalizes each node until its
+without knowing about <span class="x2c-wordmark">x2c</span>. <code>src/transform/transform.x</code> normalizes each node until its
 identity stops changing, because lowering one construct can expose another.
-<code>src/cleanup.x</code> places function cleanup within the shared driver.
-<code>src/components/component-lambdas.x</code> lowers each lambda the driver meets; see
-<a href="#builtin-components">builtin components</a>. <code>src/callables.x</code> converts callable
+<code>src/cleanup/cleanup.x</code> places function cleanup within the shared driver.
+<code>src/components/lambda-functions.x</code> lowers each lambda the driver meets; see
+<a href="#builtin-components">builtin components</a>. <code>src/callables/callables.x</code> converts callable
 values. It adds an adapter when a receiving callback type differs from a
 function’s signature. A direct function gets one reusable file-static <code>Func</code>
 handle, and a function pointer is copied into a new <code>Func</code> context. A public
@@ -537,7 +537,7 @@ inline function reaches these helpers through a generated bridge that also
 runs the owning unit’s initializer. The helpers are queued as early
 declarations, normalized by the same driver, and appended to the unit.</p>
 <p>Cleanup lowering completes each function after its body is normalized. A <code>try</code>
-first takes the landing form that <code>src/components/component-try.x</code> returns;
+first takes the landing form that <code>src/components/try-catch.x</code> returns;
 see <a href="#builtin-components">builtin components</a>. A program’s rule on <code>try</code>
 applies here as well. Binding and lowering its replacement keep the already
 lowered parts of the <code>try</code> as they are. The pass then assigns a name to the
@@ -574,7 +574,7 @@ expression and lambda normalization within the function.</p>
 <p>The interpolation is gone, replaced by a <code>String_join</code> call over a cons list
 of boxed <code>Var</code> values, each <code>String_var</code> call naming its callee as a resolved
 binding carrying that function’s type.
-<code>src/components/component-interpolation.x</code> wrote the join; see <a href="#builtin-components">builtin
+<code>src/components/interpolation.x</code> wrote the join; see <a href="#builtin-components">builtin
 components</a>. The <code>return</code> no longer carries a type
 annotation; nothing downstream needs it. Some children are now raw C text.
 Lowering may produce emitter-ready fragments, so <code>"String_join(NULL, "</code> sits
@@ -582,7 +582,7 @@ in the tree as a <code>String</code> instead of a call node.</p>
 <h3 id="generation-and-cache-staging"><a class="header" href="#generation-and-cache-staging">Generation and cache staging</a></h3>
 <p>Generation splits the lowered AST for one unit into two ASTs, one per output
 file, and adds the generated initialization that makes cached constants work.
-<code>src/generate.x</code> owns the sequence: drop whitespace and comment nodes,
+<code>src/generate/generate.x</code> owns the sequence: drop whitespace and comment nodes,
 partition declarations and functions into header and source halves, ask
 <code>src/cache.x</code> to materialize the cache slots as file statics with an
 initializer, fold every file-level initialization block into one guarded
@@ -618,7 +618,7 @@ without constructor support. These immutable values are allocated eagerly and
 retained for the process lifetime, so an allocation failure happens during
 load-time initialization instead of at the literal’s source expression.</p>
 <h3 id="c-token-emission"><a class="header" href="#c-token-emission">C token emission</a></h3>
-<p>Emission turns the lowered AST into a flat <code>List</code> of C tokens. <code>src/emit.x</code>
+<p>Emission turns the lowered AST into a flat <code>List</code> of C tokens. <code>src/emit/emit.x</code>
 does this with one stack-local <code>Emitter</code> per translation unit, which holds the
 current function’s name and static objects. Emission is therefore reentrant,
 and state from a failed unit does not reach the next unit. Lowering has
@@ -641,7 +641,7 @@ the declaration.</p>
 without reordering them: parenthesis depth suppresses statement breaks inside
 expressions, preprocessor tokens occupy their own lines, and a <code>Buffer</code>
 builds the final <code>String</code>. The result is valid C, with spacing determined by
-the emitter. <code>src/generate.x</code> then writes the <code>.h</code>, <code>.c</code>, and <code>.xi</code> files
+the emitter. <code>src/generate/generate.x</code> then writes the <code>.h</code>, <code>.c</code>, and <code>.xi</code> files
 together, named from the input basename inside the <code>--out-dir</code> directory. A
 write failure replaces none of them and becomes a diagnostic carrying the
 target path and the host error. <code>src/main.x</code> then writes the <code>.d</code> file
@@ -655,22 +655,22 @@ status per fixture, so a change in any phase shows up as a diff.</p>
 module block, so its files share no private scope.</p>
 <ul>
 <li>the builtin components, described in <a href="#builtin-components">builtin
-components</a>: <code>src/components/component-access.x</code>
-(bracket access), <code>src/components/component-try.x</code> (try, catch, and finally),
-<code>src/components/component-delegate.x</code> (delegate fields),
-<code>src/components/component-literals.x</code> (Array and Map literals),
-<code>src/components/component-printf.x</code> (printf formats),
-<code>src/components/component-operators.x</code> (dynamic operators),
-<code>src/components/component-raise.x</code> (raise),
-<code>src/components/component-match.x</code> (match),
-<code>src/components/component-interpolation.x</code> (interpolation),
-<code>src/components/component-destructuring.x</code> (destructuring),
-<code>src/components/component-lambdas.x</code> (lambdas),
-<code>src/components/component-protocols.x</code> (protocol members and descriptors),
-and <code>src/components/component-string-switch.x</code> (String switches);</li>
+components</a>: <code>src/components/bracket-access.x</code>
+(bracket access), <code>src/components/try-catch.x</code> (try, catch, and finally),
+<code>src/components/delegate-members.x</code> (delegate fields),
+<code>src/components/collection-literals.x</code> (Array and Map literals),
+<code>src/components/printf-format.x</code> (printf formats),
+<code>src/components/dynamic-operators.x</code> (dynamic operators),
+<code>src/components/raise.x</code> (raise),
+<code>src/components/pattern-match.x</code> (match),
+<code>src/components/interpolation.x</code> (interpolation),
+<code>src/components/destructuring.x</code> (destructuring),
+<code>src/components/lambda-functions.x</code> (lambdas),
+<code>src/components/protocol-adapters.x</code> (protocol members and descriptors),
+and <code>src/components/string-switch.x</code> (String switches);</li>
 <li><code>src/operator-ledger.x</code> – operator precedence, compound assignment,
 and protocol-member mappings from one compile-time ledger;</li>
-<li><code>src/cli.x</code>, <code>src/main.x</code> – option metadata, parsing, and dispatch;</li>
+<li><code>src/cli/cli.x</code>, <code>src/main.x</code> – option metadata, parsing, and dispatch;</li>
 <li><code>src/translation.x</code> – synchronous translation, inspections, worker
 scheduling, ordered diagnostics, and signal forwarding;</li>
 <li><code>src/frontend.x</code> – configured source stages, process translation support,
@@ -681,7 +681,7 @@ runs a project’s meta functions, built and cached before translation;</li>
 request and one reply per call, with its timeout and failures;</li>
 <li><code>commands/repl/</code> – terminal interaction, inline editing and history,
 persistent submissions, and named inspection over the compiler session API;</li>
-<li><code>src/project.x</code>, <code>src/toolchain.x</code> – shared manifest membership, target
+<li><code>src/project/project.x</code>, <code>src/toolchain.x</code> – shared manifest membership, target
 relationships, and host compile/archive/link primitives;</li>
 <li><code>commands/build/</code> – application build and run orchestration, incremental
 state, script executable caching, locking, and execution;</li>
@@ -691,34 +691,34 @@ receipts on standard error;</li>
 <span class="x2c-wordmark">x2c</span> home, project lockfile preparation, and source-package builds through
 the matching compiler; fetch, digest, and extraction use host tools;</li>
 <li><code>src/deps.x</code> – <span class="x2c-wordmark">x2c</span> dependency parsing and atomic depfile publication;</li>
-<li><code>src/compiler.x</code> – shared compiler state, with members under
+<li><code>src/compiler/compiler.x</code> – shared compiler state, with members under
 <code>src/compiler/</code> for parsing (tokens, collection, the full parse, top-level
 definitions, and scripts), declaration production, generated names,
 lifecycle, binding facts, the literal cache, match patterns, pending
 support declarations, and source files and locations;</li>
 <li><code>src/fields.x</code> – macros that copy or set named fields and transfer a
 segment’s compile-time state;</li>
-<li><code>src/symbols.x</code> – the symbol table: scopes, bindings, lookup, typedef
+<li><code>src/symtab/symtab.x</code> – the symbol table: scopes, bindings, lookup, typedef
 resolution, and semantic transactions;</li>
 <li><code>src/preprocess.x</code> – preprocessor directive lines, conditional arms, and
 the directives before each form;</li>
-<li><code>src/parse.x</code>, <code>src/expressions.x</code>, <code>src/statements.x</code>, <code>src/literals.x</code> –
+<li><code>src/parse/parse.x</code>, <code>src/expressions/expressions.x</code>, <code>src/statements.x</code>, <code>src/literals/literals.x</code> –
 grammar and AST construction;</li>
 <li><code>src/parse-reports.x</code>, <code>src/expressions-reports.x</code> – package and
 alias diagnostics, and expression typing diagnostics;</li>
-<li><code>src/initializers.x</code> – brace initializer conversion by C’s
+<li><code>src/initializers/initializers.x</code> – brace initializer conversion by C’s
 initialization order;</li>
 <li><code>src/lambdas.x</code> – lambda parsing and the capture resolution shared by
 source and constructed lambdas;</li>
-<li><code>src/macros.x</code> – compile-time macro definitions, imports, Lisp lifting,
+<li><code>src/macros/macros.x</code> – compile-time macro definitions, imports, Lisp lifting,
 hygiene, and expansion;</li>
-<li><code>src/meta-sdk.x</code> – the compiler’s answers to <code>lib/meta.x</code> operations
+<li><code>src/meta-sdk/meta-sdk.x</code> – the compiler’s answers to <code>lib/meta.x</code> operations
 and the context of the running compile-time call;</li>
-<li><code>src/meta-native.x</code> – meta functions, explicit meta calls, native meta
+<li><code>src/meta-native/meta-native.x</code> – meta functions, explicit meta calls, native meta
 bindings and their lifetimes, and native modules;</li>
 <li><code>src/stage.x</code> – the arguments and results that cross between meta code
 and program code;</li>
-<li><code>src/meta-group.x</code> – a unit’s meta group, its emission as C, and
+<li><code>src/meta-group/meta-group.x</code> – a unit’s meta group, its emission as C, and
 in-process staging;</li>
 <li><code>src/builtins.x</code>, <code>src/linked-meta.x</code> – the built-in macro algorithms and
 the shipped compile-time code compiled into the compiler;</li>
@@ -726,29 +726,29 @@ the shipped compile-time code compiled into the compiler;</li>
 <li><code>src/ast-rewrite.x</code> – AST child rewriting and iterative tree traversal;</li>
 <li><code>src/grammar.x</code> – source-form patterns and parsed-node accessors used by
 lowering;</li>
-<li><code>src/type.x</code>, <code>src/protocol.x</code> – type representation, conversions, protocol
+<li><code>src/type.x</code>, <code>src/protocol/protocol.x</code> – type representation, conversions, protocol
 declarations, conformance, and native aliases, with the conformance form that
 presents each conformance’s adapters to
-<code>src/components/component-protocols.x</code>;</li>
+<code>src/components/protocol-adapters.x</code>;</li>
 <li><code>src/type-ledger.x</code> – the <code>Var</code> tag lookups projected from the tag ledger,
 kept in their own unit so the units that include <code>type.x</code> do not load it;</li>
-<li><code>src/collect.x</code> – global environment discovery, unit interfaces, and the
+<li><code>src/collect/collect.x</code> – global environment discovery, unit interfaces, and the
 splicing of module blocks;</li>
 <li><code>src/utils.x</code> – repository discovery, the driver’s fatal error line, and
 forked translation workers;</li>
-<li><code>src/transform.x</code> – lowering to emitter-ready AST;</li>
-<li><code>src/callables.x</code> – typed callback adapters and <code>Func</code> conversions
+<li><code>src/transform/transform.x</code> – lowering to emitter-ready AST;</li>
+<li><code>src/callables/callables.x</code> – typed callback adapters and <code>Func</code> conversions
 lowered to C helpers;</li>
 <li><code>src/adapter-memo.x</code> – macros that cache compiler adapters and reuse
 each result by key;</li>
-<li><code>src/cleanup.x</code> – which exits leave a cleanup region and which locals an
+<li><code>src/cleanup/cleanup.x</code> – which exits leave a cleanup region and which locals an
 error transfer preserves;</li>
-<li><code>src/regions.x</code> – per-function region summaries and the warnings for a
+<li><code>src/regions/regions.x</code> – per-function region summaries and the warnings for a
 value that can outlive the region that allocated it;</li>
 <li><code>src/cache.x</code> – cached constants and their generated initialization;</li>
-<li><code>src/generate.x</code> – header/source partitioning, unit initialization,
+<li><code>src/generate/generate.x</code> – header/source partitioning, unit initialization,
 include guards, and output writes;</li>
-<li><code>src/emit.x</code> – AST to C tokens;</li>
+<li><code>src/emit/emit.x</code> – AST to C tokens;</li>
 <li><code>src/format.x</code> – C tokens to text;</li>
 <li><code>src/diagnostics.x</code> – recorded diagnostics;</li>
 <li><code>src/sourceview.x</code> – request-owned source overlays and logical file paths;</li>
@@ -786,31 +786,31 @@ programs use. There is no compiler-private collection library, so every
 runtime weakness the compiler hits is one a user program can hit. The main
 divisions:</p>
 <ul>
-<li><code>lib/scope.x</code> owns allocation lifetime, and <code>lib/pool.x</code> the nested
+<li><code>lib/scope/scope.x</code> owns allocation lifetime, and <code>lib/pool/pool.x</code> the nested
 interning pools layered over it;</li>
-<li><code>lib/var.x</code>, <code>lib/varconvert.x</code>, <code>lib/varops.x</code>, and <code>lib/dispatch.x</code> own
+<li><code>lib/var/var.x</code>, <code>lib/varconvert.x</code>, <code>lib/varops.x</code>, and <code>lib/dispatch.x</code> own
 tagged values, cause-raising conversion, operators, and dynamic dispatch;</li>
-<li><code>lib/string.x</code>, <code>lib/symbol.x</code>, <code>lib/atom.x</code>, and <code>lib/list.x</code> own
+<li><code>lib/string/string.x</code>, <code>lib/symbol.x</code>, <code>lib/atom.x</code>, and <code>lib/list/list.x</code> own
 canonical immutable values;</li>
 <li><code>lib/block.x</code>, <code>lib/buffer.x</code>, <code>lib/array.x</code>, and <code>lib/map.x</code> own mutable
 storage;</li>
 <li><code>lib/iter.x</code> owns status-bearing traversal;</li>
-<li><code>lib/match.x</code> owns list-pattern matching; <code>lib/match-plan.x</code> compiles
+<li><code>lib/match/match.x</code> owns list-pattern matching; <code>lib/match-plan.x</code> compiles
 patterns to plans, <code>lib/match-cache.x</code> retains them, and
 <code>lib/match-machine.x</code> executes them over the wordcode and state
 definitions in <code>lib/machine.x</code>;</li>
-<li><code>lib/lisp.x</code> owns the embedded Lisp reader, session, and evaluator; the
+<li><code>lib/lisp/lisp.x</code> owns the embedded Lisp reader, session, and evaluator; the
 compiler uses it to read <code>.xi</code> interfaces and to run compile-time macros;</li>
 <li><code>lib/func.x</code> owns generic native calls through generated adapters;</li>
 <li><code>lib/tokenizer.x</code> and <code>lib/scan.x</code> own tokenization, so the compiler’s
 first phase is library code;</li>
-<li><code>lib/error.x</code> owns failure records, handlers, and policy;</li>
+<li><code>lib/error/error.x</code> owns failure records, handlers, and policy;</li>
 <li><code>lib/exception.x</code> owns <code>Error</code> transfer and cleanup frames, while
 <code>lib/file.x</code> and <code>lib/logger.x</code> provide file I/O and logging;</li>
 <li><code>lib/common.x</code> supplies shared representation and initialization support;</li>
 <li><code>lib/lib.x</code> contains the standalone <code>DisjointSet</code> utility.</li>
 </ul>
-<p><code>lib/lisp.x</code> evaluates recursively with tail calls; see
+<p><code>lib/lisp/lisp.x</code> evaluates recursively with tail calls; see
 <a href="reference-lisp.html#production-execution">production execution</a>. Pattern
 matching executes compiled Match plans on MatchMachine.</p>
 <p><code>lib/x2c.x</code> is the generated source definition of the implicit runtime
@@ -865,7 +865,7 @@ order that depends on addresses, or a generated-name counter that carries
 across translation units, shows up here while every suite still passes. The
 same phase run twice has to produce the same bytes.</p>
 <h2 id="builtin-components"><a class="header" href="#builtin-components">Builtin components</a></h2>
-<p><code>src/components/component-access.x</code> registers bracket reads, stores, and
+<p><code>src/components/bracket-access.x</code> registers bracket reads, stores, and
 updates, the <code>$indexed</code> and <code>$x2c.collection.store</code> forms, through ordinary
 macro patterns and quotations. <code>lib/rewrite.x</code> supplies the decorator. Array
 and Map mutations call their typed helpers; any other protocol participant
@@ -873,14 +873,14 @@ calls its getter, <code>setindex</code>, <code>updateindex</code>, or <code>post
 <code>Code.call_in_order</code>, which evaluates each operand once, in order. Binding,
 index admission, evaluation order, and cleanup remain compiler
 responsibilities.</p>
-<p><code>src/components/component-try.x</code> registers the <code>$caught</code> and <code>$tried</code> source
+<p><code>src/components/try-catch.x</code> registers the <code>$caught</code> and <code>$tried</code> source
 forms from <code>src/grammar.x</code> through the same decorator, both on the <code>try</code> head.
 Its translator returns a landing form, <code>(landing CODE ROWS)</code>: the frame and
 catch-site template, the finalizer, the exits that close the catch site, claim
 the finalizer, and leave the frame, and the body and each catch arm as
 regions. The finalizer is also a region. The cleanup walk described under
 <a href="#lowering">lowering</a> lowers the rows in order.</p>
-<p><code>src/components/component-delegate.x</code> registers a member call pattern whose
+<p><code>src/components/delegate-members.x</code> registers a member call pattern whose
 receiver hole is <code>%(expr &lt;delegate&gt; *)</code>, a field keyword where a type would go.
 The parser marks each <code>delegate</code> field of an aggregate; a method call that
 ordinary lookup misses tests the rules registered for the marks its receiver’s
@@ -889,7 +889,7 @@ translator searches the delegate fields with <code>Type.marked_fields</code> and
 <code>Type.resolve_member</code>, reports an ambiguous path or a cycle, and returns the
 call through the field path as constructed syntax, which ordinary call
 resolution binds.</p>
-<p><code>src/components/component-literals.x</code> registers the Array and Map literal
+<p><code>src/components/collection-literals.x</code> registers the Array and Map literal
 forms, <code>$array_value</code> and <code>$map_value</code> from <code>src/grammar.x</code>, on the literal
 family keyed by the <code>array</code> and <code>map</code> heads. Each translator returns the
 counted constructor, <code>Array.update_n</code> or <code>Map.update_n</code> on a new container,
@@ -899,14 +899,14 @@ an empty brace among them is an empty Map, and an empty literal is the bare
 more parts read state, the transform moves each part that reads state, through
 the last one that may change state, into a temporary ahead of the call, as
 “literal order” in <code>src/transform/literals.x</code> describes.</p>
-<p><code>src/components/component-printf.x</code> registers one call pattern for each
+<p><code>src/components/printf-format.x</code> registers one call pattern for each
 printf-family member, on the call family keyed by the callee’s spelling, so a
 call to any other function only looks its spelling up. The translator reads the
 static format with <code>Code.format</code>, walks it once, and has each <code>Var</code> value a
 conversion consumes converted with <code>Code.convert</code> to the C type that conversion
 reads, or displayed through <code>Var.str</code> for <code>%s</code>. The redundant <code>.str()</code> warning
-for those values stays with the conversion checks in <code>src/expressions.x</code>.</p>
-<p><code>src/components/component-operators.x</code> registers its translators with Match
+for those values stays with the conversion checks in <code>src/expressions/expressions.x</code>.</p>
+<p><code>src/components/dynamic-operators.x</code> registers its translators with Match
 patterns typed <code>Var</code> whose operator positions name a set, <code>(!or OP...)</code>, on the
 binary family for binary operators and compound assignments and the unary
 family for increments, decrements, and unary operators, keyed by each operator
@@ -923,7 +923,7 @@ transform. When a rewrite lowers its replacement, the source expressions the
 replacement holds lower outside the active rule, so a store nested in another
 store’s value applies the same rule again. A rule whose pattern was derived
 without the subject’s bindings matches without collecting them.</p>
-<p><code>src/components/component-raise.x</code> registers <code>raise</code> on the statement family
+<p><code>src/components/raise.x</code> registers <code>raise</code> on the statement family
 keyed by the <code>raise</code> head. Its translator converts the code to a <code>Symbol</code> and
 each detail key and value to a <code>Var</code> with <code>Code.convert</code>, promotes a C string
 literal value with <code>Code.promoted</code>, and reports a value whose type is not
@@ -931,7 +931,7 @@ immutable with <code>x2c_diagnostic_error_at</code>, which returns so the transl
 on. It returns the converted raise as a lowered carrier, which binding leaves
 as it is. The compiler lowers that raise’s parts in source order, moving them
 into temporaries as literal parts move, and builds its literals at run time.</p>
-<p><code>src/components/component-match.x</code> registers <code>match</code> on the statement family
+<p><code>src/components/pattern-match.x</code> registers <code>match</code> on the statement family
 keyed by the <code>match</code> head. Its translator returns a lowered carrier of verbatim
 C text around the subject, the patterns, and the arm bodies: a block that
 converts the subject to a <code>List</code> once with <code>Code.convert</code> and switches on the
@@ -947,7 +947,7 @@ static site when <code>Code.is_static_pattern</code> holds. The transform and th
 walk step into the nodes the text holds, and the parts of the match lower
 outside its rule, so a nested match applies it again. The generated <code>switch</code> is
 what an arm’s <code>break</code> leaves.</p>
-<p><code>src/components/component-string-switch.x</code> registers <code>switch</code> on the statement
+<p><code>src/components/string-switch.x</code> registers <code>switch</code> on the statement
 family keyed by the <code>switch</code> head and declines a selector whose type is not
 <code>String</code> or an alias of it. Its translator replaces each label the switch owns
 by the label’s index, leaving nested switches and expressions alone, and
@@ -958,7 +958,7 @@ once per selector type and label list under <code>(unit-support KEY)</code>, nam
 <code>x2c_binding_for</code> with the same key, so switches with the same labels share it.
 A program’s <code>switch</code> rule applies to source switches only, not to the integer
 switch the component writes.</p>
-<p><code>src/components/component-interpolation.x</code> registers a <code>%"..."</code> literal on the
+<p><code>src/components/interpolation.x</code> registers a <code>%"..."</code> literal on the
 literal family keyed by the <code>segments</code> head. The transform first converts each
 <code>$</code> insertion to a <code>String</code> as the parser converts its own, and a constructed
 String of one constant text reuses the parsed literal’s cache slot. The
@@ -966,7 +966,7 @@ translator joins the parts with <code>String.join</code> over a <code>List</code
 cached text, a converted insertion, or <code>String.new</code> of the raw text that
 constructed syntax spells. The compiler boxes the chain’s parts and evaluates
 them once each, left to right, moving them ahead of the join when they move.</p>
-<p><code>src/components/component-destructuring.x</code> registers destructuring declarations
+<p><code>src/components/destructuring.x</code> registers destructuring declarations
 on the statement family keyed by the <code>dstrdecl</code> head, an assignment statement
 keyed by <code>stmnt</code>, and an assignment expression on the literal family keyed by
 <code>dstrasgn</code>. Its translators answer bound carriers: a <code>List</code> local read from the
@@ -975,7 +975,7 @@ conversions lowering applies to an assignment or initialization. The expression
 form keeps the source in a result local as its value. The parser has already
 declared the targets, so binding leaves their declarations alone and they keep
 their scope and identity; the locals are <code>new-name</code> effects.</p>
-<p><code>src/components/component-lambdas.x</code> registers both lambda forms on the
+<p><code>src/components/lambda-functions.x</code> registers both lambda forms on the
 literal family keyed by the <code>lambda</code> head, which the transform offers each
 lambda it meets. A noncapturing lambda returns a bound carrier: the name of a
 static function placed among the unit’s support declarations, whose body is
@@ -997,7 +997,7 @@ declaration copies its target after it, and every read goes through the cell;
 the replacement is bound again. Capture bindings have separate identities from
 their source bindings, so moving a source into a shared cell cannot retarget a
 sibling snapshot.</p>
-<p><code>src/components/component-protocols.x</code> registers on the <code>conform</code> head. Before
+<p><code>src/components/protocol-adapters.x</code> registers on the <code>conform</code> head. Before
 the transform, the compiler presents each conformance whose forward converter
 the unit defines, and whose participant is not numeric, as a form <code>(conform BASE PARTICIPANT FORWARD REVERSE BINDER DESCRIPTOR (ROW...))</code>. The compiler has
 already chosen each member’s owner and storage, reported collisions and missing
@@ -1023,9 +1023,9 @@ from it, not the compiler that translates the edit.</p>
                     </main>
 
                     <nav class="x2c-pager" aria-label="Page navigation">
-                        <a rel="prev" href="../internals/compiler-api/component-try.html" class="x2c-pager-prev" aria-keyshortcuts="Left">
+                        <a rel="prev" href="../internals/compiler-api/transform.html" class="x2c-pager-prev" aria-keyshortcuts="Left">
                             <span class="x2c-pager-label">previous</span>
-                            <span class="x2c-pager-title">src/components/component-try.x</span>
+                            <span class="x2c-pager-title">src/transform/transform.x</span>
                         </a>
                         
                         <a rel="next prefetch" href="../internals/implementation-map.html" class="x2c-pager-next" aria-keyshortcuts="Right">
@@ -1037,9 +1037,9 @@ from it, not the compiler that translates the edit.</p>
                         &copy; 2025&ndash;2026
                         <a href="https://flake.org">GWF</a>
                         &middot;
-                        <a href="https://github.com/gwf/x2c/blob/444c1cb3846093a07c3a0754b5795508173f8721/LICENSE">Apache 2.0</a>
+                        <a href="https://github.com/gwf/x2c/blob/314994819f7fad4f4d97c6df9cf622aa7edec575/LICENSE">Apache 2.0</a>
                         &middot;
-                        <a href="https://github.com/gwf/x2c/blob/444c1cb3846093a07c3a0754b5795508173f8721/TRADEMARKS.md">Trademarks</a>
+                        <a href="https://github.com/gwf/x2c/blob/314994819f7fad4f4d97c6df9cf622aa7edec575/TRADEMARKS.md">Trademarks</a>
                     </footer>
                 </div>
             </div>

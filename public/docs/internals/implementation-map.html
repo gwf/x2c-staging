@@ -1,6 +1,6 @@
 <!DOCTYPE HTML>
 <html lang="en" class="light sidebar-visible" dir="ltr">
-    <head><meta name="x2c-release-channel" content="staging"><meta name="x2c-candidate" content="candidate-444c1cb3846093a07c3a0754b5795508173f8721-38981359362-1">
+    <head><meta name="x2c-release-channel" content="staging"><meta name="x2c-candidate" content="candidate-314994819f7fad4f4d97c6df9cf622aa7edec575-38995554323-1">
         <!-- Book generated using mdBook -->
         <meta charset="UTF-8">
         <title>Implementation Map - The x2c Book</title>
@@ -39,10 +39,10 @@
             const path_to_root = "../";
             const default_light_theme = "light";
             const default_dark_theme = "light";
-            window.path_to_searchindex_js = "../searchindex-43b59c62.js";
+            window.path_to_searchindex_js = "../searchindex-430ab4ed.js";
         </script>
         <!-- Start loading toc.js asap -->
-        <script src="../toc-0edf2de5.js"></script>
+        <script src="../toc-f2c88270.js"></script>
         <!-- x2c publication metadata -->
         <link rel="canonical" href="https://staging.x2c-lang.dev/docs/internals/implementation-map.html">
         <meta property="og:type" content="website">
@@ -266,7 +266,7 @@ that stage. Take a <code>foreach</code> loop:</p>
       (expr (opt-ref "Var") (op &amp; ...)))))
    (block ...))))
 </code></pre>
-<p>The built-in source macro in <code>src/macros.x</code>, <code>etc/builtin-macros.x</code>, and
+<p>The built-in source macro in <code>src/macros/macros.x</code>, <code>etc/builtin-macros.x</code>, and
 <code>src/builtins.x</code> has replaced <code>foreach</code> with declarations and a
 <code>while</code> loop that calls <code>List_try_next</code>. The loop keeps the List, a cursor,
 and the current element in generated locals; <code>List_try_next</code> advances the
@@ -278,34 +278,34 @@ set of dump flags is listed under <a href="../reference/cli.html">compiler optio
 <h2 id="feature-ownership"><a class="header" href="#feature-ownership">Feature ownership</a></h2>
 <h3 id="collection-and-string-literals"><a class="header" href="#collection-and-string-literals">Collection and String literals</a></h3>
 <ul>
-<li>Parse: <code>src/literals.x</code></li>
-<li>Lower/generate: <code>src/components/component-literals.x</code>, <code>src/transform.x</code>,
+<li>Parse: <code>src/literals/literals.x</code></li>
+<li>Lower/generate: <code>src/components/collection-literals.x</code>, <code>src/transform/transform.x</code>,
 <code>src/cache.x</code></li>
-<li>Runtime: <code>lib/list.x</code>, <code>lib/array.x</code>, <code>lib/map.x</code>, <code>lib/string.x</code></li>
+<li>Runtime: <code>lib/list/list.x</code>, <code>lib/array.x</code>, <code>lib/map.x</code>, <code>lib/string/string.x</code></li>
 <li>Tests: literal-cache and mutable-empty fixtures, collection suites</li>
 <li>See also: <a href="../guide/collections.html">collections</a></li>
 </ul>
 <h3 id="string-interpolation"><a class="header" href="#string-interpolation">String interpolation</a></h3>
 <ul>
-<li>Parse: <code>src/literals.x</code> for <code>$name</code> and <code>${expr}</code>, which are separate sites</li>
+<li>Parse: <code>src/literals/literals.x</code> for <code>$name</code> and <code>${expr}</code>, which are separate sites</li>
 <li>Type/convert: <code>Compiler.convert_segment_to_string</code> in <code>src/expressions/conversions.x</code>
 selects the conversion for each segment. A segment that is already a <code>Var</code>,
 canonical or aliased, renders through <code>Var_str</code> whatever its run-time tag; a
 numeric segment takes its nearest declared <code>T_str</code> converter when one exists
 and is
 boxed and rendered through <code>Var_str</code> otherwise</li>
-<li>Lower/generate: <code>src/transform.x</code> converts each insertion, then
-<code>src/components/component-interpolation.x</code> joins them; see <a href="architecture.html#builtin-components">builtin
+<li>Lower/generate: <code>src/transform/transform.x</code> converts each insertion, then
+<code>src/components/interpolation.x</code> joins them; see <a href="architecture.html#builtin-components">builtin
 components</a></li>
-<li>Runtime: <code>lib/string.x</code>, plus <code>Var.str</code> for the boxed segments</li>
+<li>Runtime: <code>lib/string/string.x</code>, plus <code>Var.str</code> for the boxed segments</li>
 <li>Tests: interpolation suite</li>
 <li>See also: <a href="../guide/values.html">values</a></li>
 </ul>
 <h3 id="symbol-and-atom-literals"><a class="header" href="#symbol-and-atom-literals">Symbol and Atom literals</a></h3>
 <ul>
 <li>Tokenize: <code>lib/tokenizer.x</code>, using the scanners in <code>lib/scan.x</code></li>
-<li>Parse: <code>src/literals.x</code></li>
-<li>Lower/generate: <code>src/emit.x</code></li>
+<li>Parse: <code>src/literals/literals.x</code></li>
+<li>Lower/generate: <code>src/emit/emit.x</code></li>
 <li>Runtime: <code>lib/symbol.x</code> for immediate <code>Symbol</code>s, <code>lib/atom.x</code> for spellings
 that do not fit a <code>Symbol</code></li>
 <li>Tests: symbol suite and checked symbol example</li>
@@ -313,9 +313,9 @@ that do not fit a <code>Symbol</code></li>
 </ul>
 <h3 id="indexing-and-slicing"><a class="header" href="#indexing-and-slicing">Indexing and slicing</a></h3>
 <ul>
-<li>Parse/type: <code>src/expressions.x</code>, <code>src/type.x</code></li>
-<li>Lower: <code>src/components/component-access.x</code> with ordinary ordered-call and
-conversion operations from <code>src/transform.x</code></li>
+<li>Parse/type: <code>src/expressions/expressions.x</code>, <code>src/type.x</code></li>
+<li>Lower: <code>src/components/bracket-access.x</code> with ordinary ordered-call and
+conversion operations from <code>src/transform/transform.x</code></li>
 <li>Runtime: collection helpers plus the shared bounds normalizer in
 <code>lib/common.x</code></li>
 <li>Tests: index/slice suite and checked indexing example</li>
@@ -323,19 +323,19 @@ conversion operations from <code>src/transform.x</code></li>
 </ul>
 <h3 id="method-style-calls"><a class="header" href="#method-style-calls">Method-style calls</a></h3>
 <ul>
-<li>Parse/type: <code>src/expressions.x</code>, <code>src/type.x</code></li>
-<li>Lower: <code>src/transform.x</code>; a call that finds no member on a receiver with
+<li>Parse/type: <code>src/expressions/expressions.x</code>, <code>src/type.x</code></li>
+<li>Lower: <code>src/transform/transform.x</code>; a call that finds no member on a receiver with
 <code>delegate</code> fields goes through the one field path that provides it,
-which <code>src/components/component-delegate.x</code> finds</li>
+which <code>src/components/delegate-members.x</code> finds</li>
 <li>Runtime: statically selected module function</li>
 <li>Tests: unit suites across runtime types and the delegate compiler fixtures</li>
 </ul>
 <h3 id="protocol-adoptions"><a class="header" href="#protocol-adoptions">Protocol adoptions</a></h3>
 <ul>
 <li>Parse, publish, and resolve declarations and adoptions, and choose each
-member’s owner: <code>src/protocol.x</code>; operator mappings:
+member’s owner: <code>src/protocol/protocol.x</code>; operator mappings:
 <code>src/operator-ledger.x</code></li>
-<li>Write each conformance’s adapters: <code>src/components/component-protocols.x</code>;
+<li>Write each conformance’s adapters: <code>src/components/protocol-adapters.x</code>;
 see <a href="architecture.html#builtin-components">builtin components</a></li>
 <li>Runtime descriptors and their registration: <code>lib/dispatch.x</code>; built-in
 adoptions: <code>lib/protocols.x</code></li>
@@ -345,20 +345,20 @@ protocol-boundaries probe</li>
 </ul>
 <h3 id="compile-time-macros-and-decorators"><a class="header" href="#compile-time-macros-and-decorators">Compile-time macros and decorators</a></h3>
 <ul>
-<li>Parse, import, hygiene, and expand: <code>src/macros.x</code></li>
+<li>Parse, import, hygiene, and expand: <code>src/macros/macros.x</code></li>
 <li>Compiler operations for <code>meta</code> code, the <code>Code</code> and <code>Type</code> methods and
 the <code>x2c_</code> helpers: <code>lib/meta.x</code></li>
 <li>Macro values, their application, and macro-valued <code>case</code> recognition:
-<code>lib/macro-value.x</code></li>
+<code>lib/macrovalue/macrovalue.x</code></li>
 <li>Compile-time Lisp boundary adapters: <code>etc/compiler-sdk.xlisp</code></li>
 <li><code>meta</code> arguments and results: <code>src/stage.x</code>; a unit’s <code>meta</code> group and
-in-process staging: <code>src/meta-group.x</code>; the project helper:
+in-process staging: <code>src/meta-group/meta-group.x</code>; the project helper:
 <code>src/meta-project.x</code> builds it, <code>src/meta-helper-client.x</code> calls it, and
 <code>etc/meta-helper.x</code> answers, with the compiler queries that
 <code>tools/gen-meta-queries.sh</code> generates from <code>lib/meta.x</code> into
 <code>etc/meta-queries.x</code></li>
 <li>Embedded native bindings: <code>etc/lisp-bindings.x</code>,
-<code>etc/lisp-bindings.xlisp</code>, <code>lib/lisp-targets.x</code>, <code>lib/lisp.x</code>, and
+<code>etc/lisp-bindings.xlisp</code>, <code>lib/lisp-targets.x</code>, <code>lib/lisp/lisp.x</code>, and
 <code>lib/func.x</code></li>
 <li>Tests: macro import, template, decorator, inline-Lisp, and inferred-binding
 compiler fixtures; Lisp and <code>Func</code> suites; compile-time-macros, decorators,
@@ -367,9 +367,9 @@ and inline-lisp examples</li>
 </ul>
 <h3 id="package-imports-and-with-names"><a class="header" href="#package-imports-and-with-names">Package imports and <code>with</code> names</a></h3>
 <ul>
-<li>Parse: <code>src/parse.x</code></li>
-<li>Package name collection and resolution: <code>src/symbols.x</code>, <code>src/collect.x</code></li>
-<li>Manifest and native build ownership: <code>src/project.x</code>, <code>commands/build/build.x</code>, and
+<li>Parse: <code>src/parse/parse.x</code></li>
+<li>Package name collection and resolution: <code>src/symtab/symtab.x</code>, <code>src/collect/collect.x</code></li>
+<li>Manifest and native build ownership: <code>src/project/project.x</code>, <code>commands/build/build.x</code>, and
 <code>src/toolchain.x</code></li>
 <li>Tests: import/package compiler fixtures and the import-greet example</li>
 <li>See also: <a href="../reference/language.html#packages-and-import">packages and
@@ -378,7 +378,7 @@ imports</a></li>
 <h3 id="module-blocks"><a class="header" href="#module-blocks">Module blocks</a></h3>
 <ul>
 <li>Splice the member files into the entry’s text: <code>Compiler.module_source</code> in
-<code>src/collect.x</code>, called for a unit’s text in <code>src/frontend.x</code>, for every
+<code>src/collect/collect.x</code>, called for a unit’s text in <code>src/frontend.x</code>, for every
 cold walk of an included file, and for the project <code>meta</code> scan in
 <code>src/meta-project.x</code></li>
 <li>Member positions: the unit’s <code>line_markers</code> rows, read by
@@ -387,11 +387,11 @@ cold walk of an included file, and for the project <code>meta</code> scan in
 effect records its site in the member’s own text through
 <code>Compiler.source_token</code></li>
 <li>Member dependencies and the entry’s content hash: <code>FileWalk</code> in
-<code>src/collect.x</code></li>
+<code>src/collect/collect.x</code></li>
 <li>The <code>module</code> storage class: <code>_module_storage_form</code> in <code>src/parse/units.x</code>
 retypes the word as <code>static</code> under <code>Compiler.module_declaration</code></li>
 <li>File-private statics: each marker row carries its file’s prefix from
-<code>_file_prefix</code> in <code>src/collect.x</code>; <code>_declared_key</code> in <code>src/symbols.x</code>
+<code>_file_prefix</code> in <code>src/collect/collect.x</code>; <code>_declared_key</code> in <code>src/symtab/symtab.x</code>
 respells a static’s key with <code>Compiler.private_prefix</code> and
 <code>Compiler.declared_spelling</code>, which records prefixed spellings so derived
 names keep theirs; <code>Sym.get</code> and <code>_lookup_from</code> try the current
@@ -402,28 +402,28 @@ Var tags and descriptors</li>
 </ul>
 <h3 id="exact-var-tag-tests-with-is-and-is-not"><a class="header" href="#exact-var-tag-tests-with-is-and-is-not">Exact Var-tag tests with <code>is</code> and <code>is not</code></a></h3>
 <ul>
-<li>Parse, type, and lower: <code>src/expressions.x</code> types each test as a
+<li>Parse, type, and lower: <code>src/expressions/expressions.x</code> types each test as a
 <code>Var.is</code>, <code>Var.is_void</code>, or constant-row <code>Var.is_row</code> call; <code>src/type.x</code>
 supplies the tag facts</li>
-<li>Runtime tag representation: <code>lib/var.x</code>, <code>lib/common.x</code></li>
+<li>Runtime tag representation: <code>lib/var/var.x</code>, <code>lib/common.x</code></li>
 <li>Tests: is-type and is-not compiler fixtures plus <code>Var</code> suites</li>
 <li>See also: <a href="../reference/language.html#exact-var-tag-tests-with-is-and-is-not">exact Var-tag
 tests</a></li>
 </ul>
 <h3 id="list-destructuring"><a class="header" href="#list-destructuring">List destructuring</a></h3>
 <ul>
-<li>Parse declarations and binders: <code>src/parse.x</code>, <code>src/statements.x</code></li>
-<li>Type access: <code>src/type.x</code>; lower: <code>src/components/component-destructuring.x</code>,
-dispatched from <code>src/transform.x</code></li>
-<li>Runtime source values: <code>lib/list.x</code></li>
+<li>Parse declarations and binders: <code>src/parse/parse.x</code>, <code>src/statements.x</code></li>
+<li>Type access: <code>src/type.x</code>; lower: <code>src/components/destructuring.x</code>,
+dispatched from <code>src/transform/transform.x</code></li>
+<li>Runtime source values: <code>lib/list/list.x</code></li>
 <li>Tests: destructuring suite and list-destructuring compiler fixtures</li>
 </ul>
 <h3 id="inline-lisp-bindings"><a class="header" href="#inline-lisp-bindings">Inline Lisp bindings</a></h3>
 <ul>
 <li>Parse and expand <code>$lisp.bind</code>, <code>$lisp.binding</code>, and <code>$lisp.install</code>:
-<code>src/macros.x</code>, <code>etc/lisp-bindings.x</code>, and
+<code>src/macros/macros.x</code>, <code>etc/lisp-bindings.x</code>, and
 <code>etc/lisp-bindings.xlisp</code></li>
-<li>Runtime call boundary: <code>lib/lisp.x</code>, <code>lib/func.x</code></li>
+<li>Runtime call boundary: <code>lib/lisp/lisp.x</code>, <code>lib/func.x</code></li>
 <li>Tests: Lisp binding compiler fixtures, Lisp/<code>Func</code> suites, and the
 inline-lisp example</li>
 <li>See also: <a href="../reference/language.html#compile-time-macros">compile-time macros</a></li>
@@ -431,14 +431,14 @@ inline-lisp example</li>
 <h3 id="var-boxing-conversion-operations-and-dispatch"><a class="header" href="#var-boxing-conversion-operations-and-dispatch">Var boxing, conversion, operations, and dispatch</a></h3>
 <ul>
 <li>Type selection: <code>src/type.x</code></li>
-<li>Typedef identity and scopes: <code>src/symbols.x</code>, <code>src/statements.x</code></li>
-<li>Conversion lowering: <code>src/expressions.x</code></li>
-<li>Protocol operator selection: <code>src/expressions.x</code></li>
-<li>Dynamic operators: <code>src/components/component-operators.x</code></li>
-<li>Truthiness and native emission: <code>src/transform.x</code>, <code>src/emit.x</code></li>
-<li>Sentinel literal parsing and C spelling: <code>src/literals.x</code>, <code>src/emit.x</code>;
+<li>Typedef identity and scopes: <code>src/symtab/symtab.x</code>, <code>src/statements.x</code></li>
+<li>Conversion lowering: <code>src/expressions/expressions.x</code></li>
+<li>Protocol operator selection: <code>src/expressions/expressions.x</code></li>
+<li>Dynamic operators: <code>src/components/dynamic-operators.x</code></li>
+<li>Truthiness and native emission: <code>src/transform/transform.x</code>, <code>src/emit/emit.x</code></li>
+<li>Sentinel literal parsing and C spelling: <code>src/literals/literals.x</code>, <code>src/emit/emit.x</code>;
 expression context distinguishes the literal from C <code>void</code> type positions</li>
-<li>Runtime representation: <code>lib/common.x</code>, <code>lib/var.x</code>, <code>lib/scope.x</code></li>
+<li>Runtime representation: <code>lib/common.x</code>, <code>lib/var/var.x</code>, <code>lib/scope/scope.x</code></li>
 <li>Numeric metadata, conversion, and failure causes: <code>lib/varconvert.x</code>;
 shared representation declarations: <code>lib/common.x</code></li>
 <li>Arithmetic, truthiness, and compound assignment: <code>lib/varops.x</code></li>
@@ -467,30 +467,30 @@ var-bitfield-compound, and local-typedef compiler fixtures</li>
 </ul>
 <h3 id="scalar-declarations-literals-and-arithmetic"><a class="header" href="#scalar-declarations-literals-and-arithmetic">Scalar declarations, literals, and arithmetic</a></h3>
 <ul>
-<li>Parse: <code>src/parse.x</code>, <code>src/literals.x</code>, <code>src/expressions.x</code></li>
+<li>Parse: <code>src/parse/parse.x</code>, <code>src/literals/literals.x</code>, <code>src/expressions/expressions.x</code></li>
 <li>Canonical type owner: <code>src/type.x</code></li>
-<li>Conversion: <code>src/transform.x</code>, <code>src/expressions.x</code></li>
-<li>Runtime representation: <code>lib/var.x</code>, <code>lib/scope.x</code></li>
+<li>Conversion: <code>src/transform/transform.x</code>, <code>src/expressions/expressions.x</code></li>
+<li>Runtime representation: <code>lib/var/var.x</code>, <code>lib/scope/scope.x</code></li>
 <li>Tests: canonical scalar fixture, invalid-scalar and overflow diagnostics,
 <code>Var</code> suite</li>
 <li>See also: <a href="../guide/values.html">values and Var</a></li>
 </ul>
 <h3 id="lambdas"><a class="header" href="#lambdas">Lambdas</a></h3>
 <ul>
-<li>Parse and resolve captures: <code>src/literals.x</code>, <code>src/lambdas.x</code></li>
-<li>Lower: <code>src/components/component-lambdas.x</code>, dispatched from
-<code>src/transform.x</code></li>
-<li>Direct <code>Func</code> calls and conversions: <code>src/callables.x</code>,
-<code>src/expressions.x</code></li>
+<li>Parse and resolve captures: <code>src/literals/literals.x</code>, <code>src/lambdas.x</code></li>
+<li>Lower: <code>src/components/lambda-functions.x</code>, dispatched from
+<code>src/transform/transform.x</code></li>
+<li>Direct <code>Func</code> calls and conversions: <code>src/callables/callables.x</code>,
+<code>src/expressions/expressions.x</code></li>
 <li>Runtime: <code>lib/func.x</code> and receiving callback APIs</li>
 <li>Tests: captured-lambda and lambda-lowering fixtures, lambda and <code>Func</code> suites</li>
 </ul>
 <h3 id="foreach"><a class="header" href="#foreach">Foreach</a></h3>
 <ul>
-<li>Parse and expand: built-in source macro support in <code>src/macros.x</code> and
+<li>Parse and expand: built-in source macro support in <code>src/macros/macros.x</code> and
 <code>etc/builtin-macros.x</code>; the expansion algorithm in
 <code>src/builtins.x</code></li>
-<li>Lower/generate the expanded loop: <code>src/transform.x</code>, <code>src/emit.x</code></li>
+<li>Lower/generate the expanded loop: <code>src/transform/transform.x</code>, <code>src/emit/emit.x</code></li>
 <li>Runtime: <code>lib/iter.x</code> and collection adapters; <code>Iter.try_next</code> returns the
 traversal status</li>
 <li>Tests: <code>foreach</code> fixture, <code>Iter</code> suite, and checked example</li>
@@ -499,7 +499,7 @@ traversal status</li>
 <h3 id="status-bearing-map-operations"><a class="header" href="#status-bearing-map-operations">Status-bearing Map operations</a></h3>
 <ul>
 <li>Runtime owner: <code>lib/map.x</code></li>
-<li>Literal boundary: <code>src/components/component-literals.x</code>; see <a href="architecture.html#builtin-components">builtin
+<li>Literal boundary: <code>src/components/collection-literals.x</code>; see <a href="architecture.html#builtin-components">builtin
 components</a></li>
 <li>Generic routing: <code>lib/dispatch.x</code></li>
 <li>Value-returning wrappers: <code>Map.get</code> and <code>Map.del</code></li>
@@ -511,7 +511,7 @@ coverage</li>
 <h3 id="counted-array-construction"><a class="header" href="#counted-array-construction">Counted Array construction</a></h3>
 <ul>
 <li>Runtime owner: <code>lib/array.x</code> through <code>Array.update_n</code> and <code>Array.push</code></li>
-<li>Literal boundary: <code>src/components/component-literals.x</code>; see <a href="architecture.html#builtin-components">builtin
+<li>Literal boundary: <code>src/components/collection-literals.x</code>; see <a href="architecture.html#builtin-components">builtin
 components</a></li>
 <li>Value contract: raw <code>Null</code> is data; <code>void</code> is rejected</li>
 <li>Tests: <code>Array</code> suite and the counted-literal compiler fixture</li>
@@ -519,8 +519,8 @@ components</a></li>
 </ul>
 <h3 id="var-values-in-printf-family-formats"><a class="header" href="#var-values-in-printf-family-formats">Var values in printf-family formats</a></h3>
 <ul>
-<li>Parse and type the call: <code>src/expressions.x</code></li>
-<li>Lower: <code>src/components/component-printf.x</code>; see <a href="architecture.html#builtin-components">builtin
+<li>Parse and type the call: <code>src/expressions/expressions.x</code></li>
+<li>Lower: <code>src/components/printf-format.x</code>; see <a href="architecture.html#builtin-components">builtin
 components</a></li>
 <li>Runtime: <code>Var.convert</code> in <code>lib/varconvert.x</code> and <code>Var.str</code> in
 <code>lib/dispatch.x</code></li>
@@ -530,19 +530,19 @@ components</a></li>
 <h3 id="match-statement"><a class="header" href="#match-statement">Match statement</a></h3>
 <ul>
 <li>Parse: <code>src/statements.x</code></li>
-<li>Lower: <code>src/components/component-match.x</code>; see <a href="architecture.html#builtin-components">builtin
+<li>Lower: <code>src/components/pattern-match.x</code>; see <a href="architecture.html#builtin-components">builtin
 components</a></li>
-<li>Native emission: <code>src/emit.x</code></li>
-<li>Runtime: <code>lib/match.x</code> and the plan modules listed in <a href="architecture.html#the-runtime-boundary">the runtime
+<li>Native emission: <code>src/emit/emit.x</code></li>
+<li>Runtime: <code>lib/match/match.x</code> and the plan modules listed in <a href="architecture.html#the-runtime-boundary">the runtime
 boundary</a>; patterns and binding sets
-are ordinary <code>List</code>s from <code>lib/list.x</code></li>
+are ordinary <code>List</code>s from <code>lib/list/list.x</code></li>
 <li>Tests: match suites and checked nested example</li>
 <li>See also: <a href="../guide/match.html">pattern matching</a></li>
 </ul>
 <h3 id="string-switch"><a class="header" href="#string-switch">String switch</a></h3>
 <ul>
 <li>Parse: <code>src/statements.x</code></li>
-<li>Lower: <code>src/components/component-string-switch.x</code>; see <a href="architecture.html#builtin-components">builtin
+<li>Lower: <code>src/components/string-switch.x</code>; see <a href="architecture.html#builtin-components">builtin
 components</a></li>
 <li>Tests: the <code>string-switch</code> and <code>rewrite-string-switch</code> compiler fixtures</li>
 <li>See also: <a href="../reference/language.html#c-control-flow">C control flow</a></li>
@@ -550,12 +550,12 @@ components</a></li>
 <h3 id="raise-filtered-catch-finally-and-defer"><a class="header" href="#raise-filtered-catch-finally-and-defer">Raise, filtered catch, finally, and defer</a></h3>
 <ul>
 <li>Parse: <code>src/statements.x</code></li>
-<li>Lower/generate: <code>src/transform.x</code>, <code>src/components/component-raise.x</code>,
-<code>src/components/component-try.x</code> (see <a href="architecture.html#builtin-components">builtin
-components</a>), <code>src/cleanup.x</code>,
-<code>src/emit.x</code></li>
+<li>Lower/generate: <code>src/transform/transform.x</code>, <code>src/components/raise.x</code>,
+<code>src/components/try-catch.x</code> (see <a href="architecture.html#builtin-components">builtin
+components</a>), <code>src/cleanup/cleanup.x</code>,
+<code>src/emit/emit.x</code></li>
 <li>Runtime: <code>lib/exception.x</code> implements the frames and jumps for transfer
-and cleanup; <code>lib/error.x</code> owns handlers, policy, watermarks, accumulated
+and cleanup; <code>lib/error/error.x</code> owns handlers, policy, watermarks, accumulated
 records, matching, and transferring registration lifetime</li>
 <li>Tests: optimized <code>defer</code>/try and filtered-catch compiler fixtures,
 exception/<code>defer</code>/<code>Error</code> suites, and fatal/floor subprocess probes</li>
@@ -564,8 +564,8 @@ exception/<code>defer</code>/<code>Error</code> suites, and fatal/floor subproce
 </ul>
 <h3 id="type-owned-initialization"><a class="header" href="#type-owned-initialization">Type-owned initialization</a></h3>
 <ul>
-<li>Parse: <code>src/parse.x</code></li>
-<li>Lower/generate: <code>src/generate.x</code>, <code>src/cache.x</code></li>
+<li>Parse: <code>src/parse/parse.x</code></li>
+<li>Lower/generate: <code>src/generate/generate.x</code>, <code>src/cache.x</code></li>
 <li>Runtime: generated guard plus <code>TYPE.initialize()</code></li>
 <li>Boundary: <a href="architecture.html#generation-and-cache-staging">generation and cache
 staging</a> lists the functions
@@ -627,9 +627,9 @@ so signature preloading cannot put mutable group state in the shared parent.</p>
                         &copy; 2025&ndash;2026
                         <a href="https://flake.org">GWF</a>
                         &middot;
-                        <a href="https://github.com/gwf/x2c/blob/444c1cb3846093a07c3a0754b5795508173f8721/LICENSE">Apache 2.0</a>
+                        <a href="https://github.com/gwf/x2c/blob/314994819f7fad4f4d97c6df9cf622aa7edec575/LICENSE">Apache 2.0</a>
                         &middot;
-                        <a href="https://github.com/gwf/x2c/blob/444c1cb3846093a07c3a0754b5795508173f8721/TRADEMARKS.md">Trademarks</a>
+                        <a href="https://github.com/gwf/x2c/blob/314994819f7fad4f4d97c6df9cf622aa7edec575/TRADEMARKS.md">Trademarks</a>
                     </footer>
                 </div>
             </div>
