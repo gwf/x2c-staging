@@ -1,6 +1,6 @@
 <!DOCTYPE HTML>
 <html lang="en" class="light sidebar-visible" dir="ltr">
-    <head><meta name="x2c-release-channel" content="staging"><meta name="x2c-candidate" content="candidate-314994819f7fad4f4d97c6df9cf622aa7edec575-38995554323-1">
+    <head><meta name="x2c-release-channel" content="staging"><meta name="x2c-candidate" content="candidate-aa2b9b2575297711e5978acc53f87bd7f645f3c7-39090113132-1">
         <!-- Book generated using mdBook -->
         <meta charset="UTF-8">
         <title>src/meta-group/meta-group.x - The x2c Book</title>
@@ -39,10 +39,10 @@
             const path_to_root = "../../";
             const default_light_theme = "light";
             const default_dark_theme = "light";
-            window.path_to_searchindex_js = "../../searchindex-430ab4ed.js";
+            window.path_to_searchindex_js = "../../searchindex-f4d06db2.js";
         </script>
         <!-- Start loading toc.js asap -->
-        <script src="../../toc-f2c88270.js"></script>
+        <script src="../../toc-00ae7479.js"></script>
         <!-- x2c publication metadata -->
         <link rel="canonical" href="https://staging.x2c-lang.dev/docs/internals/compiler-api/meta-group.html">
         <meta property="og:type" content="website">
@@ -238,6 +238,7 @@ Compatibility is not yet promised.</p>
 <tr><td><a href="#Compiler.group_meta_function"><code>Compiler.group_meta_function</code></a></td><td>Records a native callable body <code>fn</code> in the unit’s helper group.</td></tr>
 <tr><td><a href="#Compiler.groups_meta"><code>Compiler.groups_meta</code></a></td><td>Answers whether a <code>meta</code> function or value belongs to the unit’s group: a parse meets it outside a macro definition while the project meta build parses the unit or a session stages it.</td></tr>
 <tr><td><a href="#Compiler.meta_call_missing"><code>Compiler.meta_call_missing</code></a></td><td>Returns why the group function <code>name</code> has no compile-time entry, from its type.</td></tr>
+<tr><td><a href="#Compiler.meta_calls_wait"><code>Compiler.meta_calls_wait</code></a></td><td>Answers whether a call of a project <code>meta</code> function waits for the translation: the project meta build’s own parse has no helper yet.</td></tr>
 <tr><td><a href="#Compiler.meta_cc"><code>Compiler.meta_cc</code></a></td><td>Returns the C compiler and the runtime header directory that build <code>meta</code> code, or NULL before <code>Compiler.use_meta_toolchain</code>.</td></tr>
 <tr><td><a href="#Compiler.meta_cc_identity"><code>Compiler.meta_cc_identity</code></a></td><td>Returns the identity of the C compiler at <code>cc</code>: its path and content hash.</td></tr>
 <tr><td><a href="#Compiler.meta_cc_run"><code>Compiler.meta_cc_run</code></a></td><td>Runs <code>arguments</code>, a C compiler command building the group C in <code>directory</code>, and returns NULL, or else its first error, which names <code>directory</code> when a group’s C is the cause.</td></tr>
@@ -268,12 +269,12 @@ staging the group, and reports at <code>site</code> a function that cannot run.<
 <p>Closes compile-time-only calls across later meta definitions.
 Retained group bodies hold the bound calls, including literal insertions.
 Select runtime definitions only after that relation is complete.</p>
-<p>Source: <code>src/meta-group/selection.x:57</code></p>
+<p>Source: <code>src/meta-group/selection.x:62</code></p>
 <p><a id="Compiler.group_meta_function"></a></p>
 <h4 id="compilergroup_meta_function"><a class="header" href="#compilergroup_meta_function">Compiler.group_meta_function</a></h4>
 <p><code>void Compiler.group_meta_function(Compiler c, List fn)</code></p>
 <p>Records a native callable body <code>fn</code> in the unit’s helper group.</p>
-<p>Source: <code>src/meta-group/selection.x:23</code></p>
+<p>Source: <code>src/meta-group/selection.x:28</code></p>
 <p><a id="Compiler.groups_meta"></a></p>
 <h4 id="compilergroups_meta"><a class="header" href="#compilergroups_meta">Compiler.groups_meta</a></h4>
 <p><code>int Compiler.groups_meta(Compiler c)</code></p>
@@ -286,7 +287,14 @@ parses the unit or a session stages it.</p>
 <p><code>String Compiler.meta_call_missing(Compiler c, String name)</code></p>
 <p>Returns why the group function <code>name</code> has no compile-time entry, from
 its type.</p>
-<p>Source: <code>src/meta-group/selection.x:278</code></p>
+<p>Source: <code>src/meta-group/selection.x:283</code></p>
+<p><a id="Compiler.meta_calls_wait"></a></p>
+<h4 id="compilermeta_calls_wait"><a class="header" href="#compilermeta_calls_wait">Compiler.meta_calls_wait</a></h4>
+<p><code>int Compiler.meta_calls_wait(Compiler c)</code></p>
+<p>Answers whether a call of a project <code>meta</code> function waits for the
+translation: the project meta build’s own parse has no helper yet. A
+loaded helper’s parse calls the ordinary helper of its sources.</p>
+<p>Source: <code>src/meta-group/selection.x:25</code></p>
 <p><a id="Compiler.meta_cc"></a></p>
 <h4 id="compilermeta_cc"><a class="header" href="#compilermeta_cc">Compiler.meta_cc</a></h4>
 <p><code>String Compiler.meta_cc(String &amp;include_dir)</code></p>
@@ -312,7 +320,7 @@ hash.</p>
 <p>Answers whether a <code>meta</code> body reaches the compiler itself: it names a
 compile-time-only function or a compiler operation, or constructs a
 template. Such a function has no runtime form.</p>
-<p>Source: <code>src/meta-group/selection.x:36</code></p>
+<p>Source: <code>src/meta-group/selection.x:41</code></p>
 <p><a id="Compiler.prepare_loaded_functions"></a></p>
 <h4 id="compilerprepare_loaded_functions"><a class="header" href="#compilerprepare_loaded_functions">Compiler.prepare_loaded_functions</a></h4>
 <p><code>void Compiler.prepare_loaded_functions(Compiler c, Array nodes)</code></p>
@@ -333,20 +341,20 @@ through its closing brace. Source text and tokens are unchanged.</p>
 <p><code>int Compiler.public_native_function( Compiler c, List function, String name)</code></p>
 <p>Answers whether a definition has public native linkage.
 Main is excluded because its process entry needs a separate adapter.</p>
-<p>Source: <code>src/meta-group/selection.x:268</code></p>
+<p>Source: <code>src/meta-group/selection.x:273</code></p>
 <p><a id="Compiler.refuse_meta_call"></a></p>
 <h4 id="compilerrefuse_meta_call"><a class="header" href="#compilerrefuse_meta_call">Compiler.refuse_meta_call</a></h4>
 <p><code>void Compiler.refuse_meta_call( Compiler c, String name, Token site, String why)</code></p>
 <p>Reports at <code>site</code> that the <code>meta</code> function <code>name</code> cannot run at compile
 time, and <code>why</code>.</p>
-<p>Source: <code>src/meta-group/selection.x:297</code></p>
+<p>Source: <code>src/meta-group/selection.x:302</code></p>
 <p><a id="Compiler.refuse_record_meta_call"></a></p>
 <h4 id="compilerrefuse_record_meta_call"><a class="header" href="#compilerrefuse_record_meta_call">Compiler.refuse_record_meta_call</a></h4>
 <p><code>void Compiler.refuse_record_meta_call(Compiler c, String name, Token site)</code></p>
 <p>Reports at <code>site</code> that the group function <code>name</code> cannot run at compile
 time when its result is a struct or union, which its type alone
 decides.</p>
-<p>Source: <code>src/meta-group/selection.x:305</code></p>
+<p>Source: <code>src/meta-group/selection.x:310</code></p>
 <p><a id="Compiler.stage_meta_in_process"></a></p>
 <h4 id="compilerstage_meta_in_process"><a class="header" href="#compilerstage_meta_in_process">Compiler.stage_meta_in_process</a></h4>
 <p><code>void Compiler.stage_meta_in_process(void)</code></p>
@@ -407,9 +415,9 @@ group, from the functions it holds to the C it emits.</p>
                         &copy; 2025&ndash;2026
                         <a href="https://flake.org">GWF</a>
                         &middot;
-                        <a href="https://github.com/gwf/x2c/blob/314994819f7fad4f4d97c6df9cf622aa7edec575/LICENSE">Apache 2.0</a>
+                        <a href="https://github.com/gwf/x2c/blob/aa2b9b2575297711e5978acc53f87bd7f645f3c7/LICENSE">Apache 2.0</a>
                         &middot;
-                        <a href="https://github.com/gwf/x2c/blob/314994819f7fad4f4d97c6df9cf622aa7edec575/TRADEMARKS.md">Trademarks</a>
+                        <a href="https://github.com/gwf/x2c/blob/aa2b9b2575297711e5978acc53f87bd7f645f3c7/TRADEMARKS.md">Trademarks</a>
                     </footer>
                 </div>
             </div>

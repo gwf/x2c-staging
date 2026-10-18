@@ -1,6 +1,6 @@
 <!DOCTYPE HTML>
 <html lang="en" class="light sidebar-visible" dir="ltr">
-    <head><meta name="x2c-release-channel" content="staging"><meta name="x2c-candidate" content="candidate-314994819f7fad4f4d97c6df9cf622aa7edec575-38995554323-1">
+    <head><meta name="x2c-release-channel" content="staging"><meta name="x2c-candidate" content="candidate-aa2b9b2575297711e5978acc53f87bd7f645f3c7-39090113132-1">
         <!-- Book generated using mdBook -->
         <meta charset="UTF-8">
         <title>The x2c Book</title>
@@ -39,10 +39,10 @@
             const path_to_root = "";
             const default_light_theme = "light";
             const default_dark_theme = "light";
-            window.path_to_searchindex_js = "searchindex-430ab4ed.js";
+            window.path_to_searchindex_js = "searchindex-f4d06db2.js";
         </script>
         <!-- Start loading toc.js asap -->
-        <script src="toc-f2c88270.js"></script>
+        <script src="toc-00ae7479.js"></script>
         <meta name="robots" content="noindex">
     </head>
     <body>
@@ -3887,9 +3887,21 @@ another disposition raises <code>&lt;bad-arg&gt;</code> and leaves the previous 
 unchanged. It also rejects <code>&lt;log&gt;</code>, <code>&lt;collect&gt;</code>, or <code>&lt;ignore&gt;</code> for every
 non-returning cause, leaving those policies at <code>&lt;abort&gt;</code>. Unknown <code>Error</code> codes
 remain legal and default to <code>&lt;abort&gt;</code>.</p>
-<p>The default <code>Logger</code> registers an observing <code>Error</code> handler. It renders
-policy-selected <code>&lt;abort&gt;</code> and <code>&lt;log&gt;</code> entries as structured log events, then
-declines. <code>Error</code> then transfers control or consumes the errors as required.</p>
+<p>The default <code>Logger</code> registers an observing <code>Error</code> handler. An uncaught
+<code>Error</code>, one whose policy is <code>&lt;abort&gt;</code>, is reported as one line on standard
+error, and the process then aborts:</p>
+<pre><code class="language-text">x2c: uncaught &lt;bad-state&gt; in main (config.x:12): operation load-config, path x.toml
+</code></pre>
+<p>The line names the cause, the raising function and source line, and the
+detail pairs. An <code>Error</code> raised inside the runtime library shows its detail
+without the runtime’s own source location; the <code>operation</code> detail names the
+call. A <code>&lt;log&gt;</code> entry is rendered as a structured <code>&lt;err-report&gt;</code> log event.
+Setting <code>X2C_DEBUG</code> in the environment renders uncaught errors as that event
+too, with the complete detail and location. A program that installs its own
+global <code>Logger</code>, or adds a sink to the default one, receives the structured
+event for both policies, so a configured log never loses information. After
+rendering, the handler declines, and <code>Error</code> transfers control or consumes
+the errors as required.</p>
 <h2 id="finally-and-defer"><a class="header" href="#finally-and-defer"><code>finally</code> and <code>defer</code></a></h2>
 <p>Both forms run cleanup when control leaves their region: on normal exit, on
 <code>return</code>, <code>break</code>, <code>continue</code>, or an outward <code>goto</code>, and when an <code>Error</code>
@@ -4659,7 +4671,9 @@ the existing typedef/protocol ancestry, and keeps ordinary method precedence:</p
 <p>Both Arrays are cleaned up at block exit. Reassignment neither releases the
 first Array early nor transfers its cleanup to the replacement. Returning or
 storing an alias does not cancel cleanup; the caller must choose an
-appropriate lifetime. There is no move or recursive ownership system. Var
+appropriate lifetime. A managed local cannot be managed again: <code>$auto</code> of a
+local that an earlier <code>$auto</code> manages, or of another <code>$auto</code>, is a
+compile-time error, because the value would be released twice. There is no move or recursive ownership system. Var
 itself has no owning cleanup contract, and Pool’s <code>free</code> operation requires a
 separate allocation argument.</p>
 <p>Only an initialized automatic local that is a compound-statement item accepts
@@ -8129,7 +8143,7 @@ private directory:</p>
 <p><code>+</code> joins a <code>Path</code> with a <code>String</code>, another <code>Path</code>, or a C string literal and
 produces a <code>String</code>, as in <code>path + ".o"</code>. Slicing is a <code>String</code> operation.
 Convert a <code>Path</code> to a <code>String</code> to slice it.</p>
-<p><a href="https://github.com/gwf/x2c/blob/314994819f7fad4f4d97c6df9cf622aa7edec575/examples/scripts/line-counts.x"><code>examples/scripts/line-counts.x</code></a>
+<p><a href="https://github.com/gwf/x2c/blob/aa2b9b2575297711e5978acc53f87bd7f645f3c7/examples/scripts/line-counts.x"><code>examples/scripts/line-counts.x</code></a>
 combines commands and paths: it builds a small tree, counts lines with
 parallel jobs, and writes a report.</p>
 <h2 id="environment"><a class="header" href="#environment">Environment</a></h2>
@@ -8220,7 +8234,7 @@ Options:
 </code></pre>
 <p>A script with subcommands reads the first word itself and parses the rest
 with that command’s spec.
-<a href="https://github.com/gwf/x2c/blob/314994819f7fad4f4d97c6df9cf622aa7edec575/etc/x2c-payload.x"><code>etc/x2c-payload.x</code></a>,
+<a href="https://github.com/gwf/x2c/blob/aa2b9b2575297711e5978acc53f87bd7f645f3c7/etc/x2c-payload.x"><code>etc/x2c-payload.x</code></a>,
 which <code>make install</code> runs, works this way.</p>
 <h2 id="checksums"><a class="header" href="#checksums">Checksums</a></h2>
 <p><code>digest.x</code> computes SHA-256 digests, spelled as the lowercase hexadecimal
@@ -8277,7 +8291,7 @@ plain C string literal for the pattern.</p>
 <p>Matching is byte by byte, so <code>.</code> and <code>\w</code> treat a multi-byte character as
 several bytes, and <code>(?i)</code> folds only ASCII letters. There is no lookahead,
 lookbehind, or backreference. The
-<a href="https://github.com/gwf/x2c/blob/314994819f7fad4f4d97c6df9cf622aa7edec575/packages/pcre2/README.md"><code>pcre2</code> package</a>
+<a href="https://github.com/gwf/x2c/blob/aa2b9b2575297711e5978acc53f87bd7f645f3c7/packages/pcre2/README.md"><code>pcre2</code> package</a>
 has all of those and Unicode. Its types are <code>Regexp</code>, <code>RegexpMatch</code>, and
 <code>RegexpCapture</code>, with the same methods. To switch to it, import the package
 with those names, rename the types, and add the options argument to
@@ -8366,7 +8380,7 @@ one run of insertions.</p>
 <pre class="shiki shiki-themes x2c-light x2c-dark x2c-code" style="--shiki-light:#24292e;--shiki-dark:#e9e5df;--shiki-light-bg:#fff;--shiki-dark-bg:#101011" tabindex="0"><code class="language-x2c no-highlight"><span class="line"><span style="--shiki-light:#D73A49;--shiki-dark:#F0ADA1">#include</span><span style="--shiki-light:#032F62;--shiki-dark:#9EDFB8"> "json.x"</span></span></code></pre>
 
 <p>The names in <code>json.x</code> match the converting surface of the
-<a href="https://github.com/gwf/x2c/blob/314994819f7fad4f4d97c6df9cf622aa7edec575/packages/yyjson/README.md"><code>yyjson</code> package</a>.
+<a href="https://github.com/gwf/x2c/blob/aa2b9b2575297711e5978acc53f87bd7f645f3c7/packages/yyjson/README.md"><code>yyjson</code> package</a>.
 To switch a script to the package, replace that line with
 <code>import "yyjson" with Json;</code>.</p>
 <p><code>Json.parse</code> reads JSON text and <code>Json.read_file</code> reads a JSON file. The
@@ -11649,7 +11663,9 @@ Initializers run once in source order. Each successful initializer registers
 its cleanup before the following initializer runs, including within a compound
 declaration. Cleanup releases the acquired value even if the declared binding
 is reassigned. Reassignment does not release that value early, and returning
-or storing an alias does not cancel cleanup. Use an explicit <code>defer</code> when
+or storing an alias does not cancel cleanup. An argument that is itself an
+<code>$auto</code> form, or a plain name of a local that an earlier <code>$auto</code> manages, is
+rejected, since the value would be released twice. Use an explicit <code>defer</code> when
 cleanup must instead read the binding’s value at exit, such as a lazily filled
 Scope slot or a staging buffer cleared after ownership transfer.</p>
 <p>Static, external, or threaded storage, field initializers, for-header
@@ -13105,7 +13121,6 @@ change.</p>
 <tr><td>Compiler fixtures</td><td><code>unittest/compiler-fixtures/</code></td><td>Token dumps, AST/translation outputs, diagnostics, successful and rejected programs</td><td>Expectations cover selected cases, not all derivations</td></tr>
 <tr><td>Editor grammars</td><td><code>etc/vsc-extension/syntaxes/{x2c,x2c-lisp}.tmLanguage.json</code></td><td>TextMate regular expressions and highlighting contexts</td><td>Approximate; cannot decide acceptance or reproduce binding</td></tr>
 <tr><td>Editor grammar tests</td><td><code>etc/vsc-extension/test/current-grammar.test.x</code></td><td>Expected highlighting scopes</td><td>Contains syntax-shaped samples that are not accepted programs; not an acceptance corpus</td></tr>
-<tr><td>Historical designs</td><td><code>plans/archive/indentation-syntax.md</code>, <code>plans/archive/macro-function-style-syntax.md</code></td><td>Design rationale and earlier syntax decisions</td><td>Historical; current implementation and book take precedence</td></tr>
 <tr><td>Bootstrap copies</td><td><code>bootstrap/lib/scan.{c,h}</code>, <code>bootstrap/lib/tokenizer.{c,h}</code></td><td>Generated C implementation of lexical rules</td><td>Derived copies, not independent owners</td></tr>
 <tr><td>Executable examples</td><td><code>examples/manifest.txt</code> and its programs</td><td>Working uses of the language with recorded checks</td><td>Demonstrations, not exhaustive syntax rules</td></tr>
 </tbody>
@@ -15501,6 +15516,117 @@ files, manifests, and preflight state return <code>2</code>. After a successful 
 the program’s status is returned. Diagnostics and action output use standard
 error; requested dumps and program output use standard output.</p>
 <div style="break-before: page; page-break-before: always;"></div>
+<h1 id="release-notes"><a class="header" href="#release-notes">Release Notes</a></h1>
+<p>Each section summarizes what changed for a user of the compiler, runtime,
+commands, and packages since the previous release. The
+<a href="#install-a-native-compiler">installation chapter</a> carries the upgrade steps.</p>
+<h2 id="0151-2026-10-17"><a class="header" href="#0151-2026-10-17">0.15.1 (2026-10-17)</a></h2>
+<p>A patch release of 0.15.0. Existing installations upgrade in place; no
+packages need rebuilding.</p>
+<ul>
+<li>An uncaught error prints one line naming the error, the raising function
+and location, and its details, then aborts with the same status. The
+full logger event remains available with <code>X2C_DEBUG</code> or a <code>&lt;log&gt;</code> policy.
+See <a href="#handlers-and-policy">Handlers and policy</a>.</li>
+<li><code>$auto</code> on a local that is already managed is a compile-time error
+instead of a crash at scope exit.</li>
+<li>The REPL continues a list literal across lines, and code it loads
+boxes classes, expands its own meta functions, and calls protocol
+defaults as an ordinary build does.</li>
+<li>The book gains this release notes page, and the repository gains a
+security policy, a pull request template, and a bug report template.</li>
+</ul>
+<h2 id="0150-2026-10-17"><a class="header" href="#0150-2026-10-17">0.15.0 (2026-10-17)</a></h2>
+<p>Releases ship for macOS arm64 and x86_64 and Linux aarch64 and x86_64, with
+the book as a PDF beside the archives. Read
+<a href="#upgrading-from-0140">Upgrading from 0.14.0</a>
+before replacing an existing prefix.</p>
+<h3 id="language"><a class="header" href="#language">Language</a></h3>
+<ul>
+<li><code>meta</code> functions run ordinary <span class="x2c-wordmark">x2c</span> during translation. A macro body calls
+one with <code>$helper(...)</code>, passes constants or captured syntax, and inserts
+the code it returns. <code>meta.x</code> supplies the <code>Code</code> and <code>Type</code> operations
+for inspecting and building code. See
+<a href="#meta-functions">Meta Functions</a> and
+<a href="#generating-code-1">Generating Code</a>.</li>
+<li>Macro values: a macro can select, apply, and collect cases as values,
+and typed quotations with expression holes build code with its type.</li>
+<li><code>Stmt</code> macros accept an expression body, and a macro call may begin with
+a dotted name.</li>
+<li>Module blocks split one translation unit across a directory. The new
+<code>module</code> storage class is visible in every member file; <code>static</code> stays
+private to its file.</li>
+<li>Indentation syntax: a <code>.xp</code> file, or <code>#pragma indent</code> in a <code>.x</code> file,
+groups statements by indentation without braces or semicolons. See
+<a href="#indentation-syntax">Indentation Syntax</a>.</li>
+<li><code>raise</code> is a statement head, <code>catch</code> accepts patterns as codes, and a
+variable may supply a <code>raise</code> code.</li>
+<li>Optional reference parameters, GNU statement expressions, <code>threaded</code>
+thread-local storage, and the contextual <code>in</code> membership operator.</li>
+<li><code>class</code> types gain <code>alloc</code> and a refusing <code>init</code>, and <code>init</code> takes
+constructor arguments.</li>
+<li>Twelve language features moved out of the compiler kernel into
+components under <code>src/components/</code>; their behavior is unchanged.</li>
+</ul>
+<h3 id="library"><a class="header" href="#library">Library</a></h3>
+<ul>
+<li><code>lib/regex.x</code> adds regular expressions over the bytes of a String, and
+every <code>x2c script</code> can use them.</li>
+<li><code>lib/diff.x</code> computes line differences between two texts.</li>
+<li>The runtime’s canonical pool operations moved from <code>List</code> to <code>Pool</code>.</li>
+<li><code>Var.truth</code> replaces <code>Var.truthy</code>; <code>List.reduce</code>, <code>Array.reduce</code>, and
+<code>Iter.reduce</code> are removed in favor of <code>Iter.foldl</code>.</li>
+<li>Compile-time Lisp gains tail calls and a bounded call depth.</li>
+</ul>
+<h3 id="commands-and-packages"><a class="header" href="#commands-and-packages">Commands and packages</a></h3>
+<ul>
+<li><code>x2c new</code> creates a starter project that builds and runs.</li>
+<li><code>x2c repl</code> is a shipped command with line editing, grammar-aware and
+semantic completion, and named inspection of session values. It
+evaluates a supported subset of the language. See
+<a href="#experimental-repl">Experimental REPL</a>.</li>
+<li>Package management, the editor adapter, and project creation are
+external commands under <code>libexec/x2c/</code>. <code>x2c lint</code> and <code>x2c graph</code> are
+shipped as experimental.</li>
+<li>Packages record native arguments in <code>&lt;name&gt;.native.rsp</code> instead of
+<code>&lt;name&gt;.link</code>. Rebuild source packages and replace native bundles.</li>
+<li>Automatic differentiation moved from the runtime to the optional
+<code>autodiff</code> package; <code>import "autodiff"</code> supplies its types and macros.</li>
+<li>The SQLite package renames <code>Statement</code> to <code>Prepared</code> and
+<code>Var.statement</code> to <code>Var.prepared</code>.</li>
+<li>Every package manages its handles with <code>$auto</code>, so connections, loops,
+images, documents, and terminals release at scope exit.</li>
+<li>The C* verification package is removed.</li>
+</ul>
+<h3 id="documentation"><a class="header" href="#documentation">Documentation</a></h3>
+<ul>
+<li>The book adds the <a href="#what-x2c-adds-to-c-syntax"><span class="x2c-wordmark">x2c</span> Syntax Map</a> for C
+readers, the <a href="#syntax-specifications">syntax specifications</a> with a source
+grammar and lexical rules, <a href="#the-region-model">The Region Model</a>, and
+chapters for meta functions, generating code, the REPL, and indentation.</li>
+<li>The language reference was corrected against the implementation and
+its repeated rules removed.</li>
+<li>The public site at <a href="https://x2c-lang.dev/"><span class="x2c-wordmark">x2c</span>-lang.dev</a> carries the
+book under <code>/docs/</code>.</li>
+</ul>
+<h3 id="fixed-defects"><a class="header" href="#fixed-defects">Fixed defects</a></h3>
+<ul>
+<li>A <code>return</code> inside a <code>defer</code> or <code>finally</code> body leaves its exception frame
+before transferring, so a later <code>raise</code> in the caller is caught.</li>
+<li>Macro bindings retained across package builds, nested empty unit
+macros, quotation members and splices, and template members in
+anonymous aggregates expand correctly.</li>
+<li>Parameter redeclaration inside callable bodies and the author-binding
+<code>extern</code> regression are fixed.</li>
+<li>Constructed raw string segments, nested string literals inside list
+literals, and negative percent literals in every radix are read as
+written.</li>
+<li>Pointer arithmetic over pointer typedefs and casts to template typedefs
+type correctly.</li>
+<li>Project meta payloads, include handling, the failure cache, and host
+flags are repaired for package builds.</li>
+</ul>
+<div style="break-before: page; page-break-before: always;"></div>
 <h1 id="standard-library"><a class="header" href="#standard-library">Standard Library</a></h1>
 <p>The <a href="#standard-library-by-task">overview</a> introduces library operations by task. The
 <a href="#module-reference">module reference</a> documents their signatures, behavior,
@@ -17364,205 +17490,205 @@ Embedded NUL is rejected because <code>Buffer</code> materializes canonical <cod
 <h4 id="x2c_initialize"><a class="header" href="#x2c_initialize">x2c_initialize</a></h4>
 <p><code>void x2c_initialize(void)</code></p>
 <p>Initializes the <span class="x2c-wordmark">x2c</span> runtime once for the current process.</p>
-<p>Source: <code>lib/common.x:844</code></p>
+<p>Source: <code>lib/common.x:845</code></p>
 <h4 id="x2c_initialize_protocols"><a class="header" href="#x2c_initialize_protocols">x2c_initialize_protocols</a></h4>
 <p><code>void x2c_initialize_protocols(void)</code></p>
 <p>Runs compiler-generated runtime protocol registration.</p>
-<p>Source: <code>lib/common.x:840</code></p>
+<p>Source: <code>lib/common.x:841</code></p>
 <h4 id="x2c_normalize_index"><a class="header" href="#x2c_normalize_index">x2c_normalize_index</a></h4>
 <p><code>int x2c_normalize_index(int index, int length)</code></p>
 <p>Normalizes one element index against <code>length</code>.</p>
-<p>Source: <code>lib/common.x:870</code></p>
+<p>Source: <code>lib/common.x:871</code></p>
 <h4 id="x2c_normalize_slice"><a class="header" href="#x2c_normalize_slice">x2c_normalize_slice</a></h4>
 <p><code>int x2c_normalize_slice(int *start, int *stop, int step, int length)</code></p>
 <p>Normalizes slice bounds and returns the resulting element count.</p>
-<p>Source: <code>lib/common.x:895</code></p>
+<p>Source: <code>lib/common.x:896</code></p>
 <h4 id="x2c_slice_bound"><a class="header" href="#x2c_slice_bound">x2c_slice_bound</a></h4>
 <p><code>int x2c_slice_bound(int bound)</code></p>
 <p>Returns an explicit slice <code>bound</code> that <code>x2c_normalize_slice</code> cannot
 read as omitted. INT_MIN becomes INT_MIN + 1, which every collection
 shorter than INT_MAX clamps the same way.</p>
-<p>Source: <code>lib/common.x:881</code></p>
+<p>Source: <code>lib/common.x:882</code></p>
 <h3 id="array-4"><a class="header" href="#array-4"><code>Array</code></a></h3>
 <p><a id="Array.var"></a></p>
 <h4 id="arrayvar"><a class="header" href="#arrayvar">Array.var</a></h4>
 <p><code>inline Var Array.var(Array x)</code></p>
 <p>Boxes an <code>Array</code> value as <code>Var</code>.</p>
-<p>Source: <code>lib/common.x:550</code></p>
+<p>Source: <code>lib/common.x:551</code></p>
 <h3 id="block-3"><a class="header" href="#block-3"><code>Block</code></a></h3>
 <p><a id="Block.var"></a></p>
 <h4 id="blockvar"><a class="header" href="#blockvar">Block.var</a></h4>
 <p><code>inline Var Block.var(Block x)</code></p>
 <p>Boxes a <code>Block</code> value as <code>Var</code>.</p>
-<p>Source: <code>lib/common.x:552</code></p>
+<p>Source: <code>lib/common.x:553</code></p>
 <h3 id="buffer-5"><a class="header" href="#buffer-5"><code>Buffer</code></a></h3>
 <p><a id="Buffer.var"></a></p>
 <h4 id="buffervar"><a class="header" href="#buffervar">Buffer.var</a></h4>
 <p><code>inline Var Buffer.var(Buffer x)</code></p>
 <p>Boxes a <code>Buffer</code> value as <code>Var</code>.</p>
-<p>Source: <code>lib/common.x:554</code></p>
+<p>Source: <code>lib/common.x:555</code></p>
 <h3 id="bytes-1"><a class="header" href="#bytes-1"><code>Bytes</code></a></h3>
 <p><a id="Bytes.var"></a></p>
 <h4 id="bytesvar"><a class="header" href="#bytesvar">Bytes.var</a></h4>
 <p><code>inline Var Bytes.var(Bytes x)</code></p>
 <p>Boxes a <code>Bytes</code> value as <code>Var</code>.</p>
-<p>Source: <code>lib/common.x:556</code></p>
+<p>Source: <code>lib/common.x:557</code></p>
 <h3 id="file"><a class="header" href="#file"><code>File</code></a></h3>
 <p><a id="File.var"></a></p>
 <h4 id="filevar"><a class="header" href="#filevar">File.var</a></h4>
 <p><code>inline Var File.var(File x)</code></p>
 <p>Boxes a <code>File</code> value as <code>Var</code>.</p>
-<p>Source: <code>lib/common.x:561</code></p>
+<p>Source: <code>lib/common.x:562</code></p>
 <h3 id="iter-1"><a class="header" href="#iter-1"><code>Iter</code></a></h3>
 <p><a id="Iter.truth"></a></p>
 <h4 id="itertruth"><a class="header" href="#itertruth">Iter.truth</a></h4>
 <p><code>inline int Iter.truth(Iter iter)</code></p>
 <p>Returns nonzero when <code>iter</code> is not null.</p>
-<p>Source: <code>lib/common.x:424</code></p>
+<p>Source: <code>lib/common.x:425</code></p>
 <p><a id="Iter.var"></a></p>
 <h4 id="itervar"><a class="header" href="#itervar">Iter.var</a></h4>
 <p><code>inline Var Iter.var(Iter x)</code></p>
 <p>Boxes an <code>Iter</code> value as <code>Var</code>.</p>
-<p>Source: <code>lib/common.x:571</code></p>
+<p>Source: <code>lib/common.x:572</code></p>
 <h3 id="list"><a class="header" href="#list"><code>List</code></a></h3>
 <p><a id="List.truth"></a></p>
 <h4 id="listtruth"><a class="header" href="#listtruth">List.truth</a></h4>
 <p><code>inline int List.truth(List list)</code></p>
 <p>Returns nonzero when <code>list</code> is not <code>nil</code>, the null empty List.</p>
-<p>Source: <code>lib/common.x:427</code></p>
+<p>Source: <code>lib/common.x:428</code></p>
 <p><a id="List.var"></a></p>
 <h4 id="listvar"><a class="header" href="#listvar">List.var</a></h4>
 <p><code>inline Var List.var(List x)</code></p>
 <p>Boxes a <code>List</code> value as <code>Var</code>.</p>
-<p>Source: <code>lib/common.x:558</code></p>
+<p>Source: <code>lib/common.x:559</code></p>
 <h3 id="map"><a class="header" href="#map"><code>Map</code></a></h3>
 <p><a id="Map.var"></a></p>
 <h4 id="mapvar"><a class="header" href="#mapvar">Map.var</a></h4>
 <p><code>inline Var Map.var(Map x)</code></p>
 <p>Boxes a <code>Map</code> value as <code>Var</code>.</p>
-<p>Source: <code>lib/common.x:563</code></p>
+<p>Source: <code>lib/common.x:564</code></p>
 <h3 id="string"><a class="header" href="#string"><code>String</code></a></h3>
 <p><a id="String.truth"></a></p>
 <h4 id="stringtruth"><a class="header" href="#stringtruth">String.truth</a></h4>
 <p><code>inline int String.truth(String string)</code></p>
 <p>Returns nonzero when <code>string</code> contains at least one byte.
 The canonical empty String is null, with no allocated storage.</p>
-<p>Source: <code>lib/common.x:431</code></p>
+<p>Source: <code>lib/common.x:432</code></p>
 <p><a id="String.var"></a></p>
 <h4 id="stringvar"><a class="header" href="#stringvar">String.var</a></h4>
 <p><code>inline Var String.var(String x)</code></p>
 <p>Boxes a <code>String</code> value as <code>Var</code>.</p>
-<p>Source: <code>lib/common.x:565</code></p>
+<p>Source: <code>lib/common.x:566</code></p>
 <h3 id="symbol"><a class="header" href="#symbol"><code>Symbol</code></a></h3>
 <p><a id="Symbol.var"></a></p>
 <h4 id="symbolvar"><a class="header" href="#symbolvar">Symbol.var</a></h4>
 <p><code>inline Var Symbol.var(Symbol x)</code></p>
 <p>Boxes a <code>Symbol</code> value as <code>Var</code>.</p>
-<p>Source: <code>lib/common.x:568</code></p>
+<p>Source: <code>lib/common.x:569</code></p>
 <h3 id="var-1"><a class="header" href="#var-1"><code>Var</code></a></h3>
 <p><a id="Var.array_payload"></a></p>
 <h4 id="vararray_payload"><a class="header" href="#vararray_payload">Var.array_payload</a></h4>
 <p><code>Array Var.array_payload(Var value)</code></p>
 <p>Extracts the <code>Array</code> payload of <code>value</code>, or NULL for another tag.</p>
-<p>Source: <code>lib/common.x:664</code></p>
+<p>Source: <code>lib/common.x:665</code></p>
 <p><a id="Var.block_payload"></a></p>
 <h4 id="varblock_payload"><a class="header" href="#varblock_payload">Var.block_payload</a></h4>
 <p><code>Block Var.block_payload(Var value)</code></p>
 <p>Extracts the <code>Block</code> payload of <code>value</code>, or NULL for another tag.</p>
-<p>Source: <code>lib/common.x:665</code></p>
+<p>Source: <code>lib/common.x:666</code></p>
 <p><a id="Var.box_f32"></a></p>
 <h4 id="varbox_f32"><a class="header" href="#varbox_f32">Var.box_f32</a></h4>
 <p><code>inline Var Var.box_f32(float value)</code></p>
 <p>Boxes a native <code>float</code> as an immediate <code>&lt;f32&gt;</code> <code>Var</code>.</p>
-<p>Source: <code>lib/common.x:532</code></p>
+<p>Source: <code>lib/common.x:533</code></p>
 <p><a id="Var.box_f64"></a></p>
 <h4 id="varbox_f64"><a class="header" href="#varbox_f64">Var.box_f64</a></h4>
 <p><code>inline Var Var.box_f64(double value)</code></p>
 <p>Boxes a native <code>double</code> as an immediate <code>&lt;f64&gt;</code> <code>Var</code>.</p>
-<p>Source: <code>lib/common.x:539</code></p>
+<p>Source: <code>lib/common.x:540</code></p>
 <p><a id="Var.box_i16"></a></p>
 <h4 id="varbox_i16"><a class="header" href="#varbox_i16">Var.box_i16</a></h4>
 <p><code>Var Var.box_i16(short value)</code></p>
 <p>Boxes a native <code>short</code> as an immediate <code>&lt;i16&gt;</code> <code>Var</code>.</p>
-<p>Source: <code>lib/common.x:523</code></p>
+<p>Source: <code>lib/common.x:524</code></p>
 <p><a id="Var.box_i32_bits"></a></p>
 <h4 id="varbox_i32_bits"><a class="header" href="#varbox_i32_bits">Var.box_i32_bits</a></h4>
 <p><code>Var Var.box_i32_bits(unsigned value)</code></p>
 <p>Boxes an unsigned 32-bit pattern as an immediate <code>&lt;i32&gt;</code> <code>Var</code>.</p>
-<p>Source: <code>lib/common.x:527</code></p>
+<p>Source: <code>lib/common.x:528</code></p>
 <p><a id="Var.box_i8"></a></p>
 <h4 id="varbox_i8"><a class="header" href="#varbox_i8">Var.box_i8</a></h4>
 <p><code>Var Var.box_i8(char value)</code></p>
 <p>Boxes a native <code>char</code> as an immediate <code>&lt;i8&gt;</code> <code>Var</code>.</p>
-<p>Source: <code>lib/common.x:519</code></p>
+<p>Source: <code>lib/common.x:520</code></p>
 <p><a id="Var.box_u16"></a></p>
 <h4 id="varbox_u16"><a class="header" href="#varbox_u16">Var.box_u16</a></h4>
 <p><code>Var Var.box_u16(ushort value)</code></p>
 <p>Boxes a native <code>ushort</code> as an immediate <code>&lt;u16&gt;</code> <code>Var</code>.</p>
-<p>Source: <code>lib/common.x:525</code></p>
+<p>Source: <code>lib/common.x:526</code></p>
 <p><a id="Var.box_u32"></a></p>
 <h4 id="varbox_u32"><a class="header" href="#varbox_u32">Var.box_u32</a></h4>
 <p><code>Var Var.box_u32(unsigned value)</code></p>
 <p>Boxes a native <code>uint</code> as an immediate <code>&lt;u32&gt;</code> <code>Var</code>.</p>
-<p>Source: <code>lib/common.x:529</code></p>
+<p>Source: <code>lib/common.x:530</code></p>
 <p><a id="Var.box_u8"></a></p>
 <h4 id="varbox_u8"><a class="header" href="#varbox_u8">Var.box_u8</a></h4>
 <p><code>Var Var.box_u8(uchar value)</code></p>
 <p>Boxes a native <code>uchar</code> as an immediate <code>&lt;u8&gt;</code> <code>Var</code>.</p>
-<p>Source: <code>lib/common.x:521</code></p>
+<p>Source: <code>lib/common.x:522</code></p>
 <p><a id="Var.buffer_payload"></a></p>
 <h4 id="varbuffer_payload"><a class="header" href="#varbuffer_payload">Var.buffer_payload</a></h4>
 <p><code>Buffer Var.buffer_payload(Var value)</code></p>
 <p>Extracts the <code>Buffer</code> payload of <code>value</code>, or NULL for another tag.</p>
-<p>Source: <code>lib/common.x:666</code></p>
+<p>Source: <code>lib/common.x:667</code></p>
 <p><a id="Var.bytes_payload"></a></p>
 <h4 id="varbytes_payload"><a class="header" href="#varbytes_payload">Var.bytes_payload</a></h4>
 <p><code>Bytes Var.bytes_payload(Var value)</code></p>
 <p>Extracts the <code>Bytes</code> payload of <code>value</code>, or NULL for another tag.</p>
-<p>Source: <code>lib/common.x:667</code></p>
+<p>Source: <code>lib/common.x:668</code></p>
 <p><a id="Var.char"></a></p>
 <h4 id="varchar"><a class="header" href="#varchar">Var.char</a></h4>
 <p><code>meta native char Var.char(Var x)</code></p>
 <p>Returns <code>x</code> as a native <code>char</code> under the <code>Var.convert</code> rules.</p>
 <p><strong>Raises:</strong> <code>Var.convert</code>’s causes when the source is nonnumeric, <code>void</code>, out
 of floating range, or invalidly encoded.</p>
-<p>Source: <code>lib/common.x:694</code></p>
+<p>Source: <code>lib/common.x:695</code></p>
 <p><a id="Var.decode_f32"></a></p>
 <h4 id="vardecode_f32"><a class="header" href="#vardecode_f32">Var.decode_f32</a></h4>
 <p><code>inline float Var.decode_f32(Var value)</code></p>
 <p>Decodes an immediate <code>&lt;f32&gt;</code> <code>Var</code>.</p>
-<p>Source: <code>lib/common.x:491</code></p>
+<p>Source: <code>lib/common.x:492</code></p>
 <p><a id="Var.decode_f64"></a></p>
 <h4 id="vardecode_f64"><a class="header" href="#vardecode_f64">Var.decode_f64</a></h4>
 <p><code>inline double Var.decode_f64(Var value)</code></p>
 <p>Decodes an immediate <code>&lt;f64&gt;</code> <code>Var</code>.</p>
-<p>Source: <code>lib/common.x:499</code></p>
+<p>Source: <code>lib/common.x:500</code></p>
 <p><a id="Var.double"></a></p>
 <h4 id="vardouble"><a class="header" href="#vardouble">Var.double</a></h4>
 <p><code>meta native double Var.double(Var x)</code></p>
 <p>Returns <code>x</code> as a native <code>double</code> under the <code>Var.convert</code> rules.</p>
 <p><strong>Raises:</strong> <code>Var.convert</code>’s causes when the source is nonnumeric, <code>void</code>, or
 invalidly encoded.</p>
-<p>Source: <code>lib/common.x:823</code></p>
+<p>Source: <code>lib/common.x:824</code></p>
 <p><a id="Var.file_payload"></a></p>
 <h4 id="varfile_payload"><a class="header" href="#varfile_payload">Var.file_payload</a></h4>
 <p><code>File Var.file_payload(Var value)</code></p>
 <p>Extracts the <code>File</code> payload of <code>value</code>, or NULL for another tag.</p>
-<p>Source: <code>lib/common.x:668</code></p>
+<p>Source: <code>lib/common.x:669</code></p>
 <p><a id="Var.float"></a></p>
 <h4 id="varfloat"><a class="header" href="#varfloat">Var.float</a></h4>
 <p><code>meta native float Var.float(Var x)</code></p>
 <p>Returns <code>x</code> as a native <code>float</code> under the <code>Var.convert</code> rules.</p>
 <p><strong>Raises:</strong> <code>Var.convert</code>’s causes when the source is nonnumeric, <code>void</code>, or
 invalidly encoded.</p>
-<p>Source: <code>lib/common.x:814</code></p>
+<p>Source: <code>lib/common.x:815</code></p>
 <p><a id="Var.int"></a></p>
 <h4 id="varint"><a class="header" href="#varint">Var.int</a></h4>
 <p><code>int Var.int(Var x)</code></p>
 <p>Returns <code>x</code> as a native <code>int</code> under the <code>Var.convert</code> rules.</p>
 <p><strong>Raises:</strong> <code>Var.convert</code>’s causes when the source is nonnumeric, <code>void</code>, out
 of floating range, or invalidly encoded.</p>
-<p>Source: <code>lib/common.x:730</code></p>
+<p>Source: <code>lib/common.x:731</code></p>
 <p><a id="Var.is_row"></a></p>
 <h4 id="varis_row"><a class="header" href="#varis_row">Var.is_row</a></h4>
 <p><code>inline int Var.is_row( Var value, unsigned top, unsigned long mask, unsigned long bottom)</code></p>
@@ -17572,92 +17698,92 @@ group, so a caller that already knows the row tests it with two
 compares instead of a decode. <code>var-tags.x</code> projects the rows that
 qualify; a row whose decoded form carries a validity clause is not one
 of them and must ask <code>Var.is</code>.</p>
-<p>Source: <code>lib/common.x:623</code></p>
+<p>Source: <code>lib/common.x:624</code></p>
 <p><a id="Var.is_wide"></a></p>
 <h4 id="varis_wide"><a class="header" href="#varis_wide">Var.is_wide</a></h4>
 <p><code>inline int Var.is_wide(Var v)</code></p>
 <p>Reports whether <code>v</code> uses a scope-owned wide numeric box.</p>
-<p>Source: <code>lib/common.x:482</code></p>
+<p>Source: <code>lib/common.x:483</code></p>
 <p><a id="Var.iter_payload"></a></p>
 <h4 id="variter_payload"><a class="header" href="#variter_payload">Var.iter_payload</a></h4>
 <p><code>Iter Var.iter_payload(Var value)</code></p>
 <p>Extracts the <code>Iter</code> payload of <code>value</code>, or NULL for another tag.</p>
-<p>Source: <code>lib/common.x:669</code></p>
+<p>Source: <code>lib/common.x:670</code></p>
 <p><a id="Var.list_payload"></a></p>
 <h4 id="varlist_payload"><a class="header" href="#varlist_payload">Var.list_payload</a></h4>
 <p><code>List Var.list_payload(Var value)</code></p>
 <p>Extracts the <code>List</code> payload of <code>value</code>, or NULL for another tag.</p>
-<p>Source: <code>lib/common.x:670</code></p>
+<p>Source: <code>lib/common.x:671</code></p>
 <p><a id="Var.long"></a></p>
 <h4 id="varlong"><a class="header" href="#varlong">Var.long</a></h4>
 <p><code>meta native long Var.long(Var x)</code></p>
 <p>Returns <code>x</code> as a native <code>long</code> under the <code>Var.convert</code> rules.</p>
 <p><strong>Raises:</strong> <code>Var.convert</code>’s causes when the source is nonnumeric, <code>void</code>, out
 of floating range, or invalidly encoded.</p>
-<p>Source: <code>lib/common.x:757</code></p>
+<p>Source: <code>lib/common.x:758</code></p>
 <p><a id="Var.long_double"></a></p>
 <h4 id="varlong_double"><a class="header" href="#varlong_double">Var.long_double</a></h4>
 <p><code>meta native long double Var.long_double(Var x)</code></p>
 <p>Returns <code>x</code> as a native <code>long double</code> under the <code>Var.convert</code> rules.</p>
 <p><strong>Raises:</strong> <code>Var.convert</code>’s causes when the source is nonnumeric, <code>void</code>, or
 invalidly encoded.</p>
-<p>Source: <code>lib/common.x:804</code></p>
+<p>Source: <code>lib/common.x:805</code></p>
 <p><a id="Var.long_long"></a></p>
 <h4 id="varlong_long"><a class="header" href="#varlong_long">Var.long_long</a></h4>
 <p><code>meta native long long Var.long_long(Var x)</code></p>
 <p>Returns <code>x</code> as a native <code>long long</code> under the <code>Var.convert</code> rules.</p>
 <p><strong>Raises:</strong> <code>Var.convert</code>’s causes when the source is nonnumeric, <code>void</code>, out
 of floating range, or invalidly encoded.</p>
-<p>Source: <code>lib/common.x:780</code></p>
+<p>Source: <code>lib/common.x:781</code></p>
 <p><a id="Var.map_payload"></a></p>
 <h4 id="varmap_payload"><a class="header" href="#varmap_payload">Var.map_payload</a></h4>
 <p><code>Map Var.map_payload(Var value)</code></p>
 <p>Extracts the <code>Map</code> payload of <code>value</code>, or NULL for another tag.</p>
-<p>Source: <code>lib/common.x:671</code></p>
+<p>Source: <code>lib/common.x:672</code></p>
 <p><a id="Var.payload32"></a></p>
 <h4 id="varpayload32"><a class="header" href="#varpayload32">Var.payload32</a></h4>
 <p><code>inline unsigned Var.payload32(Var value)</code></p>
 <p>Returns the low 32 payload bits of an immediate <code>Var</code>.</p>
-<p>Source: <code>lib/common.x:488</code></p>
+<p>Source: <code>lib/common.x:489</code></p>
 <p><a id="Var.short"></a></p>
 <h4 id="varshort"><a class="header" href="#varshort">Var.short</a></h4>
 <p><code>meta native short Var.short(Var x)</code></p>
 <p>Returns <code>x</code> as a native <code>short</code> under the <code>Var.convert</code> rules.</p>
 <p><strong>Raises:</strong> <code>Var.convert</code>’s causes when the source is nonnumeric, <code>void</code>, out
 of floating range, or invalidly encoded.</p>
-<p>Source: <code>lib/common.x:712</code></p>
+<p>Source: <code>lib/common.x:713</code></p>
 <p><a id="Var.string_payload"></a></p>
 <h4 id="varstring_payload"><a class="header" href="#varstring_payload">Var.string_payload</a></h4>
 <p><code>String Var.string_payload(Var value)</code></p>
 <p>Extracts the <code>String</code> payload of <code>value</code>, or NULL for another tag.</p>
-<p>Source: <code>lib/common.x:663</code></p>
+<p>Source: <code>lib/common.x:664</code></p>
 <p><a id="Var.symbol"></a></p>
 <h4 id="varsymbol"><a class="header" href="#varsymbol">Var.symbol</a></h4>
 <p><code>inline Symbol Var.symbol(Var x)</code></p>
 <p>Extracts the <code>symbol</code> payload after the caller establishes the matching
 <code>Var</code> kind.</p>
-<p>Source: <code>lib/common.x:680</code></p>
+<p>Source: <code>lib/common.x:681</code></p>
 <p><a id="Var.uchar"></a></p>
 <h4 id="varuchar"><a class="header" href="#varuchar">Var.uchar</a></h4>
 <p><code>meta native uchar Var.uchar(Var x)</code></p>
 <p>Returns <code>x</code> as a native <code>uchar</code> under the <code>Var.convert</code> rules.</p>
 <p><strong>Raises:</strong> <code>Var.convert</code>’s causes when the source is nonnumeric, <code>void</code>, out
 of floating range, or invalidly encoded.</p>
-<p>Source: <code>lib/common.x:703</code></p>
+<p>Source: <code>lib/common.x:704</code></p>
 <p><a id="Var.uint"></a></p>
 <h4 id="varuint"><a class="header" href="#varuint">Var.uint</a></h4>
 <p><code>meta native uint Var.uint(Var x)</code></p>
 <p>Returns <code>x</code> as a native <code>uint</code> under the <code>Var.convert</code> rules.</p>
 <p><strong>Raises:</strong> <code>Var.convert</code>’s causes when the source is nonnumeric, <code>void</code>, out
 of floating range, or invalidly encoded.</p>
-<p>Source: <code>lib/common.x:739</code></p>
+<p>Source: <code>lib/common.x:740</code></p>
 <p><a id="Var.ulong"></a></p>
 <h4 id="varulong"><a class="header" href="#varulong">Var.ulong</a></h4>
 <p><code>meta native ulong Var.ulong(Var x)</code></p>
 <p>Returns <code>x</code> as a native <code>ulong</code> under the <code>Var.convert</code> rules.</p>
 <p><strong>Raises:</strong> <code>Var.convert</code>’s causes when the source is nonnumeric, <code>void</code>, out
 of floating range, or invalidly encoded.</p>
-<p>Source: <code>lib/common.x:769</code></p>
+<p>Source: <code>lib/common.x:770</code></p>
 <p><a id="Var.ulong_long"></a></p>
 <h4 id="varulong_long"><a class="header" href="#varulong_long">Var.ulong_long</a></h4>
 <p><code>meta native unsigned long long Var.ulong_long(Var x)</code></p>
@@ -17665,187 +17791,187 @@ of floating range, or invalidly encoded.</p>
 rules.</p>
 <p><strong>Raises:</strong> <code>Var.convert</code>’s causes when the source is nonnumeric, <code>void</code>, out
 of floating range, or invalidly encoded.</p>
-<p>Source: <code>lib/common.x:792</code></p>
+<p>Source: <code>lib/common.x:793</code></p>
 <p><a id="Var.unsigned"></a></p>
 <h4 id="varunsigned"><a class="header" href="#varunsigned">Var.unsigned</a></h4>
 <p><code>meta native unsigned Var.unsigned(Var x)</code></p>
 <p>Returns <code>x</code> as a native <code>unsigned</code> under the <code>Var.convert</code> rules.</p>
 <p><strong>Raises:</strong> <code>Var.convert</code>’s causes when the source is nonnumeric, <code>void</code>, out
 of floating range, or invalidly encoded.</p>
-<p>Source: <code>lib/common.x:748</code></p>
+<p>Source: <code>lib/common.x:749</code></p>
 <p><a id="Var.ushort"></a></p>
 <h4 id="varushort"><a class="header" href="#varushort">Var.ushort</a></h4>
 <p><code>meta native ushort Var.ushort(Var x)</code></p>
 <p>Returns <code>x</code> as a native <code>ushort</code> under the <code>Var.convert</code> rules.</p>
 <p><strong>Raises:</strong> <code>Var.convert</code>’s causes when the source is nonnumeric, <code>void</code>, out
 of floating range, or invalidly encoded.</p>
-<p>Source: <code>lib/common.x:721</code></p>
+<p>Source: <code>lib/common.x:722</code></p>
 <h3 id="char"><a class="header" href="#char"><code>char</code></a></h3>
 <p><a id="char.repr"></a></p>
 <h4 id="charrepr"><a class="header" href="#charrepr">char.repr</a></h4>
 <p><code>String char.repr(char x)</code></p>
 <p>Returns the readable representation of <code>char</code>.</p>
-<p>Source: <code>lib/common.x:592</code></p>
+<p>Source: <code>lib/common.x:593</code></p>
 <p><a id="char.str"></a></p>
 <h4 id="charstr"><a class="header" href="#charstr">char.str</a></h4>
 <p><code>String char.str(char x)</code></p>
 <p>Returns the display <code>String</code> of <code>char</code>.</p>
-<p>Source: <code>lib/common.x:592</code></p>
+<p>Source: <code>lib/common.x:593</code></p>
 <p><a id="char.var"></a></p>
 <h4 id="charvar"><a class="header" href="#charvar">char.var</a></h4>
 <p><code>Var char.var(char x)</code></p>
 <p>Boxes a native <code>char</code> value as <code>Var</code>.</p>
-<p>Source: <code>lib/common.x:592</code></p>
+<p>Source: <code>lib/common.x:593</code></p>
 <h3 id="double"><a class="header" href="#double"><code>double</code></a></h3>
 <p><a id="double.repr"></a></p>
 <h4 id="doublerepr"><a class="header" href="#doublerepr">double.repr</a></h4>
 <p><code>String double.repr(double x)</code></p>
 <p>Returns the readable representation of <code>double</code>.</p>
-<p>Source: <code>lib/common.x:601</code></p>
+<p>Source: <code>lib/common.x:602</code></p>
 <p><a id="double.str"></a></p>
 <h4 id="doublestr"><a class="header" href="#doublestr">double.str</a></h4>
 <p><code>String double.str(double x)</code></p>
 <p>Returns the display <code>String</code> of <code>double</code>.</p>
-<p>Source: <code>lib/common.x:601</code></p>
+<p>Source: <code>lib/common.x:602</code></p>
 <p><a id="double.var"></a></p>
 <h4 id="doublevar"><a class="header" href="#doublevar">double.var</a></h4>
 <p><code>Var double.var(double x)</code></p>
 <p>Boxes a native <code>double</code> value as <code>Var</code>.</p>
-<p>Source: <code>lib/common.x:601</code></p>
+<p>Source: <code>lib/common.x:602</code></p>
 <h3 id="float"><a class="header" href="#float"><code>float</code></a></h3>
 <p><a id="float.repr"></a></p>
 <h4 id="floatrepr"><a class="header" href="#floatrepr">float.repr</a></h4>
 <p><code>String float.repr(float x)</code></p>
 <p>Returns the readable representation of <code>float</code>.</p>
-<p>Source: <code>lib/common.x:600</code></p>
+<p>Source: <code>lib/common.x:601</code></p>
 <p><a id="float.str"></a></p>
 <h4 id="floatstr"><a class="header" href="#floatstr">float.str</a></h4>
 <p><code>String float.str(float x)</code></p>
 <p>Returns the display <code>String</code> of <code>float</code>.</p>
-<p>Source: <code>lib/common.x:600</code></p>
+<p>Source: <code>lib/common.x:601</code></p>
 <p><a id="float.var"></a></p>
 <h4 id="floatvar"><a class="header" href="#floatvar">float.var</a></h4>
 <p><code>Var float.var(float x)</code></p>
 <p>Boxes a native <code>float</code> value as <code>Var</code>.</p>
-<p>Source: <code>lib/common.x:600</code></p>
+<p>Source: <code>lib/common.x:601</code></p>
 <h3 id="int"><a class="header" href="#int"><code>int</code></a></h3>
 <p><a id="int.repr"></a></p>
 <h4 id="intrepr"><a class="header" href="#intrepr">int.repr</a></h4>
 <p><code>String int.repr(int x)</code></p>
 <p>Returns the readable representation of <code>int</code>.</p>
-<p>Source: <code>lib/common.x:596</code></p>
+<p>Source: <code>lib/common.x:597</code></p>
 <p><a id="int.str"></a></p>
 <h4 id="intstr"><a class="header" href="#intstr">int.str</a></h4>
 <p><code>String int.str(int x)</code></p>
 <p>Returns the display <code>String</code> of <code>int</code>.</p>
-<p>Source: <code>lib/common.x:596</code></p>
+<p>Source: <code>lib/common.x:597</code></p>
 <p><a id="int.var"></a></p>
 <h4 id="intvar"><a class="header" href="#intvar">int.var</a></h4>
 <p><code>Var int.var(int x)</code></p>
 <p>Boxes a native <code>int</code> value as <code>Var</code>.</p>
-<p>Source: <code>lib/common.x:596</code></p>
+<p>Source: <code>lib/common.x:597</code></p>
 <h3 id="long"><a class="header" href="#long"><code>long</code></a></h3>
 <p><a id="long.repr"></a></p>
 <h4 id="longrepr"><a class="header" href="#longrepr">long.repr</a></h4>
 <p><code>inline String long.repr(long l)</code></p>
 <p>Returns the readable representation of <code>long</code>.</p>
-<p>Source: <code>lib/common.x:612</code></p>
+<p>Source: <code>lib/common.x:613</code></p>
 <p><a id="long.str"></a></p>
 <h4 id="longstr"><a class="header" href="#longstr">long.str</a></h4>
 <p><code>inline String long.str(long l)</code></p>
 <p>Returns the display <code>String</code> of <code>long</code>.</p>
-<p>Source: <code>lib/common.x:610</code></p>
+<p>Source: <code>lib/common.x:611</code></p>
 <p><a id="long.var"></a></p>
 <h4 id="longvar"><a class="header" href="#longvar">long.var</a></h4>
 <p><code>inline Var long.var(long x)</code></p>
 <p>Boxes a long value as <code>Var</code>.</p>
-<p>Source: <code>lib/common.x:606</code></p>
+<p>Source: <code>lib/common.x:607</code></p>
 <h3 id="short"><a class="header" href="#short"><code>short</code></a></h3>
 <p><a id="short.repr"></a></p>
 <h4 id="shortrepr"><a class="header" href="#shortrepr">short.repr</a></h4>
 <p><code>String short.repr(short x)</code></p>
 <p>Returns the readable representation of <code>short</code>.</p>
-<p>Source: <code>lib/common.x:594</code></p>
+<p>Source: <code>lib/common.x:595</code></p>
 <p><a id="short.str"></a></p>
 <h4 id="shortstr"><a class="header" href="#shortstr">short.str</a></h4>
 <p><code>String short.str(short x)</code></p>
 <p>Returns the display <code>String</code> of <code>short</code>.</p>
-<p>Source: <code>lib/common.x:594</code></p>
+<p>Source: <code>lib/common.x:595</code></p>
 <p><a id="short.var"></a></p>
 <h4 id="shortvar"><a class="header" href="#shortvar">short.var</a></h4>
 <p><code>Var short.var(short x)</code></p>
 <p>Boxes a native <code>short</code> value as <code>Var</code>.</p>
-<p>Source: <code>lib/common.x:594</code></p>
+<p>Source: <code>lib/common.x:595</code></p>
 <h3 id="uchar"><a class="header" href="#uchar"><code>uchar</code></a></h3>
 <p><a id="uchar.repr"></a></p>
 <h4 id="ucharrepr"><a class="header" href="#ucharrepr">uchar.repr</a></h4>
 <p><code>String uchar.repr(uchar x)</code></p>
 <p>Returns the readable representation of <code>uchar</code>.</p>
-<p>Source: <code>lib/common.x:593</code></p>
+<p>Source: <code>lib/common.x:594</code></p>
 <p><a id="uchar.str"></a></p>
 <h4 id="ucharstr"><a class="header" href="#ucharstr">uchar.str</a></h4>
 <p><code>String uchar.str(uchar x)</code></p>
 <p>Returns the display <code>String</code> of <code>uchar</code>.</p>
-<p>Source: <code>lib/common.x:593</code></p>
+<p>Source: <code>lib/common.x:594</code></p>
 <p><a id="uchar.var"></a></p>
 <h4 id="ucharvar"><a class="header" href="#ucharvar">uchar.var</a></h4>
 <p><code>Var uchar.var(uchar x)</code></p>
 <p>Boxes a native <code>uchar</code> value as <code>Var</code>.</p>
-<p>Source: <code>lib/common.x:593</code></p>
+<p>Source: <code>lib/common.x:594</code></p>
 <h3 id="uint"><a class="header" href="#uint"><code>uint</code></a></h3>
 <p><a id="uint.repr"></a></p>
 <h4 id="uintrepr"><a class="header" href="#uintrepr">uint.repr</a></h4>
 <p><code>String uint.repr(uint x)</code></p>
 <p>Returns the readable representation of <code>uint</code>.</p>
-<p>Source: <code>lib/common.x:597</code></p>
+<p>Source: <code>lib/common.x:598</code></p>
 <p><a id="uint.str"></a></p>
 <h4 id="uintstr"><a class="header" href="#uintstr">uint.str</a></h4>
 <p><code>String uint.str(uint x)</code></p>
 <p>Returns the display <code>String</code> of <code>uint</code>.</p>
-<p>Source: <code>lib/common.x:597</code></p>
+<p>Source: <code>lib/common.x:598</code></p>
 <p><a id="uint.var"></a></p>
 <h4 id="uintvar"><a class="header" href="#uintvar">uint.var</a></h4>
 <p><code>Var uint.var(uint x)</code></p>
 <p>Boxes a native <code>uint</code> value as <code>Var</code>.</p>
-<p>Source: <code>lib/common.x:597</code></p>
+<p>Source: <code>lib/common.x:598</code></p>
 <h3 id="ulong"><a class="header" href="#ulong"><code>ulong</code></a></h3>
 <p><a id="ulong.var"></a></p>
 <h4 id="ulongvar"><a class="header" href="#ulongvar">ulong.var</a></h4>
 <p><code>inline Var ulong.var(ulong x)</code></p>
 <p>Boxes a <code>ulong</code> value as <code>Var</code>.</p>
-<p>Source: <code>lib/common.x:608</code></p>
+<p>Source: <code>lib/common.x:609</code></p>
 <h3 id="unsigned"><a class="header" href="#unsigned"><code>unsigned</code></a></h3>
 <p><a id="unsigned.repr"></a></p>
 <h4 id="unsignedrepr"><a class="header" href="#unsignedrepr">unsigned.repr</a></h4>
 <p><code>String unsigned.repr(unsigned x)</code></p>
 <p>Returns the readable representation of <code>unsigned</code>.</p>
-<p>Source: <code>lib/common.x:598</code></p>
+<p>Source: <code>lib/common.x:599</code></p>
 <p><a id="unsigned.str"></a></p>
 <h4 id="unsignedstr"><a class="header" href="#unsignedstr">unsigned.str</a></h4>
 <p><code>String unsigned.str(unsigned x)</code></p>
 <p>Returns the display <code>String</code> of <code>unsigned</code>.</p>
-<p>Source: <code>lib/common.x:598</code></p>
+<p>Source: <code>lib/common.x:599</code></p>
 <p><a id="unsigned.var"></a></p>
 <h4 id="unsignedvar"><a class="header" href="#unsignedvar">unsigned.var</a></h4>
 <p><code>Var unsigned.var(unsigned x)</code></p>
 <p>Boxes a native <code>unsigned</code> value as <code>Var</code>.</p>
-<p>Source: <code>lib/common.x:598</code></p>
+<p>Source: <code>lib/common.x:599</code></p>
 <h3 id="ushort"><a class="header" href="#ushort"><code>ushort</code></a></h3>
 <p><a id="ushort.repr"></a></p>
 <h4 id="ushortrepr"><a class="header" href="#ushortrepr">ushort.repr</a></h4>
 <p><code>String ushort.repr(ushort x)</code></p>
 <p>Returns the readable representation of <code>ushort</code>.</p>
-<p>Source: <code>lib/common.x:595</code></p>
+<p>Source: <code>lib/common.x:596</code></p>
 <p><a id="ushort.str"></a></p>
 <h4 id="ushortstr"><a class="header" href="#ushortstr">ushort.str</a></h4>
 <p><code>String ushort.str(ushort x)</code></p>
 <p>Returns the display <code>String</code> of <code>ushort</code>.</p>
-<p>Source: <code>lib/common.x:595</code></p>
+<p>Source: <code>lib/common.x:596</code></p>
 <p><a id="ushort.var"></a></p>
 <h4 id="ushortvar"><a class="header" href="#ushortvar">ushort.var</a></h4>
 <p><code>Var ushort.var(ushort x)</code></p>
 <p>Boxes a native <code>ushort</code> value as <code>Var</code>.</p>
-<p>Source: <code>lib/common.x:595</code></p>
+<p>Source: <code>lib/common.x:596</code></p>
 <h2 id="runtime-internal-callables-3"><a class="header" href="#runtime-internal-callables-3">Runtime-internal callables</a></h2>
 <p>These callables connect runtime translation units. They are documented
 for source readers but are not supported as user API.</p>
@@ -17868,12 +17994,12 @@ for source readers but are not supported as user API.</p>
 <code>seed</code> distinguishes callers that hash the same bytes under different
 types; the byte width distinguishes a final partial word from zero
 padding.</p>
-<p>Source: <code>lib/common.x:461</code></p>
+<p>Source: <code>lib/common.x:462</code></p>
 <h4 id="x2c_hash_word"><a class="header" href="#x2c_hash_word">x2c_hash_word</a></h4>
 <p><code>inline unsigned x2c_hash_word(unsigned long word)</code></p>
 <p>Narrows a mixed word to the nonzero 32-bit hash the tables expect.
 Zero is reserved to mark an empty bucket, so it maps to all ones.</p>
-<p>Source: <code>lib/common.x:451</code></p>
+<p>Source: <code>lib/common.x:452</code></p>
 <h4 id="x2c_mix64"><a class="header" href="#x2c_mix64">x2c_mix64</a></h4>
 <p><code>inline unsigned long x2c_mix64(unsigned long word)</code></p>
 <p>Avalanches one 64-bit word.
@@ -17881,7 +18007,7 @@ This is MurmurHash3’s fmix64 finalizer, the shared mixer behind every
 fixed-width hash in the runtime. It is six instructions, and its low bits
 are as well distributed as its high ones, which is what <code>Map</code> masks. Use
 <code>x2c_hash_bytes</code> for a block that spans several words.</p>
-<p>Source: <code>lib/common.x:439</code></p>
+<p>Source: <code>lib/common.x:440</code></p>
 <h2 id="public-types-4"><a class="header" href="#public-types-4">Public types</a></h2>
 <div class="table-wrapper">
 <table>
@@ -18138,10 +18264,11 @@ and retains no callback context.</p>
 <p>Source: <code>lib/common.x:135</code></p>
 <p><a id="X2CErrorSite"></a></p>
 <h3 id="x2cerrorsite"><a class="header" href="#x2cerrorsite">X2CErrorSite</a></h3>
-<p><code>typedef struct X2CErrorSite { const char *file, *function, int line; } X2CErrorSite</code></p>
+<p><code>typedef struct X2CErrorSite { const char *file, *function, int line, runtime; } X2CErrorSite</code></p>
 <p>Borrowed source location supplied during one compiler-generated raise.
-The pointed-to file and function spellings must outlive that call.</p>
-<p>Source: <code>lib/common.x:207</code></p>
+The pointed-to file and function spellings must outlive that call.
+<code>runtime</code> is set for a site compiled inside the runtime library.</p>
+<p>Source: <code>lib/common.x:208</code></p>
 <p><a id="X2CStatic"></a></p>
 <h3 id="x2cstatic"><a class="header" href="#x2cstatic">X2CStatic</a></h3>
 <p><code>typedef struct X2CStatic { int ready; void *payload, *owner; struct X2CStatic *next; } X2CStatic</code></p>
@@ -18150,7 +18277,7 @@ The runtime owns its fields. <code>payload</code> becomes available to the winni
 initializer before publication; an acquire returning zero observes the
 committed value. Failed attempts retain their address until teardown.
 Payload storage retains no referenced runtime objects.</p>
-<p>Source: <code>lib/common.x:242</code></p>
+<p>Source: <code>lib/common.x:243</code></p>
 <h3 id="uchar-1"><a class="header" href="#uchar-1">uchar</a></h3>
 <p><code>typedef unsigned char uchar</code></p>
 <p>Unsigned native character type.</p>
@@ -19009,7 +19136,7 @@ A zero or negative value leaves the current bound unchanged.</p>
 <p><code>int Error.count(void)</code></p>
 <p>Returns the number of errors currently accumulated.
 Returns zero before <code>Error</code> initialization and after shutdown.</p>
-<p>Source: <code>lib/error/records.x:200</code></p>
+<p>Source: <code>lib/error/records.x:202</code></p>
 <p><a id="Error.depth"></a></p>
 <h4 id="errordepth"><a class="header" href="#errordepth">Error.depth</a></h4>
 <p><code>int Error.depth(void)</code></p>
@@ -19043,14 +19170,14 @@ reaches the raw error floor.</p>
 <p><code>int Error.mark(void)</code></p>
 <p>Captures the current error-stack position.
 Pass the result to <code>Error.since</code> to inspect only later errors.</p>
-<p>Source: <code>lib/error/records.x:205</code></p>
+<p>Source: <code>lib/error/records.x:207</code></p>
 <p><a id="Error.note_rendered"></a></p>
 <h4 id="errornote_rendered"><a class="header" href="#errornote_rendered">Error.note_rendered</a></h4>
 <p><code>void Error.note_rendered(void)</code></p>
 <p>Marks the current nested error dispatch as already rendered by <code>Logger</code>.
 This suppresses only <code>Error</code>’s fallback report for a <code>&lt;log&gt;</code> policy.
 Calling outside dispatch has no effect.</p>
-<p>Source: <code>lib/error/dispatch.x:201</code></p>
+<p>Source: <code>lib/error/dispatch.x:207</code></p>
 <p><a id="Error.policy_adopt"></a></p>
 <h4 id="errorpolicy_adopt"><a class="header" href="#errorpolicy_adopt">Error.policy_adopt</a></h4>
 <p><code>void Error.policy_adopt(void *capture)</code></p>
@@ -19170,12 +19297,13 @@ reach the raw error floor.</p>
 <h4 id="errorsince"><a class="header" href="#errorsince">Error.since</a></h4>
 <p><code>List Error.since(int mark)</code></p>
 <p>Returns the accumulated errors at and after <code>mark</code>, oldest first.
-Each entry has <code>code</code>, <code>detail</code>, and <code>location</code> fields. An invalid mark or
+Each entry has <code>code</code>, <code>detail</code>, and <code>location</code> fields; a location
+inside the runtime library also holds <code>(runtime 1)</code>. An invalid mark or
 an unavailable <code>Error</code> runtime returns <code>nil</code>. The snapshot enters the
 caller’s outermost <code>Scope</code> and canonical pools and remains live until
 those owners are released. Failure to materialize it reaches the
 non-reentrant error floor.</p>
-<p>Source: <code>lib/error/records.x:214</code></p>
+<p>Source: <code>lib/error/records.x:217</code></p>
 <p><a id="Error.snapshot"></a></p>
 <h4 id="errorsnapshot"><a class="header" href="#errorsnapshot">Error.snapshot</a></h4>
 <p><code>Var Error.snapshot(Var value)</code></p>
@@ -19186,7 +19314,7 @@ the caller’s outermost canonical pools and wide scalar boxes enter its
 outermost <code>Scope</code>, so nested caller brackets may be released safely.
 Invalid or identity-bearing values and failures while copying reach the raw
 error floor; they never re-enter handler dispatch.</p>
-<p>Source: <code>lib/error/records.x:268</code></p>
+<p>Source: <code>lib/error/records.x:271</code></p>
 <p><a id="Error.trim"></a></p>
 <h4 id="errortrim"><a class="header" href="#errortrim">Error.trim</a></h4>
 <p><code>void Error.trim(void *saved_head, int stack_height)</code></p>
@@ -19251,7 +19379,7 @@ live until their actual owning pool is released. Wide scalar boxes enter
 live until that <code>Scope</code> is destroyed. An unavailable runtime or negative
 mark returns <code>nil</code>. <code>Null</code> owners or failures while copying reach the raw
 floor.</p>
-<p>Source: <code>lib/error/records.x:243</code></p>
+<p>Source: <code>lib/error/records.x:246</code></p>
 <p><a id="Error.snapshot_in"></a></p>
 <h4 id="errorsnapshot_in"><a class="header" href="#errorsnapshot_in">Error.snapshot_in</a></h4>
 <p><code>Var Error.snapshot_in(Var value, Scope *values, Pool pool)</code></p>
@@ -19261,7 +19389,7 @@ live until their actual owning pool is released. Wide scalar boxes enter
 <code>*values</code>, whose possibly updated <code>Scope</code> head is written back, and remain
 live until that <code>Scope</code> is destroyed. <code>Null</code> owners, invalid or
 identity-bearing values, and failures while copying reach the raw floor.</p>
-<p>Source: <code>lib/error/records.x:283</code></p>
+<p>Source: <code>lib/error/records.x:286</code></p>
 <h2 id="public-types-6"><a class="header" href="#public-types-6">Public types</a></h2>
 <div class="table-wrapper">
 <table>
@@ -22458,7 +22586,7 @@ The <code>Logger</code> borrows the active canonical pool for any memory sinks a
 owns a private <code>Scope</code> for sink state. An invalid level returns NULL.</p>
 <p><strong>Raises:</strong> <code>&lt;alloc-fail&gt;</code> when the <code>Logger</code> or its private <code>Scope</code> cannot be
 allocated.</p>
-<p>Source: <code>lib/logger.x:772</code></p>
+<p>Source: <code>lib/logger.x:807</code></p>
 <h2 id="advanced-and-interop-api-15"><a class="header" href="#advanced-and-interop-api-15">Advanced and interop API</a></h2>
 <div class="table-wrapper">
 <table>
@@ -22506,12 +22634,12 @@ allocated.</p>
 <p><code>void log_debug(Symbol category, List fields)</code></p>
 <p>Logs borrowed <code>fields</code> globally at debug level under <code>category</code>.
 Delivery and failure behavior follow <code>log_event</code>.</p>
-<p>Source: <code>lib/logger.x:757</code></p>
+<p>Source: <code>lib/logger.x:792</code></p>
 <h4 id="log_error"><a class="header" href="#log_error">log_error</a></h4>
 <p><code>void log_error(Symbol category, List fields)</code></p>
 <p>Logs borrowed <code>fields</code> globally at error level under <code>category</code>.
 Delivery and failure behavior follow <code>log_event</code>.</p>
-<p>Source: <code>lib/logger.x:760</code></p>
+<p>Source: <code>lib/logger.x:795</code></p>
 <h4 id="log_event"><a class="header" href="#log_event">log_event</a></h4>
 <p><code>void log_event(Symbol level, Symbol category, List fields)</code></p>
 <p>Delivers one event synchronously through the current global <code>Logger</code>.
@@ -22522,7 +22650,7 @@ are those of <code>Logger.log</code>.</p>
 <p><code>void log_fatal(Symbol category, List fields)</code></p>
 <p>Logs borrowed <code>fields</code> globally at fatal level under <code>category</code>.
 Delivery and failure behavior follow <code>log_event</code>.</p>
-<p>Source: <code>lib/logger.x:761</code></p>
+<p>Source: <code>lib/logger.x:796</code></p>
 <h4 id="log_get_global_logger"><a class="header" href="#log_get_global_logger">log_get_global_logger</a></h4>
 <p><code>Logger log_get_global_logger(void)</code></p>
 <p>Returns the borrowed current global <code>Logger</code>, or NULL when none is set.</p>
@@ -22531,7 +22659,7 @@ Delivery and failure behavior follow <code>log_event</code>.</p>
 <p><code>void log_info(Symbol category, List fields)</code></p>
 <p>Logs borrowed <code>fields</code> globally at info level under <code>category</code>.
 Delivery and failure behavior follow <code>log_event</code>.</p>
-<p>Source: <code>lib/logger.x:758</code></p>
+<p>Source: <code>lib/logger.x:793</code></p>
 <h4 id="log_set_global_logger"><a class="header" href="#log_set_global_logger">log_set_global_logger</a></h4>
 <p><code>Logger log_set_global_logger(Logger logger)</code></p>
 <p>Installs a borrowed global <code>Logger</code> and returns the previous borrowed
@@ -22547,12 +22675,12 @@ shutdown runs.</p>
 <p><code>void log_trace(Symbol category, List fields)</code></p>
 <p>Logs borrowed <code>fields</code> globally at trace level under <code>category</code>.
 Delivery and failure behavior follow <code>log_event</code>.</p>
-<p>Source: <code>lib/logger.x:756</code></p>
+<p>Source: <code>lib/logger.x:791</code></p>
 <h4 id="log_warn"><a class="header" href="#log_warn">log_warn</a></h4>
 <p><code>void log_warn(Symbol category, List fields)</code></p>
 <p>Logs borrowed <code>fields</code> globally at warn level under <code>category</code>.
 Delivery and failure behavior follow <code>log_event</code>.</p>
-<p>Source: <code>lib/logger.x:759</code></p>
+<p>Source: <code>lib/logger.x:794</code></p>
 <h3 id="logger-1"><a class="header" href="#logger-1"><code>Logger</code></a></h3>
 <p><a id="Logger.add_file_sink"></a></p>
 <h4 id="loggeradd_file_sink"><a class="header" href="#loggeradd_file_sink">Logger.add_file_sink</a></h4>
@@ -22612,19 +22740,19 @@ A NULL <code>Logger</code> does nothing.</p>
 <p><code>void Logger.debug(Logger logger, Symbol category, List fields)</code></p>
 <p>Logs borrowed <code>fields</code> synchronously at debug level under <code>category</code>.
 Delivery and failure behavior follow <code>Logger.log</code>.</p>
-<p>Source: <code>lib/logger.x:740</code></p>
+<p>Source: <code>lib/logger.x:775</code></p>
 <p><a id="Logger.error"></a></p>
 <h4 id="loggererror"><a class="header" href="#loggererror">Logger.error</a></h4>
 <p><code>void Logger.error(Logger logger, Symbol category, List fields)</code></p>
 <p>Logs borrowed <code>fields</code> synchronously at error level under <code>category</code>.
 Delivery and failure behavior follow <code>Logger.log</code>.</p>
-<p>Source: <code>lib/logger.x:743</code></p>
+<p>Source: <code>lib/logger.x:778</code></p>
 <p><a id="Logger.fatal"></a></p>
 <h4 id="loggerfatal"><a class="header" href="#loggerfatal">Logger.fatal</a></h4>
 <p><code>void Logger.fatal(Logger logger, Symbol category, List fields)</code></p>
 <p>Logs borrowed <code>fields</code> synchronously at fatal level under <code>category</code>.
 Delivery and failure behavior follow <code>Logger.log</code>.</p>
-<p>Source: <code>lib/logger.x:744</code></p>
+<p>Source: <code>lib/logger.x:779</code></p>
 <p><a id="Logger.flush"></a></p>
 <h4 id="loggerflush"><a class="header" href="#loggerflush">Logger.flush</a></h4>
 <p><code>void Logger.flush(Logger logger)</code></p>
@@ -22643,13 +22771,13 @@ nothing.</p>
 <p><strong>Raises:</strong> <code>&lt;bad-state&gt;</code> during sink delivery, or any cause from a flusher.
 Either failure leaves the <code>Logger</code> and all sinks live; earlier flushers may
 already have run.</p>
-<p>Source: <code>lib/logger.x:790</code></p>
+<p>Source: <code>lib/logger.x:825</code></p>
 <p><a id="Logger.info"></a></p>
 <h4 id="loggerinfo"><a class="header" href="#loggerinfo">Logger.info</a></h4>
 <p><code>void Logger.info(Logger logger, Symbol category, List fields)</code></p>
 <p>Logs borrowed <code>fields</code> synchronously at info level under <code>category</code>.
 Delivery and failure behavior follow <code>Logger.log</code>.</p>
-<p>Source: <code>lib/logger.x:741</code></p>
+<p>Source: <code>lib/logger.x:776</code></p>
 <p><a id="Logger.initialize"></a></p>
 <h4 id="loggerinitialize"><a class="header" href="#loggerinitialize">Logger.initialize</a></h4>
 <p><code>void Logger.initialize(void)</code></p>
@@ -22659,7 +22787,7 @@ and installs an observing <code>Error</code> handler. Runtime initialization cal
 this once and later shutdown hooks invoke <code>Logger.shutdown</code> before <code>Error</code>
 shuts down.</p>
 <p><strong>Raises:</strong> any cause from <code>Error</code> or <code>Logger</code> initialization.</p>
-<p>Source: <code>lib/logger.x:810</code></p>
+<p>Source: <code>lib/logger.x:845</code></p>
 <p><a id="Logger.level_priority"></a></p>
 <h4 id="loggerlevel_priority"><a class="header" href="#loggerlevel_priority">Logger.level_priority</a></h4>
 <p><code>int Logger.level_priority(Symbol level)</code></p>
@@ -22717,7 +22845,7 @@ a no-op.</p>
 <code>&lt;bad-state&gt;</code> when default-<code>Logger</code> delivery is active, or any cause from
 event delivery or a sink flusher. The failure may interrupt the remaining
 cleanup.</p>
-<p>Source: <code>lib/logger.x:831</code></p>
+<p>Source: <code>lib/logger.x:866</code></p>
 <p><a id="Logger.sink_count"></a></p>
 <h4 id="loggersink_count"><a class="header" href="#loggersink_count">Logger.sink_count</a></h4>
 <p><code>int Logger.sink_count(Logger logger)</code></p>
@@ -22728,13 +22856,13 @@ cleanup.</p>
 <p><code>void Logger.trace(Logger logger, Symbol category, List fields)</code></p>
 <p>Logs borrowed <code>fields</code> synchronously at trace level under <code>category</code>.
 Delivery and failure behavior follow <code>Logger.log</code>.</p>
-<p>Source: <code>lib/logger.x:739</code></p>
+<p>Source: <code>lib/logger.x:774</code></p>
 <p><a id="Logger.warn"></a></p>
 <h4 id="loggerwarn"><a class="header" href="#loggerwarn">Logger.warn</a></h4>
 <p><code>void Logger.warn(Logger logger, Symbol category, List fields)</code></p>
 <p>Logs borrowed <code>fields</code> synchronously at warn level under <code>category</code>.
 Delivery and failure behavior follow <code>Logger.log</code>.</p>
-<p>Source: <code>lib/logger.x:742</code></p>
+<p>Source: <code>lib/logger.x:777</code></p>
 <h2 id="runtime-internal-callables-12"><a class="header" href="#runtime-internal-callables-12">Runtime-internal callables</a></h2>
 <p>These callables connect runtime translation units. They are documented
 for source readers but are not supported as user API.</p>
@@ -22755,11 +22883,14 @@ for source readers but are not supported as user API.</p>
 <p>Offers the newest <code>Error</code> to the current global <code>Logger</code>.
 A well-formed entry with <code>&lt;abort&gt;</code> or <code>&lt;log&gt;</code> policy is rendered as an
 <code>&lt;err-report&gt;</code> event; missing, malformed, <code>&lt;collect&gt;</code>, and <code>&lt;ignore&gt;</code> input
-produces no event. The borrowed input is never consumed, <code>data</code> is ignored,
-and the handler always returns <code>&lt;declined&gt;</code>, leaving transfer to <code>Error</code> or
-another handler.</p>
+produces no event. An <code>&lt;abort&gt;</code> entry reaching the default <code>Logger</code> with
+only its stderr sink is instead reported as one line, <code>x2c: uncaught &lt;code&gt; in function (file:line): key value, ...</code>, omitting a location
+inside the runtime library; setting <code>X2C_DEBUG</code> keeps the event. The
+borrowed input is never consumed, <code>data</code> is ignored, and the handler
+always returns <code>&lt;declined&gt;</code>, leaving transfer to <code>Error</code> or another
+handler.</p>
 <p><strong>Raises:</strong> any cause from <code>Logger</code> delivery.</p>
-<p>Source: <code>lib/logger.x:709</code></p>
+<p>Source: <code>lib/logger.x:713</code></p>
 <h2 id="public-types-15"><a class="header" href="#public-types-15">Public types</a></h2>
 <div class="table-wrapper">
 <table>
@@ -33174,7 +33305,7 @@ gives a unit the macros and the runtime tape, because the package’s
 <code>autodiff.x</code> includes its macro module. A unit can also include that module
 directly by its path, as <code>#include "../src/autodiff-macros.x"</code> does in the
 package’s fixtures; the listings below write the short name. The
-package’s <a href="https://github.com/gwf/x2c/blob/314994819f7fad4f4d97c6df9cf622aa7edec575/packages/autodiff/README.md">README</a>
+package’s <a href="https://github.com/gwf/x2c/blob/aa2b9b2575297711e5978acc53f87bd7f645f3c7/packages/autodiff/README.md">README</a>
 lists its files and checks.
 For other specialized capabilities, see <a href="#advanced-topics">Advanced Topics</a>.</p>
 <h2 id="dual-numbers"><a class="header" href="#dual-numbers">Dual numbers</a></h2>
@@ -33491,7 +33622,7 @@ Programming</em> 29, 2019.</li>
 <div style="break-before: page; page-break-before: always;"></div>
 <h1 id="training-and-inference-with-torch"><a class="header" href="#training-and-inference-with-torch">Training and Inference with torch</a></h1>
 <p>For package setup and supported operations, see the
-<a href="https://github.com/gwf/x2c/blob/314994819f7fad4f4d97c6df9cf622aa7edec575/packages/torch/README.md">Torch package README</a>.
+<a href="https://github.com/gwf/x2c/blob/aa2b9b2575297711e5978acc53f87bd7f645f3c7/packages/torch/README.md">Torch package README</a>.
 This chapter belongs to <a href="#advanced-topics">Advanced Topics</a>.</p>
 <p>The <code>torch</code> package reaches PyTorch’s C++ library, libtorch, from <span class="x2c-wordmark">x2c</span>.
 Tensors, autograd, layers, optimizers, schedules, checkpoints, TorchScript
@@ -33885,15 +34016,15 @@ were small for larger prediction batches, MNIST, and the tensor chains;
 sample variation limits conclusions about those differences. More threads
 did not improve every workload. These results do not measure preprocessing
 or establish a general speedup.</p>
-<p>The application rows come from the <a href="https://github.com/gwf/x2c/blob/314994819f7fad4f4d97c6df9cf622aa7edec575/packages/torch/benchmarks/REPORT.md">original comparison</a>,
-with the <a href="https://github.com/gwf/x2c/blob/314994819f7fad4f4d97c6df9cf622aa7edec575/packages/torch/benchmarks/SUPPLEMENT.md">50-warmup-batch correction</a> used for MNIST. The
-chains come from the separate <a href="https://github.com/gwf/x2c/blob/314994819f7fad4f4d97c6df9cf622aa7edec575/packages/torch/benchmarks/REMEDIES.md">fresh remedy comparison</a>.
+<p>The application rows come from the <a href="https://github.com/gwf/x2c/blob/aa2b9b2575297711e5978acc53f87bd7f645f3c7/packages/torch/benchmarks/REPORT.md">original comparison</a>,
+with the <a href="https://github.com/gwf/x2c/blob/aa2b9b2575297711e5978acc53f87bd7f645f3c7/packages/torch/benchmarks/SUPPLEMENT.md">50-warmup-batch correction</a> used for MNIST. The
+chains come from the separate <a href="https://github.com/gwf/x2c/blob/aa2b9b2575297711e5978acc53f87bd7f645f3c7/packages/torch/benchmarks/REMEDIES.md">fresh remedy comparison</a>.
 These reports preserve the workload counts, individual samples, and methods;
 the applications were not all rerun with the remedies.</p>
 <p>*The stock-PyTorch comparison of explicit tabular training remains a failed
 numerical check: its validation-loss difference was 0.223%, above the 0.1%
 tolerance. The other training configurations passed their tolerances. All
-three applications passed a separate <a href="https://github.com/gwf/x2c/blob/314994819f7fad4f4d97c6df9cf622aa7edec575/packages/torch/benchmarks/MATCHED.md">Adam control</a> that
+three applications passed a separate <a href="https://github.com/gwf/x2c/blob/aa2b9b2575297711e5978acc53f87bd7f645f3c7/packages/torch/benchmarks/MATCHED.md">Adam control</a> that
 follows libtorch’s operation order; that control measured correctness only.
 The chain checks and accumulated timing results agree exactly as reported to
 12 significant digits, without claiming bitwise equality of every tensor
@@ -33923,7 +34054,7 @@ requests. Despite that lower total, the pooled run’s peak growth above its
 initial footprint was 2.24 times Python’s. Native handles and canonical pool
 storage stayed bounded. These historical observations do not establish
 generally lower memory use.</p>
-<p>A later <a href="https://github.com/gwf/x2c/blob/314994819f7fad4f4d97c6df9cf622aa7edec575/plans/archive/memory-retention.md">memory investigation</a> of the pooled request profile
+<p>A later memory investigation of the pooled request profile
 on macOS arm64 CPU identified substantial allocator-reclaimable residency
 and ruled out its 2 KB Pool depot as the source of the multi-MB residual.
 It did not identify individual allocation stacks or separate every native
@@ -33939,8 +34070,7 @@ performance, <code>torch.compile</code>, or workloads beyond these comparisons.<
 <li>Python optimizer interchange covers Adam; other optimizers retain the
 C++ archive format. Module state works in both directions.</li>
 <li>The generated tier binds 1182 operators;
-<code>packages/torch/schema/README.md</code> lists the families it leaves out. The
-design is in <code>plans/archive/x2c-torch.md</code>.</li>
+<code>packages/torch/schema/README.md</code> lists the families it leaves out.</li>
 <li>Custom autograd currently supports one output and first-order gradients.</li>
 <li><code>torch.compile</code> and TorchScript capture of <span class="x2c-wordmark">x2c</span> code are not possible:
 they capture Python. <span class="x2c-wordmark">x2c</span> runs a TorchScript model but cannot produce
@@ -34044,7 +34174,7 @@ aggregate copy, or unmodeled scope ending is an obstacle, not a compiler
 warning or error. A project may provide explicit native effect contracts to
 the audit; they are assumptions of its result and do not change compilation.
 The optional command and its contract format are described in the
-<a href="https://github.com/gwf/x2c/blob/314994819f7fad4f4d97c6df9cf622aa7edec575/commands/graph/README.md#conditional-lifetime-proof">source graph reference</a>.
+<a href="https://github.com/gwf/x2c/blob/aa2b9b2575297711e5978acc53f87bd7f645f3c7/commands/graph/README.md#conditional-lifetime-proof">source graph reference</a>.
 The proof concerns scoped ownership and lifetime. It does not establish
 general C memory safety or correctness of emitted code.</p>
 <h2 id="how-the-check-works"><a class="header" href="#how-the-check-works">How the check works</a></h2>
@@ -34455,7 +34585,7 @@ Compatibility is not yet promised.</p>
 <p><code>Map Compiler.builtin_targets(void)</code></p>
 <p>Returns each built-in algorithm by the name compile-time code calls it
 with.</p>
-<p>Source: <code>src/builtins.x:906</code></p>
+<p>Source: <code>src/builtins.x:924</code></p>
 <h2 id="design-notes-52"><a class="header" href="#design-notes-52">Design notes</a></h2>
 <p>The built-in macros expand through these functions, which run as native
 code inside the compiler. <code>Compiler.builtin_targets</code> binds each into
@@ -35658,14 +35788,14 @@ Compatibility is not yet promised.</p>
 <p>Builds one helper exposing the loaded files’ public functions.
 Main’s native signature stays inside the helper; argc/argv calls accept
 an Array of argument Strings through the data protocol.</p>
-<p>Source: <code>src/meta-project.x:90</code></p>
+<p>Source: <code>src/meta-project.x:92</code></p>
 <p><a id="Frontend.build_meta"></a></p>
 <h4 id="frontendbuild_meta"><a class="header" href="#frontendbuild_meta">Frontend.build_meta</a></h4>
 <p><code>MetaHelper Frontend.build_meta(Frontend f, List inputs)</code></p>
 <p>Builds an independent helper for the meta functions <code>inputs</code> reach.
 The caller owns its lifetime. Uses the ordinary source, include,
 package, native object, and cache dependency handling.</p>
-<p>Source: <code>src/meta-project.x:83</code></p>
+<p>Source: <code>src/meta-project.x:85</code></p>
 <p><a id="Frontend.prepare_meta"></a></p>
 <h4 id="frontendprepare_meta"><a class="header" href="#frontendprepare_meta">Frontend.prepare_meta</a></h4>
 <p><code>void Frontend.prepare_meta(Frontend f, List inputs)</code></p>
@@ -35673,7 +35803,7 @@ package, native object, and cache dependency handling.</p>
 reach, or finds it in the cache, and makes it the one their translation
 calls. Inputs that reach none use no helper. A group or helper that
 does not build is reported at the first call that needs it.</p>
-<p>Source: <code>src/meta-project.x:76</code></p>
+<p>Source: <code>src/meta-project.x:78</code></p>
 <h2 id="design-notes-62"><a class="header" href="#design-notes-62">Design notes</a></h2>
 <p>Before a translation starts, the bodied <code>meta</code> functions its inputs
 reach are compiled into one helper program linked against the runtime,
@@ -39231,7 +39361,7 @@ Compatibility is not yet promised.</p>
 <p>Conses the element expression <code>head</code> onto the cells <code>tail</code>, or appends
 the List a <code>(splice EXPR)</code> head holds, and folds the cell into the
 literal cache when both parts are constant.</p>
-<p>Source: <code>src/literals/quotation.x:255</code></p>
+<p>Source: <code>src/literals/quotation.x:256</code></p>
 <p><a id="Compiler.parse_array_literal"></a></p>
 <h4 id="compilerparse_array_literal"><a class="header" href="#compilerparse_array_literal">Compiler.parse_array_literal</a></h4>
 <p><code>List Compiler.parse_array_literal(Compiler c)</code></p>
@@ -39266,7 +39396,7 @@ expression after consuming <code>)</code>. Pattern parsing sets and restores
 <p>Parses a macro pattern’s parenthesized arguments and returns the static
 pattern of each: a binder or wildcard, a nested macro pattern, or a
 <code>%(...)</code> List pattern.</p>
-<p>Source: <code>src/literals/quotation.x:145</code></p>
+<p>Source: <code>src/literals/quotation.x:146</code></p>
 <p><a id="Compiler.parse_map_entries"></a></p>
 <h4 id="compilerparse_map_entries"><a class="header" href="#compilerparse_map_entries">Compiler.parse_map_entries</a></h4>
 <p><code>List Compiler.parse_map_entries(Compiler c)</code></p>
@@ -39323,12 +39453,12 @@ returns NULL.</p>
 derived pattern, or returns NULL without consuming tokens. <code>content</code>
 selects the bare content, for the content position of an
 <code>(expr TYPE ...)</code> shell.</p>
-<p>Source: <code>src/literals/quotation.x:183</code></p>
+<p>Source: <code>src/literals/quotation.x:184</code></p>
 <p><a id="Compiler.typed_match_pattern"></a></p>
 <h4 id="compilertyped_match_pattern"><a class="header" href="#compilertyped_match_pattern">Compiler.typed_match_pattern</a></h4>
 <p><code>List Compiler.typed_match_pattern(Compiler c, List pattern, List types)</code></p>
 <p>Applies each typed capture’s predicate to every unquoted occurrence.</p>
-<p>Source: <code>src/literals/quotation.x:335</code></p>
+<p>Source: <code>src/literals/quotation.x:336</code></p>
 <h2 id="design-notes-94"><a class="header" href="#design-notes-94">Design notes</a></h2>
 <p>Each literal parses to a typed expression. A <code>List</code> cell or <code>String</code>
 segment with no dynamic reference enters the compiler cache and is built
@@ -39989,6 +40119,7 @@ Compatibility is not yet promised.</p>
 <tr><td><a href="#Compiler.group_meta_function"><code>Compiler.group_meta_function</code></a></td><td>Records a native callable body <code>fn</code> in the unit’s helper group.</td></tr>
 <tr><td><a href="#Compiler.groups_meta"><code>Compiler.groups_meta</code></a></td><td>Answers whether a <code>meta</code> function or value belongs to the unit’s group: a parse meets it outside a macro definition while the project meta build parses the unit or a session stages it.</td></tr>
 <tr><td><a href="#Compiler.meta_call_missing"><code>Compiler.meta_call_missing</code></a></td><td>Returns why the group function <code>name</code> has no compile-time entry, from its type.</td></tr>
+<tr><td><a href="#Compiler.meta_calls_wait"><code>Compiler.meta_calls_wait</code></a></td><td>Answers whether a call of a project <code>meta</code> function waits for the translation: the project meta build’s own parse has no helper yet.</td></tr>
 <tr><td><a href="#Compiler.meta_cc"><code>Compiler.meta_cc</code></a></td><td>Returns the C compiler and the runtime header directory that build <code>meta</code> code, or NULL before <code>Compiler.use_meta_toolchain</code>.</td></tr>
 <tr><td><a href="#Compiler.meta_cc_identity"><code>Compiler.meta_cc_identity</code></a></td><td>Returns the identity of the C compiler at <code>cc</code>: its path and content hash.</td></tr>
 <tr><td><a href="#Compiler.meta_cc_run"><code>Compiler.meta_cc_run</code></a></td><td>Runs <code>arguments</code>, a C compiler command building the group C in <code>directory</code>, and returns NULL, or else its first error, which names <code>directory</code> when a group’s C is the cause.</td></tr>
@@ -40019,12 +40150,12 @@ staging the group, and reports at <code>site</code> a function that cannot run.<
 <p>Closes compile-time-only calls across later meta definitions.
 Retained group bodies hold the bound calls, including literal insertions.
 Select runtime definitions only after that relation is complete.</p>
-<p>Source: <code>src/meta-group/selection.x:57</code></p>
+<p>Source: <code>src/meta-group/selection.x:62</code></p>
 <p><a id="Compiler.group_meta_function"></a></p>
 <h4 id="compilergroup_meta_function"><a class="header" href="#compilergroup_meta_function">Compiler.group_meta_function</a></h4>
 <p><code>void Compiler.group_meta_function(Compiler c, List fn)</code></p>
 <p>Records a native callable body <code>fn</code> in the unit’s helper group.</p>
-<p>Source: <code>src/meta-group/selection.x:23</code></p>
+<p>Source: <code>src/meta-group/selection.x:28</code></p>
 <p><a id="Compiler.groups_meta"></a></p>
 <h4 id="compilergroups_meta"><a class="header" href="#compilergroups_meta">Compiler.groups_meta</a></h4>
 <p><code>int Compiler.groups_meta(Compiler c)</code></p>
@@ -40037,7 +40168,14 @@ parses the unit or a session stages it.</p>
 <p><code>String Compiler.meta_call_missing(Compiler c, String name)</code></p>
 <p>Returns why the group function <code>name</code> has no compile-time entry, from
 its type.</p>
-<p>Source: <code>src/meta-group/selection.x:278</code></p>
+<p>Source: <code>src/meta-group/selection.x:283</code></p>
+<p><a id="Compiler.meta_calls_wait"></a></p>
+<h4 id="compilermeta_calls_wait"><a class="header" href="#compilermeta_calls_wait">Compiler.meta_calls_wait</a></h4>
+<p><code>int Compiler.meta_calls_wait(Compiler c)</code></p>
+<p>Answers whether a call of a project <code>meta</code> function waits for the
+translation: the project meta build’s own parse has no helper yet. A
+loaded helper’s parse calls the ordinary helper of its sources.</p>
+<p>Source: <code>src/meta-group/selection.x:25</code></p>
 <p><a id="Compiler.meta_cc"></a></p>
 <h4 id="compilermeta_cc"><a class="header" href="#compilermeta_cc">Compiler.meta_cc</a></h4>
 <p><code>String Compiler.meta_cc(String &amp;include_dir)</code></p>
@@ -40063,7 +40201,7 @@ hash.</p>
 <p>Answers whether a <code>meta</code> body reaches the compiler itself: it names a
 compile-time-only function or a compiler operation, or constructs a
 template. Such a function has no runtime form.</p>
-<p>Source: <code>src/meta-group/selection.x:36</code></p>
+<p>Source: <code>src/meta-group/selection.x:41</code></p>
 <p><a id="Compiler.prepare_loaded_functions"></a></p>
 <h4 id="compilerprepare_loaded_functions"><a class="header" href="#compilerprepare_loaded_functions">Compiler.prepare_loaded_functions</a></h4>
 <p><code>void Compiler.prepare_loaded_functions(Compiler c, Array nodes)</code></p>
@@ -40084,20 +40222,20 @@ through its closing brace. Source text and tokens are unchanged.</p>
 <p><code>int Compiler.public_native_function( Compiler c, List function, String name)</code></p>
 <p>Answers whether a definition has public native linkage.
 Main is excluded because its process entry needs a separate adapter.</p>
-<p>Source: <code>src/meta-group/selection.x:268</code></p>
+<p>Source: <code>src/meta-group/selection.x:273</code></p>
 <p><a id="Compiler.refuse_meta_call"></a></p>
 <h4 id="compilerrefuse_meta_call"><a class="header" href="#compilerrefuse_meta_call">Compiler.refuse_meta_call</a></h4>
 <p><code>void Compiler.refuse_meta_call( Compiler c, String name, Token site, String why)</code></p>
 <p>Reports at <code>site</code> that the <code>meta</code> function <code>name</code> cannot run at compile
 time, and <code>why</code>.</p>
-<p>Source: <code>src/meta-group/selection.x:297</code></p>
+<p>Source: <code>src/meta-group/selection.x:302</code></p>
 <p><a id="Compiler.refuse_record_meta_call"></a></p>
 <h4 id="compilerrefuse_record_meta_call"><a class="header" href="#compilerrefuse_record_meta_call">Compiler.refuse_record_meta_call</a></h4>
 <p><code>void Compiler.refuse_record_meta_call(Compiler c, String name, Token site)</code></p>
 <p>Reports at <code>site</code> that the group function <code>name</code> cannot run at compile
 time when its result is a struct or union, which its type alone
 decides.</p>
-<p>Source: <code>src/meta-group/selection.x:305</code></p>
+<p>Source: <code>src/meta-group/selection.x:310</code></p>
 <p><a id="Compiler.stage_meta_in_process"></a></p>
 <h4 id="compilerstage_meta_in_process"><a class="header" href="#compilerstage_meta_in_process">Compiler.stage_meta_in_process</a></h4>
 <p><code>void Compiler.stage_meta_in_process(void)</code></p>
@@ -43734,7 +43872,7 @@ same report. <code>make build</code> and <code>make build-safe</code> run it aut
 bootstrap work or cleaning.</p>
 <p>For optional packages, use <code>./configure --packages</code>, or name only the ones
 you intend to build, such as <code>./configure --packages termbox2</code>. See the
-<a href="https://github.com/gwf/x2c/blob/314994819f7fad4f4d97c6df9cf622aa7edec575/packages/README.md">package instructions</a> for native dependencies.
+<a href="https://github.com/gwf/x2c/blob/aa2b9b2575297711e5978acc53f87bd7f645f3c7/packages/README.md">package instructions</a> for native dependencies.
 These reports check command availability and required OpenSSL Perl modules;
 upstream configure scripts and compilers still check platform support.</p>
 <h2 id="why-a-bootstrap-exists"><a class="header" href="#why-a-bootstrap-exists">Why a bootstrap exists</a></h2>
@@ -43789,7 +43927,7 @@ prepared dependency includes. It does not fetch dependencies itself.</p>
 the <a href="#implementation-map">Implementation Map</a> for feature ownership.</p>
 <div style="break-before: page; page-break-before: always;"></div>
 <h1 id="literate-lisp-in-x2c"><a class="header" href="#literate-lisp-in-x2c">Literate Lisp in <span class="x2c-wordmark">x2c</span></a></h1>
-<p><a href="https://github.com/gwf/x2c/blob/314994819f7fad4f4d97c6df9cf622aa7edec575/examples/programs/literate-lisp.x">The reference interpreter</a> implements <span class="x2c-wordmark">x2c</span> Lisp in one source file. It
+<p><a href="https://github.com/gwf/x2c/blob/aa2b9b2575297711e5978acc53f87bd7f645f3c7/examples/programs/literate-lisp.x">The reference interpreter</a> implements <span class="x2c-wordmark">x2c</span> Lisp in one source file. It
 implements its reader, environments, closures, special forms, native registry,
 and standard vocabulary. Evaluation recurses over ordinary values; it never
 constructs a Lisp session, calls the production evaluator, or uses its
@@ -43922,7 +44060,7 @@ The production step budget and interruption flag stop evaluation through
 but reject returning <code>ignore</code>, <code>log</code>, or <code>collect</code> policies. A later public
 entry opens a fresh budget; the session owner clears its interruption flag.</p>
 <h2 id="the-showcase-and-comparison"><a class="header" href="#the-showcase-and-comparison">The showcase and comparison</a></h2>
-<p><a href="https://github.com/gwf/x2c/blob/314994819f7fad4f4d97c6df9cf622aa7edec575/examples/data/reference-lisp/showcase.xlisp">The Lisp demonstration</a>
+<p><a href="https://github.com/gwf/x2c/blob/aa2b9b2575297711e5978acc53f87bd7f645f3c7/examples/data/reference-lisp/showcase.xlisp">The Lisp demonstration</a>
 differentiates <code>x*x + 3*x</code> using recursive pattern matching, simplifies the
 result, evaluates both expressions at <code>x = 5</code>, and maps a captured offset over
 a List. Its result is:</p>
@@ -43962,9 +44100,9 @@ separately, without subtracting it from the other measurements.</p>
                         &copy; 2025&ndash;2026
                         <a href="https://flake.org">GWF</a>
                         &middot;
-                        <a href="https://github.com/gwf/x2c/blob/314994819f7fad4f4d97c6df9cf622aa7edec575/LICENSE">Apache 2.0</a>
+                        <a href="https://github.com/gwf/x2c/blob/aa2b9b2575297711e5978acc53f87bd7f645f3c7/LICENSE">Apache 2.0</a>
                         &middot;
-                        <a href="https://github.com/gwf/x2c/blob/314994819f7fad4f4d97c6df9cf622aa7edec575/TRADEMARKS.md">Trademarks</a>
+                        <a href="https://github.com/gwf/x2c/blob/aa2b9b2575297711e5978acc53f87bd7f645f3c7/TRADEMARKS.md">Trademarks</a>
                     </footer>
                 </div>
             </div>

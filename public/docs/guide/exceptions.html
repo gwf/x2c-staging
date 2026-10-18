@@ -1,6 +1,6 @@
 <!DOCTYPE HTML>
 <html lang="en" class="light sidebar-visible" dir="ltr">
-    <head><meta name="x2c-release-channel" content="staging"><meta name="x2c-candidate" content="candidate-314994819f7fad4f4d97c6df9cf622aa7edec575-38995554323-1">
+    <head><meta name="x2c-release-channel" content="staging"><meta name="x2c-candidate" content="candidate-aa2b9b2575297711e5978acc53f87bd7f645f3c7-39090113132-1">
         <!-- Book generated using mdBook -->
         <meta charset="UTF-8">
         <title>Exceptions and Cleanup - The x2c Book</title>
@@ -39,10 +39,10 @@
             const path_to_root = "../";
             const default_light_theme = "light";
             const default_dark_theme = "light";
-            window.path_to_searchindex_js = "../searchindex-430ab4ed.js";
+            window.path_to_searchindex_js = "../searchindex-f4d06db2.js";
         </script>
         <!-- Start loading toc.js asap -->
-        <script src="../toc-f2c88270.js"></script>
+        <script src="../toc-00ae7479.js"></script>
         <!-- x2c publication metadata -->
         <link rel="canonical" href="https://staging.x2c-lang.dev/docs/guide/exceptions.html">
         <meta property="og:type" content="website">
@@ -369,9 +369,21 @@ another disposition raises <code>&lt;bad-arg&gt;</code> and leaves the previous 
 unchanged. It also rejects <code>&lt;log&gt;</code>, <code>&lt;collect&gt;</code>, or <code>&lt;ignore&gt;</code> for every
 non-returning cause, leaving those policies at <code>&lt;abort&gt;</code>. Unknown <code>Error</code> codes
 remain legal and default to <code>&lt;abort&gt;</code>.</p>
-<p>The default <code>Logger</code> registers an observing <code>Error</code> handler. It renders
-policy-selected <code>&lt;abort&gt;</code> and <code>&lt;log&gt;</code> entries as structured log events, then
-declines. <code>Error</code> then transfers control or consumes the errors as required.</p>
+<p>The default <code>Logger</code> registers an observing <code>Error</code> handler. An uncaught
+<code>Error</code>, one whose policy is <code>&lt;abort&gt;</code>, is reported as one line on standard
+error, and the process then aborts:</p>
+<pre><code class="language-text">x2c: uncaught &lt;bad-state&gt; in main (config.x:12): operation load-config, path x.toml
+</code></pre>
+<p>The line names the cause, the raising function and source line, and the
+detail pairs. An <code>Error</code> raised inside the runtime library shows its detail
+without the runtime’s own source location; the <code>operation</code> detail names the
+call. A <code>&lt;log&gt;</code> entry is rendered as a structured <code>&lt;err-report&gt;</code> log event.
+Setting <code>X2C_DEBUG</code> in the environment renders uncaught errors as that event
+too, with the complete detail and location. A program that installs its own
+global <code>Logger</code>, or adds a sink to the default one, receives the structured
+event for both policies, so a configured log never loses information. After
+rendering, the handler declines, and <code>Error</code> transfers control or consumes
+the errors as required.</p>
 <h2 id="finally-and-defer"><a class="header" href="#finally-and-defer"><code>finally</code> and <code>defer</code></a></h2>
 <p>Both forms run cleanup when control leaves their region: on normal exit, on
 <code>return</code>, <code>break</code>, <code>continue</code>, or an outward <code>goto</code>, and when an <code>Error</code>
@@ -509,9 +521,9 @@ The raw <code>Scope</code> leak report runs after all shutdown hooks.</p>
                         &copy; 2025&ndash;2026
                         <a href="https://flake.org">GWF</a>
                         &middot;
-                        <a href="https://github.com/gwf/x2c/blob/314994819f7fad4f4d97c6df9cf622aa7edec575/LICENSE">Apache 2.0</a>
+                        <a href="https://github.com/gwf/x2c/blob/aa2b9b2575297711e5978acc53f87bd7f645f3c7/LICENSE">Apache 2.0</a>
                         &middot;
-                        <a href="https://github.com/gwf/x2c/blob/314994819f7fad4f4d97c6df9cf622aa7edec575/TRADEMARKS.md">Trademarks</a>
+                        <a href="https://github.com/gwf/x2c/blob/aa2b9b2575297711e5978acc53f87bd7f645f3c7/TRADEMARKS.md">Trademarks</a>
                     </footer>
                 </div>
             </div>
