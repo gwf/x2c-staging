@@ -1,6 +1,6 @@
 <!DOCTYPE HTML>
 <html lang="en" class="light sidebar-visible" dir="ltr">
-    <head><meta name="x2c-release-channel" content="staging"><meta name="x2c-candidate" content="candidate-aa2b9b2575297711e5978acc53f87bd7f645f3c7-39090113132-1">
+    <head><meta name="x2c-release-channel" content="staging"><meta name="x2c-candidate" content="candidate-aa2b9b2575297711e5978acc53f87bd7f645f3c7-39090113132-1"><meta name="x2c-site-source" content="2c5870d64d381a861054dae9927aa65adc87e9e0"><meta name="robots" content="noindex">
         <!-- Book generated using mdBook -->
         <meta charset="UTF-8">
         <title>lib/scope/scope.x - The x2c Book</title>
@@ -30,7 +30,7 @@
         <link rel="stylesheet" id="mdbook-ayu-highlight-css" href="../../ayu-highlight-3fdfc3ac.css">
 
         <!-- Custom theme stylesheets -->
-        <link rel="stylesheet" href="../../theme/header-f6c12aed.css">
+        <link rel="stylesheet" href="../../theme/header-b540a03f.css">
         <link rel="stylesheet" href="../../theme/x2c-fd3d182e.css">
 
 
@@ -39,12 +39,12 @@
             const path_to_root = "../../";
             const default_light_theme = "light";
             const default_dark_theme = "light";
-            window.path_to_searchindex_js = "../../searchindex-f4d06db2.js";
+            window.path_to_searchindex_js = "../../searchindex-a3bdfad5.js";
         </script>
         <!-- Start loading toc.js asap -->
-        <script src="../../toc-00ae7479.js"></script>
+        <script src="../../toc-2248e0f3.js"></script>
         <!-- x2c publication metadata -->
-        <link rel="canonical" href="https://staging.x2c-lang.dev/docs/library/modules/scope.html">
+        <link rel="canonical" href="https://x2c-lang.dev/docs/library/modules/scope.html">
         <meta property="og:type" content="website">
         <meta property="og:title" content="lib/scope/scope.x - The x2c Book">
         <meta property="og:description" content="The x2c language, standard library, and compiler.">
@@ -143,16 +143,12 @@
                             <button class="landing-tagline menu-title" type="button" title="Scroll to top">The x2c Book</button>
                         </div>
                         <nav class="landing-nav" aria-label="x2c website">
-                            <div class="landing-page-nav">
-                                <a href="../../../#love">love</a>
-                                <a href="../../../#power">power</a>
-                                <a href="../../../#magic">magic</a>
-                            </div>
                             <div class="landing-site-nav">
                                 <a href="../../../#install">install</a>
                                 <a href="../../../#packages">packages</a>
                             </div>
                             <div class="landing-reference-nav">
+                                <a href="../../../examples/">examples</a>
                                 <a href="../../../about/">about</a>
                                 <a href="../../" aria-current="page">docs</a>
                                 <a href="https://github.com/gwf/x2c">source</a>
@@ -229,30 +225,111 @@
 <tr><th>Function</th><th>Summary</th></tr>
 </thead>
 <tbody>
-<tr><td><a href="#x2c_scope_thread_release"><code>x2c_scope_thread_release</code></a></td><td>Destroys this thread’s <code>Scope</code> chain and its push and retain stacks.</td></tr>
+<tr><td><a href="#xcalloc"><code>xcalloc</code></a></td><td>Allocates zeroed objects in the active scope through <code>Scope.calloc</code>.</td></tr>
+<tr><td><a href="#xfree"><code>xfree</code></a></td><td>Frees scope-owned memory through <code>Scope.free</code>; NULL does nothing.</td></tr>
+<tr><td><a href="#xmalloc"><code>xmalloc</code></a></td><td>Allocates uninitialized bytes in the active scope through <code>Scope.malloc</code>.</td></tr>
+<tr><td><a href="#xmemdup"><code>xmemdup</code></a></td><td>Copies bytes into the active scope through <code>Scope.memdup</code>.</td></tr>
+<tr><td><a href="#xrealloc"><code>xrealloc</code></a></td><td>Resizes scope-owned memory through <code>Scope.realloc</code>, preserving its owner.</td></tr>
+<tr><td><a href="#Scope.child"><code>Scope.child</code></a></td><td>Creates a storage scope owned by the active allocation scope.</td></tr>
+<tr><td><a href="#Scope.close"><code>Scope.close</code></a></td><td>Destroys the scope in the active slot and frees everything it owns.</td></tr>
+<tr><td><a href="#Scope.contains"><code>Scope.contains</code></a></td><td>Reports whether <code>scope</code> owns <code>candidate</code> through lifetime parent links.</td></tr>
 <tr><td><a href="#Scope.malloc_finalized"><code>Scope.malloc_finalized</code></a></td><td>Allocates <code>size</code> uninitialized bytes in the active scope with a finalizer.</td></tr>
 <tr><td><a href="#Scope.malloc_finalized_in"><code>Scope.malloc_finalized_in</code></a></td><td>Allocates <code>size</code> bytes with finalizer <code>drop</code> in the scope held by <code>s</code>.</td></tr>
 <tr><td><a href="#Scope.new"><code>Scope.new</code></a></td><td>Creates a detached, unnamed scope and returns it.</td></tr>
+<tr><td><a href="#Scope.open"><code>Scope.open</code></a></td><td>Opens a new scope in the active slot and makes it the current one.</td></tr>
+<tr><td><a href="#Scope.parent"><code>Scope.parent</code></a></td><td>Returns this scope’s lifetime parent, or NULL for a detached scope.</td></tr>
 <tr><td><a href="#Scope.pop"><code>Scope.pop</code></a></td><td>Restores the slot that was active before the matching <code>Scope.push</code>.</td></tr>
 <tr><td><a href="#Scope.push"><code>Scope.push</code></a></td><td>Makes the scope in <code>scope</code> active until a matching <code>Scope.pop</code>.</td></tr>
+<tr><td><a href="#Scope.transfer"><code>Scope.transfer</code></a></td><td>Reparents this storage scope and its adopted descendants without copying.</td></tr>
 </tbody>
 </table>
 </div>
 <h3 id="functions"><a class="header" href="#functions">Functions</a></h3>
-<h4 id="x2c_scope_thread_release"><a class="header" href="#x2c_scope_thread_release">x2c_scope_thread_release</a></h4>
-<p><code>void x2c_scope_thread_release(void)</code></p>
-<p>Destroys this thread’s <code>Scope</code> chain and its push and retain stacks.
-It runs last in <code>x2c_thread_state_release</code> and repeats harmlessly; a
-thread that never created a <code>Scope</code> has nothing to destroy.</p>
-<p>Source: <code>lib/scope/regions.x:300</code></p>
+<h4 id="xcalloc"><a class="header" href="#xcalloc">xcalloc</a></h4>
+<p><code>void * xcalloc(size_t count, size_t size)</code></p>
+<p>Allocates zeroed objects in the active scope through <code>Scope.calloc</code>.
+The count overflow check, zero-size behavior, and raised errors are the
+same. Release the result with <code>xfree</code> or let its scope reclaim it.</p>
+<p><strong>See:</strong> <a href="#Scope.calloc"><code>Scope.calloc</code></a></p>
+<p>Source: <code>lib/scope/scope.x</code></p>
+<h4 id="xfree"><a class="header" href="#xfree">xfree</a></h4>
+<p><code>void xfree(void *ptr)</code></p>
+<p>Frees scope-owned memory through <code>Scope.free</code>; NULL does nothing.
+Native allocations, including buffers from <code>getline</code>, require native
+<code>free</code>. Passing them to <code>xfree</code> is undefined behavior.</p>
+<p><strong>See:</strong> <a href="#Scope.free"><code>Scope.free</code></a></p>
+<p>Source: <code>lib/scope/scope.x</code></p>
+<h4 id="xmalloc"><a class="header" href="#xmalloc">xmalloc</a></h4>
+<p><code>void * xmalloc(size_t size)</code></p>
+<p>Allocates uninitialized bytes in the active scope through <code>Scope.malloc</code>.
+The signature, ownership, zero-size behavior, and raised errors are the
+same. Release the result with <code>xfree</code> or let its scope reclaim it.</p>
+<p><strong>See:</strong> <a href="#Scope.malloc"><code>Scope.malloc</code></a></p>
+<p>Source: <code>lib/scope/scope.x</code></p>
+<h4 id="xmemdup"><a class="header" href="#xmemdup">xmemdup</a></h4>
+<p><code>void * xmemdup(const void *ptr, size_t size)</code></p>
+<p>Copies bytes into the active scope through <code>Scope.memdup</code>.
+A NULL source or zero size returns NULL without allocating. Copy a
+string’s terminator too. The signature and raised errors are unchanged.</p>
+<p><strong>See:</strong> <a href="#Scope.memdup"><code>Scope.memdup</code></a></p>
+<p>Source: <code>lib/scope/scope.x</code></p>
+<h4 id="xrealloc"><a class="header" href="#xrealloc">xrealloc</a></h4>
+<p><code>void * xrealloc(void *ptr, size_t size)</code></p>
+<p>Resizes scope-owned memory through <code>Scope.realloc</code>, preserving its owner.
+A NULL pointer allocates in the active scope, including for size zero.
+A nonnull pointer with size zero is freed and returns NULL.
+The signature and raised errors are the same as <code>Scope.realloc</code>.</p>
+<p><strong>See:</strong> <a href="#Scope.realloc"><code>Scope.realloc</code></a></p>
+<p>Source: <code>lib/scope/scope.x</code></p>
 <h3 id="scope"><a class="header" href="#scope"><code>Scope</code></a></h3>
+<p><a id="Scope.child"></a></p>
+<h4 id="scopechild"><a class="header" href="#scopechild">Scope.child</a></h4>
+<p><code>Scope Scope.child(void)</code></p>
+<p>Creates a storage scope owned by the active allocation scope.
+Its allocations and adopted children are reclaimed with its owner unless
+explicitly transferred or destroyed first. No object graph is traversed.</p>
+<p><strong>Raises:</strong> <code>&lt;alloc-fail&gt;</code> while creating the scope or its initial owner.</p>
+<p>Source: <code>lib/scope/regions.x</code></p>
+<p><a id="Scope.close"></a></p>
+<h4 id="scopeclose"><a class="header" href="#scopeclose">Scope.close</a></h4>
+<p><code>meta native void Scope.close(void)</code></p>
+<p>Destroys the scope in the active slot and frees everything it owns.
+Every allocation charged to that scope is freed: <code>Scope.malloc</code>,
+<code>Scope.calloc</code>, and <code>Scope.memdup</code> results, and the backing storage of the
+<code>Block</code>s, <code>Array</code>s, <code>Buffer</code>s, and boxed wide <code>Var</code>s built while it was
+active.
+The scope linked below it then becomes active again.</p>
+<p>Canonical values are not reclaimed. Interned <code>String</code>s, <code>List</code> cells, and
+<code>Symbol</code>s built inside the region remain valid after the close.
+An allocation relinked with <code>Scope.move</code> now belongs to its new scope and
+survives. Anything owned by another scope or another slot is untouched,
+and memory from plain <code>malloc</code> is unaffected.</p>
+<p>The active region must be the one opened by a matching <code>Scope.open</code> on
+this same slot. Closing an empty slot, a directly allocated root, or a
+region opened on another pushed slot is an imbalance and raises. An
+extra close cannot destroy the surrounding region, and an empty open
+region still closes normally.</p>
+<p>A pointer into a closed region is not diagnosed. Neither the compiler
+nor the runtime tracks it, and using it afterwards is undefined behavior.
+With accounting enabled, <code>Scope.stats</code> confirms that nothing stays live.</p>
+<p><strong>Raises:</strong> <code>&lt;bad-state&gt;</code> when no matching open owns the active region. The
+failure leaves the active region intact. Before <code>Error</code> initialization it
+terminates at the error floor.</p>
+<p>Source: <code>lib/scope/regions.x</code></p>
+<p><a id="Scope.contains"></a></p>
+<h4 id="scopecontains"><a class="header" href="#scopecontains">Scope.contains</a></h4>
+<p><code>int Scope.contains(Scope scope, Scope candidate)</code></p>
+<p>Reports whether <code>scope</code> owns <code>candidate</code> through lifetime parent links.
+A scope contains itself. Both handles must remain live during the query.
+This walks scope parents, never object references.</p>
+<p>Source: <code>lib/scope/regions.x</code></p>
 <p><a id="Scope.malloc_finalized"></a></p>
 <h4 id="scopemalloc_finalized"><a class="header" href="#scopemalloc_finalized">Scope.malloc_finalized</a></h4>
 <p><code>void *Scope.malloc_finalized(size_t size, void (*drop)(void *))</code></p>
 <p>Allocates <code>size</code> uninitialized bytes in the active scope with a finalizer.
 <code>drop</code> runs exactly once with the block’s pointer when the block is
 reclaimed: by <code>Scope.free</code>, by <code>Scope.realloc</code> to size zero, by the
-release or destruction of its scope, or by thread and process shutdown.
+close or destruction of its scope, or by thread and process shutdown.
 The finalizer follows the block through <code>Scope.move</code> and survives
 <code>Scope.realloc</code>, which passes <code>drop</code> the resized pointer. Blocks are
 reclaimed most recent first, so a finalizer sees older blocks still live.</p>
@@ -267,7 +344,7 @@ reclaims.</p>
 would overflow the allocation header, or <code>&lt;alloc-fail&gt;</code> when the
 underlying allocation fails. Before <code>Error</code> initialization they
 terminate at the error floor.</p>
-<p>Source: <code>lib/scope/allocation.x:73</code></p>
+<p>Source: <code>lib/scope/allocation.x</code></p>
 <p><a id="Scope.malloc_finalized_in"></a></p>
 <h4 id="scopemalloc_finalized_in"><a class="header" href="#scopemalloc_finalized_in">Scope.malloc_finalized_in</a></h4>
 <p><code>void *Scope.malloc_finalized_in(Scope *s, size_t size, void (*drop)(void *))</code></p>
@@ -277,7 +354,7 @@ scope creation as <code>Scope.malloc_in</code>; the active scope is left alone.<
 <p><strong>Raises:</strong> <code>&lt;bad-arg&gt;</code> when <code>s</code> or <code>drop</code> is NULL, <code>&lt;size-limit&gt;</code> when
 the size overflows, or <code>&lt;alloc-fail&gt;</code> when allocation fails. Before
 <code>Error</code> initialization they terminate at the error floor.</p>
-<p>Source: <code>lib/scope/allocation.x:101</code></p>
+<p>Source: <code>lib/scope/allocation.x</code></p>
 <p><a id="Scope.new"></a></p>
 <h4 id="scopenew"><a class="header" href="#scopenew">Scope.new</a></h4>
 <p><code>meta native Scope Scope.new(void)</code></p>
@@ -286,23 +363,61 @@ A detached scope sits in no slot and is not active, so nothing is charged
 to it until you allocate through <code>Scope.malloc_in</code> and friends or make it
 active with <code>Scope.push</code>. End it with <code>Scope.destroy</code>. Prefer
 <code>Scope.new_named</code> for anything long-lived; the name appears in the
-exit-time leak report.</p>
+exit-time leak report when accounting is enabled.</p>
 <p><strong>Raises:</strong> <code>&lt;alloc-fail&gt;</code> when the scope cannot be allocated. Before <code>Error</code>
 initialization it terminates at the error floor.</p>
-<p>Source: <code>lib/scope/regions.x:219</code></p>
+<p>Source: <code>lib/scope/regions.x</code></p>
+<p><a id="Scope.open"></a></p>
+<h4 id="scopeopen"><a class="header" href="#scopeopen">Scope.open</a></h4>
+<p><code>meta native void Scope.open(void)</code></p>
+<p>Opens a new scope in the active slot and makes it the current one.
+Allocations that follow are charged to the new scope. The scope that was
+there is linked below it and becomes current again on close, so open
+regions nest. Open a nested region when a group of temporaries should die
+before the surrounding work does. Each <code>Scope.open</code> must be paired with
+exactly one <code>Scope.close</code>.</p>
+<p>Pair them with <code>defer</code>. <code>Error</code> transfer does not close a region. A raise
+that jumps past a plain <code>Scope.close</code> leaves that region live for the
+rest of the process, so use <code>defer</code> in any function that both opens a
+region and can raise.</p>
+<pre class="shiki shiki-themes x2c-light x2c-dark x2c-code" style="--shiki-light:#24292e;--shiki-dark:#e9e5df;--shiki-light-bg:#fff;--shiki-dark-bg:#101011" tabindex="0"><code class="language-x2c no-highlight"><span class="line boring"><span style="--shiki-light:#D73A49;--shiki-dark:#F0ADA1">static</span><span style="--shiki-light:#D73A49;--shiki-dark:#F0ADA1"> void</span><span style="--shiki-light:#6F42C1;--shiki-dark:#E9E5DF"> report</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">(</span><span style="--shiki-light:#D73A49;--shiki-dark:#F0ADA1">int</span><span style="--shiki-light:#E36209;--shiki-dark:#E9E5DF"> width</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">) {</span>
+</span><span class="line"><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">Scope.</span><span style="--shiki-light:#6F42C1;--shiki-dark:#E9E5DF">open</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">();</span>
+</span><span class="line"><span style="--shiki-light:#A626A4;--shiki-light-font-weight:bold;--shiki-dark:#FF4FD8;--shiki-dark-font-weight:bold">defer</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF"> Scope.</span><span style="--shiki-light:#6F42C1;--shiki-dark:#E9E5DF">close</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">();</span>
+</span><span class="line"><span style="--shiki-light:#D73A49;--shiki-dark:#F0ADA1">char</span><span style="--shiki-light:#D73A49;--shiki-dark:#E9E5DF"> *</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">line </span><span style="--shiki-light:#D73A49;--shiki-dark:#E9E5DF">=</span><span style="--shiki-light:#6F42C1;--shiki-dark:#E9E5DF"> xmalloc</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">(width </span><span style="--shiki-light:#D73A49;--shiki-dark:#E9E5DF">+</span><span style="--shiki-light:#005CC5;--shiki-dark:#A9C9F5"> 1</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">);</span>
+</span><span class="line"><span style="--shiki-light:#6F42C1;--shiki-dark:#E9E5DF">snprintf</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">(line, width </span><span style="--shiki-light:#D73A49;--shiki-dark:#E9E5DF">+</span><span style="--shiki-light:#005CC5;--shiki-dark:#A9C9F5"> 1</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">, </span><span style="--shiki-light:#032F62;--shiki-dark:#9EDFB8">"</span><span style="--shiki-light:#005CC5;--shiki-dark:#9EDFB8">%d</span><span style="--shiki-light:#032F62;--shiki-dark:#9EDFB8"> bytes"</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">, width);</span>
+</span><span class="line"><span style="--shiki-light:#6F42C1;--shiki-dark:#E9E5DF">puts</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">(line);</span>
+</span><span class="line boring"><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">}</span>
+</span><span class="line boring">
+</span><span class="line boring"><span style="--shiki-light:#D73A49;--shiki-dark:#F0ADA1">int</span><span style="--shiki-light:#6F42C1;--shiki-dark:#E9E5DF"> main</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">(</span><span style="--shiki-light:#D73A49;--shiki-dark:#F0ADA1">void</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">) {</span>
+</span><span class="line boring"><span style="--shiki-light:#6F42C1;--shiki-dark:#E9E5DF">  report</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">(</span><span style="--shiki-light:#005CC5;--shiki-dark:#A9C9F5">16</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">);</span>
+</span><span class="line boring"><span style="--shiki-light:#D73A49;--shiki-dark:#F0ADA1">  return</span><span style="--shiki-light:#005CC5;--shiki-dark:#A9C9F5"> 0</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">;</span>
+</span><span class="line boring"><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">}</span></span></code></pre>
+
+<p>A scope wrapped around nothing but canonical values does nothing, since
+those values already outlive it, and adds a close that is easy to omit.</p>
+<p><strong>Raises:</strong> <code>&lt;alloc-fail&gt;</code> when the scope or its region record cannot be
+allocated, or <code>&lt;size-limit&gt;</code> when that record cannot grow. Before <code>Error</code>
+initialization they terminate at the error floor.</p>
+<p>Source: <code>lib/scope/regions.x</code></p>
+<p><a id="Scope.parent"></a></p>
+<h4 id="scopeparent"><a class="header" href="#scopeparent">Scope.parent</a></h4>
+<p><code>Scope Scope.parent(Scope scope)</code></p>
+<p>Returns this scope’s lifetime parent, or NULL for a detached scope.
+This is independent of the active allocation stack and open regions.</p>
+<p>Source: <code>lib/scope/regions.x</code></p>
 <p><a id="Scope.pop"></a></p>
 <h4 id="scopepop"><a class="header" href="#scopepop">Scope.pop</a></h4>
 <p><code>meta native void Scope.pop(void)</code></p>
 <p>Restores the slot that was active before the matching <code>Scope.push</code>.
 Popping frees nothing. The popped slot keeps its scope and every
 allocation in it, so you can destroy that scope later or pass it
-elsewhere. With no pushes outstanding, the process root slot becomes
+elsewhere. With no pushes outstanding, the execution base slot becomes
 active again.</p>
 <p><strong>Raises:</strong> <code>&lt;bad-state&gt;</code> when the scope stack is empty, so a mismatched push
 and pop raises instead of redirecting allocations. The failure leaves the
 active slot unchanged. Before <code>Error</code> initialization it terminates at the
 error floor.</p>
-<p>Source: <code>lib/scope/regions.x:73</code></p>
+<p>Source: <code>lib/scope/regions.x</code></p>
 <p><a id="Scope.push"></a></p>
 <h4 id="scopepush"><a class="header" href="#scopepush">Scope.push</a></h4>
 <p><code>meta native void Scope.push(Scope *scope)</code></p>
@@ -314,7 +429,7 @@ slot through every call. Slots stack, and each push needs one pop.</p>
 <pre class="shiki shiki-themes x2c-light x2c-dark x2c-code" style="--shiki-light:#24292e;--shiki-dark:#e9e5df;--shiki-light-bg:#fff;--shiki-dark-bg:#101011" tabindex="0"><code class="language-x2c no-highlight"><span class="line boring"><span style="--shiki-light:#D73A49;--shiki-dark:#F0ADA1">int</span><span style="--shiki-light:#6F42C1;--shiki-dark:#E9E5DF"> main</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">(</span><span style="--shiki-light:#D73A49;--shiki-dark:#F0ADA1">void</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">) {</span>
 </span><span class="line"><span style="--shiki-light:#007C8A;--shiki-dark:#29D3E2">Scope</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF"> work </span><span style="--shiki-light:#D73A49;--shiki-dark:#E9E5DF">=</span><span style="--shiki-light:#005CC5;--shiki-dark:#E9E5DF"> NULL</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">;</span>
 </span><span class="line"><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">Scope.</span><span style="--shiki-light:#6F42C1;--shiki-dark:#E9E5DF">push</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">(</span><span style="--shiki-light:#D73A49;--shiki-dark:#E9E5DF">&amp;</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">work);</span>
-</span><span class="line"><span style="--shiki-light:#D73A49;--shiki-dark:#F0ADA1">char</span><span style="--shiki-light:#D73A49;--shiki-dark:#E9E5DF"> *</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">buffer </span><span style="--shiki-light:#D73A49;--shiki-dark:#E9E5DF">=</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF"> Scope.</span><span style="--shiki-light:#6F42C1;--shiki-dark:#E9E5DF">malloc</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">(</span><span style="--shiki-light:#005CC5;--shiki-dark:#A9C9F5">16</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">);</span>
+</span><span class="line"><span style="--shiki-light:#D73A49;--shiki-dark:#F0ADA1">char</span><span style="--shiki-light:#D73A49;--shiki-dark:#E9E5DF"> *</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">buffer </span><span style="--shiki-light:#D73A49;--shiki-dark:#E9E5DF">=</span><span style="--shiki-light:#6F42C1;--shiki-dark:#E9E5DF"> xmalloc</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">(</span><span style="--shiki-light:#005CC5;--shiki-dark:#A9C9F5">16</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">);</span>
 </span><span class="line"><span style="--shiki-light:#6F42C1;--shiki-dark:#E9E5DF">snprintf</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">(buffer, </span><span style="--shiki-light:#005CC5;--shiki-dark:#A9C9F5">16</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">, </span><span style="--shiki-light:#032F62;--shiki-dark:#9EDFB8">"in work"</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">);</span>
 </span><span class="line"><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">Scope.</span><span style="--shiki-light:#6F42C1;--shiki-dark:#E9E5DF">pop</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">();</span>
 </span><span class="line"><span style="--shiki-light:#6F42C1;--shiki-dark:#E9E5DF">puts</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">(buffer);</span>
@@ -329,7 +444,18 @@ slot cannot be destroyed while it is on the stack.</p>
 cannot grow within its representation, or <code>&lt;alloc-fail&gt;</code> when its storage
 cannot be allocated. These failures leave the active slot unchanged.
 Before <code>Error</code> initialization they terminate at the error floor.</p>
-<p>Source: <code>lib/scope/regions.x:40</code></p>
+<p>Source: <code>lib/scope/regions.x</code></p>
+<p><a id="Scope.transfer"></a></p>
+<h4 id="scopetransfer"><a class="header" href="#scopetransfer">Scope.transfer</a></h4>
+<p><code>void Scope.transfer(Scope scope, Scope destination)</code></p>
+<p>Reparents this storage scope and its adopted descendants without copying.
+A NULL destination detaches the subtree; its allocations remain owned by
+their existing scopes until reattachment or explicit destruction.
+The source must be inactive. A nonnull destination must be live and must
+not be the source or one of its descendants. Callers provide exclusive
+access to the affected ownership lists and coordinate payload access.
+Transfer does not follow payload references or revoke aliases.</p>
+<p>Source: <code>lib/scope/regions.x</code></p>
 <h2 id="advanced-and-interop-api"><a class="header" href="#advanced-and-interop-api">Advanced and interop API</a></h2>
 <div class="table-wrapper">
 <table>
@@ -338,10 +464,11 @@ Before <code>Error</code> initialization they terminate at the error floor.</p>
 </thead>
 <tbody>
 <tr><td><a href="#Scope_shutdown"><code>Scope_shutdown</code></a></td><td>Releases resources owned by <code>Scope</code>.</td></tr>
+<tr><td><a href="#Scope.accounting_enabled"><code>Scope.accounting_enabled</code></a></td><td>Reports whether process-start allocation accounting is enabled.</td></tr>
 <tr><td><a href="#Scope.calloc"><code>Scope.calloc</code></a></td><td>Allocates <code>count</code> objects of <code>size</code> bytes each, zeroed, in the active scope.</td></tr>
 <tr><td><a href="#Scope.calloc_in"><code>Scope.calloc_in</code></a></td><td>Allocates <code>count</code> zeroed objects of <code>size</code> bytes in the scope in <code>slot</code>.</td></tr>
 <tr><td><a href="#Scope.cleanup"><code>Scope.cleanup</code></a></td><td>Ends the owned lifetime when a managed local leaves its block.</td></tr>
-<tr><td><a href="#Scope.destroy"><code>Scope.destroy</code></a></td><td>Destroys a detached scope and frees every allocation it owns.</td></tr>
+<tr><td><a href="#Scope.destroy"><code>Scope.destroy</code></a></td><td>Destroys a scope and frees its allocations and adopted child scopes.</td></tr>
 <tr><td><a href="#Scope.free"><code>Scope.free</code></a></td><td>Frees one scope-owned allocation before its scope ends.</td></tr>
 <tr><td><a href="#Scope.malloc"><code>Scope.malloc</code></a></td><td>Allocates <code>size</code> uninitialized bytes in the active scope.</td></tr>
 <tr><td><a href="#Scope.malloc_in"><code>Scope.malloc_in</code></a></td><td>Allocates <code>size</code> uninitialized bytes in the scope held by <code>slot</code>.</td></tr>
@@ -350,9 +477,8 @@ Before <code>Error</code> initialization they terminate at the error floor.</p>
 <tr><td><a href="#Scope.move"><code>Scope.move</code></a></td><td>Relinks one allocation onto the scope held by <code>slot</code>.</td></tr>
 <tr><td><a href="#Scope.name"><code>Scope.name</code></a></td><td>Returns the diagnostic name of <code>scope</code>, or NULL if it has none.</td></tr>
 <tr><td><a href="#Scope.new_named"><code>Scope.new_named</code></a></td><td>Creates a detached scope carrying a copy of <code>name</code> for diagnostics.</td></tr>
+<tr><td><a href="#Scope.owner"><code>Scope.owner</code></a></td><td>Returns the <code>Scope</code> that currently owns <code>ptr</code>.</td></tr>
 <tr><td><a href="#Scope.realloc"><code>Scope.realloc</code></a></td><td>Resizes one scope-owned allocation and returns the new pointer.</td></tr>
-<tr><td><a href="#Scope.release"><code>Scope.release</code></a></td><td>Destroys the scope in the active slot and frees everything it owns.</td></tr>
-<tr><td><a href="#Scope.retain"><code>Scope.retain</code></a></td><td>Opens a new scope in the active slot and makes it the current one.</td></tr>
 <tr><td><a href="#Scope.stats"><code>Scope.stats</code></a></td><td>Returns a snapshot of the allocator’s counters.</td></tr>
 <tr><td><a href="#Scope.top"><code>Scope.top</code></a></td><td>Returns the address of the active scope slot.</td></tr>
 </tbody>
@@ -363,10 +489,17 @@ Before <code>Error</code> initialization they terminate at the error floor.</p>
 <h4 id="scope_shutdown"><a class="header" href="#scope_shutdown">Scope_shutdown</a></h4>
 <p><code>void Scope_shutdown(void)</code></p>
 <p>Releases resources owned by <code>Scope</code>.
-<code>Scope</code> groups managed allocations by lifetime; balanced retain/release
+<code>Scope</code> groups managed allocations by lifetime; balanced open/close
 and push/pop boundaries remain caller responsibilities.</p>
-<p>Source: <code>lib/scope/runtime.x:94</code></p>
+<p>Source: <code>lib/scope/runtime.x</code></p>
 <h3 id="scope-1"><a class="header" href="#scope-1"><code>Scope</code></a></h3>
+<p><a id="Scope.accounting_enabled"></a></p>
+<h4 id="scopeaccounting_enabled"><a class="header" href="#scopeaccounting_enabled">Scope.accounting_enabled</a></h4>
+<p><code>int Scope.accounting_enabled(void)</code></p>
+<p>Reports whether process-start allocation accounting is enabled.
+Initializes Scope on first use. The result remains fixed and is available
+after shutdown, like <code>Scope.stats</code>.</p>
+<p>Source: <code>lib/scope/runtime.x</code></p>
 <p><a id="Scope.calloc"></a></p>
 <h4 id="scopecalloc"><a class="header" href="#scopecalloc">Scope.calloc</a></h4>
 <p><code>meta native void *Scope.calloc(size_t count, size_t size)</code></p>
@@ -378,7 +511,7 @@ distinct pointer the scope owns, so it is not a failure signal.</p>
 <p><strong>Raises:</strong> <code>&lt;size-limit&gt;</code> when the object count overflows, or <code>&lt;alloc-fail&gt;</code>
 when allocation fails. Before <code>Error</code> initialization they terminate at the
 error floor.</p>
-<p>Source: <code>lib/scope/allocation.x:143</code></p>
+<p>Source: <code>lib/scope/allocation.x</code></p>
 <p><a id="Scope.calloc_in"></a></p>
 <h4 id="scopecalloc_in"><a class="header" href="#scopecalloc_in">Scope.calloc_in</a></h4>
 <p><code>void *Scope.calloc_in(Scope *slot, size_t count, size_t size)</code></p>
@@ -389,30 +522,33 @@ alone.</p>
 <p><strong>Raises:</strong> <code>&lt;bad-arg&gt;</code> when <code>slot</code> is NULL, <code>&lt;size-limit&gt;</code> when the object
 count overflows, or <code>&lt;alloc-fail&gt;</code> when allocation fails. Before <code>Error</code>
 initialization they terminate at the error floor.</p>
-<p>Source: <code>lib/scope/allocation.x:156</code></p>
+<p>Source: <code>lib/scope/allocation.x</code></p>
 <p><a id="Scope.cleanup"></a></p>
 <h4 id="scopecleanup"><a class="header" href="#scopecleanup">Scope.cleanup</a></h4>
 <p><code>meta native void Scope.cleanup(Scope value)</code></p>
 <p>Ends the owned lifetime when a managed local leaves its block.</p>
-<p>Source: <code>lib/scope/regions.x:277</code></p>
+<p>Source: <code>lib/scope/regions.x</code></p>
 <p><a id="Scope.destroy"></a></p>
 <h4 id="scopedestroy"><a class="header" href="#scopedestroy">Scope.destroy</a></h4>
-<p><code>meta native void Scope.destroy(Scope scope)</code></p>
-<p>Destroys a detached scope and frees every allocation it owns.
-This ends a scope you hold in a variable, and is the counterpart to
+<p><code>meta native void Scope.destroy(Scope s)</code></p>
+<p>Destroys a scope and frees its allocations and adopted child scopes.
+An adopted scope first detaches from its lifetime parent. This ends a
+scope you hold in a variable, and is the counterpart to
 <code>Scope.new</code> and <code>Scope.new_named</code>. It frees the scope’s allocations and
 discards its name; pointers into it are dangling afterwards, and nothing
-diagnoses their use. Any regions still linked below it, from retains that
-were never released, are destroyed with it.</p>
-<p><code>Scope.destroy</code> refuses a scope that is still in use: the active root
-scope, a slot still on the pushed stack (pop it first), and a scope that
-a later <code>Scope.retain</code> layered another region on top of, which the
-runtime reports as an attached lower scope. The handle is a pointer into
-the destroyed scope, so destroying it again is undefined behavior.</p>
-<p><strong>Raises:</strong> <code>&lt;bad-state&gt;</code> for the active root, a pushed slot, or an attached
-lower scope. The failure leaves the scope intact. A NULL <code>scope</code> does
-nothing. Before <code>Error</code> initialization it terminates at the error floor.</p>
-<p>Source: <code>lib/scope/regions.x:264</code></p>
+diagnoses their use. Any regions still linked below it, opened and never
+closed, are destroyed with it.</p>
+<p>The caller must own the right to destroy the chain and keep borrowed
+owners alive until their users finish. Destroying an attached lower region
+or any storage still in use violates that lifetime contract.
+<code>Scope.destroy</code> rejects the current execution base and pushed slots, but
+does not track other executions or diagnose every invalid destruction.
+The handle points into destroyed storage, so destroying it again is
+undefined behavior.</p>
+<p><strong>Raises:</strong> <code>&lt;bad-state&gt;</code> for the active base or a pushed slot. The failure
+leaves the scope intact. A NULL <code>scope</code> does nothing. Before <code>Error</code>
+initialization it terminates at the error floor.</p>
+<p>Source: <code>lib/scope/regions.x</code></p>
 <p><a id="Scope.free"></a></p>
 <h4 id="scopefree"><a class="header" href="#scopefree">Scope.free</a></h4>
 <p><code>meta native void Scope.free(void *ptr)</code></p>
@@ -426,47 +562,47 @@ stack address, an interned <code>String</code>, or a plain <code>malloc</code> r
 undefined, as is freeing the same pointer twice. Nothing diagnoses
 either.</p>
 <p>A NULL <code>ptr</code> does nothing.</p>
-<p>Source: <code>lib/scope/allocation.x:224</code></p>
+<p>Source: <code>lib/scope/allocation.x</code></p>
 <p><a id="Scope.malloc"></a></p>
 <h4 id="scopemalloc"><a class="header" href="#scopemalloc">Scope.malloc</a></h4>
 <p><code>meta native void *Scope.malloc(size_t size)</code></p>
 <p>Allocates <code>size</code> uninitialized bytes in the active scope.
 The result is managed memory. <code>Scope.realloc</code> resizes it, <code>Scope.free</code>
 ends its life early, <code>Scope.move</code> reassigns its owner, and
-<code>Scope.release</code> or <code>Scope.destroy</code> reclaims whatever is left. The active
-scope at the time of allocation owns the result; a later retain or push
+<code>Scope.close</code> or <code>Scope.destroy</code> reclaims whatever is left. The active
+scope at the time of allocation owns the result; a later open or push
 does not move it.</p>
 <p><strong>Raises:</strong> <code>&lt;size-limit&gt;</code> when the size would overflow the allocation header,
 or <code>&lt;alloc-fail&gt;</code> when the underlying allocation fails. Before <code>Error</code>
 initialization they terminate at the error floor.</p>
-<p>Source: <code>lib/scope/allocation.x:48</code></p>
+<p>Source: <code>lib/scope/allocation.x</code></p>
 <p><a id="Scope.malloc_in"></a></p>
 <h4 id="scopemalloc_in"><a class="header" href="#scopemalloc_in">Scope.malloc_in</a></h4>
 <p><code>void *Scope.malloc_in(Scope *slot, size_t size)</code></p>
 <p>Allocates <code>size</code> uninitialized bytes in the scope held by <code>slot</code>.
 <code>slot</code> is the address of a <code>Scope</code> variable; if it holds NULL, a fresh
 unnamed scope is created and stored there. Targeting a slot does not
-touch the active-scope stack, so an intervening <code>Scope.retain</code> or
+touch the active-scope stack, so an intervening <code>Scope.open</code> or
 <code>Scope.push</code> cannot redirect the allocation. Pass <code>Scope.top()</code> to name
 the active slot explicitly.</p>
 <p><strong>Raises:</strong> <code>&lt;bad-arg&gt;</code> when <code>slot</code> is NULL, <code>&lt;size-limit&gt;</code> when the size
 overflows, or <code>&lt;alloc-fail&gt;</code> when allocation fails. Before <code>Error</code>
 initialization they terminate at the error floor.</p>
-<p>Source: <code>lib/scope/allocation.x:89</code></p>
+<p>Source: <code>lib/scope/allocation.x</code></p>
 <p><a id="Scope.memdup"></a></p>
 <h4 id="scopememdup"><a class="header" href="#scopememdup">Scope.memdup</a></h4>
 <p><code>meta native void *Scope.memdup(const void *ptr, size_t size)</code></p>
 <p>Copies <code>size</code> bytes from <code>ptr</code> into a new allocation in the active scope.
 The copy is ordinary scope-owned memory, freed by <code>Scope.free</code> or by the
-release that ends the region. Nothing about the source is remembered, so
+close that ends the region. Nothing about the source is remembered, so
 duplicating a C string means copying its terminator too:
-<code>Scope.memdup(text, strlen(text) + 1)</code>.</p>
+<code>xmemdup(text, strlen(text) + 1)</code>.</p>
 <p>A NULL <code>ptr</code> or a zero <code>size</code> returns NULL and allocates nothing, so a
 duplicate of nothing is indistinguishable from failure; check the
 arguments when that distinction matters.</p>
 <p><strong>Raises:</strong> <code>&lt;size-limit&gt;</code> or <code>&lt;alloc-fail&gt;</code> from the underlying allocation.
 A NULL <code>ptr</code> or zero <code>size</code> returns NULL without raising.</p>
-<p>Source: <code>lib/scope/allocation.x:173</code></p>
+<p>Source: <code>lib/scope/allocation.x</code></p>
 <p><a id="Scope.memdup_in"></a></p>
 <h4 id="scopememdup_in"><a class="header" href="#scopememdup_in">Scope.memdup_in</a></h4>
 <p><code>void *Scope.memdup_in(Scope *slot, const void *ptr, size_t size)</code></p>
@@ -478,7 +614,7 @@ current region.</p>
 <p><strong>Raises:</strong> <code>&lt;bad-arg&gt;</code> when <code>slot</code> is NULL, or <code>&lt;size-limit&gt;</code> or
 <code>&lt;alloc-fail&gt;</code> from the underlying allocation. A NULL <code>ptr</code> or zero
 <code>size</code> returns NULL without raising.</p>
-<p>Source: <code>lib/scope/allocation.x:187</code></p>
+<p>Source: <code>lib/scope/allocation.x</code></p>
 <p><a id="Scope.move"></a></p>
 <h4 id="scopemove"><a class="header" href="#scopemove">Scope.move</a></h4>
 <p><code>meta native void Scope.move(void *ptr, Scope *slot)</code></p>
@@ -489,10 +625,10 @@ moves, so a temporary region can compute one result that outlives it. If
 allocators do.</p>
 <pre class="shiki shiki-themes x2c-light x2c-dark x2c-code" style="--shiki-light:#24292e;--shiki-dark:#e9e5df;--shiki-light-bg:#fff;--shiki-dark-bg:#101011" tabindex="0"><code class="language-x2c no-highlight"><span class="line boring"><span style="--shiki-light:#D73A49;--shiki-dark:#F0ADA1">int</span><span style="--shiki-light:#6F42C1;--shiki-dark:#E9E5DF"> main</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">(</span><span style="--shiki-light:#D73A49;--shiki-dark:#F0ADA1">void</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">) {</span>
 </span><span class="line"><span style="--shiki-light:#007C8A;--shiki-dark:#29D3E2">Scope</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF"> keep </span><span style="--shiki-light:#D73A49;--shiki-dark:#E9E5DF">=</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF"> Scope.</span><span style="--shiki-light:#6F42C1;--shiki-dark:#E9E5DF">new_named</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">(</span><span style="--shiki-light:#032F62;--shiki-dark:#9EDFB8">"results"</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">);</span>
-</span><span class="line"><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">Scope.</span><span style="--shiki-light:#6F42C1;--shiki-dark:#E9E5DF">retain</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">();</span>
-</span><span class="line"><span style="--shiki-light:#D73A49;--shiki-dark:#F0ADA1">char</span><span style="--shiki-light:#D73A49;--shiki-dark:#E9E5DF"> *</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">text </span><span style="--shiki-light:#D73A49;--shiki-dark:#E9E5DF">=</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF"> Scope.</span><span style="--shiki-light:#6F42C1;--shiki-dark:#E9E5DF">memdup</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">(</span><span style="--shiki-light:#032F62;--shiki-dark:#9EDFB8">"survivor"</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">, </span><span style="--shiki-light:#005CC5;--shiki-dark:#A9C9F5">9</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">);</span>
+</span><span class="line"><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">Scope.</span><span style="--shiki-light:#6F42C1;--shiki-dark:#E9E5DF">open</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">();</span>
+</span><span class="line"><span style="--shiki-light:#D73A49;--shiki-dark:#F0ADA1">char</span><span style="--shiki-light:#D73A49;--shiki-dark:#E9E5DF"> *</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">text </span><span style="--shiki-light:#D73A49;--shiki-dark:#E9E5DF">=</span><span style="--shiki-light:#6F42C1;--shiki-dark:#E9E5DF"> xmemdup</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">(</span><span style="--shiki-light:#032F62;--shiki-dark:#9EDFB8">"survivor"</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">, </span><span style="--shiki-light:#005CC5;--shiki-dark:#A9C9F5">9</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">);</span>
 </span><span class="line"><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">Scope.</span><span style="--shiki-light:#6F42C1;--shiki-dark:#E9E5DF">move</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">(text, </span><span style="--shiki-light:#D73A49;--shiki-dark:#E9E5DF">&amp;</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">keep);</span>
-</span><span class="line"><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">Scope.</span><span style="--shiki-light:#6F42C1;--shiki-dark:#E9E5DF">release</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">();</span>
+</span><span class="line"><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">Scope.</span><span style="--shiki-light:#6F42C1;--shiki-dark:#E9E5DF">close</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">();</span>
 </span><span class="line"><span style="--shiki-light:#6F42C1;--shiki-dark:#E9E5DF">puts</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">(text);</span>
 </span><span class="line"><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">Scope.</span><span style="--shiki-light:#6F42C1;--shiki-dark:#E9E5DF">destroy</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">(keep);</span>
 </span><span class="line boring"><span style="--shiki-light:#D73A49;--shiki-dark:#F0ADA1">  return</span><span style="--shiki-light:#005CC5;--shiki-dark:#A9C9F5"> 0</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">;</span>
@@ -504,7 +640,7 @@ values already outlive the scope that was active when they were built.</p>
 destination scope cannot be allocated. These failures leave ownership
 unchanged. A NULL <code>ptr</code> does nothing. Before <code>Error</code> initialization they
 terminate at the error floor.</p>
-<p>Source: <code>lib/scope/allocation.x:270</code></p>
+<p>Source: <code>lib/scope/allocation.x</code></p>
 <p><a id="Scope.name"></a></p>
 <h4 id="scopename"><a class="header" href="#scopename">Scope.name</a></h4>
 <p><code>const char *Scope.name(Scope scope)</code></p>
@@ -513,15 +649,16 @@ The string belongs to the allocator’s name registry and stays valid until
 the scope is destroyed; do not free it. A scope from <code>Scope.new</code>, and one
 the runtime created implicitly for the first allocation into an empty
 slot, both have no name.</p>
-<p>Source: <code>lib/scope/accounting.x:13</code></p>
+<p>Source: <code>lib/scope/accounting.x</code></p>
 <p><a id="Scope.new_named"></a></p>
 <h4 id="scopenew_named"><a class="header" href="#scopenew_named">Scope.new_named</a></h4>
 <p><code>meta native Scope Scope.new_named(const char *name)</code></p>
 <p>Creates a detached scope carrying a copy of <code>name</code> for diagnostics.
 The name is copied, so a temporary buffer is fine. <code>Scope.name</code> reports
-it, and the allocator prints it at exit if anything the scope owns is
-still alive, as a line like <code>scope "request": 3 allocations</code>. A NULL
-<code>name</code> behaves like <code>Scope.new</code>.</p>
+it in either accounting mode. With accounting enabled, the allocator
+prints it at exit if anything the scope owns is still alive, as a line
+like <code>scope "request": 3 allocations</code>. A NULL <code>name</code> behaves like
+<code>Scope.new</code>.</p>
 <pre class="shiki shiki-themes x2c-light x2c-dark x2c-code" style="--shiki-light:#24292e;--shiki-dark:#e9e5df;--shiki-light-bg:#fff;--shiki-dark-bg:#101011" tabindex="0"><code class="language-x2c no-highlight"><span class="line boring"><span style="--shiki-light:#D73A49;--shiki-dark:#F0ADA1">int</span><span style="--shiki-light:#6F42C1;--shiki-dark:#E9E5DF"> main</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">(</span><span style="--shiki-light:#D73A49;--shiki-dark:#F0ADA1">void</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">) {</span>
 </span><span class="line"><span style="--shiki-light:#007C8A;--shiki-dark:#29D3E2">Scope</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF"> work </span><span style="--shiki-light:#D73A49;--shiki-dark:#E9E5DF">=</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF"> Scope.</span><span style="--shiki-light:#6F42C1;--shiki-dark:#E9E5DF">new_named</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">(</span><span style="--shiki-light:#032F62;--shiki-dark:#9EDFB8">"request"</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">);</span>
 </span><span class="line"><span style="--shiki-light:#D73A49;--shiki-dark:#F0ADA1">char</span><span style="--shiki-light:#D73A49;--shiki-dark:#E9E5DF"> *</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">copy </span><span style="--shiki-light:#D73A49;--shiki-dark:#E9E5DF">=</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF"> Scope.</span><span style="--shiki-light:#6F42C1;--shiki-dark:#E9E5DF">memdup_in</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">(</span><span style="--shiki-light:#D73A49;--shiki-dark:#E9E5DF">&amp;</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">work, </span><span style="--shiki-light:#032F62;--shiki-dark:#9EDFB8">"payload"</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">, </span><span style="--shiki-light:#005CC5;--shiki-dark:#A9C9F5">8</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">);</span>
@@ -530,10 +667,19 @@ still alive, as a line like <code>scope "request": 3 allocations</code>. A NULL
 </span><span class="line boring"><span style="--shiki-light:#D73A49;--shiki-dark:#F0ADA1">  return</span><span style="--shiki-light:#005CC5;--shiki-dark:#A9C9F5"> 0</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">;</span>
 </span><span class="line boring"><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">}</span></span></code></pre>
 
-<p><strong>Raises:</strong> <code>&lt;alloc-fail&gt;</code> when the scope or name copy cannot be allocated,
-or <code>&lt;size-limit&gt;</code> when the name is too large. Before <code>Error</code>
-initialization these failures terminate the process.</p>
-<p>Source: <code>lib/scope/regions.x:243</code></p>
+<p><strong>Raises:</strong> <code>&lt;alloc-fail&gt;</code> when the scope or name copy cannot be
+allocated. Before <code>Error</code> initialization this failure terminates the
+process.</p>
+<p>Source: <code>lib/scope/regions.x</code></p>
+<p><a id="Scope.owner"></a></p>
+<h4 id="scopeowner"><a class="header" href="#scopeowner">Scope.owner</a></h4>
+<p><code>Scope Scope.owner(void *ptr)</code></p>
+<p>Returns the <code>Scope</code> that currently owns <code>ptr</code>.
+<code>ptr</code> must be a live pointer returned by a <code>Scope</code> allocator. <code>Context</code>
+uses this to leave ancestor-owned objects where they are while moving
+results out of its own <code>Scope</code> chain. Passing any other nonnull pointer is
+undefined behavior, matching <code>Scope.free</code> and <code>Scope.move</code>.</p>
+<p>Source: <code>lib/scope/allocation.x</code></p>
 <p><a id="Scope.realloc"></a></p>
 <h4 id="scoperealloc"><a class="header" href="#scoperealloc">Scope.realloc</a></h4>
 <p><code>meta native void *Scope.realloc(void *ptr, size_t size)</code></p>
@@ -547,65 +693,7 @@ not by itself a failure.</p>
 <p><strong>Raises:</strong> <code>&lt;size-limit&gt;</code> when the size overflows, or <code>&lt;alloc-fail&gt;</code> when
 allocation fails. Before <code>Error</code> initialization these failures terminate at
 the error floor.</p>
-<p>Source: <code>lib/scope/allocation.x:292</code></p>
-<p><a id="Scope.release"></a></p>
-<h4 id="scoperelease"><a class="header" href="#scoperelease">Scope.release</a></h4>
-<p><code>meta native void Scope.release(void)</code></p>
-<p>Destroys the scope in the active slot and frees everything it owns.
-Every allocation charged to that scope is freed: <code>Scope.malloc</code>,
-<code>Scope.calloc</code>, and <code>Scope.memdup</code> results, and the backing storage of the
-<code>Block</code>s, <code>Array</code>s, <code>Buffer</code>s, and boxed wide <code>Var</code>s built while it was
-active.
-The scope linked below it then becomes active again.</p>
-<p>Canonical values are not reclaimed. Interned <code>String</code>s, <code>List</code> cells, and
-<code>Symbol</code>s built inside the region remain valid after release.
-An allocation relinked with <code>Scope.move</code> now belongs to its new scope and
-survives. Anything owned by another scope or another slot is untouched,
-and memory from plain <code>malloc</code> is unaffected.</p>
-<p>The active region must be the one opened by a matching <code>Scope.retain</code> on
-this same slot. Releasing an empty slot, a directly allocated root, or a
-region retained on another pushed slot is an imbalance and raises. An
-extra release cannot destroy the surrounding region, and a retained empty
-scope still closes normally.</p>
-<p>A pointer into a released region is not diagnosed. Neither the compiler
-nor the runtime tracks it, and using it afterwards is undefined behavior.
-<code>Scope.stats</code> confirms that a routine leaves nothing live.</p>
-<p><strong>Raises:</strong> <code>&lt;bad-state&gt;</code> when no matching retain owns the active region. The
-failure leaves the active region intact. Before <code>Error</code> initialization it
-terminates at the error floor.</p>
-<p>Source: <code>lib/scope/regions.x:155</code></p>
-<p><a id="Scope.retain"></a></p>
-<h4 id="scoperetain"><a class="header" href="#scoperetain">Scope.retain</a></h4>
-<p><code>meta native void Scope.retain(void)</code></p>
-<p>Opens a new scope in the active slot and makes it the current one.
-Allocations that follow are charged to the new scope. The scope that was
-there is linked below it and becomes current again on release, so retained
-regions nest. Open a nested region when a group of temporaries should die
-before the surrounding work does. Each <code>Scope.retain</code> must be paired with
-exactly one <code>Scope.release</code>.</p>
-<p>Pair them with <code>defer</code>. <code>Error</code> transfer does not release a scope. A raise
-that jumps past a plain <code>Scope.release</code> leaves that region live for the
-rest of the process, so use <code>defer</code> in any function that both retains and
-can raise.</p>
-<pre class="shiki shiki-themes x2c-light x2c-dark x2c-code" style="--shiki-light:#24292e;--shiki-dark:#e9e5df;--shiki-light-bg:#fff;--shiki-dark-bg:#101011" tabindex="0"><code class="language-x2c no-highlight"><span class="line boring"><span style="--shiki-light:#D73A49;--shiki-dark:#F0ADA1">static</span><span style="--shiki-light:#D73A49;--shiki-dark:#F0ADA1"> void</span><span style="--shiki-light:#6F42C1;--shiki-dark:#E9E5DF"> report</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">(</span><span style="--shiki-light:#D73A49;--shiki-dark:#F0ADA1">int</span><span style="--shiki-light:#E36209;--shiki-dark:#E9E5DF"> width</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">) {</span>
-</span><span class="line"><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">Scope.</span><span style="--shiki-light:#6F42C1;--shiki-dark:#E9E5DF">retain</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">();</span>
-</span><span class="line"><span style="--shiki-light:#A626A4;--shiki-light-font-weight:bold;--shiki-dark:#FF4FD8;--shiki-dark-font-weight:bold">defer</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF"> Scope.</span><span style="--shiki-light:#6F42C1;--shiki-dark:#E9E5DF">release</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">();</span>
-</span><span class="line"><span style="--shiki-light:#D73A49;--shiki-dark:#F0ADA1">char</span><span style="--shiki-light:#D73A49;--shiki-dark:#E9E5DF"> *</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">line </span><span style="--shiki-light:#D73A49;--shiki-dark:#E9E5DF">=</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF"> Scope.</span><span style="--shiki-light:#6F42C1;--shiki-dark:#E9E5DF">malloc</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">(width </span><span style="--shiki-light:#D73A49;--shiki-dark:#E9E5DF">+</span><span style="--shiki-light:#005CC5;--shiki-dark:#A9C9F5"> 1</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">);</span>
-</span><span class="line"><span style="--shiki-light:#6F42C1;--shiki-dark:#E9E5DF">snprintf</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">(line, width </span><span style="--shiki-light:#D73A49;--shiki-dark:#E9E5DF">+</span><span style="--shiki-light:#005CC5;--shiki-dark:#A9C9F5"> 1</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">, </span><span style="--shiki-light:#032F62;--shiki-dark:#9EDFB8">"</span><span style="--shiki-light:#005CC5;--shiki-dark:#9EDFB8">%d</span><span style="--shiki-light:#032F62;--shiki-dark:#9EDFB8"> bytes"</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">, width);</span>
-</span><span class="line"><span style="--shiki-light:#6F42C1;--shiki-dark:#E9E5DF">puts</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">(line);</span>
-</span><span class="line boring"><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">}</span>
-</span><span class="line boring">
-</span><span class="line boring"><span style="--shiki-light:#D73A49;--shiki-dark:#F0ADA1">int</span><span style="--shiki-light:#6F42C1;--shiki-dark:#E9E5DF"> main</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">(</span><span style="--shiki-light:#D73A49;--shiki-dark:#F0ADA1">void</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">) {</span>
-</span><span class="line boring"><span style="--shiki-light:#6F42C1;--shiki-dark:#E9E5DF">  report</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">(</span><span style="--shiki-light:#005CC5;--shiki-dark:#A9C9F5">16</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">);</span>
-</span><span class="line boring"><span style="--shiki-light:#D73A49;--shiki-dark:#F0ADA1">  return</span><span style="--shiki-light:#005CC5;--shiki-dark:#A9C9F5"> 0</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">;</span>
-</span><span class="line boring"><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">}</span></span></code></pre>
-
-<p>A scope wrapped around nothing but canonical values does nothing, since
-those values already outlive it, and adds a release that is easy to omit.</p>
-<p><strong>Raises:</strong> <code>&lt;alloc-fail&gt;</code> when the scope or its retain record cannot be
-allocated, or <code>&lt;size-limit&gt;</code> when that record cannot grow. Before <code>Error</code>
-initialization they terminate at the error floor.</p>
-<p>Source: <code>lib/scope/regions.x:117</code></p>
+<p>Source: <code>lib/scope/allocation.x</code></p>
 <p><a id="Scope.stats"></a></p>
 <h4 id="scopestats"><a class="header" href="#scopestats">Scope.stats</a></h4>
 <p><code>ScopeStats Scope.stats(void)</code></p>
@@ -618,18 +706,20 @@ behind. The snapshot also carries
 <code>largest_request</code>, <code>live_requested_bytes</code>, and
 <code>peak_live_requested_bytes</code>. Requested bytes are cumulative traffic;
 live requested bytes are the exact current managed payload total. Stats
-remain valid after shutdown.</p>
+remain valid after shutdown. With accounting disabled, all fields are
+zero. Set <code>X2C_SCOPE_ACCOUNTING=1</code> before process startup to collect
+statistics and enable automatic exit-time leak reports.</p>
 <pre class="shiki shiki-themes x2c-light x2c-dark x2c-code" style="--shiki-light:#24292e;--shiki-dark:#e9e5df;--shiki-light-bg:#fff;--shiki-dark-bg:#101011" tabindex="0"><code class="language-x2c no-highlight"><span class="line boring"><span style="--shiki-light:#D73A49;--shiki-dark:#F0ADA1">int</span><span style="--shiki-light:#6F42C1;--shiki-dark:#E9E5DF"> main</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">(</span><span style="--shiki-light:#D73A49;--shiki-dark:#F0ADA1">void</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">) {</span>
 </span><span class="line"><span style="--shiki-light:#D73A49;--shiki-dark:#F0ADA1">size_t</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF"> before </span><span style="--shiki-light:#D73A49;--shiki-dark:#E9E5DF">=</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF"> Scope.</span><span style="--shiki-light:#6F42C1;--shiki-dark:#E9E5DF">stats</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">().live_allocations;</span>
-</span><span class="line"><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">Scope.</span><span style="--shiki-light:#6F42C1;--shiki-dark:#E9E5DF">retain</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">();</span>
-</span><span class="line"><span style="--shiki-light:#D73A49;--shiki-dark:#F0ADA1">char</span><span style="--shiki-light:#D73A49;--shiki-dark:#E9E5DF"> *</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">scratch </span><span style="--shiki-light:#D73A49;--shiki-dark:#E9E5DF">=</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF"> Scope.</span><span style="--shiki-light:#6F42C1;--shiki-dark:#E9E5DF">malloc</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">(</span><span style="--shiki-light:#005CC5;--shiki-dark:#A9C9F5">128</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">);</span>
+</span><span class="line"><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">Scope.</span><span style="--shiki-light:#6F42C1;--shiki-dark:#E9E5DF">open</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">();</span>
+</span><span class="line"><span style="--shiki-light:#D73A49;--shiki-dark:#F0ADA1">char</span><span style="--shiki-light:#D73A49;--shiki-dark:#E9E5DF"> *</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">scratch </span><span style="--shiki-light:#D73A49;--shiki-dark:#E9E5DF">=</span><span style="--shiki-light:#6F42C1;--shiki-dark:#E9E5DF"> xmalloc</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">(</span><span style="--shiki-light:#005CC5;--shiki-dark:#A9C9F5">128</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">);</span>
 </span><span class="line"><span style="--shiki-light:#E36209;--shiki-dark:#E9E5DF">scratch</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">[</span><span style="--shiki-light:#005CC5;--shiki-dark:#A9C9F5">0</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">] </span><span style="--shiki-light:#D73A49;--shiki-dark:#E9E5DF">=</span><span style="--shiki-light:#005CC5;--shiki-dark:#A9C9F5"> 0</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">;</span>
-</span><span class="line"><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">Scope.</span><span style="--shiki-light:#6F42C1;--shiki-dark:#E9E5DF">release</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">();</span>
+</span><span class="line"><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">Scope.</span><span style="--shiki-light:#6F42C1;--shiki-dark:#E9E5DF">close</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">();</span>
 </span><span class="line"><span style="--shiki-light:#6F42C1;--shiki-dark:#E9E5DF">printf</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">(</span><span style="--shiki-light:#032F62;--shiki-dark:#9EDFB8">"reclaimed = </span><span style="--shiki-light:#005CC5;--shiki-dark:#9EDFB8">%d\n</span><span style="--shiki-light:#032F62;--shiki-dark:#9EDFB8">"</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">, </span><span style="--shiki-light:#007C8A;--shiki-dark:#29D3E2">Scope</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">.</span><span style="--shiki-light:#6F42C1;--shiki-dark:#E9E5DF">stats</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">().live_allocations </span><span style="--shiki-light:#D73A49;--shiki-dark:#E9E5DF">==</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF"> before);</span>
 </span><span class="line boring"><span style="--shiki-light:#D73A49;--shiki-dark:#F0ADA1">  return</span><span style="--shiki-light:#005CC5;--shiki-dark:#A9C9F5"> 0</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">;</span>
 </span><span class="line boring"><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">}</span></span></code></pre>
 
-<p>Source: <code>lib/scope/accounting.x:107</code></p>
+<p>Source: <code>lib/scope/accounting.x</code></p>
 <p><a id="Scope.top"></a></p>
 <h4 id="scopetop"><a class="header" href="#scopetop">Scope.top</a></h4>
 <p><code>Scope *Scope.top(void)</code></p>
@@ -638,9 +728,9 @@ The result is the slot, not the scope. Pass it to the <code>_in</code> allocator
 name the active slot explicitly. Dereferencing it gives the scope, which
 may be NULL before anything has been allocated into the slot. It names the
 slot that was active at the call; a later <code>Scope.push</code>, <code>Scope.pop</code>,
-<code>Scope.retain</code>, or <code>Scope.release</code> changes which slot is active, so read
+<code>Scope.open</code>, or <code>Scope.close</code> changes which slot is active, so read
 it again instead of caching it.</p>
-<p>Source: <code>lib/scope/regions.x:58</code></p>
+<p>Source: <code>lib/scope/regions.x</code></p>
 <h2 id="runtime-internal-callables"><a class="header" href="#runtime-internal-callables">Runtime-internal callables</a></h2>
 <p>These callables connect runtime translation units. They are documented
 for source readers but are not supported as user API.</p>
@@ -650,38 +740,69 @@ for source readers but are not supported as user API.</p>
 <tr><th>Function</th><th>Summary</th></tr>
 </thead>
 <tbody>
+<tr><td><a href="#x2c_scope_execution_free"><code>x2c_scope_execution_free</code></a></td><td>Releases saved execution bindings after restoring the caller’s state.</td></tr>
+<tr><td><a href="#x2c_scope_execution_new"><code>x2c_scope_execution_new</code></a></td><td>Creates saved allocation bindings for an execution borrowing <code>borrowed</code>.</td></tr>
+<tr><td><a href="#x2c_scope_execution_swap"><code>x2c_scope_execution_swap</code></a></td><td>Exchanges saved and installed bindings at an execution boundary.</td></tr>
+<tr><td><a href="#x2c_scope_thread_release"><code>x2c_scope_thread_release</code></a></td><td>Destroys this thread’s <code>Scope</code> chain and its push and region stacks.</td></tr>
 <tr><td><a href="#Scope.initialize"><code>Scope.initialize</code></a></td><td>Initializes the process-wide <code>Scope</code> runtime owner.</td></tr>
-<tr><td><a href="#Scope.owner"><code>Scope.owner</code></a></td><td>Returns the <code>Scope</code> that currently owns <code>ptr</code>.</td></tr>
+<tr><td><a href="#Scope.move_before"><code>Scope.move_before</code></a></td><td>Moves one allocation immediately before another in its owner’s list.</td></tr>
 <tr><td><a href="#Scope.shutdown_hook"><code>Scope.shutdown_hook</code></a></td><td>Registers <code>hook</code> to run during process-wide <code>Scope</code> shutdown.</td></tr>
 </tbody>
 </table>
 </div>
+<h3 id="functions-2"><a class="header" href="#functions-2">Functions</a></h3>
+<h4 id="x2c_scope_execution_free"><a class="header" href="#x2c_scope_execution_free">x2c_scope_execution_free</a></h4>
+<p><code>void x2c_scope_execution_free(void *saved)</code></p>
+<p>Releases saved execution bindings after restoring the caller’s state.
+The execution has already completed its cleanup. Its borrowed base and
+ordinary allocations remain owned by their existing lifetimes.</p>
+<p>Source: <code>lib/scope/regions.x</code></p>
+<h4 id="x2c_scope_execution_new"><a class="header" href="#x2c_scope_execution_new">x2c_scope_execution_new</a></h4>
+<p><code>void *x2c_scope_execution_new(Scope borrowed)</code></p>
+<p>Creates saved allocation bindings for an execution borrowing <code>borrowed</code>.
+The owner must remain live through completion. The stable base cell is
+separate from the installed TLS record and owns no allocation lifetime.</p>
+<p>Source: <code>lib/scope/regions.x</code></p>
+<h4 id="x2c_scope_execution_swap"><a class="header" href="#x2c_scope_execution_swap">x2c_scope_execution_swap</a></h4>
+<p><code>void x2c_scope_execution_swap(void *saved)</code></p>
+<p>Exchanges saved and installed bindings at an execution boundary.
+Both base cells and explicitly pushed caller cells keep their addresses.
+No allocation or callback occurs during the exchange.</p>
+<p>Source: <code>lib/scope/regions.x</code></p>
+<h4 id="x2c_scope_thread_release"><a class="header" href="#x2c_scope_thread_release">x2c_scope_thread_release</a></h4>
+<p><code>void x2c_scope_thread_release(void)</code></p>
+<p>Destroys this thread’s <code>Scope</code> chain and its push and region stacks.
+It runs last in <code>x2c_thread_state_release</code> and repeats harmlessly; a
+thread that never created a <code>Scope</code> has nothing to destroy.</p>
+<p>Source: <code>lib/scope/regions.x</code></p>
 <h3 id="scope-2"><a class="header" href="#scope-2"><code>Scope</code></a></h3>
 <p><a id="Scope.initialize"></a></p>
 <h4 id="scopeinitialize"><a class="header" href="#scopeinitialize">Scope.initialize</a></h4>
 <p><code>void Scope.initialize(void)</code></p>
-<p>Initializes the process-wide <code>Scope</code> runtime owner.</p>
-<p>Source: <code>lib/scope/runtime.x:49</code></p>
-<p><a id="Scope.owner"></a></p>
-<h4 id="scopeowner"><a class="header" href="#scopeowner">Scope.owner</a></h4>
-<p><code>Scope Scope.owner(void *ptr)</code></p>
-<p>Returns the <code>Scope</code> that currently owns <code>ptr</code>.
-<code>ptr</code> must be a live pointer returned by a <code>Scope</code> allocator. <code>Context</code>
-uses this to leave ancestor-owned objects where they are while moving
-results out of its own <code>Scope</code> chain. Passing any other nonnull pointer is
-undefined behavior, matching <code>Scope.free</code> and <code>Scope.move</code>.</p>
-<p>Source: <code>lib/scope/allocation.x:236</code></p>
+<p>Initializes the process-wide <code>Scope</code> runtime owner.
+The first initialization enables allocation accounting only when the
+environment variable <code>X2C_SCOPE_ACCOUNTING</code> is exactly <code>1</code>. Later
+environment changes do not change the selected mode.</p>
+<p>Source: <code>lib/scope/runtime.x</code></p>
+<p><a id="Scope.move_before"></a></p>
+<h4 id="scopemove_before"><a class="header" href="#scopemove_before">Scope.move_before</a></h4>
+<p><code>void Scope.move_before(void *ptr, void *anchor)</code></p>
+<p>Moves one allocation immediately before another in its owner’s list.
+Both pointers must name distinct live Scope allocations under exclusive
+access. This internal storage-replacement operation preserves payloads
+and finalizers without allocation, owner lookup, or scope creation.</p>
+<p>Source: <code>lib/scope/allocation.x</code></p>
 <p><a id="Scope.shutdown_hook"></a></p>
 <h4 id="scopeshutdown_hook"><a class="header" href="#scopeshutdown_hook">Scope.shutdown_hook</a></h4>
 <p><code>void Scope.shutdown_hook(void (*hook)(void))</code></p>
 <p>Registers <code>hook</code> to run during process-wide <code>Scope</code> shutdown.
-The function pointer is retained without being invoked. Shutdown invokes
+The function pointer is stored without being invoked. Shutdown invokes
 registrations once in reverse order while <code>Scope</code> storage is still
 available, including one registered by a hook that shutdown is already
 running.</p>
 <p><strong>Raises:</strong> <code>&lt;bad-arg&gt;</code> for a null hook, <code>&lt;size-limit&gt;</code> when the registry
 cannot grow, or <code>&lt;alloc-fail&gt;</code> when its storage cannot be allocated.</p>
-<p>Source: <code>lib/scope/runtime.x:83</code></p>
+<p>Source: <code>lib/scope/runtime.x</code></p>
 <h2 id="public-types"><a class="header" href="#public-types">Public types</a></h2>
 <div class="table-wrapper">
 <table>
@@ -689,47 +810,68 @@ cannot grow, or <code>&lt;alloc-fail&gt;</code> when its storage cannot be alloc
 <tr><th>Type</th><th>Kind</th><th>Summary</th></tr>
 </thead>
 <tbody>
-<tr><td><a href="#Scope"><code>Scope</code></a></td><td>struct</td><td>Handle for a region and any retained regions linked below it.</td></tr>
-<tr><td><a href="#ScopeAlloc"><code>ScopeAlloc</code></a></td><td>struct</td><td>Intrusive header stored immediately before each <code>Scope</code>-owned allocation.</td></tr>
+<tr><td><a href="#Scope"><code>Scope</code></a></td><td>struct</td><td>Handle for a region and any open regions linked below it.</td></tr>
 <tr><td><a href="#ScopeStats"><code>ScopeStats</code></a></td><td>struct</td><td>Value snapshot of process-wide <code>Scope</code> allocation and lifetime counters.</td></tr>
 </tbody>
 </table>
 </div>
 <p><a id="Scope"></a></p>
 <h3 id="scope-3"><a class="header" href="#scope-3">Scope</a></h3>
-<p><code>typedef struct Scope { ScopeAlloc first; struct Scope *down, *up; } *Scope</code></p>
-<p>Handle for a region and any retained regions linked below it.
+<p><code>typedef struct Scope { ScopeAlloc first; struct Scope *down; struct Scope *parent, *children, *previous, *next; } *Scope</code></p>
+<p>Handle for a region and any open regions linked below it.
 The layout is public; only <code>Scope</code> operations create or mutate valid
-allocation and region links.</p>
-<p>Source: <code>lib/scope/scope.x:34</code></p>
-<p><a id="ScopeAlloc"></a></p>
-<h3 id="scopealloc"><a class="header" href="#scopealloc">ScopeAlloc</a></h3>
-<p><code>typedef struct ScopeAlloc { struct ScopeAlloc *prev, *next; } *ScopeAlloc</code></p>
-<p>Intrusive header stored immediately before each <code>Scope</code>-owned allocation.
-Its links are allocator-managed; callers must not construct or mutate it.</p>
-<p>Source: <code>lib/scope/scope.x:26</code></p>
+allocation and region links. Callers provide exclusive access to those
+links, including ownership parents, during allocation and lifetime changes.</p>
+<p>Source: <code>lib/scope/scope.x</code></p>
 <p><a id="ScopeStats"></a></p>
 <h3 id="scopestats-1"><a class="header" href="#scopestats-1">ScopeStats</a></h3>
 <p><code>typedef struct ScopeStats { size_t allocation_calls, reallocation_calls, free_calls, live_allocations; size_t scope_creations, scope_destructions, live_scopes, requested_bytes; size_t largest_request, live_requested_bytes, peak_live_requested_bytes; } ScopeStats</code></p>
 <p>Value snapshot of process-wide <code>Scope</code> allocation and lifetime counters.
 It owns no storage; live object and scope counts are derived when the
-snapshot is taken.
+snapshot is taken. Every field is zero when accounting is disabled.
 Live and peak requested bytes count public payload only, excluding Scope
 metadata, native allocator overhead, and Pool’s direct small-object blocks.</p>
-<p>Source: <code>lib/scope/scope.x:45</code></p>
+<p>Source: <code>lib/scope/scope.x</code></p>
+<h2 id="internal-types"><a class="header" href="#internal-types">Internal types</a></h2>
+<p>These types connect runtime translation units and compiler-generated
+code. They are documented for source readers but are not supported as
+user API.</p>
+<div class="table-wrapper">
+<table>
+<thead>
+<tr><th>Type</th><th>Kind</th><th>Summary</th></tr>
+</thead>
+<tbody>
+<tr><td><a href="#ScopeAlloc"><code>ScopeAlloc</code></a></td><td>struct</td><td>Intrusive header stored immediately before each <code>Scope</code>-owned allocation.</td></tr>
+</tbody>
+</table>
+</div>
+<p><a id="ScopeAlloc"></a></p>
+<h3 id="scopealloc"><a class="header" href="#scopealloc">ScopeAlloc</a></h3>
+<p><code>typedef struct ScopeAlloc { struct ScopeAlloc *prev, *next; } *ScopeAlloc</code></p>
+<p>Intrusive header stored immediately before each <code>Scope</code>-owned allocation.
+Its links are allocator-managed; callers must not construct or mutate it.</p>
+<p>Source: <code>lib/scope/scope.x</code></p>
 <h2 id="design-notes"><a class="header" href="#design-notes">Design notes</a></h2>
 <p>A <code>Scope</code> owns a group of individually managed allocations. Callers use
-the active scope, target an explicit scope slot, or retain and release a
-nested lifetime. Any block can still be freed, resized, or relinked onto
+the active scope, target an explicit scope slot, or open and close a
+nested region. Any block can still be freed, resized, or relinked onto
 another scope without copying.</p>
 <p>Public operations initialize the module on first use, so they are safe
 before the runtime calls <code>Scope.initialize</code>. Shutdown runs its hooks
-newest first and leaves the module terminal; <code>Scope.stats</code> still reports
-the final counts.</p>
-<h2 id="tests-and-examples"><a class="header" href="#tests-and-examples">Tests and examples</a></h2>
-<p><code>make verify</code> (<code>unittest/test-scope.x</code>) and <code>make examples</code> (<code>docs-tour</code>).</p>
+newest first and leaves the module terminal. Allocation accounting is
+enabled at initialization by <code>X2C_SCOPE_ACCOUNTING=1</code>; otherwise counters
+and automatic leak reporting are disabled.</p>
 
                     </main>
+                    <script>
+                        // A generated page is edited through its generator.
+                        if ([...document.querySelector('#mdbook-content main').childNodes]
+                                .some(node => node.nodeType === Node.COMMENT_NODE &&
+                                      node.textContent.includes('Do not edit by hand'))) {
+                            document.querySelector('a[rel="edit"]')?.remove();
+                        }
+                    </script>
 
                     <nav class="x2c-pager" aria-label="Page navigation">
                         <a rel="prev" href="../../library/modules/rewrite.html" class="x2c-pager-prev" aria-keyshortcuts="Left">
@@ -746,9 +888,9 @@ the final counts.</p>
                         &copy; 2025&ndash;2026
                         <a href="https://flake.org">GWF</a>
                         &middot;
-                        <a href="https://github.com/gwf/x2c/blob/aa2b9b2575297711e5978acc53f87bd7f645f3c7/LICENSE">Apache 2.0</a>
+                        <a href="https://github.com/gwf/x2c/blob/2c5870d64d381a861054dae9927aa65adc87e9e0/LICENSE">Apache 2.0</a>
                         &middot;
-                        <a href="https://github.com/gwf/x2c/blob/aa2b9b2575297711e5978acc53f87bd7f645f3c7/TRADEMARKS.md">Trademarks</a>
+                        <a href="https://github.com/gwf/x2c/blob/2c5870d64d381a861054dae9927aa65adc87e9e0/TRADEMARKS.md">Trademarks</a>
                     </footer>
                 </div>
             </div>

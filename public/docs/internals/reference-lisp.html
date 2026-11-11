@@ -1,9 +1,9 @@
 <!DOCTYPE HTML>
 <html lang="en" class="light sidebar-visible" dir="ltr">
-    <head><meta name="x2c-release-channel" content="staging"><meta name="x2c-candidate" content="candidate-aa2b9b2575297711e5978acc53f87bd7f645f3c7-39090113132-1">
+    <head><meta name="x2c-release-channel" content="staging"><meta name="x2c-candidate" content="candidate-aa2b9b2575297711e5978acc53f87bd7f645f3c7-39090113132-1"><meta name="x2c-site-source" content="2c5870d64d381a861054dae9927aa65adc87e9e0"><meta name="robots" content="noindex">
         <!-- Book generated using mdBook -->
         <meta charset="UTF-8">
-        <title>A Recursive Lisp in x2c - The x2c Book</title>
+        <title>Literate Lisp in x2c - The x2c Book</title>
 
 
         <!-- Custom HTML head -->
@@ -30,7 +30,7 @@
         <link rel="stylesheet" id="mdbook-ayu-highlight-css" href="../ayu-highlight-3fdfc3ac.css">
 
         <!-- Custom theme stylesheets -->
-        <link rel="stylesheet" href="../theme/header-f6c12aed.css">
+        <link rel="stylesheet" href="../theme/header-b540a03f.css">
         <link rel="stylesheet" href="../theme/x2c-fd3d182e.css">
 
 
@@ -39,21 +39,21 @@
             const path_to_root = "../";
             const default_light_theme = "light";
             const default_dark_theme = "light";
-            window.path_to_searchindex_js = "../searchindex-f4d06db2.js";
+            window.path_to_searchindex_js = "../searchindex-a3bdfad5.js";
         </script>
         <!-- Start loading toc.js asap -->
-        <script src="../toc-00ae7479.js"></script>
+        <script src="../toc-2248e0f3.js"></script>
         <!-- x2c publication metadata -->
-        <link rel="canonical" href="https://staging.x2c-lang.dev/docs/internals/reference-lisp.html">
+        <link rel="canonical" href="https://x2c-lang.dev/docs/internals/reference-lisp.html">
         <meta property="og:type" content="website">
-        <meta property="og:title" content="A Recursive Lisp in x2c - The x2c Book">
+        <meta property="og:title" content="Literate Lisp in x2c - The x2c Book">
         <meta property="og:description" content="The x2c language, standard library, and compiler.">
         <meta property="og:url" content="https://staging.x2c-lang.dev/docs/internals/reference-lisp.html">
         <meta property="og:image" content="https://staging.x2c-lang.dev/x2c-social.png">
         <meta property="og:image:width" content="1200">
         <meta property="og:image:height" content="630">
         <meta name="twitter:card" content="summary_large_image">
-        <meta name="twitter:title" content="A Recursive Lisp in x2c - The x2c Book">
+        <meta name="twitter:title" content="Literate Lisp in x2c - The x2c Book">
         <meta name="twitter:description" content="The x2c language, standard library, and compiler.">
         <meta name="twitter:image" content="https://staging.x2c-lang.dev/x2c-social.png">
     </head>
@@ -143,16 +143,12 @@
                             <button class="landing-tagline menu-title" type="button" title="Scroll to top">The x2c Book</button>
                         </div>
                         <nav class="landing-nav" aria-label="x2c website">
-                            <div class="landing-page-nav">
-                                <a href="../../#love">love</a>
-                                <a href="../../#power">power</a>
-                                <a href="../../#magic">magic</a>
-                            </div>
                             <div class="landing-site-nav">
                                 <a href="../../#install">install</a>
                                 <a href="../../#packages">packages</a>
                             </div>
                             <div class="landing-reference-nav">
+                                <a href="../../examples/">examples</a>
                                 <a href="../../about/">about</a>
                                 <a href="../" aria-current="page">docs</a>
                                 <a href="https://github.com/gwf/x2c">source</a>
@@ -219,7 +215,7 @@
                 <div id="mdbook-content" class="content">
                     <main>
                         <h1 id="literate-lisp-in-x2c"><a class="header" href="#literate-lisp-in-x2c">Literate Lisp in <span class="x2c-wordmark">x2c</span></a></h1>
-<p><a href="https://github.com/gwf/x2c/blob/aa2b9b2575297711e5978acc53f87bd7f645f3c7/examples/programs/literate-lisp.x">The reference interpreter</a> implements <span class="x2c-wordmark">x2c</span> Lisp in one source file. It
+<p><a href="https://github.com/gwf/x2c/blob/2c5870d64d381a861054dae9927aa65adc87e9e0/examples/programs/literate-lisp.x">The reference interpreter</a> implements <span class="x2c-wordmark">x2c</span> Lisp in one source file. It
 implements its reader, environments, closures, special forms, native registry,
 and standard vocabulary. Evaluation recurses over ordinary values; it never
 constructs a Lisp session, calls the production evaluator, or uses its
@@ -250,7 +246,7 @@ shape supplies its parts; separate error helpers describe rejected forms.
 The small <code>$fail</code> statement macro constructs the ordinary <code>raise</code> syntax from
 a cause, an operation, and the remaining field/value pairs. Each call keeps
 its diagnostic details visible and preserves their value types and order.</p>
-<p><code>Interp.apply</code> receives values. Only <code>eval</code> decides which arguments to
+<p><code>Interp.apply</code> receives values. Only <code>eval</code> selects which arguments to
 evaluate: ordinary calls evaluate left to right, while a macro receives its
 raw argument forms. Native argument marshalling lives with the native
 operations, so the evaluator contains only evaluation rules.</p>
@@ -321,7 +317,7 @@ except for the built-in <code>apply</code> itself.</li>
 </ul>
 <p>Native calls use <span class="x2c-wordmark">x2c</span>’s existing checked <code>Func</code> boundary. Deliberate Lisp
 signature and form errors remain in the evaluator. No additional syntax
-validation or compiler-specific protection of <code>x2c.*</code> names is introduced.</p>
+validation is introduced.</p>
 <p>Production closures also retain local names that mutable global or unknown
 callables may later read from current data. Captured local special identities
 keep quote opacity, quasiquote depth and nested parameter binding. Captures
@@ -337,12 +333,13 @@ exhaust its native stack. Callable addresses are process-specific, as they
 are in the production implementation. Tests compare the two
 implementations; they do not prove identical behavior for every program.</p>
 <h2 id="production-execution"><a class="header" href="#production-execution">Production execution</a></h2>
-<p>The production evaluator recurses on the C stack for every call except a
-call in tail position, which reuses its caller’s frame. A self-recursive loop
-written in tail position therefore runs in constant native stack. The
-outermost call of an evaluation measures the stack. Nested calls may then
-use the smaller of 6 MB and four fifths of the thread’s remaining stack, and
-a call beyond that raises <code>&lt;call-stack&gt;</code>. Each public entry, such as
+<p>The production evaluator recurses on the C stack for every nested form and
+every call except a call in tail position, which reuses its caller’s frame.
+A self-recursive loop written in tail position therefore runs in constant
+native stack. Each public entry measures the stack. Forms and calls nested
+below it may then use the smaller of 6 MB and four fifths of the thread’s
+remaining stack, and one nested beyond that raises <code>&lt;call-stack&gt;</code>. Each
+public entry, such as
 <code>Lisp.eval</code>, also opens a budget of 40,000,000 calls, tail calls included;
 <code>Lisp.call_budget</code> changes it. Exhausting it raises <code>&lt;call-stack&gt;</code> with
 reason <code>"steps"</code>. Free names resolve through the Lambda’s captures and
@@ -352,7 +349,7 @@ The production step budget and interruption flag stop evaluation through
 but reject returning <code>ignore</code>, <code>log</code>, or <code>collect</code> policies. A later public
 entry opens a fresh budget; the session owner clears its interruption flag.</p>
 <h2 id="the-showcase-and-comparison"><a class="header" href="#the-showcase-and-comparison">The showcase and comparison</a></h2>
-<p><a href="https://github.com/gwf/x2c/blob/aa2b9b2575297711e5978acc53f87bd7f645f3c7/examples/data/reference-lisp/showcase.xlisp">The Lisp demonstration</a>
+<p><a href="https://github.com/gwf/x2c/blob/2c5870d64d381a861054dae9927aa65adc87e9e0/examples/data/reference-lisp/showcase.xlisp">The Lisp demonstration</a>
 differentiates <code>x*x + 3*x</code> using recursive pattern matching, simplifies the
 result, evaluates both expressions at <code>x = 5</code>, and maps a captured offset over
 a List. Its result is:</p>
@@ -384,6 +381,14 @@ runs; they do not isolate evaluator speed. The startup baseline is reported
 separately, without subtracting it from the other measurements.</p>
 
                     </main>
+                    <script>
+                        // A generated page is edited through its generator.
+                        if ([...document.querySelector('#mdbook-content main').childNodes]
+                                .some(node => node.nodeType === Node.COMMENT_NODE &&
+                                      node.textContent.includes('Do not edit by hand'))) {
+                            document.querySelector('a[rel="edit"]')?.remove();
+                        }
+                    </script>
 
                     <nav class="x2c-pager" aria-label="Page navigation">
                         <a rel="prev" href="../internals/building.html" class="x2c-pager-prev" aria-keyshortcuts="Left">
@@ -396,9 +401,9 @@ separately, without subtracting it from the other measurements.</p>
                         &copy; 2025&ndash;2026
                         <a href="https://flake.org">GWF</a>
                         &middot;
-                        <a href="https://github.com/gwf/x2c/blob/aa2b9b2575297711e5978acc53f87bd7f645f3c7/LICENSE">Apache 2.0</a>
+                        <a href="https://github.com/gwf/x2c/blob/2c5870d64d381a861054dae9927aa65adc87e9e0/LICENSE">Apache 2.0</a>
                         &middot;
-                        <a href="https://github.com/gwf/x2c/blob/aa2b9b2575297711e5978acc53f87bd7f645f3c7/TRADEMARKS.md">Trademarks</a>
+                        <a href="https://github.com/gwf/x2c/blob/2c5870d64d381a861054dae9927aa65adc87e9e0/TRADEMARKS.md">Trademarks</a>
                     </footer>
                 </div>
             </div>

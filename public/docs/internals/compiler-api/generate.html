@@ -1,6 +1,6 @@
 <!DOCTYPE HTML>
 <html lang="en" class="light sidebar-visible" dir="ltr">
-    <head><meta name="x2c-release-channel" content="staging"><meta name="x2c-candidate" content="candidate-aa2b9b2575297711e5978acc53f87bd7f645f3c7-39090113132-1">
+    <head><meta name="x2c-release-channel" content="staging"><meta name="x2c-candidate" content="candidate-aa2b9b2575297711e5978acc53f87bd7f645f3c7-39090113132-1"><meta name="x2c-site-source" content="2c5870d64d381a861054dae9927aa65adc87e9e0"><meta name="robots" content="noindex">
         <!-- Book generated using mdBook -->
         <meta charset="UTF-8">
         <title>src/generate/generate.x - The x2c Book</title>
@@ -30,7 +30,7 @@
         <link rel="stylesheet" id="mdbook-ayu-highlight-css" href="../../ayu-highlight-3fdfc3ac.css">
 
         <!-- Custom theme stylesheets -->
-        <link rel="stylesheet" href="../../theme/header-f6c12aed.css">
+        <link rel="stylesheet" href="../../theme/header-b540a03f.css">
         <link rel="stylesheet" href="../../theme/x2c-fd3d182e.css">
 
 
@@ -39,12 +39,12 @@
             const path_to_root = "../../";
             const default_light_theme = "light";
             const default_dark_theme = "light";
-            window.path_to_searchindex_js = "../../searchindex-f4d06db2.js";
+            window.path_to_searchindex_js = "../../searchindex-a3bdfad5.js";
         </script>
         <!-- Start loading toc.js asap -->
-        <script src="../../toc-00ae7479.js"></script>
+        <script src="../../toc-2248e0f3.js"></script>
         <!-- x2c publication metadata -->
-        <link rel="canonical" href="https://staging.x2c-lang.dev/docs/internals/compiler-api/generate.html">
+        <link rel="canonical" href="https://x2c-lang.dev/docs/internals/compiler-api/generate.html">
         <meta property="og:type" content="website">
         <meta property="og:title" content="src/generate/generate.x - The x2c Book">
         <meta property="og:description" content="The x2c language, standard library, and compiler.">
@@ -143,16 +143,12 @@
                             <button class="landing-tagline menu-title" type="button" title="Scroll to top">The x2c Book</button>
                         </div>
                         <nav class="landing-nav" aria-label="x2c website">
-                            <div class="landing-page-nav">
-                                <a href="../../../#love">love</a>
-                                <a href="../../../#power">power</a>
-                                <a href="../../../#magic">magic</a>
-                            </div>
                             <div class="landing-site-nav">
                                 <a href="../../../#install">install</a>
                                 <a href="../../../#packages">packages</a>
                             </div>
                             <div class="landing-reference-nav">
+                                <a href="../../../examples/">examples</a>
                                 <a href="../../../about/">about</a>
                                 <a href="../../" aria-current="page">docs</a>
                                 <a href="https://github.com/gwf/x2c">source</a>
@@ -234,9 +230,10 @@ Compatibility is not yet promised.</p>
 </thead>
 <tbody>
 <tr><td><a href="#Compiler.definition_rows"><code>Compiler.definition_rows</code></a></td><td>Returns one row for each function, foreign alias, and typedef that the lowered unit <code>ast</code> defines, in source order: <code>(function NAME DISPLAY TYPE PARAMETERS LINE DOC STATIC ORIGIN DECLARATOR SPAN)</code> or <code>(typedef NAME BASE MODIFIERS SPAN)</code>.</td></tr>
-<tr><td><a href="#Compiler.dump_definitions"><code>Compiler.dump_definitions</code></a></td><td>Prints the <code>--dump-definitions</code> projection of the lowered unit <code>ast</code>: <code>(unit PATH)</code>, the module comment as <code>(module TEXT)</code> when the file opens with one, then one row per <code>Compiler.definition_rows</code> entry.</td></tr>
+<tr><td><a href="#Compiler.dump_definitions"><code>Compiler.dump_definitions</code></a></td><td>Prints the <code>--dump-definitions</code> projection of the lowered unit <code>ast</code>: <code>(unit PATH)</code>, the module comment as <code>(module TEXT)</code> when the file opens with one, one row per <code>Compiler.definition_rows</code> entry, then a <code>meta</code> row for each bodied <code>meta</code> function the file spells, saying whether it reaches a compiler operation.</td></tr>
 <tr><td><a href="#Compiler.generate_code"><code>Compiler.generate_code</code></a></td><td>Writes the generated C header and source for one lowered translation unit.</td></tr>
 <tr><td><a href="#Compiler.generate_code_text"><code>Compiler.generate_code_text</code></a></td><td>Returns the generated header and source of the lowered <code>ast</code> as <code>(hfile htext cfile ctext)</code>, named from <code>basename</code>, without writing them.</td></tr>
+<tr><td><a href="#Compiler.header_guard"><code>Compiler.header_guard</code></a></td><td>Returns the guard macro of the header generated for this unit, named from its path below the home when it has one there, else as spelled, so a meta group that copies the unit names the same guard.</td></tr>
 <tr><td><a href="#Compiler.init_statements"><code>Compiler.init_statements</code></a></td><td>Returns the statements queued for <code>phase</code>, in the order they were added.</td></tr>
 <tr><td><a href="#Compiler.initializer_function"><code>Compiler.initializer_function</code></a></td><td>Returns the function <code>type name(void)</code> running <code>body</code>.</td></tr>
 <tr><td><a href="#Compiler.place_source_prelude"><code>Compiler.place_source_prelude</code></a></td><td>Places generated <code>declarations</code> after source types and includes, before the first function or captured initializer that can use them.</td></tr>
@@ -257,15 +254,17 @@ is the token range of an authored function’s declarator, and <code>SPAN</code>
 token range and privacy of the top-level form that produced the
 definition; either is empty when the compiler made the definition.
 <code>LINE</code> is 1 and <code>DOC</code> empty for a definition without authored source.</p>
-<p>Source: <code>src/generate/definitions.x:15</code></p>
+<p>Source: <code>src/generate/definitions.x</code></p>
 <p><a id="Compiler.dump_definitions"></a></p>
 <h4 id="compilerdump_definitions"><a class="header" href="#compilerdump_definitions">Compiler.dump_definitions</a></h4>
 <p><code>void Compiler.dump_definitions(Compiler c, List ast)</code></p>
 <p>Prints the <code>--dump-definitions</code> projection of the lowered unit <code>ast</code>:
 <code>(unit PATH)</code>, the module comment as <code>(module TEXT)</code> when the file opens
-with one, then one row per <code>Compiler.definition_rows</code> entry. The
-command-line reference in the book describes the fields.</p>
-<p>Source: <code>src/generate/definitions.x:108</code></p>
+with one, one row per <code>Compiler.definition_rows</code> entry, then a <code>meta</code>
+row for each bodied <code>meta</code> function the file spells, saying whether
+it reaches a compiler operation. The command-line reference in the
+book describes the fields.</p>
+<p>Source: <code>src/generate/definitions.x</code></p>
 <p><a id="Compiler.generate_code"></a></p>
 <h4 id="compilergenerate_code"><a class="header" href="#compilergenerate_code">Compiler.generate_code</a></h4>
 <p><code>void Compiler.generate_code(Compiler c, List ast, String dir)</code></p>
@@ -276,41 +275,49 @@ must still describe that same unit. <code>dir</code> must already exist. Generat
 partitions the AST, materializes caches and once-only initialization, and
 writes or replaces <code>&lt;dir&gt;/&lt;source-stem&gt;.h</code>, <code>.c</code>, and the <code>.xi</code> interface
 of a collected unit through one <code>Path.publish_files</code>, so a failed write
-replaces none of them. It appends generated bindings and initialization
+replaces none of them. A file that already holds its text keeps its
+modification time. It appends generated bindings and initialization
 work to the compiler and is not idempotent. Failures are reported as
 <code>emit</code> diagnostics.</p>
-<p>Source: <code>src/generate/output.x:35</code></p>
+<p>Source: <code>src/generate/output.x</code></p>
 <p><a id="Compiler.generate_code_text"></a></p>
 <h4 id="compilergenerate_code_text"><a class="header" href="#compilergenerate_code_text">Compiler.generate_code_text</a></h4>
 <p><code>List Compiler.generate_code_text(Compiler c, List ast, String basename)</code></p>
 <p>Returns the generated header and source of the lowered <code>ast</code> as <code>(hfile htext cfile ctext)</code>, named from <code>basename</code>, without writing them. It
 affects the compiler as <code>Compiler.generate_code</code> does.</p>
-<p>Source: <code>src/generate/output.x:47</code></p>
+<p>Source: <code>src/generate/output.x</code></p>
+<p><a id="Compiler.header_guard"></a></p>
+<h4 id="compilerheader_guard"><a class="header" href="#compilerheader_guard">Compiler.header_guard</a></h4>
+<p><code>String Compiler.header_guard(Compiler c)</code></p>
+<p>Returns the guard macro of the header generated for this unit, named
+from its path below the home when it has one there, else as spelled, so
+a meta group that copies the unit names the same guard.</p>
+<p>Source: <code>src/generate/output.x</code></p>
 <p><a id="Compiler.init_statements"></a></p>
 <h4 id="compilerinit_statements"><a class="header" href="#compilerinit_statements">Compiler.init_statements</a></h4>
 <p><code>List Compiler.init_statements(Compiler c, Symbol phase)</code></p>
 <p>Returns the statements queued for <code>phase</code>, in the order they were added.</p>
-<p>Source: <code>src/generate/initialization.x:199</code></p>
+<p>Source: <code>src/generate/initialization.x</code></p>
 <p><a id="Compiler.initializer_function"></a></p>
 <h4 id="compilerinitializer_function"><a class="header" href="#compilerinitializer_function">Compiler.initializer_function</a></h4>
-<p><code>List Compiler.initializer_function( Compiler c, Type type, List name, List body)</code></p>
+<p><code>List Compiler.initializer_function(Compiler c, Type type, List name, List body)</code></p>
 <p>Returns the function <code>type name(void)</code> running <code>body</code>.</p>
-<p>Source: <code>src/generate/initialization.x:6</code></p>
+<p>Source: <code>src/generate/initialization.x</code></p>
 <p><a id="Compiler.place_source_prelude"></a></p>
 <h4 id="compilerplace_source_prelude"><a class="header" href="#compilerplace_source_prelude">Compiler.place_source_prelude</a></h4>
-<p><code>List Compiler.place_source_prelude( Compiler c, List source, List declarations)</code></p>
+<p><code>List Compiler.place_source_prelude(Compiler c, List source, List declarations)</code></p>
 <p>Places generated <code>declarations</code> after source types and includes, before
 the first function or captured initializer that can use them. An outer
 conditional containing that first use follows the declarations. A unit
 without such a use gets them at its end, after the declarations they
 may assign.</p>
-<p>Source: <code>src/generate/output.x:102</code></p>
+<p>Source: <code>src/generate/output.x</code></p>
 <p><a id="Compiler.run_once_body"></a></p>
 <h4 id="compilerrun_once_body"><a class="header" href="#compilerrun_once_body">Compiler.run_once_body</a></h4>
 <p><code>List Compiler.run_once_body(Compiler c, List before, List guard, List after)</code></p>
 <p>Returns a run-once initializer body: <code>before</code>, then a return when
 <code>guard</code> is set that sets it otherwise, then <code>after</code>.</p>
-<p>Source: <code>src/generate/initialization.x:12</code></p>
+<p>Source: <code>src/generate/initialization.x</code></p>
 <h3 id="init"><a class="header" href="#init"><code>Init</code></a></h3>
 <p><a id="Init.enter"></a></p>
 <h4 id="initenter"><a class="header" href="#initenter">Init.enter</a></h4>
@@ -318,7 +325,7 @@ may assign.</p>
 <p>Returns <code>function</code> with its entry setup: the protocol initializer and
 the type initializer run once, and a <code>guarded</code> entry calls the region’s
 initializer unless its guard is set.</p>
-<p>Source: <code>src/generate/initialization.x:49</code></p>
+<p>Source: <code>src/generate/initialization.x</code></p>
 <h2 id="public-types"><a class="header" href="#public-types">Public types</a></h2>
 <div class="table-wrapper">
 <table>
@@ -339,7 +346,7 @@ source, <code>initializer</code> names the type initializer, <code>shutdown</cod
 the unit’s shutdown function, <code>synthetic</code> is the synthetic initializer or
 NULL, and <code>reachable</code> holds the entries a cache-only file guards, or is
 NULL when every public entry is guarded.</p>
-<p>Source: <code>src/generate/generate.x:37</code></p>
+<p>Source: <code>src/generate/generate.x</code></p>
 <h2 id="design-notes"><a class="header" href="#design-notes">Design notes</a></h2>
 <p>This module owns a unit’s generated files: it splits the lowered AST into
 header and source without changing source order, gives the source its
@@ -349,6 +356,14 @@ the interface lists, and <code>--dump-definitions</code> prints, come from the s
 lowered AST.</p>
 
                     </main>
+                    <script>
+                        // A generated page is edited through its generator.
+                        if ([...document.querySelector('#mdbook-content main').childNodes]
+                                .some(node => node.nodeType === Node.COMMENT_NODE &&
+                                      node.textContent.includes('Do not edit by hand'))) {
+                            document.querySelector('a[rel="edit"]')?.remove();
+                        }
+                    </script>
 
                     <nav class="x2c-pager" aria-label="Page navigation">
                         <a rel="prev" href="../../internals/compiler-api/expressions.html" class="x2c-pager-prev" aria-keyshortcuts="Left">
@@ -365,9 +380,9 @@ lowered AST.</p>
                         &copy; 2025&ndash;2026
                         <a href="https://flake.org">GWF</a>
                         &middot;
-                        <a href="https://github.com/gwf/x2c/blob/aa2b9b2575297711e5978acc53f87bd7f645f3c7/LICENSE">Apache 2.0</a>
+                        <a href="https://github.com/gwf/x2c/blob/2c5870d64d381a861054dae9927aa65adc87e9e0/LICENSE">Apache 2.0</a>
                         &middot;
-                        <a href="https://github.com/gwf/x2c/blob/aa2b9b2575297711e5978acc53f87bd7f645f3c7/TRADEMARKS.md">Trademarks</a>
+                        <a href="https://github.com/gwf/x2c/blob/2c5870d64d381a861054dae9927aa65adc87e9e0/TRADEMARKS.md">Trademarks</a>
                     </footer>
                 </div>
             </div>

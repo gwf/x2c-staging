@@ -1,6 +1,6 @@
 <!DOCTYPE HTML>
 <html lang="en" class="light sidebar-visible" dir="ltr">
-    <head><meta name="x2c-release-channel" content="staging"><meta name="x2c-candidate" content="candidate-aa2b9b2575297711e5978acc53f87bd7f645f3c7-39090113132-1">
+    <head><meta name="x2c-release-channel" content="staging"><meta name="x2c-candidate" content="candidate-aa2b9b2575297711e5978acc53f87bd7f645f3c7-39090113132-1"><meta name="x2c-site-source" content="2c5870d64d381a861054dae9927aa65adc87e9e0"><meta name="robots" content="noindex">
         <!-- Book generated using mdBook -->
         <meta charset="UTF-8">
         <title>lib/meta.x - The x2c Book</title>
@@ -30,7 +30,7 @@
         <link rel="stylesheet" id="mdbook-ayu-highlight-css" href="../../ayu-highlight-3fdfc3ac.css">
 
         <!-- Custom theme stylesheets -->
-        <link rel="stylesheet" href="../../theme/header-f6c12aed.css">
+        <link rel="stylesheet" href="../../theme/header-b540a03f.css">
         <link rel="stylesheet" href="../../theme/x2c-fd3d182e.css">
 
 
@@ -39,12 +39,12 @@
             const path_to_root = "../../";
             const default_light_theme = "light";
             const default_dark_theme = "light";
-            window.path_to_searchindex_js = "../../searchindex-f4d06db2.js";
+            window.path_to_searchindex_js = "../../searchindex-a3bdfad5.js";
         </script>
         <!-- Start loading toc.js asap -->
-        <script src="../../toc-00ae7479.js"></script>
+        <script src="../../toc-2248e0f3.js"></script>
         <!-- x2c publication metadata -->
-        <link rel="canonical" href="https://staging.x2c-lang.dev/docs/library/modules/meta.html">
+        <link rel="canonical" href="https://x2c-lang.dev/docs/library/modules/meta.html">
         <meta property="og:type" content="website">
         <meta property="og:title" content="lib/meta.x - The x2c Book">
         <meta property="og:description" content="The x2c language, standard library, and compiler.">
@@ -143,16 +143,12 @@
                             <button class="landing-tagline menu-title" type="button" title="Scroll to top">The x2c Book</button>
                         </div>
                         <nav class="landing-nav" aria-label="x2c website">
-                            <div class="landing-page-nav">
-                                <a href="../../../#love">love</a>
-                                <a href="../../../#power">power</a>
-                                <a href="../../../#magic">magic</a>
-                            </div>
                             <div class="landing-site-nav">
                                 <a href="../../../#install">install</a>
                                 <a href="../../../#packages">packages</a>
                             </div>
                             <div class="landing-reference-nav">
+                                <a href="../../../examples/">examples</a>
                                 <a href="../../../about/">about</a>
                                 <a href="../../" aria-current="page">docs</a>
                                 <a href="https://github.com/gwf/x2c">source</a>
@@ -222,6 +218,10 @@
      runtime entry files and the compiler's definitions. Do not edit by hand. -->
 <h1 id="libmetax"><a class="header" href="#libmetax"><code>lib/meta.x</code></a></h1>
 <p>The compiler surface a <code>meta</code> function calls.</p>
+<p>Include it with <code>#include "meta.x"</code>.</p>
+<p>Every unit reaches it through the prelude’s <code>var/var.x</code>; include it explicitly
+where <code>meta</code> functions are written. Pure builders also run at runtime;
+operations that query the compiler remain compile-time only.</p>
 <h2 id="primary-api"><a class="header" href="#primary-api">Primary API</a></h2>
 <div class="table-wrapper">
 <table>
@@ -235,25 +235,41 @@
 </tbody>
 </table>
 </div>
-<h3 id="functions"><a class="header" href="#functions">Functions</a></h3>
-<h4 id="type_base_suffix"><a class="header" href="#type_base_suffix">type_base_suffix</a></h4>
+<h3 id="type_base_suffix"><a class="header" href="#type_base_suffix">type_base_suffix</a></h3>
 <p><code>List type_base_suffix(List type)</code></p>
 <p>Returns the suffix of <code>type</code> that begins at its typedef name or base
 keyword, sharing <code>type</code>, or <code>NULL</code> when it has none.</p>
-<p>Source: <code>lib/meta.x:427</code></p>
-<h4 id="type_declaration_parts"><a class="header" href="#type_declaration_parts">type_declaration_parts</a></h4>
+<p>Source: <code>lib/meta.x</code></p>
+<h3 id="type_declaration_parts"><a class="header" href="#type_declaration_parts">type_declaration_parts</a></h3>
 <p><code>List type_declaration_parts(List type)</code></p>
 <p>Returns <code>(base modifiers)</code> for reconstructing a declaration of <code>type</code>.
 Function modifiers hold parameter syntax, and modifier order retains C
 declarator precedence.</p>
-<p>Source: <code>lib/meta.x:457</code></p>
-<h4 id="type_name_error"><a class="header" href="#type_name_error">type_name_error</a></h4>
+<p>Source: <code>lib/meta.x</code></p>
+<h3 id="type_name_error"><a class="header" href="#type_name_error">type_name_error</a></h3>
 <p><code>String type_name_error(List type)</code></p>
 <p>Returns the diagnostic for a <code>type</code> that names its type with an Atom
 other than a C type keyword, as <code>%(String)</code> and <code>%(* Point)</code> do, or
 <code>NULL</code>. A type name is a String, as in <code>%("String")</code> and <code>%(* "Point")</code>;
 neither a short Symbol nor a long Atom supplies that representation.</p>
-<p>Source: <code>lib/meta.x:440</code></p>
+<p>Source: <code>lib/meta.x</code></p>
+<h2 id="runtime-internal-callables"><a class="header" href="#runtime-internal-callables">Runtime-internal callables</a></h2>
+<p>These callables connect runtime translation units. They are documented
+for source readers but are not supported as user API.</p>
+<div class="table-wrapper">
+<table>
+<thead>
+<tr><th>Function</th><th>Summary</th></tr>
+</thead>
+<tbody>
+<tr><td><a href="#declarator_append_modifiers"><code>declarator_append_modifiers</code></a></td><td>Appends a base type’s modifiers, preserving the initializer.</td></tr>
+</tbody>
+</table>
+</div>
+<h3 id="declarator_append_modifiers"><a class="header" href="#declarator_append_modifiers">declarator_append_modifiers</a></h3>
+<p><code>List declarator_append_modifiers(List declarator, List modifiers)</code></p>
+<p>Appends a base type’s modifiers, preserving the initializer.</p>
+<p>Source: <code>lib/meta.x</code></p>
 <h2 id="public-types"><a class="header" href="#public-types">Public types</a></h2>
 <div class="table-wrapper">
 <table>
@@ -273,65 +289,55 @@ neither a short Symbol nor a long Atom supplies that representation.</p>
 <h3 id="code"><a class="header" href="#code">Code</a></h3>
 <p><code>typedef List Code</code></p>
 <p>Captured code parsed from source or produced by a quotation.</p>
-<p>Source: <code>lib/meta.x:60</code></p>
+<p>Source: <code>lib/meta.x</code></p>
 <p><a id="Macro"></a></p>
 <h3 id="macro"><a class="header" href="#macro">Macro</a></h3>
 <p><code>typedef List Macro</code></p>
 <p>A macro as a value: called to build code, or used in a Match <code>case</code> to
 recognize code and capture its parameters.</p>
-<p>Source: <code>lib/meta.x:54</code></p>
+<p>Source: <code>lib/meta.x</code></p>
 <p><a id="Source"></a></p>
 <h3 id="source"><a class="header" href="#source">Source</a></h3>
 <p><code>typedef List Source</code></p>
 <p>A <code>meta</code> parameter declared <code>Source</code> receives, at a <code>$</code> call, captured
 syntax with the source text it came from: <code>((text T) (file F) (syntax S))</code>. <code>Code.source_text</code> and <code>x2c_embed_text</code> read it directly.</p>
-<p>Source: <code>lib/meta.x:72</code></p>
+<p>Source: <code>lib/meta.x</code></p>
 <p><a id="Type"></a></p>
 <h3 id="type"><a class="header" href="#type">Type</a></h3>
 <p><code>typedef List Type</code></p>
 <p>Semantic type syntax with canonical List-pool lifetime.</p>
-<p>Source: <code>lib/meta.x:57</code></p>
+<p>Source: <code>lib/meta.x</code></p>
 <p><a id="TypeInfo"></a></p>
 <h3 id="typeinfo"><a class="header" href="#typeinfo">TypeInfo</a></h3>
 <p><code>typedef List TypeInfo</code></p>
 <p>A <code>meta</code> parameter declared <code>TypeInfo</code> receives, at a <code>$</code> call, the
 description of its argument’s type: <code>((name N) (kind K) (type T) (fields F) (methods M))</code>. Read a part with <code>List.assoc</code>.</p>
-<p>Source: <code>lib/meta.x:67</code></p>
+<p>Source: <code>lib/meta.x</code></p>
 <h2 id="design-notes"><a class="header" href="#design-notes">Design notes</a></h2>
-<p>A <code>meta</code> function runs inside the compiler, so it can ask the compiler
-questions and build syntax for it to bind. This module declares those
-operations in <span class="x2c-wordmark">x2c</span>; the macro values a <code>meta</code> function applies and
-recognizes are in <code>macrovalue/macrovalue.x</code>. Code builds code with
-quotations (<code>$!( ... )</code>, <code>$!{ ... }</code>, <code>$!T{ ... }</code>) and <code>%(...)</code> Lists,
-so the surface declares no constructors.</p>
-<p>The operations on a value are methods of the value’s type: <code>Code</code>,
-captured code, and <code>Type</code>, a semantic type. The rest are <code>x2c_</code> helpers
-that have no captured receiver: the identifier check, the invocation
-site, embedded text, ancestry and placement, diagnostics, and the
-definition hashes. Compile-time Lisp names a method <code>Owner.member</code>,
-as in <code>Code.binding_spelling</code>, and a helper with each <code>_</code> of its name
-as <code>.</code>, as in <code>x2c.invocation.line</code>. The semantics are specified under
-“Compile-time Lisp and imports” in the language reference.</p>
-<p>Each operation is a bodyless <code>meta</code> prototype the compiler supplies. A
+<p>Declares compiler-supplied operations on captured <code>Code</code> and semantic
+<code>Type</code> values, and the <code>x2c_</code> helpers without a captured receiver. Code
+construction uses quotations and canonical Lists; macro values live in
+<code>macrovalue/macrovalue.x</code>. The shared declaration-part helpers serve
+both the compiler and a project’s meta helper. The language reference
+specifies “Compile-time calls and operations”.</p>
+<p>Each compiler operation is a bodyless <code>meta</code> prototype. A
 <code>meta</code> function that reaches one, directly or through another <code>meta</code>
 function, is compile-time only: the compiler emits no run-time form for
 it and diagnoses a run-time call where it is written.</p>
-<p>Three operations let a macro contribute code beyond its result.
-<code>x2c_enclosing</code> answers the initialized declarator, block item,
-function, or unit around the invocation, and <code>x2c_place</code> puts code
-after that declarator or block item, on the exits of its block, at the
-entry of its function, among the unit’s support declarations, or in its
-initialization, under the expansion’s transaction. <code>x2c_binding_fresh</code>
-returns a new binding, so placed code can declare a name that the
-result also refers to. <code>$auto</code> is built on them.</p>
 <p>The library builds it as an optional module, but the prelude’s
-<code>varops.x</code> includes it for its own <code>meta</code> rows, so every unit sees its
+<code>var/var.x</code> includes it for its own <code>meta</code> rows, so every unit sees its
 declarations. Include it explicitly where <code>meta</code> functions are written.
 Shared compile-time definitions use ordinary source includes.</p>
-<h2 id="tests-and-examples"><a class="header" href="#tests-and-examples">Tests and examples</a></h2>
-<p><code>make verify</code> (<code>meta-comptime-only-call</code>, <code>meta-builder-compiler-only</code>, and <code>meta-literal-arguments</code> compiler fixtures).</p>
 
                     </main>
+                    <script>
+                        // A generated page is edited through its generator.
+                        if ([...document.querySelector('#mdbook-content main').childNodes]
+                                .some(node => node.nodeType === Node.COMMENT_NODE &&
+                                      node.textContent.includes('Do not edit by hand'))) {
+                            document.querySelector('a[rel="edit"]')?.remove();
+                        }
+                    </script>
 
                     <nav class="x2c-pager" aria-label="Page navigation">
                         <a rel="prev" href="../../library/modules/match.html" class="x2c-pager-prev" aria-keyshortcuts="Left">
@@ -348,9 +354,9 @@ Shared compile-time definitions use ordinary source includes.</p>
                         &copy; 2025&ndash;2026
                         <a href="https://flake.org">GWF</a>
                         &middot;
-                        <a href="https://github.com/gwf/x2c/blob/aa2b9b2575297711e5978acc53f87bd7f645f3c7/LICENSE">Apache 2.0</a>
+                        <a href="https://github.com/gwf/x2c/blob/2c5870d64d381a861054dae9927aa65adc87e9e0/LICENSE">Apache 2.0</a>
                         &middot;
-                        <a href="https://github.com/gwf/x2c/blob/aa2b9b2575297711e5978acc53f87bd7f645f3c7/TRADEMARKS.md">Trademarks</a>
+                        <a href="https://github.com/gwf/x2c/blob/2c5870d64d381a861054dae9927aa65adc87e9e0/TRADEMARKS.md">Trademarks</a>
                     </footer>
                 </div>
             </div>

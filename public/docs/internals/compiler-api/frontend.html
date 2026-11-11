@@ -1,6 +1,6 @@
 <!DOCTYPE HTML>
 <html lang="en" class="light sidebar-visible" dir="ltr">
-    <head><meta name="x2c-release-channel" content="staging"><meta name="x2c-candidate" content="candidate-aa2b9b2575297711e5978acc53f87bd7f645f3c7-39090113132-1">
+    <head><meta name="x2c-release-channel" content="staging"><meta name="x2c-candidate" content="candidate-aa2b9b2575297711e5978acc53f87bd7f645f3c7-39090113132-1"><meta name="x2c-site-source" content="2c5870d64d381a861054dae9927aa65adc87e9e0"><meta name="robots" content="noindex">
         <!-- Book generated using mdBook -->
         <meta charset="UTF-8">
         <title>src/frontend.x - The x2c Book</title>
@@ -30,7 +30,7 @@
         <link rel="stylesheet" id="mdbook-ayu-highlight-css" href="../../ayu-highlight-3fdfc3ac.css">
 
         <!-- Custom theme stylesheets -->
-        <link rel="stylesheet" href="../../theme/header-f6c12aed.css">
+        <link rel="stylesheet" href="../../theme/header-b540a03f.css">
         <link rel="stylesheet" href="../../theme/x2c-fd3d182e.css">
 
 
@@ -39,12 +39,12 @@
             const path_to_root = "../../";
             const default_light_theme = "light";
             const default_dark_theme = "light";
-            window.path_to_searchindex_js = "../../searchindex-f4d06db2.js";
+            window.path_to_searchindex_js = "../../searchindex-a3bdfad5.js";
         </script>
         <!-- Start loading toc.js asap -->
-        <script src="../../toc-00ae7479.js"></script>
+        <script src="../../toc-2248e0f3.js"></script>
         <!-- x2c publication metadata -->
-        <link rel="canonical" href="https://staging.x2c-lang.dev/docs/internals/compiler-api/frontend.html">
+        <link rel="canonical" href="https://x2c-lang.dev/docs/internals/compiler-api/frontend.html">
         <meta property="og:type" content="website">
         <meta property="og:title" content="src/frontend.x - The x2c Book">
         <meta property="og:description" content="The x2c language, standard library, and compiler.">
@@ -143,16 +143,12 @@
                             <button class="landing-tagline menu-title" type="button" title="Scroll to top">The x2c Book</button>
                         </div>
                         <nav class="landing-nav" aria-label="x2c website">
-                            <div class="landing-page-nav">
-                                <a href="../../../#love">love</a>
-                                <a href="../../../#power">power</a>
-                                <a href="../../../#magic">magic</a>
-                            </div>
                             <div class="landing-site-nav">
                                 <a href="../../../#install">install</a>
                                 <a href="../../../#packages">packages</a>
                             </div>
                             <div class="landing-reference-nav">
+                                <a href="../../../examples/">examples</a>
                                 <a href="../../../about/">about</a>
                                 <a href="../../" aria-current="page">docs</a>
                                 <a href="https://github.com/gwf/x2c">source</a>
@@ -233,40 +229,51 @@ Compatibility is not yet promised.</p>
 <tr><th>Function</th><th>Summary</th></tr>
 </thead>
 <tbody>
+<tr><td><a href="#Frontend.load_prelude"><code>Frontend.load_prelude</code></a></td><td>Collects the preludes once, in a Context that shares the caller’s pool, before any unit opens.</td></tr>
 <tr><td><a href="#Frontend.load_support"><code>Frontend.load_support</code></a></td><td>Loads process-owned collection support and the native modules <code>request</code> names before units, and selects those modules, in order, for its compile-time calls.</td></tr>
 <tr><td><a href="#Frontend.new"><code>Frontend.new</code></a></td><td>Borrows a configured request for sequential units.</td></tr>
 <tr><td><a href="#Frontend.open"><code>Frontend.open</code></a></td><td>Runs the source stages.</td></tr>
 <tr><td><a href="#Frontend.open_reporting"><code>Frontend.open_reporting</code></a></td><td>Runs the source stages for a command that reports to stderr.</td></tr>
 <tr><td><a href="#Frontend.open_session"><code>Frontend.open_session</code></a></td><td>Opens an empty submission unit with the ordinary runtime prelude.</td></tr>
-<tr><td><a href="#Frontend.preload_macro_libraries"><code>Frontend.preload_macro_libraries</code></a></td><td>Evaluates the compile-time libraries and installs the compiler surface’s own definitions, once for the active build or translation target.</td></tr>
-<tr><td><a href="#Frontend.start"><code>Frontend.start</code></a></td><td>Tokenizes one input into a fresh unit with its own isolated <code>Context</code>.</td></tr>
+<tr><td><a href="#Frontend.start"><code>Frontend.start</code></a></td><td>Scans one input into a fresh unit with its own isolated <code>Context</code>; collection preprocesses its tokens.</td></tr>
 <tr><td><a href="#ParsedUnit.close"><code>ParsedUnit.close</code></a></td><td>Releases the unit after its caller has inspected or exported its results.</td></tr>
-<tr><td><a href="#ParsedUnit.collect"><code>ParsedUnit.collect</code></a></td><td>Collects symbols and retains preprocessor outputs for adapter inspection.</td></tr>
+<tr><td><a href="#ParsedUnit.collect"><code>ParsedUnit.collect</code></a></td><td>Collects symbols, retains preprocessor outputs for adapter inspection, and preprocesses the unit’s tokens for parsing.</td></tr>
+<tr><td><a href="#ParsedUnit.collect_native"><code>ParsedUnit.collect_native</code></a></td><td>Collects a C source or header through the configured host preprocessor.</td></tr>
 <tr><td><a href="#ParsedUnit.parse"><code>ParsedUnit.parse</code></a></td><td>Parses a collected unit, retaining both its AST and unsuccessful reports.</td></tr>
 </tbody>
 </table>
 </div>
 <h3 id="frontend"><a class="header" href="#frontend"><code>Frontend</code></a></h3>
+<p><a id="Frontend.load_prelude"></a></p>
+<h4 id="frontendload_prelude"><a class="header" href="#frontendload_prelude">Frontend.load_prelude</a></h4>
+<p><code>int Frontend.load_prelude(Frontend frontend)</code></p>
+<p>Collects the preludes once, in a Context that shares the caller’s pool,
+before any unit opens. Units, and the workers a translation forks, then
+replay them from the process cache. The collection runs as an empty
+unit in the expansion mode of the request’s units, whatever dump or
+symbol mode the request selects. Returns zero after reporting a
+failure.</p>
+<p>Source: <code>src/frontend.x</code></p>
 <p><a id="Frontend.load_support"></a></p>
 <h4 id="frontendload_support"><a class="header" href="#frontendload_support">Frontend.load_support</a></h4>
 <p><code>void Frontend.load_support(CliRequest request)</code></p>
 <p>Loads process-owned collection support and the native modules <code>request</code>
 names before units, and selects those modules, in order, for its
 compile-time calls.</p>
-<p>Source: <code>src/frontend.x:532</code></p>
+<p>Source: <code>src/frontend.x</code></p>
 <p><a id="Frontend.new"></a></p>
 <h4 id="frontendnew"><a class="header" href="#frontendnew">Frontend.new</a></h4>
 <p><code>Frontend Frontend.new(CliRequest request)</code></p>
 <p>Borrows a configured request for sequential units. The request and this
 session must outlive its units. Initialize process support above any
 temporary command Context before creating a session inside that Context.</p>
-<p>Source: <code>src/frontend.x:543</code></p>
+<p>Source: <code>src/frontend.x</code></p>
 <p><a id="Frontend.open"></a></p>
 <h4 id="frontendopen"><a class="header" href="#frontendopen">Frontend.open</a></h4>
 <p><code>int Frontend.open(Frontend f, String filename, ParsedUnit &amp;unit)</code></p>
 <p>Runs the source stages. On either result, the caller must close the
 unit.</p>
-<p>Source: <code>src/frontend.x:94</code></p>
+<p>Source: <code>src/frontend.x</code></p>
 <p><a id="Frontend.open_reporting"></a></p>
 <h4 id="frontendopen_reporting"><a class="header" href="#frontendopen_reporting">Frontend.open_reporting</a></h4>
 <p><code>int Frontend.open_reporting(Frontend f, String filename, ParsedUnit &amp;unit)</code></p>
@@ -274,47 +281,50 @@ unit.</p>
 and parsing print each diagnostic as it is reported; a tokenizing
 failure prints its diagnostics afterward. A failed unit is closed; the
 caller must close a successful one.</p>
-<p>Source: <code>src/frontend.x:102</code></p>
+<p>Source: <code>src/frontend.x</code></p>
 <p><a id="Frontend.open_session"></a></p>
 <h4 id="frontendopen_session"><a class="header" href="#frontendopen_session">Frontend.open_session</a></h4>
 <p><code>int Frontend.open_session(Frontend frontend, ParsedUnit &amp;unit)</code></p>
-<p>Opens an empty submission unit with the ordinary runtime prelude.
-Preload macro libraries first. The caller must close the unit on either
-result; submissions and inspection results borrow its Context.</p>
-<p>Source: <code>src/frontend.x:116</code></p>
-<p><a id="Frontend.preload_macro_libraries"></a></p>
-<h4 id="frontendpreload_macro_libraries"><a class="header" href="#frontendpreload_macro_libraries">Frontend.preload_macro_libraries</a></h4>
-<p><code>int Frontend.preload_macro_libraries(Frontend frontend)</code></p>
-<p>Evaluates the compile-time libraries and installs the compiler surface’s
-own definitions, once for the active build or translation target. Returns
-zero after reporting a failed preload, without publishing a partial
-session.</p>
-<p>Source: <code>src/frontend.x:479</code></p>
+<p>Opens an empty submission unit with the ordinary runtime prelude. The
+caller must close the unit on either result; submissions and inspection
+results borrow its Context.</p>
+<p>Source: <code>src/frontend.x</code></p>
 <p><a id="Frontend.start"></a></p>
 <h4 id="frontendstart"><a class="header" href="#frontendstart">Frontend.start</a></h4>
 <p><code>int Frontend.start(Frontend frontend, String filename, ParsedUnit &amp;unit)</code></p>
-<p>Tokenizes one input into a fresh unit with its own isolated <code>Context</code>.
-The caller must close the unit on either result.</p>
-<p>Source: <code>src/frontend.x:126</code></p>
+<p>Scans one input into a fresh unit with its own isolated <code>Context</code>;
+collection preprocesses its tokens. The caller must close the unit on
+either result.</p>
+<p>Source: <code>src/frontend.x</code></p>
 <h3 id="parsedunit"><a class="header" href="#parsedunit"><code>ParsedUnit</code></a></h3>
 <p><a id="ParsedUnit.close"></a></p>
 <h4 id="parsedunitclose"><a class="header" href="#parsedunitclose">ParsedUnit.close</a></h4>
 <p><code>void ParsedUnit.close(ParsedUnit &amp;unit)</code></p>
 <p>Releases the unit after its caller has inspected or exported its
 results.</p>
-<p>Source: <code>src/frontend.x:166</code></p>
+<p>Source: <code>src/frontend.x</code></p>
 <p><a id="ParsedUnit.collect"></a></p>
 <h4 id="parsedunitcollect"><a class="header" href="#parsedunitcollect">ParsedUnit.collect</a></h4>
 <p><code>int ParsedUnit.collect(ParsedUnit &amp;unit, Frontend frontend)</code></p>
-<p>Collects symbols and retains preprocessor outputs for adapter
-inspection.</p>
-<p>Source: <code>src/frontend.x:132</code></p>
+<p>Collects symbols, retains preprocessor outputs for adapter inspection,
+and preprocesses the unit’s tokens for parsing.</p>
+<p>Source: <code>src/frontend.x</code></p>
+<p><a id="ParsedUnit.collect_native"></a></p>
+<h4 id="parsedunitcollect_native"><a class="header" href="#parsedunitcollect_native">ParsedUnit.collect_native</a></h4>
+<p><code>int ParsedUnit.collect_native(ParsedUnit &amp;unit, Frontend frontend)</code></p>
+<p>Collects a C source or header through the configured host preprocessor.
+Unlike <span class="x2c-wordmark">x2c</span> collection, this does not walk native headers as <span class="x2c-wordmark">x2c</span>-owned
+declarations. The preprocessed tokens and line markers stay in the unit;
+original source text remains available in <code>source_texts</code>, and
+<code>command_macros</code> holds every macro the host defined. Call
+<code>Compiler.full_parse_native</code> for its typed source projection.</p>
+<p>Source: <code>src/frontend.x</code></p>
 <p><a id="ParsedUnit.parse"></a></p>
 <h4 id="parsedunitparse"><a class="header" href="#parsedunitparse">ParsedUnit.parse</a></h4>
 <p><code>int ParsedUnit.parse(ParsedUnit &amp;p)</code></p>
 <p>Parses a collected unit, retaining both its AST and unsuccessful
 reports.</p>
-<p>Source: <code>src/frontend.x:155</code></p>
+<p>Source: <code>src/frontend.x</code></p>
 <h2 id="public-types"><a class="header" href="#public-types">Public types</a></h2>
 <div class="table-wrapper">
 <table>
@@ -334,24 +344,32 @@ reports.</p>
 <p>Borrows a configured request and owns shared native-preprocessor setup.
 Nested units close in reverse order; process caches outlive the session.
 The optional stderr sink runs synchronously; units also retain that text.</p>
-<p>Source: <code>src/frontend.x:23</code></p>
+<p>Source: <code>src/frontend.x</code></p>
 <p><a id="FrontendErrorSink"></a></p>
 <h3 id="frontenderrorsink"><a class="header" href="#frontenderrorsink">FrontendErrorSink</a></h3>
 <p><code>typedef void (*FrontendErrorSink)(String text)</code></p>
 <p>Receives borrowed native-preprocessor stderr synchronously during
 collect.</p>
-<p>Source: <code>src/frontend.x:17</code></p>
+<p>Source: <code>src/frontend.x</code></p>
 <p><a id="ParsedUnit"></a></p>
 <h3 id="parsedunit-1"><a class="header" href="#parsedunit-1">ParsedUnit</a></h3>
 <p><code>typedef struct ParsedUnit { Context context; Compiler compiler, preprocessor; Map globals, enclosing_var_tags; List ast; String preprocessor_output, preprocessor_errors; int source_lines, generated_symbols; } ParsedUnit</code></p>
 <p>Owns one isolated source lifetime, including unsuccessful diagnostics.
 Results remain borrowed until close; export values that must survive it.</p>
-<p>Source: <code>src/frontend.x:33</code></p>
+<p>Source: <code>src/frontend.x</code></p>
 <h2 id="design-notes"><a class="header" href="#design-notes">Design notes</a></h2>
 <p>Shares source setup, collection, parsing, and unit lifetimes between the
 command-line compiler and internal tools. Adapters own printing and exit.</p>
 
                     </main>
+                    <script>
+                        // A generated page is edited through its generator.
+                        if ([...document.querySelector('#mdbook-content main').childNodes]
+                                .some(node => node.nodeType === Node.COMMENT_NODE &&
+                                      node.textContent.includes('Do not edit by hand'))) {
+                            document.querySelector('a[rel="edit"]')?.remove();
+                        }
+                    </script>
 
                     <nav class="x2c-pager" aria-label="Page navigation">
                         <a rel="prev" href="../../internals/compiler-api/format.html" class="x2c-pager-prev" aria-keyshortcuts="Left">
@@ -368,9 +386,9 @@ command-line compiler and internal tools. Adapters own printing and exit.</p>
                         &copy; 2025&ndash;2026
                         <a href="https://flake.org">GWF</a>
                         &middot;
-                        <a href="https://github.com/gwf/x2c/blob/aa2b9b2575297711e5978acc53f87bd7f645f3c7/LICENSE">Apache 2.0</a>
+                        <a href="https://github.com/gwf/x2c/blob/2c5870d64d381a861054dae9927aa65adc87e9e0/LICENSE">Apache 2.0</a>
                         &middot;
-                        <a href="https://github.com/gwf/x2c/blob/aa2b9b2575297711e5978acc53f87bd7f645f3c7/TRADEMARKS.md">Trademarks</a>
+                        <a href="https://github.com/gwf/x2c/blob/2c5870d64d381a861054dae9927aa65adc87e9e0/TRADEMARKS.md">Trademarks</a>
                     </footer>
                 </div>
             </div>

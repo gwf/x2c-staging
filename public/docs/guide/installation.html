@@ -1,6 +1,6 @@
 <!DOCTYPE HTML>
 <html lang="en" class="light sidebar-visible" dir="ltr">
-    <head><meta name="x2c-release-channel" content="staging"><meta name="x2c-candidate" content="candidate-aa2b9b2575297711e5978acc53f87bd7f645f3c7-39090113132-1">
+    <head><meta name="x2c-release-channel" content="staging"><meta name="x2c-candidate" content="candidate-aa2b9b2575297711e5978acc53f87bd7f645f3c7-39090113132-1"><meta name="x2c-site-source" content="2c5870d64d381a861054dae9927aa65adc87e9e0"><meta name="robots" content="noindex">
         <!-- Book generated using mdBook -->
         <meta charset="UTF-8">
         <title>Install a Native Compiler - The x2c Book</title>
@@ -30,7 +30,7 @@
         <link rel="stylesheet" id="mdbook-ayu-highlight-css" href="../ayu-highlight-3fdfc3ac.css">
 
         <!-- Custom theme stylesheets -->
-        <link rel="stylesheet" href="../theme/header-f6c12aed.css">
+        <link rel="stylesheet" href="../theme/header-b540a03f.css">
         <link rel="stylesheet" href="../theme/x2c-fd3d182e.css">
 
 
@@ -39,12 +39,12 @@
             const path_to_root = "../";
             const default_light_theme = "light";
             const default_dark_theme = "light";
-            window.path_to_searchindex_js = "../searchindex-f4d06db2.js";
+            window.path_to_searchindex_js = "../searchindex-a3bdfad5.js";
         </script>
         <!-- Start loading toc.js asap -->
-        <script src="../toc-00ae7479.js"></script>
+        <script src="../toc-2248e0f3.js"></script>
         <!-- x2c publication metadata -->
-        <link rel="canonical" href="https://staging.x2c-lang.dev/docs/guide/installation.html">
+        <link rel="canonical" href="https://x2c-lang.dev/docs/guide/installation.html">
         <meta property="og:type" content="website">
         <meta property="og:title" content="Install a Native Compiler - The x2c Book">
         <meta property="og:description" content="The x2c language, standard library, and compiler.">
@@ -143,16 +143,12 @@
                             <button class="landing-tagline menu-title" type="button" title="Scroll to top">The x2c Book</button>
                         </div>
                         <nav class="landing-nav" aria-label="x2c website">
-                            <div class="landing-page-nav">
-                                <a href="../../#love">love</a>
-                                <a href="../../#power">power</a>
-                                <a href="../../#magic">magic</a>
-                            </div>
                             <div class="landing-site-nav">
                                 <a href="../../#install">install</a>
                                 <a href="../../#packages">packages</a>
                             </div>
                             <div class="landing-reference-nav">
+                                <a href="../../examples/">examples</a>
                                 <a href="../../about/">about</a>
                                 <a href="../" aria-current="page">docs</a>
                                 <a href="https://github.com/gwf/x2c">source</a>
@@ -220,50 +216,78 @@
                     <main>
                         <h1 id="install-a-native-compiler"><a class="header" href="#install-a-native-compiler">Install a Native Compiler</a></h1>
 <p>Install a release with one command, or build and install from a source
-checkout. The release route needs <code>curl</code>, <code>tar</code>, <code>shasum</code> or <code>sha256sum</code>,
-and a C compiler named <code>cc</code>:</p>
+checkout. Then create a first project, run it, and build it for a debugger.
+Notes for upgrading existing code are at the
+<a href="#upgrading-existing-code">end of this chapter</a>.</p>
+<h2 id="supported-platforms"><a class="header" href="#supported-platforms">Supported platforms</a></h2>
+<div class="table-wrapper">
+<table>
+<thead>
+<tr><th>System</th><th>Architectures</th><th>Install</th></tr>
+</thead>
+<tbody>
+<tr><td>macOS 15 or later</td><td>arm64, x86_64</td><td>release or source</td></tr>
+<tr><td>Linux with glibc 2.38 or later</td><td>x86_64, aarch64</td><td>release or source</td></tr>
+<tr><td>Windows through WSL2</td><td>as for Linux</td><td>release or source</td></tr>
+<tr><td>Windows through MSYS2</td><td>x86_64</td><td>source only</td></tr>
+</tbody>
+</table>
+</div>
+<p>Ubuntu 24.04 and Debian 13 meet the Linux requirement. Every route needs a
+C compiler named <code>cc</code>: clang 15 or later, or gcc. On macOS,
+<code>xcode-select --install</code> provides one. Native executables and archives run
+only on the platform and architecture that built them.</p>
+<h2 id="install-a-release"><a class="header" href="#install-a-release">Install a release</a></h2>
+<p>The release installer needs <code>curl</code>, <code>tar</code>, <code>shasum</code> or <code>sha256sum</code>, and
+<code>cc</code>:</p>
 <pre><code class="language-sh">curl -fsSL https://x2c-lang.dev/install.sh | sh
 export PATH="$HOME/.local/x2c/bin:$PATH"
+x2c --version
 </code></pre>
-<p><code>X2C_PREFIX</code> chooses another prefix and <code>--version &lt;n&gt;</code> pins a release;
-the current version comes from <code>https://x2c-lang.dev/x2c-version.txt</code>.
-Running the script again upgrades the prefix and keeps installed packages.
-<code>tools/check-install-script.sh</code> exercises the same script against a
-release layout built from the current tree.</p>
-<p>From a source checkout:</p>
+<p>Add the <code>export</code> line to your shell startup file to keep <code>x2c</code> on <code>PATH</code>.
+<code>X2C_PREFIX</code> or <code>--prefix &lt;dir&gt;</code> chooses another prefix, and <code>--version &lt;n&gt;</code>
+pins a release; pass options to the script with <code>sh -s --</code>. The current
+version comes from <code>https://x2c-lang.dev/x2c-version.txt</code>. Releases publish
+the compiler for macOS and Linux on arm64 and x86_64, and every release’s
+downloads stay available.</p>
+<p>To upgrade, run the installer again. It replaces the compiler in the same
+prefix and keeps installed packages.</p>
+<p>To uninstall, remove the prefix directory and the <code>export</code> line from your
+shell startup file. Removing the prefix also removes the packages installed
+in it:</p>
+<pre><code class="language-sh">rm -rf "$HOME/.local/x2c"
+</code></pre>
+<h2 id="build-from-source"><a class="header" href="#build-from-source">Build from source</a></h2>
+<p>A source build needs a C compiler, <code>ar</code>, GNU Make, Git, and <code>/bin/bash</code>. It
+does not need an existing <span class="x2c-wordmark">x2c</span> compiler, because the checkout contains
+generated C for the bootstrap:</p>
+<pre><code class="language-sh">git clone https://github.com/gwf/x2c.git
+cd x2c
+make build-safe
+make commands
+./x2c --version
+</code></pre>
+<p><code>make build-safe</code> builds the compiler as <code>./x2c</code>. <code>make commands</code> builds the
+external commands it runs, such as <code>x2c new</code>, <code>x2c test</code>, <code>x2c lint</code>,
+<code>x2c lsp</code>, and <code>x2c repl</code>. The checkout is then a complete <span class="x2c-wordmark">x2c</span> home; the
+<a href="#developer-workflow">developer workflow</a> explains using it in place.</p>
+<p>To install into a prefix instead:</p>
 <pre><code class="language-sh">make install PREFIX="$HOME/.local/x2c"
 export PATH="$HOME/.local/x2c/bin:$PATH"
-x2c build hello.x --output hello
-./hello
 </code></pre>
-<p>A source build needs a C compiler, <code>ar</code>, GNU Make, Python 3, and <code>/bin/bash</code>;
-see <a href="../internals/building.html">building the compiler</a>. The install command
-builds the compiler and installs its matching runtime, headers, compile-time
-Lisp SDK, unit interfaces written by the installed compiler, runnable
-examples, an empty package directory, and license. With no <code>PREFIX</code>,
-<code>make install</code> runs <code>make build-install</code>: it copies the development compiler
-to <code>bin/x2c-&lt;branch&gt;</code>, links <code>bin/x2c</code> to that copy, and installs the shipped
-commands under <code>libexec/x2c/</code>.</p>
-<h3 id="upgrading-from-0140"><a class="header" href="#upgrading-from-0140">Upgrading from 0.14.0</a></h3>
-<p>Version 0.15.0 reads package native arguments from <code>&lt;name&gt;.native.rsp</code> instead
-of <code>&lt;name&gt;.link</code>. The installer keeps existing packages, so rebuild source
-packages and replace old native bundles with bundles built for 0.15.0.</p>
-<p>The SQLite package calls its prepared-statement type <code>Prepared</code> instead of
-<code>Statement</code>; change imports and typed variables, and use <code>Var.prepared</code> in
-place of <code>Var.statement</code>. Automatic differentiation moved from the runtime
-to the optional <code>autodiff</code> package.
-Build or install that package and use <code>import "autodiff"</code> for its runtime types
-and macros.</p>
-<p>The removed <code>List.pool_*</code> operations now belong to <code>Pool</code>. The removed
-<code>List.reduce</code>, <code>Array.reduce</code>, and <code>Iter.reduce</code> operations have no matching
-method; use <code>Iter.foldl</code> when an explicit seed fits. Use <code>Var.truth</code> in place
-of <code>Var.truthy</code>.</p>
+<p>The install command builds the compiler and its commands, then installs the
+compiler, the shipped commands under <code>libexec/x2c/</code>, and the matching
+runtime, headers, compiler prelude, runtime Lisp assets, unit interfaces
+written by the installed compiler, runnable examples, an empty package
+directory, and license. <a href="../internals/building.html">Building the compiler</a>
+describes the build in detail.</p>
 <h2 id="the-x2c-home"><a class="header" href="#the-x2c-home">The <span class="x2c-wordmark">x2c</span> home</a></h2>
 <p>An installed prefix and a source checkout share one layout, the <span class="x2c-wordmark">x2c</span> home:</p>
 <pre><code class="language-text">&lt;home&gt;/bin/x2c           the compiler
 &lt;home&gt;/include/x2c/      runtime sources and generated headers
 &lt;home&gt;/lib/              the runtime archive and unit interfaces
-&lt;home&gt;/etc/              compile-time Lisp and macro sources
+&lt;home&gt;/etc/              compiler prelude and runtime Lisp assets
+&lt;home&gt;/libexec/x2c/      external commands (installed prefix)
 &lt;home&gt;/packages/         installed packages, one directory each
 &lt;home&gt;/examples/         runnable examples (installed prefix)
 &lt;home&gt;/src/              language component sources (installed prefix);
@@ -271,21 +295,21 @@ of <code>Var.truthy</code>.</p>
 </code></pre>
 <p>The compiler finds its home by walking up from its own executable, then from
 the current directory, to the nearest directory holding <code>include/</code> and
-<code>etc/compiler-sdk.xlisp</code>. <code>X2C_HOME</code> sets the home explicitly and takes
+<code>etc/compiler-prelude.x</code>. <code>X2C_HOME</code> sets the home explicitly and takes
 precedence.
 <code>x2c env</code> prints the resolved home, layout, package roots, and host tools;
 <code>x2c env home</code> prints one value. Every <code>import</code> searches <code>&lt;home&gt;/packages</code>
 after the explicit <code>--package-dir</code> and manifest directories, so a package
 placed there needs no build flags.</p>
 <p><code>PREFIX</code> must be absolute and dedicated to <span class="x2c-wordmark">x2c</span>. Move or rename the complete
-prefix to relocate it. Keep <code>bin</code>, <code>include</code>, <code>lib</code>, <code>etc</code>, <code>packages</code>, and
-<code>licenses</code> together. Paths may contain spaces. Quote the compiler path when
-invoking it:</p>
-<pre><code class="language-sh">"/path with spaces/x2c/bin/x2c" build hello.x --output hello
+prefix to relocate it. Keep <code>bin</code>, <code>include</code>, <code>lib</code>, <code>libexec</code>, <code>etc</code>, <code>src</code>,
+<code>packages</code>, and <code>licenses</code> together. Paths may contain spaces. Quote the
+compiler path when invoking it:</p>
+<pre><code class="language-sh">"/path with spaces/x2c/bin/x2c" build src/main.x -o hello
 </code></pre>
 <p>An upgrade stages a complete payload, replaces files owned by the previous
 installation, and removes obsolete owned files using its inventory. It leaves
-unrelated files alone and refuses to overwrite an unrelated file with the same
+unrelated files alone and does not overwrite an unrelated file with the same
 name. Publication replaces individual files; do not run an installation while
 programs are compiling against it. Keep <code>.x2c-install-manifest</code> with the prefix
 so upgrades retain ownership and build identity information.</p>
@@ -301,11 +325,61 @@ owns and any directory that becomes empty. Packages installed under
 <code>&lt;prefix&gt;/packages</code> are not owned by the compiler inventory: an upgrade keeps
 them, and an uninstall leaves the prefix in place when they remain.
 Installing these support directories directly into a shared tree such as
-<code>/usr</code> is not supported. Native executables and archives run only on the
-platform and architecture that built them.</p>
+<code>/usr</code> is not supported.</p>
 <p>An installed prefix records <code>cc</code> and <code>ar</code> in <code>lib/x2c/toolchain</code>;
 <a href="../reference/cli.html#environment">Environment</a> gives the full tool selection
 order.</p>
+<h2 id="write-a-first-program"><a class="header" href="#write-a-first-program">Write a first program</a></h2>
+<p>Start a project with <a href="../reference/cli.html#start-a-project"><code>x2c new</code></a>:</p>
+<pre><code class="language-sh">x2c new hello
+cd hello
+</code></pre>
+<p>The project holds <code>x2c.toml</code>, <code>.gitignore</code>, and one source file,
+<code>src/main.x</code>:</p>
+<pre class="shiki shiki-themes x2c-light x2c-dark x2c-code" style="--shiki-light:#24292e;--shiki-dark:#e9e5df;--shiki-light-bg:#fff;--shiki-dark-bg:#101011" tabindex="0"><code class="language-x2c no-highlight"><span class="line"><span style="--shiki-light:#6A737D;--shiki-dark:#8B857F">/*  main.x -- greet the name given on the command line */</span>
+</span><span class="line">
+</span><span class="line"><span style="--shiki-light:#D73A49;--shiki-dark:#F0ADA1">#include</span><span style="--shiki-light:#032F62;--shiki-dark:#9EDFB8"> &lt;stdio.h&gt;</span>
+</span><span class="line">
+</span><span class="line"><span style="--shiki-light:#D73A49;--shiki-dark:#F0ADA1">int</span><span style="--shiki-light:#6F42C1;--shiki-dark:#E9E5DF"> main</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">(</span><span style="--shiki-light:#D73A49;--shiki-dark:#F0ADA1">int</span><span style="--shiki-light:#E36209;--shiki-dark:#E9E5DF"> argc</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">, </span><span style="--shiki-light:#D73A49;--shiki-dark:#F0ADA1">char</span><span style="--shiki-light:#D73A49;--shiki-dark:#E9E5DF"> **</span><span style="--shiki-light:#E36209;--shiki-dark:#E9E5DF">argv</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">) {</span>
+</span><span class="line"><span style="--shiki-light:#007C8A;--shiki-dark:#29D3E2">  String</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF"> name </span><span style="--shiki-light:#D73A49;--shiki-dark:#E9E5DF">=</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF"> argc </span><span style="--shiki-light:#D73A49;--shiki-dark:#E9E5DF">&gt;</span><span style="--shiki-light:#005CC5;--shiki-dark:#A9C9F5"> 1</span><span style="--shiki-light:#D73A49;--shiki-dark:#E9E5DF"> ?</span><span style="--shiki-light:#E36209;--shiki-dark:#E9E5DF"> argv</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">[</span><span style="--shiki-light:#005CC5;--shiki-dark:#A9C9F5">1</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">] </span><span style="--shiki-light:#D73A49;--shiki-dark:#E9E5DF">:</span><span style="--shiki-light:#032F62;--shiki-dark:#9EDFB8"> "world"</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">;</span>
+</span><span class="line"><span style="--shiki-light:#6F42C1;--shiki-dark:#E9E5DF">  puts</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">(</span><span style="--shiki-light:#A626A4;--shiki-light-font-weight:bold;--shiki-dark:#FF4FD8;--shiki-dark-font-weight:bold">%"</span><span style="--shiki-light:#032F62;--shiki-dark:#9EDFB8">Hello, </span><span style="--shiki-light:#A626A4;--shiki-light-font-weight:bold;--shiki-dark:#FF4FD8;--shiki-dark-font-weight:bold">$</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">name</span><span style="--shiki-light:#032F62;--shiki-dark:#9EDFB8">!</span><span style="--shiki-light:#A626A4;--shiki-light-font-weight:bold;--shiki-dark:#FF4FD8;--shiki-dark-font-weight:bold">"</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">);</span>
+</span><span class="line"><span style="--shiki-light:#D73A49;--shiki-dark:#F0ADA1">  return</span><span style="--shiki-light:#005CC5;--shiki-dark:#A9C9F5"> 0</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">;</span>
+</span><span class="line"><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">}</span></span></code></pre>
+
+<p><code>x2c run</code> builds the project and runs it. <code>-q</code> omits the build report, and
+<code>--</code> starts the program’s arguments:</p>
+<pre><code class="language-sh">x2c run -q
+x2c run -q -- Ada
+</code></pre>
+<pre><code class="language-text">Hello, world!
+Hello, Ada!
+</code></pre>
+<p>Direct source and <code>x2c.toml</code> project builds use the same compiler.
+For source debugging, opt into native debug information and original source
+locations:</p>
+<pre><code class="language-sh">x2c build -g --source-map -O0 src/main.x -o hello
+lldb ./hello
+</code></pre>
+<p>On macOS this also produces <code>hello.dSYM</code>; move that directory with the
+executable. The build removes generated objects; pass <code>--build-dir</code> to keep
+and reuse them. Bare <code>--save-temps</code> uses <code>.x2c-build</code> for retained files.
+<code>--debug</code> enables compiler logging, not native debug information.
+<a href="../reference/cli.html#source-mapping">Source mapping</a> gives the
+location rules. To use a C library through a package, see
+<a href="packages.html">packages</a>.</p>
+<h2 id="compile-c-against-the-x2c-runtime"><a class="header" href="#compile-c-against-the-x2c-runtime">Compile C against the <span class="x2c-wordmark">x2c</span> runtime</a></h2>
+<p>A C program can call <span class="x2c-wordmark">x2c</span> code through the generated header. Point <code>-I</code> at the
+include root and write the runtime header as <code>&lt;x2c/x2c.h&gt;</code>, so every system
+header still resolves to the C library:</p>
+<pre><code class="language-c">#include &lt;string.h&gt;        /* the C library */
+#include &lt;x2c/x2c.h&gt;       /* the x2c runtime */
+</code></pre>
+<pre><code class="language-sh">cc app.c -I "$HOME/.local/x2c/include" \
+  "$HOME/.local/x2c/lib/libx2c.a" -pthread -lm -o app
+</code></pre>
+<p>To compile C generated by <code>x2c translate</code> by hand, see
+<a href="../reference/cli.html#dependencies-and-external-builds">external builds</a>. To
+build a package from a source archive, see <a href="packages.html">packages</a>.</p>
 <h2 id="windows"><a class="header" href="#windows">Windows</a></h2>
 <p>Use WSL2. Inside an Ubuntu 24.04 or newer distribution the Linux release
 installs with the same command. The installer needs <code>curl</code> and a <code>cc</code>
@@ -323,66 +397,162 @@ settings: check the repository out with LF line endings
 (<code>git config core.autocrlf false</code>), enable native symlinks
 (<code>export MSYS=winsymlinks:native</code>, which needs Developer Mode or an
 administrator shell), and select the compiler with <code>CC=gcc X2C_CC=gcc</code>.
-<code>make build-safe</code> then produces a working compiler, and the <code>check</code>
-workflow’s <code>windows_spike</code> input tests both routes. Native Windows without a
+<code>make build-safe</code> then produces a working compiler. Native Windows without a
 POSIX layer is not supported, and under MSYS2 only a source build is
 supported.</p>
 <h2 id="developer-workflow"><a class="header" href="#developer-workflow">Developer workflow</a></h2>
 <p>The <code>dev</code> branch is the everyday integration branch; <code>main</code> is reserved for
-releases. Start new development checkouts and branches from <code>dev</code>. A source
-checkout is the development install. After <code>make build-safe</code>, the
-checkout is a complete home with its own <code>packages/</code> directory, and <code>bin/x2c</code>
-is the bootstrap compiler. Run <code>make build-install</code> before putting <code>bin/</code> on
-<code>PATH</code>; it links <code>bin/x2c</code> to a copy of the current branch’s compiler and
-copies its shipped commands into <code>libexec/x2c/</code>. A
-compiler in the checkout’s <code>bin/</code> links <code>builds/0/libx2c.a</code>, the runtime built
-with the headers in <code>include/x2c</code>. Select the checkout for one shell with
-<code>PATH</code>, or for one command with <code>X2C_HOME</code>:</p>
+releases. A source checkout is the development install. After
+<code>make build-safe</code> and <code>make commands</code>, the checkout is a complete home with
+its own <code>packages/</code> directory, and <code>./x2c</code> runs the checkout’s compiler with
+its commands. <code>bin/x2c</code> starts as the bootstrap compiler, so run
+<code>make build-install</code> before putting <code>bin/</code> on <code>PATH</code>. It links <code>bin/x2c</code> to a
+copy of the current compiler and copies its shipped commands into
+<code>libexec/x2c/</code>. A compiler in the checkout’s <code>bin/</code> links
+<code>builds/0/libx2c.a</code>, the runtime built with the headers in <code>include/x2c</code>.
+Select the checkout for one shell with <code>PATH</code>, or for one command with
+<code>X2C_HOME</code>:</p>
 <pre><code class="language-sh">export PATH="$HOME/src/x2c/bin:$PATH"
 X2C_HOME="$HOME/src/x2c" x2c env
 </code></pre>
-<p>Keep the global prefix on a release. Install it from a tagged <code>main</code>, never
-from a working branch, so a bug seen through it reproduces for every user.
-Validate a staging candidate in a fresh scratch prefix and use its explicit
-package index, then remove that prefix afterwards. The staging site supplies
-the candidate installer and commands; bare <code>x2c install</code> still uses the
-production package index. Compiler version alone does not distinguish two
-candidates of the same version. Compiler development itself runs through
-<code>make</code> inside the checkout and does not depend on which compiler <code>PATH</code> selects.</p>
-<p>Releases publish the compiler for macOS and Linux on arm64 and x86_64. The
-installer’s default is the newest release; <code>--version &lt;n&gt;</code> installs an
-earlier one, and every release’s downloads stay available.</p>
-<h2 id="build-debug-and-use-packages"><a class="header" href="#build-debug-and-use-packages">Build, debug, and use packages</a></h2>
-<p>Start a project with <a href="../reference/cli.html#start-a-project"><code>x2c new</code></a>:</p>
-<pre><code class="language-sh">x2c new hello
-cd hello
-x2c run -q
-</code></pre>
-<p>Direct source and <code>x2c.toml</code> project builds use the same installed compiler.
-For source debugging, opt into native debug information and original source
-locations:</p>
-<pre><code class="language-sh">x2c build -g --source-map hello.x --output hello
-lldb ./hello
-</code></pre>
-<p>On macOS this also produces <code>hello.dSYM</code>; move that directory with the
-executable. The build removes generated objects; pass <code>--build-dir</code> to keep
-them. <a href="../reference/cli.html#source-mapping">Source mapping</a> gives the
-location rules.</p>
-<h3 id="compile-c-against-the-x2c-runtime"><a class="header" href="#compile-c-against-the-x2c-runtime">Compile C against the <span class="x2c-wordmark">x2c</span> runtime</a></h3>
-<p>A C program can call <span class="x2c-wordmark">x2c</span> code through the generated header. Point <code>-I</code> at the
-include root and write the runtime header as <code>&lt;x2c/x2c.h&gt;</code>, so every system
-header still resolves to the C library:</p>
-<pre><code class="language-c">#include &lt;string.h&gt;        /* the C library */
-#include &lt;x2c/x2c.h&gt;       /* the x2c runtime */
-</code></pre>
-<pre><code class="language-sh">cc app.c -I "$HOME/.local/x2c/include" \
-  "$HOME/.local/x2c/lib/libx2c.a" -pthread -lm -o app
-</code></pre>
-<p>To compile C generated by <code>x2c translate</code> by hand, see
-<a href="../reference/cli.html#dependencies-and-external-builds">external builds</a>. To
-build a package from a source archive, see <a href="packages.html">packages</a>.</p>
+<p>Keep the global prefix on a release, so a problem seen through it reproduces
+for other users. Compiler development itself runs through <code>make</code> inside the
+checkout and does not depend on which compiler <code>PATH</code> selects.</p>
+<h2 id="upgrading-existing-code"><a class="header" href="#upgrading-existing-code">Upgrading existing code</a></h2>
+<h3 id="upgrading-from-015x"><a class="header" href="#upgrading-from-015x">Upgrading from 0.15.x</a></h3>
+<p>Code written for 0.15.x needs these changes:</p>
+<div class="table-wrapper">
+<table>
+<thead>
+<tr><th>0.15.x</th><th>Now</th></tr>
+</thead>
+<tbody>
+<tr><td><code>%&lt;&lt;a b&gt;&gt;</code></td><td><code>%&lt;a b&gt;</code></td></tr>
+<tr><td>an object or function named <code>expand</code></td><td>another name</td></tr>
+<tr><td><code>$let(place, value) { ... }</code></td><td><code>with (place = value) { ... }</code></td></tr>
+<tr><td><code>with expr as name { ... }</code></td><td><code>{ alias expr as name; ... }</code></td></tr>
+<tr><td><code>Scope.retain()</code></td><td><code>Scope.open()</code></td></tr>
+<tr><td><code>Scope.release()</code></td><td><code>Scope.close()</code></td></tr>
+<tr><td><code>array.find(value)</code></td><td><code>array.index(value)</code></td></tr>
+<tr><td><code>array.indexof(value)</code></td><td><code>array.index(value)</code></td></tr>
+<tr><td><code>text.try_long(&amp;value)</code></td><td><code>text.try_long(value)</code></td></tr>
+<tr><td><code>Symbol.try_new(text, &amp;symbol)</code></td><td><code>Symbol.try_new(text, symbol)</code></td></tr>
+<tr><td><code>x2c_normalize_slice(&amp;start, &amp;stop, 1, n)</code></td><td><code>x2c_normalize_slice(start, stop, 1, n)</code></td></tr>
+<tr><td><code>pattern.format(values)</code></td><td><code>pattern.format(@values)</code></td></tr>
+<tr><td><code>logger.info(&lt;app&gt;, fields)</code></td><td><code>logger.info(&lt;app&gt;, @fields)</code></td></tr>
+<tr><td><code>statement.bind(values)</code> in sqlite</td><td><code>statement.bind(@values)</code></td></tr>
+</tbody>
+</table>
+</div>
+<p><code>array.find</code> now takes a predicate and returns the first accepted element
+as a <code>Var</code>, or <code>void</code> when none is accepted. <code>try_double</code> changes as
+<code>try_long</code> does. A bare List passed to <code>format</code>, a Logger method, or <code>bind</code>
+is now one value, so splice the List with <code>@</code> to keep the 0.15.x meaning.
+Array search changes C prototypes, so rebuild native code that calls
+<code>Array_find</code> or <code>Array_indexof</code>.</p>
+<p><code>SymbolSet</code> literals now use single angles, and <code>%&lt;&lt;a b&gt;&gt;</code> is an invalid
+token. An unescaped <code>&gt;</code> closes the literal, so write a member that contains
+<code>&gt;</code> as a quoted String, as in <code>%&lt;"&gt;" "&gt;="&gt;</code>. <code>expand</code> is a keyword alias
+that maps rows over a macro, so rename an object or function that used that
+name; a <code>Type.expand</code> method is unaffected.</p>
+<p><code>Scope.open</code> and <code>Scope.close</code> keep the old nested-region behavior and <code>void</code>
+return types. Keep each open paired with one close, normally through <code>defer</code>.
+In native C, rename <code>Scope_retain</code> to <code>Scope_open</code> and <code>Scope_release</code> to
+<code>Scope_close</code>. Apply these changes only to Scope: <code>Pool.retain</code>,
+<code>Pool.release</code>, and <code>Pool.up</code> keep their existing contracts.</p>
+<p><code>Scope.up</code> has no replacement field. Revise code that used it to use public
+Scope operations. The public Scope layout has changed; regenerate C and
+rebuild native libraries, extensions, and object files that use Scope against
+matching compiler/runtime headers. See the
+<a href="../library/modules/scope.html">Scope API</a>.</p>
+<p>The compiler no longer evaluates Lisp. Move a compile-time Lisp form into a
+<code>meta</code> function and call that function with <code>$</code>:</p>
+<!-- ignore: a 0.15.x compile-time Lisp form that the compiler now rejects. -->
+<pre class="shiki shiki-themes x2c-light x2c-dark x2c-code" style="--shiki-light:#24292e;--shiki-dark:#e9e5df;--shiki-light-bg:#fff;--shiki-dark-bg:#101011" tabindex="0"><code class="language-x2c no-highlight ignore"><span class="line"><span style="--shiki-light:#D73A49;--shiki-dark:#F0ADA1">int</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF"> answer </span><span style="--shiki-light:#D73A49;--shiki-dark:#E9E5DF">=</span><span style="--shiki-light:#A626A4;--shiki-light-font-weight:bold;--shiki-dark:#FF4FD8;--shiki-dark-font-weight:bold"> $</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">(</span><span style="--shiki-light:#D73A49;--shiki-dark:#E9E5DF">*</span><span style="--shiki-light:#005CC5;--shiki-dark:#A9C9F5"> 6</span><span style="--shiki-light:#005CC5;--shiki-dark:#A9C9F5"> 7</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">);</span></span></code></pre>
+
+<pre class="shiki shiki-themes x2c-light x2c-dark x2c-code" style="--shiki-light:#24292e;--shiki-dark:#e9e5df;--shiki-light-bg:#fff;--shiki-dark-bg:#101011" tabindex="0"><code class="language-x2c no-highlight"><span class="line"><span style="--shiki-light:#A626A4;--shiki-light-font-weight:bold;--shiki-dark:#FF4FD8;--shiki-dark-font-weight:bold">meta</span><span style="--shiki-light:#D73A49;--shiki-dark:#F0ADA1"> static</span><span style="--shiki-light:#D73A49;--shiki-dark:#F0ADA1"> int</span><span style="--shiki-light:#6F42C1;--shiki-dark:#E9E5DF"> product</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">(</span><span style="--shiki-light:#D73A49;--shiki-dark:#F0ADA1">int</span><span style="--shiki-light:#E36209;--shiki-dark:#E9E5DF"> a</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">, </span><span style="--shiki-light:#D73A49;--shiki-dark:#F0ADA1">int</span><span style="--shiki-light:#E36209;--shiki-dark:#E9E5DF"> b</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">) </span><span style="--shiki-light:#A626A4;--shiki-light-font-weight:bold;--shiki-dark:#FF4FD8;--shiki-dark-font-weight:bold">=&gt;</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF"> a </span><span style="--shiki-light:#D73A49;--shiki-dark:#E9E5DF">*</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF"> b;</span>
+</span><span class="line">
+</span><span class="line"><span style="--shiki-light:#D73A49;--shiki-dark:#F0ADA1">int</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF"> answer </span><span style="--shiki-light:#D73A49;--shiki-dark:#E9E5DF">=</span><span style="--shiki-light:#A626A4;--shiki-light-font-weight:bold;--shiki-dark:#FF4FD8;--shiki-dark-font-weight:bold"> $</span><span style="--shiki-light:#6F42C1;--shiki-dark:#FF715A">product</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">(</span><span style="--shiki-light:#005CC5;--shiki-dark:#A9C9F5">6</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">, </span><span style="--shiki-light:#005CC5;--shiki-dark:#A9C9F5">7</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">);</span></span></code></pre>
+
+<p>A <code>.xlisp</code> file that <code>$(import "file.xlisp")</code> loaded becomes a <code>.x</code> file of
+<code>meta</code> functions, which the unit reaches with <code>#include</code>. Runtime <code>Lisp</code>
+sessions and their <code>.xlisp</code> files are unchanged.</p>
+<p>The <code>$switch</code> decorator is removed. Give each case run of an ordinary
+<code>switch</code> its own block and <code>break</code>:</p>
+<!-- ignore: the 0.15.x $switch decorator, which this release removes. -->
+<pre class="shiki shiki-themes x2c-light x2c-dark x2c-code" style="--shiki-light:#24292e;--shiki-dark:#e9e5df;--shiki-light-bg:#fff;--shiki-dark-bg:#101011" tabindex="0"><code class="language-x2c no-highlight ignore"><span class="line"><span style="--shiki-light:#A626A4;--shiki-light-font-weight:bold;--shiki-dark:#FF4FD8;--shiki-dark-font-weight:bold">$</span><span style="--shiki-light:#6F42C1;--shiki-dark:#FF715A">switch</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">(code)</span>
+</span><span class="line"><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">{</span>
+</span><span class="line"><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">  case </span><span style="--shiki-light:#005CC5;--shiki-dark:#A9C9F5">1</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">:</span>
+</span><span class="line"><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">  case </span><span style="--shiki-light:#005CC5;--shiki-dark:#A9C9F5">2</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">:</span>
+</span><span class="line"><span style="--shiki-light:#007C8A;--shiki-dark:#29D3E2">    String</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF"> shared </span><span style="--shiki-light:#D73A49;--shiki-dark:#E9E5DF">=</span><span style="--shiki-light:#032F62;--shiki-dark:#9EDFB8"> "low"</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">;</span>
+</span><span class="line"><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">    reached </span><span style="--shiki-light:#D73A49;--shiki-dark:#E9E5DF">=</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF"> shared;</span>
+</span><span class="line"><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">  default:</span>
+</span><span class="line"><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">    reached </span><span style="--shiki-light:#D73A49;--shiki-dark:#E9E5DF">=</span><span style="--shiki-light:#032F62;--shiki-dark:#9EDFB8"> "other"</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">;</span>
+</span><span class="line"><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">}</span></span></code></pre>
+
+<pre class="shiki shiki-themes x2c-light x2c-dark x2c-code" style="--shiki-light:#24292e;--shiki-dark:#e9e5df;--shiki-light-bg:#fff;--shiki-dark-bg:#101011" tabindex="0"><code class="language-x2c no-highlight"><span class="line boring"><span style="--shiki-light:#D73A49;--shiki-dark:#F0ADA1">int</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF"> code </span><span style="--shiki-light:#D73A49;--shiki-dark:#E9E5DF">=</span><span style="--shiki-light:#005CC5;--shiki-dark:#A9C9F5"> 2</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">;</span>
+</span><span class="line boring"><span style="--shiki-light:#007C8A;--shiki-dark:#29D3E2">String</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF"> reached </span><span style="--shiki-light:#D73A49;--shiki-dark:#E9E5DF">=</span><span style="--shiki-light:#005CC5;--shiki-dark:#E9E5DF"> NULL</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">;</span>
+</span><span class="line"><span style="--shiki-light:#D73A49;--shiki-dark:#F0ADA1">switch</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF"> (code) {</span>
+</span><span class="line"><span style="--shiki-light:#D73A49;--shiki-dark:#F0ADA1">  case</span><span style="--shiki-light:#005CC5;--shiki-dark:#A9C9F5"> 1</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">:</span>
+</span><span class="line"><span style="--shiki-light:#D73A49;--shiki-dark:#F0ADA1">  case</span><span style="--shiki-light:#005CC5;--shiki-dark:#A9C9F5"> 2</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">: {</span>
+</span><span class="line"><span style="--shiki-light:#007C8A;--shiki-dark:#29D3E2">    String</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF"> shared </span><span style="--shiki-light:#D73A49;--shiki-dark:#E9E5DF">=</span><span style="--shiki-light:#032F62;--shiki-dark:#9EDFB8"> "low"</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">;</span>
+</span><span class="line"><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">    reached </span><span style="--shiki-light:#D73A49;--shiki-dark:#E9E5DF">=</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF"> shared;</span>
+</span><span class="line"><span style="--shiki-light:#D73A49;--shiki-dark:#F0ADA1">    break</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">;</span>
+</span><span class="line"><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">  }</span>
+</span><span class="line"><span style="--shiki-light:#D73A49;--shiki-dark:#F0ADA1">  default</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">:</span>
+</span><span class="line"><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">    reached </span><span style="--shiki-light:#D73A49;--shiki-dark:#E9E5DF">=</span><span style="--shiki-light:#032F62;--shiki-dark:#9EDFB8"> "other"</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">;</span>
+</span><span class="line"><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">}</span></span></code></pre>
+
+<p>A declaration prefixed by an object-like attribute macro, such as
+<code>#define WEAK __attribute__((weak))</code>, now keeps the attribute in its unit’s
+generated C, so a <code>WEAK</code> definition is weak.</p>
+<p><code>x2c lsp</code> replaces <code>x2c editor</code>. Rebuild and reinstall the VS Code
+extension from <code>etc/vsc-extension</code>; it starts <code>x2c lsp</code> and needs VS Code
+1.82 or newer. Replace the removed <code>x2c.semantic.workerPath</code> setting with
+<code>x2c.semantic.compilerPath</code>.</p>
+<p>An upgrade removes <code>x2c repl</code> from the prefix. The native library
+playground is available only in a source checkout: run <code>make commands</code>,
+then <code>./x2c repl</code>. See <a href="repl.html">Library Playground</a>.</p>
+<h4 id="long-double-hashes"><a class="header" href="#long-double-hashes">Long-double hashes</a></h4>
+<p>On x87 targets, <code>Var</code> identity, content hashing, and total ordering for boxed
+<code>long double</code> values now use the ten value bytes and ignore six padding bytes.
+This preserves precision, signed-zero identity, and NaN payload distinctions.
+The box layout is unchanged. Other long-double formats keep their native
+payload width.</p>
+<p>Recompute any stored or precomputed hashes of affected values when upgrading.
+Rebuild indexes that reuse those hashes from the original values. See
+<a href="../library/modules/var.html#Var.wide_hash">Var.wide_hash</a> and
+<a href="../library/modules/var.html#Var.wide_equal">Var.wide_equal</a>.</p>
+<h4 id="using-cooperative-task-batches"><a class="header" href="#using-cooperative-task-batches">Using cooperative task batches</a></h4>
+<p><code>Task.run</code> runs Channel jobs cooperatively on one native thread. See
+<a href="contexts-and-threads.html#run-channel-jobs-on-one-native-thread">Run Channel jobs on one native
+thread</a>.</p>
+<h3 id="upgrading-from-0140"><a class="header" href="#upgrading-from-0140">Upgrading from 0.14.0</a></h3>
+<p>Version 0.15.0 reads package native arguments from <code>&lt;name&gt;.native.rsp</code> instead
+of <code>&lt;name&gt;.link</code>. The installer keeps existing packages, so rebuild source
+packages and replace old native bundles with bundles built for 0.15.0.</p>
+<p>The SQLite package calls its prepared-statement type <code>Prepared</code> instead of
+<code>Statement</code>; change imports and typed variables, and use <code>Var.prepared</code> in
+place of <code>Var.statement</code>. Automatic differentiation moved from the runtime
+to the optional <code>autodiff</code> package.
+Build or install that package and use <code>import "autodiff"</code> for its runtime types
+and macros.</p>
+<p>The removed <code>List.pool_*</code> operations now belong to <code>Pool</code>. The removed
+<code>List.reduce</code>, <code>Array.reduce</code>, and <code>Iter.reduce</code> operations have no matching
+method; use <code>Iter.foldl</code> when an explicit seed fits. Use <code>Var.truth</code> in place
+of <code>Var.truthy</code>. <code>FileReadStatus</code> is a <code>Symbol</code>: compare a raw read’s status
+with <code>&lt;data&gt;</code>, <code>&lt;eof&gt;</code>, and <code>&lt;error&gt;</code> in place of <code>FILE_READ_DATA</code>,
+<code>FILE_READ_EOF</code>, and <code>FILE_READ_ERROR</code>.</p>
 
                     </main>
+                    <script>
+                        // A generated page is edited through its generator.
+                        if ([...document.querySelector('#mdbook-content main').childNodes]
+                                .some(node => node.nodeType === Node.COMMENT_NODE &&
+                                      node.textContent.includes('Do not edit by hand'))) {
+                            document.querySelector('a[rel="edit"]')?.remove();
+                        }
+                    </script>
 
                     <nav class="x2c-pager" aria-label="Page navigation">
                         <a rel="prev" href="../index.html" class="x2c-pager-prev" aria-keyshortcuts="Left">
@@ -399,9 +569,9 @@ build a package from a source archive, see <a href="packages.html">packages</a>.
                         &copy; 2025&ndash;2026
                         <a href="https://flake.org">GWF</a>
                         &middot;
-                        <a href="https://github.com/gwf/x2c/blob/aa2b9b2575297711e5978acc53f87bd7f645f3c7/LICENSE">Apache 2.0</a>
+                        <a href="https://github.com/gwf/x2c/blob/2c5870d64d381a861054dae9927aa65adc87e9e0/LICENSE">Apache 2.0</a>
                         &middot;
-                        <a href="https://github.com/gwf/x2c/blob/aa2b9b2575297711e5978acc53f87bd7f645f3c7/TRADEMARKS.md">Trademarks</a>
+                        <a href="https://github.com/gwf/x2c/blob/2c5870d64d381a861054dae9927aa65adc87e9e0/TRADEMARKS.md">Trademarks</a>
                     </footer>
                 </div>
             </div>

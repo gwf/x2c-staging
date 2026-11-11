@@ -1,9 +1,9 @@
 <!DOCTYPE HTML>
 <html lang="en" class="light sidebar-visible" dir="ltr">
-    <head><meta name="x2c-release-channel" content="staging"><meta name="x2c-candidate" content="candidate-aa2b9b2575297711e5978acc53f87bd7f645f3c7-39090113132-1">
+    <head><meta name="x2c-release-channel" content="staging"><meta name="x2c-candidate" content="candidate-aa2b9b2575297711e5978acc53f87bd7f645f3c7-39090113132-1"><meta name="x2c-site-source" content="2c5870d64d381a861054dae9927aa65adc87e9e0"><meta name="robots" content="noindex">
         <!-- Book generated using mdBook -->
         <meta charset="UTF-8">
-        <title>Experimental REPL - The x2c Book</title>
+        <title>Library Playground - The x2c Book</title>
 
 
         <!-- Custom HTML head -->
@@ -30,7 +30,7 @@
         <link rel="stylesheet" id="mdbook-ayu-highlight-css" href="../ayu-highlight-3fdfc3ac.css">
 
         <!-- Custom theme stylesheets -->
-        <link rel="stylesheet" href="../theme/header-f6c12aed.css">
+        <link rel="stylesheet" href="../theme/header-b540a03f.css">
         <link rel="stylesheet" href="../theme/x2c-fd3d182e.css">
 
 
@@ -39,21 +39,21 @@
             const path_to_root = "../";
             const default_light_theme = "light";
             const default_dark_theme = "light";
-            window.path_to_searchindex_js = "../searchindex-f4d06db2.js";
+            window.path_to_searchindex_js = "../searchindex-a3bdfad5.js";
         </script>
         <!-- Start loading toc.js asap -->
-        <script src="../toc-00ae7479.js"></script>
+        <script src="../toc-2248e0f3.js"></script>
         <!-- x2c publication metadata -->
-        <link rel="canonical" href="https://staging.x2c-lang.dev/docs/guide/repl.html">
+        <link rel="canonical" href="https://x2c-lang.dev/docs/guide/repl.html">
         <meta property="og:type" content="website">
-        <meta property="og:title" content="Experimental REPL - The x2c Book">
+        <meta property="og:title" content="Library Playground - The x2c Book">
         <meta property="og:description" content="The x2c language, standard library, and compiler.">
         <meta property="og:url" content="https://staging.x2c-lang.dev/docs/guide/repl.html">
         <meta property="og:image" content="https://staging.x2c-lang.dev/x2c-social.png">
         <meta property="og:image:width" content="1200">
         <meta property="og:image:height" content="630">
         <meta name="twitter:card" content="summary_large_image">
-        <meta name="twitter:title" content="Experimental REPL - The x2c Book">
+        <meta name="twitter:title" content="Library Playground - The x2c Book">
         <meta name="twitter:description" content="The x2c language, standard library, and compiler.">
         <meta name="twitter:image" content="https://staging.x2c-lang.dev/x2c-social.png">
     </head>
@@ -143,16 +143,12 @@
                             <button class="landing-tagline menu-title" type="button" title="Scroll to top">The x2c Book</button>
                         </div>
                         <nav class="landing-nav" aria-label="x2c website">
-                            <div class="landing-page-nav">
-                                <a href="../../#love">love</a>
-                                <a href="../../#power">power</a>
-                                <a href="../../#magic">magic</a>
-                            </div>
                             <div class="landing-site-nav">
                                 <a href="../../#install">install</a>
                                 <a href="../../#packages">packages</a>
                             </div>
                             <div class="landing-reference-nav">
+                                <a href="../../examples/">examples</a>
                                 <a href="../../about/">about</a>
                                 <a href="../" aria-current="page">docs</a>
                                 <a href="https://github.com/gwf/x2c">source</a>
@@ -218,467 +214,273 @@
 
                 <div id="mdbook-content" class="content">
                     <main>
-                        <h1 id="experimental-repl"><a class="header" href="#experimental-repl">Experimental REPL</a></h1>
-<p><code>x2c repl</code> is a shipped external command that evaluates a supported subset
-of <span class="x2c-wordmark">x2c</span> in a persistent session.
-The command compiles prompt function definitions to native code. Top-level
-initializers, statements, and expressions lower to ordinary Lisp and run in
-the session’s evaluator. Compiler macros use native meta compilation and
-helper execution.</p>
-<pre><code class="language-sh">x2c repl
-x2c repl --help
-x2c repl --dump --stats
+                        <h1 id="library-playground"><a class="header" href="#library-playground">Library Playground</a></h1>
+<p>The library playground is experimental and runs only from a source checkout:
+neither <code>make install</code> nor a release payload installs it. From the root of a
+checkout, run <code>make commands</code>. Every command in this chapter uses the
+checkout’s <code>./x2c</code>.</p>
+<p><code>x2c repl</code> starts the playground, a persistent command-line session for
+experimenting with C and <span class="x2c-wordmark">x2c</span> libraries. Load a source file, discover its
+functions, create an object, and call operations on that object across
+successive submissions.</p>
+<p>Executable submissions compile through the ordinary compiler. Prompt objects
+and library objects share one native worker process, so native pointers,
+struct values, aliases, and C callbacks retain their ordinary meaning. The
+terminal client stays alive when the worker exits or crashes.</p>
+<pre><code class="language-sh">./x2c repl
+./x2c repl --help
+./x2c repl points.c
+./x2c repl -I include build/libpoints.a include/points.h
+./x2c repl --manifest-path x2c.toml --target core
 </code></pre>
-<p>No source file or checkout is needed when using an installed development
-build. The command reads standard input and accepts no file operands. It also
-runs directly as <code>x2c-repl</code> from the installation’s <code>libexec/x2c</code> directory.</p>
-<h2 id="try-a-session"><a class="header" href="#try-a-session">Try a session</a></h2>
-<p>Enter these submissions in order:</p>
-<pre><code class="language-text">x2c&gt; int total = 10;
-ok
-x2c&gt; int plus(int x) { return total + x; }
-defined plus
-x2c&gt; plus(3);
-=&gt; 13
-x2c&gt; total = 20;
-ok
-x2c&gt; plus(3);
-=&gt; 23
-</code></pre>
-<p>The function calls display <code>=&gt; 13</code> and <code>=&gt; 23</code>: later calls read the current
-value of <code>total</code>. Definitions display <code>defined NAME</code>; initializations and
-statements display <code>ok</code>. A final expression displays its value using
-<code>Var.repr</code>, so character and unsigned values retain their printed tags.</p>
-<p>A function is compiled once, when its complete definition is submitted.
-Compilation needs the matching <span class="x2c-wordmark">x2c</span> compiler and host C toolchain. Later calls
-use the compiled code. Prompt variables have shared native storage: both
-compiled functions and interpreted input read and write the same objects.
-Assignment preserves each variable’s address, including pointers to record
-fields. <code>&amp;total</code> therefore refers to the same object from either path.</p>
-<p>Functions can call earlier functions and recurse directly. A saved <code>Func</code>
-keeps the same bindings, so changes to shared variables remain visible:</p>
-<pre class="shiki shiki-themes x2c-light x2c-dark x2c-code" style="--shiki-light:#24292e;--shiki-dark:#e9e5df;--shiki-light-bg:#fff;--shiki-dark-bg:#101011" tabindex="0"><code class="language-x2c no-highlight"><span class="line boring"><span style="--shiki-light:#D73A49;--shiki-dark:#F0ADA1">int</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF"> total </span><span style="--shiki-light:#D73A49;--shiki-dark:#E9E5DF">=</span><span style="--shiki-light:#005CC5;--shiki-dark:#A9C9F5"> 20</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">;</span>
-</span><span class="line boring"><span style="--shiki-light:#D73A49;--shiki-dark:#F0ADA1">int</span><span style="--shiki-light:#6F42C1;--shiki-dark:#E9E5DF"> plus</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">(</span><span style="--shiki-light:#D73A49;--shiki-dark:#F0ADA1">int</span><span style="--shiki-light:#E36209;--shiki-dark:#E9E5DF"> x</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">) { </span><span style="--shiki-light:#D73A49;--shiki-dark:#F0ADA1">return</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF"> total </span><span style="--shiki-light:#D73A49;--shiki-dark:#E9E5DF">+</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF"> x; }</span>
-</span><span class="line boring"><span style="--shiki-light:#D73A49;--shiki-dark:#F0ADA1">int</span><span style="--shiki-light:#6F42C1;--shiki-dark:#E9E5DF"> main</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">(</span><span style="--shiki-light:#D73A49;--shiki-dark:#F0ADA1">void</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">) {</span>
-</span><span class="line"><span style="--shiki-light:#007C8A;--shiki-dark:#29D3E2">Func</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF"> saved </span><span style="--shiki-light:#D73A49;--shiki-dark:#E9E5DF">=</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF"> plus;</span>
-</span><span class="line"><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">total </span><span style="--shiki-light:#D73A49;--shiki-dark:#E9E5DF">=</span><span style="--shiki-light:#005CC5;--shiki-dark:#A9C9F5"> 30</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">;</span>
-</span><span class="line"><span style="--shiki-light:#6F42C1;--shiki-dark:#E9E5DF">saved</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">(</span><span style="--shiki-light:#005CC5;--shiki-dark:#A9C9F5">3</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">);</span><span style="--shiki-light:#6A737D;--shiki-dark:#8B857F">  // 33</span>
-</span><span class="line boring"><span style="--shiki-light:#D73A49;--shiki-dark:#F0ADA1">  return</span><span style="--shiki-light:#005CC5;--shiki-dark:#A9C9F5"> 0</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">;</span>
-</span><span class="line boring"><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">}</span></span></code></pre>
+<p>Native include, define, compiler, linker, package-directory, and explicit
+manifest options use the same spellings as <code>x2c build</code>. A header plus a
+matching native library is sufficient; no generated package or <code>meta</code>
+annotation is required. Prepare optional packages before using them. The
+playground does not install missing dependencies.</p>
+<h2 id="create-call-and-inspect"><a class="header" href="#create-call-and-inspect">Create, call, and inspect</a></h2>
+<p>For example, save this C source as <code>points.c</code>:</p>
+<pre class="shiki shiki-themes x2c-light x2c-dark x2c-code" style="--shiki-light:#24292e;--shiki-dark:#e9e5df;--shiki-light-bg:#fff;--shiki-dark-bg:#101011" tabindex="0"><code class="language-x2c no-highlight"><span class="line"><span style="--shiki-light:#D73A49;--shiki-dark:#F0ADA1">#include</span><span style="--shiki-light:#032F62;--shiki-dark:#9EDFB8"> &lt;stdlib.h&gt;</span>
+</span><span class="line">
+</span><span class="line"><span style="--shiki-light:#D73A49;--shiki-dark:#E9E5DF">typedef</span><span style="--shiki-light:#D73A49;--shiki-dark:#F0ADA1"> struct</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF"> Point { </span><span style="--shiki-light:#D73A49;--shiki-dark:#F0ADA1">int</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF"> x; </span><span style="--shiki-light:#D73A49;--shiki-dark:#F0ADA1">int</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF"> y; } Point;</span>
+</span><span class="line">
+</span><span class="line"><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">Point </span><span style="--shiki-light:#D73A49;--shiki-dark:#E9E5DF">*</span><span style="--shiki-light:#6F42C1;--shiki-dark:#E9E5DF">point_new</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">(</span><span style="--shiki-light:#D73A49;--shiki-dark:#F0ADA1">int</span><span style="--shiki-light:#E36209;--shiki-dark:#E9E5DF"> x</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">, </span><span style="--shiki-light:#D73A49;--shiki-dark:#F0ADA1">int</span><span style="--shiki-light:#E36209;--shiki-dark:#E9E5DF"> y</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">) {</span>
+</span><span class="line"><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">  Point </span><span style="--shiki-light:#D73A49;--shiki-dark:#E9E5DF">*</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">p </span><span style="--shiki-light:#D73A49;--shiki-dark:#E9E5DF">=</span><span style="--shiki-light:#6F42C1;--shiki-dark:#E9E5DF"> malloc</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">(</span><span style="--shiki-light:#D73A49;--shiki-dark:#E9E5DF">sizeof</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">(</span><span style="--shiki-light:#D73A49;--shiki-dark:#E9E5DF">*</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">p));</span>
+</span><span class="line"><span style="--shiki-light:#D73A49;--shiki-dark:#F0ADA1">  if</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF"> (</span><span style="--shiki-light:#D73A49;--shiki-dark:#E9E5DF">!</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">p) </span><span style="--shiki-light:#D73A49;--shiki-dark:#F0ADA1">return</span><span style="--shiki-light:#005CC5;--shiki-dark:#E9E5DF"> NULL</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">;</span>
+</span><span class="line"><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">  p-&gt;x </span><span style="--shiki-light:#D73A49;--shiki-dark:#E9E5DF">=</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF"> x;</span>
+</span><span class="line"><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">  p-&gt;y </span><span style="--shiki-light:#D73A49;--shiki-dark:#E9E5DF">=</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF"> y;</span>
+</span><span class="line"><span style="--shiki-light:#D73A49;--shiki-dark:#F0ADA1">  return</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF"> p;</span>
+</span><span class="line"><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">}</span>
+</span><span class="line"><span style="--shiki-light:#D73A49;--shiki-dark:#F0ADA1">void</span><span style="--shiki-light:#6F42C1;--shiki-dark:#E9E5DF"> point_move</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">(Point </span><span style="--shiki-light:#D73A49;--shiki-dark:#E9E5DF">*</span><span style="--shiki-light:#E36209;--shiki-dark:#E9E5DF">p</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">, </span><span style="--shiki-light:#D73A49;--shiki-dark:#F0ADA1">int</span><span style="--shiki-light:#E36209;--shiki-dark:#E9E5DF"> dx</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">) { p-&gt;x </span><span style="--shiki-light:#D73A49;--shiki-dark:#E9E5DF">+=</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF"> dx; }</span>
+</span><span class="line"><span style="--shiki-light:#D73A49;--shiki-dark:#F0ADA1">void</span><span style="--shiki-light:#6F42C1;--shiki-dark:#E9E5DF"> point_free</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">(Point </span><span style="--shiki-light:#D73A49;--shiki-dark:#E9E5DF">*</span><span style="--shiki-light:#E36209;--shiki-dark:#E9E5DF">p</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">) { </span><span style="--shiki-light:#6F42C1;--shiki-dark:#E9E5DF">free</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">(p); }</span></span></code></pre>
 
-<p>Submit one declaration or function at a time. Executable input may contain
-several statements. Semicolons are required. Incomplete input continues at
-the <code>... </code> prompt until it forms a complete submission. Put a multiline
-<code>if</code>/<code>else</code> in a block when necessary: a complete <code>if</code> can execute before the
-next line supplies an <code>else</code>.</p>
-<p>Interactive terminals support the arrow keys, Home, End, Backspace, Delete,
-and up/down history recall. History holds the last 100 nonempty commands and
-completed source submissions for the current process; adjacent duplicates are
-stored once, and history is not written to disk. A rejected or failed
-submission remains available for correction.</p>
-<p>Tab completes names from the compiler’s live session namespace, offering
-only names that fit the grammar position: type positions offer types and
-type-producing macros, expression positions offer values and callable forms,
-and statement, block, and submission starts offer their legal union plus
-contextual keywords. Narrow continuation contexts offer <code>else</code>, <code>catch</code>, or
-<code>finally</code> where each is legal. Fields and evaluator-callable methods remain
-available on a typed receiver. At a blank primary prompt completion also
-offers colon commands, grouped with keywords, session names, types, and other
-callables. Unsupported REPL declarations and imports are not suggested.</p>
-<p>A colon-prefixed line completes commands even at a continuation prompt;
-<code>:ast</code> and <code>:lowered</code> then complete published function names, and <code>:stats</code>
-completes <code>verbose</code>. A sole match replaces the current name; otherwise Tab
-inserts the common prefix, and another Tab lists compact, grouped choices.
-Completion parses only through the cursor and rolls back its semantic work,
-so it can use locals from pending multiline input without publishing them.
-APIs become candidates when their ordinary declarations and compile-time
-bindings become visible.</p>
-<p>Long input wraps across terminal rows. Bracketed paste keeps embedded newlines
-inside one editable entry, so a pasted multiline submission can be accepted
-with one Enter. Recalled multiline submissions are also one entry. The editor
-folds these entries for display and moves over the folded range as a unit; it
-does not provide arbitrary cursor movement among every line of a whole
-submission. Typing Enter still submits the current edited entry, and an
-incomplete submission continues at a fresh <code>... </code> prompt.</p>
-<h2 id="inspect-and-control-the-session"><a class="header" href="#inspect-and-control-the-session">Inspect and control the session</a></h2>
+<p>Start the playground, then enter these submissions:</p>
+<pre><code class="language-text">:load "points.c"
+:symbols point
+:info point_move
+:source point_move
+Point *p = point_new(1, 2);
+point_move(p, 5);
+:inspect *p
+p-&gt;x;
+point_free(p);
+p = NULL;
+</code></pre>
+<p><code>p</code> designates the same allocation on each line. Inspection shows a <code>Point</code>
+with <code>x</code> equal to <code>6</code> and <code>y</code> equal to <code>2</code>. A function can also return a
+struct by value, accept the address of a prompt variable, fill an
+out-parameter, or call a named prompt function through a C function pointer.</p>
+<p>Loading a C source file also exposes its file-scope <code>static</code> functions and
+objects. Their native linkage and storage stay unchanged. Calls from the
+prompt and from the program use the same objects, including function-local
+static storage. Static declarations from dependency headers stay private.
+Header-only and binary-library loads keep their ordinary public surface.
+If a file-static name conflicts with a name from another loaded source file,
+the load fails with both paths and preserves the active session. Load those
+files in separate sessions when their private names overlap.</p>
+<p>For a complete program, run the N-body demo from the checkout root:</p>
+<pre><code class="language-sh">./x2c repl &lt; commands/repl/examples/nbody.repl
+</code></pre>
+<p>The input script loads the unchanged C benchmark, discovers its functions,
+shows a function definition, and inspects the <code>bodies</code> array before and after
+calls. The walkthrough in <code>commands/repl/examples/README.md</code> also shows how to
+enter each command interactively.</p>
+<p>A C library often exposes an opaque handle. Inspect the pointer’s declared
+type and use <code>:members</code> to find related operations. Use the library’s query
+functions to examine its state; an incomplete type does not reveal private
+fields.</p>
+<p>The final expression in a submission displays its result. Declarations and
+statements report <code>defined NAME</code> or <code>ok</code>. Semicolons are required. Incomplete
+input continues at <code>... </code> until it forms a complete submission. Submit one
+persistent declaration or function definition at a time. Executable input
+can contain several statements.</p>
+<h2 id="try-an-installed-c-library"><a class="header" href="#try-an-installed-c-library">Try an installed C library</a></h2>
+<p>If your host provides SQLite headers and its native library, create a small
+header that selects the API and start a session:</p>
+<pre><code class="language-sh">printf '#include &lt;sqlite3.h&gt;\n' &gt; sqlite-api.h
+./x2c repl -l sqlite3 sqlite-api.h
+</code></pre>
+<p>The SQLite declarations come from the included header. Use <code>--all</code> to browse
+those dependency declarations, then call the ordinary C API:</p>
+<pre><code class="language-text">:symbols --all sqlite3_open
+:info sqlite3_prepare_v2
+sqlite3 *db = NULL;
+sqlite3_open(":memory:", &amp;db);
+sqlite3_stmt *query = NULL;
+sqlite3_prepare_v2(db, "SELECT 6*7", -1, &amp;query, NULL);
+sqlite3_step(query) == SQLITE_ROW;
+:inspect sqlite3_column_int(query, 0)
+sqlite3_finalize(query);
+sqlite3_close(db);
+</code></pre>
+<p>The inspected column is <code>int 42</code>. The database and statement are ordinary
+opaque C handles. They stay alive until the library’s explicit release calls.</p>
+<h2 id="discover-the-api"><a class="header" href="#discover-the-api">Discover the API</a></h2>
 <div class="table-wrapper">
 <table>
 <thead>
-<tr><th>Command</th><th>Meaning</th></tr>
+<tr><th>Command</th><th>Result</th></tr>
 </thead>
 <tbody>
-<tr><td><code>:help</code></td><td>Show session commands.</td></tr>
-<tr><td><code>:stats [verbose]</code></td><td>Show concise or detailed runtime statistics.</td></tr>
-<tr><td><code>:symbols [PREFIX]</code></td><td>List successfully defined names and kinds, optionally matching a name prefix.</td></tr>
-<tr><td><code>:load "file.x"</code></td><td>Rebuild all loaded files together, expose this file’s public names, and reset loaded native state.</td></tr>
-<tr><td><code>:info NAME</code></td><td>Show a session function’s argument and return types, source, and execution mode.</td></tr>
-<tr><td><code>:ast plus</code></td><td>Show <code>plus</code>’s typed <span class="x2c-wordmark">x2c</span> AST.</td></tr>
-<tr><td><code>:lowered plus</code></td><td>Report that <code>plus</code> is compiled and has no Lisp body.</td></tr>
-<tr><td><code>:cancel</code></td><td>Discard incomplete input.</td></tr>
-<tr><td><code>:quit</code></td><td>Exit, discarding incomplete input.</td></tr>
+<tr><td><code>:help [COMMAND]</code></td><td>Show commands or one command’s arguments.</td></tr>
+<tr><td><code>:symbols [PREFIX]</code></td><td>List prompt and selected library declarations with signatures and origins.</td></tr>
+<tr><td><code>:symbols --all [PREFIX]</code></td><td>Include visible runtime and dependency names.</td></tr>
+<tr><td><code>:symbols --kind KIND --file "PATH" [PREFIX]</code></td><td>Filter by kind, source file, or both.</td></tr>
+<tr><td><code>:info NAME_OR_EXPRESSION</code></td><td>Show a declaration or an expression’s type without evaluating it.</td></tr>
+<tr><td><code>:members TYPE_OR_EXPRESSION</code></td><td>Show fields, methods, and related C functions.</td></tr>
+<tr><td><code>:source NAME</code></td><td>Show the captured source definition or available header declaration.</td></tr>
+<tr><td><code>:files</code></td><td>Show loaded roots and native build settings.</td></tr>
 </tbody>
 </table>
 </div>
-<p>For the example above, <code>:symbols</code> prints the list template
-<code>%((function "plus") (value "total"))</code>. Typed AST output begins with
-<code>typed: %(</code>; <code>:lowered plus</code> prints
-<code>compiled: native function; no Lisp body</code>. Inspection does not execute the
-function, and earlier functions remain inspectable after later submissions.
-Values have symbol entries but no function AST.</p>
-<p><code>:symbols pl</code> lists only names beginning with <code>pl</code>. <code>:info plus</code> prints a
-declaration, <code>source: prompt</code>, and <code>execution: native</code>. For a loaded function,
-the source is the loaded file’s resolved absolute path. Parameter names are
-omitted from the printed declaration; argument and return types remain.
-Tab completion for <code>:info</code> includes both prompt functions and loaded functions.</p>
-<p>Help and inspection commands preserve incomplete input, including when a
-command reports an error. Colon commands are recognized on separate lines
-even inside an incomplete string or comment. Missing names, extra arguments,
-and unknown commands report errors.</p>
-<p><code>--dump</code> prints each available typed AST and lowered Lisp form to standard
-error. <code>--stats</code> prints the concise runtime report at exit, to standard error.
-<code>--verbose-stats</code> prints the detailed report and implies exit reporting; when
-both statistics options are present, one verbose report is printed. The
-options can be combined with <code>--dump</code>.</p>
-<p>The report separates absolute live or retained quantities from activity since
-the REPL opened. Scope allocation objects and live requested bytes are
-process-wide runtime values; requested bytes count public managed payload.
-Pool active and depot bytes partition retained backing capacity. Scope and
-Pool figures overlap and must not be summed. Verbose reports add Scope and
-Pool traffic and capacity details.</p>
-<h2 id="load-functions-from-a-file"><a class="header" href="#load-functions-from-a-file">Load functions from a file</a></h2>
-<p>Save this source as <code>numbers.x</code>:</p>
-<pre class="shiki shiki-themes x2c-light x2c-dark x2c-code" style="--shiki-light:#24292e;--shiki-dark:#e9e5df;--shiki-light-bg:#fff;--shiki-dark-bg:#101011" tabindex="0"><code class="language-x2c no-highlight"><span class="line"><span style="--shiki-light:#D73A49;--shiki-dark:#F0ADA1">static</span><span style="--shiki-light:#D73A49;--shiki-dark:#F0ADA1"> int</span><span style="--shiki-light:#6F42C1;--shiki-dark:#E9E5DF"> twice</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">(</span><span style="--shiki-light:#D73A49;--shiki-dark:#F0ADA1">int</span><span style="--shiki-light:#E36209;--shiki-dark:#E9E5DF"> n</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">) { </span><span style="--shiki-light:#D73A49;--shiki-dark:#F0ADA1">return</span><span style="--shiki-light:#005CC5;--shiki-dark:#A9C9F5"> 2</span><span style="--shiki-light:#D73A49;--shiki-dark:#E9E5DF"> *</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF"> n; }</span>
-</span><span class="line"><span style="--shiki-light:#D73A49;--shiki-dark:#F0ADA1">static</span><span style="--shiki-light:#D73A49;--shiki-dark:#F0ADA1"> int</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF"> calls </span><span style="--shiki-light:#D73A49;--shiki-dark:#E9E5DF">=</span><span style="--shiki-light:#005CC5;--shiki-dark:#A9C9F5"> 0</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">;</span>
-</span><span class="line"><span style="--shiki-light:#D73A49;--shiki-dark:#F0ADA1">int</span><span style="--shiki-light:#6F42C1;--shiki-dark:#E9E5DF"> answer</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">(</span><span style="--shiki-light:#D73A49;--shiki-dark:#F0ADA1">int</span><span style="--shiki-light:#E36209;--shiki-dark:#E9E5DF"> n</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">) { calls</span><span style="--shiki-light:#D73A49;--shiki-dark:#E9E5DF">++</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">; </span><span style="--shiki-light:#D73A49;--shiki-dark:#F0ADA1">return</span><span style="--shiki-light:#6F42C1;--shiki-dark:#E9E5DF"> twice</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">(n </span><span style="--shiki-light:#D73A49;--shiki-dark:#E9E5DF">+</span><span style="--shiki-light:#005CC5;--shiki-dark:#A9C9F5"> 1</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">); }</span>
-</span><span class="line"><span style="--shiki-light:#D73A49;--shiki-dark:#F0ADA1">int</span><span style="--shiki-light:#6F42C1;--shiki-dark:#E9E5DF"> call_count</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">(</span><span style="--shiki-light:#D73A49;--shiki-dark:#F0ADA1">void</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">) { </span><span style="--shiki-light:#D73A49;--shiki-dark:#F0ADA1">return</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF"> calls; }</span></span></code></pre>
-
-<p>Load it and call its functions with ordinary prompt expressions:</p>
-<pre><code class="language-text">x2c&gt; :load "numbers.x"
-loaded ("answer" "call_count")
-reset all loaded native state
-x2c&gt; answer(20);
-=&gt; 42
-x2c&gt; call_count();
-=&gt; 1
-x2c&gt; int plus_answer(int n) { return answer(n) + 1; }
-defined plus_answer
-x2c&gt; plus_answer(20);
-=&gt; 43
+<p>For example, <code>:info point_move</code> includes parameter names and their types.
+<code>:members Point</code> lists its fields and related C functions. Related C
+functions retain their real names and calling syntax: discovering
+<code>point_move</code> does not create an invented <code>Point.move</code> method.</p>
+<p>Declared <span class="x2c-wordmark">x2c</span> methods accept their ordinary <code>Type.method</code> spelling in
+inspection. Tab completion offers relevant names in their grammar position,
+including fields and methods on a typed receiver. A second Tab lists grouped
+choices. Colon commands complete arguments, including file paths.</p>
+<p>Source lookup shows the source snapshot used to build the running code. An
+edit on disk does not change <code>:source</code> until a successful reload. A native
+library without implementation source shows its available header declaration
+and says that the definition is unavailable. Source lookup does not decompile
+binary code.</p>
+<h2 id="inspect-objects"><a class="header" href="#inspect-objects">Inspect objects</a></h2>
+<pre><code class="language-text">:inspect *p
+:inspect --depth 5 --limit 200 *p
+:info p-&gt;x
 </code></pre>
-<p><code>:load</code> builds all loaded files into one native helper program. It uses the
-ordinary include, module, package, and native dependency handling.
-Public functions with bodies in the loaded file become prompt functions,
-including <code>main</code>. No <code>meta</code> annotation is needed. Static helpers such as
-<code>twice</code> remain private. Functions from included files and declaration-only
-functions remain available to the compiled code but are not imported into
-the prompt. Public type declarations accompany the loaded definitions.
-Enumerator constants are not imported. Source macros remain
-with the compiled source; loading does not install them in the prompt.</p>
-<p>Public scalar globals are also available without source changes. Reads and
-assignments use the same native storage as the file’s functions:</p>
-<pre class="shiki shiki-themes x2c-light x2c-dark x2c-code" style="--shiki-light:#24292e;--shiki-dark:#e9e5df;--shiki-light-bg:#fff;--shiki-dark-bg:#101011" tabindex="0"><code class="language-x2c no-highlight"><span class="line"><span style="--shiki-light:#D73A49;--shiki-dark:#F0ADA1">int</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF"> counter </span><span style="--shiki-light:#D73A49;--shiki-dark:#E9E5DF">=</span><span style="--shiki-light:#005CC5;--shiki-dark:#A9C9F5"> 10</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">;</span>
-</span><span class="line"><span style="--shiki-light:#D73A49;--shiki-dark:#F0ADA1">const</span><span style="--shiki-light:#D73A49;--shiki-dark:#F0ADA1"> int</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF"> limit </span><span style="--shiki-light:#D73A49;--shiki-dark:#E9E5DF">=</span><span style="--shiki-light:#005CC5;--shiki-dark:#A9C9F5"> 100</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">;</span>
-</span><span class="line"><span style="--shiki-light:#D73A49;--shiki-dark:#F0ADA1">static</span><span style="--shiki-light:#D73A49;--shiki-dark:#F0ADA1"> int</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF"> private_counter;</span>
-</span><span class="line"><span style="--shiki-light:#D73A49;--shiki-dark:#F0ADA1">int</span><span style="--shiki-light:#6F42C1;--shiki-dark:#E9E5DF"> read_counter</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">(</span><span style="--shiki-light:#D73A49;--shiki-dark:#F0ADA1">void</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">) { </span><span style="--shiki-light:#D73A49;--shiki-dark:#F0ADA1">return</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF"> counter; }</span></span></code></pre>
-
-<p>After loading this file, <code>counter;</code> returns <code>10</code>. Entering <code>counter = 20;</code>
-makes <code>read_counter();</code> return <code>20</code>. Compound assignments and numeric prefix
-or postfix increments also work. Prompt functions can read and assign these
-globals, including functions saved before a reload. <code>limit</code> is read-only,
-and <code>private_counter</code> remains private. <code>:symbols</code> lists the public globals.</p>
-<p>Supported scalar values are numbers, booleans, enums, Strings, and Symbols,
-including typedef aliases. Enum values use the compiler’s <code>int</code>
-representation. Fixed-size C arrays and structs also expose their scalar
-fields and elements, including nested arrays and structs:</p>
-<pre class="shiki shiki-themes x2c-light x2c-dark x2c-code" style="--shiki-light:#24292e;--shiki-dark:#e9e5df;--shiki-light-bg:#fff;--shiki-dark-bg:#101011" tabindex="0"><code class="language-x2c no-highlight"><span class="line"><span style="--shiki-light:#D73A49;--shiki-dark:#F0ADA1">int</span><span style="--shiki-light:#E36209;--shiki-dark:#E9E5DF"> samples</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">[</span><span style="--shiki-light:#005CC5;--shiki-dark:#A9C9F5">3</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">] </span><span style="--shiki-light:#D73A49;--shiki-dark:#E9E5DF">=</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF"> {</span><span style="--shiki-light:#005CC5;--shiki-dark:#A9C9F5">10</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">, </span><span style="--shiki-light:#005CC5;--shiki-dark:#A9C9F5">20</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">, </span><span style="--shiki-light:#005CC5;--shiki-dark:#A9C9F5">30</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">};</span>
-</span><span class="line"><span style="--shiki-light:#D73A49;--shiki-dark:#F0ADA1">struct</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF"> Point { </span><span style="--shiki-light:#D73A49;--shiki-dark:#F0ADA1">int</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF"> x; </span><span style="--shiki-light:#D73A49;--shiki-dark:#F0ADA1">int</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF"> y; };</span>
-</span><span class="line"><span style="--shiki-light:#D73A49;--shiki-dark:#F0ADA1">struct</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF"> Point point </span><span style="--shiki-light:#D73A49;--shiki-dark:#E9E5DF">=</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF"> {</span><span style="--shiki-light:#005CC5;--shiki-dark:#A9C9F5">1</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">, </span><span style="--shiki-light:#005CC5;--shiki-dark:#A9C9F5">2</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">};</span></span></code></pre>
-
-<p>After loading this file, <code>samples[1];</code> returns <code>20</code>. Assignments such as
-<code>samples[1] = 99;</code> and <code>point.x = 7;</code> change the file’s native storage.
-Compound assignments and increments work too. Array indices are checked
-against the native array’s extent and evaluated once per access. These
-operations also work inside compiled prompt functions.</p>
-<p>Enter <code>samples;</code> or <code>point;</code> to inspect the whole object. Arrays display as
-Arrays and structs as Maps keyed by field name. Inspection copies the data
-and visits at most 100 fields or elements, including nested containers;
-<code>"..."</code> marks truncated output. Unsupported fields display <code>"&lt;unavailable&gt;"</code>.
-Inspection is available for the final expression at the prompt. Native
-arrays and structs are not copied across the helper boundary as ordinary
-values. They can be passed to loaded functions inside the helper, as shown
-below. Assign fields and elements individually.</p>
-<p>Static globals stay private. Const objects and const fields are read-only.
-Raw pointers, unions, flexible array members, collections, <code>Var</code>, and
-callable globals do not gain accessors. Included globals become visible at
-the prompt when their defining file is explicitly loaded. A loaded object
-can supply a pointer or reference argument to a loaded function; its address
-stays inside the helper. Taking that address as a prompt value is unsupported.</p>
-<p>Compilation happens on <code>:load</code> and on each prompt function definition,
-including <code>plus_answer</code> above. Top-level input stays interpreted. Loading needs
-a matching <span class="x2c-wordmark">x2c</span> compiler, the host C compiler, and its runtime. A dependency
-that the project meta builder cannot compile or link makes the load fail.
-An explicit <code>meta</code> function remains callable under the same data limits.</p>
-<p>The session keeps one helper process and its compiled executable. Native
-globals and static values persist between calls. Each successful <code>:load</code>
-replaces the helper and resets all of those values, including when loading
-an additional file or an unchanged file. Prompt variables and functions
-survive. Calls exchange data values:
-numbers, Strings, Symbols, Lists, and independent Arrays and Maps. Arrays
-and Maps are copied across the boundary. Mutating a collection argument in
-the helper does not mutate the prompt’s collection; return the changed
-collection to use it. Native pointers and records cannot be returned to the
-prompt. Prompt-owned native objects, callbacks, cycles, and shared mutable
-collection identity cannot cross this boundary. Selecting a loaded object
-as a function argument keeps that object inside the helper.</p>
-<p>A failed load publishes no names and preserves earlier functions. Fix a
-rejected file and load it again. Loaded names appear as <code>native</code> in
-<code>:symbols</code>; <code>:info</code> shows their declarations and loaded file. They have no
-prompt AST or lowered Lisp for inspection.</p>
-<h3 id="use-objects-and-functions-from-different-files"><a class="header" href="#use-objects-and-functions-from-different-files">Use objects and functions from different files</a></h3>
-<p>Save this as <code>objects.x</code>:</p>
-<pre class="shiki shiki-themes x2c-light x2c-dark x2c-code" style="--shiki-light:#24292e;--shiki-dark:#e9e5df;--shiki-light-bg:#fff;--shiki-dark-bg:#101011" tabindex="0"><code class="language-x2c no-highlight"><span class="line"><span style="--shiki-light:#D73A49;--shiki-dark:#F0ADA1">struct</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF"> Point { </span><span style="--shiki-light:#D73A49;--shiki-dark:#F0ADA1">int</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF"> x; </span><span style="--shiki-light:#D73A49;--shiki-dark:#F0ADA1">int</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF"> y; };</span>
-</span><span class="line"><span style="--shiki-light:#D73A49;--shiki-dark:#F0ADA1">int</span><span style="--shiki-light:#E36209;--shiki-dark:#E9E5DF"> samples</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">[</span><span style="--shiki-light:#005CC5;--shiki-dark:#A9C9F5">3</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">] </span><span style="--shiki-light:#D73A49;--shiki-dark:#E9E5DF">=</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF"> {</span><span style="--shiki-light:#005CC5;--shiki-dark:#A9C9F5">10</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">, </span><span style="--shiki-light:#005CC5;--shiki-dark:#A9C9F5">20</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">, </span><span style="--shiki-light:#005CC5;--shiki-dark:#A9C9F5">30</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">};</span>
-</span><span class="line"><span style="--shiki-light:#D73A49;--shiki-dark:#F0ADA1">struct</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF"> Point point </span><span style="--shiki-light:#D73A49;--shiki-dark:#E9E5DF">=</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF"> {</span><span style="--shiki-light:#005CC5;--shiki-dark:#A9C9F5">1</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">, </span><span style="--shiki-light:#005CC5;--shiki-dark:#A9C9F5">2</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">};</span>
-</span><span class="line"><span style="--shiki-light:#D73A49;--shiki-dark:#F0ADA1">int</span><span style="--shiki-light:#6F42C1;--shiki-dark:#E9E5DF"> first</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">(</span><span style="--shiki-light:#D73A49;--shiki-dark:#F0ADA1">void</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">) { </span><span style="--shiki-light:#D73A49;--shiki-dark:#F0ADA1">return</span><span style="--shiki-light:#E36209;--shiki-dark:#E9E5DF"> samples</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">[</span><span style="--shiki-light:#005CC5;--shiki-dark:#A9C9F5">0</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">]; }</span></span></code></pre>
-
-<p>Save these declarations and functions as <code>operations.x</code>. The <code>extern</code>
-declaration and function prototype refer to definitions in <code>objects.x</code>:</p>
-<pre class="shiki shiki-themes x2c-light x2c-dark x2c-code" style="--shiki-light:#24292e;--shiki-dark:#e9e5df;--shiki-light-bg:#fff;--shiki-dark-bg:#101011" tabindex="0"><code class="language-x2c no-highlight"><span class="line"><span style="--shiki-light:#D73A49;--shiki-dark:#F0ADA1">struct</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF"> Point { </span><span style="--shiki-light:#D73A49;--shiki-dark:#F0ADA1">int</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF"> x; </span><span style="--shiki-light:#D73A49;--shiki-dark:#F0ADA1">int</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF"> y; };</span>
-</span><span class="line"><span style="--shiki-light:#D73A49;--shiki-dark:#F0ADA1">extern</span><span style="--shiki-light:#D73A49;--shiki-dark:#F0ADA1"> int</span><span style="--shiki-light:#E36209;--shiki-dark:#E9E5DF"> samples</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">[</span><span style="--shiki-light:#005CC5;--shiki-dark:#A9C9F5">3</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">];</span>
-</span><span class="line"><span style="--shiki-light:#D73A49;--shiki-dark:#F0ADA1">int</span><span style="--shiki-light:#6F42C1;--shiki-dark:#E9E5DF"> first</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">(</span><span style="--shiki-light:#D73A49;--shiki-dark:#F0ADA1">void</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">);</span>
-</span><span class="line">
-</span><span class="line"><span style="--shiki-light:#D73A49;--shiki-dark:#F0ADA1">int</span><span style="--shiki-light:#6F42C1;--shiki-dark:#E9E5DF"> sum</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">(</span><span style="--shiki-light:#D73A49;--shiki-dark:#F0ADA1">const</span><span style="--shiki-light:#D73A49;--shiki-dark:#F0ADA1"> int</span><span style="--shiki-light:#D73A49;--shiki-dark:#E9E5DF"> *</span><span style="--shiki-light:#E36209;--shiki-dark:#E9E5DF">values</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">, </span><span style="--shiki-light:#D73A49;--shiki-dark:#F0ADA1">int</span><span style="--shiki-light:#E36209;--shiki-dark:#E9E5DF"> count</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">) {</span>
-</span><span class="line"><span style="--shiki-light:#D73A49;--shiki-dark:#F0ADA1">  int</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF"> total </span><span style="--shiki-light:#D73A49;--shiki-dark:#E9E5DF">=</span><span style="--shiki-light:#005CC5;--shiki-dark:#A9C9F5"> 0</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">;</span>
-</span><span class="line"><span style="--shiki-light:#D73A49;--shiki-dark:#F0ADA1">  for</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF"> (</span><span style="--shiki-light:#D73A49;--shiki-dark:#F0ADA1">int</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF"> i </span><span style="--shiki-light:#D73A49;--shiki-dark:#E9E5DF">=</span><span style="--shiki-light:#005CC5;--shiki-dark:#A9C9F5"> 0</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">; i </span><span style="--shiki-light:#D73A49;--shiki-dark:#E9E5DF">&lt;</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF"> count; i</span><span style="--shiki-light:#D73A49;--shiki-dark:#E9E5DF">++</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">) total </span><span style="--shiki-light:#D73A49;--shiki-dark:#E9E5DF">+=</span><span style="--shiki-light:#E36209;--shiki-dark:#E9E5DF"> values</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">[i];</span>
-</span><span class="line"><span style="--shiki-light:#D73A49;--shiki-dark:#F0ADA1">  return</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF"> total;</span>
-</span><span class="line"><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">}</span>
-</span><span class="line"><span style="--shiki-light:#D73A49;--shiki-dark:#F0ADA1">void</span><span style="--shiki-light:#6F42C1;--shiki-dark:#E9E5DF"> shift</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">(</span><span style="--shiki-light:#D73A49;--shiki-dark:#F0ADA1">struct</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF"> Point </span><span style="--shiki-light:#D73A49;--shiki-dark:#E9E5DF">*</span><span style="--shiki-light:#E36209;--shiki-dark:#E9E5DF">p</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">, </span><span style="--shiki-light:#D73A49;--shiki-dark:#F0ADA1">int</span><span style="--shiki-light:#E36209;--shiki-dark:#E9E5DF"> dx</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">) { p-&gt;x </span><span style="--shiki-light:#D73A49;--shiki-dark:#E9E5DF">+=</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF"> dx; }</span>
-</span><span class="line"><span style="--shiki-light:#D73A49;--shiki-dark:#F0ADA1">int</span><span style="--shiki-light:#6F42C1;--shiki-dark:#E9E5DF"> score</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">(</span><span style="--shiki-light:#D73A49;--shiki-dark:#F0ADA1">struct</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF"> Point </span><span style="--shiki-light:#E36209;--shiki-dark:#E9E5DF">p</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">) { p.x </span><span style="--shiki-light:#D73A49;--shiki-dark:#E9E5DF">+=</span><span style="--shiki-light:#005CC5;--shiki-dark:#A9C9F5"> 100</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">; </span><span style="--shiki-light:#D73A49;--shiki-dark:#F0ADA1">return</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF"> p.x </span><span style="--shiki-light:#D73A49;--shiki-dark:#E9E5DF">+</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF"> p.y; }</span>
-</span><span class="line"><span style="--shiki-light:#D73A49;--shiki-dark:#F0ADA1">int</span><span style="--shiki-light:#6F42C1;--shiki-dark:#E9E5DF"> advance</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">(</span><span style="--shiki-light:#D73A49;--shiki-dark:#F0ADA1">void</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">) { </span><span style="--shiki-light:#E36209;--shiki-dark:#E9E5DF">samples</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">[</span><span style="--shiki-light:#005CC5;--shiki-dark:#A9C9F5">0</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">]</span><span style="--shiki-light:#D73A49;--shiki-dark:#E9E5DF">++</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">; </span><span style="--shiki-light:#D73A49;--shiki-dark:#F0ADA1">return</span><span style="--shiki-light:#6F42C1;--shiki-dark:#E9E5DF"> first</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">(); }</span></span></code></pre>
-
-<p>Load both files in the same session, then use their objects and functions:</p>
-<pre><code class="language-text">:load "objects.x"
-:load "operations.x"
-sum(samples, 3);
-shift(&amp;point, 5);
-point.x;
-score(point);
-point.x;
-advance();
-samples[0];
-</code></pre>
-<p><code>sum</code> returns <code>60</code>. <code>shift</code> changes <code>point.x</code> to <code>6</code>. <code>score</code> returns <code>108</code>
-after changing its own by-value copy; <code>point.x</code> remains <code>6</code>. <code>advance</code>
-returns <code>11</code>, and <code>samples[0]</code> also reads <code>11</code>.</p>
-<p>The helper passes its own array and struct to these functions. No native
-address or struct bytes travel to the REPL process. Field and element
-selections also work, such as <code>sum(&amp;samples[1], 2)</code>. Repeated selections
-of the same object alias that object. Const restrictions and array bounds
-remain checked. Scalar arguments and indices are evaluated once in source
-order. Compiled prompt functions can make these same calls.
-Call the loaded function by name for object arguments. Saved <code>Func</code> values
-retain their existing data-value calling limits.</p>
-<p>Use normal includes, prototypes, and <code>extern</code> declarations for references
-between source files. Larger programs usually keep common declarations in
-a header. A source dependency has one provider and one instance of its
-public storage. Loading that dependency explicitly exposes its public names
-without adding another instance. Distinct public definitions with the same
-name conflict; file-static declarations retain ordinary C privacy.</p>
-<h3 id="load-a-program-with-main"><a class="header" href="#load-a-program-with-main">Load a program with main</a></h3>
-<p><code>:load</code> also accepts a program with <code>main</code>, including a <code>.c</code> file. The source
-needs no <code>meta</code> annotation or renamed function. Save this as <code>hello.c</code>:</p>
-<pre class="shiki shiki-themes x2c-light x2c-dark x2c-code" style="--shiki-light:#24292e;--shiki-dark:#e9e5df;--shiki-light-bg:#fff;--shiki-dark-bg:#101011" tabindex="0"><code class="language-x2c no-highlight"><span class="line"><span style="--shiki-light:#D73A49;--shiki-dark:#F0ADA1">#include</span><span style="--shiki-light:#032F62;--shiki-dark:#9EDFB8"> &lt;stdio.h&gt;</span>
-</span><span class="line"><span style="--shiki-light:#D73A49;--shiki-dark:#F0ADA1">int</span><span style="--shiki-light:#6F42C1;--shiki-dark:#E9E5DF"> main</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">(</span><span style="--shiki-light:#D73A49;--shiki-dark:#F0ADA1">int</span><span style="--shiki-light:#E36209;--shiki-dark:#E9E5DF"> argc</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">, </span><span style="--shiki-light:#D73A49;--shiki-dark:#F0ADA1">char</span><span style="--shiki-light:#D73A49;--shiki-dark:#E9E5DF"> *</span><span style="--shiki-light:#E36209;--shiki-dark:#E9E5DF">argv</span><span style="--shiki-light:#D73A49;--shiki-dark:#F0ADA1">[]</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">) {</span>
-</span><span class="line"><span style="--shiki-light:#D73A49;--shiki-dark:#F0ADA1">  for</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF"> (</span><span style="--shiki-light:#D73A49;--shiki-dark:#F0ADA1">int</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF"> i </span><span style="--shiki-light:#D73A49;--shiki-dark:#E9E5DF">=</span><span style="--shiki-light:#005CC5;--shiki-dark:#A9C9F5"> 0</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">; i </span><span style="--shiki-light:#D73A49;--shiki-dark:#E9E5DF">&lt;</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF"> argc; i</span><span style="--shiki-light:#D73A49;--shiki-dark:#E9E5DF">++</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">) </span><span style="--shiki-light:#6F42C1;--shiki-dark:#E9E5DF">printf</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">(</span><span style="--shiki-light:#032F62;--shiki-dark:#9EDFB8">"</span><span style="--shiki-light:#005CC5;--shiki-dark:#9EDFB8">%d</span><span style="--shiki-light:#032F62;--shiki-dark:#9EDFB8">: </span><span style="--shiki-light:#005CC5;--shiki-dark:#9EDFB8">%s\n</span><span style="--shiki-light:#032F62;--shiki-dark:#9EDFB8">"</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">, i, </span><span style="--shiki-light:#E36209;--shiki-dark:#E9E5DF">argv</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">[i]);</span>
-</span><span class="line"><span style="--shiki-light:#D73A49;--shiki-dark:#F0ADA1">  return</span><span style="--shiki-light:#005CC5;--shiki-dark:#A9C9F5"> 0</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">;</span>
-</span><span class="line"><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">}</span></span></code></pre>
-
-<p>Pass an Array of Strings, including the program name as its first element:</p>
-<pre><code class="language-text">x2c&gt; :load "hello.c"
-loaded ("main")
-reset all loaded native state
-x2c&gt; main(["hello", "world"]);
-0: hello
-1: world
-=&gt; 0
-</code></pre>
-<p>The adapter supplies <code>argc</code>, writable copies of the argument strings, and
-the final null pointer at <code>argv[argc]</code>. <code>main([])</code> passes zero arguments.
-Changes to <code>argv</code> do not change the prompt’s Array or Strings.
-<code>:info main</code> shows the prompt signature <code>int main(Array);</code>.</p>
-<p>A program with <code>int main(void)</code> or <code>int main()</code> is called as <code>main()</code>.
-Both forms return zero if execution reaches the closing brace. Returning
-from <code>main</code> produces a prompt result and leaves the REPL running. Standard
-output and standard error appear on their usual streams, including output
-without a final newline. Loading alone does not execute <code>main</code>.</p>
-<p>The original function keeps its native calling convention inside the
-compiled program. Its ordinary helpers and references to <code>main</code> continue
-to work. Loading does not modify the source file.
-Other C dialect and dependency limitations still apply; loading does not
-provide missing libraries. Calling <code>exit</code> ends the helper, as described
-below under interrupted calls.</p>
-<p><code>main</code> follows the same replacement rules as other loaded functions. Saved
-function values and compiled prompt callers use its replacement. Changing
-between the no-argument and argc/argv forms requires a new session. A second
-loaded file cannot publish another <code>main</code> in that session.</p>
-<h3 id="edit-a-loaded-file"><a class="header" href="#edit-a-loaded-file">Edit a loaded file</a></h3>
-<p>After editing a file, use the same <code>:load "file.x"</code> command. A successful
-replacement prints <code>reloaded</code>. Calls use the new code, including calls from
-earlier prompt functions. Saved <code>Func</code> values use the replacement for calls
-the REPL already supports. Prompt variables and functions remain. All
-registered files are rebuilt from their current contents and dependencies,
-including files other than the one named by the command. Successful loads
-print <code>reset all loaded native state</code>: variables in every loaded file and
-dependency start over. Previously returned values remain ordinary prompt
-data.</p>
-<p>Existing functions must keep their argument and return types. Parameter
-names may change. Existing public types must keep their definitions. New
-functions, globals, and types are allowed when their names do not
-conflict. Existing globals must keep their declared types and qualifiers,
-including <code>const</code>. Removing an existing function, global, or type, or
-changing its type, requires a new session.
-A refused replacement leaves the whole previous native program and its
-variables intact. This includes a compile, link, or compatibility failure
-in any loaded file, even when the command names a different file.
-Prompt definitions still cannot be redefined.</p>
-<p>Relative paths, absolute paths, and symbolic links to the same file identify
-one load. If two loaded files include the same dependency, either load
-rebuilds both files with the dependency’s current contents.</p>
-<p>For example, copy the autodiff module from a repository checkout:</p>
-<pre><code class="language-sh">cp packages/autodiff/src/autodiff-macros.x /tmp/autodiff-repl.x
-x2c repl
-</code></pre>
-<p>At the prompt, load and inspect the copy:</p>
-<pre><code class="language-text">:load "/tmp/autodiff-repl.x"
-:symbols ad_do
-:info ad_dot
-</code></pre>
-<p>The filtered list contains <code>ad_dot</code>. Its declaration is
-<code>String ad_dot(String);</code>, followed by the loaded file’s absolute path.
-Keep some test data and a prompt function:</p>
-<pre><code class="language-text">x2c&gt; String label = "loss";
-ok
-x2c&gt; String derive(void) { return ad_dot(label); }
-defined derive
-x2c&gt; derive();
-=&gt; "loss_dot"
-</code></pre>
-<p>Edit the copy’s <code>ad_dot</code> definition to append <code>"_derivative"</code> instead of
-<code>"_dot"</code>. Run <code>:load "/tmp/autodiff-repl.x"</code> again, then call <code>derive()</code>.
-The result is <code>"loss_derivative"</code>; the earlier <code>label</code> and <code>derive</code> still
-work. This module also exposes syntax helpers such as <code>ad_unbind</code> and
-<code>ad_mutates</code>, which can be called with List values from the prompt.</p>
-<p>A native call that exits, crashes, or exceeds <code>X2C_META_TIMEOUT</code> fails that
-submission. The next call restarts the shared helper from its retained
-executable, resetting all loaded native state. Ordinary errors raised by a
-function leave the helper and its state running.</p>
-<h2 id="supported-subset"><a class="header" href="#supported-subset">Supported subset</a></h2>
-<p>The current subset includes initialized simple variables, function
-definitions, integer arithmetic and narrowing, assignment, conditionals,
-<code>for</code> loops, self recursion, and calls to earlier functions. String values
-and length, List literals and indexing, and Array construction, mutation,
-and indexing are exercised by the focused checks. Captured <code>Func</code> values
-can be called directly or passed to supported native callbacks. A record
-captured by value retains a copy through later submissions.
-Reference captures share the original local or parameter, whose storage
-remains alive until the session ends. Capturing an existing reference parameter
-keeps its caller’s alias and does not extend the caller object’s lifetime.</p>
-<p>An expression lambda can return another captured lambda:</p>
-<pre class="shiki shiki-themes x2c-light x2c-dark x2c-code" style="--shiki-light:#24292e;--shiki-dark:#e9e5df;--shiki-light-bg:#fff;--shiki-dark-bg:#101011" tabindex="0"><code class="language-x2c no-highlight"><span class="line"><span style="--shiki-light:#007C8A;--shiki-dark:#29D3E2">Func</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF"> factory </span><span style="--shiki-light:#D73A49;--shiki-dark:#E9E5DF">=</span><span style="--shiki-light:#A626A4;--shiki-light-font-weight:bold;--shiki-dark:#FF4FD8;--shiki-dark-font-weight:bold"> %!</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">(</span><span style="--shiki-light:#D73A49;--shiki-dark:#F0ADA1">int</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF"> n) </span><span style="--shiki-light:#A626A4;--shiki-light-font-weight:bold;--shiki-dark:#FF4FD8;--shiki-dark-font-weight:bold">=&gt;</span><span style="--shiki-light:#A626A4;--shiki-light-font-weight:bold;--shiki-dark:#FF4FD8;--shiki-dark-font-weight:bold"> %!</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">() </span><span style="--shiki-light:#A626A4;--shiki-light-font-weight:bold;--shiki-dark:#FF4FD8;--shiki-dark-font-weight:bold">=&gt;</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF"> n;</span>
-</span><span class="line"><span style="--shiki-light:#007C8A;--shiki-dark:#29D3E2">Func</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF"> nested </span><span style="--shiki-light:#D73A49;--shiki-dark:#E9E5DF">=</span><span style="--shiki-light:#6F42C1;--shiki-dark:#E9E5DF"> factory</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">(</span><span style="--shiki-light:#005CC5;--shiki-dark:#A9C9F5">3</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">);</span>
-</span><span class="line"><span style="--shiki-light:#6F42C1;--shiki-dark:#E9E5DF">nested</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">();</span><span style="--shiki-light:#6A737D;--shiki-dark:#8B857F">  // 3</span></span></code></pre>
-
-<p>A returned noncapturing lambda or named function needs a <code>(Func)</code> cast,
-as in native code.</p>
-<p>The REPL provides the fixed-signature <code>String.format(String fmt, List values)</code>
-operation. Call it as <code>fmt.format(values)</code>:</p>
-<pre class="shiki shiki-themes x2c-light x2c-dark x2c-code" style="--shiki-light:#24292e;--shiki-dark:#e9e5df;--shiki-light-bg:#fff;--shiki-dark-bg:#101011" tabindex="0"><code class="language-x2c no-highlight"><span class="line boring"><span style="--shiki-light:#007C8A;--shiki-dark:#29D3E2">List</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF"> values </span><span style="--shiki-light:#D73A49;--shiki-dark:#E9E5DF">=</span><span style="--shiki-light:#A626A4;--shiki-light-font-weight:bold;--shiki-dark:#FF4FD8;--shiki-dark-font-weight:bold"> %(</span><span style="--shiki-light:#A626A4;--shiki-light-font-weight:bold;--shiki-dark:#FF4FD8;--shiki-dark-font-weight:bold">"</span><span style="--shiki-light:#032F62;--shiki-dark:#9EDFB8">answer</span><span style="--shiki-light:#A626A4;--shiki-light-font-weight:bold;--shiki-dark:#FF4FD8;--shiki-dark-font-weight:bold">"</span><span style="--shiki-light:#005CC5;--shiki-dark:#A9C9F5"> 42</span><span style="--shiki-light:#A626A4;--shiki-light-font-weight:bold;--shiki-dark:#FF4FD8;--shiki-dark-font-weight:bold">)</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">;</span>
-</span><span class="line"><span style="--shiki-light:#007C8A;--shiki-dark:#29D3E2">String</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF"> text </span><span style="--shiki-light:#D73A49;--shiki-dark:#E9E5DF">=</span><span style="--shiki-light:#032F62;--shiki-dark:#9EDFB8"> "</span><span style="--shiki-light:#005CC5;--shiki-dark:#9EDFB8">%s</span><span style="--shiki-light:#032F62;--shiki-dark:#9EDFB8">=</span><span style="--shiki-light:#005CC5;--shiki-dark:#9EDFB8">%04d</span><span style="--shiki-light:#032F62;--shiki-dark:#9EDFB8">"</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">.</span><span style="--shiki-light:#6F42C1;--shiki-dark:#E9E5DF">format</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">(values);</span></span></code></pre>
-
-<p>It supports <code>%%</code>, flags <code>-+ #0</code>, numeric and <code>*</code> width and precision, integer
-conversions <code>d i o u x X</code> with <code>hh h l ll</code>, floating conversions
-<code>f F e E g G a A</code> with default, <code>l</code>, or <code>L</code>, plus <code>%c</code> and <code>%s</code>. It converts
-numeric <code>Var</code>s and uses <code>Var.str</code> for <code>%s</code>. Pointer and write-count
-conversions, wide strings and characters, positional formats, and <code>j z t</code>
-lengths are rejected. The result follows the process locale, and a failure
-publishes no partial String. Native <code>String.printf</code> retains its ordinary C
-varargs contract for compiled code.</p>
-<p>REPL sessions also provide <code>print(String)</code> and <code>println(String)</code>. <code>print</code>
-writes the String’s bytes; <code>println</code> writes those bytes followed by one
-newline. Use String interpolation for formatting, such as
-<code>println(%"count=$count")</code>. Both functions are REPL-only, reserve their names
-in the session, and report <code>ok</code>. They are not
-varargs aliases.</p>
-<p>A session also declares <code>Json</code>, <code>Diff</code> and <code>Path</code>, so <code>Json.parse</code>,
-<code>Diff.unified</code> and <code>Path.basename</code> evaluate without an include.</p>
-<p>Redefinition is disabled; assign to an existing variable to change its value.
-Function replacement and mutually recursive forward declarations are not
-supported. Names beginning <code>__repl_</code> are reserved.</p>
-<p>Arbitrary C libraries, unions, enums, imports, protocols, user macro/meta
-definitions entered at the prompt, preprocessor directives, and direct Lisp
-input are outside this subset. A bodyless <code>meta</code>
-prototype is accepted: it makes a function the compiler links, or one from a
-<a href="meta-functions.html#native-modules">native module</a> loaded with
-<code>--native-module</code>, callable in the session. Variables need
-initializers; declarator modifiers, <code>const</code>, and <code>volatile</code> are rejected.
-Function-local <code>static</code>, <code>extern</code>, and <code>threaded</code> storage remain rejected.
-Top-level statement expressions can contain local declarations followed by
-one value expression, such as <code>({ int n=3; n+4; })</code>. Other statement
-expression bodies are declined.
-Reference parameters use the ordinary compiler conversion: pass an
-addressable value, or write <code>*p</code> to pass a pointer’s object. A pointer itself
-cannot substitute for the referenced object.
-Records, typedefs, addressed locals and pointer reads/writes use native
-storage with layouts derived from compiler types. Record assignment copies
-into existing storage, preserving pointers to its fields. A session
-global scalar or record keeps its address until the session closes. Other
-top-level constructs depend on the existing lowering and may be declined.
-Native function bodies use ordinary compiler semantics; for example, <code>goto</code>
-is available there. Loaded public types can be used in prompt functions
-within the same native layout limits as interpreted objects. Interpreted
-code does not distinguish <code>Var void</code> from an empty List.</p>
-<h2 id="failure-and-lifetime"><a class="header" href="#failure-and-lifetime">Failure and lifetime</a></h2>
-<p>Rejected submissions leave earlier definitions usable. A declaration
-publishes its names only after all initializers succeed. If a later
-initializer fails, none of that declaration’s names become available,
-including through inspection. Effects already made on existing values
-remain, both for failed initialization and failed statements.</p>
-<p>Session storage lives until exit. Submission scratch is reclaimed, but
-canonical syntax, compiler caches, and evaluator allocations can accumulate.
-Long sessions do not have a bounded-memory guarantee. Compiled modules stay
-loaded for the process lifetime; captured bindings belong to their session.
-Each submission may make 40 million interpreted Lisp calls, the evaluator’s
-default budget. SIGINT (Ctrl-C) during evaluation stops the submission with an
-<code>(interrupt ...)</code> evaluation error. Once the budget is exhausted or the
-submission is interrupted, no further interpreted code runs, including pending
-<code>defer</code> bodies. Ordinary evaluation failures still run those cleanups. The
-next submission gets a fresh budget. An interrupt cannot stop native callbacks
-or compiled prompt functions; it takes effect at the next interpreted call.
-Compiled function loops do not consume the Lisp budget. Their native crashes
-or nonterminating loops can end or block the REPL process. Loaded files share
-a helper process separate from the REPL, with the timeout behavior described
-above.</p>
-<p>EOF exits successfully unless input is incomplete, which exits with status</p>
-<ol>
-<li>With piped input, any submission or command error makes the final status
-1, while later input still runs. In an interactive session, recovered errors
-do not change a normal exit’s status from 0.</li>
-</ol>
-<p>During interactive editing, Ctrl-C clears both the current edit buffer and any
-pending incomplete submission, then returns to the <code>x2c&gt; </code> prompt without a
-diagnostic. Ctrl-D on an empty edit buffer exits; pending incomplete source
-still makes that exit status 1. Terminal canonical mode is restored before a
-submission runs. Ctrl-C during interpreted evaluation stops only that
-submission.
-Terminals without the required escape-sequence support use the basic line
-reader instead. Piped input retains the same output and exit behavior.</p>
+<p><code>:inspect</code> evaluates its expression once. The default view displays at most
+100 entries and descends three levels. Truncation is marked. Select a field
+or element directly, or increase the explicit limits to see more.</p>
+<p>Structs display named fields, arrays display their extents and indexed
+contents, and ordinary <span class="x2c-wordmark">x2c</span> value types keep their readable representations.
+Prompt objects, loaded globals, and returned records use the same display
+policy.</p>
+<p>Pointers display their type, nullness, and address. Inspection never follows
+a raw pointer automatically. Write <code>:inspect *p</code> or <code>:inspect p[2]</code> when you
+want that native read. A raw <code>char *</code> is a pointer too; use an explicit
+<code>String.new(p)</code> or a library length/query operation to inspect text.</p>
+<p>Unions display their type and member choices. Select a member explicitly to
+read it; the playground does not guess which member is active. Automatic
+traversal skips volatile fields and labels them. Explicit expressions preserve
+ordinary volatile semantics. Bitfields use native field access.</p>
+<p><code>:info</code>, <code>:members</code>, and <code>:source</code> do not run the inspected expression.
+<code>:inspect</code> can have the expression’s ordinary effects. A bad native pointer
+read can terminate the worker, just as a bad library call can.</p>
+<h2 id="load-and-repeat"><a class="header" href="#load-and-repeat">Load and repeat</a></h2>
+<div class="table-wrapper">
+<table>
+<thead>
+<tr><th>Command</th><th>Result</th></tr>
+</thead>
+<tbody>
+<tr><td><code>:load "PATH" ...</code></td><td>Add source/header roots and build a candidate program.</td></tr>
+<tr><td><code>:reload</code></td><td>Rebuild the current roots from current source files.</td></tr>
+<tr><td><code>:reset</code></td><td>Start fresh from the last successful program and its declaration snapshot.</td></tr>
+<tr><td><code>:save "PATH"</code></td><td>Save successful source submissions, load/reset boundaries, and launch settings.</td></tr>
+<tr><td><code>:replay "PATH"</code></td><td>Start fresh and explicitly rerun a saved transcript, stopping at the first failure.</td></tr>
+<tr><td><code>:quit</code></td><td>Run session cleanup and leave the playground.</td></tr>
+</tbody>
+</table>
+</div>
+<p>Every successful load or reload clears <strong>all prompt and library state</strong>. This
+includes loading an additional file or an unchanged file. The playground
+announces the reset. A failed build, link, or candidate initialization keeps
+the previous session. Ctrl-C during candidate preparation cancels the candidate
+and preserves the active session.</p>
+<p><code>:reset</code> uses the exact retained program and declarations. Editing a source
+or header does not change that snapshot. An explicitly linked shared library
+that changed on disk requires <code>:reload</code> before a new worker can use it.</p>
+<p>Prompt variables can be assigned new values. Duplicate prompt definitions
+are rejected. To change a function or type, reset or reload and rerun the
+needed submissions. No native object, saved callback, or apparent address
+survives a session replacement.</p>
+<p>Saved <code>.repl</code> files contain source instructions and their original path base,
+not serialized heap objects. Replay uses current source dependencies and has
+normal side effects. It is always explicit. The terminal never replays calls
+automatically after a load, crash, or interruption. A failed submission can
+leave partial mutations or external effects that a successful-input script
+cannot reproduce.</p>
+<h2 id="lifetimes-and-cleanup"><a class="header" href="#lifetimes-and-cleanup">Lifetimes and cleanup</a></h2>
+<p>The top-level prompt is one session scope. Persistent variables and direct
+top-level <code>defer</code> registrations live until orderly quit, reset, or successful
+replacement. Cleanup runs in reverse registration order. Function calls and
+explicit blocks keep their ordinary automatic lifetimes.</p>
+<p>Managed declarations and managed initializers differ as they do in a program:</p>
+<ul>
+<li><code>auto T x = ...</code> cleans <code>x</code>’s current value at scope exit.</li>
+<li><code>T x = auto acquire()</code> saves and cleans the acquired value despite a later
+reassignment of <code>x</code>.</li>
+<li><code>defer release(x)</code> reads <code>x</code> when cleanup runs.</li>
+</ul>
+<p>Raw C pointers do not acquire a destructor from their names or types. Release
+library allocations with the library’s documented operation. Escaping a
+pointer to an expired automatic object is an ordinary C lifetime error.
+A forced stop or native crash cannot guarantee cleanup or undo external
+effects.</p>
+<h2 id="editing-and-failures"><a class="header" href="#editing-and-failures">Editing and failures</a></h2>
+<p>Arrow keys, Home, End, Backspace, Delete, and history recall work at an
+interactive prompt. Bracketed paste and recalled multiline source remain one
+editable entry. History keeps the latest 100 nonempty entries and suppresses
+adjacent duplicates. Interactive history persists under
+<code>$XDG_STATE_HOME/x2c/repl-history</code>, or
+<code>$HOME/.local/state/x2c/repl-history</code> when that variable is unset.</p>
+<p>Ctrl-C while editing clears the current edit and pending incomplete source.
+Ctrl-D exits from an empty edit. <code>:cancel</code> discards incomplete input.</p>
+<p>During native execution, Ctrl-C terminates the worker and its active job
+process group. The terminal announces lost state and starts a fresh worker
+from the last successful program. Native exit, assertion failure, and crashes
+follow the same recovery rule. There is no short default timeout for ordinary
+library calls. A hanging cleanup can also be stopped explicitly.</p>
+<p>Native standard output and standard error keep their usual streams.
+Interactive native standard input uses the terminal while a call runs. With
+piped playground input, native standard input gets EOF; it cannot consume later
+source submissions.</p>
+<p>Syntax, type, and link errors publish no new definitions. A failed
+initializer publishes none of its declaration’s new names. Mutations already
+made to older objects and external effects remain. An ordinary caught <span class="x2c-wordmark">x2c</span>
+Error can return control to the running worker.</p>
+<p>With piped input, any command or submission error makes the final exit status
+1, while later input continues. Interactive recovered errors do not change a
+normal exit status. Incomplete input at EOF exits with status 1.</p>
+<h2 id="execution-details"><a class="header" href="#execution-details">Execution details</a></h2>
+<p><code>:ast NAME</code> shows a prompt function’s typed AST. <code>:lowered NAME</code> explains
+that submissions execute natively. <code>--dump</code> prints typed submission syntax
+and the retained directory containing native headers, source, and module;
+<code>--stats</code> and <code>--verbose-stats</code> print worker allocation statistics at exit.
+<code>:stats [verbose]</code> reports those statistics during a session.</p>
+<p>The worker needs the matching <span class="x2c-wordmark">x2c</span> compiler, runtime, and configured host C
+toolchain. New executable submissions incur native compilation work; cached
+artifacts avoid compiling identical code again. Earlier submissions and their
+initializers are not rerun to compile the next expression. Native modules may
+remain loaded until the worker retires, so reset provides a reclamation
+boundary.</p>
+<p>Use source/header roots for includes, package imports, and user-authored
+macro/meta/protocol surfaces. Live configuration-changing directives and
+incremental definitions of those surfaces are not supported. The ordinary
+compiler and host C dialect determine which native libraries and calling
+conventions the selected toolchain supports.</p>
+<h2 id="where-to-go-next"><a class="header" href="#where-to-go-next">Where to go next</a></h2>
+<ul>
+<li><a href="indentation.html">Indentation Syntax</a> writes <span class="x2c-wordmark">x2c</span> blocks by indentation.</li>
+</ul>
 
                     </main>
+                    <script>
+                        // A generated page is edited through its generator.
+                        if ([...document.querySelector('#mdbook-content main').childNodes]
+                                .some(node => node.nodeType === Node.COMMENT_NODE &&
+                                      node.textContent.includes('Do not edit by hand'))) {
+                            document.querySelector('a[rel="edit"]')?.remove();
+                        }
+                    </script>
 
                     <nav class="x2c-pager" aria-label="Page navigation">
-                        <a rel="prev" href="../guide/scripting.html" class="x2c-pager-prev" aria-keyshortcuts="Left">
+                        <a rel="prev" href="../guide/networking.html" class="x2c-pager-prev" aria-keyshortcuts="Left">
                             <span class="x2c-pager-label">previous</span>
-                            <span class="x2c-pager-title">Commands and Files</span>
+                            <span class="x2c-pager-title">Sockets and HTTP</span>
                         </a>
                         
                         <a rel="next prefetch" href="../guide/indentation.html" class="x2c-pager-next" aria-keyshortcuts="Right">
@@ -690,9 +492,9 @@ reader instead. Piped input retains the same output and exit behavior.</p>
                         &copy; 2025&ndash;2026
                         <a href="https://flake.org">GWF</a>
                         &middot;
-                        <a href="https://github.com/gwf/x2c/blob/aa2b9b2575297711e5978acc53f87bd7f645f3c7/LICENSE">Apache 2.0</a>
+                        <a href="https://github.com/gwf/x2c/blob/2c5870d64d381a861054dae9927aa65adc87e9e0/LICENSE">Apache 2.0</a>
                         &middot;
-                        <a href="https://github.com/gwf/x2c/blob/aa2b9b2575297711e5978acc53f87bd7f645f3c7/TRADEMARKS.md">Trademarks</a>
+                        <a href="https://github.com/gwf/x2c/blob/2c5870d64d381a861054dae9927aa65adc87e9e0/TRADEMARKS.md">Trademarks</a>
                     </footer>
                 </div>
             </div>

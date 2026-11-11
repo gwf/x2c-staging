@@ -1,6 +1,6 @@
 <!DOCTYPE HTML>
 <html lang="en" class="light sidebar-visible" dir="ltr">
-    <head><meta name="x2c-release-channel" content="staging"><meta name="x2c-candidate" content="candidate-aa2b9b2575297711e5978acc53f87bd7f645f3c7-39090113132-1">
+    <head><meta name="x2c-release-channel" content="staging"><meta name="x2c-candidate" content="candidate-aa2b9b2575297711e5978acc53f87bd7f645f3c7-39090113132-1"><meta name="x2c-site-source" content="2c5870d64d381a861054dae9927aa65adc87e9e0"><meta name="robots" content="noindex">
         <!-- Book generated using mdBook -->
         <meta charset="UTF-8">
         <title>The Region Model - The x2c Book</title>
@@ -30,7 +30,7 @@
         <link rel="stylesheet" id="mdbook-ayu-highlight-css" href="../ayu-highlight-3fdfc3ac.css">
 
         <!-- Custom theme stylesheets -->
-        <link rel="stylesheet" href="../theme/header-f6c12aed.css">
+        <link rel="stylesheet" href="../theme/header-b540a03f.css">
         <link rel="stylesheet" href="../theme/x2c-fd3d182e.css">
 
 
@@ -39,12 +39,12 @@
             const path_to_root = "../";
             const default_light_theme = "light";
             const default_dark_theme = "light";
-            window.path_to_searchindex_js = "../searchindex-f4d06db2.js";
+            window.path_to_searchindex_js = "../searchindex-a3bdfad5.js";
         </script>
         <!-- Start loading toc.js asap -->
-        <script src="../toc-00ae7479.js"></script>
+        <script src="../toc-2248e0f3.js"></script>
         <!-- x2c publication metadata -->
-        <link rel="canonical" href="https://staging.x2c-lang.dev/docs/guide/regions.html">
+        <link rel="canonical" href="https://x2c-lang.dev/docs/guide/regions.html">
         <meta property="og:type" content="website">
         <meta property="og:title" content="The Region Model - The x2c Book">
         <meta property="og:description" content="The x2c language, standard library, and compiler.">
@@ -143,16 +143,12 @@
                             <button class="landing-tagline menu-title" type="button" title="Scroll to top">The x2c Book</button>
                         </div>
                         <nav class="landing-nav" aria-label="x2c website">
-                            <div class="landing-page-nav">
-                                <a href="../../#love">love</a>
-                                <a href="../../#power">power</a>
-                                <a href="../../#magic">magic</a>
-                            </div>
                             <div class="landing-site-nav">
                                 <a href="../../#install">install</a>
                                 <a href="../../#packages">packages</a>
                             </div>
                             <div class="landing-reference-nav">
+                                <a href="../../examples/">examples</a>
                                 <a href="../../about/">about</a>
                                 <a href="../" aria-current="page">docs</a>
                                 <a href="https://github.com/gwf/x2c">source</a>
@@ -226,13 +222,12 @@ declared outside the region (an outer local, an object a parameter points
 at, or a static), an object owned by an outer or sibling region, and any
 pointer whose target the compiler cannot identify, including a pointer that
 a called function stores into for the caller.</p>
-<p>A region is a <code>$scope()</code> block, a <code>Scope.retain</code> and <code>Scope.release</code> pair, a
-<code>$scope(&amp;slot)</code> push, a <code>Pool.open</code> bracket, an <code>$auto</code> local, the
+<p>A region is an <code>auto</code> block, a <code>Scope.open</code> and <code>Scope.close</code> pair, a
+<code>auto (&amp;slot)</code> push, a <code>Pool.open</code> bracket, a local with initializer <code>auto</code>, the
 storage of a <code>Scope</code> local that <code>Scope.destroy</code> ends, or the function’s own
 locals and parameters, whose storage ends when the function returns.
-<code>src/regions/regions.x</code> analyzes these forms before the transform driver lowers
-them, so a region is still the call that opens it and the <code>defer</code> beside it
-that closes it.</p>
+The compiler checks these forms before it lowers them, so a region is the call
+that opens it and the <code>defer</code> beside it that closes it.</p>
 <h2 id="exemptions"><a class="header" href="#exemptions">Exemptions</a></h2>
 <p>The pass exempts these ways of leaving a region.</p>
 <p>A canonical-value pool owns each canonical <code>String</code> and <code>List</code>, so ending a
@@ -242,15 +237,20 @@ includes <code>String.new</code>, <code>String.malloc</code>, and List cells ret
 <code>cons(a, rest)</code> and <code>%($a)</code> retain their arguments in the cell’s pool: a value
 from that same pool stays there, while a value from a shorter-lived region
 reports at the store.</p>
-<p><code>Scope.move</code> and <code>Context.export</code> change the storage’s owner. After the
-move, the region the pass was tracking no longer holds the allocation, so
-the allocation survives the end of that region. The promote family -
-<code>String.promote</code>, <code>List.promote</code>, and <code>Atom.promote</code> - hands the value to an
-ancestor pool the same way and is exempt for the same reason. Moving into a
-caller’s slot is the ordinary way to return mutable storage, and the pass
-stops tracking the value there. Moving into a <code>Scope</code> local of the same
-function ties the
-value to that local’s storage, so a read after <code>Scope.destroy</code> reports.</p>
+<p>A container’s <code>move_to</code>, <code>Scope.move</code>, and <code>Context.export</code> change the
+storage’s owner. After the move, the region the pass was tracking no longer
+holds the allocation, so the allocation survives the end of that region.
+<code>Scope.move</code> relinks only the allocation it is given. An <code>Array</code>, <code>Map</code>,
+<code>Block</code>, or <code>Buffer</code> keeps its buffers in other allocations, so the pass
+still ties a container given to <code>Scope.move</code> to its region; <code>move_to</code> moves
+the whole container. The promote family - <code>String.promote</code>, <code>List.promote</code>,
+and <code>Atom.promote</code> - hands the value to an ancestor pool the same way and is
+exempt for the same reason. Moving into a caller’s slot is the ordinary way
+to return mutable storage, and the pass stops tracking the value there.
+Moving into a <code>Scope</code> local of the same function ties the value to that
+local’s storage. After <code>Scope.destroy</code>, the pass reports the value when it
+is returned or stored. It reports a plain read of it only in the optional
+audit.</p>
 <p>A typed conversion copies. Assigning a <code>Block</code>, <code>Buffer</code>, or <code>Array</code> into a
 <code>String</code> or <code>List</code> declaration produces a new canonical value with its own
 owner, so the target does not inherit the region. The pass classifies the
@@ -263,19 +263,33 @@ object of a region the function opens, without a warning. A reference
 capture, <code>using &amp;name</code>, moves the local into a cell of the active region, so
 the closure holds that cell, which the active region owns.</p>
 <p>A store into a place that an earlier <code>defer</code> in the same block writes
-back, as <code>$let</code> does, is undone before the block ends and is not reported.
+back, as <code>with</code> does, is undone before the block ends and is not reported.
 A store made before that <code>defer</code>, or after a <code>defer</code> that runs on only one
 branch, is reported, because a <code>return</code> between them leaves the place
 holding the value.</p>
 <p>A destination that converts its value by copying does not keep it: a <code>List</code>
 parameter given an <code>Array</code>, or a <code>Var</code> given a C string, which it boxes as a
-fresh <code>String</code>. A local C array
-passed on, returned, or stored counts as the address of its first element.</p>
+fresh <code>String</code>. A copy into a container is fresh storage of the active
+region, and the pass tracks it. An <code>Array</code> given a <code>List</code> or an <code>Iter</code> makes
+such a copy, and so does a conversion either way between a typed <code>Array</code> or
+<code>Map</code> family and its boxed family. A local C array passed on, returned, or
+stored counts as the address of its first element.</p>
 <p>A number holds no address. A value of integer, floating-point, or enum
 type, or a destination of such a type, carries nothing the pass tracks.
 An address cast to <code>intptr_t</code> and then returned does not report, and a
-pointer cast back from that number is not followed.</p>
+pointer cast back from that number is not followed. The exception is a
+<code>Var</code> given a <code>long</code>, <code>unsigned long</code>, <code>long long</code>, <code>unsigned long long</code>, or
+<code>long double</code>. The <code>Var</code> boxes the number, and the pass tracks the box as
+fresh storage of the active region.</p>
 <h2 id="what-the-warnings-do-not-cover"><a class="header" href="#what-the-warnings-do-not-cover">What the warnings do not cover</a></h2>
+<p>For an address into the current function’s frame, a raw pointer store into
+an unknown destination or a parameter’s object is not an ordinary warning.
+The store may register a temporary borrow that cleanup removes before
+return. The pass does not prove that cleanup; the code must satisfy its C
+lifetime contract. Returned addresses, static stores, known retaining
+operations such as <code>Array.push</code>, and already ended regions keep their
+checks. The optional audit keeps the possible-escape finding, and meta
+functions keep the error.</p>
 <p>The check covers lexical regions and the storage it tracks. It does not
 cover:</p>
 <ul>
@@ -287,14 +301,14 @@ out is not followed;</li>
 <li>callbacks and function pointers, including entry points a Lisp binding
 calls;</li>
 <li>calls into functions defined in other units, except the runtime
-operations the pass knows; such a call is assumed to keep none of its
+operations the pass handles; such a call is assumed to keep none of its
 arguments and to return no tracked storage;</li>
 <li>other aliases of storage that <code>Scope.free</code> or <code>Scope.realloc</code> ended; the
 pass ends only the local passed to the call, and it reports a free only
 of storage it can see is not from a Scope allocator: a literal, the
 function’s own storage, or a pooled value;</li>
 <li><code>Context</code> regions, which are not modeled;</li>
-<li><code>$auto</code> and <code>defer</code> cleanups other than the runtime’s own <code>Array</code>, <code>Map</code>,
+<li>Initializer <code>auto</code> and <code>defer</code> cleanups other than the runtime’s own <code>Array</code>, <code>Map</code>,
 <code>Block</code>, <code>Bytes</code>, <code>Buffer</code>, <code>Context</code>, and <code>Scope</code> cleanups;</li>
 <li>a release inside a branch, which leaves the region open for the
 statements after that branch.</li>
@@ -302,9 +316,12 @@ statements after that branch.</li>
 <p>Each of these can produce a dangling pointer with no warning. A program
 without warnings is not proven memory safe.</p>
 <h2 id="optional-lifetime-proof"><a class="header" href="#optional-lifetime-proof">Optional lifetime proof</a></h2>
+<p>The lifetime proof is experimental and runs only from a source checkout:
+<code>make install</code> and release payloads do not install <code>x2c-graph</code>. Build it in
+the checkout with <code>make commands</code>.</p>
 <p><code>x2c-graph certify</code> checks selected entry points and the functions they can
 call across the supplied source units. It applies the same region ownership
-and parameter-effect rules as the compiler’s local pass, then asks whether
+and parameter-effect rules as the compiler’s local pass, then checks whether
 every reachable memory effect is covered. A <code>proved</code> result establishes the
 scoped lifetime invariant for those paths under the native effect assumptions
 listed in the report. If a root hands storage to its caller or another owner,
@@ -315,7 +332,7 @@ aggregate copy, or unmodeled scope ending is an obstacle, not a compiler
 warning or error. A project may provide explicit native effect contracts to
 the audit; they are assumptions of its result and do not change compilation.
 The optional command and its contract format are described in the
-<a href="https://github.com/gwf/x2c/blob/aa2b9b2575297711e5978acc53f87bd7f645f3c7/commands/graph/README.md#conditional-lifetime-proof">source graph reference</a>.
+<a href="https://github.com/gwf/x2c/blob/2c5870d64d381a861054dae9927aa65adc87e9e0/commands/graph/README.md#conditional-lifetime-proof">source graph reference</a>.
 The proof concerns scoped ownership and lifetime. It does not establish
 general C memory safety or correctness of emitted code.</p>
 <h2 id="how-the-check-works"><a class="header" href="#how-the-check-works">How the check works</a></h2>
@@ -323,6 +340,8 @@ general C memory safety or correctness of emitted code.</p>
 its result may use (possibly both), and where each parameter is sunk
 (returned by identity, retained in the fresh result, placed into another
 parameter’s object or a static, or stored through an unknown pointer). The
+summary distinguishes raw stores from known retaining operations so helper
+calls preserve the ordinary, audit, and meta diagnostic boundary. The
 summaries of a unit’s functions are computed to a fixpoint because a caller’s
 facts depend on its callees’ facts. Each round walks every
 body with a stack of open regions and a map from each binding to its known
@@ -361,13 +380,18 @@ regions part of the type system of a C-like language and checked pointer
 lifetimes against them. From the ML Kit, <span class="x2c-wordmark">x2c</span> takes the idea that regions are
 the unit of deallocation; from Cyclone, the idea that a C program can be
 checked against them. The regions are the ones the author wrote with
-<code>$scope</code> and the retain and release calls. The check adds nothing to the
-program text and produces only warnings, except in compile-time code.</p>
+region <code>auto</code> and the <code>Scope.open</code> and <code>Scope.close</code> calls. The check adds
+nothing to the program text and produces only warnings, except in compile-time code.</p>
 <p>Rust and Swift put ownership and lifetime in the signature. Every call is
 checked locally against a declared contract, and a violation is an error.
 <span class="x2c-wordmark">x2c</span> has no lifetime annotations, so the check derives the same information,
 and derived facts are weaker than a declared contract. As a result, existing
 C-shaped code compiles unchanged, and ordinary code gets only warnings.</p>
+<h2 id="where-to-go-next"><a class="header" href="#where-to-go-next">Where to go next</a></h2>
+<ul>
+<li><a href="memory.html#lifetime-warnings">Lifetime warnings</a> shows the warnings in
+ordinary code.</li>
+</ul>
 <p>Go’s escape analysis and Infer use the most similar methods. Go computes
 per-function escape facts and uses them to choose between stack and heap
 allocation. Infer computes per-procedure summaries and propagates them
@@ -376,6 +400,14 @@ Infer’s method to Go’s kind of fact: it computes summaries per function
 within one unit and uses them for warnings.</p>
 
                     </main>
+                    <script>
+                        // A generated page is edited through its generator.
+                        if ([...document.querySelector('#mdbook-content main').childNodes]
+                                .some(node => node.nodeType === Node.COMMENT_NODE &&
+                                      node.textContent.includes('Do not edit by hand'))) {
+                            document.querySelector('a[rel="edit"]')?.remove();
+                        }
+                    </script>
 
                     <nav class="x2c-pager" aria-label="Page navigation">
                         <a rel="prev" href="../guide/torch.html" class="x2c-pager-prev" aria-keyshortcuts="Left">
@@ -392,9 +424,9 @@ within one unit and uses them for warnings.</p>
                         &copy; 2025&ndash;2026
                         <a href="https://flake.org">GWF</a>
                         &middot;
-                        <a href="https://github.com/gwf/x2c/blob/aa2b9b2575297711e5978acc53f87bd7f645f3c7/LICENSE">Apache 2.0</a>
+                        <a href="https://github.com/gwf/x2c/blob/2c5870d64d381a861054dae9927aa65adc87e9e0/LICENSE">Apache 2.0</a>
                         &middot;
-                        <a href="https://github.com/gwf/x2c/blob/aa2b9b2575297711e5978acc53f87bd7f645f3c7/TRADEMARKS.md">Trademarks</a>
+                        <a href="https://github.com/gwf/x2c/blob/2c5870d64d381a861054dae9927aa65adc87e9e0/TRADEMARKS.md">Trademarks</a>
                     </footer>
                 </div>
             </div>

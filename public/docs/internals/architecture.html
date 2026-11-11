@@ -1,6 +1,6 @@
 <!DOCTYPE HTML>
 <html lang="en" class="light sidebar-visible" dir="ltr">
-    <head><meta name="x2c-release-channel" content="staging"><meta name="x2c-candidate" content="candidate-aa2b9b2575297711e5978acc53f87bd7f645f3c7-39090113132-1">
+    <head><meta name="x2c-release-channel" content="staging"><meta name="x2c-candidate" content="candidate-aa2b9b2575297711e5978acc53f87bd7f645f3c7-39090113132-1"><meta name="x2c-site-source" content="2c5870d64d381a861054dae9927aa65adc87e9e0"><meta name="robots" content="noindex">
         <!-- Book generated using mdBook -->
         <meta charset="UTF-8">
         <title>Compiler Architecture - The x2c Book</title>
@@ -30,7 +30,7 @@
         <link rel="stylesheet" id="mdbook-ayu-highlight-css" href="../ayu-highlight-3fdfc3ac.css">
 
         <!-- Custom theme stylesheets -->
-        <link rel="stylesheet" href="../theme/header-f6c12aed.css">
+        <link rel="stylesheet" href="../theme/header-b540a03f.css">
         <link rel="stylesheet" href="../theme/x2c-fd3d182e.css">
 
 
@@ -39,12 +39,12 @@
             const path_to_root = "../";
             const default_light_theme = "light";
             const default_dark_theme = "light";
-            window.path_to_searchindex_js = "../searchindex-f4d06db2.js";
+            window.path_to_searchindex_js = "../searchindex-a3bdfad5.js";
         </script>
         <!-- Start loading toc.js asap -->
-        <script src="../toc-00ae7479.js"></script>
+        <script src="../toc-2248e0f3.js"></script>
         <!-- x2c publication metadata -->
-        <link rel="canonical" href="https://staging.x2c-lang.dev/docs/internals/architecture.html">
+        <link rel="canonical" href="https://x2c-lang.dev/docs/internals/architecture.html">
         <meta property="og:type" content="website">
         <meta property="og:title" content="Compiler Architecture - The x2c Book">
         <meta property="og:description" content="The x2c language, standard library, and compiler.">
@@ -143,16 +143,12 @@
                             <button class="landing-tagline menu-title" type="button" title="Scroll to top">The x2c Book</button>
                         </div>
                         <nav class="landing-nav" aria-label="x2c website">
-                            <div class="landing-page-nav">
-                                <a href="../../#love">love</a>
-                                <a href="../../#power">power</a>
-                                <a href="../../#magic">magic</a>
-                            </div>
                             <div class="landing-site-nav">
                                 <a href="../../#install">install</a>
                                 <a href="../../#packages">packages</a>
                             </div>
                             <div class="landing-reference-nav">
+                                <a href="../../examples/">examples</a>
                                 <a href="../../about/">about</a>
                                 <a href="../" aria-current="page">docs</a>
                                 <a href="https://github.com/gwf/x2c">source</a>
@@ -218,7 +214,7 @@
 
                 <div id="mdbook-content" class="content">
                     <main>
-                        <h1 id="architecture"><a class="header" href="#architecture">Architecture</a></h1>
+                        <h1 id="compiler-architecture"><a class="header" href="#compiler-architecture">Compiler Architecture</a></h1>
 <p><span class="x2c-wordmark">x2c</span> translates one <code>.x</code> file at a time into a <code>.c</code> file, a <code>.h</code> file, a <code>.xi</code>
 unit interface, and a <code>.d</code> dependency file. A C compiler then builds the C.
 Everything the language adds on top of C is decided during that translation:
@@ -246,12 +242,15 @@ lib/        x2c runtime sources
 src/        x2c compiler sources
 unittest/   runtime suites, compiler fixtures, probes, and benchmarks
 examples/   curated executable and build-checked programs
+packages/   x2c packages for C libraries, with their examples
 docs/       this book: guide, reference, library, and internals
+site/       the public website, which also publishes this book
 agents/     repository-facing documentation, contracts, and project skills
-plans/      active plans-as-logs and archived execution records
-etc/        shared Makefile rules, build configuration, built-in macros,
-            and the compile-time Lisp environment and SDK
+plans/      design records for work in progress
+etc/        shared Makefile rules, build configuration, the compiler
+            prelude with the built-in macros, and runtime Lisp assets
 tools/      documentation and stage-comparison checkers
+LICENSES/   license texts of third-party code in the runtime and commands
 </code></pre>
 <p>Three of those directories hold generated files. <code>builds/</code> holds whole staged
 builds and is not tracked. <code>include/x2c/</code> holds only symlinks: the runtime
@@ -261,14 +260,16 @@ That is where <code>cc -iquote include/x2c</code> finds runtime headers. The C u
 instead of edited by hand. The compiler under development is <code>builds/0/x2c</code>; see
 <a href="building.html">building the compiler</a> for how it is built.</p>
 <h2 id="the-compiler-pipeline"><a class="header" href="#the-compiler-pipeline">The compiler pipeline</a></h2>
-<p>The compiler lives under <code>src/</code>. <code>src/main.x</code> dispatches commands and runs the
-translation loop; <code>src/cli/cli.x</code> parses the command line. <code>src/frontend.x</code> owns
+<p>The compiler lives under <code>src/</code>. <code>src/main.x</code> dispatches commands;
+<code>src/cli/cli.x</code> parses the command line. <code>src/translation.x</code> coordinates input
+translation and workers. <code>src/frontend.x</code> owns
 configured source stages and isolated unit lifetimes shared with internal
 tools. Nested interning pools keep batch translation close to single-file peak
 memory. For each input file the translator runs one pipeline:</p>
 <pre><code class="language-text">source
   -&gt; tokenizing
   -&gt; shallow parse and global environment discovery
+  -&gt; directive handling and optional C macro expansion
   -&gt; full parse and type annotation
   -&gt; protocol conformance forms
   -&gt; lowering
@@ -338,8 +339,13 @@ the text to <code>Tokenizer.new</code> from <code>lib/tokenizer.x</code>, and sc
 allocation-free character recognizers in <code>lib/scan.x</code>. Whitespace, comments,
 and preprocessor lines all become tokens. Later phases can therefore report
 positions in the original file, and directives can be re-emitted where they
-were written. <code>src/preprocess.x</code> classifies those directive tokens and turns
-the tokens of a conditional arm that C never takes into comments.</p>
+were written. Ordinary directive scanning precedes parsing; optional
+<a href="#preprocessing">preprocessing</a> expands C macros only when requested.</p>
+<p>After directive handling and optional CPP, the compiler changes contextual
+<span class="x2c-wordmark">x2c</span> keyword tokens to identifiers. Parsing then uses the ordinary symbol table
+to distinguish keyword forms from names. The scanner retains its existing
+percent/angle literal choices; retagging does not rescan literal contents.
+C keywords, <code>defer</code>, and the two C thread-local spellings stay reserved.</p>
 <pre><code class="language-sh">./builds/0/x2c translate --dump-tokens greet.x
 </code></pre>
 <pre><code class="language-text">(   1, 1  )	ident               String
@@ -396,20 +402,20 @@ to their own units and do not enter this unit’s hash map.</p>
 Imported functions refer to that provider record. The collector checks the
 dependency graph once per translation process, using its existing source
 hashes. A changed provider or dependency requires rebuilding its meta code.</p>
-<p>The public <code>x2c_meta_definition_hashes()</code> query still returns String hashes
-for definitions parsed so far. The private Lisp query
-<code>_x2c.meta.definition.calls</code> reads their existing reference lists for linked
-generation; it adds no public library callable or separate stored inventory.</p>
+<p>The public <code>x2c_meta_definition_hashes()</code> query still returns String hashes for
+definitions parsed so far. A compiler-private native query reads their existing
+reference lists for linked generation; it adds no public library callable or
+separate stored inventory.</p>
 <h4 id="unit-interfaces"><a class="header" href="#unit-interfaces">Unit interfaces</a></h4>
 <p>A file’s contribution is collected once per process. Translating a unit
 also writes it beside the generated C as a unit interface, <code>&lt;stem&gt;.xi</code>: the
 identity of the compiler that wrote it, the ordered declaration maps,
 include placeholders, the source content hash, function definitions, and the
-macro, Lisp, and embedded-text files the walk read with their hashes. Each
+macro and embedded-text files the walk read with their hashes. Each
 declaration map holds its public rows: nonstatic declarations and complete
 type families needed by public declarations. Source-position rows also retain
-public macro and keyword definitions, Lisp effects, and provider meta-function
-identities. A translated unit’s map also records each ordinary external
+public macro and keyword definitions and provider meta-function identities.
+A translated unit’s map also records each ordinary external
 conformance whose adoption it declares, as <code>(conformance BASE PARTICIPANT FORWARD REVERSE (bindings (NAME TYPE)...) (MEMBER STATUS SOURCE)...)</code>
 keyed by base and participant. It lists each type variable’s binding and
 each member that did not resolve as <code>no-member</code>; the expected and template
@@ -430,18 +436,27 @@ binding facts are not exported. Static helpers remain in their provider.
 Each provider has one function-hash table. Its meta advertisements identify
 the provider; collection and replay install the table before advertisements.
 The file holds one
-<code>(interface 6 "compiler" "path" "hash" (PARTS...) (DEFINITIONS...) (DEPENDENCIES...) (INCLUDE-DIRS...))</code> form in
+<code>(interface 8 "compiler" "path" "hash" (PARTS...) (DEFINITIONS...) (DEPENDENCIES...) (INCLUDE-DIRS...))</code> form in
 <code>%()</code> List syntax, with bare Atoms for its structural words and Strings for
 identifiers; the reader reads that one form without evaluating it.
+After the compiler identity it stores six fields: the source path, its
+content hash, the ordered parts, the definitions, the dependency hashes,
+and the replay conditions. Each part is an included path, a
+<code>(cpp TEXT FILE LINE)</code> event for a conditional, <code>#define</code>, or <code>#undef</code>
+directive, or a set of declaration rows.
 The API reference reads <code>--dump-definitions</code> output and joins authored prose
 to those definitions. Before walking a file’s source, collection looks
 for its interface in the output directory, then in the directory that mirrors
 the file’s home-relative path under the compiler’s stage directory (or under
 an installed home), then in a package’s <code>builds/</code>. An interface is used only
-when its recorded compiler, path, include search roots, and every hash still
-match; otherwise collection walks the source. Include search roots retain
-their order and distinguish home-relative, absolute, and cwd-relative
-spellings.
+when its recorded compiler, path, and every hash still match and its replay
+conditions equal the current ones; otherwise collection walks the source.
+The replay conditions are the include search roots, then <code>(package NAME)</code>
+for a package source or <code>(package)</code> otherwise, <code>(cpp-expansion)</code> under
+<code>--cpp</code>, and, for a file outside the runtime and the compiler’s prelude,
+<code>(macros ROWS...)</code> with the sorted <code>(name value)</code> rows of the <code>-D</code> and <code>-U</code>
+options. Include search roots retain their order and distinguish
+home-relative, absolute, and cwd-relative spellings.
 Search candidates with cwd-relative spellings are checked in the current
 working directory. The compiler identity is a digest of the
 executable’s contents, so a changed compiler never replays rows an earlier
@@ -451,15 +466,17 @@ next stage replay when the stage compilers are byte-identical, as they are
 once the bootstrap matches the source. No tracked file is both an input and
 an output of a build. An installation writes its runtime interfaces with
 the compiler it installs. <code>x2c env prelude</code> prints the prelude interface
-this compiler wrote; an empty value means the compiler walks the source of
+this compiler can replay, after checking source and dependency hashes and
+include roots; an empty value means the compiler walks the source of
 <code>lib/x2c.x</code>, which costs about a quarter of a second per process. Replay must
 match the walk it replaces: <code>make proof-cold-collection</code> retranslates <code>lib/</code>
 and <code>src/</code> with the hidden <code>--no-interfaces</code> option, which reads no
 interface, and requires the stage 1 C, headers, and interfaces byte for
 byte.</p>
 <p><code>--cpp-symbols</code> and <code>--live-symbols</code> discover symbols through the host C
-preprocessor: the toolchain force-loads <code>lib/x2c.x</code> and runs <code>cc -E -P</code> as a
-child process.
+preprocessor: the toolchain force-loads <code>lib/x2c.x</code> and runs <code>cc -E</code> as a
+child process, whose line markers give each region of the output its file
+and line.
 Paths stay separate argv elements, and stdout, stderr, and the real child
 status come back independently. A second <code>Compiler</code> shallow-parses that
 output instead.</p>
@@ -469,7 +486,34 @@ diagnostics, and emitted C all come from the original positioned token stream.
 <code>--no-cpp</code> skips symbol discovery and is a diagnostic aid for C-only source.
 <code>--dump-symbols</code> prints the symbol table the compiler ends up with; the
 implicit runtime contributes a few thousand rows, so grep the output.</p>
+<h3 id="preprocessing"><a class="header" href="#preprocessing">Preprocessing</a></h3>
+<p><code>--cpp</code> enables <code>src/cpp/cpp.x</code> for existing C compatibility. Ordinary <span class="x2c-wordmark">x2c</span>
+builds skip full expansion and macro-export replay. Module and meta discovery
+read authored syntax in both modes and do not prepare C macro exports to
+find hidden <span class="x2c-wordmark">x2c</span> constructs.</p>
+<p>When enabled, the engine expands the C macros <span class="x2c-wordmark">x2c</span> can see before the parser
+reads a token: those the unit, the files it includes, the runtime, and the
+command line define. <code>Compiler.expand_macros</code> walks the scanned array once. It
+applies each directive to a <code>Cpp</code> state, the macro table and the open
+conditional groups, and replaces each macro use with its expansion. Every
+expanded token takes the line, column, and position of the use, and the
+tokenizer’s <code>expansions</code> rows name the macro that produced it, which
+diagnostics turn into a note. <code>src/cpp/conditions.x</code> decides each
+conditional group, or leaves it undecided when a name it tests is not
+visible; <code>src/preprocess.x</code> then turns the tokens of a hidden arm into
+comments and marks layout attributes. Directives stay in the array.</p>
+<p>With <code>--cpp</code>, collection preprocesses each segment it parses from the state
+where the segment starts. In either mode, a file’s entry keeps its
+conditional, <code>#define</code>, and <code>#undef</code> directives among its parts as
+<code>(cpp TEXT FILE LINE)</code> events. At an <code>#include</code>, <code>_replay_included</code> in
+<code>src/collect/walk.x</code> replays the included file’s events, and those of the
+files it includes, from that file’s initial macros and recomputes the macros
+it exports, so a replayed interface supplies the macros a cold walk does.
+The unit’s own array is preprocessed after collection, when every file it
+includes has an entry.</p>
 <h3 id="full-parse-and-type-annotation"><a class="header" href="#full-parse-and-type-annotation">Full parse and type annotation</a></h3>
+<p>The <a href="ast-grammar.html">AST grammar</a> defines the List layouts, binding records,
+legal positions, and stage-specific variants used throughout this pipeline.</p>
 <p>The full parse reads tokens and the global environment and produces the parsed
 AST: immutable <code>List</code>s, tagged by node kind, annotated with resolved types.
 <code>Compiler.full_parse</code> in <code>src/compiler/parsing/parse.x</code> drives a
@@ -480,8 +524,8 @@ dotted method sugar, <code>src/statements.x</code> for control flow, <code>match
 <code>try</code>/<code>catch</code>, and <code>defer</code>, and <code>src/literals/literals.x</code> for collection, interpolated
 <code>String</code>, and lambda literals. <code>src/meta-group/meta-group.x</code> stages a unit’s bodied
 <code>meta</code> functions as native code, and <code>src/stage.x</code> carries values across that
-boundary. The built-in source macro in <code>src/macros/macros.x</code>, <code>etc/builtin-macros.x</code>,
-and the algorithms in <code>src/builtins.x</code> expand <code>foreach</code> during this pass.
+boundary. The built-in <code>foreach</code> macro in <code>etc/compiler-prelude.x</code> and the
+algorithms in <code>src/builtins.x</code> expand <code>foreach</code> during this pass.
 <code>src/type.x</code> owns the <code>List</code>-backed <code>Type</code> representation those modules
 consult; <code>src/ast.x</code> owns sequence placement and binding helpers;
 <code>src/symtab/symtab.x</code> owns lexical scopes and symbol lookup from inner to outer;
@@ -490,13 +534,13 @@ raises <code>&lt;malformed&gt;</code> for a token mismatch, and <code>src/compil
 holds the filtered recovery boundary that synchronizes after a parse
 diagnostic; <code>src/diagnostics.x</code> collects positioned diagnostics in order.</p>
 <p>Macro definitions use that same recursive-descent parser in macro mode. Each
-semantic entry point accepts a typed parameter or compile-time Lisp slot and
+semantic entry point accepts a typed parameter or <code>meta</code> call slot and
 otherwise follows the ordinary grammar, so the stored template is an ordinary
 AST <code>List</code>. An invocation parses its arguments through those entry points,
 matches their canonical capture rows once, replaces the template once, and
 hands the result to the ordinary recursive syntax binder. Nested invocations
-and Lisp slots are expanded when that binder reaches them; there is no second
-macro grammar or post-expansion validation pass.</p>
+and <code>meta</code> call slots are evaluated when that binder reaches them; there is no
+second macro grammar or post-expansion validation pass.</p>
 <pre><code class="language-sh">./builds/0/x2c translate --dump-ast greet.x
 </code></pre>
 <pre><code class="language-text">(function ("String")
@@ -644,7 +688,7 @@ builds the final <code>String</code>. The result is valid C, with spacing determ
 the emitter. <code>src/generate/generate.x</code> then writes the <code>.h</code>, <code>.c</code>, and <code>.xi</code> files
 together, named from the input basename inside the <code>--out-dir</code> directory. A
 write failure replaces none of them and becomes a diagnostic carrying the
-target path and the host error. <code>src/main.x</code> then writes the <code>.d</code> file
+target path and the host error. <code>src/translation.x</code> then writes the <code>.d</code> file
 through <code>src/deps.x</code>.</p>
 <p><code>unittest/compiler-fixtures/</code> pins the output of each phase. It stores
 expected tokens, AST, transformed AST, symbol tables, generated C, and exit
@@ -666,6 +710,7 @@ components</a>: <code>src/components/bracket-access.x</code>
 <code>src/components/interpolation.x</code> (interpolation),
 <code>src/components/destructuring.x</code> (destructuring),
 <code>src/components/lambda-functions.x</code> (lambdas),
+<code>src/components/macro-mapping.x</code> (mapping macros over compile-time rows),
 <code>src/components/protocol-adapters.x</code> (protocol members and descriptors),
 and <code>src/components/string-switch.x</code> (String switches);</li>
 <li><code>src/operator-ledger.x</code> – operator precedence, compound assignment,
@@ -700,8 +745,9 @@ support declarations, and source files and locations;</li>
 segment’s compile-time state;</li>
 <li><code>src/symtab/symtab.x</code> – the symbol table: scopes, bindings, lookup, typedef
 resolution, and semantic transactions;</li>
-<li><code>src/preprocess.x</code> – preprocessor directive lines, conditional arms, and
-the directives before each form;</li>
+<li><code>src/cpp/cpp.x</code> – macro expansion and conditional groups before parsing;</li>
+<li><code>src/preprocess.x</code> – preprocessor directive lines, hidden arms, layout
+marks, and the directives before each form;</li>
 <li><code>src/parse/parse.x</code>, <code>src/expressions/expressions.x</code>, <code>src/statements.x</code>, <code>src/literals/literals.x</code> –
 grammar and AST construction;</li>
 <li><code>src/parse-reports.x</code>, <code>src/expressions-reports.x</code> – package and
@@ -710,9 +756,9 @@ alias diagnostics, and expression typing diagnostics;</li>
 initialization order;</li>
 <li><code>src/lambdas.x</code> – lambda parsing and the capture resolution shared by
 source and constructed lambdas;</li>
-<li><code>src/macros/macros.x</code> – compile-time macro definitions, imports, Lisp lifting,
-hygiene, and expansion;</li>
-<li><code>src/meta-sdk/meta-sdk.x</code> – the compiler’s answers to <code>lib/meta.x</code> operations
+<li><code>src/macros/macros.x</code> – compile-time macro definitions, imports, hygiene,
+meta call slots, and expansion;</li>
+<li><code>src/meta-sdk/meta-sdk.x</code> – the compiler’s implementations of <code>lib/meta.x</code> operations
 and the context of the running compile-time call;</li>
 <li><code>src/meta-native/meta-native.x</code> – meta functions, explicit meta calls, native meta
 bindings and their lifetimes, and native modules;</li>
@@ -752,7 +798,7 @@ include guards, and output writes;</li>
 <li><code>src/format.x</code> – C tokens to text;</li>
 <li><code>src/diagnostics.x</code> – recorded diagnostics;</li>
 <li><code>src/sourceview.x</code> – request-owned source overlays and logical file paths;</li>
-<li><code>commands/editor/editor.x</code> – one-request diagnostics, definition, and hover transport
+<li><code>commands/lsp/analysis.x</code> – resident source analysis and exported results
 over the configured frontend and source overlays.</li>
 </ul>
 <p>The internal frontend is shared by the CLI, editor, and source graph tool. A
@@ -761,25 +807,29 @@ compiler, AST, diagnostics, and preprocessor output until explicit close.
 The stages are start/tokenize, collect, and parse. Failed stages return to the
 caller with readable diagnostics. Adapters choose printing and process exit;
 the default frontend collects without printing. Closing a unit releases its
-owned Lisp session, Type unit, and isolated Context before the next unit opens.</p>
+owned meta bindings, Type unit, and isolated Context before the next unit
+opens.</p>
 <p>Process type/header caches and generated-name state still require sequential
 units. The frontend is not a concurrent or stable public compiler-library API. A
 user macro that aborts or exits still ends the process.</p>
-<p>The optional editor worker in <code>tools/x2c-editor/</code> uses the same frontend and
-project configuration. <code>SourceView</code> supplies immutable unsaved text under each
-file’s canonical path; an empty overlay remains a present file. The request
-owns overlays, while a parsed unit owns disk text and semantic results.</p>
+<p>The language server in <code>commands/lsp/</code> uses the same frontend and project
+configuration. <code>SourceView</code> supplies immutable unsaved text under each file’s
+canonical path; an empty overlay remains a present file. The server owns
+current overlays and exported analysis rows. One parsed unit owns borrowed
+semantic results and closes before another unit opens.</p>
 <p>Declaration metadata follows the actual symbol-map contribution and key
-through collection and imports. The primary parser associates resolved
-bindings with physical token spans for definition and hover queries. It does
-not infer a source location for constructed syntax that has no physical token.
-Each editor request runs in a fresh process and collects source declarations
-without reading <code>.xi</code> interfaces, which do not carry their physical spans.
-This isolates process caches and macro failures from the editor service.</p>
-<p>The VS Code adapter under <code>etc/vsc-extension/</code> converts compiler UTF-8 byte
-offsets to editor positions and discards responses after document changes or
-cancellation. It executes semantic requests only in trusted local workspaces.
-Syntax highlighting remains available independently of the native worker.</p>
+through collection and imports. Resolved bindings carry physical token spans
+for navigation. Constructed syntax without a physical token has no invented
+source location. Source collection bypasses <code>.xi</code> interfaces, which do not
+carry physical spans.</p>
+<p>The server converts compiler UTF-8 byte offsets to LSP UTF-16 positions.
+Queued requests can be cancelled; an analysis already running completes.
+Idle process checkpoints preserve protocol state and current documents while
+reclaiming accumulated allocation history. A macro that aborts or exits still
+terminates the server.</p>
+<p>The VS Code language client under <code>etc/vsc-extension/</code> synchronizes documents
+and serves standard editor features. Semantic execution requires trusted local
+workspaces. Syntax highlighting remains available independently of the server.</p>
 <h2 id="the-runtime-boundary"><a class="header" href="#the-runtime-boundary">The runtime boundary</a></h2>
 <p>The compiler is an <span class="x2c-wordmark">x2c</span> program and uses the same runtime that generated
 programs use. There is no compiler-private collection library, so every
@@ -788,20 +838,22 @@ divisions:</p>
 <ul>
 <li><code>lib/scope/scope.x</code> owns allocation lifetime, and <code>lib/pool/pool.x</code> the nested
 interning pools layered over it;</li>
-<li><code>lib/var/var.x</code>, <code>lib/varconvert.x</code>, <code>lib/varops.x</code>, and <code>lib/dispatch.x</code> own
+<li><code>lib/var/var.x</code>, <code>lib/var/conversion.x</code>, <code>lib/var/operators.x</code>, and <code>lib/dispatch.x</code> own
 tagged values, cause-raising conversion, operators, and dynamic dispatch;</li>
 <li><code>lib/string/string.x</code>, <code>lib/symbol.x</code>, <code>lib/atom.x</code>, and <code>lib/list/list.x</code> own
 canonical immutable values;</li>
-<li><code>lib/block.x</code>, <code>lib/buffer.x</code>, <code>lib/array.x</code>, and <code>lib/map.x</code> own mutable
+<li><code>lib/block.x</code>, <code>lib/buffer.x</code>, <code>lib/array/array.x</code>, and <code>lib/map/map.x</code> own mutable
 storage;</li>
 <li><code>lib/iter.x</code> owns status-bearing traversal;</li>
-<li><code>lib/match/match.x</code> owns list-pattern matching; <code>lib/match-plan.x</code> compiles
-patterns to plans, <code>lib/match-cache.x</code> retains them, and
-<code>lib/match-machine.x</code> executes them over the wordcode and state
-definitions in <code>lib/machine.x</code>;</li>
-<li><code>lib/lisp/lisp.x</code> owns the embedded Lisp reader, session, and evaluator; the
-compiler uses it to read <code>.xi</code> interfaces and to run compile-time macros;</li>
-<li><code>lib/func.x</code> owns generic native calls through generated adapters;</li>
+<li><code>lib/match/match.x</code> owns list-pattern matching; its <code>plan.x</code> member compiles
+patterns to plans, <code>cache.x</code> retains them, and <code>machine.x</code> executes them
+over the wordcode and state definitions in <code>wordcode.x</code>;</li>
+<li><code>lib/lisp/lisp.x</code> owns the embedded Lisp session and evaluator for runtime
+DSLs and the Lisp shell in <code>examples/programs/lisp.x</code>; the compiler does
+not link it. Lisp and <code>lib/datum.x</code> share the reader grammar in
+<code>lib/datum-reader.x</code>, and the compiler reads <code>.xi</code> interfaces with
+<code>lib/datum.x</code>;</li>
+<li><code>lib/func/func.x</code> owns generic native calls through generated adapters;</li>
 <li><code>lib/tokenizer.x</code> and <code>lib/scan.x</code> own tokenization, so the compiler’s
 first phase is library code;</li>
 <li><code>lib/error/error.x</code> owns failure records, handlers, and policy;</li>
@@ -850,9 +902,9 @@ code its own new parser mishandles. Those surface at stage 1 or 2 and nowhere
 earlier.</p>
 <p>The comparison is byte-exact. <code>tools/check-generated-stages.sh</code>, behind the
 <code>make stage-diff-0</code> through <code>make stage-diff-3</code> targets, compares the generated
-<code>.c</code>/<code>.h</code> file sets of two neighbouring stages and then compares every file
-byte for byte. <code>stage-diff-0</code> asks whether the bootstrap compiler re-emits the
-C it was built from; the rest ask whether each stage emits what the stage
+<code>.c</code>/<code>.h</code> file sets of two neighboring stages and then compares every file
+byte for byte. <code>stage-diff-0</code> checks whether the bootstrap compiler re-emits the
+C it was built from; the rest check whether each stage emits what the stage
 before it emitted. Once two adjacent stages agree, the chain has reached a
 fixed point.</p>
 <p>From stage 1 on, a stage build also fails on a diagnostic. The stage
@@ -913,11 +965,12 @@ family for increments, decrements, and unary operators, keyed by each operator
 and <code>Var</code>. The transform dispatches an operation to those rules only when an
 operand has <code>Var</code> identity, after protocol operators resolved, presents it
 typed <code>Var</code>, and normalizes the replacement as it would its own lowering. A
-binary operator returns a <code>Var.binary</code> call through <code>Code.lowered</code>, so an
-operator chain does not rebind its remaining terms at each level; an update
-returns the lowered call of its storage’s update helper with the target’s
-address, the form the cleanup walk recognizes as a write. Truthiness stays a
-conversion the transform applies at condition positions, and slices,
+binary operator returns a call of its inline lane in <code>lib/common.x</code> or of
+<code>Var.binary</code> through <code>Code.lowered</code>, so an operator chain does not rebind
+its remaining terms at each level; an update returns the lowered call of
+its storage’s update helper with the target’s address, the form the
+cleanup walk recognizes as a write. Truthiness stays a conversion the
+transform applies at condition positions, and slices,
 comparisons, and a participant’s direct compound update remain in the
 transform. When a rewrite lowers its replacement, the source expressions the
 replacement holds lower outside the active rule, so a store nested in another
@@ -969,7 +1022,7 @@ them once each, left to right, moving them ahead of the join when they move.</p>
 <p><code>src/components/destructuring.x</code> registers destructuring declarations
 on the statement family keyed by the <code>dstrdecl</code> head, an assignment statement
 keyed by <code>stmnt</code>, and an assignment expression on the literal family keyed by
-<code>dstrasgn</code>. Its translators answer bound carriers: a <code>List</code> local read from the
+<code>dstrasgn</code>. Its translators return bound carriers: a <code>List</code> local read from the
 source with <code>Code.convert</code>, and each target given its element through the
 conversions lowering applies to an assignment or initialization. The expression
 form keeps the source in a result local as its value. The parser has already
@@ -1002,7 +1055,7 @@ the transform, the compiler presents each conformance whose forward converter
 the unit defines, and whose participant is not numeric, as a form <code>(conform BASE PARTICIPANT FORWARD REVERSE BINDER DESCRIPTOR (ROW...))</code>. The compiler has
 already chosen each member’s owner and storage, reported collisions and missing
 conversions, published the external forwarding members’ signatures, and bound
-the name of every function it asks for and of the method table. Each row is
+the name of every required function and of the method table. Each row is
 <code>(MEMBER STATUS SOURCE EXPECTED TEMPLATE PART...)</code>, whose parts are <code>(default NAME STORAGE)</code> for a forwarding member, <code>(inherited NAME EXPECTED)</code> for the
 prototype of a member another conformance defines, and <code>(thunk NAME ERASED)</code>
 for a descriptor slot. A function that completes a documented prototype keeps
@@ -1014,13 +1067,29 @@ the head returns file-scope code, which joins the unit’s support. When no rule
 returns, the translation ends with <code>no rule lowers this protocol conformance</code>.
 Native aliases stay in the compiler, because they enter at the participant
 typedef’s header boundary.</p>
-<p>The components and <code>src/grammar.x</code>, whose source forms they recognize, are
-compiler prelude sources.</p>
+<p><code>src/components/macro-mapping.x</code> supplies <code>_x2c_expand_rows</code>, the operation
+behind <code>expand</code>. The <code>$expand</code> decorator in <code>etc/compiler-prelude.x</code>
+declares it with a bodyless <code>meta</code> prototype and passes it the row List and
+the following macro. It reads the rows as a compile-time value and returns one
+pending application of the macro for each row, so ordinary insertion binds
+them. It reports a decorator as the macro, input that is not a List, and a row
+with the wrong number of arguments.</p>
+<p>The rewrite components and <code>src/grammar.x</code>, whose source forms they
+recognize, are compiler prelude sources. The compiler links
+<code>macro-mapping.x</code> without reading it as a prelude source.</p>
 <p>A compiler runs its own linked copies of the components’ translators, as it
 runs its own kernel. An edited component therefore changes the compiler built
 from it, not the compiler that translates the edit.</p>
 
                     </main>
+                    <script>
+                        // A generated page is edited through its generator.
+                        if ([...document.querySelector('#mdbook-content main').childNodes]
+                                .some(node => node.nodeType === Node.COMMENT_NODE &&
+                                      node.textContent.includes('Do not edit by hand'))) {
+                            document.querySelector('a[rel="edit"]')?.remove();
+                        }
+                    </script>
 
                     <nav class="x2c-pager" aria-label="Page navigation">
                         <a rel="prev" href="../internals/compiler-api/transform.html" class="x2c-pager-prev" aria-keyshortcuts="Left">
@@ -1028,18 +1097,18 @@ from it, not the compiler that translates the edit.</p>
                             <span class="x2c-pager-title">src/transform/transform.x</span>
                         </a>
                         
-                        <a rel="next prefetch" href="../internals/implementation-map.html" class="x2c-pager-next" aria-keyshortcuts="Right">
+                        <a rel="next prefetch" href="../internals/ast-grammar.html" class="x2c-pager-next" aria-keyshortcuts="Right">
                             <span class="x2c-pager-label">next</span>
-                            <span class="x2c-pager-title">Implementation Map</span>
+                            <span class="x2c-pager-title">AST Grammar</span>
                         </a>
                     </nav>
                     <footer class="x2c-footer">
                         &copy; 2025&ndash;2026
                         <a href="https://flake.org">GWF</a>
                         &middot;
-                        <a href="https://github.com/gwf/x2c/blob/aa2b9b2575297711e5978acc53f87bd7f645f3c7/LICENSE">Apache 2.0</a>
+                        <a href="https://github.com/gwf/x2c/blob/2c5870d64d381a861054dae9927aa65adc87e9e0/LICENSE">Apache 2.0</a>
                         &middot;
-                        <a href="https://github.com/gwf/x2c/blob/aa2b9b2575297711e5978acc53f87bd7f645f3c7/TRADEMARKS.md">Trademarks</a>
+                        <a href="https://github.com/gwf/x2c/blob/2c5870d64d381a861054dae9927aa65adc87e9e0/TRADEMARKS.md">Trademarks</a>
                     </footer>
                 </div>
             </div>

@@ -1,6 +1,6 @@
 <!DOCTYPE HTML>
 <html lang="en" class="light sidebar-visible" dir="ltr">
-    <head><meta name="x2c-release-channel" content="staging"><meta name="x2c-candidate" content="candidate-aa2b9b2575297711e5978acc53f87bd7f645f3c7-39090113132-1">
+    <head><meta name="x2c-release-channel" content="staging"><meta name="x2c-candidate" content="candidate-aa2b9b2575297711e5978acc53f87bd7f645f3c7-39090113132-1"><meta name="x2c-site-source" content="2c5870d64d381a861054dae9927aa65adc87e9e0"><meta name="robots" content="noindex">
         <!-- Book generated using mdBook -->
         <meta charset="UTF-8">
         <title>lib/type.x - The x2c Book</title>
@@ -30,7 +30,7 @@
         <link rel="stylesheet" id="mdbook-ayu-highlight-css" href="../../ayu-highlight-3fdfc3ac.css">
 
         <!-- Custom theme stylesheets -->
-        <link rel="stylesheet" href="../../theme/header-f6c12aed.css">
+        <link rel="stylesheet" href="../../theme/header-b540a03f.css">
         <link rel="stylesheet" href="../../theme/x2c-fd3d182e.css">
 
 
@@ -39,12 +39,12 @@
             const path_to_root = "../../";
             const default_light_theme = "light";
             const default_dark_theme = "light";
-            window.path_to_searchindex_js = "../../searchindex-f4d06db2.js";
+            window.path_to_searchindex_js = "../../searchindex-a3bdfad5.js";
         </script>
         <!-- Start loading toc.js asap -->
-        <script src="../../toc-00ae7479.js"></script>
+        <script src="../../toc-2248e0f3.js"></script>
         <!-- x2c publication metadata -->
-        <link rel="canonical" href="https://staging.x2c-lang.dev/docs/library/modules/type.html">
+        <link rel="canonical" href="https://x2c-lang.dev/docs/library/modules/type.html">
         <meta property="og:type" content="website">
         <meta property="og:title" content="lib/type.x - The x2c Book">
         <meta property="og:description" content="The x2c language, standard library, and compiler.">
@@ -143,16 +143,12 @@
                             <button class="landing-tagline menu-title" type="button" title="Scroll to top">The x2c Book</button>
                         </div>
                         <nav class="landing-nav" aria-label="x2c website">
-                            <div class="landing-page-nav">
-                                <a href="../../../#love">love</a>
-                                <a href="../../../#power">power</a>
-                                <a href="../../../#magic">magic</a>
-                            </div>
                             <div class="landing-site-nav">
                                 <a href="../../../#install">install</a>
                                 <a href="../../../#packages">packages</a>
                             </div>
                             <div class="landing-reference-nav">
+                                <a href="../../../examples/">examples</a>
                                 <a href="../../../about/">about</a>
                                 <a href="../../" aria-current="page">docs</a>
                                 <a href="https://github.com/gwf/x2c">source</a>
@@ -222,6 +218,8 @@
      runtime entry files and the compiler's definitions. Do not edit by hand. -->
 <h1 id="libtypex"><a class="header" href="#libtypex"><code>lib/type.x</code></a></h1>
 <p>Semantic type values and their structural operations.</p>
+<p>Include it with <code>#include "type.x"</code>.</p>
+<p>Its operations run at runtime and at compile time.</p>
 <h2 id="primary-api"><a class="header" href="#primary-api">Primary API</a></h2>
 <div class="table-wrapper">
 <table>
@@ -238,7 +236,7 @@
 <tr><td><a href="#Type.apply"><code>Type.apply</code></a></td><td>Returns the result <code>Type</code> of a function <code>Type</code>, following pointer and array modifiers, or <code>NULL</code> when the chain does not end at a function.</td></tr>
 <tr><td><a href="#Type.base_type"><code>Type.base_type</code></a></td><td>Returns the suffix of <code>type</code> beginning at its builtin or typedef base.</td></tr>
 <tr><td><a href="#Type.body"><code>Type.body</code></a></td><td>Returns the stored body portion of an enum, struct, or union <code>Type</code>.</td></tr>
-<tr><td><a href="#Type.canonicalize"><code>Type.canonicalize</code></a></td><td>Removes non-typedef storage classes, <code>inline</code>, and type qualifiers from <code>type</code>.</td></tr>
+<tr><td><a href="#Type.canonicalize"><code>Type.canonicalize</code></a></td><td>Removes non-typedef storage classes, <code>inline</code>, type qualifiers, and unqualified-value projections from <code>type</code>, retaining typedef identity.</td></tr>
 <tr><td><a href="#Type.declared"><code>Type.declared</code></a></td><td>Returns the stored declaration <code>Type</code> after removing non-typedef storage classes and <code>inline</code>.</td></tr>
 <tr><td><a href="#Type.dereference"><code>Type.dereference</code></a></td><td>Removes one outer pointer-like or array modifier, or returns <code>NULL</code>.</td></tr>
 <tr><td><a href="#Type.discards_qualifiers"><code>Type.discards_qualifiers</code></a></td><td>Returns whether handing a <code>source</code> value to a <code>target</code> declaration would silently drop a qualifier the target does not keep.</td></tr>
@@ -246,9 +244,9 @@
 <tr><td><a href="#Type.integer_literal_magnitude"><code>Type.integer_literal_magnitude</code></a></td><td>Reads an integer literal of <code>type</code> spelled in digits, with any suffix, into <code>value</code>.</td></tr>
 <tr><td><a href="#Type.is_aggregate"><code>Type.is_aggregate</code></a></td><td>Returns whether <code>type</code> is any struct or union shape.</td></tr>
 <tr><td><a href="#Type.is_aggregate_tag"><code>Type.is_aggregate_tag</code></a></td><td>Returns whether <code>t</code> is a body-free struct or union tag reference.</td></tr>
-<tr><td><a href="#Type.is_aggregate_tag_body"><code>Type.is_aggregate_tag_body</code></a></td><td>Returns whether <code>type</code> is a tagged struct or union definition.</td></tr>
+<tr><td><a href="#Type.is_aggregate_tag_body"><code>Type.is_aggregate_tag_body</code></a></td><td>Returns whether <code>t</code> is a tagged struct or union definition.</td></tr>
 <tr><td><a href="#Type.is_array"><code>Type.is_array</code></a></td><td>Returns whether the outer declarator represented by <code>type</code> is an array.</td></tr>
-<tr><td><a href="#Type.is_bare_typedef_name"><code>Type.is_bare_typedef_name</code></a></td><td>Returns whether <code>type</code> is one bare typedef-name <code>String</code>.</td></tr>
+<tr><td><a href="#Type.is_bare_typedef_name"><code>Type.is_bare_typedef_name</code></a></td><td>Returns whether <code>t</code> is one bare typedef-name <code>String</code>.</td></tr>
 <tr><td><a href="#Type.is_bitfield"><code>Type.is_bitfield</code></a></td><td>Returns whether the outer declarator represented by <code>type</code> is a bitfield.</td></tr>
 <tr><td><a href="#Type.is_builtin"><code>Type.is_builtin</code></a></td><td>Returns whether <code>type</code> is a builtin scalar, struct, union, or enum.</td></tr>
 <tr><td><a href="#Type.is_char_pointer_like"><code>Type.is_char_pointer_like</code></a></td><td>Returns whether <code>type</code> is exactly a pointer or array of <code>char</code> or <code>const char</code>, without resolving typedefs or removing qualifiers.</td></tr>
@@ -260,6 +258,7 @@
 <tr><td><a href="#Type.is_inline"><code>Type.is_inline</code></a></td><td>Returns whether <code>type</code> carries the <code>inline</code> function specifier.</td></tr>
 <tr><td><a href="#Type.is_integral"><code>Type.is_integral</code></a></td><td>Returns whether <code>type</code> is a fixed integral scalar or an enum.</td></tr>
 <tr><td><a href="#Type.is_number"><code>Type.is_number</code></a></td><td>Returns whether <code>type</code> is a fixed numeric scalar or an enum.</td></tr>
+<tr><td><a href="#Type.is_optional_reference"><code>Type.is_optional_reference</code></a></td><td>Returns whether <code>t</code> is an optional reference.</td></tr>
 <tr><td><a href="#Type.is_pointer"><code>Type.is_pointer</code></a></td><td>Returns whether <code>t</code> begins with a pointer-like modifier.</td></tr>
 <tr><td><a href="#Type.is_reference"><code>Type.is_reference</code></a></td><td>Returns whether <code>t</code> is a reference or an optional reference.</td></tr>
 <tr><td><a href="#Type.is_static"><code>Type.is_static</code></a></td><td>Returns whether <code>type</code> carries the <code>static</code> storage class.</td></tr>
@@ -272,8 +271,11 @@
 <tr><td><a href="#Type.promote"><code>Type.promote</code></a></td><td>Applies integer promotion to <code>type</code>.</td></tr>
 <tr><td><a href="#Type.qualify"><code>Type.qualify</code></a></td><td>Applies <code>source</code>’s outer qualifiers to <code>type</code>.</td></tr>
 <tr><td><a href="#Type.reference"><code>Type.reference</code></a></td><td>Returns the pointer <code>Type</code> formed by prefixing <code>type</code> with <code>*</code>.</td></tr>
+<tr><td><a href="#Type.rest_container"><code>Type.rest_container</code></a></td><td>Returns the container Type, <code>("List")</code> or <code>("Map")</code>, that a rest parameter packs its arguments into, or NULL for any other parameter.</td></tr>
+<tr><td><a href="#Type.rest_index"><code>Type.rest_index</code></a></td><td>Returns the fixed prefix length, or -1 for a callable without a rest parameter.</td></tr>
 <tr><td><a href="#Type.scalar"><code>Type.scalar</code></a></td><td>Returns the normalized builtin scalar spelling, or <code>NULL</code> when <code>t</code> is not one valid scalar combination.</td></tr>
 <tr><td><a href="#Type.scalar_tag"><code>Type.scalar_tag</code></a></td><td>Returns the fixed <code>Var</code> numeric tag for <code>type</code>, or zero when none exists.</td></tr>
+<tr><td><a href="#Type.spelling"><code>Type.spelling</code></a></td><td>Returns <code>type</code> as a declaration spells it without a name, such as <code>int *</code>, <code>struct S</code>, or <code>int (*)(int, char *)</code>, or its <code>repr</code> when part of it has no source spelling.</td></tr>
 <tr><td><a href="#Type.tag"><code>Type.tag</code></a></td><td>Returns the one-element tag <code>List</code> of an enum, struct, or union <code>Type</code>.</td></tr>
 <tr><td><a href="#Type.var_numeric_extractor"><code>Type.var_numeric_extractor</code></a></td><td>Returns the numeric <code>Var</code> reader for <code>type</code>, or <code>NULL</code> when unsupported.</td></tr>
 <tr><td><a href="#Type.var_numeric_update_helper"><code>Type.var_numeric_update_helper</code></a></td><td>Returns the native numeric update helper for <code>type</code>, or <code>NULL</code> when the scalar has no registered update helper.</td></tr>
@@ -287,71 +289,71 @@
 <h4 id="listtype"><a class="header" href="#listtype">List.type</a></h4>
 <p><code>inline Type List.type(List x)</code></p>
 <p>Views <code>x</code> as a <code>Type</code> without validating its type shape.</p>
-<p>Source: <code>lib/type.x:28</code></p>
+<p>Source: <code>lib/type.x</code></p>
 <h3 id="symbol"><a class="header" href="#symbol"><code>Symbol</code></a></h3>
 <p><a id="Symbol.is_builtin_type"></a></p>
 <h4 id="symbolis_builtin_type"><a class="header" href="#symbolis_builtin_type">Symbol.is_builtin_type</a></h4>
 <p><code>int Symbol.is_builtin_type(Symbol sym)</code></p>
 <p>Returns whether <code>sym</code> can begin a builtin C type specifier.</p>
-<p>Source: <code>lib/type.x:57</code></p>
+<p>Source: <code>lib/type.x</code></p>
 <p><a id="Symbol.is_inline"></a></p>
 <h4 id="symbolis_inline"><a class="header" href="#symbolis_inline">Symbol.is_inline</a></h4>
 <p><code>int Symbol.is_inline(Symbol sym)</code></p>
 <p>Returns whether <code>sym</code> is the <code>inline</code> function specifier.</p>
-<p>Source: <code>lib/type.x:44</code></p>
+<p>Source: <code>lib/type.x</code></p>
 <p><a id="Symbol.is_storage_class"></a></p>
 <h4 id="symbolis_storage_class"><a class="header" href="#symbolis_storage_class">Symbol.is_storage_class</a></h4>
 <p><code>int Symbol.is_storage_class(Symbol sym)</code></p>
 <p>Returns whether <code>sym</code> is a storage-class specifier.</p>
-<p>Source: <code>lib/type.x:41</code></p>
+<p>Source: <code>lib/type.x</code></p>
 <p><a id="Symbol.is_type_modifier"></a></p>
 <h4 id="symbolis_type_modifier"><a class="header" href="#symbolis_type_modifier">Symbol.is_type_modifier</a></h4>
 <p><code>int Symbol.is_type_modifier(Symbol sym)</code></p>
 <p>Returns whether <code>sym</code> modifies the width or signedness of a scalar.</p>
-<p>Source: <code>lib/type.x:50</code></p>
+<p>Source: <code>lib/type.x</code></p>
 <p><a id="Symbol.is_type_qualifier"></a></p>
 <h4 id="symbolis_type_qualifier"><a class="header" href="#symbolis_type_qualifier">Symbol.is_type_qualifier</a></h4>
 <p><code>int Symbol.is_type_qualifier(Symbol sym)</code></p>
 <p>Returns whether <code>sym</code> is <code>const</code>, <code>restrict</code>, or <code>volatile</code>.</p>
-<p>Source: <code>lib/type.x:47</code></p>
+<p>Source: <code>lib/type.x</code></p>
 <h3 id="type"><a class="header" href="#type"><code>Type</code></a></h3>
 <p><a id="Type.apply"></a></p>
 <h4 id="typeapply"><a class="header" href="#typeapply">Type.apply</a></h4>
 <p><code>Type Type.apply(Type type)</code></p>
 <p>Returns the result <code>Type</code> of a function <code>Type</code>, following pointer and array
 modifiers, or <code>NULL</code> when the chain does not end at a function.</p>
-<p>Source: <code>lib/type.x:164</code></p>
+<p>Source: <code>lib/type.x</code></p>
 <p><a id="Type.base_type"></a></p>
 <h4 id="typebase_type"><a class="header" href="#typebase_type">Type.base_type</a></h4>
 <p><code>Type Type.base_type(Type type)</code></p>
 <p>Returns the suffix of <code>type</code> beginning at its builtin or typedef base.
 The result shares the original <code>List</code> and is <code>NULL</code> when no base is
 present.</p>
-<p>Source: <code>lib/type.x:217</code></p>
+<p>Source: <code>lib/type.x</code></p>
 <p><a id="Type.body"></a></p>
 <h4 id="typebody"><a class="header" href="#typebody">Type.body</a></h4>
 <p><code>List Type.body(Type t)</code></p>
 <p>Returns the stored body portion of an enum, struct, or union <code>Type</code>.
 Tag references and <code>Type</code>s without a stored body return <code>NULL</code>.</p>
-<p>Source: <code>lib/type.x:102</code></p>
+<p>Source: <code>lib/type.x</code></p>
 <p><a id="Type.canonicalize"></a></p>
 <h4 id="typecanonicalize"><a class="header" href="#typecanonicalize">Type.canonicalize</a></h4>
 <p><code>Type Type.canonicalize(Type type)</code></p>
-<p>Removes non-typedef storage classes, <code>inline</code>, and type qualifiers from
-<code>type</code>.</p>
-<p>Source: <code>lib/type.x:222</code></p>
+<p>Removes non-typedef storage classes, <code>inline</code>, type qualifiers, and
+unqualified-value projections from <code>type</code>, retaining typedef identity.</p>
+<p>Source: <code>lib/type.x</code></p>
 <p><a id="Type.declared"></a></p>
 <h4 id="typedeclared"><a class="header" href="#typedeclared">Type.declared</a></h4>
 <p><code>Type Type.declared(Type type)</code></p>
 <p>Returns the stored declaration <code>Type</code> after removing non-typedef storage
 classes and <code>inline</code>. Those specifiers describe declaration placement;
 <code>const</code>, <code>restrict</code>, and <code>volatile</code> describe the stored value and remain.</p>
-<p>Source: <code>lib/type.x:228</code></p>
+<p>Source: <code>lib/type.x</code></p>
 <p><a id="Type.dereference"></a></p>
 <h4 id="typedereference"><a class="header" href="#typedereference">Type.dereference</a></h4>
 <p><code>Type Type.dereference(Type type)</code></p>
 <p>Removes one outer pointer-like or array modifier, or returns <code>NULL</code>.</p>
-<p>Source: <code>lib/type.x:137</code></p>
+<p>Source: <code>lib/type.x</code></p>
 <p><a id="Type.discards_qualifiers"></a></p>
 <h4 id="typediscards_qualifiers"><a class="header" href="#typediscards_qualifiers">Type.discards_qualifiers</a></h4>
 <p><code>int Type.discards_qualifiers(Type source, Type target)</code></p>
@@ -362,138 +364,143 @@ at, so only the deeper levels are compared. Callers use this where the
 two types are otherwise the same, or where one points at <code>void</code>, which
 has no deeper levels to compare; a conversion through a converter
 function copies instead of aliasing.</p>
-<p>Source: <code>lib/type.x:256</code></p>
+<p>Source: <code>lib/type.x</code></p>
 <p><a id="Type.function_parts"></a></p>
 <h4 id="typefunction_parts"><a class="header" href="#typefunction_parts">Type.function_parts</a></h4>
 <p><code>int Type.function_parts(Type type, List &amp;params, Type &amp;?return_type)</code></p>
 <p>Splits a direct or pointer function <code>type</code> into its fixed <code>params</code>,
 which are <code>NULL</code> for <code>(void)</code>, and its <code>return_type</code> when one is asked
 for. Returns 0 and leaves both unchanged when <code>type</code> is not a function.</p>
-<p>Source: <code>lib/type.x:177</code></p>
+<p>Source: <code>lib/type.x</code></p>
 <p><a id="Type.integer_literal_magnitude"></a></p>
 <h4 id="typeinteger_literal_magnitude"><a class="header" href="#typeinteger_literal_magnitude">Type.integer_literal_magnitude</a></h4>
-<p><code>int Type.integer_literal_magnitude( Type type, String text, unsigned long long &amp;value)</code></p>
+<p><code>int Type.integer_literal_magnitude(Type type, String text, unsigned long long &amp;value)</code></p>
 <p>Reads an integer literal of <code>type</code> spelled in digits, with any suffix,
 into <code>value</code>. Returns 0 for any other literal.</p>
-<p>Source: <code>lib/type.x:545</code></p>
+<p>Source: <code>lib/type.x</code></p>
 <p><a id="Type.is_aggregate"></a></p>
 <h4 id="typeis_aggregate"><a class="header" href="#typeis_aggregate">Type.is_aggregate</a></h4>
 <p><code>int Type.is_aggregate(Type type)</code></p>
 <p>Returns whether <code>type</code> is any struct or union shape.</p>
-<p>Source: <code>lib/type.x:63</code></p>
+<p>Source: <code>lib/type.x</code></p>
 <p><a id="Type.is_aggregate_tag"></a></p>
 <h4 id="typeis_aggregate_tag"><a class="header" href="#typeis_aggregate_tag">Type.is_aggregate_tag</a></h4>
 <p><code>int Type.is_aggregate_tag(Type t)</code></p>
 <p>Returns whether <code>t</code> is a body-free struct or union tag reference.</p>
-<p>Source: <code>lib/type.x:66</code></p>
+<p>Source: <code>lib/type.x</code></p>
 <p><a id="Type.is_aggregate_tag_body"></a></p>
 <h4 id="typeis_aggregate_tag_body"><a class="header" href="#typeis_aggregate_tag_body">Type.is_aggregate_tag_body</a></h4>
-<p><code>int Type.is_aggregate_tag_body(Type type)</code></p>
-<p>Returns whether <code>type</code> is a tagged struct or union definition.</p>
-<p>Source: <code>lib/type.x:73</code></p>
+<p><code>int Type.is_aggregate_tag_body(Type t)</code></p>
+<p>Returns whether <code>t</code> is a tagged struct or union definition.</p>
+<p>Source: <code>lib/type.x</code></p>
 <p><a id="Type.is_array"></a></p>
 <h4 id="typeis_array"><a class="header" href="#typeis_array">Type.is_array</a></h4>
 <p><code>int Type.is_array(Type type)</code></p>
 <p>Returns whether the outer declarator represented by <code>type</code> is an array.</p>
-<p>Source: <code>lib/type.x:118</code></p>
+<p>Source: <code>lib/type.x</code></p>
 <p><a id="Type.is_bare_typedef_name"></a></p>
 <h4 id="typeis_bare_typedef_name"><a class="header" href="#typeis_bare_typedef_name">Type.is_bare_typedef_name</a></h4>
-<p><code>int Type.is_bare_typedef_name(Type type)</code></p>
-<p>Returns whether <code>type</code> is one bare typedef-name <code>String</code>.
+<p><code>int Type.is_bare_typedef_name(Type t)</code></p>
+<p>Returns whether <code>t</code> is one bare typedef-name <code>String</code>.
 Unlike <code>is_typedef_name</code>, this rejects pointer and array wrappers.</p>
-<p>Source: <code>lib/type.x:318</code></p>
+<p>Source: <code>lib/type.x</code></p>
 <p><a id="Type.is_bitfield"></a></p>
 <h4 id="typeis_bitfield"><a class="header" href="#typeis_bitfield">Type.is_bitfield</a></h4>
 <p><code>int Type.is_bitfield(Type type)</code></p>
 <p>Returns whether the outer declarator represented by <code>type</code> is a
 bitfield.</p>
-<p>Source: <code>lib/type.x:129</code></p>
+<p>Source: <code>lib/type.x</code></p>
 <p><a id="Type.is_builtin"></a></p>
 <h4 id="typeis_builtin"><a class="header" href="#typeis_builtin">Type.is_builtin</a></h4>
 <p><code>int Type.is_builtin(Type type)</code></p>
 <p>Returns whether <code>type</code> is a builtin scalar, struct, union, or enum.</p>
-<p>Source: <code>lib/type.x:300</code></p>
+<p>Source: <code>lib/type.x</code></p>
 <p><a id="Type.is_char_pointer_like"></a></p>
 <h4 id="typeis_char_pointer_like"><a class="header" href="#typeis_char_pointer_like">Type.is_char_pointer_like</a></h4>
 <p><code>int Type.is_char_pointer_like(Type type)</code></p>
 <p>Returns whether <code>type</code> is exactly a pointer or array of <code>char</code> or
 <code>const char</code>, without resolving typedefs or removing qualifiers.</p>
-<p>Source: <code>lib/type.x:293</code></p>
+<p>Source: <code>lib/type.x</code></p>
 <p><a id="Type.is_enum"></a></p>
 <h4 id="typeis_enum"><a class="header" href="#typeis_enum">Type.is_enum</a></h4>
 <p><code>int Type.is_enum(Type type)</code></p>
 <p>Returns whether <code>type</code> is any enum shape.</p>
-<p>Source: <code>lib/type.x:77</code></p>
+<p>Source: <code>lib/type.x</code></p>
 <p><a id="Type.is_enum_tag"></a></p>
 <h4 id="typeis_enum_tag"><a class="header" href="#typeis_enum_tag">Type.is_enum_tag</a></h4>
 <p><code>int Type.is_enum_tag(Type type)</code></p>
 <p>Returns whether <code>type</code> is a body-free enum tag reference.</p>
-<p>Source: <code>lib/type.x:80</code></p>
+<p>Source: <code>lib/type.x</code></p>
 <p><a id="Type.is_enum_tag_body"></a></p>
 <h4 id="typeis_enum_tag_body"><a class="header" href="#typeis_enum_tag_body">Type.is_enum_tag_body</a></h4>
 <p><code>int Type.is_enum_tag_body(Type type)</code></p>
 <p>Returns whether <code>type</code> is a tagged enum definition.</p>
-<p>Source: <code>lib/type.x:86</code></p>
+<p>Source: <code>lib/type.x</code></p>
 <p><a id="Type.is_extern"></a></p>
 <h4 id="typeis_extern"><a class="header" href="#typeis_extern">Type.is_extern</a></h4>
 <p><code>int Type.is_extern(Type type)</code></p>
 <p>Returns whether <code>type</code> carries the <code>extern</code> storage class.</p>
-<p>Source: <code>lib/type.x:203</code></p>
+<p>Source: <code>lib/type.x</code></p>
 <p><a id="Type.is_function"></a></p>
 <h4 id="typeis_function"><a class="header" href="#typeis_function">Type.is_function</a></h4>
 <p><code>int Type.is_function(Type type)</code></p>
 <p>Returns whether the outer declarator is a function or inline function.</p>
-<p>Source: <code>lib/type.x:121</code></p>
+<p>Source: <code>lib/type.x</code></p>
 <p><a id="Type.is_inline"></a></p>
 <h4 id="typeis_inline"><a class="header" href="#typeis_inline">Type.is_inline</a></h4>
 <p><code>int Type.is_inline(Type type)</code></p>
 <p>Returns whether <code>type</code> carries the <code>inline</code> function specifier.</p>
-<p>Source: <code>lib/type.x:200</code></p>
+<p>Source: <code>lib/type.x</code></p>
 <p><a id="Type.is_integral"></a></p>
 <h4 id="typeis_integral"><a class="header" href="#typeis_integral">Type.is_integral</a></h4>
 <p><code>int Type.is_integral(Type type)</code></p>
 <p>Returns whether <code>type</code> is a fixed integral scalar or an enum.</p>
-<p>Source: <code>lib/type.x:325</code></p>
+<p>Source: <code>lib/type.x</code></p>
 <p><a id="Type.is_number"></a></p>
 <h4 id="typeis_number"><a class="header" href="#typeis_number">Type.is_number</a></h4>
 <p><code>int Type.is_number(Type type)</code></p>
 <p>Returns whether <code>type</code> is a fixed numeric scalar or an enum.</p>
-<p>Source: <code>lib/type.x:322</code></p>
+<p>Source: <code>lib/type.x</code></p>
+<p><a id="Type.is_optional_reference"></a></p>
+<h4 id="typeis_optional_reference"><a class="header" href="#typeis_optional_reference">Type.is_optional_reference</a></h4>
+<p><code>int Type.is_optional_reference(Type t)</code></p>
+<p>Returns whether <code>t</code> is an optional reference.</p>
+<p>Source: <code>lib/type.x</code></p>
 <p><a id="Type.is_pointer"></a></p>
 <h4 id="typeis_pointer"><a class="header" href="#typeis_pointer">Type.is_pointer</a></h4>
 <p><code>int Type.is_pointer(Type t)</code></p>
 <p>Returns whether <code>t</code> begins with a pointer-like modifier.</p>
-<p>Source: <code>lib/type.x:112</code></p>
+<p>Source: <code>lib/type.x</code></p>
 <p><a id="Type.is_reference"></a></p>
 <h4 id="typeis_reference"><a class="header" href="#typeis_reference">Type.is_reference</a></h4>
 <p><code>int Type.is_reference(Type t)</code></p>
 <p>Returns whether <code>t</code> is a reference or an optional reference.</p>
-<p>Source: <code>lib/type.x:115</code></p>
+<p>Source: <code>lib/type.x</code></p>
 <p><a id="Type.is_static"></a></p>
 <h4 id="typeis_static"><a class="header" href="#typeis_static">Type.is_static</a></h4>
 <p><code>int Type.is_static(Type type)</code></p>
 <p>Returns whether <code>type</code> carries the <code>static</code> storage class.</p>
-<p>Source: <code>lib/type.x:197</code></p>
+<p>Source: <code>lib/type.x</code></p>
 <p><a id="Type.is_threaded"></a></p>
 <h4 id="typeis_threaded"><a class="header" href="#typeis_threaded">Type.is_threaded</a></h4>
 <p><code>int Type.is_threaded(Type type)</code></p>
 <p>Returns whether <code>type</code> carries the <code>threaded</code> storage class.</p>
-<p>Source: <code>lib/type.x:206</code></p>
+<p>Source: <code>lib/type.x</code></p>
 <p><a id="Type.is_typedef"></a></p>
 <h4 id="typeis_typedef"><a class="header" href="#typeis_typedef">Type.is_typedef</a></h4>
 <p><code>int Type.is_typedef(Type type)</code></p>
 <p>Returns whether <code>type</code> begins with the <code>typedef</code> storage class.</p>
-<p>Source: <code>lib/type.x:209</code></p>
+<p>Source: <code>lib/type.x</code></p>
 <p><a id="Type.is_typedef_name"></a></p>
 <h4 id="typeis_typedef_name"><a class="header" href="#typeis_typedef_name">Type.is_typedef_name</a></h4>
 <p><code>int Type.is_typedef_name(Type type)</code></p>
 <p>Returns whether the base of <code>type</code> is exactly one typedef-name <code>String</code>.</p>
-<p>Source: <code>lib/type.x:310</code></p>
+<p>Source: <code>lib/type.x</code></p>
 <p><a id="Type.list"></a></p>
 <h4 id="typelist"><a class="header" href="#typelist">Type.list</a></h4>
 <p><code>inline List Type.list(Type x)</code></p>
 <p>Views <code>x</code> as its underlying <code>List</code> without validating its type shape.</p>
-<p>Source: <code>lib/type.x:25</code></p>
+<p>Source: <code>lib/type.x</code></p>
 <p><a id="Type.numeric_literal"></a></p>
 <h4 id="typenumeric_literal"><a class="header" href="#typenumeric_literal">Type.numeric_literal</a></h4>
 <p><code>Type Type.numeric_literal(String text, int floating)</code></p>
@@ -501,85 +508,142 @@ bitfield.</p>
 <code>floating</code> selects floating suffix rules; an integer outside all supported
 native families returns <code>NULL</code>. A signed data token includes its sign
 when selecting a family, so a signed minimum fits that family.</p>
-<p>Source: <code>lib/type.x:497</code></p>
+<p>Source: <code>lib/type.x</code></p>
 <p><a id="Type.numeric_literal_value"></a></p>
 <h4 id="typenumeric_literal_value"><a class="header" href="#typenumeric_literal_value">Type.numeric_literal_value</a></h4>
 <p><code>Var Type.numeric_literal_value(Type type, String text)</code></p>
 <p>Reads a validated numeric literal at its semantic type’s precision.
 Returns <code>void</code> when its magnitude exceeds the integer representation.</p>
-<p>Source: <code>lib/type.x:525</code></p>
+<p>Source: <code>lib/type.x</code></p>
 <p><a id="Type.promote"></a></p>
 <h4 id="typepromote"><a class="header" href="#typepromote">Type.promote</a></h4>
 <p><code>Type Type.promote(Type type)</code></p>
 <p>Applies integer promotion to <code>type</code>.
 Enums and narrow integers become <code>int</code>; other scalars retain their
 canonical spelling, and a non-scalar returns <code>NULL</code>.</p>
-<p>Source: <code>lib/type.x:445</code></p>
+<p>Source: <code>lib/type.x</code></p>
 <p><a id="Type.qualify"></a></p>
 <h4 id="typequalify"><a class="header" href="#typequalify">Type.qualify</a></h4>
 <p><code>Type Type.qualify(Type type, Type source)</code></p>
 <p>Applies <code>source</code>’s outer qualifiers to <code>type</code>.</p>
-<p>Source: <code>lib/type.x:146</code></p>
+<p>Source: <code>lib/type.x</code></p>
 <p><a id="Type.reference"></a></p>
 <h4 id="typereference"><a class="header" href="#typereference">Type.reference</a></h4>
 <p><code>Type Type.reference(Type type)</code></p>
 <p>Returns the pointer <code>Type</code> formed by prefixing <code>type</code> with <code>*</code>.</p>
-<p>Source: <code>lib/type.x:159</code></p>
+<p>Source: <code>lib/type.x</code></p>
+<p><a id="Type.rest_container"></a></p>
+<h4 id="typerest_container"><a class="header" href="#typerest_container">Type.rest_container</a></h4>
+<p><code>Type Type.rest_container(Type type)</code></p>
+<p>Returns the container Type, <code>("List")</code> or <code>("Map")</code>, that a rest
+parameter packs its arguments into, or NULL for any other parameter.
+<code>List @name</code> has the Type <code>(.... "List")</code> and <code>Map @name</code> has
+<code>(.... "Map")</code>.</p>
+<p>Source: <code>lib/type.x</code></p>
+<p><a id="Type.rest_index"></a></p>
+<h4 id="typerest_index"><a class="header" href="#typerest_index">Type.rest_index</a></h4>
+<p><code>int Type.rest_index(Type type)</code></p>
+<p>Returns the fixed prefix length, or -1 for a callable without a rest
+parameter.</p>
+<p>Source: <code>lib/type.x</code></p>
 <p><a id="Type.scalar"></a></p>
 <h4 id="typescalar"><a class="header" href="#typescalar">Type.scalar</a></h4>
 <p><code>Type Type.scalar(Type t)</code></p>
 <p>Returns the normalized builtin scalar spelling, or <code>NULL</code> when <code>t</code> is not
 one valid scalar combination. Storage classes and qualifiers do not
 affect the result.</p>
-<p>Source: <code>lib/type.x:343</code></p>
+<p>Source: <code>lib/type.x</code></p>
 <p><a id="Type.scalar_tag"></a></p>
 <h4 id="typescalar_tag"><a class="header" href="#typescalar_tag">Type.scalar_tag</a></h4>
 <p><code>Symbol Type.scalar_tag(Type type)</code></p>
 <p>Returns the fixed <code>Var</code> numeric tag for <code>type</code>, or zero when none exists.</p>
-<p>Source: <code>lib/type.x:417</code></p>
+<p>Source: <code>lib/type.x</code></p>
+<p><a id="Type.spelling"></a></p>
+<h4 id="typespelling"><a class="header" href="#typespelling">Type.spelling</a></h4>
+<p><code>String Type.spelling(Type type)</code></p>
+<p>Returns <code>type</code> as a declaration spells it without a name, such as
+<code>int *</code>, <code>struct S</code>, or <code>int (*)(int, char *)</code>, or its <code>repr</code> when part
+of it has no source spelling. Storage classes and <code>inline</code> are omitted.</p>
+<p>Source: <code>lib/type.x</code></p>
 <p><a id="Type.tag"></a></p>
 <h4 id="typetag"><a class="header" href="#typetag">Type.tag</a></h4>
 <p><code>List Type.tag(Type type)</code></p>
 <p>Returns the one-element tag <code>List</code> of an enum, struct, or union <code>Type</code>.
 For a compiler-generated anonymous tag, that element is a gensym node. A
 shape with no tag slot returns <code>NULL</code>.</p>
-<p>Source: <code>lib/type.x:92</code></p>
+<p>Source: <code>lib/type.x</code></p>
 <p><a id="Type.var_numeric_extractor"></a></p>
 <h4 id="typevar_numeric_extractor"><a class="header" href="#typevar_numeric_extractor">Type.var_numeric_extractor</a></h4>
 <p><code>String Type.var_numeric_extractor(Type type)</code></p>
 <p>Returns the numeric <code>Var</code> reader for <code>type</code>, or <code>NULL</code> when unsupported.
 Enums use <code>Var_int</code> after conversion to their shared integer tag.</p>
-<p>Source: <code>lib/type.x:425</code></p>
+<p>Source: <code>lib/type.x</code></p>
 <p><a id="Type.var_numeric_update_helper"></a></p>
 <h4 id="typevar_numeric_update_helper"><a class="header" href="#typevar_numeric_update_helper">Type.var_numeric_update_helper</a></h4>
 <p><code>String Type.var_numeric_update_helper(Type type)</code></p>
 <p>Returns the native numeric update helper for <code>type</code>, or <code>NULL</code> when the
 scalar has no registered update helper.</p>
-<p>Source: <code>lib/type.x:434</code></p>
+<p>Source: <code>lib/type.x</code></p>
 <p><a id="Type.widest"></a></p>
 <h4 id="typewidest"><a class="header" href="#typewidest">Type.widest</a></h4>
 <p><code>Type Type.widest(Type a, Type b)</code></p>
 <p>Returns the usual arithmetic result <code>Type</code> for two scalar operands.
 A missing or non-scalar operand produces <code>NULL</code>.</p>
-<p>Source: <code>lib/type.x:458</code></p>
+<p>Source: <code>lib/type.x</code></p>
 <h3 id="var"><a class="header" href="#var"><code>Var</code></a></h3>
 <p><a id="Var.type"></a></p>
 <h4 id="vartype"><a class="header" href="#vartype">Var.type</a></h4>
 <p><code>inline Type Var.type(Var x)</code></p>
 <p>Returns the <code>List</code> payload of <code>x</code> as a <code>Type</code>, or <code>NULL</code> for another tag.</p>
-<p>Source: <code>lib/type.x:22</code></p>
+<p>Source: <code>lib/type.x</code></p>
+<h2 id="runtime-internal-callables"><a class="header" href="#runtime-internal-callables">Runtime-internal callables</a></h2>
+<p>These callables connect runtime translation units. They are documented
+for source readers but are not supported as user API.</p>
+<div class="table-wrapper">
+<table>
+<thead>
+<tr><th>Function</th><th>Summary</th></tr>
+</thead>
+<tbody>
+<tr><td><a href="#Macro.declaration"><code>Macro.declaration</code></a></td><td>Constructs a declaration, moving type modifiers to each binding.</td></tr>
+<tr><td><a href="#Type.declaration_base"><code>Type.declaration_base</code></a></td><td>Returns the declaration specifiers <code>t</code> without the pointer, array, or function modifiers an alias in them contributes, and sets <code>modifiers</code> to those modifiers for <code>declarator_append_modifiers</code> to append.</td></tr>
+</tbody>
+</table>
+</div>
+<h3 id="macro"><a class="header" href="#macro"><code>Macro</code></a></h3>
+<p><a id="Macro.declaration"></a></p>
+<h4 id="macrodeclaration"><a class="header" href="#macrodeclaration">Macro.declaration</a></h4>
+<p><code>List Macro.declaration(Type specifiers, List rows)</code></p>
+<p>Constructs a declaration, moving type modifiers to each binding.</p>
+<p>Source: <code>lib/type.x</code></p>
+<h3 id="type-1"><a class="header" href="#type-1"><code>Type</code></a></h3>
+<p><a id="Type.declaration_base"></a></p>
+<h4 id="typedeclaration_base"><a class="header" href="#typedeclaration_base">Type.declaration_base</a></h4>
+<p><code>List Type.declaration_base(Type t, List &amp;modifiers)</code></p>
+<p>Returns the declaration specifiers <code>t</code> without the pointer, array, or
+function modifiers an alias in them contributes, and sets <code>modifiers</code>
+to those modifiers for <code>declarator_append_modifiers</code> to append.
+Storage and source specifier text, such as <code>("_Noreturn")</code>, stay on
+the base.</p>
+<p>Source: <code>lib/type.x</code></p>
 <h2 id="design-notes"><a class="header" href="#design-notes">Design notes</a></h2>
 <p>These operations inspect captured types without compiler state. Name
 resolution and translation-unit registrations belong to the compiler.</p>
-<h2 id="tests-and-examples"><a class="header" href="#tests-and-examples">Tests and examples</a></h2>
-<p><code>make verify</code> (<code>meta-type-values</code> compiler fixture).</p>
 
                     </main>
+                    <script>
+                        // A generated page is edited through its generator.
+                        if ([...document.querySelector('#mdbook-content main').childNodes]
+                                .some(node => node.nodeType === Node.COMMENT_NODE &&
+                                      node.textContent.includes('Do not edit by hand'))) {
+                            document.querySelector('a[rel="edit"]')?.remove();
+                        }
+                    </script>
 
                     <nav class="x2c-pager" aria-label="Page navigation">
-                        <a rel="prev" href="../../library/modules/thread.html" class="x2c-pager-prev" aria-keyshortcuts="Left">
+                        <a rel="prev" href="../../library/modules/time.html" class="x2c-pager-prev" aria-keyshortcuts="Left">
                             <span class="x2c-pager-label">previous</span>
-                            <span class="x2c-pager-title">lib/thread.x</span>
+                            <span class="x2c-pager-title">lib/time.x</span>
                         </a>
                         
                         <a rel="next prefetch" href="../../library/modules/typed-array.html" class="x2c-pager-next" aria-keyshortcuts="Right">
@@ -591,9 +655,9 @@ resolution and translation-unit registrations belong to the compiler.</p>
                         &copy; 2025&ndash;2026
                         <a href="https://flake.org">GWF</a>
                         &middot;
-                        <a href="https://github.com/gwf/x2c/blob/aa2b9b2575297711e5978acc53f87bd7f645f3c7/LICENSE">Apache 2.0</a>
+                        <a href="https://github.com/gwf/x2c/blob/2c5870d64d381a861054dae9927aa65adc87e9e0/LICENSE">Apache 2.0</a>
                         &middot;
-                        <a href="https://github.com/gwf/x2c/blob/aa2b9b2575297711e5978acc53f87bd7f645f3c7/TRADEMARKS.md">Trademarks</a>
+                        <a href="https://github.com/gwf/x2c/blob/2c5870d64d381a861054dae9927aa65adc87e9e0/TRADEMARKS.md">Trademarks</a>
                     </footer>
                 </div>
             </div>

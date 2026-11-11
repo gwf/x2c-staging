@@ -1,6 +1,6 @@
 <!DOCTYPE HTML>
 <html lang="en" class="light sidebar-visible" dir="ltr">
-    <head><meta name="x2c-release-channel" content="staging"><meta name="x2c-candidate" content="candidate-aa2b9b2575297711e5978acc53f87bd7f645f3c7-39090113132-1">
+    <head><meta name="x2c-release-channel" content="staging"><meta name="x2c-candidate" content="candidate-aa2b9b2575297711e5978acc53f87bd7f645f3c7-39090113132-1"><meta name="x2c-site-source" content="2c5870d64d381a861054dae9927aa65adc87e9e0"><meta name="robots" content="noindex">
         <!-- Book generated using mdBook -->
         <meta charset="UTF-8">
         <title>Source Grammar - The x2c Book</title>
@@ -30,7 +30,7 @@
         <link rel="stylesheet" id="mdbook-ayu-highlight-css" href="../../ayu-highlight-3fdfc3ac.css">
 
         <!-- Custom theme stylesheets -->
-        <link rel="stylesheet" href="../../theme/header-f6c12aed.css">
+        <link rel="stylesheet" href="../../theme/header-b540a03f.css">
         <link rel="stylesheet" href="../../theme/x2c-fd3d182e.css">
 
 
@@ -39,12 +39,12 @@
             const path_to_root = "../../";
             const default_light_theme = "light";
             const default_dark_theme = "light";
-            window.path_to_searchindex_js = "../../searchindex-f4d06db2.js";
+            window.path_to_searchindex_js = "../../searchindex-a3bdfad5.js";
         </script>
         <!-- Start loading toc.js asap -->
-        <script src="../../toc-00ae7479.js"></script>
+        <script src="../../toc-2248e0f3.js"></script>
         <!-- x2c publication metadata -->
-        <link rel="canonical" href="https://staging.x2c-lang.dev/docs/reference/syntax/grammar.html">
+        <link rel="canonical" href="https://x2c-lang.dev/docs/reference/syntax/grammar.html">
         <meta property="og:type" content="website">
         <meta property="og:title" content="Source Grammar - The x2c Book">
         <meta property="og:description" content="The x2c language, standard library, and compiler.">
@@ -143,16 +143,12 @@
                             <button class="landing-tagline menu-title" type="button" title="Scroll to top">The x2c Book</button>
                         </div>
                         <nav class="landing-nav" aria-label="x2c website">
-                            <div class="landing-page-nav">
-                                <a href="../../../#love">love</a>
-                                <a href="../../../#power">power</a>
-                                <a href="../../../#magic">magic</a>
-                            </div>
                             <div class="landing-site-nav">
                                 <a href="../../../#install">install</a>
                                 <a href="../../../#packages">packages</a>
                             </div>
                             <div class="landing-reference-nav">
+                                <a href="../../../examples/">examples</a>
                                 <a href="../../../about/">about</a>
                                 <a href="../../" aria-current="page">docs</a>
                                 <a href="https://github.com/gwf/x2c">source</a>
@@ -218,7 +214,7 @@
 
                 <div id="mdbook-content" class="content">
                     <main>
-                        <h1 id="source-grammar"><a class="header" href="#source-grammar">Source grammar</a></h1>
+                        <h1 id="source-grammar"><a class="header" href="#source-grammar">Source Grammar</a></h1>
 <p>The <a href="x2c.ebnf">EBNF file</a>, generated from <a href="data.html">ordinary List data</a>,
 describes <span class="x2c-wordmark">x2c</span>’s current source forms. It consumes tokens after the <a href="lexical.html">lexical
 transformations</a>. A parser generator cannot use it directly,
@@ -249,14 +245,16 @@ its executable block items become the implicit script body. This partition
 uses <code>Compiler.script_statement_starts</code>, <code>_declaration_stays</code>, and
 <code>defines_main</code>, defined in <code>src/parse/units.x</code>. File-level functions cannot refer
 to script locals.</p>
-<p>Module blocks are expanded by <code>src/collect/collect.x</code> before <code>translation-unit</code>
-parsing. <code>module-block</code> is spliced before parsing and is not a <code>unit-item</code>. It
-contains quoted member paths, separated by commas, with an optional trailing
-comma. Members are inserted in order from the containing file’s companion
-directory, <code>NAME/</code> beside <code>NAME.x</code>; each path must resolve inside it. Nested
-module blocks are expanded too. Each file permits one file-scope block and
-must use default symbol collection. CPP and live-symbol modes do not support
-member splicing. The <code>module</code> storage class is described in D4.</p>
+<p>Module blocks are expanded by <code>src/collect/splice.x</code> before
+<code>translation-unit</code> parsing. <code>module-block</code> is spliced before parsing and is
+not a <code>unit-item</code>. It contains quoted member paths, separated by commas, with
+an optional trailing comma. Members are inserted in order. Each path is
+relative to the file that holds the block. Members may be siblings,
+descendants, or files elsewhere; no same-named companion directory is
+required. Nested module blocks are expanded too. Each file permits one
+file-scope block and must use default symbol collection: <code>--cpp-symbols</code>,
+<code>--live-symbols</code>, and the <code>--dump-cpp</code> modes reject a module unit. The
+<code>module</code> storage class is described in D4.</p>
 <h2 id="declaration-contracts"><a class="header" href="#declaration-contracts">Declaration contracts</a></h2>
 <h3 id="d1-names-and-declaration-starts"><a class="header" href="#d1-names-and-declaration-starts">D1. Names and declaration starts</a></h3>
 <p><code>Compiler.test_declaration</code> uses storage/type keywords, native prefix macros,
@@ -277,6 +275,18 @@ including package-qualified type names. <code>Self</code> is resolved as a conte
 type. Type existence and a valid scalar combination remain semantic checks.
 The scalar-word production does not include <code>_Bool</code>: the current parser
 handles names outside that list through its named-type path.</p>
+<p>After declaration <code>auto</code> and its qualifiers, a name followed by <code>=</code> selects
+local type inference instead of a type reference. The inferred form requires
+one plain initialized name. Otherwise <code>auto</code> prefixes an explicitly typed
+declaration. An <code>auto</code> immediately after a declarator’s <code>=</code> wraps the complete
+initializer through <code>$auto</code>; it does not begin a general expression.
+These managed forms require initialized block-item objects and cannot combine
+declaration and initializer <code>auto</code> in one declaration group. See
+<a href="../language.html#managed-declarations-and-initializers">managed declarations and initializers</a>.</p>
+<p>A leading <code>auto</code> shares its storage class across the declarators in one
+group. Prefer <code>auto Array left = [], right = [];</code> when both bindings keep
+their acquired values. Retain initializer <code>auto</code> when a binding changes or
+only part of the group needs cleanup.</p>
 <h3 id="d2-declaration-commas-and-parentheses"><a class="header" href="#d2-declaration-commas-and-parentheses">D2. Declaration commas and parentheses</a></h3>
 <p>In a declaration row, a comma starts a new group only when <code>_group_comma</code>
 recognizes a declaration start with a following declarator. Otherwise it joins
@@ -287,7 +297,12 @@ declarator from a parenthesized name using the current typedef environment.</p>
 <p>A declarator can have no direct name: this represents an abstract declarator,
 an unnamed bit-field, or a type-only declaration, as allowed by its context.
 Function declarator parameter lists are nonempty: <code>(void)</code> is the no-argument
-form. Calls and lambdas separately permit <code>()</code>. Array dimensions use an
+form. A final <code>List @name</code> or <code>Map @name</code> parameter accepts a rest tail,
+with zero or more fixed parameters before it. A prototype or function-pointer
+type may omit the name, as in <code>List @</code>. It is distinct from C <code>...</code>; see
+<a href="../language.html#list-rest-parameters">List rest parameters</a> and
+<a href="../language.html#map-rest-parameters">Map rest parameters</a>.
+Calls and lambdas separately permit <code>()</code>. Array dimensions use an
 expression; bit-field widths use a primary expression, which can be grouped.
 A full <code>type-operand</code> can contain abstract declarators; <code>type-name</code> only
 contains qualifiers, a specifier, and pointer/reference modifiers. These
@@ -315,15 +330,14 @@ single function declarations owned by that binder. Associated types precede
 members; <code>as</code> and <code>tag</code> are mutually exclusive Var-adoption modifiers.</p>
 <h3 id="d4-interface-modifiers"><a class="header" href="#d4-interface-modifiers">D4. Interface modifiers</a></h3>
 <p><code>private-interface</code> is the top-level visibility dispatch before declaration
-parsing. A leading <code>static</code> on a typedef, protocol body, class, or top-level
-Lisp form also controls source visibility. <code>meta native</code> applies to function
-interfaces. Protocol adoptions permit <code>meta</code> followed by optional <code>static</code>, or
-<code>static</code> alone; protocol bodies reject <code>meta</code>. A file-scope
-<code>module-declaration</code> is the word <code>module</code> followed by an identifier, a type
-keyword, a qualifier, <code>inline</code>, or <code>typedef</code>. It parses as the same
-declaration with <code>static</code> in place of <code>module</code>. See the reference for the
-public/private and compile-time rules. A visible binding named <code>module</code>
-disables the <code>module-declaration</code> form.</p>
+parsing. A leading <code>static</code> on a typedef, protocol body, or class also controls
+source visibility. <code>meta native</code> applies to function interfaces. Protocol
+adoptions permit <code>meta</code> followed by optional <code>static</code>, or <code>static</code> alone;
+protocol bodies reject <code>meta</code>. A file-scope <code>module-declaration</code> is the word
+<code>module</code> followed by an identifier, a type keyword, a qualifier, <code>inline</code>, or
+<code>typedef</code>. It parses as the same declaration with <code>static</code> in place of
+<code>module</code>. See the reference for the public/private and compile-time rules. A
+visible binding named <code>module</code> disables the <code>module-declaration</code> form.</p>
 <h2 id="expression-contracts"><a class="header" href="#expression-contracts">Expression contracts</a></h2>
 <h3 id="e1-casts-selectors-and-braces"><a class="header" href="#e1-casts-selectors-and-braces">E1. Casts, selectors, and braces</a></h3>
 <p>A parenthesized declaration start selects a cast only when the token after <code>)</code>
@@ -343,7 +357,7 @@ continuation: <code>sizeof(a)[0]</code> measures an element.</p>
 identifier; otherwise it parses one cast expression for the Symbol selector.
 An explicit pointer type requires parentheses. Arrays and function types
 are not accepted as direct <code>is</code> type selectors.</p>
-<p>A brace in expression position is a Map when <code>_brace_starts_map</code> sees an
+<p>A brace in expression position is a Map when <code>_brace_starts_map</code> finds an
 Entry macro or the first non-conditional colon before a top-level comma or
 terminator. Otherwise it is an initializer. Consequently <code>{}</code> initially
 parses as an empty composite; its destination can establish Map meaning.
@@ -368,7 +382,7 @@ parentheses without braces do not form a statement expression.</p>
 <tr><td>Binary 3</td><td><code>|</code></td><td>Left</td></tr>
 <tr><td>Binary 4</td><td><code>^</code></td><td>Left</td></tr>
 <tr><td>Binary 5</td><td><code>&amp;</code></td><td>Left</td></tr>
-<tr><td>Binary 6</td><td><code>== != === !==</code></td><td>Left</td></tr>
+<tr><td>Binary 6</td><td><code>== != === !== ~=</code></td><td>Left</td></tr>
 <tr><td>Binary 7</td><td><code>&lt; &lt;= &gt; &gt;= in is</code> (<code>is not</code> included)</td><td>Left</td></tr>
 <tr><td>Binary 8</td><td><code>&lt;&lt; &gt;&gt;</code></td><td>Left</td></tr>
 <tr><td>Binary 9</td><td><code>+ -</code></td><td>Left</td></tr>
@@ -378,8 +392,9 @@ parentheses without braces do not form a statement expression.</p>
 </tbody>
 </table>
 </div>
-<p><code>src/operator-ledger.x</code> defines the binary rows except the contextual <code>is</code>
-handler in <code>src/expressions/expressions.x</code>. Assignment parses a conditional left side;
+<p><code>lib/compiler-meta.x</code> defines the binary rows, and <code>src/operator-ledger.x</code>
+projects their precedence lookups. The contextual <code>is</code> handler lives in
+<code>src/expressions/expressions.x</code>. Assignment parses a conditional left side;
 whether that side is assignable is a semantic question. An expression-bodied
 function uses a full expression, while a lambda expression body uses an
 assignment expression. Calls and literal element lists permit a trailing
@@ -401,12 +416,23 @@ comma. Meta calls such as <code>$name(a, b,)</code> and macro invocations reject
 </div>
 <h3 id="e3-special-primaries"><a class="header" href="#e3-special-primaries">E3. Special primaries</a></h3>
 <p><code>_Generic</code>, <code>va_arg</code>, and <code>offsetof</code> are recognized
-by identifier spelling in <code>_parse_ident_primary</code>. Adjacent C strings join.
+by identifier spelling in <code>_parse_ident_primary</code>. <code>typeof</code>, <code>typeof_unqual</code>,
+<code>__typeof__</code>, and <code>__typeof</code> before <code>(</code> begin a <code>typeof-specifier</code> wherever
+a type specifier can start, by the same spelling test. Adjacent C strings join.
 A following identifier joins that sequence when it is a recorded native
 string macro or is unbound, except <code>in</code>; a bound runtime name does not.
 This is the external <code>native-string-word</code> recognizer.</p>
 <h2 id="statement-directive-and-pattern-contracts"><a class="header" href="#statement-directive-and-pattern-contracts">Statement, directive, and pattern contracts</a></h2>
 <h3 id="g1-positions-and-directives"><a class="header" href="#g1-positions-and-directives">G1. Positions and directives</a></h3>
+<p>At statement start, <code>auto</code> introduces a cleanup region before a block,
+<code>if</code>, <code>while</code>, <code>for</code>, <code>do</code>, <code>switch</code>, <code>match</code>, <code>try</code>, <code>return</code>, <code>raise</code>,
+<code>defer</code>, <code>break</code>, <code>continue</code>, <code>goto</code>, <code>foreach</code>, or <code>with</code>. Before a typed
+function definition, it wraps the body, including an expression body.
+<code>auto (destination)</code> supplies an explicit Scope destination and takes a
+statement or function target. The destination is required between the
+parentheses: <code>auto()</code> is not a form. These native prefixes use ordinary
+statement-decorator expansion; declaration and initializer <code>auto</code> retain
+the managed-object meanings in D1.</p>
 <p>A block accepts declarations and statements;
 a governed position requires one statement. A macro expansion yielding
 multiple block items must respect that difference. <code>parse_governed</code> retains
@@ -426,7 +452,7 @@ lexical mode, so it is not a general substitute for a code-mode <code>{</code>.<
 <p>A match pattern yields a List pattern, which can be static or supplied at
 runtime. Besides a List expression, a visible macro can supply a derived
 pattern. Its arguments are <code>?</code>/<code>*</code> binders with optional identifiers, nested
-macro patterns, or List patterns. <code>${$macro(...)}</code> embeds a derived pattern
+macro patterns, or List patterns. <code>$($macro(...))</code> embeds a derived pattern
 inside a List; in an <code>(expr TYPE CONTENT)</code> pattern its position can request
 only the content. Typed captures use <code>?(Type name)</code> and the type’s Var tag.
 <code>src/literals/literals.x</code> and <code>src/macros/macros.x</code> implement these rules. <code>lib/match/match.x</code>
@@ -447,20 +473,24 @@ they do not create a separate unchecked payload grammar.</p>
 remains the nested-list opener. List elements are separated by token
 boundaries. A comma there is a reader prefix. Array/Map entries use commas.
 Arrays and Maps accept value insertion, while List <code>@</code> additionally splices.
-An inserted value expression uses code mode. Literal meaning, caching, Symbol
+A <code>$(</code> or <code>@(</code> insertion holds one parenthesized expression in code mode. A
+<code>${</code> in data mode opens an evaluated Map whose keys and values use code mode;
+it is never an insertion. Literal meaning, caching, Symbol
 limits, and pattern binders remain subject to the reference’s rules.</p>
 <p>A percent List containing just one reader-prefixed form returns that form
 rather than adding another surrounding list. Quoted Map entries can contain
-<code>${...}</code> with either a computed key followed by <code>:</code> or an Entry macro/slot.
-A String interpolation uses <code>$name</code> or <code>${expression}</code>; the latter also
-supports macro sequence handling where the template parser permits it.</p>
-<p><code>lisp-escape</code> records the contents inside <code>$(</code>, whose outer parentheses also
-form the compile-time Lisp call/list. Templates use <code>@(form)</code> to splice a Lisp
-result at a sequence slot. The ordinary Lisp reader supports lists, four
-reader prefixes, and atomic values; it has no special dotted-pair production.
-Compiler templates add hole capture before evaluation. The EBNF covers
-reading; it does not specify Lisp evaluation, imports, or the available
-compile-time operations.</p>
+<code>$(...)</code> with either a computed key followed by <code>:</code> or an Entry macro/slot.
+A String interpolation uses <code>$name</code> or <code>$(expression)</code>; the latter also
+supports macro sequence handling where the template parser permits it. An
+unescaped <code>${</code> in String text is the retired insertion spelling and is
+reported as an error.</p>
+<p>In code, <code>$</code> followed directly by <code>(</code> is two tokens. In an expression position
+they begin an evaluated List; in a quotation’s code they begin a computed
+hole, and after <code>case</code> they begin a macro-pattern insertion. <code>$</code> followed
+directly by <code>{</code> begins an evaluated Map. Neither is a top-level form. Code has
+no compile-time Lisp production. The runtime Lisp reader supports lists, four reader prefixes, and atomic
+values; it has no special dotted-pair production. The EBNF covers reading; it
+does not specify Lisp evaluation.</p>
 <h2 id="macro-extension-contracts"><a class="header" href="#macro-extension-contracts">Macro extension contracts</a></h2>
 <p>The macro mechanism makes a fixed enumeration of every source spelling
 impossible. These contracts specify how visible definitions extend the
@@ -500,6 +530,7 @@ After a <code>Decl</code> argument, <code>in</code> may replace the separating c
 <tr><td><code>MatchRow</code></td><td>One match arm</td></tr>
 <tr><td><code>Unit</code></td><td>Top-level item</td></tr>
 <tr><td><code>Function</code></td><td>Function definition</td></tr>
+<tr><td><code>Macro</code></td><td>Macro definition or compile-time Macro value</td></tr>
 <tr><td><code>Catch</code>, <code>Captures</code></td><td>Structured template sequence positions; not generic invocation arguments</td></tr>
 </tbody>
 </table>
@@ -509,7 +540,7 @@ capitalization. <code>macro_categories</code> in <code>src/macros/macros.x</code
 Expression, statement, field, entry, enumerator, unit, declaration, and
 decorator results must be applied in compatible positions. Local macro values
 and keyword aliases use their bound signatures too. <code>class</code> and <code>foreach</code>
-are built-in aliases, whose definitions live in <code>etc/builtin-macros.x</code>.
+are built-in aliases, whose definitions live in <code>etc/compiler-prelude.x</code>.
 The remaining built-ins and library macros need no new core productions.
 A bare visible <code>$name</code> can also denote a Macro value without invoking it.
 A direct non-decorator invocation consumes <code>;</code> in unit, block, statement,
@@ -518,7 +549,7 @@ comma list instead. Anonymous open arrow statements omit that terminator.</p>
 <h3 id="m2-definitions-and-bodies"><a class="header" href="#m2-definitions-and-bodies">M2. Definitions and bodies</a></h3>
 <p>A global definition uses a <code>$</code> name; a named local definition omits <code>$</code>; an
 anonymous macro expression omits the name. An Expression result, or
-expression-target Decorator, requires an arrow expression body. A Stmt result
+expression-target or Macro-target Decorator, requires an arrow producer body. A Stmt result
 uses a braced block-item template or an arrow statement (a Stmt
 macro/decorator invocation or an expression statement). Other results use a
 braced category-specific sequence, optionally preceded by <code>=&gt;</code>.  A named
@@ -532,13 +563,17 @@ semicolon selects the canonical form. See <code>_legacy_expression_body</code> a
 <code>using $name</code> declares fresh names; <code>using name</code> retains a file-level binding.
 <code>body-using</code> describes those leading lines.
 A signature can also have a <code>using</code> clause. Sequence parameters must be last.
-Local definitions cannot produce Unit/Declaration results or decorate
+Named local definitions cannot produce Unit/Declaration results or decorate
 Function/Unit/NamedType targets. These restrictions are enforced by
-<code>Definition</code> in <code>src/macros/macros.x</code>.</p>
+<code>Definition</code> in <code>src/macros/macros.x</code>.
+Anonymous Macro values may carry any code-producing result kind; insertion
+still requires a compatible position. Nested definitions can refer to
+enclosing template holes, and their own holes shadow same-spelled outer holes.</p>
 <h3 id="m3-decorators"><a class="header" href="#m3-decorators">M3. Decorators</a></h3>
 <p>The first signature parameter is the target; invocation arguments supply the
 remaining parameters and the following source supplies the target category.
-Targets can be Expr, Stmt, Field, Unit, Function, or NamedType. An identifier
+Targets can be Expr, Stmt, Field, Unit, Function, NamedType, or Macro. A Macro
+target reads one definition or compile-time Macro value. An identifier
 alias omits parentheses when there are no ordinary arguments; a <code>$</code> invocation
 still has its argument parentheses. Unit/Function/NamedType decorators
 therefore extend file scope as well as block/expression positions. Indentation
@@ -549,31 +584,39 @@ must not end with a semicolon. At file scope, a <code>Stmt</code> decorator appl
 function definition captures and decorates the function body. This adaptation
 does not permit arbitrary Unit targets for <code>Stmt</code> decorators. A naked
 file-scope <code>@</code> is rejected. Target placement and alias shadowing follow
-<code>try_parse_macro_target_at</code>, .</p>
+<code>try_parse_macro_target_at</code>.</p>
+<p>A producer that returns a Decorator with no explicit parameters continues by
+reading that decorator’s following target. The final result selects placement.
+Expression producers construct a Decorator literal or call a meta function
+declared <code>Macro</code>; Macro-target producers use an arrow body and preserve the
+captured generator’s result kind when inserting code. Publishing a named
+Decorator does not apply it. A braced anonymous Macro target ends at its
+closing brace without another semicolon. <code>expand</code> uses these rules to capture
+an Expr List, then a Macro, and map its rows. See
+<a href="../language.html#mapping-rows-with-expand">mapping rows</a>.</p>
 <h3 id="m4-quotations"><a class="header" href="#m4-quotations">M4. Quotations</a></h3>
 <p><code>$!(expression)</code> quotes an expression; <code>$!{...}</code> quotes
 block items. <code>$!Kind{...}</code> selects a result kind, Type, or Param. A typed
 quotation <code>$!T{expression}</code> or <code>$!(type){expression}</code> uses a type operand;
-the parenthesized form also accepts <code>$name</code> or <code>${expression}</code> carrying a
+the parenthesized form also accepts <code>$name</code> or <code>$(expression)</code> carrying a
 type. Category names take priority over an ordinary type spelling. The
-quotation captures local <code>$name</code> references and braced value holes according
-to <code>parse_macro_quotation</code>. Typed quotations have context and nesting
+quotation captures local <code>$name</code> references and parenthesized value holes
+according to <code>parse_macro_quotation</code>. Typed quotations have context and nesting
 restrictions described in the reference.</p>
 <h3 id="m5-slots-and-sequences"><a class="header" href="#m5-slots-and-sequences">M5. Slots and sequences</a></h3>
-<p>Inside a template, <code>$name</code> inserts a declared
-hole in a category-compatible position, and <code>@name</code> splices a sequence.
-<code>${expression}</code> and <code>$(...)</code> supply computed syntax in the applicable slot;
-meta calls use the same binding operations. <code>@producer(...)</code> and <code>@(form)</code>
-can supply sequences in positions that accept a sequence slot. Shared
-invocation lookup recognizing <code>@</code> does not permit scalar <code>@</code> calls or
-<code>@</code> definition names. The parser selects the slot’s
-role (expression, type, name, parameter, declarator row, field, entry,
-enumerator, match row, catch, captures, block, or unit) and whether a sequence
-is permitted. In a meta call, a whole <code>$name</code> hole passes its captured value;
-a whole sequence hole passes one List, rather than splicing call arguments.</p>
+<p>Inside a template, <code>$name</code> inserts a declared hole in a category-compatible
+position, and <code>@name</code> splices a sequence. <code>$(expression)</code> and <code>$producer(...)</code>
+meta calls supply computed syntax in the applicable slot. <code>@producer(...)</code> can
+supply sequences in positions that accept a sequence slot. Shared invocation
+lookup recognizing <code>@</code> does not permit scalar <code>@</code> calls or <code>@</code> definition
+names. The parser selects the slot’s role (expression, type, name, parameter,
+declarator row, field, entry, enumerator, match row, catch, captures, block, or
+unit) and whether a sequence is permitted. In a meta call, a whole <code>$name</code> hole
+passes its captured value; a whole sequence hole passes one List, rather than
+splicing call arguments.</p>
 <p>Lambda templates accept <code>&amp;$name</code> capture rows as well as one Captures slot.
-Quoted Arrays accept <code>${@sequence}</code> in an argument-sequence position. Quoted
-Maps accept a bare Entry slot or a slot inside <code>${...}</code>. These slots require a
+Quoted Arrays accept <code>$(@sequence)</code> in an argument-sequence position. Quoted
+Maps accept a bare Entry slot or a slot inside <code>$(...)</code>. These slots require a
 compatible template context. Call arguments, initializer elements, quoted
 Array elements, and raise details also have argument-sequence positions. A
 sequence slot cannot supply several statements where one statement is
@@ -588,7 +631,7 @@ source-unit = ( translation-unit | script-unit ) ;
 script-unit = ? script partition described in grammar.md entry points ? ;
 translation-unit = { unit-item } ;
 module-block = ( "module" , "{" , [ ( c-string , { ( "," , c-string ) } , [ "," ] ) ] , "}" ) ;
-private-interface = ? static typedef, protocol body, class, or Lisp interface item; D4 ? ;
+private-interface = ? static typedef, protocol body, or class; D4 ? ;
 module-declaration = ? module before a file-scope declaration, read as static; D4 ? ;
 unit-item = ( directive |
     static-assert |
@@ -596,14 +639,19 @@ unit-item = ( directive |
     protocol-form |
     macro-definition |
     keyword-definition |
+    unit-alias |
+    unalias |
     private-interface |
     module-declaration |
-    lisp-escape |
     linkage-group |
+    auto-region-function |
     declaration-definition |
     unit-extension ) ;
 linkage-group = ( "extern" , c-string , "{" , { unit-item } , "}" ) ;
 declaration-definition = ( [ ( "meta" , [ "native" ] ) ] , declaration-row , ( ";" | function-body ) ) ;
+auto-region-prefix = ( "auto" , [ ( "(" , assignment , ")" ) ] ) ;
+auto-region-function = ( auto-region-prefix , declaration-row , function-body ) ;
+auto-region-statement = ( auto-region-prefix , ? region target selected in statement position; G1 ? ) ;
 function-body = ( raw-block | ( "=" , "&gt;" , expression , ";" ) ) ;
 import-declaration = ( "import" ,
     c-string ,
@@ -614,24 +662,51 @@ import-member = ( identifier , [ ( "as" , identifier ) ] ) ;
 static-assert = ( "_Static_assert" , "(" , assignment , "," , assignment , ")" , ";" ) ;
 declaration-row = ( declaration-group , { ( "," , declaration-group ) } ) ;
 declaration-group = ( typedef-declaration |
+    ( "auto" , { qualifier } , declaration-name , "=" , assignment ) |
     ( specifiers , declarator-list ) |
     ( specifiers , destructuring-targets , "=" , assignment ) ) ;
 typedef-declaration = ( "typedef" , { qualifier } , type-specifier , declarator-list ) ;
 specifiers = ( { declaration-prefix } , { qualifier } , type-specifier , { trailing-storage } ) ;
-declaration-prefix = ( storage | "inline" | "_Noreturn" | attribute | prefix-macro ) ;
+declaration-prefix = ( storage | "inline" | "_Noreturn" | alignment-specifier | attribute | prefix-macro ) ;
+alignment-specifier = ( "_Alignas" , "(" , ( type-name | expression ) , ")" ) ;
 trailing-storage = ( storage | "inline" | prefix-macro ) ;
 storage = ( ( "extern" , [ c-string ] ) | "static" | "auto" | "register" | "threaded" ) ;
 qualifier = ( "const" | "restrict" | "volatile" ) ;
-type-specifier = ( scalar-specifiers | "Self" | aggregate | enumeration | type-reference | type-slot ) ;
+type-specifier = ( scalar-specifiers |
+    "Self" |
+    aggregate |
+    enumeration |
+    type-reference |
+    typeof-specifier |
+    atomic-specifier |
+    type-slot ) ;
+atomic-specifier = ( "_Atomic" ,
+    ( ( "(" , type-name , ")" ) |
+    scalar-specifiers |
+    type-reference |
+    ( ( "struct" | "union" | "enum" ) , identifier ) ) ) ;
+typeof-specifier = ( ( "typeof" | "typeof_unqual" | "__typeof__" | "__typeof" ) ,
+    "(" ,
+    ( type-name | expression ) ,
+    ")" ) ;
 scalar-specifiers = ( scalar-word , { scalar-word } ) ;
-scalar-word = ( "void" | "char" | "short" | "int" | "long" | "float" | "double" | "signed" | "unsigned" ) ;
+scalar-word = ( "void" |
+    "char" |
+    "short" |
+    "int" |
+    "long" |
+    "float" |
+    "double" |
+    "signed" |
+    "unsigned" |
+    "_Complex" ) ;
 type-reference = ( identifier , [ ( "." , identifier ) ] ) ;
 type-name = ( { qualifier } , type-specifier , { pointer-part } ) ;
 type-operand = declaration-group ;
 declarator-list = ( init-declarator , { ( "," , init-declarator ) } ) ;
-init-declarator = ( ( declarator | declarator-row-slot ) , [ ( "=" , assignment ) ] ) ;
+init-declarator = ( ( declarator | declarator-row-slot ) , [ ( "=" , [ "auto" ] , assignment ) ] ) ;
 declarator = ( { pointer-part } , [ direct-declarator ] , { declarator-suffix } ) ;
-pointer-part = ( "*" | "^" | ( "&amp;" , [ "?" ] ) | qualifier | qualifier-macro ) ;
+pointer-part = ( "*" | ( "&amp;" , [ "?" ] ) | qualifier | qualifier-macro ) ;
 direct-declarator = ( declaration-name | ( "(" , declarator , ")" ) ) ;
 declaration-name = ( identifier | method-name | name-slot ) ;
 method-name = ( method-owner , "." , identifier ) ;
@@ -641,18 +716,28 @@ declarator-suffix = ( ( "[" , [ expression ] , "]" ) |
     ( ":" , primary ) |
     attribute ) ;
 parameter-list = ( parameter , { ( "," , parameter ) } ) ;
-parameter = ( ( { qualifier } , type-specifier , declarator ) | "..." | parameter-slot ) ;
+parameter = ( ( { qualifier } , type-specifier , declarator ) |
+    "..." |
+    ( ( "List" | "Map" ) , "@" , [ identifier ] ) |
+    parameter-slot ) ;
 destructuring-targets = ( "(" , identifier , "," , identifier , { ( "," , identifier ) } , ")" ) ;
 typed-destructuring = ( "(" , parameter-list , ")" , "=" , assignment , ";" ) ;
 aggregate = ( ( "struct" | "union" ) ,
     { attribute } ,
     [ declaration-name ] ,
     [ ( "{" , field , { field } , "}" , { attribute } ) ] ) ;
-field = ( ( [ "delegate" ] , declaration-row , ";" ) | static-assert | field-extension ) ;
+field = ( ( [ "delegate" ] , declaration-row , ";" ) |
+    static-assert |
+    field-alias |
+    field-extension ) ;
 enumeration = ( "enum" ,
     { attribute } ,
     [ declaration-name ] ,
-    [ ( "{" , [ ( enumerator , { ( "," , enumerator ) } , [ "," ] ) ] , "}" , { attribute } ) ] ) ;
+    [ ( "{" , enumerator-list , "}" , { attribute } ) ] ) ;
+enumerator-list = ( { enumerator-alias } ,
+    [ ( enumerator ,
+    { ( "," , { enumerator-alias } , enumerator ) } ,
+    [ ( "," , { enumerator-alias } ) ] ) ] ) ;
 enumerator = ( ( declaration-name , [ ( "=" , conditional ) ] ) | enumerator-extension ) ;
 named-type = ( ( identifier ,
     ( ";" |
@@ -690,10 +775,13 @@ block = ( ( "{" | "%{" ) , { block-item } , "}" ) ;
 block-item = ( directive |
     static-assert |
     ( declaration-row , ";" ) |
+    named-alias |
+    unalias |
     local-macro-definition |
     statement |
     block-extension ) ;
-statement = ( block |
+statement = ( auto-region-statement |
+    block |
     ";" |
     ( expression , ";" ) |
     typed-destructuring |
@@ -718,13 +806,25 @@ statement = ( block |
     ( "goto" , declaration-name , ";" ) |
     ( "defer" , governed ) |
     with-statement |
+    alias-statement |
     match-statement |
     try-statement |
     raise-statement |
     statement-extension ) ;
 for-init = ( type-operand | expression ) ;
 governed = ? one statement, with directive handling G1 ? ;
-with-statement = ( "with" , expression , [ ( "as" , identifier ) ] , raw-block ) ;
+with-statement = ( "with" , "(" , with-entry , { ( "," , with-entry ) } , ")" , raw-block ) ;
+with-entry = ( unary , "=" , assignment ) ;
+alias-head = ( "alias" , expression ) ;
+alias-name = ( "as" , identifier ) ;
+alias-to = ( "alias" , identifier , "to" , expression ) ;
+named-alias = ( ( ( alias-head , alias-name ) | alias-to ) , ";" ) ;
+alias-wrapper = ( ( alias-head , [ alias-name ] ) | alias-to ) ;
+alias-statement = ( alias-wrapper , raw-block ) ;
+unalias = ( "unalias" , identifier , ";" ) ;
+unit-alias = ( [ "static" ] , ( named-alias | ( alias-wrapper , "{" , { unit-item } , "}" ) ) ) ;
+field-alias = ( named-alias | unalias | ( alias-wrapper , "{" , { field } , "}" ) ) ;
+enumerator-alias = ( named-alias | unalias | ( alias-wrapper , "{" , enumerator-list , "}" ) ) ;
 match-statement = ( "match" ,
     "(" ,
     expression ,
@@ -760,7 +860,8 @@ logical-and = ( bitwise-or , { ( "&amp;&amp;" , bitwise-or ) } ) ;
 bitwise-or = ( bitwise-xor , { ( "|" , bitwise-xor ) } ) ;
 bitwise-xor = ( bitwise-and , { ( "^" , bitwise-and ) } ) ;
 bitwise-and = ( equality , { ( "&amp;" , equality ) } ) ;
-equality = ( relational , { ( ( "==" | "!=" | "===" | "!==" ) , relational ) } ) ;
+equality = ( relational ,
+    { ( ( ( "==" | "!=" | "===" | "!==" ) , relational ) | ( "~=" , pattern ) ) } ) ;
 relational = ( shift ,
     { ( ( ( "&lt;" | "&lt;=" | "&gt;" | "&gt;=" | "in" ) , shift ) | ( "is" , [ "not" ] , type-selector ) ) } ) ;
 type-selector = ( type-name | ( "(" , type-name , ")" ) | cast ) ;
@@ -795,6 +896,8 @@ primary = ( atomic |
     initializer |
     array |
     map |
+    evaluated-list |
+    evaluated-map |
     quoted-list |
     quoted-array |
     quoted-map |
@@ -804,7 +907,6 @@ primary = ( atomic |
     generic |
     va-arg |
     offsetof |
-    lisp-escape |
     macro-expression |
     quotation |
     expression-slot ) ;
@@ -818,6 +920,12 @@ designator = ( ( "." , identifier ) | ( "[" , assignment , "]" ) ) ;
 array = ( "[" , [ ( assignment , { ( "," , assignment ) } , [ "," ] ) ] , "]" ) ;
 map = ( "{" , [ ( map-entry , { ( "," , map-entry ) } , [ "," ] ) ] , "}" ) ;
 map-entry = ( ( ( identifier | assignment ) , ":" , assignment ) | entry-extension ) ;
+evaluated-list = ( "$" , "(" , [ ( evaluated-item , { ( "," , evaluated-item ) } , [ "," ] ) ] , ")" ) ;
+evaluated-item = ( assignment | ( "@" , identifier ) | ( "@" , "(" , expression , ")" ) ) ;
+evaluated-map = ( ( ( "$" , "{" ) | "${" ) ,
+    [ ( evaluated-entry , { ( "," , evaluated-entry ) } , [ "," ] ) ] ,
+    "}" ) ;
+evaluated-entry = ( ( assignment , ":" , assignment ) | entry-extension ) ;
 generic = ( "_Generic" ,
     "(" ,
     assignment ,
@@ -844,20 +952,20 @@ capture-list = ( ( "&amp;" , capture-name , { ( "," , "&amp;" , capture-name ) }
 capture-name = ( identifier | name-slot ) ;
 quoted-list = ( "%(" , { list-element } , ")" ) ;
 nested-list = ( "(" , { list-element } , ")" ) ;
-list-element = ( literal-element | insertion | splice | ( reader-prefix , list-element ) ) ;
+list-element = ( literal-element | insertion | splice | evaluated-map | ( reader-prefix , list-element ) ) ;
 literal-element = ( atomic | nested-list | quoted-array | quoted-map | percent-string | typed-capture ) ;
-insertion = ( ( "$" , identifier ) | ( "${" , expression , "}" ) ) ;
-splice = ( ( "@" , identifier ) | ( "@{" , expression , "}" ) ) ;
+insertion = ( ( "$" , identifier ) | ( "$(" , expression , ")" ) ) ;
+splice = ( ( "@" , identifier ) | ( "@(" , expression , ")" ) ) ;
 reader-prefix = ( "\'" | "`" | "," | ",@" ) ;
 typed-capture = ( "?(" , type-name , identifier , ")" ) ;
 quoted-array = ( "%[" , [ ( quoted-array-item , { ( "," , quoted-array-item ) } , [ "," ] ) ] , "]" ) ;
-quoted-array-item = ( data-element | argument-slot | ( "${" , argument-slot , "}" ) ) ;
-data-element = ( literal-element | insertion ) ;
+quoted-array-item = ( data-element | argument-slot | ( "$(" , argument-slot , ")" ) ) ;
+data-element = ( literal-element | insertion | evaluated-map ) ;
 quoted-map = ( "%{" , [ ( quoted-entry , { ( "," , quoted-entry ) } , [ "," ] ) ] , "}" ) ;
 quoted-entry = ( ( data-element , ":" , data-element ) | entry-extension | quoted-entry-extension ) ;
-quoted-entry-extension = ( "${" , entry-extension , "}" ) ;
+quoted-entry-extension = ( "$(" , entry-extension , ")" ) ;
 percent-string = ( "%\"" , { ( string-segment | insertion ) } , "\"" ) ;
-symbol-set = ( "%&lt;&lt;" , { symbol-set-member } , "&gt;&gt;" ) ;
+symbol-set = ( "%&lt;" , { symbol-set-member } , "&gt;" ) ;
 symbol-set-member = ? symbol-set-mode lit-atom or lit-symbol ? ;
 unit-extension = ( class-declaration | unit-macro | decorator ) ;
 class-declaration = ( "class" , named-type ) ;
@@ -885,7 +993,7 @@ meta-call = ( macro-name , "(" , [ ( meta-argument , { ( "," , meta-argument ) }
 meta-argument = ( assignment | meta-value-hole ) ;
 meta-value-hole = ? whole template hole passed as a value, under M5 ? ;
 macro-arguments = ? signature-directed argument sequence; contract M1 ? ;
-decorator = ? visible decorator invocation followed by its target; M3 ? ;
+decorator = ? visible decorator invocation followed by its target; returned zero-argument Decorators continue onto their next target; M3 ? ;
 quotation = ( "$" ,
     "!" ,
     ( ( "(" , expression , ")" ) |
@@ -893,7 +1001,7 @@ quotation = ( "$" ,
     ( quotation-type , "{" , expression , "}" ) ) ) ;
 quotation-kind = ( result-kind | "Type" | "Param" ) ;
 quotation-type = ? type operand or computed type under M4 ? ;
-quotation-items = ? contents selected by quotation kind, with ${expr} and @{expr} holes; M4 ? ;
+quotation-items = ? contents selected by quotation kind, with $(expr) and @(expr) holes; M4 ? ;
 result-kind = ( "Expr" |
     "Expression" |
     "Stmt" |
@@ -912,6 +1020,7 @@ hole-kind = ( "Expr" |
     "Unit" |
     "Function" |
     "NamedType" |
+    "Macro" |
     "Type" |
     "Decl" |
     "DeclaratorRow" |
@@ -937,11 +1046,6 @@ statement-macro = ? statement-position macro/slot under M1-M5 ? ;
 field-extension = ? field-position macro/slot under M1-M5 ? ;
 enumerator-extension = ? enumerator-position macro/slot under M1-M5 ? ;
 entry-extension = ? map-entry-position macro/slot under M1-M5 ? ;
-lisp-escape = ( "$(" , { lisp-form } , ")" ) ;
-lisp-form = ( lisp-atom | ( "(" , { lisp-form } , ")" ) | ( reader-prefix , lisp-form ) | lisp-hole ) ;
-lisp-atom = ( integer | floating | c-string | symbol | lisp-identifier ) ;
-lisp-hole = ? template hole in compiler Lisp; M5 ? ;
-lisp-identifier = ? ident token in Lisp mode ? ;
 identifier = ? identifier accepted in the current name position; D1 ? ;
 integer = ? lit-int ? ;
 floating = ? lit-float ? ;
@@ -954,7 +1058,7 @@ directive = ? preproc token retained/selected by preprocessing; G1 ? ;
 </code></pre>
 <h2 id="coverage-and-validation-limits"><a class="header" href="#coverage-and-validation-limits">Coverage and validation limits</a></h2>
 <p>The inventory covers declarations, types, expressions, statements, literals,
-protocols, macro syntax, embedded Lisp reading, and script entry selection.
+protocols, macro syntax, runtime Lisp reading, and script entry selection.
 External recognizers cover: native annotation contents, dynamic macro
 signatures, context-sensitive names, slots, and pattern recognition. The
 accompanying lexical specification covers raw source and layout spelling.</p>
@@ -966,6 +1070,14 @@ imported C dialects, and arbitrary compile-time evaluation remain outside that
 claim.</p>
 
                     </main>
+                    <script>
+                        // A generated page is edited through its generator.
+                        if ([...document.querySelector('#mdbook-content main').childNodes]
+                                .some(node => node.nodeType === Node.COMMENT_NODE &&
+                                      node.textContent.includes('Do not edit by hand'))) {
+                            document.querySelector('a[rel="edit"]')?.remove();
+                        }
+                    </script>
 
                     <nav class="x2c-pager" aria-label="Page navigation">
                         <a rel="prev" href="../../reference/syntax/index.html" class="x2c-pager-prev" aria-keyshortcuts="Left">
@@ -982,9 +1094,9 @@ claim.</p>
                         &copy; 2025&ndash;2026
                         <a href="https://flake.org">GWF</a>
                         &middot;
-                        <a href="https://github.com/gwf/x2c/blob/aa2b9b2575297711e5978acc53f87bd7f645f3c7/LICENSE">Apache 2.0</a>
+                        <a href="https://github.com/gwf/x2c/blob/2c5870d64d381a861054dae9927aa65adc87e9e0/LICENSE">Apache 2.0</a>
                         &middot;
-                        <a href="https://github.com/gwf/x2c/blob/aa2b9b2575297711e5978acc53f87bd7f645f3c7/TRADEMARKS.md">Trademarks</a>
+                        <a href="https://github.com/gwf/x2c/blob/2c5870d64d381a861054dae9927aa65adc87e9e0/TRADEMARKS.md">Trademarks</a>
                     </footer>
                 </div>
             </div>

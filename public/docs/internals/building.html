@@ -1,6 +1,6 @@
 <!DOCTYPE HTML>
 <html lang="en" class="light sidebar-visible" dir="ltr">
-    <head><meta name="x2c-release-channel" content="staging"><meta name="x2c-candidate" content="candidate-aa2b9b2575297711e5978acc53f87bd7f645f3c7-39090113132-1">
+    <head><meta name="x2c-release-channel" content="staging"><meta name="x2c-candidate" content="candidate-aa2b9b2575297711e5978acc53f87bd7f645f3c7-39090113132-1"><meta name="x2c-site-source" content="2c5870d64d381a861054dae9927aa65adc87e9e0"><meta name="robots" content="noindex">
         <!-- Book generated using mdBook -->
         <meta charset="UTF-8">
         <title>Building the Compiler - The x2c Book</title>
@@ -30,7 +30,7 @@
         <link rel="stylesheet" id="mdbook-ayu-highlight-css" href="../ayu-highlight-3fdfc3ac.css">
 
         <!-- Custom theme stylesheets -->
-        <link rel="stylesheet" href="../theme/header-f6c12aed.css">
+        <link rel="stylesheet" href="../theme/header-b540a03f.css">
         <link rel="stylesheet" href="../theme/x2c-fd3d182e.css">
 
 
@@ -39,12 +39,12 @@
             const path_to_root = "../";
             const default_light_theme = "light";
             const default_dark_theme = "light";
-            window.path_to_searchindex_js = "../searchindex-f4d06db2.js";
+            window.path_to_searchindex_js = "../searchindex-a3bdfad5.js";
         </script>
         <!-- Start loading toc.js asap -->
-        <script src="../toc-00ae7479.js"></script>
+        <script src="../toc-2248e0f3.js"></script>
         <!-- x2c publication metadata -->
-        <link rel="canonical" href="https://staging.x2c-lang.dev/docs/internals/building.html">
+        <link rel="canonical" href="https://x2c-lang.dev/docs/internals/building.html">
         <meta property="og:type" content="website">
         <meta property="og:title" content="Building the Compiler - The x2c Book">
         <meta property="og:description" content="The x2c language, standard library, and compiler.">
@@ -143,16 +143,12 @@
                             <button class="landing-tagline menu-title" type="button" title="Scroll to top">The x2c Book</button>
                         </div>
                         <nav class="landing-nav" aria-label="x2c website">
-                            <div class="landing-page-nav">
-                                <a href="../../#love">love</a>
-                                <a href="../../#power">power</a>
-                                <a href="../../#magic">magic</a>
-                            </div>
                             <div class="landing-site-nav">
                                 <a href="../../#install">install</a>
                                 <a href="../../#packages">packages</a>
                             </div>
                             <div class="landing-reference-nav">
+                                <a href="../../examples/">examples</a>
                                 <a href="../../about/">about</a>
                                 <a href="../" aria-current="page">docs</a>
                                 <a href="https://github.com/gwf/x2c">source</a>
@@ -220,9 +216,11 @@
                     <main>
                         <h1 id="building-the-compiler"><a class="header" href="#building-the-compiler">Building the Compiler</a></h1>
 <p>Language users can skip this chapter. It describes how the self-hosting
-repository builds itself and what a contributor is expected to rebuild.</p>
+repository builds itself from a source checkout and which files each build
+step regenerates.</p>
 <p>A source checkout needs a GCC- or Clang-compatible C compiler, <code>ar</code>,
-GNU Make, Python 3, and <code>/bin/bash</code>. Python runs repository build tooling.</p>
+GNU Make, and <code>/bin/bash</code>. Optional package preparation and repository
+checks also use Python 3.</p>
 <h2 id="check-build-prerequisites"><a class="header" href="#check-build-prerequisites">Check build prerequisites</a></h2>
 <p>From the repository root:</p>
 <pre><code class="language-sh">./configure
@@ -230,11 +228,15 @@ GNU Make, Python 3, and <code>/bin/bash</code>. Python runs repository build too
 <p>This reports missing core build tools together, with installation guidance.
 It checks the selected <code>CC</code> and <code>AR</code>, and <code>X2C_CC</code> when set. It does not
 compile anything or write a configuration file. <code>make configure</code> runs the
-same report. <code>make build</code> and <code>make build-safe</code> run it automatically before
-bootstrap work or cleaning.</p>
+same report. In a Git checkout whose <code>core.hooksPath</code> is unset, it also sets
+<code>core.hooksPath</code> to <code>tools/hooks</code> in the repository configuration, which
+every worktree of the repository shares. Because the value is relative, each
+worktree runs the <code>tools/hooks/pre-push</code> of its own checkout. <code>make build</code>
+and <code>make build-safe</code> run <code>make configure</code> automatically before bootstrap
+work or cleaning.</p>
 <p>For optional packages, use <code>./configure --packages</code>, or name only the ones
 you intend to build, such as <code>./configure --packages termbox2</code>. See the
-<a href="https://github.com/gwf/x2c/blob/aa2b9b2575297711e5978acc53f87bd7f645f3c7/packages/README.md">package instructions</a> for native dependencies.
+<a href="https://github.com/gwf/x2c/blob/2c5870d64d381a861054dae9927aa65adc87e9e0/packages/README.md">package instructions</a> for native dependencies.
 These reports check command availability and required OpenSSL Perl modules;
 upstream configure scripts and compilers still check platform support.</p>
 <h2 id="why-a-bootstrap-exists"><a class="header" href="#why-a-bootstrap-exists">Why a bootstrap exists</a></h2>
@@ -257,11 +259,23 @@ which <a href="architecture.html#the-self-host-build">the self-host build</a> ex
 <ul>
 <li>Runtime and compiler behavior is written in <code>.x</code> sources.</li>
 <li>Numbered build directories are generated and untracked.</li>
-<li>The tracked generated outputs are the portable bootstrap C under
-<code>bootstrap/</code>, the runtime aggregator <code>lib/x2c.x</code>, and what
-<code>make doc-generate</code> writes: <code>agents/x2c-module-catalog.md</code>,
-<code>docs/src/internals/compiler-api/</code>, <code>docs/src/library/modules/</code>, and
-<code>site/public/llms.txt</code> with <code>llms-full.txt</code>.</li>
+<li>The tracked generated outputs are:
+<ul>
+<li>the portable bootstrap C under <code>bootstrap/</code>, which
+<code>make bootstrap-refresh</code> rewrites;</li>
+<li>the runtime aggregator <code>lib/x2c.x</code>, the shipped <code>meta</code> code compiled
+into the compiler, <code>src/linked-meta.x</code>, and the meta helper’s compiler
+queries, <code>etc/meta-queries.x</code>, which <code>make build</code> and every target that
+depends on it rewrite when they are stale;</li>
+<li>what <code>make doc-generate</code> writes: <code>agents/x2c-module-catalog.md</code>,
+<code>docs/src/internals/compiler-api/</code>, <code>docs/src/library/modules/</code>, their
+sections of <code>docs/src/SUMMARY.md</code>, and <code>site/public/llms.txt</code> with
+<code>llms-full.txt</code>;</li>
+<li><code>docs/src/reference/syntax/x2c.ebnf</code> and
+<code>docs/src/reference/syntax/lexical-data.md</code>, which
+<code>tools/syntax-spec write</code> renders from <code>etc/syntax/</code>.</li>
+</ul>
+</li>
 </ul>
 <p>Do not hand-edit any of them; regenerate them with their targets.</p>
 <h2 id="unit-interfaces-and-native-bindings"><a class="header" href="#unit-interfaces-and-native-bindings">Unit interfaces and native bindings</a></h2>
@@ -278,17 +292,74 @@ identifier names are exact <code>String</code>s, and a nullary function uses the
 parameter <code>Type</code> <code>(void)</code>. Ordinary adapters and Lisp bindings build the
 same signature: a typedef parameter, reference target, or result keeps its
 declared name, such as <code>("Byte")</code> or <code>(&amp; "Byte")</code>.</p>
-<h2 id="contributor-checks"><a class="header" href="#contributor-checks">Contributor checks</a></h2>
-<p><code>make doc-examples</code> compiles the book and website samples, including the
-PCRE2 import example. Prepare that optional package first with
-<code>make -C packages/pcre2 build</code>; the checker uses its generated headers and
-prepared dependency includes. It does not fetch dependencies itself.</p>
-<p>For testing, style, debugging, and bootstrap-refresh instructions, start with
-<a href="https://github.com/gwf/x2c/blob/dev/agents/README.md"><code>agents/README.md</code></a>.</p>
+<h2 id="webassembly-runtime-and-programs"><a class="header" href="#webassembly-runtime-and-programs">WebAssembly runtime and programs</a></h2>
+<p>The optional browser target uses Emscripten Memory64 (<code>-m64</code>). It keeps the
+language’s 64-bit <code>long</code>, pointers, and <code>Var</code> representation. Install
+Emscripten and Node separately, then run from the checkout root:</p>
+<pre><code class="language-sh">make wasm-runtime
+tools/wasm-build examples/tours/language.x /tmp/language
+node --input-type=module -e \
+  'import("file:///tmp/language.js").then(m =&gt; m.default())'
+</code></pre>
+<p><code>make wasm-runtime</code> builds stage zero, compiles its generated runtime C, and
+writes <code>builds/wasm/libx2c.a</code>. <code>tools/wasm-build</code> translates one <code>.x</code> file
+and links the whole archive directly with Emscripten. It writes an ES module
+loader (<code>.js</code>) and a <code>.wasm</code> file beside the requested output stem. The
+native runtime archive is never passed to this link. Neither command is
+part of <code>make check</code>; the manual check workflow has an optional wasm job.</p>
+<p>The build defaults to <code>emcc</code>, <code>emar</code>, signed characters, size optimization,
+and Emscripten longjmp support. <code>WASM_CC</code>, <code>WASM_AR</code>, and <code>WASM_CFLAGS</code>
+override the corresponding build settings. <code>tools/wasm-build</code> also accepts
+whitespace-separated linker options in <code>WASM_LDFLAGS</code>, without evaluating
+shell syntax. Retain <code>-m64</code> and <code>-sSUPPORT_LONGJMP=emscripten</code> when changing
+compiler flags. The loader supports browsers, workers, and Node; Node must
+support Memory64 and ES modules. Node 26 can load the generated <code>.js</code>
+module directly as shown above.</p>
+<p>Programs use a temporary in-memory filesystem. Source files and host data
+are not copied into it automatically. For example, the exceptions gallery
+sample requires its fixtures at the same virtual path:</p>
+<pre><code class="language-sh">WASM_LDFLAGS='--embed-file examples/data/power-exceptions' \
+  tools/wasm-build examples/power/exceptions.x /tmp/exceptions
+</code></pre>
+<p>Program memory starts at 64 MB and can grow to 256 MB; the stack is 8 MB.
+Threads, process execution, native TCP sockets, and HTTP servers are
+unsupported in this single-threaded browser build. <code>Job</code>, <code>File.popen</code>,
+<code>Thread</code>, <code>Channel</code>, <code>Dispatch</code>, and pool workers cannot provide their native
+behavior. In-memory HTTP parsing, routing, and response construction remain
+available. Browser execution requires Memory64;
+check the playground’s support notice before running a program.</p>
+<h2 id="installation-layouts-and-release-candidates"><a class="header" href="#installation-layouts-and-release-candidates">Installation layouts and release candidates</a></h2>
+<p>With no <code>PREFIX</code>, <code>make install</code> runs <code>make build-install</code>: it copies the
+development compiler to <code>bin/x2c-&lt;branch&gt;</code>, links <code>bin/x2c</code> to that copy, and
+installs the shipped commands under <code>libexec/x2c/</code>.</p>
+<p><code>tools/check-install-script.sh</code> exercises the release installer against a
+release layout built from the current tree. The <code>check</code> workflow’s
+<code>windows_spike</code> input tests the WSL2 and MSYS2 routes.</p>
+<p>Install a shared prefix from a tagged <code>main</code>, so a defect seen through it
+reproduces for every user. Validate a staging candidate in a fresh scratch
+prefix with its explicit package index, then remove that prefix. The staging
+site supplies the candidate installer and commands; a bare <code>x2c install</code>
+uses the production package index. The compiler version alone does not
+distinguish two candidates of the same version.</p>
+<p>The feature records in <code>etc/syntax/extensions.x</code> connect each syntax family
+to grammar productions, lexical rules, example spellings, and a reference
+section. The table in <a href="../guide/x2c-syntax-map.html">What <span class="x2c-wordmark">x2c</span> Adds to C Syntax</a>
+is generated from those records.</p>
+<h2 id="checking-book-samples"><a class="header" href="#checking-book-samples">Checking book samples</a></h2>
+<p><code>make doc-examples</code> compiles the book and website samples. No checked sample
+imports an optional package, so the check needs no package preparation.</p>
 <p>See <a href="architecture.html">Compiler Architecture</a> for the translation phases and
 the <a href="implementation-map.html">Implementation Map</a> for feature ownership.</p>
 
                     </main>
+                    <script>
+                        // A generated page is edited through its generator.
+                        if ([...document.querySelector('#mdbook-content main').childNodes]
+                                .some(node => node.nodeType === Node.COMMENT_NODE &&
+                                      node.textContent.includes('Do not edit by hand'))) {
+                            document.querySelector('a[rel="edit"]')?.remove();
+                        }
+                    </script>
 
                     <nav class="x2c-pager" aria-label="Page navigation">
                         <a rel="prev" href="../internals/implementation-map.html" class="x2c-pager-prev" aria-keyshortcuts="Left">
@@ -298,16 +369,16 @@ the <a href="implementation-map.html">Implementation Map</a> for feature ownersh
                         
                         <a rel="next prefetch" href="../internals/reference-lisp.html" class="x2c-pager-next" aria-keyshortcuts="Right">
                             <span class="x2c-pager-label">next</span>
-                            <span class="x2c-pager-title">A Recursive Lisp in x2c</span>
+                            <span class="x2c-pager-title">Literate Lisp in x2c</span>
                         </a>
                     </nav>
                     <footer class="x2c-footer">
                         &copy; 2025&ndash;2026
                         <a href="https://flake.org">GWF</a>
                         &middot;
-                        <a href="https://github.com/gwf/x2c/blob/aa2b9b2575297711e5978acc53f87bd7f645f3c7/LICENSE">Apache 2.0</a>
+                        <a href="https://github.com/gwf/x2c/blob/2c5870d64d381a861054dae9927aa65adc87e9e0/LICENSE">Apache 2.0</a>
                         &middot;
-                        <a href="https://github.com/gwf/x2c/blob/aa2b9b2575297711e5978acc53f87bd7f645f3c7/TRADEMARKS.md">Trademarks</a>
+                        <a href="https://github.com/gwf/x2c/blob/2c5870d64d381a861054dae9927aa65adc87e9e0/TRADEMARKS.md">Trademarks</a>
                     </footer>
                 </div>
             </div>

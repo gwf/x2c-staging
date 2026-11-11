@@ -1,6 +1,6 @@
 <!DOCTYPE HTML>
 <html lang="en" class="light sidebar-visible" dir="ltr">
-    <head><meta name="x2c-release-channel" content="staging"><meta name="x2c-candidate" content="candidate-aa2b9b2575297711e5978acc53f87bd7f645f3c7-39090113132-1">
+    <head><meta name="x2c-release-channel" content="staging"><meta name="x2c-candidate" content="candidate-aa2b9b2575297711e5978acc53f87bd7f645f3c7-39090113132-1"><meta name="x2c-site-source" content="2c5870d64d381a861054dae9927aa65adc87e9e0"><meta name="robots" content="noindex">
         <!-- Book generated using mdBook -->
         <meta charset="UTF-8">
         <title>Programming Idioms - The x2c Book</title>
@@ -30,7 +30,7 @@
         <link rel="stylesheet" id="mdbook-ayu-highlight-css" href="../ayu-highlight-3fdfc3ac.css">
 
         <!-- Custom theme stylesheets -->
-        <link rel="stylesheet" href="../theme/header-f6c12aed.css">
+        <link rel="stylesheet" href="../theme/header-b540a03f.css">
         <link rel="stylesheet" href="../theme/x2c-fd3d182e.css">
 
 
@@ -39,12 +39,12 @@
             const path_to_root = "../";
             const default_light_theme = "light";
             const default_dark_theme = "light";
-            window.path_to_searchindex_js = "../searchindex-f4d06db2.js";
+            window.path_to_searchindex_js = "../searchindex-a3bdfad5.js";
         </script>
         <!-- Start loading toc.js asap -->
-        <script src="../toc-00ae7479.js"></script>
+        <script src="../toc-2248e0f3.js"></script>
         <!-- x2c publication metadata -->
-        <link rel="canonical" href="https://staging.x2c-lang.dev/docs/guide/idioms.html">
+        <link rel="canonical" href="https://x2c-lang.dev/docs/guide/idioms.html">
         <meta property="og:type" content="website">
         <meta property="og:title" content="Programming Idioms - The x2c Book">
         <meta property="og:description" content="The x2c language, standard library, and compiler.">
@@ -143,16 +143,12 @@
                             <button class="landing-tagline menu-title" type="button" title="Scroll to top">The x2c Book</button>
                         </div>
                         <nav class="landing-nav" aria-label="x2c website">
-                            <div class="landing-page-nav">
-                                <a href="../../#love">love</a>
-                                <a href="../../#power">power</a>
-                                <a href="../../#magic">magic</a>
-                            </div>
                             <div class="landing-site-nav">
                                 <a href="../../#install">install</a>
                                 <a href="../../#packages">packages</a>
                             </div>
                             <div class="landing-reference-nav">
+                                <a href="../../examples/">examples</a>
                                 <a href="../../about/">about</a>
                                 <a href="../" aria-current="page">docs</a>
                                 <a href="https://github.com/gwf/x2c">source</a>
@@ -220,8 +216,8 @@
                     <main>
                         <h1 id="programming-idioms"><a class="header" href="#programming-idioms">Programming Idioms</a></h1>
 <p>Use the shipped <a href="system-macros.html">classes and system macros</a> where they
-express a complete constructor or block lifetime: <code>$auto</code> for an owned local,
-<code>$scope</code> for a region, <code>$let</code> for saved storage, and <code>$lock</code> for a Mutex.</p>
+express a complete constructor or block lifetime: initializer <code>auto</code> for an owned local,
+region <code>auto</code> for a region, <code>with</code> for saved storage, and <code>$lock</code> for a Mutex.</p>
 <p>These idioms combine the features introduced in the guide.</p>
 <h2 id="keep-native-values-native"><a class="header" href="#keep-native-values-native">Keep native values native</a></h2>
 <p>Use C scalar, pointer, struct, union, and enum types when the value’s type is
@@ -328,8 +324,8 @@ the dynamic type of an arbitrary value.</p>
 </span><span class="line boring"><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">}</span></span></code></pre>
 
 <p>Prefer a function when the job is runtime computation. Prefer direct source
-when a macro needs substantial compile-time Lisp or AST manipulation to save a
-few tokens. The macro body, imports, and generated declarations are part of the
+when a macro needs substantial <code>meta</code> code or AST manipulation to save a few
+tokens. The macro body, imports, and generated declarations are part of the
 maintenance cost.</p>
 <h2 id="write-generated-code-as-the-code-it-builds"><a class="header" href="#write-generated-code-as-the-code-it-builds">Write generated code as the code it builds</a></h2>
 <p>A <code>meta</code> function that returns code should show that code. A quotation
@@ -344,7 +340,7 @@ explains each form with examples.</p>
 <tbody>
 <tr><td>Code with one shape at several sites</td><td>a named macro, applied from the function as in <a href="generating-code.html#source-templates-from-meta-functions">source templates</a></td></tr>
 <tr><td>Code that one function builds</td><td>a quotation: <code>$!( expression )</code>, <code>$!{ statements }</code>, or <code>$!Unit{ ... }</code></td></tr>
-<tr><td>Code that uses a field, an element, or a call result</td><td>a <a href="generating-code.html#holes-that-name-an-expression"><code>${expression}</code> hole</a>, evaluated once where the quotation is written</td></tr>
+<tr><td>Code that uses a field, an element, or a call result</td><td>a <a href="generating-code.html#holes-that-name-an-expression"><code>$(expression)</code> hole</a>, evaluated once where the quotation is written</td></tr>
 <tr><td>Code in which separate quotations share one name</td><td><code>List name = x2c_ident("total");</code>, then <code>$name</code> in each quotation</td></tr>
 <tr><td>An expression whose type is read before it lands</td><td>a <a href="generating-code.html#code-that-knows-its-type">typed quotation</a>, such as <code>$!double{ $value * 2 }</code></td></tr>
 <tr><td>Code the function inspects before it returns</td><td>a typed quotation, which builds the code where it is written</td></tr>
@@ -395,8 +391,11 @@ fixed positions:</p>
 </span><span class="line"><span style="--shiki-light:#D73A49;--shiki-dark:#F0ADA1">int</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF"> (start, stop, step) </span><span style="--shiki-light:#D73A49;--shiki-dark:#E9E5DF">=</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF"> bounds;</span>
 </span><span class="line">
 </span><span class="line"><span style="--shiki-light:#007C8A;--shiki-dark:#29D3E2">List</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF"> record </span><span style="--shiki-light:#D73A49;--shiki-dark:#E9E5DF">=</span><span style="--shiki-light:#A626A4;--shiki-light-font-weight:bold;--shiki-dark:#FF4FD8;--shiki-dark-font-weight:bold"> %(</span><span style="--shiki-light:#005CC5;--shiki-dark:#A9C9F5">7</span><span style="--shiki-light:#005CC5;--shiki-dark:#A9C9F5"> 2.5</span><span style="--shiki-light:#A626A4;--shiki-light-font-weight:bold;--shiki-dark:#FF4FD8;--shiki-dark-font-weight:bold"> "</span><span style="--shiki-light:#032F62;--shiki-dark:#9EDFB8">ready</span><span style="--shiki-light:#A626A4;--shiki-light-font-weight:bold;--shiki-dark:#FF4FD8;--shiki-dark-font-weight:bold">"</span><span style="--shiki-light:#A626A4;--shiki-light-font-weight:bold;--shiki-dark:#FF4FD8;--shiki-dark-font-weight:bold">)</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">;</span>
-</span><span class="line"><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">(</span><span style="--shiki-light:#D73A49;--shiki-dark:#F0ADA1">int</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF"> id, </span><span style="--shiki-light:#D73A49;--shiki-dark:#F0ADA1">float</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF"> score, </span><span style="--shiki-light:#007C8A;--shiki-dark:#29D3E2">String</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF"> state) </span><span style="--shiki-light:#D73A49;--shiki-dark:#E9E5DF">=</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF"> record;</span></span></code></pre>
+</span><span class="line"><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">(</span><span style="--shiki-light:#D73A49;--shiki-dark:#F0ADA1">int</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF"> id, </span><span style="--shiki-light:#D73A49;--shiki-dark:#F0ADA1">float</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF"> score, </span><span style="--shiki-light:#007C8A;--shiki-dark:#29D3E2">String</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF"> state) </span><span style="--shiki-light:#D73A49;--shiki-dark:#E9E5DF">=</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF"> record;</span>
+</span><span class="line"><span style="--shiki-light:#007C8A;--shiki-dark:#29D3E2">Var</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF"> (_, _, status) </span><span style="--shiki-light:#D73A49;--shiki-dark:#E9E5DF">=</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF"> record;</span></span></code></pre>
 
+<p>A <code>_</code> target in the shared-type form discards its element and declares
+nothing, so the declaration names only the positions it uses.</p>
 <p>Assignment destructuring returns its source unchanged, so one result can feed
 several flat views without another call or copy:</p>
 <pre class="shiki shiki-themes x2c-light x2c-dark x2c-code" style="--shiki-light:#24292e;--shiki-dark:#e9e5df;--shiki-light-bg:#fff;--shiki-dark-bg:#101011" tabindex="0"><code class="language-x2c no-highlight"><span class="line"><span style="--shiki-light:#007C8A;--shiki-dark:#29D3E2">Var</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF"> left_a, left_b, right_a, right_b;</span>
@@ -443,12 +442,12 @@ or <code>String.try_long</code> for parse success:</p>
 <p>Sentinel-returning adapters are concise only when the sentinel is impossible
 in the result domain and the caller does not need a failure reason.</p>
 <h2 id="put-cleanup-beside-acquisition"><a class="header" href="#put-cleanup-beside-acquisition">Put cleanup beside acquisition</a></h2>
-<p><code>Scope</code> groups allocations by lifetime and <code>$scope()</code> retains one region
-around a statement. <code>$auto</code> attaches an owned local’s cleanup to its
-declaration, so the acquisition and its release are one line:</p>
-<pre class="shiki shiki-themes x2c-light x2c-dark x2c-code" style="--shiki-light:#24292e;--shiki-dark:#e9e5df;--shiki-light-bg:#fff;--shiki-dark-bg:#101011" tabindex="0"><code class="language-x2c no-highlight"><span class="line"><span style="--shiki-light:#A626A4;--shiki-light-font-weight:bold;--shiki-dark:#FF4FD8;--shiki-dark-font-weight:bold">$</span><span style="--shiki-light:#005CC5;--shiki-dark:#E9E5DF">scope</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">() {</span>
+<p><code>Scope</code> groups allocations by lifetime and <code>auto</code> opens one region
+around a statement. Initializer <code>auto</code> attaches cleanup to the acquired value,
+so the acquisition and its release are one line:</p>
+<pre class="shiki shiki-themes x2c-light x2c-dark x2c-code" style="--shiki-light:#24292e;--shiki-dark:#e9e5df;--shiki-light-bg:#fff;--shiki-dark-bg:#101011" tabindex="0"><code class="language-x2c no-highlight"><span class="line"><span style="--shiki-light:#D73A49;--shiki-dark:#F0ADA1">auto</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF"> {</span>
 </span><span class="line"><span style="--shiki-light:#007C8A;--shiki-dark:#29D3E2">  String</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF"> path </span><span style="--shiki-light:#D73A49;--shiki-dark:#E9E5DF">=</span><span style="--shiki-light:#032F62;--shiki-dark:#9EDFB8"> "/tmp/x2c-idioms.txt"</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">;</span>
-</span><span class="line"><span style="--shiki-light:#007C8A;--shiki-dark:#29D3E2">  File</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF"> output </span><span style="--shiki-light:#D73A49;--shiki-dark:#E9E5DF">=</span><span style="--shiki-light:#A626A4;--shiki-light-font-weight:bold;--shiki-dark:#FF4FD8;--shiki-dark-font-weight:bold"> $</span><span style="--shiki-light:#005CC5;--shiki-dark:#E9E5DF">auto</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">(File.</span><span style="--shiki-light:#6F42C1;--shiki-dark:#E9E5DF">open</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">(path, </span><span style="--shiki-light:#032F62;--shiki-dark:#9EDFB8">"w"</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">));</span>
+</span><span class="line"><span style="--shiki-light:#007C8A;--shiki-dark:#29D3E2">  File</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF"> output </span><span style="--shiki-light:#D73A49;--shiki-dark:#E9E5DF">=</span><span style="--shiki-light:#D73A49;--shiki-dark:#F0ADA1"> auto</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF"> File.</span><span style="--shiki-light:#6F42C1;--shiki-dark:#E9E5DF">open</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">(path, </span><span style="--shiki-light:#032F62;--shiki-dark:#9EDFB8">"w"</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">);</span>
 </span><span class="line"><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">  output.</span><span style="--shiki-light:#6F42C1;--shiki-dark:#E9E5DF">puts</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">(</span><span style="--shiki-light:#032F62;--shiki-dark:#9EDFB8">"ready</span><span style="--shiki-light:#005CC5;--shiki-dark:#9EDFB8">\n</span><span style="--shiki-light:#032F62;--shiki-dark:#9EDFB8">"</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">);</span>
 </span><span class="line"><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">}</span></span></code></pre>
 
@@ -461,17 +460,19 @@ writes a result.</p>
 </span><span class="line boring"><span style="--shiki-light:#D73A49;--shiki-dark:#F0ADA1">  return</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF"> buffer </span><span style="--shiki-light:#D73A49;--shiki-dark:#E9E5DF">?</span><span style="--shiki-light:#005CC5;--shiki-dark:#A9C9F5"> 0</span><span style="--shiki-light:#D73A49;--shiki-dark:#E9E5DF"> :</span><span style="--shiki-light:#005CC5;--shiki-dark:#A9C9F5"> 1</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">;</span>
 </span><span class="line boring"><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">}</span></span></code></pre>
 
-<p><code>$auto</code> needs a type that adopts <code>Cleanup(T)</code>, directly or through its typedef
-ancestry, as the runtime’s owning types do. It releases the value it acquired,
-even after the local is reassigned. Use <code>defer</code> when cleanup must read a
-binding at exit, such as a <code>Scope</code> slot filled later:</p>
+<p>Initializer <code>auto</code>, also spelled <code>$auto(value)</code>, releases the acquired value
+even after the local is reassigned. Declaration <code>auto</code> instead reads the
+variable at exit, such as a <code>Scope</code> slot filled later:</p>
 <pre class="shiki shiki-themes x2c-light x2c-dark x2c-code" style="--shiki-light:#24292e;--shiki-dark:#e9e5df;--shiki-light-bg:#fff;--shiki-dark-bg:#101011" tabindex="0"><code class="language-x2c no-highlight"><span class="line boring"><span style="--shiki-light:#D73A49;--shiki-dark:#F0ADA1">int</span><span style="--shiki-light:#6F42C1;--shiki-dark:#E9E5DF"> main</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">(</span><span style="--shiki-light:#D73A49;--shiki-dark:#F0ADA1">void</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">) {</span>
-</span><span class="line"><span style="--shiki-light:#007C8A;--shiki-dark:#29D3E2">Scope</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF"> work </span><span style="--shiki-light:#D73A49;--shiki-dark:#E9E5DF">=</span><span style="--shiki-light:#005CC5;--shiki-dark:#E9E5DF"> NULL</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">;</span>
-</span><span class="line"><span style="--shiki-light:#A626A4;--shiki-light-font-weight:bold;--shiki-dark:#FF4FD8;--shiki-dark-font-weight:bold">defer</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF"> work.</span><span style="--shiki-light:#6F42C1;--shiki-dark:#E9E5DF">cleanup</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">();</span>
-</span><span class="line"><span style="--shiki-light:#A626A4;--shiki-light-font-weight:bold;--shiki-dark:#FF4FD8;--shiki-dark-font-weight:bold">$</span><span style="--shiki-light:#005CC5;--shiki-dark:#E9E5DF">scope</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">(</span><span style="--shiki-light:#D73A49;--shiki-dark:#E9E5DF">&amp;</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">work) { </span><span style="--shiki-light:#007C8A;--shiki-dark:#29D3E2">Array</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF"> items </span><span style="--shiki-light:#D73A49;--shiki-dark:#E9E5DF">=</span><span style="--shiki-light:#D73A49;--shiki-dark:#F0ADA1"> []</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">; items.</span><span style="--shiki-light:#6F42C1;--shiki-dark:#E9E5DF">push</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">(</span><span style="--shiki-light:#005CC5;--shiki-dark:#A9C9F5">1</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">); }</span>
+</span><span class="line"><span style="--shiki-light:#D73A49;--shiki-dark:#F0ADA1">auto</span><span style="--shiki-light:#007C8A;--shiki-dark:#29D3E2"> Scope</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF"> work </span><span style="--shiki-light:#D73A49;--shiki-dark:#E9E5DF">=</span><span style="--shiki-light:#005CC5;--shiki-dark:#E9E5DF"> NULL</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">;</span>
+</span><span class="line"><span style="--shiki-light:#D73A49;--shiki-dark:#F0ADA1">auto</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF"> (</span><span style="--shiki-light:#D73A49;--shiki-dark:#E9E5DF">&amp;</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">work) { </span><span style="--shiki-light:#007C8A;--shiki-dark:#29D3E2">Array</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF"> items </span><span style="--shiki-light:#D73A49;--shiki-dark:#E9E5DF">=</span><span style="--shiki-light:#D73A49;--shiki-dark:#F0ADA1"> []</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">; items.</span><span style="--shiki-light:#6F42C1;--shiki-dark:#E9E5DF">push</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">(</span><span style="--shiki-light:#005CC5;--shiki-dark:#A9C9F5">1</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">); }</span>
 </span><span class="line boring"><span style="--shiki-light:#D73A49;--shiki-dark:#F0ADA1">  return</span><span style="--shiki-light:#005CC5;--shiki-dark:#A9C9F5"> 0</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">;</span>
 </span><span class="line boring"><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">}</span></span></code></pre>
 
+<p><code>auto output = File.open(path, "w");</code> infers the type and uses declaration
+cleanup. Both forms call the type’s <code>Cleanup</code> operation when it participates,
+including through typedef ancestry; ordinary and pooled values need no
+operation. Do not combine declaration and initializer <code>auto</code> on one declaration.</p>
 <h2 id="raise-failures-return-ordinary-outcomes"><a class="header" href="#raise-failures-return-ordinary-outcomes">Raise failures; return ordinary outcomes</a></h2>
 <p>Report EOF, a missing <code>Map</code> key, or a numeric parse failure through the
 result, as the library operations do. Use <code>raise</code>
@@ -487,8 +488,20 @@ have <code>defer</code> or <code>finally</code> cleanup in place.</p>
 <li>runtime-internal callables documented only for source readers.</li>
 </ul>
 <p>Start with primary APIs; use the others when you need their specific behavior.</p>
+<h2 id="where-to-go-next"><a class="header" href="#where-to-go-next">Where to go next</a></h2>
+<ul>
+<li>The <a href="../reference/language.html">language reference</a> states the exact rules.</li>
+</ul>
 
                     </main>
+                    <script>
+                        // A generated page is edited through its generator.
+                        if ([...document.querySelector('#mdbook-content main').childNodes]
+                                .some(node => node.nodeType === Node.COMMENT_NODE &&
+                                      node.textContent.includes('Do not edit by hand'))) {
+                            document.querySelector('a[rel="edit"]')?.remove();
+                        }
+                    </script>
 
                     <nav class="x2c-pager" aria-label="Page navigation">
                         <a rel="prev" href="../guide/indentation.html" class="x2c-pager-prev" aria-keyshortcuts="Left">
@@ -505,9 +518,9 @@ have <code>defer</code> or <code>finally</code> cleanup in place.</p>
                         &copy; 2025&ndash;2026
                         <a href="https://flake.org">GWF</a>
                         &middot;
-                        <a href="https://github.com/gwf/x2c/blob/aa2b9b2575297711e5978acc53f87bd7f645f3c7/LICENSE">Apache 2.0</a>
+                        <a href="https://github.com/gwf/x2c/blob/2c5870d64d381a861054dae9927aa65adc87e9e0/LICENSE">Apache 2.0</a>
                         &middot;
-                        <a href="https://github.com/gwf/x2c/blob/aa2b9b2575297711e5978acc53f87bd7f645f3c7/TRADEMARKS.md">Trademarks</a>
+                        <a href="https://github.com/gwf/x2c/blob/2c5870d64d381a861054dae9927aa65adc87e9e0/TRADEMARKS.md">Trademarks</a>
                     </footer>
                 </div>
             </div>

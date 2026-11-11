@@ -1,0 +1,1446 @@
+<!DOCTYPE HTML>
+<html lang="en" class="light sidebar-visible" dir="ltr">
+    <head><meta name="x2c-release-channel" content="staging"><meta name="x2c-candidate" content="candidate-aa2b9b2575297711e5978acc53f87bd7f645f3c7-39090113132-1"><meta name="x2c-site-source" content="2c5870d64d381a861054dae9927aa65adc87e9e0"><meta name="robots" content="noindex">
+        <!-- Book generated using mdBook -->
+        <meta charset="UTF-8">
+        <title>AST Grammar - The x2c Book</title>
+
+
+        <!-- Custom HTML head -->
+        <link rel="preconnect" href="https://fonts.googleapis.com">
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=Archivo:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">
+
+        <meta name="description" content="The x2c language, standard library, and compiler.">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <meta name="theme-color" content="#ffffff">
+
+        <link rel="icon" href="../favicon-995a3c20.svg">
+        <link rel="stylesheet" href="../css/variables-8adf115d.css">
+        <link rel="stylesheet" href="../css/general-e96d0476.css">
+        <link rel="stylesheet" href="../css/chrome-d279d366.css">
+        <link rel="stylesheet" href="../css/print-9e4910d8.css" media="print">
+
+        <!-- Fonts -->
+        <link rel="stylesheet" href="../fonts/fonts-9644e21d.css">
+
+        <!-- Highlight.js Stylesheets -->
+        <link rel="stylesheet" id="mdbook-highlight-css" href="../highlight-493f70e1.css">
+        <link rel="stylesheet" id="mdbook-tomorrow-night-css" href="../tomorrow-night-4c0ae647.css">
+        <link rel="stylesheet" id="mdbook-ayu-highlight-css" href="../ayu-highlight-3fdfc3ac.css">
+
+        <!-- Custom theme stylesheets -->
+        <link rel="stylesheet" href="../theme/header-b540a03f.css">
+        <link rel="stylesheet" href="../theme/x2c-fd3d182e.css">
+
+
+        <!-- Provide site root and default themes to javascript -->
+        <script>
+            const path_to_root = "../";
+            const default_light_theme = "light";
+            const default_dark_theme = "light";
+            window.path_to_searchindex_js = "../searchindex-a3bdfad5.js";
+        </script>
+        <!-- Start loading toc.js asap -->
+        <script src="../toc-2248e0f3.js"></script>
+        <!-- x2c publication metadata -->
+        <link rel="canonical" href="https://x2c-lang.dev/docs/internals/ast-grammar.html">
+        <meta property="og:type" content="website">
+        <meta property="og:title" content="AST Grammar - The x2c Book">
+        <meta property="og:description" content="The x2c language, standard library, and compiler.">
+        <meta property="og:url" content="https://staging.x2c-lang.dev/docs/internals/ast-grammar.html">
+        <meta property="og:image" content="https://staging.x2c-lang.dev/x2c-social.png">
+        <meta property="og:image:width" content="1200">
+        <meta property="og:image:height" content="630">
+        <meta name="twitter:card" content="summary_large_image">
+        <meta name="twitter:title" content="AST Grammar - The x2c Book">
+        <meta name="twitter:description" content="The x2c language, standard library, and compiler.">
+        <meta name="twitter:image" content="https://staging.x2c-lang.dev/x2c-social.png">
+    </head>
+    <body>
+    <div id="mdbook-help-container">
+        <div id="mdbook-help-popup">
+            <h2 class="mdbook-help-title">Keyboard shortcuts</h2>
+            <div>
+                <p>Press <kbd>←</kbd> or <kbd>→</kbd> to navigate between chapters</p>
+                <p>Press <kbd>S</kbd> or <kbd>/</kbd> to search in the book</p>
+                <p>Press <kbd>?</kbd> to show this help</p>
+                <p>Press <kbd>Esc</kbd> to hide this help</p>
+            </div>
+        </div>
+    </div>
+    <div id="mdbook-body-container">
+        <!-- Work around some values being stored in localStorage wrapped in quotes -->
+        <script>
+            try {
+                let theme = localStorage.getItem('mdbook-theme');
+                let sidebar = localStorage.getItem('mdbook-sidebar');
+
+                if (theme.startsWith('"') && theme.endsWith('"')) {
+                    localStorage.setItem('mdbook-theme', theme.slice(1, theme.length - 1));
+                }
+
+                if (sidebar.startsWith('"') && sidebar.endsWith('"')) {
+                    localStorage.setItem('mdbook-sidebar', sidebar.slice(1, sidebar.length - 1));
+                }
+            } catch (e) { }
+        </script>
+
+        <!-- Set the theme before any content is loaded, prevents flash -->
+        <script>
+            const default_theme = window.matchMedia("(prefers-color-scheme: dark)").matches ? default_dark_theme : default_light_theme;
+            let theme;
+            try { theme = localStorage.getItem('mdbook-theme'); } catch(e) { }
+            if (theme === null || theme === undefined) { theme = default_theme; }
+            const html = document.documentElement;
+            html.classList.remove('light')
+            html.classList.add(theme);
+            html.classList.add("js");
+        </script>
+
+        <input type="checkbox" id="mdbook-sidebar-toggle-anchor" class="hidden">
+
+        <!-- Hide / unhide sidebar before it is displayed -->
+        <script>
+            let sidebar = null;
+            const sidebar_toggle = document.getElementById("mdbook-sidebar-toggle-anchor");
+            if (document.body.clientWidth >= 1080) {
+                try { sidebar = localStorage.getItem('mdbook-sidebar'); } catch(e) { }
+                sidebar = sidebar || 'visible';
+            } else {
+                sidebar = 'hidden';
+                sidebar_toggle.checked = false;
+            }
+            if (sidebar === 'visible') {
+                sidebar_toggle.checked = true;
+            } else {
+                html.classList.remove('sidebar-visible');
+            }
+        </script>
+
+        <nav id="mdbook-sidebar" class="sidebar" aria-label="Table of contents">
+            <!-- populated by js -->
+            <mdbook-sidebar-scrollbox class="sidebar-scrollbox"></mdbook-sidebar-scrollbox>
+            <noscript>
+                <iframe class="sidebar-iframe-outer" src="../toc.html"></iframe>
+            </noscript>
+            <div id="mdbook-sidebar-resize-handle" class="sidebar-resize-handle">
+                <div class="sidebar-resize-indicator"></div>
+            </div>
+        </nav>
+
+        <div id="mdbook-page-wrapper" class="page-wrapper">
+
+            <div class="page">
+                <div id="mdbook-menu-bar" class="hidden"></div>
+                <header class="landing-header x2c-header">
+                    <div class="landing-header-inner">
+                        <div class="landing-branding">
+                            <a class="landing-brand" href="../../" aria-label="x2c home">
+                                <svg viewBox="0 0 100 100" width="22" height="22" aria-hidden="true"><g fill="none" stroke="#da291c" stroke-width="17" stroke-linecap="butt"><path d="M9 16 A34.5 34.5 0 0 1 9 84"></path><path d="M91 16 A34.5 34.5 0 0 0 91 84"></path></g></svg>
+                                <span class="x2c-wordmark landing-wordmark">x2c</span>
+                            </a>
+                            <button class="landing-tagline menu-title" type="button" title="Scroll to top">The x2c Book</button>
+                        </div>
+                        <nav class="landing-nav" aria-label="x2c website">
+                            <div class="landing-site-nav">
+                                <a href="../../#install">install</a>
+                                <a href="../../#packages">packages</a>
+                            </div>
+                            <div class="landing-reference-nav">
+                                <a href="../../examples/">examples</a>
+                                <a href="../../about/">about</a>
+                                <a href="../" aria-current="page">docs</a>
+                                <a href="https://github.com/gwf/x2c">source</a>
+                            </div>
+                        </nav>
+                    </div>
+                    <div class="x2c-book-tools">
+                        <div class="x2c-header-tools">
+                            <label id="mdbook-sidebar-toggle" class="icon-button" for="mdbook-sidebar-toggle-anchor" title="Toggle Table of Contents" aria-label="Toggle Table of Contents" aria-controls="mdbook-sidebar">
+                                <span class=fa-svg><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc. --><path d="M0 96C0 78.3 14.3 64 32 64H416c17.7 0 32 14.3 32 32s-14.3 32-32 32H32C14.3 128 0 113.7 0 96zM0 256c0-17.7 14.3-32 32-32H416c17.7 0 32 14.3 32 32s-14.3 32-32 32H32c-17.7 0-32-14.3-32-32zM448 416c0 17.7-14.3 32-32 32H32c-17.7 0-32-14.3-32-32s14.3-32 32-32H416c17.7 0 32 14.3 32 32z"/></svg></span>
+                            </label>
+                        </div>
+                        <div class="x2c-header-tools x2c-header-tools-right">
+                            <button id="mdbook-search-toggle" class="icon-button" type="button" title="Search (`/`)" aria-label="Toggle Searchbar" aria-expanded="false" aria-keyshortcuts="/ s" aria-controls="mdbook-searchbar">
+                                <span class=fa-svg><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc. --><path d="M416 208c0 45.9-14.9 88.3-40 122.7L502.6 457.4c12.5 12.5 12.5 32.8 0 45.3s-32.8 12.5-45.3 0L330.7 376c-34.4 25.2-76.8 40-122.7 40C93.1 416 0 322.9 0 208S93.1 0 208 0S416 93.1 416 208zM208 352c79.5 0 144-64.5 144-144s-64.5-144-144-144S64 128.5 64 208s64.5 144 144 144z"/></svg></span>
+                            </button>
+                            <button id="mdbook-theme-toggle" class="icon-button" type="button" title="Change theme" aria-label="Change theme" aria-haspopup="true" aria-expanded="false" aria-controls="mdbook-theme-list">
+                                <span class=fa-svg><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc. --><path d="M448 256c0-106-86-192-192-192V448c106 0 192-86 192-192zm64 0c0 141.4-114.6 256-256 256S0 397.4 0 256S114.6 0 256 0S512 114.6 512 256z"/></svg></span>
+                            </button>
+                            <ul id="mdbook-theme-list" class="theme-popup" aria-label="Themes" role="menu">
+                                <li role="none"><button role="menuitem" class="theme" id="mdbook-theme-default_theme">Auto</button></li>
+                                <li role="none"><button role="menuitem" class="theme" id="mdbook-theme-light">Light</button></li>
+                                <li role="none"><button role="menuitem" class="theme" id="mdbook-theme-ayu">Dark</button></li>
+                            </ul>
+                            <a href="https://github.com/gwf/x2c/edit/main/docs/src/internals/ast-grammar.md" title="Suggest an edit" aria-label="Suggest an edit" rel="edit" class="icon-button">
+                                <span class=fa-svg id="git-edit-button"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc. --><path d="M421.7 220.3l-11.3 11.3-22.6 22.6-205 205c-6.6 6.6-14.8 11.5-23.8 14.1L30.8 511c-8.4 2.5-17.5 .2-23.7-6.1S-1.5 489.7 1 481.2L38.7 353.1c2.6-9 7.5-17.2 14.1-23.8l205-205 22.6-22.6 11.3-11.3 33.9 33.9 62.1 62.1 33.9 33.9zM96 353.9l-9.3 9.3c-.9 .9-1.6 2.1-2 3.4l-25.3 86 86-25.3c1.3-.4 2.5-1.1 3.4-2l9.3-9.3H112c-8.8 0-16-7.2-16-16V353.9zM453.3 19.3l39.4 39.4c25 25 25 65.5 0 90.5l-14.5 14.5-22.6 22.6-11.3 11.3-33.9-33.9-62.1-62.1L314.3 67.7l11.3-11.3 22.6-22.6 14.5-14.5c25-25 65.5-25 90.5 0z"/></svg></span>
+                            </a>
+                        </div>
+                    </div>
+                </header>
+                <script>
+                    const bookHeader = document.querySelector('.x2c-header');
+                    new ResizeObserver(() => {
+                        document.documentElement.style.setProperty(
+                            '--menu-bar-height', `${bookHeader.getBoundingClientRect().height}px`);
+                    }).observe(bookHeader);
+                </script>
+
+                <div id="mdbook-search-wrapper" class="hidden">
+                    <form id="mdbook-searchbar-outer" class="searchbar-outer">
+                        <div class="search-wrapper">
+                            <input type="search" id="mdbook-searchbar" name="searchbar" placeholder="Search this book ..." aria-controls="mdbook-searchresults-outer" aria-describedby="searchresults-header">
+                            <div class="spinner-wrapper">
+                                <span class=fa-svg id="fa-spin"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc. --><path d="M304 48c0-26.5-21.5-48-48-48s-48 21.5-48 48s21.5 48 48 48s48-21.5 48-48zm0 416c0-26.5-21.5-48-48-48s-48 21.5-48 48s21.5 48 48 48s48-21.5 48-48zM48 304c26.5 0 48-21.5 48-48s-21.5-48-48-48s-48 21.5-48 48s21.5 48 48 48zm464-48c0-26.5-21.5-48-48-48s-48 21.5-48 48s21.5 48 48 48s48-21.5 48-48zM142.9 437c18.7-18.7 18.7-49.1 0-67.9s-49.1-18.7-67.9 0s-18.7 49.1 0 67.9s49.1 18.7 67.9 0zm0-294.2c18.7-18.7 18.7-49.1 0-67.9S93.7 56.2 75 75s-18.7 49.1 0 67.9s49.1 18.7 67.9 0zM369.1 437c18.7 18.7 49.1 18.7 67.9 0s18.7-49.1 0-67.9s-49.1-18.7-67.9 0s-18.7 49.1 0 67.9z"/></svg></span>
+                            </div>
+                        </div>
+                    </form>
+                    <div id="mdbook-searchresults-outer" class="searchresults-outer hidden">
+                        <div id="mdbook-searchresults-header" class="searchresults-header"></div>
+                        <ul id="mdbook-searchresults">
+                        </ul>
+                    </div>
+                </div>
+
+                <!-- Apply ARIA attributes after the sidebar and the sidebar toggle button are added to the DOM -->
+                <script>
+                    document.getElementById('mdbook-sidebar-toggle').setAttribute('aria-expanded', sidebar === 'visible');
+                    document.getElementById('mdbook-sidebar').setAttribute('aria-hidden', sidebar !== 'visible');
+                    Array.from(document.querySelectorAll('#mdbook-sidebar a')).forEach(function(link) {
+                        link.setAttribute('tabIndex', sidebar === 'visible' ? 0 : -1);
+                    });
+                </script>
+
+                <div id="mdbook-content" class="content">
+                    <main>
+                        <h1 id="ast-grammar"><a class="header" href="#ast-grammar">AST Grammar</a></h1>
+<p>This chapter describes the compiler’s canonical List structures. Use it to read
+a literal AST construction, a structural pattern, or an AST dump. The
+<a href="../reference/syntax/grammar.html">source grammar</a> describes tokens; this
+chapter describes the values those tokens become.</p>
+<p>This chapter describes the implementation and may lag behind it; the source
+on <code>main</code> is authoritative. The structures are implementation contracts, not a
+promise that internal representations remain compatible between compiler
+versions. Language meaning remains in the
+<a href="../reference/language.html">language reference</a>.</p>
+<h2 id="representation-and-notation"><a class="header" href="#representation-and-notation">Representation and notation</a></h2>
+<p>An AST is an immutable <code>List</code>. Most nodes start with a Symbol discriminant,
+such as <code>expr</code>, <code>op</code>, or <code>declare</code>. Some intermediate forms have String heads,
+such as <code>"x2c.quoted"</code>. Quotes in the grammar distinguish Strings from Symbols.
+<code>0</code> is an integer. Upper-case words name fields or productions; they are not
+literal leaves.</p>
+<p>Inside the <code>text</code> grammar blocks, <code>|</code> selects alternatives, <code>[...]</code> marks an
+optional field, and <code>X*</code> repeats a field zero or more times. Parentheses always
+describe an actual List. Thus <code>(args EXPR*)</code> contains an <code>args</code> head followed
+by expression children; <code>(ROW*)</code> is an untagged List of rows. These repetition
+marks are grammar notation, not Match pattern syntax.</p>
+<p><code>()</code> is the empty List, represented by <code>NULL</code>. Depending on its field, it means
+absence, an empty sequence, an unspecified type, or an empty operand. It is
+distinct from <code>(nil)</code>, the AST content that produces a null List value, and
+from a <code>Var</code> holding <code>void</code>. Do not assign one meaning to every empty List
+without reading its enclosing production.</p>
+<p><code>EXPR</code> means a typed expression shell. <code>TYPE</code> means a semantic Type List;
+<code>BASE</code> means declaration specifier syntax. <code>NODE</code> means syntax appropriate to
+its position and stage. <code>VALUE</code> means an ordinary Var value; it need not be
+syntax. A <code>BINDING</code> is the identity record defined below. Source-location,
+macro-context, and registry data are named separately from program syntax.</p>
+<p>A field corresponding to source syntax may already contain derived types,
+converted operands, generated declarations, and binding identities. Its source
+origin does not make every descendant source-written. Conversely, constructed
+Lists use the same structural contracts as parsed source.</p>
+<h3 id="stages-and-positions"><a class="header" href="#stages-and-positions">Stages and positions</a></h3>
+<ul>
+<li><strong>Parsing/template:</strong> nodes can contain unresolved names, holes, deferred
+types, or pending applications.</li>
+<li><strong>Bound:</strong> names and expression types have been resolved in compiler state.
+<code>--dump-ast</code> shows this stage after expansion, not an untouched parse tree.</li>
+<li><strong>Lowering/generation:</strong> transforms replace extensions and add helper,
+initialization, and cleanup forms. <code>--dump-transforms</code> shows lowered code.</li>
+<li><strong>Emission:</strong> the emitter consumes normalized forms, native fragments,
+and output decorations, then produces flat C tokens.</li>
+</ul>
+<p>The constructed-syntax positions are <code>unit</code>, <code>block</code>, <code>field</code>, <code>enumerator</code>,
+<code>map-entry</code>, <code>statement</code>, and <code>expression</code>. A block position permits block-item
+declarations; a governed statement position requires one statement. A node’s
+layout alone does not establish valid placement, binding, or type.
+<a href="https://github.com/gwf/x2c/blob/2c5870d64d381a861054dae9927aa65adc87e9e0/src/parse/binding.x">Compiler.bind_syntax</a> and its <code>_bind_form</code> dispatch own placement;
+ordinary declaration, expression, and statement operations own meaning.
+Existing types and bindings are trusted, not reconstructed by a second
+validator. See <a href="../reference/language.html#macro-visible-syntax">Macro-visible
+syntax</a>.</p>
+<p>During source control-flow parsing only, <code>Compiler.source_clause</code> supplies
+Token values for deferred clauses: <code>test</code>, <code>then</code>, <code>else</code>, <code>body</code>, <code>do</code>,
+<code>init</code>, <code>cond</code>, <code>next</code>, <code>arms</code>, <code>arm</code>, <code>try</code>, <code>catches</code>, <code>catch</code>, and
+<code>finally</code>. These are addresses into a private parser table. They are transient
+leaves consumed during binding, not List productions or constructible holes.</p>
+<h2 id="roots-wrappers-and-identities"><a class="header" href="#roots-wrappers-and-identities">Roots, wrappers, and identities</a></h2>
+<pre><code class="language-text">UNIT        ::= (UNIT-ITEM*)
+ORIGIN      ::= (at ORIGIN-ID NODE) | (at m-origin NODE)
+SOURCE      ::= (src (source FILE BEGIN-OFFSET END-OFFSET) NODE)
+API-SOURCE  ::= (api-source LINE DOC NODE)
+BINDING     ::= (binding POSITIVE-ID SPELLING)
+NAME        ::= SPELLING | (SPELLING) | BINDING
+              | (binding-name SPELLING) | (binding-global SPELLING)
+              | ("x2c.ident" SPELLING) | NAME-SLOT
+METHOD-NAME ::= ((METHOD-OWNER) METHOD-MEMBER)
+              | (SOURCE METHOD-MEMBER) | ((construct SOURCE) METHOD-MEMBER)
+METHOD-OWNER ::= SPELLING | TYPE-WORD | (SPELLING) | TYPE-SLOT
+METHOD-MEMBER ::= SPELLING | NAME-SLOT
+CONSTRUCTION-NAME ::= ((construct SOURCE) SPELLING)
+TAG-NAME    ::= NAME | () | (gensym ROLE GENERATED-SPELLING)
+</code></pre>
+<p><code>SPELLING</code>, file paths, and documentation are Strings. <code>POSITIVE-ID</code> is a
+compiler-issued integer, not an argument number or a source name. Equal
+spellings in different scopes can have different identities. Generated names
+can replace the spelling; compiler facts retain a separate source spelling. Do
+not forge identities. <code>Code.binding_spelling</code> reads their text.</p>
+<p><code>binding-name</code> retains a reference by spelling in a Macro value so it resolves
+where applied. <code>binding-global</code> retains an explicitly selected file-scope
+reference. <code>"x2c.ident"</code> requests a spelling that binds where syntax lands. A
+member name is normally <code>(SPELLING)</code>, not a variable BINDING. A Unit-target
+construction can temporarily attach <code>(construct SOURCE)</code> to a requested name;
+the declarator owner interprets that requirement rather than treating the
+captured source as a concrete method owner. Method names have the separate
+owner/member shape before declaration binding.</p>
+<p><code>at</code> retains a compiler-owned origin index; <code>m-origin</code> is an unresolved anchor
+in template syntax. <code>src</code> retains exact capture offsets. <code>api-source</code> attaches
+declaration line/documentation at unit position. The origin table uses <code>(source FILE LINE COLUMN LENGTH OFFSET)</code> records with five payload fields. These are
+metadata, distinct from the three-payload-field <code>src</code> source record.</p>
+<p>Owners: <a href="https://github.com/gwf/x2c/blob/2c5870d64d381a861054dae9927aa65adc87e9e0/src/ast.x">Ast.binding, Ast.without_origin, Ast.rewrap_origin</a>;
+<a href="https://github.com/gwf/x2c/blob/2c5870d64d381a861054dae9927aa65adc87e9e0/src/expressions/identifiers.x">_resolve_identifier and _identifier_binding</a>;
+<a href="https://github.com/gwf/x2c/blob/2c5870d64d381a861054dae9927aa65adc87e9e0/src/macros/values.x">_macro_value_names</a>; <a href="https://github.com/gwf/x2c/blob/2c5870d64d381a861054dae9927aa65adc87e9e0/src/parse/binding.x">Compiler.bind_syntax</a>;
+<a href="https://github.com/gwf/x2c/blob/2c5870d64d381a861054dae9927aa65adc87e9e0/src/parse/units.x">_bind_api_source</a>;
+<a href="https://github.com/gwf/x2c/blob/2c5870d64d381a861054dae9927aa65adc87e9e0/src/meta-sdk/syntax.x">x2c_ident and Code.binding_spelling</a>;
+<a href="https://github.com/gwf/x2c/blob/2c5870d64d381a861054dae9927aa65adc87e9e0/src/parse/declarators.x">_method_spelling</a>.
+Consumers preserve identity across expressions, declarations, transformations,
+and emission. The <a href="compiler-api/ast.html">AST API</a> documents shared operations.</p>
+<h2 id="expressions"><a class="header" href="#expressions">Expressions</a></h2>
+<h3 id="shells-identifiers-and-atomic-values"><a class="header" href="#shells-identifiers-and-atomic-values">Shells, identifiers, and atomic values</a></h3>
+<pre><code class="language-text">EXPR       ::= (expr TYPE CONTENT)
+             | (expr () CONTENT)
+             | (expr (&lt;macro-expr&gt;) CONTENT)
+CONTENT    ::= IDENT | LITERAL | OPERATOR | CALL | ACCESS | GROUPING
+             | SELECTION | COLLECTION | INITIALIZER | STRING-CONTENT
+             | LIST-CONTENT | LAMBDA | ADAPTATION | PENDING
+             | BINDING | EXPR | ORIGIN | SOURCE | NATIVE-CONTENT
+IDENT      ::= (ident NAME)
+LITERAL    ::= (literal TYPE TEXT) | (literal TYPE TEXT ATOM-VALUE)
+             | (literal ("Atom") TEXT (!quote BINDER-ATOM))
+</code></pre>
+<p><code>()</code> means unresolved or native/unknown type in an expression shell;
+<code>(&lt;macro-expr&gt;)</code> means resolution must wait for template substitution. Neither
+is the void type <code>(void)</code>. A resolved shell retains a semantic TYPE. Nested
+<code>expr</code> shells and bare BINDING content are accepted intermediate structures;
+the resolver can unwrap or resolve them.</p>
+<p><code>TEXT</code> is a String. Numeric and C string literal text retains its spelling;
+percent String text is decoded. Symbol and Atom literals can also retain an
+actual Symbol/Atom value in the third field. Generated literals use the same
+layout. <code>Var</code> absence uses <code>(literal ("Var") "void")</code>.</p>
+<p>Owners: <a href="https://github.com/gwf/x2c/blob/2c5870d64d381a861054dae9927aa65adc87e9e0/src/literals/atoms.x">Compiler.parse_atomic_literal, _symbol_literal, _atom_literal</a>
+produce literals; <a href="https://github.com/gwf/x2c/blob/2c5870d64d381a861054dae9927aa65adc87e9e0/src/expressions/syntax.x">Compiler.parse_variable</a> produces names;
+<a href="https://github.com/gwf/x2c/blob/2c5870d64d381a861054dae9927aa65adc87e9e0/src/expressions/resolution.x">Compiler.resolve_expression, _content</a> resolve shells and content;
+<a href="https://github.com/gwf/x2c/blob/2c5870d64d381a861054dae9927aa65adc87e9e0/src/emit/expressions.x">_literal</a> emits values. The contents below are children of
+<code>expr</code> unless a containing production explicitly accepts bare content.</p>
+<h3 id="operators-calls-and-access"><a class="header" href="#operators-calls-and-access">Operators, calls, and access</a></h3>
+<pre><code class="language-text">OPERATOR   ::= (op UNARY-OP EXPR)
+             | (op BINARY-OP EXPR EXPR)
+             | (op ? CONDITION TRUE-EXPR FALSE-EXPR)
+             | (op . EXPR MEMBER) | (op -&gt; EXPR MEMBER)
+             | (postfix ++ EXPR) | (postfix -- EXPR)
+MEMBER     ::= (SPELLING) | (MEMBER-SLOT)
+CALL       ::= (call EXPR ARGUMENTS) | (call C-CALLEE ARGUMENTS)
+ARGUMENTS  ::= (args CALL-ARG*)
+CALL-ARG   ::= EXPR | DECL | ARGUMENT-SLOT
+ACCESS     ::= (index EXPR EXPR) | (getindex EXPR EXPR)
+             | (slice EXPR BOUND BOUND BOUND)
+BOUND      ::= EXPR | ()
+</code></pre>
+<p><code>C-CALLEE</code> is a raw String naming a generated/native callee. The source
+argument order remains the order of <code>args</code>. A source call with no arguments
+initially has <code>(args (expr (void) ()))</code>; generated calls can use <code>(args)</code>. The
+empty void expression is a call convention, not a general absent argument.</p>
+<p><code>index</code> is parsed bracket access. <code>getindex</code> is the resolver’s ordinary
+indexing form after receiver-specific selection. Slice fields are receiver,
+start, stop, and step; each omitted bound remains <code>()</code>.</p>
+<p>The <code>op</code> field is an operator Symbol, not a separate node type for each
+punctuation spelling. Member operators put a name List in the final field, not
+a typed variable reference. The ternary <code>?</code> is literal punctuation here; in a
+Match pattern it must be treated according to Match’s quoting rules. The
+<a href="../reference/syntax/grammar.html#e2-precedence">source grammar</a> and
+<a href="https://github.com/gwf/x2c/blob/2c5870d64d381a861054dae9927aa65adc87e9e0/src/operator-ledger.x">operator ledger</a> own the operator inventory and precedence.</p>
+<p>Owners: <a href="https://github.com/gwf/x2c/blob/2c5870d64d381a861054dae9927aa65adc87e9e0/src/expressions/syntax.x">_parse_postfix_apply, _parse_postfix_index,
+_parse_slice</a>;
+<a href="https://github.com/gwf/x2c/blob/2c5870d64d381a861054dae9927aa65adc87e9e0/src/expressions/resolution.x">_operator</a>; <a href="https://github.com/gwf/x2c/blob/2c5870d64d381a861054dae9927aa65adc87e9e0/src/expressions/access.x">_getindex and _slice</a>;
+<a href="https://github.com/gwf/x2c/blob/2c5870d64d381a861054dae9927aa65adc87e9e0/src/expressions/access.x">_resolve_indexed, _getindex_expression</a>; <a href="https://github.com/gwf/x2c/blob/2c5870d64d381a861054dae9927aa65adc87e9e0/src/expressions/calls.x">_call</a>.
+The <a href="https://github.com/gwf/x2c/blob/2c5870d64d381a861054dae9927aa65adc87e9e0/src/components/bracket-access.x">bracket-access component</a> selects receiver policy;
+<a href="https://github.com/gwf/x2c/blob/2c5870d64d381a861054dae9927aa65adc87e9e0/src/emit/dispatch.x">_emit</a> dispatches to
+<a href="https://github.com/gwf/x2c/blob/2c5870d64d381a861054dae9927aa65adc87e9e0/src/emit/expressions.x">_binary, _unary, _call</a> for normalized forms.</p>
+<h3 id="grouping-type-operands-and-selection"><a class="header" href="#grouping-type-operands-and-selection">Grouping, type operands, and selection</a></h3>
+<pre><code class="language-text">GROUPING   ::= (parens EXPR) | (parens BLOCK)
+             | (sizeof SIZE-OPERAND)
+             | (cast DECL EXPR) | (cast TYPE EXPR)
+SIZE-OPERAND ::= EXPR | DECL | (parens EXPR) | (parens DECL)
+               | NATIVE-SEQUENCE
+SELECTION  ::= (generic EXPR ASSOCIATION*)
+             | (va-arg EXPR DECL)
+             | (offsetof TYPE MEMBER-TOKENS)
+             | (type-tag TYPE-SYNTAX)
+ASSOCIATION ::= (association TYPE EXPR) | (association default EXPR)
+MEMBER-TOKENS ::= (C-TOKEN-OR-EXPR*)
+</code></pre>
+<p>A statement expression retains <code>(parens (block ...))</code>; its final expression
+statement supplies its type, otherwise it is void. A cast’s first child is a
+<code>decl</code> during binding and a semantic Type after normalization. Parentheses do
+not permit a consumer to discard casts when extracting the original operand.</p>
+<p><code>value is T</code> and <code>value is SELECTOR</code> have no head of their own. Parsing builds
+the <code>$has_type</code> or <code>$has_symbol</code> <a href="https://github.com/gwf/x2c/blob/2c5870d64d381a861054dae9927aa65adc87e9e0/src/grammar.x">source form</a>, and resolution
+replaces it with a runtime test such as a <code>Var_is</code> call. A test that must wait
+for template substitution keeps the source form under a <code>(&lt;macro-expr&gt;)</code>
+shell.</p>
+<p><code>offsetof</code> can retain a member designator such as <code>("field" "." "nested" "[" EXPR "]")</code>. <code>_Alignof</code> has no dedicated AST head: it uses <code>(expr ("size_t") (call "_Alignof" (args OPERAND)))</code>, where OPERAND is a declaration or
+expression.</p>
+<p>Owners: <a href="https://github.com/gwf/x2c/blob/2c5870d64d381a861054dae9927aa65adc87e9e0/src/expressions/syntax.x">_parse_sizeof, _parse_generic, _parse_va_arg, _parse_offsetof,
+_parse_type_test</a>; <a href="https://github.com/gwf/x2c/blob/2c5870d64d381a861054dae9927aa65adc87e9e0/src/expressions/resolution.x">_statement_expression, _cast, _sizeof,
+_generic, _va_arg, _is_type, _is_symbol</a>;
+<a href="https://github.com/gwf/x2c/blob/2c5870d64d381a861054dae9927aa65adc87e9e0/src/expressions/resolution.x">Compiler.var_tag_expression</a>. Normalized casts, generic
+rows, type operands, and member tokens pass to <a href="https://github.com/gwf/x2c/blob/2c5870d64d381a861054dae9927aa65adc87e9e0/src/emit/dispatch.x">emission</a>. See
+<a href="../reference/language.html#types-and-conversions">types and conversions</a>.</p>
+<h3 id="collections-list-construction-and-string-segments"><a class="header" href="#collections-list-construction-and-string-segments">Collections, List construction, and String segments</a></h3>
+<pre><code class="language-text">COLLECTION ::= (array EXPR*) | (map MAP-ROW*)
+MAP-ROW    ::= (map-entry EXPR EXPR) | MAP-ENTRY-SLOT
+LIST-CONTENT ::= (nil) | (cons EXPR EXPR) | (append EXPR EXPR)
+               | (splice EXPR) | (var EXPR) | (cache CACHE-ID)
+STRING-CONTENT ::= (segments SEGMENT*) | (0)
+SEGMENT    ::= (segvar EXPR) | (segexp EXPR) | (cache CACHE-ID)
+             | (segraw TEXT)
+</code></pre>
+<p>A call-site rest splice uses <code>(expr ("List") (splice EXPR))</code>. Ordinary
+List-valued arguments retain their expression form and contribute one value.
+Dynamic-call extraction represents a splice as <code>(func-splice EXPR)</code> alongside
+ordinary <code>(func-arg VALUE ADDRESS SOURCE)</code> rows.</p>
+<p>Map rows contain key then value; they are not argument Lists. <code>splice</code> retains
+a value that contributes a sequence. <code>cons</code> and <code>append</code> express runtime List
+construction; immutable portions can instead become cache references. <code>var</code> is
+boxing/cache support, not a source keyword.</p>
+<p>An empty percent String is <code>(expr ("String") (0))</code>, whose content has an
+integer head. Ordinary String segments are <code>segvar</code> for <code>$name</code>, <code>segexp</code> for a
+<code>$(...)</code> expression, and cached text. The interpolation component also accepts
+<code>segraw</code> text; no current parser producer emits that form.</p>
+<p>Owners: <a href="https://github.com/gwf/x2c/blob/2c5870d64d381a861054dae9927aa65adc87e9e0/src/literals/quotation.x">Compiler.parse_list_literal, Compiler.literal_cell</a>;
+<a href="https://github.com/gwf/x2c/blob/2c5870d64d381a861054dae9927aa65adc87e9e0/src/literals/collections.x">collection literal parsing</a>;
+<a href="https://github.com/gwf/x2c/blob/2c5870d64d381a861054dae9927aa65adc87e9e0/src/literals/strings.x">Compiler.parse_string_literal, _parse_text_segment</a>;
+<a href="https://github.com/gwf/x2c/blob/2c5870d64d381a861054dae9927aa65adc87e9e0/src/expressions/resolution.x">_array_value, _map_value, Compiler.resolve_map_entry, _segments</a>;
+<a href="https://github.com/gwf/x2c/blob/2c5870d64d381a861054dae9927aa65adc87e9e0/src/components/collection-literals.x">collection lowering</a> and
+<a href="https://github.com/gwf/x2c/blob/2c5870d64d381a861054dae9927aa65adc87e9e0/src/components/interpolation.x">interpolation lowering</a>.
+<a href="https://github.com/gwf/x2c/blob/2c5870d64d381a861054dae9927aa65adc87e9e0/src/compiler/literal-cache.x">Compiler.cache_cons_cell and Compiler.cache_literal_var</a>
+produce cache references. Cache payloads are documented below separately.</p>
+<h3 id="initializers-and-destructuring"><a class="header" href="#initializers-and-destructuring">Initializers and destructuring</a></h3>
+<pre><code class="language-text">INITIALIZER ::= (composite (commas INIT-ITEM*))
+              | (dotinit MEMBER INIT-ITEM) | (indexinit EXPR INIT-ITEM)
+              | (commas EXPR*)
+              | (dstrasgn (targets EXPR*) EXPR)
+INIT-ITEM  ::= EXPR | INITIALIZER
+</code></pre>
+<p>Designators can nest, preserving the selected field/index at each step.
+<code>composite</code> remains an initializer until destination conversion determines its
+meaning. A destructuring assignment has its targets first and source expression
+second. The declaration variants are defined under declarations.</p>
+<p>Owners: <a href="https://github.com/gwf/x2c/blob/2c5870d64d381a861054dae9927aa65adc87e9e0/src/expressions/syntax.x">_parse_composite, _parse_designated_init,
+_parse_assignment_tail</a>;
+<a href="https://github.com/gwf/x2c/blob/2c5870d64d381a861054dae9927aa65adc87e9e0/src/expressions/resolution.x">_resolve_initializer, _composite, _destructure</a>;
+<a href="https://github.com/gwf/x2c/blob/2c5870d64d381a861054dae9927aa65adc87e9e0/src/initializers/conversion.x">Compiler.convert_initializer</a> and the
+<a href="https://github.com/gwf/x2c/blob/2c5870d64d381a861054dae9927aa65adc87e9e0/src/components/destructuring.x">destructuring component</a>. Native-dependent
+<code>initval</code> alternatives are internal conversion forms, defined below.</p>
+<h3 id="lambdas-and-typed-adaptation"><a class="header" href="#lambdas-and-typed-adaptation">Lambdas and typed adaptation</a></h3>
+<pre><code class="language-text">LAMBDA     ::= (lambda (params LAMBDA-PARAM*) LAMBDA-BODY)
+             | (lambda (params LAMBDA-PARAM*)
+                 (captures CAPTURE*) LAMBDA-BODY)
+LAMBDA-PARAM ::= BINDING | PARAM
+LAMBDA-BODY ::= EXPR | BLOCK | BODY-SLOT
+CAPTURE    ::= (capture CAPTURE-TARGET TYPE EXPR)
+CAPTURE-TARGET ::= BINDING | SPELLING | NAME-SLOT
+ADAPTATION ::= (tadapt TARGET-EXPR SOURCE-EXPR)
+             | (tadapt ORIGIN-ID SOURCE-EXPR)
+</code></pre>
+<p>Bare lambda parameters initially contain just bindings; lambda binding supplies
+their types. Empty lambdas can have <code>(params)</code>. Capture rows retain the target
+binding, stored type, and value expression. Reference captures store the
+address expression and its reference type. Supplied template capture targets
+can still be spellings or slots before binding.</p>
+<p>The two <code>tadapt</code> layouts belong to different stages. Resolution consumes a
+target typedef expression and produces <code>(expr TARGET (tadapt ORIGIN SOURCE))</code>.
+The callback lowerer consumes that resolved form. A memo key with the same head
+is not an adaptation expression.</p>
+<p>Owners: <a href="https://github.com/gwf/x2c/blob/2c5870d64d381a861054dae9927aa65adc87e9e0/src/lambdas.x">Compiler.parse_lambda_literal, Compiler.bind_lambda_expression,
+_prescribe</a>; <a href="https://github.com/gwf/x2c/blob/2c5870d64d381a861054dae9927aa65adc87e9e0/src/components/lambda-functions.x">lambda lowering</a>;
+<a href="https://github.com/gwf/x2c/blob/2c5870d64d381a861054dae9927aa65adc87e9e0/src/expressions/resolution.x">_tadapt</a>; <a href="https://github.com/gwf/x2c/blob/2c5870d64d381a861054dae9927aa65adc87e9e0/src/callables/callbacks.x">Compiler.lower_typed_adapter_expr</a>.
+See <a href="../reference/language.html#lambdas">lambdas</a>.</p>
+<h2 id="declarations-declarators-and-types"><a class="header" href="#declarations-declarators-and-types">Declarations, declarators, and types</a></h2>
+<h3 id="declaration-forms"><a class="header" href="#declaration-forms">Declaration forms</a></h3>
+<pre><code class="language-text">DECLARATION ::= (declare BASE BINDINGS) | (typedef BASE BINDINGS)
+              | DECL | FUNCTION | (falias DECLARATION NAME)
+              | (named-type SPELLING TYPE-SYNTAX)
+              | (named-type SPELLING ())
+DECL        ::= (decl BASE BINDINGS)
+BINDINGS    ::= (bindings DECLARATOR-ROW*)
+DECLARATOR-ROW ::= DECLARATOR | (op = DECLARATOR EXPR)
+                 | DECLARATOR-ROW-SLOT | (op = DECLARATOR-ROW-SLOT EXPR)
+DECLARATOR  ::= (bind DECLARATOR-NAME MODIFIERS)
+DECLARATOR-NAME ::= NAME | METHOD-NAME | ()
+FUNCTION    ::= (function BASE DECLARATOR FUNCTION-BODY)
+FUNCTION-BODY ::= BLOCK | (seq) | BODY-SLOT
+DSTR-DECL   ::= (dstrdecl BASE (targets NAME*) EXPR)
+              | (dstrdecl (params PARAM*) EXPR)
+</code></pre>
+<p>Unit and block declarations, aggregate fields, and expression type operands
+share declarator syntax but have different placement rules. Functions and
+foreign aliases bind at unit position. Destructuring declarations bind at block
+position. <code>decl</code> is an abstract/type or header declaration without a statement
+semicolon; it is not interchangeable with <code>declare</code> in every position.
+<code>named-type</code> is a unit form consumed into ordinary type declarations. An empty
+name in <code>bind</code> retains an abstract or unnamed declarator.</p>
+<p><code>falias</code> couples an ordinary declaration with its native target binding;
+emission writes the native alias using the existing type contract. Generation
+can also produce <code>(declare BASE DECLARATOR)</code> for one prototype, without the
+usual <code>bindings</code> wrapper. That is an emission form, not an additional
+constructed-source declaration shape.</p>
+<p>Owners: <a href="https://github.com/gwf/x2c/blob/2c5870d64d381a861054dae9927aa65adc87e9e0/src/parse/declarations.x">_bind_declaration, _finish_declaration, _bind_targets,
+_bind_typed_targets</a>;
+<a href="https://github.com/gwf/x2c/blob/2c5870d64d381a861054dae9927aa65adc87e9e0/src/parse/functions.x">_bind_function and function-body parsing</a>;
+<a href="https://github.com/gwf/x2c/blob/2c5870d64d381a861054dae9927aa65adc87e9e0/src/parse/types.x">named-type binding</a>; <a href="https://github.com/gwf/x2c/blob/2c5870d64d381a861054dae9927aa65adc87e9e0/src/generate/projection.x">_prototype</a>;
+<a href="https://github.com/gwf/x2c/blob/2c5870d64d381a861054dae9927aa65adc87e9e0/src/emit/declarations.x">_declare, _function, _foreign_alias</a>;
+<a href="https://github.com/gwf/x2c/blob/2c5870d64d381a861054dae9927aa65adc87e9e0/src/parse/placement.x">Compiler.enclosing and _ancestor_code</a>.</p>
+<h3 id="modifiers-and-parameters"><a class="header" href="#modifiers-and-parameters">Modifiers and parameters</a></h3>
+<pre><code class="language-text">MODIFIERS  ::= (MODIFIER-PART*)
+MODIFIER-PART ::= MODIFIER | FUNCTION-SUFFIX
+FUNCTION-SUFFIX ::= fnmod PARAMETERS MODIFIERS
+MODIFIER   ::= * | &amp; | opt-ref | ^ | QUALIFIER
+             | (dim) | (dim EXPR) | (bitfield EXPR)
+             | (fnmod PARAMETERS) | (fnmod PARAMETERS MODIFIERS)
+             | (ATTRIBUTE-TEXT)
+PARAMETERS ::= (params PARAM*)
+PARAM      ::= (param BASE DECLARATOR) | (...) | PARAM-SLOT
+QUALIFIER  ::= const | volatile | restrict
+</code></pre>
+<p>Modifier order states declarator nesting. A function suffix following other
+suffixes can splice <code>fnmod PARAMETERS MODIFIERS</code> into the enclosing modifier
+sequence without an extra List shell. Therefore a modifier sequence is not
+always a flat List of individually tagged modifier entries. The attribute form
+contains a String of native attribute text. <code>dim</code> without an operand retains an
+unspecified array bound. The pointer parser accepts a <code>^</code> block declarator
+only while collecting C headers, and Type operations keep it as a declarator
+modifier. <span class="x2c-wordmark">x2c</span> source that writes one is a parse error.</p>
+<p>A C no-argument parameter list is explicitly <code>(params (param (void) (bind () ())))</code>. Do not replace it with <code>(params)</code> solely because lambdas and calls
+permit empty parameter/argument sequences.</p>
+<p>A rest parameter <code>List @NAME</code> or <code>Map @NAME</code> uses
+<code>(param (.... CONTAINER) (bind NAME ()))</code>, where CONTAINER is <code>"List"</code> or
+<code>"Map"</code>. Its semantic parameter Type <code>(.... CONTAINER)</code> is one marker, not a
+modifier on CONTAINER, and is distinct from <code>(CONTAINER)</code>; its bound local and
+emitted native parameter are ordinary CONTAINER values. A <code>key: value</code> call
+argument is <code>(expr ("Map") (map-entry KEY VALUE))</code>. The final position in the
+parameter sequence owns the rest convention.</p>
+<p>Owners: <a href="https://github.com/gwf/x2c/blob/2c5870d64d381a861054dae9927aa65adc87e9e0/src/parse/declarators.x">_declarator, _declarator_suffix, _array_suffix,
+Compiler.parse_parameter</a>; <a href="https://github.com/gwf/x2c/blob/2c5870d64d381a861054dae9927aa65adc87e9e0/src/type.x">List.type_from_ast</a>;
+<a href="https://github.com/gwf/x2c/blob/2c5870d64d381a861054dae9927aa65adc87e9e0/src/emit/declarations.x">_declarator and _parameters</a>. Runtime
+<a href="https://github.com/gwf/x2c/blob/2c5870d64d381a861054dae9927aa65adc87e9e0/lib/type.x">Type operations</a> interpret semantic modifier order.</p>
+<h3 id="source-types-and-semantic-types"><a class="header" href="#source-types-and-semantic-types">Source types and semantic Types</a></h3>
+<pre><code class="language-text">TYPE-SYNTAX ::= BASE
+BASE       ::= (SOURCE-PREFIX* SOURCE-TAIL)
+SOURCE-PREFIX ::= QUALIFIER | STORAGE | inline | meta | MODIFIER
+                 | (NATIVE-TEXT)
+SOURCE-TAIL ::= TYPE-WORD+ | SPELLING | TYPE-SLOT
+               | struct TAG-NAME [FIELDS] | union TAG-NAME [FIELDS]
+               | struct FIELDS | union FIELDS
+               | enum TAG-NAME [ENUMERATORS] | enum ENUMERATORS
+FIELDS     ::= (fields FIELD-ITEM*)
+ENUMERATORS ::= (ENUMERATOR*)
+ENUMERATOR ::= NAME | DECLARATOR | (op = NAME EXPR)
+             | (op = DECLARATOR EXPR) | ENUMERATOR-SLOT
+TYPE       ::= (SEMANTIC-PREFIX* SEMANTIC-TAIL) | UNQUAL-TYPE
+             | (&lt;macro-expr&gt;) | (.... "List") | (.... "Map")
+SEMANTIC-PREFIX ::= QUALIFIER | STORAGE | inline | meta
+                   | SEMANTIC-MODIFIER | (NATIVE-TEXT)
+SEMANTIC-TAIL ::= TYPE-WORD+ | SPELLING | struct TAG-NAME
+                 | union TAG-NAME | struct (TYPE*) | union (TYPE*)
+                 | enum TAG-NAME [ENUMERATORS] | enum ENUMERATORS
+                 | NATIVE-TEXT (parens NODE)
+SEMANTIC-MODIFIER ::= * | &amp; | opt-ref | ^ | (dim) | (dim EXPR)
+                    | (bitfield EXPR) | (func (TYPE*))
+UNQUAL-TYPE ::= (unqual SEMANTIC-PREFIX* SEMANTIC-TAIL)
+</code></pre>
+<p>A tail expands in place, without adding a List shell. For example, <code>(static struct "Pair" (fields ...))</code> and <code>(* struct "Pair")</code> have <code>struct</code> in the
+containing type List, not inside an extra aggregate child. <code>X+</code> means one or
+more occurrences.</p>
+<p><code>TYPE-WORD</code> covers the existing scalar specifiers, including <code>void</code>, <code>char</code>,
+<code>short</code>, <code>int</code>, <code>long</code>, <code>signed</code>, <code>unsigned</code>, <code>float</code>, and <code>double</code>. <code>STORAGE</code>
+covers <code>typedef</code>, <code>static</code>, <code>auto</code>, <code>extern</code>, <code>register</code>, and <code>threaded</code>. These
+are components, not independent tagged program nodes. Fields can include
+declarations, static assertions, and category expansions at the ordinary field
+parser’s positions. Preprocessor groups retain their existing governed
+structure.</p>
+<p>There is no <code>(type ...)</code> wrapper. Semantic Types flatten declaration base and
+declarator modifiers. A semantic function type such as <code>((func ((int) (* char))) void)</code> has two parameter Types and a void result; source <code>fnmod</code>
+retains parameter declarations instead. Named aggregate conversion retains tag
+identity, while anonymous semantic bodies contain Types rather than source
+<code>fields</code> declarations.</p>
+<p>Generated native fragments can occur as a complete type sequence, for example
+<code>("__typeof__" (parens TARGET))</code>. <code>unqual</code> projects an unqualified value type
+for inferred declarations and is also recognized by emission. Native fragments
+do not introduce new language type syntax.</p>
+<p>Owners: <a href="https://github.com/gwf/x2c/blob/2c5870d64d381a861054dae9927aa65adc87e9e0/src/parse/types.x">_tagged_type, _finish_type, enumerator binding</a>;
+<a href="https://github.com/gwf/x2c/blob/2c5870d64d381a861054dae9927aa65adc87e9e0/src/type.x">List.type_from_ast, Type.parts, Type.declaration_ast,
+Type.parameter_ast</a>;
+<a href="https://github.com/gwf/x2c/blob/2c5870d64d381a861054dae9927aa65adc87e9e0/lib/meta.x">type_declaration_parts</a>;
+<a href="https://github.com/gwf/x2c/blob/2c5870d64d381a861054dae9927aa65adc87e9e0/lib/type.x">Type.function_parts and structural Type operations</a>;
+<a href="https://github.com/gwf/x2c/blob/2c5870d64d381a861054dae9927aa65adc87e9e0/src/initializers/conversion.x">Compiler.convert_initializer</a>;
+<a href="https://github.com/gwf/x2c/blob/2c5870d64d381a861054dae9927aa65adc87e9e0/src/emit/declarations.x">_semantic_type, _aggregate, _enum</a>.
+Use these owners for conversion rather than reconstructing type precedence.</p>
+<h2 id="statements-and-control-flow"><a class="header" href="#statements-and-control-flow">Statements and control flow</a></h2>
+<h3 id="ordinary-statements-and-sequences"><a class="header" href="#ordinary-statements-and-sequences">Ordinary statements and sequences</a></h3>
+<pre><code class="language-text">BLOCK      ::= (block BLOCK-ITEM*)
+BLOCK-ITEM ::= DECLARATION | DSTR-DECL | STATEMENT | ORIGIN | PENDING
+              | PREPROCESSOR
+STATEMENT  ::= BLOCK | ORIGIN | SOURCE | PENDING | (stmnt EXPR) | (empty)
+             | (group NODE*) | (seq NODE*)
+             | (return) | (return TYPE EXPR) | (return EXPR)
+             | (if EXPR STATEMENT) | (if EXPR STATEMENT STATEMENT)
+             | (while EXPR STATEMENT) | (do STATEMENT EXPR)
+             | (for FOR-INIT OPTIONAL-EXPR OPTIONAL-EXPR STATEMENT)
+             | (switch EXPR STATEMENT) | (case EXPR) | (default)
+             | (break) | (continue) | (goto NAME) | (label NAME)
+             | (defer STATEMENT) | RAISE | TRY | MATCH
+FOR-INIT   ::= DECL | DECLARATION | EXPR | ()
+OPTIONAL-EXPR ::= EXPR | ()
+PREPROCESSOR ::= (preproc TEXT)
+</code></pre>
+<p><code>block</code> introduces braces/scope; <code>group</code> retains governed preprocessor
+structure without adding braces. <code>seq</code> splices syntax items at unit/block
+boundaries. It is consumed there during binding/lowering, not emitted as a
+special C statement. A sequence is not automatically legal as one governed
+statement.</p>
+<p><code>(return)</code> has no value. Bound value returns retain the function’s target TYPE,
+as <code>(return TYPE EXPR)</code>; lowering converts the operand and removes that field,
+yielding <code>(return EXPR)</code>. The same head therefore has three legal layouts. At
+emission only, <code>stmnt</code> may also wrap lowered statement content, such as <code>(stmnt (return EXPR))</code> from a generated callable helper; the emitter appends a
+semicolon.</p>
+<p>Owners: <a href="https://github.com/gwf/x2c/blob/2c5870d64d381a861054dae9927aa65adc87e9e0/src/statements.x">Compiler.finish_return_statement, Compiler.parse_governed,
+_block_items, _goto_statement</a>; <a href="https://github.com/gwf/x2c/blob/2c5870d64d381a861054dae9927aa65adc87e9e0/src/parse/binding.x">_bind_form and control
+binders</a>;
+<a href="https://github.com/gwf/x2c/blob/2c5870d64d381a861054dae9927aa65adc87e9e0/src/transform/expressions.x">_return</a>; <a href="https://github.com/gwf/x2c/blob/2c5870d64d381a861054dae9927aa65adc87e9e0/src/transform/traversal.x">_sequence_tail</a>;
+<a href="https://github.com/gwf/x2c/blob/2c5870d64d381a861054dae9927aa65adc87e9e0/src/cleanup/transfers.x">_rewrite and transfer lowering</a>;
+<a href="https://github.com/gwf/x2c/blob/2c5870d64d381a861054dae9927aa65adc87e9e0/src/emit/dispatch.x">_emit and _leaf</a>. The <a href="https://github.com/gwf/x2c/blob/2c5870d64d381a861054dae9927aa65adc87e9e0/src/grammar.x">source-form helpers</a>
+name selected layouts for construction and recognition, not the whole grammar.</p>
+<h3 id="match-raise-and-catch-rows"><a class="header" href="#match-raise-and-catch-rows">Match, raise, and catch rows</a></h3>
+<pre><code class="language-text">RAISE      ::= (raise EXPR (args DETAIL-EXPR*))
+TRY        ::= (try STATEMENT CATCHES-OR-EMPTY FINALIZER-OR-EMPTY)
+CATCHES-OR-EMPTY ::= () | (catchcases (CATCH-ROW*) BINDING)
+CATCH-ROW  ::= (PATTERN-EXPR STATEMENT) | (() STATEMENT) | CATCH-SLOT
+FINALIZER-OR-EMPTY ::= STATEMENT | ()
+MATCH      ::= (match EXPR (MATCH-ROW*))
+MATCH-ROW  ::= (PATTERN-EXPR ARM-BODY) | ((*) ARM-BODY)
+             | PREPROCESSOR | MATCH-ROW-SLOT
+ARM-BODY   ::= STATEMENT | (guarded STATEMENT)
+PATTERN-TEST ::= (expr () (matches EXPR PATTERN-EXPR TYPED-CAPTURES))
+              | (expr (int) (matches EXPR PATTERN-EXPR BLOCK VISIBLE-BINDINGS))
+MATCH-IF   ::= (match-if EXPR (PATTERN-EXPR STATEMENT))
+</code></pre>
+<p>Raise arguments alternate detail-key expressions and value expressions. A
+catch’s default pattern is <code>()</code>; a match default is the raw List <code>(*)</code>. Other
+patterns are expressions producing Match data. Pattern operators and capture
+binders inside that data are not additional AST node kinds.</p>
+<p><code>catchcases</code> retains the generated handler binding after its ordered arm List.
+Match rows can interleave preprocessor directives. Guards initially become an
+<code>if</code> whose successful block ends with <code>break</code>; typed captures can wrap this
+with declarations before <code>(guarded STATEMENT)</code> is applied. Therefore <code>guarded</code>
+does not require an immediate <code>if</code> child. Match and catch bodies can already
+contain generated capture declarations at the bound stage.</p>
+<p><code>~=</code> parses as <code>matches</code> expression content. Binding replaces its typed
+capture descriptions with capture declarations and <code>(BINDING TYPE)</code> rows.
+The rows expose the existing identities only to successful continuations.
+Positive <code>&amp;&amp;</code> and <code>if</code> lower to nested conditions. Their internal <code>match-if</code>
+uses ordinary match tests without a switch or implicit break. A predicate
+used as a value wraps those conditions in a statement expression returning
+an <code>int</code>. Constructed <code>(expr () (op ~= EXPR PATTERN-EXPR))</code> also enters the
+same pattern binder.</p>
+<p>Owners: <a href="https://github.com/gwf/x2c/blob/2c5870d64d381a861054dae9927aa65adc87e9e0/src/statements.x">_raise_statement, _catch_cases, _match_cases,
+Compiler.parse_case_body</a>; <a href="https://github.com/gwf/x2c/blob/2c5870d64d381a861054dae9927aa65adc87e9e0/src/parse/binding.x">_bind_catchcases, _bind_try,
+_bind_match</a>; <a href="https://github.com/gwf/x2c/blob/2c5870d64d381a861054dae9927aa65adc87e9e0/src/components/try-catch.x">try lowering</a>;
+<a href="https://github.com/gwf/x2c/blob/2c5870d64d381a861054dae9927aa65adc87e9e0/src/components/pattern-match.x">match lowering</a>; <a href="https://github.com/gwf/x2c/blob/2c5870d64d381a861054dae9927aa65adc87e9e0/src/components/raise.x">raise lowering</a>.
+Cleanup consumes landing/defer forms below; the emitter handles surviving
+<code>raise</code> nodes. See <a href="../reference/language.html#match">Match</a> and
+<a href="../reference/language.html#errors-and-cleanup">Errors and cleanup</a>.</p>
+<h2 id="compile-time-and-intermediate-forms"><a class="header" href="#compile-time-and-intermediate-forms">Compile-time and intermediate forms</a></h2>
+<p>These values explain literal Lists in compiler and runtime source. Their
+presence here does not make every carrier available at source unit position.</p>
+<h3 id="pending-applications-and-captures"><a class="header" href="#pending-applications-and-captures">Pending applications and captures</a></h3>
+<pre><code class="language-text">PENDING    ::= (macro-invoke DEFINITION-REF INVOCATION-INPUT SITE)
+             | (macro-slot SPLICE-FLAG META-EXPR)
+             | (macro-slot SPLICE-FLAG META-EXPR SLOT-CONTEXT*)
+             | (macro-bind PROJECTION-ATOM)
+             | (meta-call EXPR ARGUMENTS)
+             | (meta-cap PROJECTION-ATOM) | (meta-cap (PROJECTION-ATOM))
+             | (tpl-call DEFINITION-OR-EXPR ARGUMENTS)
+             | (macro-value MACRO-DEFINITION)
+DEFINITION-REF ::= MACRO-DEFINITION | NAME-ATOM
+                 | (!quote MACRO-DEFINITION) | (local-macro NAME-ATOM)
+INVOCATION-INPUT ::= (args INVOCATION-CAPTURE* [FRESH-INPUT])
+                   | (target (args INVOCATION-CAPTURE*)
+                       INVOCATION-CAPTURE [FRESH-INPUT])
+FRESH-INPUT ::= (fresh INVOCATION-CAPTURE*)
+INVOCATION-CAPTURE ::= (capture (source VALUE) (value VALUE)
+                         (expression VALUE) (splice VALUE*) REQUIREMENT*)
+                     | (capture (source VALUE*) (value VALUE*) REQUIREMENT*)
+SITE       ::= TOKEN | m-invoke
+SLOT-CONTEXT ::= (construct VALUE) | (target VALUE)
+</code></pre>
+<p>The first capture alternative is scalar; the second is a sequence capture.
+These assoc-row capture records differ from lambda captures. <code>META-EXPR</code> is
+a meta-expression List. <code>SPLICE-FLAG</code> states scalar versus sequence insertion.
+The parser produces the three-element slot without trailing context rows.
+The consumer also accepts the displayed SLOT-CONTEXT rows in constructed
+slots; no current slot parser produces those rows.</p>
+<p><code>REQUIREMENT</code> is a construction-projection binder or <code>(construct SOURCE)</code>
+record attached to Unit-target capture rows, not another operand of the
+source expression. Unit invocation captures still produce these requirements.</p>
+<p>Projection atoms identify a hole and one of its source/value/expression/splice
+views. <code>meta-cap</code> can hold the atom directly or inside a List, depending on
+whether the containing List itself is the required value. A template call can
+name a stored definition or carry a callee expression. Within a template, a
+pending invocation can retain its descriptor as <code>(!quote MACRO-DEFINITION)</code>;
+that quotes the descriptor data, not its resulting program syntax. These forms are consumed
+or retained according to template stage, not emitted as C calls.</p>
+<p>Owners: <a href="https://github.com/gwf/x2c/blob/2c5870d64d381a861054dae9927aa65adc87e9e0/src/macros/invocations/targets.x">_invocation_node and _stored_reference</a>;
+<a href="https://github.com/gwf/x2c/blob/2c5870d64d381a861054dae9927aa65adc87e9e0/src/macros/invocations/expressions.x">_parse_meta_call, _meta_argument, _expression_invocation,
+_template_call</a>;
+<a href="https://github.com/gwf/x2c/blob/2c5870d64d381a861054dae9927aa65adc87e9e0/src/macros/invocations/captures.x">_scalar_row, _sequence_row, _forwarded_capture</a>;
+<a href="https://github.com/gwf/x2c/blob/2c5870d64d381a861054dae9927aa65adc87e9e0/src/macros/definitions/slots.x">Compiler.try_parse_macro_slot</a>;
+<a href="https://github.com/gwf/x2c/blob/2c5870d64d381a861054dae9927aa65adc87e9e0/src/macros/expansion.x">Compiler.expand_macro_invocation_node and _bind_expansion</a>;
+<a href="https://github.com/gwf/x2c/blob/2c5870d64d381a861054dae9927aa65adc87e9e0/src/expressions/resolution.x">expression resolution</a> and
+<a href="https://github.com/gwf/x2c/blob/2c5870d64d381a861054dae9927aa65adc87e9e0/src/stage.x">Compiler.meta_argument</a> consume meta projections and calls.</p>
+<h3 id="string-headed-syntax-values-and-quotation"><a class="header" href="#string-headed-syntax-values-and-quotation">String-headed syntax values and quotation</a></h3>
+<pre><code class="language-text">APPLICATION ::= ("x2c.template" MACRO-DEFINITION (VALUE*))
+QUOTED      ::= ("x2c.quoted" . NODE)
+              | ("x2c.quoted" (QUOTED-FRESH-ROW*) NODE)
+QUOTED-HOLE ::= ("x2c.hole" REDUCED-HOLE PROJECTION VALUE)
+REDUCED-HOLE ::= (macro-param (kind HOLE-KIND) (sequence FLAG))
+QUOTED-ANCHOR ::= ("x2c.at" NODE)
+IDENTIFIER-VALUE ::= ("x2c.ident" SPELLING)
+QUOTED-FRESH-ROW ::= (BINDER SPELLING FILE-LINKAGE-FLAG)
+PROJECTION ::= source | value | expression | splice | member | shell
+</code></pre>
+<p>In the completed form, <code>. NODE</code> denotes the tail itself: cons the String tag
+onto the canonical node. Constant quotations can share the literal cache’s
+node and carrier. The three-field form retains supplied values whose
+projections, private names, or source information still use placement. Its
+hole records do not represent arguments waiting to be supplied.</p>
+<p>A NAME-SLOT, TYPE-SLOT, MEMBER-SLOT, BODY-SLOT, or category row slot in the
+preceding productions is a <code>macro-bind</code> or <code>macro-slot</code> in that parser
+position. A sequence projection can occupy a complete row/child sequence; it
+does not change the enclosing production after expansion.</p>
+<p>The application contains one grouped value per formal hole; a sequence formal’s
+remaining values occupy one List. A quotation holds its fresh-name rows and
+syntax. A quotation fresh row marks whether a file-scope row declares the name
+with linkage. Each reduced hole records kind and sequence status, without its
+descriptor’s <code>binder</code> row. <code>shell</code> denotes expression-shell insertion. Quoted
+anchors acquire the landing context’s origin as required; they are not verbatim
+C text despite their String heads.</p>
+<p>Owners: <a href="https://github.com/gwf/x2c/blob/2c5870d64d381a861054dae9927aa65adc87e9e0/lib/macrovalue/construction.x">Macro_apply and _group</a>;
+<a href="https://github.com/gwf/x2c/blob/2c5870d64d381a861054dae9927aa65adc87e9e0/src/macros/definitions/quotations.x">_construction, _built_item, _built_hole</a>;
+<a href="https://github.com/gwf/x2c/blob/2c5870d64d381a861054dae9927aa65adc87e9e0/src/macros/templates.x">Compiler.land_quotation, _fill_syntax, _splices, _project_hole,
+_helper_result</a>. Runtime
+<a href="https://github.com/gwf/x2c/blob/2c5870d64d381a861054dae9927aa65adc87e9e0/lib/macrovalue/recognition.x">recognition</a> and <a href="https://github.com/gwf/x2c/blob/2c5870d64d381a861054dae9927aa65adc87e9e0/lib/macrovalue/patterns.x">pattern projection</a>
+handle these structures as well as bound AST names and expression shells.
+See <a href="../reference/language.html#macro-visible-syntax">quotation semantics</a>.</p>
+<h3 id="macro-definitions"><a class="header" href="#macro-definitions">Macro definitions</a></h3>
+<pre><code class="language-text">MACRO-DEFINITION ::= (macrodef DESCRIPTOR-ROW*)
+DESCRIPTOR-ROW ::= (name NAME-ATOM) | (kind RESULT-KIND)
+                 | (target TARGET-KIND-OR-ZERO) | (targetp HOLE-OR-EMPTY)
+                 | (parameters (HOLE*)) | (fresh (TEMPLATE-FRESH-ROW*))
+                 | (captures (BINDING*)) | (pattern MATCH-PATTERN)
+                 | (template NODE) | (rebuild REBUILD-OR-EMPTY)
+                 | (leaf FLAG) | (origin LOCATION) | (file PATH)
+                 | (builtin FLAG) | (local FLAG) | (static FLAG)
+                 | (env (ENV-ROW*))
+HOLE       ::= (macro-param (binder BINDER) (kind HOLE-KIND) (sequence FLAG))
+TEMPLATE-FRESH-ROW ::= (BINDER SPELLING META-READ-FLAG)
+REBUILD-OR-EMPTY ::= () | (REBUILD-SYNTAX (REBUILD-KEY-ROW*))
+REBUILD-KEY-ROW ::= (SOURCE-KEY VALUE-KEY EXPRESSION-KEY SPLICE-KEY
+                    RETURN-KEY DECLARATOR-KEY)
+ENV-ROW    ::= (IDENTITY VALUE)
+</code></pre>
+<p>The definition producer writes one of each descriptor row except <code>env</code>;
+<code>Macro_close</code> can append the captured environment. Consumers use assoc lookup,
+not the physical row order. Kind and target categories select ordinary
+parser/binder positions. <code>FLAG</code> is an integer flag. A full fresh row’s flag
+marks meta-call name use; quotation construction derives the fresh rows
+it needs for landing. Each rebuild key is a projection binder or the Symbol <code>?</code>
+for an unused projection. Parameter rows precede the decorator target row.
+Environment identities normally use <code>(binding-name SPELLING)</code>, preserving
+references across translation contexts. Rebuild and environment rows are
+descriptor data, not another program production.</p>
+<p><code>Macro</code> is a singular hole and decorator target kind. A capture carries the
+canonical Macro value. Nested definitions give their own holes distinct
+binder identities while retaining source spellings for lookup and diagnostics.
+Returning a bare <code>macrodef</code> during decoration is a Macro transformation;
+returning a Decorator value continues onto its following target. A generated
+<code>seq</code> instead uses the captured macro’s result kind. Declaration and collected
+Unit sequences retain the ordinary <code>declaration-bundle</code> production, including
+empty output and several mapped applications.</p>
+<p>Global definitions bind at unit position; local definitions bind in blocks.
+<code>imported</code> is not a current produced descriptor row. The macro registry instead
+has a separate <code>(imported-macro FROZEN-DEFINITION)</code> wrapper.</p>
+<p>Owners: <a href="https://github.com/gwf/x2c/blob/2c5870d64d381a861054dae9927aa65adc87e9e0/src/macros/definitions/templates.x">_definition_node, _fresh_rows, _rebuild_template,
+_rebuild_keys</a>; <a href="https://github.com/gwf/x2c/blob/2c5870d64d381a861054dae9927aa65adc87e9e0/src/macros/definitions/reading.x">definition reading</a>;
+<a href="https://github.com/gwf/x2c/blob/2c5870d64d381a861054dae9927aa65adc87e9e0/lib/macrovalue/construction.x">Macro_close</a>; <a href="https://github.com/gwf/x2c/blob/2c5870d64d381a861054dae9927aa65adc87e9e0/src/parse/units.x">_bind_macrodef</a>.
+The <a href="../reference/syntax/grammar.html#m1-arguments-and-positions">source grammar</a>
+owns category spellings; this chapter documents their stored forms.</p>
+<h3 id="code-values-and-effects"><a class="header" href="#code-values-and-effects">Code values and effects</a></h3>
+<pre><code class="language-text">CODE-VALUE ::= (code-value STAGE CODE (EFFECT*))
+STAGE      ::= "source" | "bound" | "lowered"
+EFFECT     ::= (rewrite POINT KIND NAME SHAPE HOLES)
+             | (new-name TOKEN ROLE-STRING) | (cleanup TOKEN PLACED-CODE)
+</code></pre>
+<p>Compile-time scalar results enter ordinary syntax through
+<a href="https://github.com/gwf/x2c/blob/2c5870d64d381a861054dae9927aa65adc87e9e0/src/macros/templates.x">Compiler.lift_meta_expression and Compiler.bind_meta_statement</a>.
+A source carrier requires ordinary binding. A bound or lowered carrier retains
+completed work. Effects apply in order within the macro application’s
+transaction; new-name and cleanup tokens are replaced in CODE. Effects are not
+executable statements. A lowered carrier is not sent through a new binder
+merely to establish a fact its producer already supplies.</p>
+<p>Owners: <a href="https://github.com/gwf/x2c/blob/2c5870d64d381a861054dae9927aa65adc87e9e0/src/meta-sdk/syntax.x">Code.bound and Code.lowered</a>;
+<a href="https://github.com/gwf/x2c/blob/2c5870d64d381a861054dae9927aa65adc87e9e0/src/macros/values.x">Compiler.take_code_value, _code_effects, Compiler.bind_code_value</a>;
+<a href="https://github.com/gwf/x2c/blob/2c5870d64d381a861054dae9927aa65adc87e9e0/lib/meta.x">Code constructors</a>.</p>
+<h3 id="retained-declaration-production"><a class="header" href="#retained-declaration-production">Retained declaration production</a></h3>
+<pre><code class="language-text">DECLARATION-PRODUCTION ::= (declaration-bundle (rows NODE*))
+                         | (syntax-recipe CALLBACK ARGUMENTS-VALUE)
+                         | (declaration-recipe CALLBACK ARGUMENTS-VALUE)
+                         | (default FUNCTION)
+                         | (default-forward CHILD PARENT MEMBER FALLBACK*)
+                         | (declaration-pending CALLBACK ARGUMENTS-VALUE
+                             MACRO-STACK PRIVACY)
+                         | (declaration-forward CHILD PARENT MEMBER
+                             (FALLBACK*) PRIVACY)
+                         | (declaration-default FUNCTION MACRO-STACK PRIVACY)
+                         | (declaration-function DECLARATION BODY MACRO-STACK)
+                         | (declaration-initialized DECLARATION MACRO-STACK)
+</code></pre>
+<p>Bundles, declaration recipes/defaults, and collected function/initializer
+carriers are unit forms. <code>syntax-recipe</code> instead uses the caller’s position.
+Collected functions retain one declared function, its body, and the macro
+context needed to bind it later. Collected initialized declarations likewise
+retain that context. Defaults and forwarding candidates are selected by the
+existing declaration owner before binding the selected bodies.
+<code>ARGUMENTS-VALUE</code> is callback data, not necessarily an AST <code>args</code> node.</p>
+<p>Owners: <a href="https://github.com/gwf/x2c/blob/2c5870d64d381a861054dae9927aa65adc87e9e0/src/macros/expansion.x">_construct</a>; <a href="https://github.com/gwf/x2c/blob/2c5870d64d381a861054dae9927aa65adc87e9e0/src/parse/units.x">_bind_bundle, _bind_recipe,
+_bind_decl_recipe, _bind_default</a>;
+<a href="https://github.com/gwf/x2c/blob/2c5870d64d381a861054dae9927aa65adc87e9e0/src/parse/functions.x">collected function production</a>;
+<a href="https://github.com/gwf/x2c/blob/2c5870d64d381a861054dae9927aa65adc87e9e0/src/parse/declarations.x">collected initializer production</a>;
+<a href="https://github.com/gwf/x2c/blob/2c5870d64d381a861054dae9927aa65adc87e9e0/src/compiler/declarations/defaults.x">Compiler.select_declaration_defaults, _produce_rows, _select,
+_forward</a>;
+<a href="https://github.com/gwf/x2c/blob/2c5870d64d381a861054dae9927aa65adc87e9e0/src/compiler/declarations/production.x">_retain_bundle and Compiler.replay_declaration_source</a>.
+See <a href="../reference/language.html#named-types-and-declaration-production">named types and declaration
+production</a>.</p>
+<h3 id="imports-protocols-and-static-assertions"><a class="header" href="#imports-protocols-and-static-assertions">Imports, protocols, and static assertions</a></h3>
+<pre><code class="language-text">IMPORT     ::= (import PACKAGE-STRING ALIAS-STRING)
+ASSERTION  ::= (c-assert) | (c-assert EXPR EXPR)
+PROTOCOL   ::= (protocol PROTOCOL-RECORD STORAGE-MODE LOCATION)
+PROTOCOL-RECORD ::= ("protocol-record" BASE PARTICIPANT-STRING
+                     (associated ASSOCIATED-ROW*) (members MEMBER-ROW*))
+ASSOCIATED-ROW ::= (SPELLING TYPE)
+MEMBER-ROW ::= (SPELLING SIGNATURE-TYPE NATIVE-NAME-OR-EMPTY)
+ADOPTION   ::= (adopt BASE TYPE STORAGE-MODE LOCATION)
+             | (adopt BASE TYPE STORAGE-MODE TYPE LOCATION)
+             | (adopt BASE TYPE STORAGE-MODE (tag EXPR) LOCATION)
+META-PROTOCOL ::= (meta-protocol ADOPTION) | (meta-protocol BASE TYPE)
+STORAGE-MODE ::= external | static
+CONFORMANCE ::= (conform BASE PARTICIPANT FORWARD REVERSE BINDER
+                 DESCRIPTOR (CONFORMANCE-ROW*))
+CONFORMANCE-ROW ::= (MEMBER STATUS SOURCE EXPECTED TEMPLATE PART*)
+</code></pre>
+<p>Imports are parser-retained unit items; the alias defaults to the package name.
+The constructed-syntax binder does not directly accept an <code>import</code> node; import
+replay uses its owning effect path. Imported member selection is retained
+separately, without extending the <code>import</code> node. <code>c-assert</code> with operands is
+legal at unit, block, or field position; the empty form is a shallow-collection
+marker without the discarded operands. Protocol and adoption forms are unit
+items, with associated types and members held in ordered record rows. The
+extended adoption adds a representation or a tag expression; the existing
+protocol rules determine which applies.</p>
+<p>A <code>conform</code> node is never program syntax. The compiler presents each resolved
+conformance that needs generated support to the protocol adapter rule as one
+<code>conform</code> node, and the rule places the forwarding members, descriptor
+thunks, method table, and descriptor registration. Each PART asks for one
+generated declaration: <code>(default NAME STORAGE)</code>, <code>(inherited NAME EXPECTED)</code>,
+or <code>(thunk NAME ERASED)</code>. The comment above <code>protocol_conformance</code> in
+<code>src/components/protocol-adapters.x</code> defines every field.</p>
+<p>Owners: <a href="https://github.com/gwf/x2c/blob/2c5870d64d381a861054dae9927aa65adc87e9e0/src/parse/units.x">_parse_import_declaration</a>; <a href="https://github.com/gwf/x2c/blob/2c5870d64d381a861054dae9927aa65adc87e9e0/src/parse/declarations.x">static assertions</a>;
+<a href="https://github.com/gwf/x2c/blob/2c5870d64d381a861054dae9927aa65adc87e9e0/src/protocol/declarations.x">_body, _parse_associated, _parse_member, _adoption</a>;
+<a href="https://github.com/gwf/x2c/blob/2c5870d64d381a861054dae9927aa65adc87e9e0/src/protocol/registry.x">_adoption_node, Compiler.publish_protocol_node,
+_retain_meta_protocol</a>. See
+<a href="../guide/protocols.html">protocols</a>.</p>
+<h2 id="lowered-forms-and-emission"><a class="header" href="#lowered-forms-and-emission">Lowered forms and emission</a></h2>
+<h3 id="conversion-error-sites"><a class="header" href="#conversion-error-sites">Conversion error sites</a></h3>
+<pre><code class="language-text">ERROR-SITE ::= (error-site)
+</code></pre>
+<p>Compiler-inserted scalar conversions pass this expression to
+<code>Var_convert_at</code>, or to a site-carrying wide reader such as <code>Var_long_at</code>.
+Emission returns the address of a static <code>X2CErrorSite</code>
+with the current origin’s file, function, and line. It shares the site-field
+owner used by <code>raise</code>; the conversion reads the site only on failure.</p>
+<h3 id="native-dependent-initializer-alternatives"><a class="header" href="#native-dependent-initializer-alternatives">Native-dependent initializer alternatives</a></h3>
+<pre><code class="language-text">INITVAL    ::= (initval [(input INPUT-ROW*)] INITIALIZER-CHOICE*)
+INPUT-ROW  ::= (FORMAL EXPR)
+INITIALIZER-CHOICE ::= (CONDITION PATH DESTINATION-TYPE VALUE-EXPR)
+CONDITION  ::= EXPR | ()
+DESTINATION-TYPE ::= TYPE | ()
+PATH       ::= (PATH-FRAME*)
+PATH-FRAME ::= (OWNER-TYPE field FIELD-NAME SELECTED-TYPE FOLLOWING-FIELDS)
+             | (OWNER-TYPE index INDEX-EXPR SELECTED-TYPE ())
+FOLLOWING-FIELDS ::= (FIELD-FACT*)
+FIELD-FACT ::= (FIELD-NAME FIELD-TYPE)
+</code></pre>
+<p>An <code>initval</code> is conversion content under an expression shell. Its optional
+input header captures the source operands once for native alternatives. A
+FORMAL can occur as a bare String expression content placeholder. An empty
+condition is unconditional; an empty destination is an excess initializer
+alternative. PATH is a stack of untagged frames, newest first; slot
+construction visits it in reverse. Empty field names retain anonymous aggregate
+members. These frames are not <code>(dotinit ...)</code>/<code>(indexinit ...)</code> selector ASTs.</p>
+<p>Owners: <a href="https://github.com/gwf/x2c/blob/2c5870d64d381a861054dae9927aa65adc87e9e0/src/initializers/subobjects.x">Compiler.initializer_rows, _field_path, _first_path, _designated_path,
+Compiler.initializer_slot</a>;
+<a href="https://github.com/gwf/x2c/blob/2c5870d64d381a861054dae9927aa65adc87e9e0/src/initializers/conversion.x">_materialize_mixed_row and Compiler.convert_initializer</a>;
+<a href="https://github.com/gwf/x2c/blob/2c5870d64d381a861054dae9927aa65adc87e9e0/src/expressions/resolution.x">_initval</a>; <a href="https://github.com/gwf/x2c/blob/2c5870d64d381a861054dae9927aa65adc87e9e0/src/ast.x">Ast.initializer_cases and
+Ast.initializer_functions</a>; <a href="https://github.com/gwf/x2c/blob/2c5870d64d381a861054dae9927aa65adc87e9e0/src/emit/initialization.x">_initializer_value</a>. The
+ordinary initializer owner supplies the destination choices. Consumers must not
+infer a different path grammar from designator syntax.</p>
+<h3 id="cleanup-initialization-and-generated-markers"><a class="header" href="#cleanup-initialization-and-generated-markers">Cleanup, initialization, and generated markers</a></h3>
+<pre><code class="language-text">LOWERED-NODE ::= (localinit STATIC-DECL BLOCK) | (sourceinit FUNCTION)
+               | (initcode (input INPUT-ROW*) (NODE*))
+               | (staticinit BINDING INITIALIZER-VALUE)
+               | (defer STATEMENT ENVIRONMENT CALLBACK
+                   (CAPTURE-RECORD*) (BINDING*))
+               | (landing CODE (LANDING-ROW*))
+               | (function BASE DECLARATOR BODY kernel)
+               | (try STATEMENT () STATEMENT kernel)
+STATIC-DECL ::= DECLARATION | (at ORIGIN-ID STATIC-DECL)
+ENVIRONMENT ::= BINDING | ()
+CALLBACK    ::= BINDING
+CAPTURE-RECORD ::= (BINDING STORAGE-TYPE FIELD-BINDING)
+LANDING-ROW ::= (new-name BINDER ROLE-STRING) | (outer BINDER NODE)
+              | (exits BINDER CODE) | (region BINDER NODE)
+</code></pre>
+<p>The extended <code>defer</code> holds its callback environment, capture records, and
+written bindings until cleanup places its calls on exits. The simple source
+<code>defer</code> has only one body child. <code>localinit</code> owns a local static declaration
+and the remaining block; <code>staticinit</code> wraps its initializer with a cleanup
+binding. <code>sourceinit</code> retains a generated unit-initializer function. <code>initcode</code>
+packages initializer input with its untagged statement sequence for a native
+macro body. The declaration in <code>localinit</code> can retain origin wrappers, which
+its emitter removes before reading the declarators.</p>
+<p>A landing executes rows in order. <code>new-name</code> introduces a binding; <code>outer</code>
+lowers in the enclosing context; <code>exits</code> supplies cleanup for subsequent
+regions; <code>region</code> lowers its body within that cleanup context. Binder atoms are
+temporary substitution keys, distinct from positive binding IDs. CODE can be
+pending quotation/application syntax before cleanup binds it.</p>
+<p>The literal <code>kernel</code> marker selects shipped rules for a generated function or a
+fallback try region. The transform removes the marker before emission. It is
+neither another body child nor a new source keyword.</p>
+<p>Owners: <a href="https://github.com/gwf/x2c/blob/2c5870d64d381a861054dae9927aa65adc87e9e0/src/cleanup/defer.x">Compiler.rewrite_defer_list, Compiler.lower_defer_region,
+_callable_defer, _landing_region</a>;
+<a href="https://github.com/gwf/x2c/blob/2c5870d64d381a861054dae9927aa65adc87e9e0/src/cleanup/statics.x">_static_regions, _static_initializers</a>;
+<a href="https://github.com/gwf/x2c/blob/2c5870d64d381a861054dae9927aa65adc87e9e0/src/cleanup/transfers.x">_lower_defer, _lower_landing, _inside, Compiler.lower_cleanup</a>;
+<a href="https://github.com/gwf/x2c/blob/2c5870d64d381a861054dae9927aa65adc87e9e0/src/components/try-catch.x">_try_landing</a>; <a href="https://github.com/gwf/x2c/blob/2c5870d64d381a861054dae9927aa65adc87e9e0/src/transform/traversal.x">_written_function</a>;
+<a href="https://github.com/gwf/x2c/blob/2c5870d64d381a861054dae9927aa65adc87e9e0/src/cache.x">source initialization and initializer assembly</a>;
+<a href="https://github.com/gwf/x2c/blob/2c5870d64d381a861054dae9927aa65adc87e9e0/src/emit/initialization.x">_local_static, _static_binding, _source_initializer,
+_initializer_macro</a>.</p>
+<h3 id="placed-code-and-match-tests"><a class="header" href="#placed-code-and-match-tests">Placed code and match tests</a></h3>
+<pre><code class="language-text">PLACED     ::= (placed NODE)
+MATCH-TEST ::= (m-all TEST*) | (m-any TEST*)
+             | (m-next CURSOR PRIOR) | (m-step CURSOR PRIOR)
+             | (m-take LOCAL CURSOR) | (m-bits CURSOR BITS)
+</code></pre>
+<p>Match lowering writes code that is already lowered. <code>placed</code> wraps a lowered
+match switch or arm. The transform lowers only the source parts that the
+active lowering watches inside it and renders the rest as C text; emission
+prints NODE. The match tests are C conditions over List cells. <code>m-all</code> and
+<code>m-any</code> join two or more tests with <code>&amp;&amp;</code> and <code>||</code>. <code>m-next</code> assigns the
+<code>cdr</code> of PRIOR to CURSOR and holds, while <code>m-step</code> makes the same assignment
+and tests the new cursor. <code>m-take</code> assigns the <code>car</code> of CURSOR to LOCAL and
+holds. <code>m-bits</code> compares the <code>u64</code> bits of the <code>car</code> of CURSOR with the
+<code>uint64_t</code> literal BITS.</p>
+<p>Owners: <code>src/components/pattern-match.x</code> writes these forms,
+<code>_placed</code> in <code>src/transform/traversal.x</code> lowers placed code, and
+<code>src/emit/dispatch.x</code> emits both.</p>
+<h3 id="cache-payloads-and-compatibility-content"><a class="header" href="#cache-payloads-and-compatibility-content">Cache payloads and compatibility content</a></h3>
+<pre><code class="language-text">CACHE-PAYLOAD ::= (string EXPR) | (var EXPR)
+                | (cons CACHE-VALUE CACHE-VALUE) | (nil)
+CACHE-VALUE   ::= (cache CACHE-ID) | CACHE-PAYLOAD | EXPR
+COMPATIBILITY-CONTENT ::= (varray EXPR*) | (vmap MAP-ROW*)
+</code></pre>
+<p><code>(cache ID)</code> is an AST reference into the current translation’s literal cache.
+Payloads are data owned by that cache; <code>string</code> is not a generic emitter
+expression head. Cache keys can also retain expression forms and converted
+values. Their meaning depends on the existing cache operation.</p>
+<p>The transform still consumes <code>varray</code> and <code>vmap</code> as array/map compatibility
+heads with unchanged children. There are no current literal constructors in the
+surveyed compiler/runtime/tooling sources. In particular, <code>vmap</code> does not
+establish a separate <code>vpair</code> row grammar.</p>
+<p>Owners: <a href="https://github.com/gwf/x2c/blob/2c5870d64d381a861054dae9927aa65adc87e9e0/src/compiler/literal-cache.x">Compiler.cache, Compiler.cache_literal_var,
+Compiler.cache_cons_cell</a>; <a href="https://github.com/gwf/x2c/blob/2c5870d64d381a861054dae9927aa65adc87e9e0/src/cache.x">cache
+assignment/materialization</a>;
+<a href="https://github.com/gwf/x2c/blob/2c5870d64d381a861054dae9927aa65adc87e9e0/src/transform/literals.x">_collection_literal</a> and
+<a href="https://github.com/gwf/x2c/blob/2c5870d64d381a861054dae9927aa65adc87e9e0/src/transform/traversal.x">_step_tag</a>.</p>
+<h3 id="native-sequences-decorations-and-output-tokens"><a class="header" href="#native-sequences-decorations-and-output-tokens">Native sequences, decorations, and output tokens</a></h3>
+<pre><code class="language-text">NATIVE-CONTENT ::= NATIVE-TEXT | NATIVE-SEQUENCE | ()
+NATIVE-SEQUENCE ::= (NATIVE-ELEMENT*)
+NATIVE-ELEMENT ::= C-TOKEN | NODE
+DECORATION ::= (comment TEXT*) | (space TEXT*)
+SOURCE-MAP-OUTPUT ::= src-at ORIGIN-ID C-TOKEN* src-at PREVIOUS-ORIGIN-ID
+</code></pre>
+<p>Generated forms can mix raw String C text and typed nodes, rather than add an
+AST tag for each C fragment. <code>_emit</code> handles these structures as follows:</p>
+<ol>
+<li>An empty List emits nothing.</li>
+<li>A List with a non-Symbol head enters <code>_sequence</code>. Each non-Symbol element
+is visited in order; List elements recurse and other leaves pass through.
+If the remaining tail begins with a Symbol, that tail is one node.</li>
+<li>Storage, qualifier, and <code>inline</code> prefixes are emitted before the rest,
+except <code>typedef</code>, which has dedicated declaration handling. <code>threaded</code>
+becomes <code>_Thread_local</code>.</li>
+<li>Known heads dispatch to their node operations. Unknown Symbol heads use
+<code>_leaf</code>’s generic rule: emit the head followed by its recursively emitted
+tail. This permits existing C-shaped generated fragments.</li>
+</ol>
+<p>This fallback is part of the representation contract. A finite inventory of
+named heads alone cannot describe every emitted fragment. It also does not make
+an arbitrary List valid at a constructed-source position: the binder has its
+own position contracts.</p>
+<p><code>comment</code> and <code>space</code> are presentation nodes. <code>preproc</code> retains source-order
+text and rewrites <span class="x2c-wordmark">x2c</span> include targets during emission. <code>src-at</code> belongs to the
+flat output token stream consumed by formatting, not source AST input. Match
+lowering constructs ordinary blocks, switches, and native sequences; there is
+no current <code>matchcases</code> production.</p>
+<p>Owners: <a href="https://github.com/gwf/x2c/blob/2c5870d64d381a861054dae9927aa65adc87e9e0/src/emit/dispatch.x">_emit, _sequence, _prefix, _leaf</a>;
+<a href="https://github.com/gwf/x2c/blob/2c5870d64d381a861054dae9927aa65adc87e9e0/src/generate/output.x">_banner, _header_guard, _source_unit, _vertical_spacing</a>;
+<a href="https://github.com/gwf/x2c/blob/2c5870d64d381a861054dae9927aa65adc87e9e0/src/components/pattern-match.x">_match_lowered</a>; <a href="https://github.com/gwf/x2c/blob/2c5870d64d381a861054dae9927aa65adc87e9e0/src/format.x">source mapping and formatting</a>.</p>
+<h2 id="reading-concrete-layouts"><a class="header" href="#reading-concrete-layouts">Reading concrete layouts</a></h2>
+<p>The <a href="https://github.com/gwf/x2c/blob/2c5870d64d381a861054dae9927aa65adc87e9e0/unittest/compiler-fixtures/type-initializer.ast">type initializer fixture</a> contains this bound return,
+shown with compact whitespace:</p>
+<pre><code class="language-text">(return (int) (expr (int) (literal (int) "42")))
+</code></pre>
+<p>Its first payload field is the return context, not the value. Lowering converts
+the expression to that context and leaves:</p>
+<pre><code class="language-text">(return (expr (int) (literal (int) "42")))
+</code></pre>
+<p>The same fixture contains a no-argument call’s <code>(args (expr (void) ()))</code>. The
+<a href="https://github.com/gwf/x2c/blob/2c5870d64d381a861054dae9927aa65adc87e9e0/unittest/compiler-fixtures/ast-leaf-contract.ast">AST leaf fixture</a> contains a pointer-to-function declarator:</p>
+<pre><code class="language-text">(bind (binding 4 "ast_phase1_UnaryPointer")
+  (* (fnmod (params (param (int) (bind () ()))))))
+</code></pre>
+<p>The pointer mark and function modifier are siblings in MODIFIERS. The function
+parameter retains its base type and unnamed declarator; it is not yet the
+semantic function modifier <code>(func ((int)))</code>.</p>
+<p>The <a href="https://github.com/gwf/x2c/blob/2c5870d64d381a861054dae9927aa65adc87e9e0/unittest/compiler-fixtures/captured-lambda-lowering.ast">captured lambda fixture</a> shows typed parameter rows,
+capture storage types, and reference capture expressions. The
+<a href="https://github.com/gwf/x2c/blob/2c5870d64d381a861054dae9927aa65adc87e9e0/unittest/compiler-fixtures/catch-filter-arms.ast">catch fixture</a> shows that catch patterns are typed List
+expressions and that the handler follows the complete row List. These children
+cannot be interpreted by looking only at a <code>capture</code> or <code>args</code> head.</p>
+<h2 id="owners-by-family"><a class="header" href="#owners-by-family">Owners by family</a></h2>
+<p>Each family of forms below has the listed producers and consumers.
+Literal constructions and structural matches in <code>src/</code>, <code>lib/</code>, <code>etc/</code>,
+<code>commands/</code>, and <code>tools/</code> use these layouts.</p>
+<div class="table-wrapper">
+<table>
+<thead>
+<tr><th>Family</th><th>Current owners</th></tr>
+</thead>
+<tbody>
+<tr><td>Roots, names, origins</td><td><a href="https://github.com/gwf/x2c/blob/2c5870d64d381a861054dae9927aa65adc87e9e0/src/ast.x">ast</a>, <a href="https://github.com/gwf/x2c/blob/2c5870d64d381a861054dae9927aa65adc87e9e0/src/parse/binding.x">binding</a>, <a href="https://github.com/gwf/x2c/blob/2c5870d64d381a861054dae9927aa65adc87e9e0/src/expressions/identifiers.x">identifiers</a>, <a href="https://github.com/gwf/x2c/blob/2c5870d64d381a861054dae9927aa65adc87e9e0/src/meta-sdk/syntax.x">Code</a></td></tr>
+<tr><td>Expressions, operators, access</td><td><a href="https://github.com/gwf/x2c/blob/2c5870d64d381a861054dae9927aa65adc87e9e0/src/expressions/syntax.x">syntax</a>, <a href="https://github.com/gwf/x2c/blob/2c5870d64d381a861054dae9927aa65adc87e9e0/src/expressions/resolution.x">resolution</a>, <a href="https://github.com/gwf/x2c/blob/2c5870d64d381a861054dae9927aa65adc87e9e0/src/expressions/access.x">access</a>, <a href="https://github.com/gwf/x2c/blob/2c5870d64d381a861054dae9927aa65adc87e9e0/src/expressions/calls.x">calls</a>, <a href="https://github.com/gwf/x2c/blob/2c5870d64d381a861054dae9927aa65adc87e9e0/src/operator-ledger.x">operators</a></td></tr>
+<tr><td>Literals and interpolation</td><td><a href="https://github.com/gwf/x2c/blob/2c5870d64d381a861054dae9927aa65adc87e9e0/src/literals/atoms.x">atoms</a>, <a href="https://github.com/gwf/x2c/blob/2c5870d64d381a861054dae9927aa65adc87e9e0/src/literals/quotation.x">Lists</a>, <a href="https://github.com/gwf/x2c/blob/2c5870d64d381a861054dae9927aa65adc87e9e0/src/literals/collections.x">collections</a>, <a href="https://github.com/gwf/x2c/blob/2c5870d64d381a861054dae9927aa65adc87e9e0/src/literals/strings.x">Strings</a>, <a href="https://github.com/gwf/x2c/blob/2c5870d64d381a861054dae9927aa65adc87e9e0/src/components/interpolation.x">interpolation</a></td></tr>
+<tr><td>Declarations and Types</td><td><a href="https://github.com/gwf/x2c/blob/2c5870d64d381a861054dae9927aa65adc87e9e0/src/parse/declarations.x">declarations</a>, <a href="https://github.com/gwf/x2c/blob/2c5870d64d381a861054dae9927aa65adc87e9e0/src/parse/declarators.x">declarators</a>, <a href="https://github.com/gwf/x2c/blob/2c5870d64d381a861054dae9927aa65adc87e9e0/src/parse/types.x">types</a>, <a href="https://github.com/gwf/x2c/blob/2c5870d64d381a861054dae9927aa65adc87e9e0/src/type.x">Type conversion</a>, <a href="https://github.com/gwf/x2c/blob/2c5870d64d381a861054dae9927aa65adc87e9e0/lib/type.x">runtime Type</a></td></tr>
+<tr><td>Lambdas and callbacks</td><td><a href="https://github.com/gwf/x2c/blob/2c5870d64d381a861054dae9927aa65adc87e9e0/src/lambdas.x">lambdas</a>, <a href="https://github.com/gwf/x2c/blob/2c5870d64d381a861054dae9927aa65adc87e9e0/src/components/lambda-functions.x">lambda lowering</a>, <a href="https://github.com/gwf/x2c/blob/2c5870d64d381a861054dae9927aa65adc87e9e0/src/callables/callbacks.x">callbacks</a></td></tr>
+<tr><td>Statements, match, catch, raise</td><td><a href="https://github.com/gwf/x2c/blob/2c5870d64d381a861054dae9927aa65adc87e9e0/src/statements.x">statements</a>, <a href="https://github.com/gwf/x2c/blob/2c5870d64d381a861054dae9927aa65adc87e9e0/src/parse/binding.x">binding</a>, <a href="https://github.com/gwf/x2c/blob/2c5870d64d381a861054dae9927aa65adc87e9e0/src/components/pattern-match.x">match</a>, <a href="https://github.com/gwf/x2c/blob/2c5870d64d381a861054dae9927aa65adc87e9e0/src/components/try-catch.x">try</a>, <a href="https://github.com/gwf/x2c/blob/2c5870d64d381a861054dae9927aa65adc87e9e0/src/components/raise.x">raise</a></td></tr>
+<tr><td>Macro/template values</td><td><a href="https://github.com/gwf/x2c/blob/2c5870d64d381a861054dae9927aa65adc87e9e0/src/macros/definitions/templates.x">definitions</a>, <a href="https://github.com/gwf/x2c/blob/2c5870d64d381a861054dae9927aa65adc87e9e0/src/macros/invocations/captures.x">captures</a>, <a href="https://github.com/gwf/x2c/blob/2c5870d64d381a861054dae9927aa65adc87e9e0/src/macros/definitions/quotations.x">quotations</a>, <a href="https://github.com/gwf/x2c/blob/2c5870d64d381a861054dae9927aa65adc87e9e0/src/macros/templates.x">templates</a>, <a href="https://github.com/gwf/x2c/blob/2c5870d64d381a861054dae9927aa65adc87e9e0/lib/macrovalue/construction.x">runtime Macro</a></td></tr>
+<tr><td>Retained declarations</td><td><a href="https://github.com/gwf/x2c/blob/2c5870d64d381a861054dae9927aa65adc87e9e0/src/parse/units.x">units</a>, <a href="https://github.com/gwf/x2c/blob/2c5870d64d381a861054dae9927aa65adc87e9e0/src/compiler/declarations/production.x">production</a>, <a href="https://github.com/gwf/x2c/blob/2c5870d64d381a861054dae9927aa65adc87e9e0/src/compiler/declarations/defaults.x">defaults</a>, <a href="https://github.com/gwf/x2c/blob/2c5870d64d381a861054dae9927aa65adc87e9e0/src/compiler/declarations/portable-syntax.x">portable syntax</a></td></tr>
+<tr><td>Protocols and imports</td><td><a href="https://github.com/gwf/x2c/blob/2c5870d64d381a861054dae9927aa65adc87e9e0/src/protocol/declarations.x">protocol declarations</a>, <a href="https://github.com/gwf/x2c/blob/2c5870d64d381a861054dae9927aa65adc87e9e0/src/protocol/registry.x">registry</a>, <a href="https://github.com/gwf/x2c/blob/2c5870d64d381a861054dae9927aa65adc87e9e0/src/parse/units.x">units</a></td></tr>
+<tr><td>Initializer alternatives</td><td><a href="https://github.com/gwf/x2c/blob/2c5870d64d381a861054dae9927aa65adc87e9e0/src/initializers/subobjects.x">subobjects</a>, <a href="https://github.com/gwf/x2c/blob/2c5870d64d381a861054dae9927aa65adc87e9e0/src/initializers/conversion.x">conversion</a>, <a href="https://github.com/gwf/x2c/blob/2c5870d64d381a861054dae9927aa65adc87e9e0/src/emit/initialization.x">emission</a></td></tr>
+<tr><td>Cleanup and generation</td><td><a href="https://github.com/gwf/x2c/blob/2c5870d64d381a861054dae9927aa65adc87e9e0/src/cleanup/defer.x">defer</a>, <a href="https://github.com/gwf/x2c/blob/2c5870d64d381a861054dae9927aa65adc87e9e0/src/cleanup/statics.x">statics</a>, <a href="https://github.com/gwf/x2c/blob/2c5870d64d381a861054dae9927aa65adc87e9e0/src/cleanup/transfers.x">transfers</a>, <a href="https://github.com/gwf/x2c/blob/2c5870d64d381a861054dae9927aa65adc87e9e0/src/generate/projection.x">generation</a>, <a href="https://github.com/gwf/x2c/blob/2c5870d64d381a861054dae9927aa65adc87e9e0/src/cache.x">cache</a></td></tr>
+<tr><td>Emission and cache</td><td><a href="https://github.com/gwf/x2c/blob/2c5870d64d381a861054dae9927aa65adc87e9e0/src/emit/dispatch.x">dispatch</a>, <a href="https://github.com/gwf/x2c/blob/2c5870d64d381a861054dae9927aa65adc87e9e0/src/emit/initialization.x">initializers</a>, <a href="https://github.com/gwf/x2c/blob/2c5870d64d381a861054dae9927aa65adc87e9e0/src/compiler/literal-cache.x">cache values</a>, <a href="https://github.com/gwf/x2c/blob/2c5870d64d381a861054dae9927aa65adc87e9e0/src/generate/output.x">output</a></td></tr>
+</tbody>
+</table>
+</div>
+<h3 id="adjacent-data-is-not-program-syntax"><a class="header" href="#adjacent-data-is-not-program-syntax">Adjacent data is not program syntax</a></h3>
+<p>A literal head search also finds patterns, metadata, errors, and arbitrary
+application data. The following classifications prevent those records from
+being mistaken for additional program nodes.</p>
+<div class="table-wrapper">
+<table>
+<thead>
+<tr><th>Data family</th><th>Representative heads and layouts</th><th>Owner and boundary</th></tr>
+</thead>
+<tbody>
+<tr><td>Initializer and lambda facts</td><td><code>enum-value</code>, <code>first</code>, <code>next</code>, <code>lambda-capture</code>, <code>lambda-depth</code>, <code>lambda-order</code>, <code>lambda-param</code>, <code>lambda-scope</code>, <code>lambda-snapshot</code>, <code>parameter</code>, <code>reference-param</code>, <code>optional-reference-param</code></td><td><a href="https://github.com/gwf/x2c/blob/2c5870d64d381a861054dae9927aa65adc87e9e0/src/parse/types.x">type parser</a>, <a href="https://github.com/gwf/x2c/blob/2c5870d64d381a861054dae9927aa65adc87e9e0/src/lambdas.x">lambdas</a>, binding facts; not accepted expression heads.</td></tr>
+<tr><td>Binding and source facts</td><td><code>aggfact</code>, <code>alias</code>, <code>automatic</code>, <code>class-tag</code>, <code>defer-ownr</code>, <code>definition-span</code>, <code>ntype</code>, <code>present-references</code>, <code>source-spelling</code>, <code>src-key</code>, <code>type</code>, <code>using</code></td><td><a href="https://github.com/gwf/x2c/blob/2c5870d64d381a861054dae9927aa65adc87e9e0/src/symtab/bindings.x">symbol bindings</a> and <a href="https://github.com/gwf/x2c/blob/2c5870d64d381a861054dae9927aa65adc87e9e0/src/compiler/binding-facts.x">binding facts</a>; keyed compiler state.</td></tr>
+<tr><td>Member and callable results</td><td><code>field</code>, <code>method</code>, <code>delegate</code>, <code>step</code>, <code>ambiguous</code>, <code>func-arg</code>, <code>func-splice</code>, <code>indirect-adapter</code>, <code>inherited</code>, <code>thunk</code>, <code>no-value</code></td><td><a href="https://github.com/gwf/x2c/blob/2c5870d64d381a861054dae9927aa65adc87e9e0/src/expressions/access.x">access</a>, <a href="https://github.com/gwf/x2c/blob/2c5870d64d381a861054dae9927aa65adc87e9e0/src/expressions/calls.x">calls</a>, <a href="https://github.com/gwf/x2c/blob/2c5870d64d381a861054dae9927aa65adc87e9e0/src/callables/adapters.x">callable adapters</a>; lookup/extraction results.</td></tr>
+<tr><td>Memo and resolution keys</td><td><code>fadapt</code>, <code>fgetter</code>, <code>fhandle</code>, <code>findirect</code>, <code>fpointer-factory</code>, memo-key <code>tadapt</code>, <code>iadapt</code>, <code>string-switch</code>, <code>unit-support</code>, <code>unit-init</code></td><td><a href="https://github.com/gwf/x2c/blob/2c5870d64d381a861054dae9927aa65adc87e9e0/src/callables/values.x">callable values</a>, <a href="https://github.com/gwf/x2c/blob/2c5870d64d381a861054dae9927aa65adc87e9e0/src/callables/callbacks.x">callbacks</a>, components and placement; not expression productions despite repeated heads.</td></tr>
+<tr><td>Region analysis</td><td><code>alloc</code>, <code>close</code>, <code>destroy</code>, <code>exit</code>, <code>free</code>, <code>move</code>, <code>open</code>, <code>pool</code>, <code>store</code>, <code>summary</code>, <code>wrap</code></td><td><a href="https://github.com/gwf/x2c/blob/2c5870d64d381a861054dae9927aa65adc87e9e0/src/regions/regions.x">region analysis</a>; describes effects, not executable AST nodes.</td></tr>
+<tr><td>Declaration replay</td><td><code>(declaration-source END BUNDLE FACTS)</code>, <code>(package-import PACKAGE ALIAS MEMBERS)</code>, <code>("source-node" ...)</code>, <code>(imported-macro DEFINITION)</code></td><td><a href="https://github.com/gwf/x2c/blob/2c5870d64d381a861054dae9927aa65adc87e9e0/src/compiler/declarations/production.x">declaration production</a>, <a href="https://github.com/gwf/x2c/blob/2c5870d64d381a861054dae9927aa65adc87e9e0/src/compiler/declarations/portable-syntax.x">portable syntax</a>, macro registry; retains source-order effects outside binder syntax.</td></tr>
+<tr><td>Frozen syntax transport</td><td><code>declaration-void</code>, <code>declaration-empty-symbol</code>, <code>declaration-atom</code>, <code>declaration-token</code>, <code>declaration-origin</code>, <code>declaration-list</code>, <code>declaration-cache</code>, <code>declaration-cache-binding</code>, <code>declaration-binding</code></td><td><a href="https://github.com/gwf/x2c/blob/2c5870d64d381a861054dae9927aa65adc87e9e0/src/compiler/declarations/portable-syntax.x">freeze/thaw</a>; serialized values described below.</td></tr>
+<tr><td>Compile-time replay</td><td><code>(compile-time effects EFFECT*)</code>, plus macrodef/keyword/alias/unalias/rewrite rows; <code>project-meta</code></td><td><a href="https://github.com/gwf/x2c/blob/2c5870d64d381a861054dae9927aa65adc87e9e0/src/macros/invocations/recognition.x">effect installation</a>; replay events, not <code>_bind_form</code> alternatives.</td></tr>
+<tr><td>Placement requests</td><td><code>(after-statement)</code>, <code>(block-exit)</code>, <code>(function-entry)</code>, <code>(unit-support [KEY])</code>, <code>(unit-init [AREA])</code></td><td><a href="https://github.com/gwf/x2c/blob/2c5870d64d381a861054dae9927aa65adc87e9e0/src/macros/values.x">Compiler.place</a>; API requests whose code later enters the ordinary binder.</td></tr>
+<tr><td>Macro implementation data</td><td><code>("x2c.slot" TYPE SHAPE)</code>, <code>("x2c.slot" INDEX)</code>, <code>provisional</code>, <code>tag-local</code>, <code>name-argument</code>, <code>quotation</code>, <code>quoted</code>, <code>constant</code>, <code>dynamic</code>, <code>locals</code>, <code>any</code></td><td><a href="https://github.com/gwf/x2c/blob/2c5870d64d381a861054dae9927aa65adc87e9e0/src/macros/rewrites.x">rewrite projection</a>, definition reading and quotation construction; skeletons and capture state.</td></tr>
+<tr><td>Protocol registry</td><td><code>conformance</code>, <code>protocol-conformance</code>, <code>proto-file</code>, <code>"parsed-protocol-adoption"</code>, <code>"recorded-conformance"</code>, owner/linkage/conflict rows</td><td><a href="https://github.com/gwf/x2c/blob/2c5870d64d381a861054dae9927aa65adc87e9e0/src/protocol/registry.x">protocol registry</a> and lookup; separate from <code>protocol</code>/<code>adopt</code> syntax.</td></tr>
+<tr><td>Generation and interface records</td><td><code>pending</code>, <code>completed</code>, <code>completion</code>, <code>conditional</code>, <code>interface</code>, <code>interface-types</code>, <code>meta-hashes</code>, <code>native</code>, <code>native-object</code>, <code>native-meta</code>, <code>api-definition</code>, <code>attributes</code>, path rows <code>home</code>/<code>absolute</code>/<code>relative</code></td><td><a href="https://github.com/gwf/x2c/blob/2c5870d64d381a861054dae9927aa65adc87e9e0/src/generate/projection.x">generation projection</a>, collection and compiler definitions; scheduling, interfaces, or binding facts.</td></tr>
+<tr><td>Dumps and operational messages</td><td><code>unit</code>, <code>module</code>, <code>function-contract</code>, definition-display rows, <code>answer</code>, <code>query</code>, <code>dependency</code>, <code>failure</code>, <code>warning</code>, <code>missing</code>, <code>quit</code>, <code>reset</code>, <code>replcomp</code>, error causes, graph/REPL reports</td><td><a href="https://github.com/gwf/x2c/blob/2c5870d64d381a861054dae9927aa65adc87e9e0/src/generate/definitions.x">definition dumps</a>, meta helper protocol and command consumers; output or application data. A <code>function</code> dump record is not automatically the AST <code>function</code> production.</td></tr>
+<tr><td>Match and Lisp data</td><td><code>!or</code>, <code>!set</code>, <code>!quote</code>, <code>!is</code>, capture atoms, operator Lists such as <code>(&amp;&amp; ...)</code>, quoted Lists, arbitrary runtime reader forms</td><td><a href="../guide/match.html">Match</a> and literal readers; data/pattern grammar, not additional program nodes.</td></tr>
+</tbody>
+</table>
+</div>
+<h3 id="frozen-syntax-transport-layouts"><a class="header" href="#frozen-syntax-transport-layouts">Frozen syntax transport layouts</a></h3>
+<p>These transport records are included to explain serialized Lists beside ASTs.
+They do not expand the constructed-source grammar.</p>
+<pre><code class="language-text">FROZEN ::= (declaration-void) | (declaration-empty-symbol)
+         | (declaration-atom SPELLING)
+         | (declaration-token TYPE-STRING TEXT LINE COLUMN LENGTH OFFSET)
+         | (declaration-origin LOCATION FROZEN)
+         | (declaration-list FROZEN*) | (declaration-cache FROZEN-KEY)
+         | (declaration-cache-binding SPELLING)
+         | (declaration-binding BINDING SOURCE-SPELLING)
+</code></pre>
+<p><a href="https://github.com/gwf/x2c/blob/2c5870d64d381a861054dae9927aa65adc87e9e0/src/compiler/declarations/portable-syntax.x">Compiler.freeze_declaration_syntax and
+Compiler.thaw_declaration_syntax</a> own these records.
+Marker-headed user Lists are escaped with <code>declaration-list</code>, so arbitrary data
+is preserved rather than mistaken for transport instructions. Locations, paths,
+and cache keys are translated into the importing compiler’s context.</p>
+<h2 id="index-by-head"><a class="header" href="#index-by-head">Index by head</a></h2>
+<p>The index includes program nodes, syntax carriers, and the explicitly
+classified cache/transport records. Descriptor row keys are indexed through
+<code>macrodef</code>; they are fields rather than standalone program nodes.</p>
+<div class="table-wrapper">
+<table>
+<thead>
+<tr><th>Head</th><th>Production or role</th></tr>
+</thead>
+<tbody>
+<tr><td><code>!quote</code></td><td><a href="#shells-identifiers-and-atomic-values">Shells, identifiers, and atomic values</a>; <a href="#pending-applications-and-captures">Pending applications and captures</a></td></tr>
+<tr><td><code>"Atom"</code></td><td><a href="#shells-identifiers-and-atomic-values">Shells, identifiers, and atomic values</a></td></tr>
+<tr><td><code>"__typeof__"</code></td><td><a href="#source-types-and-semantic-types">Source types and semantic Types</a></td></tr>
+<tr><td><code>"protocol-record"</code></td><td><a href="#imports-protocols-and-static-assertions">Imports, protocols, and static assertions</a></td></tr>
+<tr><td><code>"x2c.at"</code></td><td><a href="#string-headed-syntax-values-and-quotation">String-headed syntax values and quotation</a></td></tr>
+<tr><td><code>"x2c.hole"</code></td><td><a href="#string-headed-syntax-values-and-quotation">String-headed syntax values and quotation</a></td></tr>
+<tr><td><code>"x2c.ident"</code></td><td><a href="#roots-wrappers-and-identities">Roots, wrappers, and identities</a>; <a href="#string-headed-syntax-values-and-quotation">String-headed syntax values and quotation</a></td></tr>
+<tr><td><code>"x2c.quoted"</code></td><td><a href="#string-headed-syntax-values-and-quotation">String-headed syntax values and quotation</a></td></tr>
+<tr><td><code>"x2c.template"</code></td><td><a href="#string-headed-syntax-values-and-quotation">String-headed syntax values and quotation</a></td></tr>
+<tr><td><code>*</code></td><td><a href="#match-raise-and-catch-rows">Match, raise, and catch rows</a>; <a href="#reading-concrete-layouts">Reading concrete layouts</a></td></tr>
+<tr><td><code>...</code></td><td><a href="#modifiers-and-parameters">Modifiers and parameters</a></td></tr>
+<tr><td><code>0</code></td><td><a href="#collections-list-construction-and-string-segments">Collections, List construction, and String segments</a></td></tr>
+<tr><td><code>&lt;macro-expr&gt;</code></td><td><a href="#shells-identifiers-and-atomic-values">Shells, identifiers, and atomic values</a>; <a href="#source-types-and-semantic-types">Source types and semantic Types</a></td></tr>
+<tr><td><code>adopt</code></td><td><a href="#imports-protocols-and-static-assertions">Imports, protocols, and static assertions</a></td></tr>
+<tr><td><code>api-source</code></td><td><a href="#roots-wrappers-and-identities">Roots, wrappers, and identities</a></td></tr>
+<tr><td><code>append</code></td><td><a href="#collections-list-construction-and-string-segments">Collections, List construction, and String segments</a></td></tr>
+<tr><td><code>args</code></td><td><a href="#operators-calls-and-access">Operators, calls, and access</a>; <a href="#match-raise-and-catch-rows">Match, raise, and catch rows</a>; <a href="#pending-applications-and-captures">Pending applications and captures</a></td></tr>
+<tr><td><code>array</code></td><td><a href="#collections-list-construction-and-string-segments">Collections, List construction, and String segments</a></td></tr>
+<tr><td><code>associated</code></td><td><a href="#imports-protocols-and-static-assertions">Imports, protocols, and static assertions</a></td></tr>
+<tr><td><code>association</code></td><td><a href="#grouping-type-operands-and-selection">Grouping, type operands, and selection</a></td></tr>
+<tr><td><code>at</code></td><td><a href="#roots-wrappers-and-identities">Roots, wrappers, and identities</a>; <a href="#cleanup-initialization-and-generated-markers">Cleanup, initialization, and generated markers</a></td></tr>
+<tr><td><code>bind</code></td><td><a href="#declaration-forms">Declaration forms</a>; <a href="#reading-concrete-layouts">Reading concrete layouts</a></td></tr>
+<tr><td><code>binder</code></td><td><a href="#macro-definitions">Macro definitions</a></td></tr>
+<tr><td><code>binding</code></td><td><a href="#roots-wrappers-and-identities">Roots, wrappers, and identities</a>; <a href="#reading-concrete-layouts">Reading concrete layouts</a></td></tr>
+<tr><td><code>binding-global</code></td><td><a href="#roots-wrappers-and-identities">Roots, wrappers, and identities</a></td></tr>
+<tr><td><code>binding-name</code></td><td><a href="#roots-wrappers-and-identities">Roots, wrappers, and identities</a></td></tr>
+<tr><td><code>bindings</code></td><td><a href="#declaration-forms">Declaration forms</a></td></tr>
+<tr><td><code>bitfield</code></td><td><a href="#modifiers-and-parameters">Modifiers and parameters</a>; <a href="#source-types-and-semantic-types">Source types and semantic Types</a></td></tr>
+<tr><td><code>block</code></td><td><a href="#ordinary-statements-and-sequences">Ordinary statements and sequences</a></td></tr>
+<tr><td><code>break</code></td><td><a href="#ordinary-statements-and-sequences">Ordinary statements and sequences</a></td></tr>
+<tr><td><code>builtin</code></td><td><a href="#macro-definitions">Macro definitions</a></td></tr>
+<tr><td><code>c-assert</code></td><td><a href="#imports-protocols-and-static-assertions">Imports, protocols, and static assertions</a></td></tr>
+<tr><td><code>cache</code></td><td><a href="#collections-list-construction-and-string-segments">Collections, List construction, and String segments</a>; <a href="#cache-payloads-and-compatibility-content">Cache payloads and compatibility content</a></td></tr>
+<tr><td><code>call</code></td><td><a href="#operators-calls-and-access">Operators, calls, and access</a></td></tr>
+<tr><td><code>capture</code></td><td><a href="#lambdas-and-typed-adaptation">Lambdas and typed adaptation</a>; <a href="#pending-applications-and-captures">Pending applications and captures</a></td></tr>
+<tr><td><code>captures</code></td><td><a href="#lambdas-and-typed-adaptation">Lambdas and typed adaptation</a>; <a href="#macro-definitions">Macro definitions</a></td></tr>
+<tr><td><code>case</code></td><td><a href="#ordinary-statements-and-sequences">Ordinary statements and sequences</a></td></tr>
+<tr><td><code>cast</code></td><td><a href="#grouping-type-operands-and-selection">Grouping, type operands, and selection</a></td></tr>
+<tr><td><code>catchcases</code></td><td><a href="#match-raise-and-catch-rows">Match, raise, and catch rows</a></td></tr>
+<tr><td><code>cleanup</code></td><td><a href="#code-values-and-effects">Code values and effects</a></td></tr>
+<tr><td><code>code-value</code></td><td><a href="#code-values-and-effects">Code values and effects</a></td></tr>
+<tr><td><code>commas</code></td><td><a href="#initializers-and-destructuring">Initializers and destructuring</a></td></tr>
+<tr><td><code>comment</code></td><td><a href="#native-sequences-decorations-and-output-tokens">Native sequences, decorations, and output tokens</a></td></tr>
+<tr><td><code>composite</code></td><td><a href="#initializers-and-destructuring">Initializers and destructuring</a></td></tr>
+<tr><td><code>conform</code></td><td><a href="#imports-protocols-and-static-assertions">Imports, protocols, and static assertions</a></td></tr>
+<tr><td><code>cons</code></td><td><a href="#collections-list-construction-and-string-segments">Collections, List construction, and String segments</a>; <a href="#cache-payloads-and-compatibility-content">Cache payloads and compatibility content</a></td></tr>
+<tr><td><code>construct</code></td><td><a href="#roots-wrappers-and-identities">Roots, wrappers, and identities</a>; <a href="#pending-applications-and-captures">Pending applications and captures</a></td></tr>
+<tr><td><code>continue</code></td><td><a href="#ordinary-statements-and-sequences">Ordinary statements and sequences</a></td></tr>
+<tr><td><code>decl</code></td><td><a href="#declaration-forms">Declaration forms</a></td></tr>
+<tr><td><code>declaration-atom</code></td><td><a href="#frozen-syntax-transport-layouts">Frozen syntax transport layouts</a></td></tr>
+<tr><td><code>declaration-binding</code></td><td><a href="#frozen-syntax-transport-layouts">Frozen syntax transport layouts</a></td></tr>
+<tr><td><code>declaration-bundle</code></td><td><a href="#retained-declaration-production">Retained declaration production</a></td></tr>
+<tr><td><code>declaration-cache</code></td><td><a href="#frozen-syntax-transport-layouts">Frozen syntax transport layouts</a></td></tr>
+<tr><td><code>declaration-cache-binding</code></td><td><a href="#frozen-syntax-transport-layouts">Frozen syntax transport layouts</a></td></tr>
+<tr><td><code>declaration-default</code></td><td><a href="#retained-declaration-production">Retained declaration production</a></td></tr>
+<tr><td><code>declaration-empty-symbol</code></td><td><a href="#frozen-syntax-transport-layouts">Frozen syntax transport layouts</a></td></tr>
+<tr><td><code>declaration-forward</code></td><td><a href="#retained-declaration-production">Retained declaration production</a></td></tr>
+<tr><td><code>declaration-function</code></td><td><a href="#retained-declaration-production">Retained declaration production</a></td></tr>
+<tr><td><code>declaration-initialized</code></td><td><a href="#retained-declaration-production">Retained declaration production</a></td></tr>
+<tr><td><code>declaration-list</code></td><td><a href="#frozen-syntax-transport-layouts">Frozen syntax transport layouts</a></td></tr>
+<tr><td><code>declaration-origin</code></td><td><a href="#frozen-syntax-transport-layouts">Frozen syntax transport layouts</a></td></tr>
+<tr><td><code>declaration-pending</code></td><td><a href="#retained-declaration-production">Retained declaration production</a></td></tr>
+<tr><td><code>declaration-recipe</code></td><td><a href="#retained-declaration-production">Retained declaration production</a></td></tr>
+<tr><td><code>declaration-token</code></td><td><a href="#frozen-syntax-transport-layouts">Frozen syntax transport layouts</a></td></tr>
+<tr><td><code>declaration-void</code></td><td><a href="#frozen-syntax-transport-layouts">Frozen syntax transport layouts</a></td></tr>
+<tr><td><code>declare</code></td><td><a href="#declaration-forms">Declaration forms</a></td></tr>
+<tr><td><code>default</code></td><td><a href="#ordinary-statements-and-sequences">Ordinary statements and sequences</a>; <a href="#retained-declaration-production">Retained declaration production</a></td></tr>
+<tr><td><code>default-forward</code></td><td><a href="#retained-declaration-production">Retained declaration production</a></td></tr>
+<tr><td><code>defer</code></td><td><a href="#ordinary-statements-and-sequences">Ordinary statements and sequences</a>; <a href="#cleanup-initialization-and-generated-markers">Cleanup, initialization, and generated markers</a></td></tr>
+<tr><td><code>dim</code></td><td><a href="#modifiers-and-parameters">Modifiers and parameters</a>; <a href="#source-types-and-semantic-types">Source types and semantic Types</a></td></tr>
+<tr><td><code>do</code></td><td><a href="#ordinary-statements-and-sequences">Ordinary statements and sequences</a></td></tr>
+<tr><td><code>dotinit</code></td><td><a href="#initializers-and-destructuring">Initializers and destructuring</a></td></tr>
+<tr><td><code>dstrasgn</code></td><td><a href="#initializers-and-destructuring">Initializers and destructuring</a></td></tr>
+<tr><td><code>dstrdecl</code></td><td><a href="#declaration-forms">Declaration forms</a></td></tr>
+<tr><td><code>empty</code></td><td><a href="#ordinary-statements-and-sequences">Ordinary statements and sequences</a></td></tr>
+<tr><td><code>env</code></td><td><a href="#macro-definitions">Macro definitions</a></td></tr>
+<tr><td><code>exits</code></td><td><a href="#cleanup-initialization-and-generated-markers">Cleanup, initialization, and generated markers</a></td></tr>
+<tr><td><code>error-site</code></td><td><a href="#conversion-error-sites">Conversion error sites</a></td></tr>
+<tr><td><code>expr</code></td><td><a href="#shells-identifiers-and-atomic-values">Shells, identifiers, and atomic values</a>; <a href="#reading-concrete-layouts">Reading concrete layouts</a></td></tr>
+<tr><td><code>expression</code></td><td><a href="#pending-applications-and-captures">Pending applications and captures</a></td></tr>
+<tr><td><code>falias</code></td><td><a href="#declaration-forms">Declaration forms</a></td></tr>
+<tr><td><code>fields</code></td><td><a href="#source-types-and-semantic-types">Source types and semantic Types</a></td></tr>
+<tr><td><code>file</code></td><td><a href="#macro-definitions">Macro definitions</a></td></tr>
+<tr><td><code>fnmod</code></td><td><a href="#modifiers-and-parameters">Modifiers and parameters</a>; <a href="#reading-concrete-layouts">Reading concrete layouts</a></td></tr>
+<tr><td><code>for</code></td><td><a href="#ordinary-statements-and-sequences">Ordinary statements and sequences</a></td></tr>
+<tr><td><code>fresh</code></td><td><a href="#pending-applications-and-captures">Pending applications and captures</a>; <a href="#macro-definitions">Macro definitions</a></td></tr>
+<tr><td><code>func</code></td><td><a href="#source-types-and-semantic-types">Source types and semantic Types</a></td></tr>
+<tr><td><code>function</code></td><td><a href="#declaration-forms">Declaration forms</a>; <a href="#cleanup-initialization-and-generated-markers">Cleanup, initialization, and generated markers</a></td></tr>
+<tr><td><code>generic</code></td><td><a href="#grouping-type-operands-and-selection">Grouping, type operands, and selection</a></td></tr>
+<tr><td><code>gensym</code></td><td><a href="#roots-wrappers-and-identities">Roots, wrappers, and identities</a></td></tr>
+<tr><td><code>getindex</code></td><td><a href="#operators-calls-and-access">Operators, calls, and access</a></td></tr>
+<tr><td><code>goto</code></td><td><a href="#ordinary-statements-and-sequences">Ordinary statements and sequences</a></td></tr>
+<tr><td><code>group</code></td><td><a href="#ordinary-statements-and-sequences">Ordinary statements and sequences</a></td></tr>
+<tr><td><code>guarded</code></td><td><a href="#match-raise-and-catch-rows">Match, raise, and catch rows</a></td></tr>
+<tr><td><code>ident</code></td><td><a href="#shells-identifiers-and-atomic-values">Shells, identifiers, and atomic values</a></td></tr>
+<tr><td><code>if</code></td><td><a href="#ordinary-statements-and-sequences">Ordinary statements and sequences</a></td></tr>
+<tr><td><code>import</code></td><td><a href="#imports-protocols-and-static-assertions">Imports, protocols, and static assertions</a></td></tr>
+<tr><td><code>index</code></td><td><a href="#operators-calls-and-access">Operators, calls, and access</a></td></tr>
+<tr><td><code>indexinit</code></td><td><a href="#initializers-and-destructuring">Initializers and destructuring</a></td></tr>
+<tr><td><code>initcode</code></td><td><a href="#cleanup-initialization-and-generated-markers">Cleanup, initialization, and generated markers</a></td></tr>
+<tr><td><code>initval</code></td><td><a href="#native-dependent-initializer-alternatives">Native-dependent initializer alternatives</a></td></tr>
+<tr><td><code>input</code></td><td><a href="#native-dependent-initializer-alternatives">Native-dependent initializer alternatives</a>; <a href="#cleanup-initialization-and-generated-markers">Cleanup, initialization, and generated markers</a></td></tr>
+<tr><td><code>int</code></td><td><a href="#reading-concrete-layouts">Reading concrete layouts</a></td></tr>
+<tr><td><code>kind</code></td><td><a href="#string-headed-syntax-values-and-quotation">String-headed syntax values and quotation</a>; <a href="#macro-definitions">Macro definitions</a></td></tr>
+<tr><td><code>label</code></td><td><a href="#ordinary-statements-and-sequences">Ordinary statements and sequences</a></td></tr>
+<tr><td><code>lambda</code></td><td><a href="#lambdas-and-typed-adaptation">Lambdas and typed adaptation</a></td></tr>
+<tr><td><code>landing</code></td><td><a href="#cleanup-initialization-and-generated-markers">Cleanup, initialization, and generated markers</a></td></tr>
+<tr><td><code>leaf</code></td><td><a href="#macro-definitions">Macro definitions</a></td></tr>
+<tr><td><code>literal</code></td><td><a href="#shells-identifiers-and-atomic-values">Shells, identifiers, and atomic values</a>; <a href="#reading-concrete-layouts">Reading concrete layouts</a></td></tr>
+<tr><td><code>local</code></td><td><a href="#macro-definitions">Macro definitions</a></td></tr>
+<tr><td><code>local-macro</code></td><td><a href="#pending-applications-and-captures">Pending applications and captures</a></td></tr>
+<tr><td><code>localinit</code></td><td><a href="#cleanup-initialization-and-generated-markers">Cleanup, initialization, and generated markers</a></td></tr>
+<tr><td><code>m-all</code></td><td><a href="#placed-code-and-match-tests">Placed code and match tests</a></td></tr>
+<tr><td><code>m-any</code></td><td><a href="#placed-code-and-match-tests">Placed code and match tests</a></td></tr>
+<tr><td><code>m-bits</code></td><td><a href="#placed-code-and-match-tests">Placed code and match tests</a></td></tr>
+<tr><td><code>m-next</code></td><td><a href="#placed-code-and-match-tests">Placed code and match tests</a></td></tr>
+<tr><td><code>m-step</code></td><td><a href="#placed-code-and-match-tests">Placed code and match tests</a></td></tr>
+<tr><td><code>m-take</code></td><td><a href="#placed-code-and-match-tests">Placed code and match tests</a></td></tr>
+<tr><td><code>macro-bind</code></td><td><a href="#pending-applications-and-captures">Pending applications and captures</a></td></tr>
+<tr><td><code>macro-invoke</code></td><td><a href="#pending-applications-and-captures">Pending applications and captures</a></td></tr>
+<tr><td><code>macro-param</code></td><td><a href="#string-headed-syntax-values-and-quotation">String-headed syntax values and quotation</a>; <a href="#macro-definitions">Macro definitions</a></td></tr>
+<tr><td><code>macro-slot</code></td><td><a href="#pending-applications-and-captures">Pending applications and captures</a></td></tr>
+<tr><td><code>macro-value</code></td><td><a href="#pending-applications-and-captures">Pending applications and captures</a></td></tr>
+<tr><td><code>macrodef</code></td><td><a href="#macro-definitions">Macro definitions</a></td></tr>
+<tr><td><code>map</code></td><td><a href="#collections-list-construction-and-string-segments">Collections, List construction, and String segments</a></td></tr>
+<tr><td><code>map-entry</code></td><td><a href="#collections-list-construction-and-string-segments">Collections, List construction, and String segments</a></td></tr>
+<tr><td><code>match</code></td><td><a href="#match-raise-and-catch-rows">Match, raise, and catch rows</a></td></tr>
+<tr><td><code>match-if</code>, <code>matches</code></td><td><a href="#match-raise-and-catch-rows">Match, raise, and catch rows</a></td></tr>
+<tr><td><code>members</code></td><td><a href="#imports-protocols-and-static-assertions">Imports, protocols, and static assertions</a></td></tr>
+<tr><td><code>meta-call</code></td><td><a href="#pending-applications-and-captures">Pending applications and captures</a></td></tr>
+<tr><td><code>meta-cap</code></td><td><a href="#pending-applications-and-captures">Pending applications and captures</a></td></tr>
+<tr><td><code>meta-protocol</code></td><td><a href="#imports-protocols-and-static-assertions">Imports, protocols, and static assertions</a></td></tr>
+<tr><td><code>name</code></td><td><a href="#macro-definitions">Macro definitions</a></td></tr>
+<tr><td><code>named-type</code></td><td><a href="#declaration-forms">Declaration forms</a></td></tr>
+<tr><td><code>new-name</code></td><td><a href="#code-values-and-effects">Code values and effects</a>; <a href="#cleanup-initialization-and-generated-markers">Cleanup, initialization, and generated markers</a></td></tr>
+<tr><td><code>nil</code></td><td><a href="#collections-list-construction-and-string-segments">Collections, List construction, and String segments</a>; <a href="#cache-payloads-and-compatibility-content">Cache payloads and compatibility content</a></td></tr>
+<tr><td><code>offsetof</code></td><td><a href="#grouping-type-operands-and-selection">Grouping, type operands, and selection</a></td></tr>
+<tr><td><code>op</code></td><td><a href="#operators-calls-and-access">Operators, calls, and access</a>; <a href="#declaration-forms">Declaration forms</a>; <a href="#source-types-and-semantic-types">Source types and semantic Types</a></td></tr>
+<tr><td><code>origin</code></td><td><a href="#macro-definitions">Macro definitions</a></td></tr>
+<tr><td><code>outer</code></td><td><a href="#cleanup-initialization-and-generated-markers">Cleanup, initialization, and generated markers</a></td></tr>
+<tr><td><code>param</code></td><td><a href="#modifiers-and-parameters">Modifiers and parameters</a>; <a href="#reading-concrete-layouts">Reading concrete layouts</a></td></tr>
+<tr><td><code>parameters</code></td><td><a href="#macro-definitions">Macro definitions</a></td></tr>
+<tr><td><code>params</code></td><td><a href="#lambdas-and-typed-adaptation">Lambdas and typed adaptation</a>; <a href="#declaration-forms">Declaration forms</a>; <a href="#modifiers-and-parameters">Modifiers and parameters</a>; <a href="#reading-concrete-layouts">Reading concrete layouts</a></td></tr>
+<tr><td><code>parens</code></td><td><a href="#grouping-type-operands-and-selection">Grouping, type operands, and selection</a>; <a href="#source-types-and-semantic-types">Source types and semantic Types</a></td></tr>
+<tr><td><code>pattern</code></td><td><a href="#macro-definitions">Macro definitions</a></td></tr>
+<tr><td><code>placed</code></td><td><a href="#placed-code-and-match-tests">Placed code and match tests</a></td></tr>
+<tr><td><code>postfix</code></td><td><a href="#operators-calls-and-access">Operators, calls, and access</a></td></tr>
+<tr><td><code>preproc</code></td><td><a href="#ordinary-statements-and-sequences">Ordinary statements and sequences</a></td></tr>
+<tr><td><code>protocol</code></td><td><a href="#imports-protocols-and-static-assertions">Imports, protocols, and static assertions</a></td></tr>
+<tr><td><code>raise</code></td><td><a href="#match-raise-and-catch-rows">Match, raise, and catch rows</a></td></tr>
+<tr><td><code>rebuild</code></td><td><a href="#macro-definitions">Macro definitions</a></td></tr>
+<tr><td><code>region</code></td><td><a href="#cleanup-initialization-and-generated-markers">Cleanup, initialization, and generated markers</a></td></tr>
+<tr><td><code>return</code></td><td><a href="#ordinary-statements-and-sequences">Ordinary statements and sequences</a>; <a href="#reading-concrete-layouts">Reading concrete layouts</a></td></tr>
+<tr><td><code>rewrite</code></td><td><a href="#code-values-and-effects">Code values and effects</a></td></tr>
+<tr><td><code>rows</code></td><td><a href="#retained-declaration-production">Retained declaration production</a></td></tr>
+<tr><td><code>segexp</code></td><td><a href="#collections-list-construction-and-string-segments">Collections, List construction, and String segments</a></td></tr>
+<tr><td><code>segments</code></td><td><a href="#collections-list-construction-and-string-segments">Collections, List construction, and String segments</a></td></tr>
+<tr><td><code>segraw</code></td><td><a href="#collections-list-construction-and-string-segments">Collections, List construction, and String segments</a></td></tr>
+<tr><td><code>segvar</code></td><td><a href="#collections-list-construction-and-string-segments">Collections, List construction, and String segments</a></td></tr>
+<tr><td><code>seq</code></td><td><a href="#declaration-forms">Declaration forms</a>; <a href="#ordinary-statements-and-sequences">Ordinary statements and sequences</a></td></tr>
+<tr><td><code>sequence</code></td><td><a href="#string-headed-syntax-values-and-quotation">String-headed syntax values and quotation</a>; <a href="#macro-definitions">Macro definitions</a></td></tr>
+<tr><td><code>sizeof</code></td><td><a href="#grouping-type-operands-and-selection">Grouping, type operands, and selection</a></td></tr>
+<tr><td><code>slice</code></td><td><a href="#operators-calls-and-access">Operators, calls, and access</a></td></tr>
+<tr><td><code>source</code></td><td><a href="#roots-wrappers-and-identities">Roots, wrappers, and identities</a>; <a href="#pending-applications-and-captures">Pending applications and captures</a></td></tr>
+<tr><td><code>sourceinit</code></td><td><a href="#cleanup-initialization-and-generated-markers">Cleanup, initialization, and generated markers</a></td></tr>
+<tr><td><code>space</code></td><td><a href="#native-sequences-decorations-and-output-tokens">Native sequences, decorations, and output tokens</a></td></tr>
+<tr><td><code>splice</code></td><td><a href="#collections-list-construction-and-string-segments">Collections, List construction, and String segments</a>; <a href="#pending-applications-and-captures">Pending applications and captures</a></td></tr>
+<tr><td><code>src</code></td><td><a href="#roots-wrappers-and-identities">Roots, wrappers, and identities</a></td></tr>
+<tr><td><code>static</code></td><td><a href="#macro-definitions">Macro definitions</a></td></tr>
+<tr><td><code>staticinit</code></td><td><a href="#cleanup-initialization-and-generated-markers">Cleanup, initialization, and generated markers</a></td></tr>
+<tr><td><code>stmnt</code></td><td><a href="#ordinary-statements-and-sequences">Ordinary statements and sequences</a></td></tr>
+<tr><td><code>string</code></td><td><a href="#cache-payloads-and-compatibility-content">Cache payloads and compatibility content</a></td></tr>
+<tr><td><code>switch</code></td><td><a href="#ordinary-statements-and-sequences">Ordinary statements and sequences</a></td></tr>
+<tr><td><code>syntax-recipe</code></td><td><a href="#retained-declaration-production">Retained declaration production</a></td></tr>
+<tr><td><code>tadapt</code></td><td><a href="#lambdas-and-typed-adaptation">Lambdas and typed adaptation</a></td></tr>
+<tr><td><code>tag</code></td><td><a href="#imports-protocols-and-static-assertions">Imports, protocols, and static assertions</a></td></tr>
+<tr><td><code>target</code></td><td><a href="#pending-applications-and-captures">Pending applications and captures</a>; <a href="#macro-definitions">Macro definitions</a></td></tr>
+<tr><td><code>targetp</code></td><td><a href="#macro-definitions">Macro definitions</a></td></tr>
+<tr><td><code>targets</code></td><td><a href="#initializers-and-destructuring">Initializers and destructuring</a>; <a href="#declaration-forms">Declaration forms</a></td></tr>
+<tr><td><code>template</code></td><td><a href="#macro-definitions">Macro definitions</a></td></tr>
+<tr><td><code>tpl-call</code></td><td><a href="#pending-applications-and-captures">Pending applications and captures</a></td></tr>
+<tr><td><code>try</code></td><td><a href="#match-raise-and-catch-rows">Match, raise, and catch rows</a>; <a href="#cleanup-initialization-and-generated-markers">Cleanup, initialization, and generated markers</a></td></tr>
+<tr><td><code>type-tag</code></td><td><a href="#grouping-type-operands-and-selection">Grouping, type operands, and selection</a></td></tr>
+<tr><td><code>typedef</code></td><td><a href="#declaration-forms">Declaration forms</a></td></tr>
+<tr><td><code>unqual</code></td><td><a href="#source-types-and-semantic-types">Source types and semantic Types</a></td></tr>
+<tr><td><code>va-arg</code></td><td><a href="#grouping-type-operands-and-selection">Grouping, type operands, and selection</a></td></tr>
+<tr><td><code>value</code></td><td><a href="#pending-applications-and-captures">Pending applications and captures</a></td></tr>
+<tr><td><code>var</code></td><td><a href="#collections-list-construction-and-string-segments">Collections, List construction, and String segments</a>; <a href="#cache-payloads-and-compatibility-content">Cache payloads and compatibility content</a></td></tr>
+<tr><td><code>varray</code></td><td><a href="#cache-payloads-and-compatibility-content">Cache payloads and compatibility content</a></td></tr>
+<tr><td><code>vmap</code></td><td><a href="#cache-payloads-and-compatibility-content">Cache payloads and compatibility content</a></td></tr>
+<tr><td><code>while</code></td><td><a href="#ordinary-statements-and-sequences">Ordinary statements and sequences</a></td></tr>
+</tbody>
+</table>
+</div>
+<h3 id="dynamic-heads-and-forms-without-a-head"><a class="header" href="#dynamic-heads-and-forms-without-a-head">Dynamic heads and forms without a head</a></h3>
+<p>Operators vary in the <code>op</code> field; aggregate kind selects <code>struct</code> or <code>union</code>;
+source/semantic type Lists can start with a type name or modifier. Native
+sequences can start with String text, another List, or numeric zero. Argument,
+parameter, arm, capture, initializer-choice, environment, and path rows can be
+untagged. Their enclosing productions determine how to read them.</p>
+<p>For example, a pattern <code>(expr TYPE (call CALLEE (args ...)))</code> first establishes
+the typed shell, then the call content, then its ordered arguments. A pattern
+on <code>(return TYPE EXPR)</code> is recognizing the bound return stage; the lowered
+stage no longer has that type field. A match on <code>(capture ...)</code> must know
+whether it is reading a lambda capture or a macro invocation capture. Use this
+chapter’s production and stage together when reading such patterns.</p>
+
+                    </main>
+                    <script>
+                        // A generated page is edited through its generator.
+                        if ([...document.querySelector('#mdbook-content main').childNodes]
+                                .some(node => node.nodeType === Node.COMMENT_NODE &&
+                                      node.textContent.includes('Do not edit by hand'))) {
+                            document.querySelector('a[rel="edit"]')?.remove();
+                        }
+                    </script>
+
+                    <nav class="x2c-pager" aria-label="Page navigation">
+                        <a rel="prev" href="../internals/architecture.html" class="x2c-pager-prev" aria-keyshortcuts="Left">
+                            <span class="x2c-pager-label">previous</span>
+                            <span class="x2c-pager-title">Compiler Architecture</span>
+                        </a>
+                        
+                        <a rel="next prefetch" href="../internals/implementation-map.html" class="x2c-pager-next" aria-keyshortcuts="Right">
+                            <span class="x2c-pager-label">next</span>
+                            <span class="x2c-pager-title">Implementation Map</span>
+                        </a>
+                    </nav>
+                    <footer class="x2c-footer">
+                        &copy; 2025&ndash;2026
+                        <a href="https://flake.org">GWF</a>
+                        &middot;
+                        <a href="https://github.com/gwf/x2c/blob/2c5870d64d381a861054dae9927aa65adc87e9e0/LICENSE">Apache 2.0</a>
+                        &middot;
+                        <a href="https://github.com/gwf/x2c/blob/2c5870d64d381a861054dae9927aa65adc87e9e0/TRADEMARKS.md">Trademarks</a>
+                    </footer>
+                </div>
+            </div>
+
+
+        </div>
+
+        <template id=fa-eye><span class=fa-svg><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 576 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc. --><path d="M288 32c-80.8 0-145.5 36.8-192.6 80.6C48.6 156 17.3 208 2.5 243.7c-3.3 7.9-3.3 16.7 0 24.6C17.3 304 48.6 356 95.4 399.4C142.5 443.2 207.2 480 288 480s145.5-36.8 192.6-80.6c46.8-43.5 78.1-95.4 93-131.1c3.3-7.9 3.3-16.7 0-24.6c-14.9-35.7-46.2-87.7-93-131.1C433.5 68.8 368.8 32 288 32zM432 256c0 79.5-64.5 144-144 144s-144-64.5-144-144s64.5-144 144-144s144 64.5 144 144zM288 192c0 35.3-28.7 64-64 64c-11.5 0-22.3-3-31.6-8.4c-.2 2.8-.4 5.5-.4 8.4c0 53 43 96 96 96s96-43 96-96s-43-96-96-96c-2.8 0-5.6 .1-8.4 .4c5.3 9.3 8.4 20.1 8.4 31.6z"/></svg></span></template>
+        <template id=fa-eye-slash><span class=fa-svg><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 640 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc. --><path d="M38.8 5.1C28.4-3.1 13.3-1.2 5.1 9.2S-1.2 34.7 9.2 42.9l592 464c10.4 8.2 25.5 6.3 33.7-4.1s6.3-25.5-4.1-33.7L525.6 386.7c39.6-40.6 66.4-86.1 79.9-118.4c3.3-7.9 3.3-16.7 0-24.6c-14.9-35.7-46.2-87.7-93-131.1C465.5 68.8 400.8 32 320 32c-68.2 0-125 26.3-169.3 60.8L38.8 5.1zM223.1 149.5C248.6 126.2 282.7 112 320 112c79.5 0 144 64.5 144 144c0 24.9-6.3 48.3-17.4 68.7L408 294.5c5.2-11.8 8-24.8 8-38.5c0-53-43-96-96-96c-2.8 0-5.6 .1-8.4 .4c5.3 9.3 8.4 20.1 8.4 31.6c0 10.2-2.4 19.8-6.6 28.3l-90.3-70.8zm223.1 298L373 389.9c-16.4 6.5-34.3 10.1-53 10.1c-79.5 0-144-64.5-144-144c0-6.9 .5-13.6 1.4-20.2L83.1 161.5C60.3 191.2 44 220.8 34.5 243.7c-3.3 7.9-3.3 16.7 0 24.6c14.9 35.7 46.2 87.7 93 131.1C174.5 443.2 239.2 480 320 480c47.8 0 89.9-12.9 126.2-32.5z"/></svg></span></template>
+        <template id=fa-copy><span class=fa-svg><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc. --><path d="M502.6 70.63l-61.25-61.25C435.4 3.371 427.2 0 418.7 0H255.1c-35.35 0-64 28.66-64 64l.0195 256C192 355.4 220.7 384 256 384h192c35.2 0 64-28.8 64-64V93.25C512 84.77 508.6 76.63 502.6 70.63zM464 320c0 8.836-7.164 16-16 16H255.1c-8.838 0-16-7.164-16-16L239.1 64.13c0-8.836 7.164-16 16-16h128L384 96c0 17.67 14.33 32 32 32h47.1V320zM272 448c0 8.836-7.164 16-16 16H63.1c-8.838 0-16-7.164-16-16L47.98 192.1c0-8.836 7.164-16 16-16H160V128H63.99c-35.35 0-64 28.65-64 64l.0098 256C.002 483.3 28.66 512 64 512h192c35.2 0 64-28.8 64-64v-32h-47.1L272 448z"/></svg></span></template>
+        <template id=fa-play><span class=fa-svg><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 384 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc. --><path d="M73 39c-14.8-9.1-33.4-9.4-48.5-.9S0 62.6 0 80V432c0 17.4 9.4 33.4 24.5 41.9s33.7 8.1 48.5-.9L361 297c14.3-8.7 23-24.2 23-41s-8.7-32.2-23-41L73 39z"/></svg></span></template>
+        <template id=fa-clock-rotate-left><span class=fa-svg><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc. --><path d="M75 75L41 41C25.9 25.9 0 36.6 0 57.9V168c0 13.3 10.7 24 24 24H134.1c21.4 0 32.1-25.9 17-41l-30.8-30.8C155 85.5 203 64 256 64c106 0 192 86 192 192s-86 192-192 192c-40.8 0-78.6-12.7-109.7-34.4c-14.5-10.1-34.4-6.6-44.6 7.9s-6.6 34.4 7.9 44.6C151.2 495 201.7 512 256 512c141.4 0 256-114.6 256-256S397.4 0 256 0C185.3 0 121.3 28.7 75 75zm181 53c-13.3 0-24 10.7-24 24V256c0 6.4 2.5 12.5 7 17l72 72c9.4 9.4 24.6 9.4 33.9 0s9.4-24.6 0-33.9l-65-65V152c0-13.3-10.7-24-24-24z"/></svg></span></template>
+
+
+
+        <script>
+            window.playground_copyable = true;
+        </script>
+
+
+        <script src="../elasticlunr-ef4e11c1.min.js"></script>
+        <script src="../mark-09e88c2c.min.js"></script>
+        <script src="../searcher-09f2665d.js"></script>
+
+        <script src="../clipboard-1626706a.min.js"></script>
+        <script src="../highlight-abc7f01d.js"></script>
+        <script src="../book-609e4cb8.js"></script>
+
+        <script>
+            document.addEventListener('DOMContentLoaded', () => {
+                const sidebar = document.querySelector('#mdbook-sidebar');
+                sidebar.querySelectorAll('ol').forEach(list => {
+                    const numbers = list.querySelectorAll(
+                        ':scope > li > .chapter-link-wrapper > a > strong, :scope > li > a > strong');
+                    if (numbers.length) {
+                        const width = Math.max(...Array.from(numbers,
+                            number => number.textContent.trim().length));
+                        list.style.setProperty('--chapter-number-width', width + 'ch');
+                    }
+                });
+                const chapter = sidebar.querySelector('a.active');
+                const item = chapter?.closest('.chapter-item');
+                if (item?.querySelector(':scope > .on-this-page')) {
+                    const row = chapter.parentElement;
+                    if (!row.querySelector('.chapter-fold-toggle')) {
+                        const toggle = document.createElement('button');
+                        toggle.type = 'button';
+                        toggle.className = 'chapter-fold-toggle';
+                        toggle.appendChild(document.createElement('div'));
+                        toggle.addEventListener('click', () => {
+                            item.classList.toggle('expanded');
+                        });
+                        row.appendChild(toggle);
+                    }
+                }
+                sidebar.querySelectorAll('.chapter-fold-toggle').forEach(toggle => {
+                    const row = toggle.parentElement;
+                    const item = row.parentElement;
+                    const title = row.querySelector('a').textContent.trim();
+                    toggle.setAttribute('aria-label', 'Toggle ' + title);
+                    const update = () => toggle.setAttribute('aria-expanded',
+                        String(item.classList.contains('expanded')));
+                    update();
+                    toggle.addEventListener('click', update);
+                    if (toggle.tagName === 'A') {
+                        toggle.setAttribute('role', 'button');
+                        toggle.tabIndex = 0;
+                        toggle.addEventListener('keydown', event => {
+                            if (event.key === 'Enter' || event.key === ' ') {
+                                event.preventDefault();
+                                toggle.click();
+                            }
+                        });
+                    }
+                });
+            });
+        </script>
+
+        <!-- Custom JS scripts -->
+
+
+
+    </div>
+    </body>
+</html>

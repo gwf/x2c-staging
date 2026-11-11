@@ -1,6 +1,6 @@
 <!DOCTYPE HTML>
 <html lang="en" class="light sidebar-visible" dir="ltr">
-    <head><meta name="x2c-release-channel" content="staging"><meta name="x2c-candidate" content="candidate-aa2b9b2575297711e5978acc53f87bd7f645f3c7-39090113132-1">
+    <head><meta name="x2c-release-channel" content="staging"><meta name="x2c-candidate" content="candidate-aa2b9b2575297711e5978acc53f87bd7f645f3c7-39090113132-1"><meta name="x2c-site-source" content="2c5870d64d381a861054dae9927aa65adc87e9e0"><meta name="robots" content="noindex">
         <!-- Book generated using mdBook -->
         <meta charset="UTF-8">
         <title>lib/pool/pool.x - The x2c Book</title>
@@ -30,7 +30,7 @@
         <link rel="stylesheet" id="mdbook-ayu-highlight-css" href="../../ayu-highlight-3fdfc3ac.css">
 
         <!-- Custom theme stylesheets -->
-        <link rel="stylesheet" href="../../theme/header-f6c12aed.css">
+        <link rel="stylesheet" href="../../theme/header-b540a03f.css">
         <link rel="stylesheet" href="../../theme/x2c-fd3d182e.css">
 
 
@@ -39,12 +39,12 @@
             const path_to_root = "../../";
             const default_light_theme = "light";
             const default_dark_theme = "light";
-            window.path_to_searchindex_js = "../../searchindex-f4d06db2.js";
+            window.path_to_searchindex_js = "../../searchindex-a3bdfad5.js";
         </script>
         <!-- Start loading toc.js asap -->
-        <script src="../../toc-00ae7479.js"></script>
+        <script src="../../toc-2248e0f3.js"></script>
         <!-- x2c publication metadata -->
-        <link rel="canonical" href="https://staging.x2c-lang.dev/docs/library/modules/pool.html">
+        <link rel="canonical" href="https://x2c-lang.dev/docs/library/modules/pool.html">
         <meta property="og:type" content="website">
         <meta property="og:title" content="lib/pool/pool.x - The x2c Book">
         <meta property="og:description" content="The x2c language, standard library, and compiler.">
@@ -143,16 +143,12 @@
                             <button class="landing-tagline menu-title" type="button" title="Scroll to top">The x2c Book</button>
                         </div>
                         <nav class="landing-nav" aria-label="x2c website">
-                            <div class="landing-page-nav">
-                                <a href="../../../#love">love</a>
-                                <a href="../../../#power">power</a>
-                                <a href="../../../#magic">magic</a>
-                            </div>
                             <div class="landing-site-nav">
                                 <a href="../../../#install">install</a>
                                 <a href="../../../#packages">packages</a>
                             </div>
                             <div class="landing-reference-nav">
+                                <a href="../../../examples/">examples</a>
                                 <a href="../../../about/">about</a>
                                 <a href="../../" aria-current="page">docs</a>
                                 <a href="https://github.com/gwf/x2c">source</a>
@@ -249,24 +245,24 @@ Canonical <code>String</code>s, <code>List</code>s, and transient <code>String</
 pool are reclaimed unless promoted; ancestor-owned values remain live.</p>
 <p><strong>Raises:</strong> <code>&lt;bad-state&gt;</code> when no bracket is open. The failure leaves the
 active pool unchanged.</p>
-<p>Source: <code>lib/pool/threads.x:101</code></p>
+<p>Source: <code>lib/pool/threads.x</code></p>
 <p><a id="Pool.current"></a></p>
 <h4 id="poolcurrent"><a class="header" href="#poolcurrent">Pool.current</a></h4>
 <p><code>Pool Pool.current(void)</code></p>
 <p>Returns the borrowed canonical-value pool active on this thread.
 The process root is installed lazily on first use, so the result is never
 NULL. The pool is borrowed: do not release it with <code>Pool.release</code>.</p>
-<p>Source: <code>lib/pool/threads.x:34</code></p>
+<p>Source: <code>lib/pool/threads.x</code></p>
 <p><a id="Pool.detach"></a></p>
 <h4 id="pooldetach"><a class="header" href="#pooldetach">Pool.detach</a></h4>
 <p><code>Pool Pool.detach(void)</code></p>
 <p>Removes the innermost open bracket without destroying it.
-<code>Thread</code> keeps the detached pool sealed until join copies its survivors.
-The returned pool remains owned by the caller until that transfer or an
-explicit <code>Pool.release</code>.</p>
+The returned pool remains owned by the caller until explicitly released.
+Keep it and its ancestors alive while its values are in use. <code>Thread.join</code>
+does not copy values or transfer pool ownership.</p>
 <p><strong>Raises:</strong> <code>&lt;bad-state&gt;</code> when no bracket is open. The failure leaves the
 active pool unchanged.</p>
-<p>Source: <code>lib/pool/threads.x:113</code></p>
+<p>Source: <code>lib/pool/threads.x</code></p>
 <p><a id="Pool.epoch"></a></p>
 <h4 id="poolepoch"><a class="header" href="#poolepoch">Pool.epoch</a></h4>
 <p><code>unsigned long Pool.epoch(void)</code></p>
@@ -275,7 +271,7 @@ A cache that borrows canonical identities reads this before trusting an
 entry: a released level’s addresses can be reused, so identities admitted
 under an earlier value prove nothing. The counter only advances, so a
 reader needs no lock to tell that something was released.</p>
-<p>Source: <code>lib/pool/threads.x:132</code></p>
+<p>Source: <code>lib/pool/threads.x</code></p>
 <p><a id="Pool.intern_new"></a></p>
 <h4 id="poolintern_new"><a class="header" href="#poolintern_new">Pool.intern_new</a></h4>
 <p><code>Var Pool.intern_new(Pool inner, Var object, void *alloc)</code></p>
@@ -287,7 +283,7 @@ keeps one canonical pointer per equal value in <code>inner</code> even when anot
 worker interns the same value first.</p>
 <p><strong>Raises:</strong> <code>&lt;bad-arg&gt;</code> when <code>inner</code> or <code>alloc</code> is NULL. Table insertion
 causes propagate and leave the object unregistered.</p>
-<p>Source: <code>lib/pool/interning.x:131</code></p>
+<p>Source: <code>lib/pool/interning.x</code></p>
 <p><a id="Pool.open"></a></p>
 <h4 id="poolopen"><a class="header" href="#poolopen">Pool.open</a></h4>
 <p><code>Pool Pool.open(void)</code></p>
@@ -300,7 +296,7 @@ this with one <code>Pool.close</code> or detach it for transfer.</p>
 <p><strong>Raises:</strong> <code>&lt;alloc-fail&gt;</code> while opening the pool.</p>
 <p><strong>See:</strong> <a href="#Pool.close"><code>Pool.close</code></a>, <a href="#Pool.open_named"><code>Pool.open_named</code></a>,
 <a href="list.html#List.promote"><code>List.promote</code></a></p>
-<p>Source: <code>lib/pool/threads.x:93</code></p>
+<p>Source: <code>lib/pool/threads.x</code></p>
 <p><a id="Pool.open_named"></a></p>
 <h4 id="poolopen_named"><a class="header" href="#poolopen_named">Pool.open_named</a></h4>
 <p><code>Pool Pool.open_named(const char *name)</code></p>
@@ -311,14 +307,14 @@ existing owner and lifetime. The caller must match this with one
 diagnostics.</p>
 <p><strong>Raises:</strong> <code>&lt;alloc-fail&gt;</code> while opening the pool.</p>
 <p><strong>See:</strong> <a href="#Pool.open"><code>Pool.open</code></a>, <a href="#Pool.close"><code>Pool.close</code></a></p>
-<p>Source: <code>lib/pool/threads.x:78</code></p>
+<p>Source: <code>lib/pool/threads.x</code></p>
 <p><a id="Pool.stats"></a></p>
 <h4 id="poolstats"><a class="header" href="#poolstats">Pool.stats</a></h4>
 <p><code>PoolStats Pool.stats(Pool inner)</code></p>
 <p>Returns this level’s canonical counts plus process-wide storage counters.
 A null pool reports depth and per-level counts as zero. The counters are a
 snapshot; nothing in the result stays live with the pool.</p>
-<p>Source: <code>lib/pool/storage.x:534</code></p>
+<p>Source: <code>lib/pool/storage.x</code></p>
 <h2 id="advanced-and-interop-api"><a class="header" href="#advanced-and-interop-api">Advanced and interop API</a></h2>
 <div class="table-wrapper">
 <table>
@@ -326,30 +322,39 @@ snapshot; nothing in the result stays live with the pool.</p>
 <tr><th>Function</th><th>Summary</th></tr>
 </thead>
 <tbody>
+<tr><td><a href="#x2c_pool_lookup_string"><code>x2c_pool_lookup_string</code></a></td><td>Finds an existing nonempty String from borrowed NUL-free bytes and their x2c_hash_bytes content hash, searching inner and its ancestors.</td></tr>
 <tr><td><a href="#Pool.release"><code>Pool.release</code></a></td><td>Destroys one pool and returns its parent, or returns NULL for NULL input.</td></tr>
 <tr><td><a href="#Pool.retain"><code>Pool.retain</code></a></td><td>Returns an unnamed child of <code>inner</code>, without making it thread-active.</td></tr>
 <tr><td><a href="#Pool.retain_named"><code>Pool.retain_named</code></a></td><td>Returns a new named child of <code>inner</code> without making it thread-active.</td></tr>
 </tbody>
 </table>
 </div>
+<h3 id="functions"><a class="header" href="#functions">Functions</a></h3>
+<h4 id="x2c_pool_lookup_string"><a class="header" href="#x2c_pool_lookup_string">x2c_pool_lookup_string</a></h4>
+<p><code>String x2c_pool_lookup_string(Pool inner, const char *bytes, int length, unsigned hash)</code></p>
+<p>Finds an existing nonempty String from borrowed NUL-free bytes and their
+x2c_hash_bytes content hash, searching inner and its ancestors.
+Returns NULL on a miss and allocates nothing. Native comparisons cannot
+raise, so each acquired pool lock is released directly.</p>
+<p>Source: <code>lib/pool/interning.x</code></p>
 <h3 id="pool-1"><a class="header" href="#pool-1"><code>Pool</code></a></h3>
 <p><a id="Pool.release"></a></p>
 <h4 id="poolrelease"><a class="header" href="#poolrelease">Pool.release</a></h4>
-<p><code>Pool Pool.release(Pool inner)</code></p>
+<p><code>Pool Pool.release(Pool p)</code></p>
 <p>Destroys one pool and returns its parent, or returns NULL for NULL input.
 Promoted slots and large allocations survive under the parent with stable
 addresses; other identities, the table, and the control <code>Scope</code> become
-invalid. Children must already be released, and no caller may use <code>inner</code>
-afterward. Use <code>Pool.close</code> instead to end a bracket opened with
-<code>Pool.open</code>.</p>
-<p>Source: <code>lib/pool/interning.x:234</code></p>
+invalid. Children must already be released, and no caller may use the
+destroyed pool afterward. Use <code>Pool.close</code> instead to end a bracket opened
+with <code>Pool.open</code>.</p>
+<p>Source: <code>lib/pool/interning.x</code></p>
 <p><a id="Pool.retain"></a></p>
 <h4 id="poolretain"><a class="header" href="#poolretain">Pool.retain</a></h4>
 <p><code>Pool Pool.retain(Pool inner)</code></p>
 <p>Returns an unnamed child of <code>inner</code>, without making it thread-active.
 Ownership, failures, and the comparison with <code>Pool.open</code> follow
 <code>Pool.retain_named</code>.</p>
-<p>Source: <code>lib/pool/interning.x:225</code></p>
+<p>Source: <code>lib/pool/interning.x</code></p>
 <p><a id="Pool.retain_named"></a></p>
 <h4 id="poolretain_named"><a class="header" href="#poolretain_named">Pool.retain_named</a></h4>
 <p><code>Pool Pool.retain_named(Pool inner, const char *name)</code></p>
@@ -360,7 +365,7 @@ canonical <code>String</code> and <code>List</code> operations allocate into.</p
 <p><strong>Raises:</strong> <code>&lt;alloc-fail&gt;</code> while building the child. A transfer destroys
 partial child resources and leaves <code>inner</code> unchanged; native mutex
 initialization failure aborts.</p>
-<p>Source: <code>lib/pool/interning.x:191</code></p>
+<p>Source: <code>lib/pool/interning.x</code></p>
 <h2 id="runtime-internal-callables"><a class="header" href="#runtime-internal-callables">Runtime-internal callables</a></h2>
 <p>These callables connect runtime translation units. They are documented
 for source readers but are not supported as user API.</p>
@@ -370,6 +375,7 @@ for source readers but are not supported as user API.</p>
 <tr><th>Function</th><th>Summary</th></tr>
 </thead>
 <tbody>
+<tr><td><a href="#x2c_pool_exchange"><code>x2c_pool_exchange</code></a></td><td>Borrows a pool for one runtime callback and returns the previous pool.</td></tr>
 <tr><td><a href="#Pool.free"><code>Pool.free</code></a></td><td>Releases a losing or transient allocation from <code>inner</code>’s pool chain.</td></tr>
 <tr><td><a href="#Pool.initialize"><code>Pool.initialize</code></a></td><td>Creates the process-wide canonical-value root and makes it active here.</td></tr>
 <tr><td><a href="#Pool.insert"><code>Pool.insert</code></a></td><td>Installs <code>object</code> as its own canonical value in exactly <code>inner</code>.</td></tr>
@@ -386,6 +392,13 @@ for source readers but are not supported as user API.</p>
 </tbody>
 </table>
 </div>
+<h3 id="functions-1"><a class="header" href="#functions-1">Functions</a></h3>
+<h4 id="x2c_pool_exchange"><a class="header" href="#x2c_pool_exchange">x2c_pool_exchange</a></h4>
+<p><code>Pool x2c_pool_exchange(Pool pool)</code></p>
+<p>Borrows a pool for one runtime callback and returns the previous pool.
+The owner keeps the pool and its ancestors alive. Exchanging the
+thread-local pointer transfers no ownership; restore it after the callback.</p>
+<p>Source: <code>lib/pool/threads.x</code></p>
 <h3 id="pool-2"><a class="header" href="#pool-2"><code>Pool</code></a></h3>
 <p><a id="Pool.free"></a></p>
 <h4 id="poolfree"><a class="header" href="#poolfree">Pool.free</a></h4>
@@ -395,7 +408,7 @@ Region slots become immediately reusable; large allocations use
 <code>Scope.free</code>. A canonical allocation still present in a table must not be
 freed this way. A null allocation does nothing.</p>
 <p><strong>Raises:</strong> <code>&lt;bad-arg&gt;</code> when <code>inner</code> is NULL and <code>alloc</code> is not.</p>
-<p>Source: <code>lib/pool/storage.x:167</code></p>
+<p>Source: <code>lib/pool/storage.x</code></p>
 <p><a id="Pool.initialize"></a></p>
 <h4 id="poolinitialize"><a class="header" href="#poolinitialize">Pool.initialize</a></h4>
 <p><code>void Pool.initialize(void)</code></p>
@@ -403,7 +416,7 @@ freed this way. A null allocation does nothing.</p>
 <code>x2c_initialize</code> calls this once; a repeat call does nothing.</p>
 <p><strong>Raises:</strong> <code>&lt;alloc-fail&gt;</code> if the root cannot be constructed. Native mutex
 initialization failure aborts.</p>
-<p>Source: <code>lib/pool/threads.x:44</code></p>
+<p>Source: <code>lib/pool/threads.x</code></p>
 <p><a id="Pool.insert"></a></p>
 <h4 id="poolinsert"><a class="header" href="#poolinsert">Pool.insert</a></h4>
 <p><code>void Pool.insert(Pool inner, Var object)</code></p>
@@ -413,7 +426,7 @@ primitive neither searches ancestors nor takes ownership of separate
 object storage.</p>
 <p><strong>Raises:</strong> <code>&lt;bad-arg&gt;</code> when <code>inner</code> is NULL. Table insertion causes propagate
 and leave the object unregistered.</p>
-<p>Source: <code>lib/pool/interning.x:153</code></p>
+<p>Source: <code>lib/pool/interning.x</code></p>
 <p><a id="Pool.intern"></a></p>
 <h4 id="poolintern"><a class="header" href="#poolintern">Pool.intern</a></h4>
 <p><code>Var Pool.intern(Pool inner, Var object, void *alloc)</code></p>
@@ -428,20 +441,20 @@ shadowing while allowing the innermost table to be probed exactly once.
 A caller that has already searched the chain uses <code>Pool.intern_new</code>.</p>
 <p><strong>Raises:</strong> <code>&lt;bad-arg&gt;</code> when <code>inner</code> or <code>alloc</code> is NULL. Table lookup and
 insertion causes propagate.</p>
-<p>Source: <code>lib/pool/interning.x:92</code></p>
+<p>Source: <code>lib/pool/interning.x</code></p>
 <p><a id="Pool.is_permanent"></a></p>
 <h4 id="poolis_permanent"><a class="header" href="#poolis_permanent">Pool.is_permanent</a></h4>
 <p><code>int Pool.is_permanent(Var value)</code></p>
 <p>Reports whether the process root owns <code>value</code> as its canonical identity.
-Nothing is promoted, and no open bracket can reclaim a value that answers
-one.</p>
-<p>Source: <code>lib/pool/threads.x:124</code></p>
+Nothing is promoted, and no open bracket can reclaim a value for which this
+returns one.</p>
+<p>Source: <code>lib/pool/threads.x</code></p>
 <p><a id="Pool.lookup"></a></p>
 <h4 id="poollookup"><a class="header" href="#poollookup">Pool.lookup</a></h4>
 <p><code>Var Pool.lookup(Pool inner, Var key)</code></p>
 <p>Returns the first value equal to <code>key</code> from <code>inner</code> outward, or <code>void</code>.
 The returned identity remains owned by the level where it was found.</p>
-<p>Source: <code>lib/pool/interning.x:43</code></p>
+<p>Source: <code>lib/pool/interning.x</code></p>
 <p><a id="Pool.malloc"></a></p>
 <h4 id="poolmalloc"><a class="header" href="#poolmalloc">Pool.malloc</a></h4>
 <p><code>void *Pool.malloc(Pool inner, size_t size)</code></p>
@@ -451,7 +464,7 @@ ordinary <code>Scope</code> ownership.</p>
 <p><strong>Raises:</strong> <code>&lt;bad-arg&gt;</code> when <code>inner</code> is NULL, <code>&lt;size-limit&gt;</code> when a large
 request overflows <code>Scope</code> storage, or <code>&lt;alloc-fail&gt;</code> when storage cannot
 be allocated.</p>
-<p>Source: <code>lib/pool/storage.x:83</code></p>
+<p>Source: <code>lib/pool/storage.x</code></p>
 <p><a id="Pool.own"></a></p>
 <h4 id="poolown"><a class="header" href="#poolown">Pool.own</a></h4>
 <p><code>int Pool.own(Pool inner, Var object, void *alloc)</code></p>
@@ -463,15 +476,15 @@ chain owns it or a promotion fails. A null <code>inner</code> reports safe, sinc
 pool can then reclaim the value. Promotion is not transactional across
 levels: an earlier level remains promoted if a later promotion transfers.
 A thread that loses a concurrent promotion of an equal value still gets
-one, though <code>Pool.is_permanent</code> answers zero for its surviving copy.</p>
+one, though <code>Pool.is_permanent</code> returns zero for its surviving copy.</p>
 <p><strong>Raises:</strong> <code>&lt;alloc-fail&gt;</code> when promotion metadata cannot be allocated.</p>
-<p>Source: <code>lib/pool/storage.x:390</code></p>
+<p>Source: <code>lib/pool/storage.x</code></p>
 <p><a id="Pool.owns"></a></p>
 <h4 id="poolowns"><a class="header" href="#poolowns">Pool.owns</a></h4>
 <p><code>int Pool.owns(Pool pool, Var key)</code></p>
 <p>Reports whether this exact level stores <code>key</code> as its canonical identity.
 Ancestors are not searched, and a null pool reports zero.</p>
-<p>Source: <code>lib/pool/interning.x:169</code></p>
+<p>Source: <code>lib/pool/interning.x</code></p>
 <p><a id="Pool.promote"></a></p>
 <h4 id="poolpromote"><a class="header" href="#poolpromote">Pool.promote</a></h4>
 <p><code>int Pool.promote(Pool inner, Var object, void *alloc)</code></p>
@@ -482,26 +495,26 @@ parent already holds an equal identity, that one stays canonical and
 null allocation.</p>
 <p><strong>Raises:</strong> <code>&lt;alloc-fail&gt;</code>, <code>&lt;size-limit&gt;</code>, or <code>&lt;invariant&gt;</code> while recording
 the promotion; that transfer may happen before storage is marked or moved.</p>
-<p>Source: <code>lib/pool/storage.x:373</code></p>
+<p>Source: <code>lib/pool/storage.x</code></p>
 <p><a id="Pool.shutdown"></a></p>
 <h4 id="poolshutdown"><a class="header" href="#poolshutdown">Pool.shutdown</a></h4>
 <p><code>void Pool.shutdown(void)</code></p>
 <p>Releases this thread’s open brackets and then the process root.
 Call it only after every worker has stopped and no canonical value is
 still in use. A repeat call after the root is gone does nothing.</p>
-<p>Source: <code>lib/pool/threads.x:63</code></p>
+<p>Source: <code>lib/pool/threads.x</code></p>
 <p><a id="Pool.thread_initialize"></a></p>
 <h4 id="poolthread_initialize"><a class="header" href="#poolthread_initialize">Pool.thread_initialize</a></h4>
 <p><code>void Pool.thread_initialize(void)</code></p>
 <p>Installs the existing process root in a newly created worker thread.
 The root must already exist; otherwise the process aborts.</p>
-<p>Source: <code>lib/pool/threads.x:53</code></p>
+<p>Source: <code>lib/pool/threads.x</code></p>
 <p><a id="Pool.thread_start"></a></p>
 <h4 id="poolthread_start"><a class="header" href="#poolthread_start">Pool.thread_start</a></h4>
 <p><code>void Pool.thread_start(void)</code></p>
 <p>Makes <code>Pool</code> lock from here on, for a process about to start a worker.
-<code>Thread.start</code> calls this before <code>pthread_create</code>. It never clears.</p>
-<p>Source: <code>lib/pool/threads.x:20</code></p>
+<code>Thread.start_raw</code> calls this before <code>pthread_create</code>. It never clears.</p>
+<p>Source: <code>lib/pool/threads.x</code></p>
 <h2 id="public-types"><a class="header" href="#public-types">Public types</a></h2>
 <div class="table-wrapper">
 <table>
@@ -511,7 +524,6 @@ The root must already exist; otherwise the process aborts.</p>
 <tbody>
 <tr><td><a href="#Pool"><code>Pool</code></a></td><td>struct</td><td>Holds one level of canonical values and their backing storage.</td></tr>
 <tr><td><a href="#PoolStats"><code>PoolStats</code></a></td><td>struct</td><td>Reports one pool level’s activity and process-wide storage counters.</td></tr>
-<tr><td><a href="#PoolTable"><code>PoolTable</code></a></td><td>struct</td><td>Maps each canonical value of one <code>Pool</code> level to itself.</td></tr>
 </tbody>
 </table>
 </div>
@@ -522,32 +534,57 @@ The root must already exist; otherwise the process aborts.</p>
 Pools are released from child to parent. Their handles and unpromoted
 allocations become invalid at release; promoted identities retain their
 pointers under the parent.</p>
-<p>Source: <code>lib/pool/pool.x:38</code></p>
+<p>Source: <code>lib/pool/pool.x</code></p>
 <p><a id="PoolStats"></a></p>
 <h3 id="poolstats-1"><a class="header" href="#poolstats-1">PoolStats</a></h3>
 <p><code>typedef struct PoolStats { int depth, size_t interned, promoted, allocation_calls, free_calls; size_t requested_bytes, block_allocations, block_reuses, slot_reuses; size_t backing_bytes, active_blocks, active_bytes, depot_blocks, depot_bytes; } PoolStats</code></p>
 <p>Reports one pool level’s activity and process-wide storage counters.
-The snapshot owns no storage; <code>requested_bytes</code> saturates at <code>SIZE_MAX</code>.</p>
-<p>Source: <code>lib/pool/pool.x:47</code></p>
+Allocation/free calls, requested bytes, and slot reuse require
+<code>X2C_SCOPE_ACCOUNTING=1</code> at startup and are zero otherwise. Block and
+backing-storage metrics remain available. The snapshot owns no storage;
+<code>requested_bytes</code> saturates at <code>SIZE_MAX</code>.</p>
+<p>Source: <code>lib/pool/pool.x</code></p>
+<h2 id="internal-types"><a class="header" href="#internal-types">Internal types</a></h2>
+<p>These types connect runtime translation units and compiler-generated
+code. They are documented for source readers but are not supported as
+user API.</p>
+<div class="table-wrapper">
+<table>
+<thead>
+<tr><th>Type</th><th>Kind</th><th>Summary</th></tr>
+</thead>
+<tbody>
+<tr><td><a href="#PoolTable"><code>PoolTable</code></a></td><td>struct</td><td>Maps each canonical value of one <code>Pool</code> level to itself.</td></tr>
+</tbody>
+</table>
+</div>
 <p><a id="PoolTable"></a></p>
 <h3 id="pooltable"><a class="header" href="#pooltable">PoolTable</a></h3>
 <p><code>typedef struct PoolTable { Scope scope, Bytes hashes, entries; unsigned used, capacity, mask; } *PoolTable</code></p>
 <p>Maps each canonical value of one <code>Pool</code> level to itself.
-A bucket stores the value once, beside its 32-bit hash, so the table costs
-12 bytes per bucket where a <code>Map</code> costs 20. It belongs to the level’s
-<code>Scope</code>.</p>
-<p>Source: <code>lib/pool/pool.x:28</code></p>
+A bucket stores one Var, one control byte and one full 32-bit hash:
+13 bytes where a <code>Map</code> costs 21, before Block headers, tiny-table padding
+and the deleted counter. Full hashes share the control Block below 65536
+buckets; larger tables keep them in that Block’s owned storage.
+It belongs to the level’s <code>Scope</code>.</p>
+<p>Source: <code>lib/pool/pool.x</code></p>
 <h2 id="design-notes"><a class="header" href="#design-notes">Design notes</a></h2>
 <p>Pool owns canonical identity for a stack of nested levels. Lookup walks
 outward and a miss lands in the innermost level; release returns empty
 blocks to one process-wide depot and moves promoted survivors to the
-parent at the same address. Levels have no sibling branches, so the
-active chain holds one canonical pointer per equal value. <code>String</code> and
-<code>List</code> intern into one such stack per thread.</p>
-<h2 id="tests-and-examples"><a class="header" href="#tests-and-examples">Tests and examples</a></h2>
-<p><code>make verify</code> (<code>unittest/test-pool.x</code>).</p>
+parent at the same address. Threads start at one shared process root and
+may open their own child levels. <code>String</code> and <code>List</code> lookup follows the
+active thread’s chain of child and ancestor levels.</p>
 
                     </main>
+                    <script>
+                        // A generated page is edited through its generator.
+                        if ([...document.querySelector('#mdbook-content main').childNodes]
+                                .some(node => node.nodeType === Node.COMMENT_NODE &&
+                                      node.textContent.includes('Do not edit by hand'))) {
+                            document.querySelector('a[rel="edit"]')?.remove();
+                        }
+                    </script>
 
                     <nav class="x2c-pager" aria-label="Page navigation">
                         <a rel="prev" href="../../library/modules/path.html" class="x2c-pager-prev" aria-keyshortcuts="Left">
@@ -564,9 +601,9 @@ active chain holds one canonical pointer per equal value. <code>String</code> an
                         &copy; 2025&ndash;2026
                         <a href="https://flake.org">GWF</a>
                         &middot;
-                        <a href="https://github.com/gwf/x2c/blob/aa2b9b2575297711e5978acc53f87bd7f645f3c7/LICENSE">Apache 2.0</a>
+                        <a href="https://github.com/gwf/x2c/blob/2c5870d64d381a861054dae9927aa65adc87e9e0/LICENSE">Apache 2.0</a>
                         &middot;
-                        <a href="https://github.com/gwf/x2c/blob/aa2b9b2575297711e5978acc53f87bd7f645f3c7/TRADEMARKS.md">Trademarks</a>
+                        <a href="https://github.com/gwf/x2c/blob/2c5870d64d381a861054dae9927aa65adc87e9e0/TRADEMARKS.md">Trademarks</a>
                     </footer>
                 </div>
             </div>

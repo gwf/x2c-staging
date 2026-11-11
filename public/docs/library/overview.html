@@ -1,6 +1,6 @@
 <!DOCTYPE HTML>
 <html lang="en" class="light sidebar-visible" dir="ltr">
-    <head><meta name="x2c-release-channel" content="staging"><meta name="x2c-candidate" content="candidate-aa2b9b2575297711e5978acc53f87bd7f645f3c7-39090113132-1">
+    <head><meta name="x2c-release-channel" content="staging"><meta name="x2c-candidate" content="candidate-aa2b9b2575297711e5978acc53f87bd7f645f3c7-39090113132-1"><meta name="x2c-site-source" content="2c5870d64d381a861054dae9927aa65adc87e9e0"><meta name="robots" content="noindex">
         <!-- Book generated using mdBook -->
         <meta charset="UTF-8">
         <title>Overview - The x2c Book</title>
@@ -30,7 +30,7 @@
         <link rel="stylesheet" id="mdbook-ayu-highlight-css" href="../ayu-highlight-3fdfc3ac.css">
 
         <!-- Custom theme stylesheets -->
-        <link rel="stylesheet" href="../theme/header-f6c12aed.css">
+        <link rel="stylesheet" href="../theme/header-b540a03f.css">
         <link rel="stylesheet" href="../theme/x2c-fd3d182e.css">
 
 
@@ -39,12 +39,12 @@
             const path_to_root = "../";
             const default_light_theme = "light";
             const default_dark_theme = "light";
-            window.path_to_searchindex_js = "../searchindex-f4d06db2.js";
+            window.path_to_searchindex_js = "../searchindex-a3bdfad5.js";
         </script>
         <!-- Start loading toc.js asap -->
-        <script src="../toc-00ae7479.js"></script>
+        <script src="../toc-2248e0f3.js"></script>
         <!-- x2c publication metadata -->
-        <link rel="canonical" href="https://staging.x2c-lang.dev/docs/library/overview.html">
+        <link rel="canonical" href="https://x2c-lang.dev/docs/library/overview.html">
         <meta property="og:type" content="website">
         <meta property="og:title" content="Overview - The x2c Book">
         <meta property="og:description" content="The x2c language, standard library, and compiler.">
@@ -143,16 +143,12 @@
                             <button class="landing-tagline menu-title" type="button" title="Scroll to top">The x2c Book</button>
                         </div>
                         <nav class="landing-nav" aria-label="x2c website">
-                            <div class="landing-page-nav">
-                                <a href="../../#love">love</a>
-                                <a href="../../#power">power</a>
-                                <a href="../../#magic">magic</a>
-                            </div>
                             <div class="landing-site-nav">
                                 <a href="../../#install">install</a>
                                 <a href="../../#packages">packages</a>
                             </div>
                             <div class="landing-reference-nav">
+                                <a href="../../examples/">examples</a>
                                 <a href="../../about/">about</a>
                                 <a href="../" aria-current="page">docs</a>
                                 <a href="https://github.com/gwf/x2c">source</a>
@@ -227,6 +223,9 @@ grouped by <a href="../guide/idioms.html#prefer-the-primary-api-tier">API tier</
 shipped, built, and tested with <span class="x2c-wordmark">x2c</span>, and need an explicit include. Runtime
 internals are implementation details. Third-party libraries are under
 <code>packages/</code> and use <code>import</code>.</p>
+<p>Number parsing, number formatting, and case mapping call C’s locale
+functions and are specified for the default <code>C</code> locale; a program that
+calls <code>setlocale</code> changes what they accept and produce.</p>
 <h2 id="hold-a-value-whose-type-varies"><a class="header" href="#hold-a-value-whose-type-varies">Hold a value whose type varies</a></h2>
 <p>Use <a href="modules/var.html">Var</a> when you do not know the type of a value until the
 program runs. Use the C type everywhere else.</p>
@@ -236,9 +235,8 @@ program runs. Use the C type everywhere else.</p>
 </span><span class="line"><span style="--shiki-light:#D73A49;--shiki-dark:#F0ADA1">if</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF"> (value </span><span style="--shiki-light:#A626A4;--shiki-light-font-weight:bold;--shiki-dark:#FF4FD8;--shiki-dark-font-weight:bold">is</span><span style="--shiki-light:#007C8A;--shiki-dark:#29D3E2"> String</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">)</span>
 </span><span class="line"><span style="--shiki-light:#6F42C1;--shiki-dark:#E9E5DF">  printf</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">(</span><span style="--shiki-light:#032F62;--shiki-dark:#9EDFB8">"</span><span style="--shiki-light:#005CC5;--shiki-dark:#9EDFB8">%s\n</span><span style="--shiki-light:#032F62;--shiki-dark:#9EDFB8">"</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">, value);</span></span></code></pre>
 
-<p>Dynamic arithmetic and truthiness are in
-<a href="modules/varops.html">Var operations</a>. Checked conversion is in
-<a href="modules/varconvert.html">Var conversion</a>. <code>void</code> means missing or exhausted,
+<p>The <a href="modules/var.html">Var reference</a> covers dynamic arithmetic, truthiness,
+and checked conversion. <code>void</code> means missing or exhausted,
 and collections and iterators never carry it as a payload.</p>
 <h2 id="choose-a-collection"><a class="header" href="#choose-a-collection">Choose a collection</a></h2>
 <div class="table-wrapper">
@@ -260,9 +258,10 @@ allocated objects even when empty.</p>
 <h2 id="build-and-transform-text"><a class="header" href="#build-and-transform-text">Build and transform text</a></h2>
 <p><a href="modules/string.html">String</a> does interpolation, search, split, replace,
 partition, case conversion, padding, escaping, slicing, joining, and checked
-numeric parsing. Its operations work on bytes; they do not decode Unicode.</p>
+numeric parsing. Its operations work on bytes; they do not decode Unicode.
+For code points, see <a href="#encode-text-and-parse-urls">Encode text and parse URLs</a>.</p>
 <p>Use <a href="modules/buffer.html">Buffer</a> for incremental text:</p>
-<pre class="shiki shiki-themes x2c-light x2c-dark x2c-code" style="--shiki-light:#24292e;--shiki-dark:#e9e5df;--shiki-light-bg:#fff;--shiki-dark-bg:#101011" tabindex="0"><code class="language-x2c no-highlight"><span class="line"><span style="--shiki-light:#007C8A;--shiki-dark:#29D3E2">Buffer</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF"> output </span><span style="--shiki-light:#D73A49;--shiki-dark:#E9E5DF">=</span><span style="--shiki-light:#A626A4;--shiki-light-font-weight:bold;--shiki-dark:#FF4FD8;--shiki-dark-font-weight:bold"> $</span><span style="--shiki-light:#005CC5;--shiki-dark:#E9E5DF">auto</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">(</span><span style="--shiki-light:#007C8A;--shiki-dark:#29D3E2">Buffer</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">.</span><span style="--shiki-light:#6F42C1;--shiki-dark:#E9E5DF">new</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">(</span><span style="--shiki-light:#005CC5;--shiki-dark:#A9C9F5">0</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">));</span>
+<pre class="shiki shiki-themes x2c-light x2c-dark x2c-code" style="--shiki-light:#24292e;--shiki-dark:#e9e5df;--shiki-light-bg:#fff;--shiki-dark-bg:#101011" tabindex="0"><code class="language-x2c no-highlight"><span class="line"><span style="--shiki-light:#007C8A;--shiki-dark:#29D3E2">Buffer</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF"> output </span><span style="--shiki-light:#D73A49;--shiki-dark:#E9E5DF">=</span><span style="--shiki-light:#D73A49;--shiki-dark:#F0ADA1"> auto</span><span style="--shiki-light:#007C8A;--shiki-dark:#29D3E2"> Buffer</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">.</span><span style="--shiki-light:#6F42C1;--shiki-dark:#E9E5DF">new</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">(</span><span style="--shiki-light:#005CC5;--shiki-dark:#A9C9F5">0</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">);</span>
 </span><span class="line"><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">output.</span><span style="--shiki-light:#6F42C1;--shiki-dark:#E9E5DF">write</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">(</span><span style="--shiki-light:#032F62;--shiki-dark:#9EDFB8">"count="</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">);</span>
 </span><span class="line"><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">output.</span><span style="--shiki-light:#6F42C1;--shiki-dark:#E9E5DF">printf</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">(</span><span style="--shiki-light:#032F62;--shiki-dark:#9EDFB8">"</span><span style="--shiki-light:#005CC5;--shiki-dark:#9EDFB8">%d</span><span style="--shiki-light:#032F62;--shiki-dark:#9EDFB8">"</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">, </span><span style="--shiki-light:#005CC5;--shiki-dark:#A9C9F5">4</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">);</span>
 </span><span class="line"><span style="--shiki-light:#007C8A;--shiki-dark:#29D3E2">String</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF"> text </span><span style="--shiki-light:#D73A49;--shiki-dark:#E9E5DF">=</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF"> output;</span>
@@ -275,7 +274,7 @@ numeric parsing. Its operations work on bytes; they do not decode Unicode.</p>
 <pre class="shiki shiki-themes x2c-light x2c-dark x2c-code" style="--shiki-light:#24292e;--shiki-dark:#e9e5df;--shiki-light-bg:#fff;--shiki-dark-bg:#101011" tabindex="0"><code class="language-x2c no-highlight"><span class="line boring"><span style="--shiki-light:#007C8A;--shiki-dark:#29D3E2">File</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF"> input </span><span style="--shiki-light:#D73A49;--shiki-dark:#E9E5DF">=</span><span style="--shiki-light:#6F42C1;--shiki-dark:#E9E5DF"> tmpfile</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">();</span>
 </span><span class="line boring"><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">input.</span><span style="--shiki-light:#6F42C1;--shiki-dark:#E9E5DF">puts</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">(</span><span style="--shiki-light:#032F62;--shiki-dark:#9EDFB8">"first</span><span style="--shiki-light:#005CC5;--shiki-dark:#9EDFB8">\n</span><span style="--shiki-light:#032F62;--shiki-dark:#9EDFB8">second</span><span style="--shiki-light:#005CC5;--shiki-dark:#9EDFB8">\n</span><span style="--shiki-light:#032F62;--shiki-dark:#9EDFB8">"</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">);</span>
 </span><span class="line boring"><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">input.</span><span style="--shiki-light:#6F42C1;--shiki-dark:#E9E5DF">rewind</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">();</span>
-</span><span class="line"><span style="--shiki-light:#A626A4;--shiki-light-font-weight:bold;--shiki-dark:#FF4FD8;--shiki-dark-font-weight:bold">foreach</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">(</span><span style="--shiki-light:#007C8A;--shiki-dark:#29D3E2">String</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF"> line, input)</span>
+</span><span class="line"><span style="--shiki-light:#A626A4;--shiki-light-font-weight:bold;--shiki-dark:#FF4FD8;--shiki-dark-font-weight:bold">foreach</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">(</span><span style="--shiki-light:#007C8A;--shiki-dark:#29D3E2">String</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF"> line </span><span style="--shiki-light:#A626A4;--shiki-light-font-weight:bold;--shiki-dark:#FF4FD8;--shiki-dark-font-weight:bold">in</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF"> input)</span>
 </span><span class="line"><span style="--shiki-light:#6F42C1;--shiki-dark:#E9E5DF">  printf</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">(</span><span style="--shiki-light:#032F62;--shiki-dark:#9EDFB8">"</span><span style="--shiki-light:#005CC5;--shiki-dark:#9EDFB8">%s</span><span style="--shiki-light:#032F62;--shiki-dark:#9EDFB8">"</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">, line);</span>
 </span><span class="line boring"><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">input.</span><span style="--shiki-light:#6F42C1;--shiki-dark:#E9E5DF">close</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">();</span></span></code></pre>
 
@@ -285,7 +284,7 @@ partial write must be finished or reported.</p>
 <h2 id="transform-a-sequence"><a class="header" href="#transform-a-sequence">Transform a sequence</a></h2>
 <p>Every collection supports iteration. Use <code>foreach</code> to walk one:</p>
 <pre class="shiki shiki-themes x2c-light x2c-dark x2c-code" style="--shiki-light:#24292e;--shiki-dark:#e9e5df;--shiki-light-bg:#fff;--shiki-dark-bg:#101011" tabindex="0"><code class="language-x2c no-highlight"><span class="line"><span style="--shiki-light:#007C8A;--shiki-dark:#29D3E2">List</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF"> values </span><span style="--shiki-light:#D73A49;--shiki-dark:#E9E5DF">=</span><span style="--shiki-light:#A626A4;--shiki-light-font-weight:bold;--shiki-dark:#FF4FD8;--shiki-dark-font-weight:bold"> %(</span><span style="--shiki-light:#005CC5;--shiki-dark:#A9C9F5">1</span><span style="--shiki-light:#005CC5;--shiki-dark:#A9C9F5"> 2</span><span style="--shiki-light:#005CC5;--shiki-dark:#A9C9F5"> 3</span><span style="--shiki-light:#A626A4;--shiki-light-font-weight:bold;--shiki-dark:#FF4FD8;--shiki-dark-font-weight:bold">)</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">;</span>
-</span><span class="line"><span style="--shiki-light:#A626A4;--shiki-light-font-weight:bold;--shiki-dark:#FF4FD8;--shiki-dark-font-weight:bold">foreach</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">(</span><span style="--shiki-light:#D73A49;--shiki-dark:#F0ADA1">int</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF"> value, values)</span>
+</span><span class="line"><span style="--shiki-light:#A626A4;--shiki-light-font-weight:bold;--shiki-dark:#FF4FD8;--shiki-dark-font-weight:bold">foreach</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">(</span><span style="--shiki-light:#D73A49;--shiki-dark:#F0ADA1">int</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF"> value </span><span style="--shiki-light:#A626A4;--shiki-light-font-weight:bold;--shiki-dark:#FF4FD8;--shiki-dark-font-weight:bold">in</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF"> values)</span>
 </span><span class="line"><span style="--shiki-light:#6F42C1;--shiki-dark:#E9E5DF">  printf</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">(</span><span style="--shiki-light:#032F62;--shiki-dark:#9EDFB8">"</span><span style="--shiki-light:#005CC5;--shiki-dark:#9EDFB8">%d\n</span><span style="--shiki-light:#032F62;--shiki-dark:#9EDFB8">"</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">, value);</span></span></code></pre>
 
 <p>Use <a href="modules/iter.html">Iter</a> to process values as they are requested. Use a
@@ -305,7 +304,7 @@ immediately. <code>Iter.try_next</code> separates a value from exhaustion and ne
 runtime matching functions when the patterns are themselves data.</p>
 <h2 id="own-allocation-lifetime"><a class="header" href="#own-allocation-lifetime">Own allocation lifetime</a></h2>
 <p><a href="modules/scope.html">Scope</a> groups runtime allocations:</p>
-<pre class="shiki shiki-themes x2c-light x2c-dark x2c-code" style="--shiki-light:#24292e;--shiki-dark:#e9e5df;--shiki-light-bg:#fff;--shiki-dark-bg:#101011" tabindex="0"><code class="language-x2c no-highlight"><span class="line"><span style="--shiki-light:#A626A4;--shiki-light-font-weight:bold;--shiki-dark:#FF4FD8;--shiki-dark-font-weight:bold">$</span><span style="--shiki-light:#005CC5;--shiki-dark:#E9E5DF">scope</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">() {</span>
+<pre class="shiki shiki-themes x2c-light x2c-dark x2c-code" style="--shiki-light:#24292e;--shiki-dark:#e9e5df;--shiki-light-bg:#fff;--shiki-dark-bg:#101011" tabindex="0"><code class="language-x2c no-highlight"><span class="line"><span style="--shiki-light:#D73A49;--shiki-dark:#F0ADA1">auto</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF"> {</span>
 </span><span class="line"><span style="--shiki-light:#007C8A;--shiki-dark:#29D3E2">  String</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF"> text </span><span style="--shiki-light:#D73A49;--shiki-dark:#E9E5DF">=</span><span style="--shiki-light:#032F62;--shiki-dark:#9EDFB8"> "temporary"</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">;</span>
 </span><span class="line"><span style="--shiki-light:#007C8A;--shiki-dark:#29D3E2">  Array</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF"> values </span><span style="--shiki-light:#D73A49;--shiki-dark:#E9E5DF">=</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF"> [text, </span><span style="--shiki-light:#005CC5;--shiki-dark:#A9C9F5">1</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">, </span><span style="--shiki-light:#005CC5;--shiki-dark:#A9C9F5">2</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">, </span><span style="--shiki-light:#005CC5;--shiki-dark:#A9C9F5">3</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">];</span>
 </span><span class="line"><span style="--shiki-light:#6F42C1;--shiki-dark:#E9E5DF">  printf</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">(</span><span style="--shiki-light:#032F62;--shiki-dark:#9EDFB8">"</span><span style="--shiki-light:#005CC5;--shiki-dark:#9EDFB8">%s\n</span><span style="--shiki-light:#032F62;--shiki-dark:#9EDFB8">"</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">, values.</span><span style="--shiki-light:#6F42C1;--shiki-dark:#E9E5DF">repr</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">());</span>
@@ -314,7 +313,7 @@ runtime matching functions when the patterns are themselves data.</p>
 <p>Use <a href="modules/block.html">Block</a> for fixed-width growable storage and <code>Buffer</code> for
 text construction. External resources such as <code>File</code>s still close explicitly or
 through <code>defer</code>.</p>
-<p>Each <code>Scope.release</code> must match a <code>Scope.retain</code> on the same active slot. See
+<p>Each <code>Scope.close</code> must match a <code>Scope.open</code> on the same active slot. See
 <a href="../guide/memory.html">scopes and lifetime</a>.</p>
 <h2 id="bound-temporary-work"><a class="header" href="#bound-temporary-work">Bound temporary work</a></h2>
 <p><a href="modules/context.html">Context</a> combines a <code>Scope</code> lifetime with independent
@@ -331,11 +330,11 @@ through <code>defer</code>.</p>
 last-opened, first-closed order. See
 <a href="../guide/contexts-and-threads.html">contexts and threads</a>.</p>
 <h2 id="run-work-on-native-threads"><a class="header" href="#run-work-on-native-threads">Run work on native threads</a></h2>
-<p><a href="modules/thread.html">Thread</a> runs a fixed-signature callback in an isolated
-<code>Context</code>. It copies the input structure, but pointers inside that structure
-still point into shared process memory. A worker can read parent <code>String</code>s and
-<code>List</code>s directly. Use <a href="modules/mutex.html">Mutex</a> when a shared value may be
-written:</p>
+<p><a href="modules/thread.html">Thread</a> runs a fixed-signature callback in a <code>Context</code>
+that is not isolated, so the callback uses the shared canonical pool. It
+copies the input structure, but pointers inside that structure still point
+into shared process memory. A worker can read parent <code>String</code>s and <code>List</code>s
+directly. Use <a href="modules/mutex.html">Mutex</a> when a shared value may be written:</p>
 <pre class="shiki shiki-themes x2c-light x2c-dark x2c-code" style="--shiki-light:#24292e;--shiki-dark:#e9e5df;--shiki-light-bg:#fff;--shiki-dark-bg:#101011" tabindex="0"><code class="language-x2c no-highlight"><span class="line"><span style="--shiki-light:#D73A49;--shiki-dark:#E9E5DF">typedef</span><span style="--shiki-light:#D73A49;--shiki-dark:#F0ADA1"> struct</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF"> CounterWork {</span>
 </span><span class="line"><span style="--shiki-light:#007C8A;--shiki-dark:#29D3E2">  Mutex</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF"> mutex;</span>
 </span><span class="line"><span style="--shiki-light:#D73A49;--shiki-dark:#F0ADA1">  int</span><span style="--shiki-light:#D73A49;--shiki-dark:#E9E5DF"> *</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">counter;</span>
@@ -353,8 +352,8 @@ written:</p>
 </span><span class="line"><span style="--shiki-light:#D73A49;--shiki-dark:#F0ADA1">  int</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF"> counter </span><span style="--shiki-light:#D73A49;--shiki-dark:#E9E5DF">=</span><span style="--shiki-light:#005CC5;--shiki-dark:#A9C9F5"> 0</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">;</span>
 </span><span class="line"><span style="--shiki-light:#007C8A;--shiki-dark:#29D3E2">  Mutex</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF"> mutex </span><span style="--shiki-light:#D73A49;--shiki-dark:#E9E5DF">=</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF"> Mutex.</span><span style="--shiki-light:#6F42C1;--shiki-dark:#E9E5DF">new</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">();</span>
 </span><span class="line"><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">  CounterWork work </span><span style="--shiki-light:#D73A49;--shiki-dark:#E9E5DF">=</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF"> { mutex, </span><span style="--shiki-light:#D73A49;--shiki-dark:#E9E5DF">&amp;</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">counter, </span><span style="--shiki-light:#032F62;--shiki-dark:#9EDFB8">"parent label"</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF"> };</span>
-</span><span class="line"><span style="--shiki-light:#007C8A;--shiki-dark:#29D3E2">  Thread</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF"> first </span><span style="--shiki-light:#D73A49;--shiki-dark:#E9E5DF">=</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF"> Thread.</span><span style="--shiki-light:#6F42C1;--shiki-dark:#E9E5DF">start</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">(increment, </span><span style="--shiki-light:#D73A49;--shiki-dark:#E9E5DF">&amp;</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">work, </span><span style="--shiki-light:#D73A49;--shiki-dark:#E9E5DF">sizeof</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">(work));</span>
-</span><span class="line"><span style="--shiki-light:#007C8A;--shiki-dark:#29D3E2">  Thread</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF"> second </span><span style="--shiki-light:#D73A49;--shiki-dark:#E9E5DF">=</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF"> Thread.</span><span style="--shiki-light:#6F42C1;--shiki-dark:#E9E5DF">start</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">(increment, </span><span style="--shiki-light:#D73A49;--shiki-dark:#E9E5DF">&amp;</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">work, </span><span style="--shiki-light:#D73A49;--shiki-dark:#E9E5DF">sizeof</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">(work));</span>
+</span><span class="line"><span style="--shiki-light:#007C8A;--shiki-dark:#29D3E2">  Thread</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF"> first </span><span style="--shiki-light:#D73A49;--shiki-dark:#E9E5DF">=</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF"> Thread.</span><span style="--shiki-light:#6F42C1;--shiki-dark:#E9E5DF">start_raw</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">(increment, </span><span style="--shiki-light:#D73A49;--shiki-dark:#E9E5DF">&amp;</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">work, </span><span style="--shiki-light:#D73A49;--shiki-dark:#E9E5DF">sizeof</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">(work));</span>
+</span><span class="line"><span style="--shiki-light:#007C8A;--shiki-dark:#29D3E2">  Thread</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF"> second </span><span style="--shiki-light:#D73A49;--shiki-dark:#E9E5DF">=</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF"> Thread.</span><span style="--shiki-light:#6F42C1;--shiki-dark:#E9E5DF">start_raw</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">(increment, </span><span style="--shiki-light:#D73A49;--shiki-dark:#E9E5DF">&amp;</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">work, </span><span style="--shiki-light:#D73A49;--shiki-dark:#E9E5DF">sizeof</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">(work));</span>
 </span><span class="line"><span style="--shiki-light:#007C8A;--shiki-dark:#29D3E2">  String</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF"> a </span><span style="--shiki-light:#D73A49;--shiki-dark:#E9E5DF">=</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF"> first.</span><span style="--shiki-light:#6F42C1;--shiki-dark:#E9E5DF">join</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">();</span>
 </span><span class="line"><span style="--shiki-light:#007C8A;--shiki-dark:#29D3E2">  String</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF"> b </span><span style="--shiki-light:#D73A49;--shiki-dark:#E9E5DF">=</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF"> second.</span><span style="--shiki-light:#6F42C1;--shiki-dark:#E9E5DF">join</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">();</span>
 </span><span class="line"><span style="--shiki-light:#6F42C1;--shiki-dark:#E9E5DF">  printf</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">(</span><span style="--shiki-light:#032F62;--shiki-dark:#9EDFB8">"</span><span style="--shiki-light:#005CC5;--shiki-dark:#9EDFB8">%s</span><span style="--shiki-light:#032F62;--shiki-dark:#9EDFB8">, </span><span style="--shiki-light:#005CC5;--shiki-dark:#9EDFB8">%s</span><span style="--shiki-light:#032F62;--shiki-dark:#9EDFB8">: </span><span style="--shiki-light:#005CC5;--shiki-dark:#9EDFB8">%d\n</span><span style="--shiki-light:#032F62;--shiki-dark:#9EDFB8">"</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">, a, b, counter);</span>
@@ -367,6 +366,11 @@ written:</p>
 <p>Every started <code>Thread</code> needs one successful <code>Thread.join</code>, then
 <code>Thread.free</code>. <a href="../guide/contexts-and-threads.html#pass-shared-values-to-a-worker">Contexts and threads</a>
 gives the sharing and result rules.</p>
+<p>A <a href="modules/channel.html">Channel</a> passes non-void <code>Var</code> messages between
+threads. <code>send</code> and <code>receive</code> block, the sender closes the Channel when no
+more messages will arrive, and <code>foreach</code> receives until the closed Channel
+is drained. See <a href="../guide/channels.html">Channels</a> for capacity, message
+constraints, and storage handoff.</p>
 <h2 id="handle-absence-and-failure"><a class="header" href="#handle-absence-and-failure">Handle absence and failure</a></h2>
 <p>These operations report absence separately from data:</p>
 <ul>
@@ -379,6 +383,12 @@ separately from its value.</li>
 <p>An operation that fails raises its cause through <code>Error</code>, and a filtered
 <code>catch</code> or the cause’s policy handles it. Absence, exhaustion, and parse
 results come back as return values.</p>
+<p>A null handle is a contract failure, not absence. An operation on a null
+<code>Thread</code>, <code>Channel</code>, <code>Mutex</code>, <code>Context</code>, <code>Logger</code>, <code>Job</code>, <code>Listener</code>,
+<code>Socket</code>, <code>HttpServer</code>, or <code>Lisp</code> raises <code>&lt;bad-arg&gt;</code>, while <code>free</code>, <code>close</code>,
+<code>destroy</code>, and <code>cleanup</code> accept NULL and do nothing. <code>Regex</code> operations
+also reject NULL. Buffer and Block mutations and Block encoders reject
+NULL; their observations treat NULL as empty, and <code>free</code> accepts NULL.</p>
 <h2 id="use-error-transfer-and-cleanup"><a class="header" href="#use-error-transfer-and-cleanup">Use Error transfer and cleanup</a></h2>
 <p>Language <code>raise</code>, <code>try</code>, filtered <code>catch</code>, <code>finally</code>, and <code>defer</code> are backed by
 <code>Error</code> and the cleanup-frame runtime. Application code uses those statements
@@ -418,13 +428,12 @@ file/string evaluation:</p>
 <p><code>Lisp.new()</code> creates an isolated session and loads <code>etc/init.xlisp</code>. That file
 supplies <code>defun</code>, short-circuit control, higher-order <code>List</code> operations,
 numeric comparisons, basic <code>String</code> operations, and the pattern matching
-described in <a href="../reference/language.html#compile-time-lisp-and-imports">the language reference</a>. <code>Lisp.kernel()</code> creates the
+described in <a href="../reference/language.html#runtime-lisp">the language reference</a>. <code>Lisp.kernel()</code> creates the
 evaluator primitives alone, for hosts that build their own environment.
-<code>etc/lisp-values.xlisp</code> binds the core <code>List</code>, <code>Array</code>, <code>Map</code>, <code>String</code>,
-<code>Var</code>, and <code>Symbol</code> operations; the compiler loads it into every compile-time
-session, and an embedding host loads it by name.
-<code>etc/lisp-io.xlisp</code> stays optional and must be loaded by name. It adds
-<code>read-file</code>, <code>write-file</code>, <code>sort</code>, <code>fib</code>, and <code>subst</code>.</p>
+The same standard environment includes the core <code>List</code>, <code>Array</code>, <code>Map</code>,
+<code>String</code>, <code>Iter</code>, <code>Var</code>, and <code>Symbol</code> operations, plus <code>read-file</code>,
+<code>write-file</code>, <code>sort</code>, <code>fib</code>, and <code>subst</code>. A host that calls <code>Lisp.new()</code>
+needs no additional standard files.</p>
 <p>Use <code>$lisp.binding(group, "name")</code> on several direct functions and
 <code>$lisp.install(lisp, group)</code> when a unit has a reusable set. Functions must
 appear before the install call, and names in one group must be unique.
@@ -438,11 +447,10 @@ importing it. See <a href="../guide/wrapping-c-libraries.html">Wrapping a C Libr
 addresses. Native functions are trusted host code. A package-specific opaque
 object needs its own <code>Var</code> adoption.</p>
 <p>Load a Lisp program with <code>Lisp.eval_file</code>, then evaluate runtime <code>List</code> forms
-with <code>Lisp.eval</code>. <code>$</code> inside <code>%(...)</code> inserts live <span class="x2c-wordmark">x2c</span> values; it is unrelated
-to compile-time <code>$(...)</code> Lisp. Within a <code>List</code> literal, <code>'</code>, <code>`</code>, <code>,</code>, and
-<code>,@</code> write <code>quote</code>, <code>quasiquote</code>, <code>unquote</code>, and <code>unquote-splicing</code> just as
-they do in Lisp source. A flat <code>List</code> result destructures through the same
-typed conversions as any other value:</p>
+with <code>Lisp.eval</code>. <code>$</code> inside <code>%(...)</code> inserts live <span class="x2c-wordmark">x2c</span> values. Within a <code>List</code>
+literal, <code>'</code>, <code>`</code>, <code>,</code>, and <code>,@</code> write <code>quote</code>, <code>quasiquote</code>, <code>unquote</code>,
+and <code>unquote-splicing</code> just as they do in Lisp source. A flat <code>List</code> result
+destructures through the same typed conversions as any other value:</p>
 <pre class="shiki shiki-themes x2c-light x2c-dark x2c-code" style="--shiki-light:#24292e;--shiki-dark:#e9e5df;--shiki-light-bg:#fff;--shiki-dark-bg:#101011" tabindex="0"><code class="language-x2c no-highlight"><span class="line boring"><span style="--shiki-light:#D73A49;--shiki-dark:#F0ADA1">int</span><span style="--shiki-light:#6F42C1;--shiki-dark:#E9E5DF"> main</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">(</span><span style="--shiki-light:#D73A49;--shiki-dark:#F0ADA1">void</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">) {</span>
 </span><span class="line boring"><span style="--shiki-light:#007C8A;--shiki-dark:#29D3E2">Lisp</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF"> lisp </span><span style="--shiki-light:#D73A49;--shiki-dark:#E9E5DF">=</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF"> Lisp.</span><span style="--shiki-light:#6F42C1;--shiki-dark:#E9E5DF">new</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">();</span>
 </span><span class="line boring"><span style="--shiki-light:#A626A4;--shiki-light-font-weight:bold;--shiki-dark:#FF4FD8;--shiki-dark-font-weight:bold">defer</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF"> lisp.</span><span style="--shiki-light:#6F42C1;--shiki-dark:#E9E5DF">destroy</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">();</span>
@@ -457,8 +465,69 @@ typed conversions as any other value:</p>
 <h2 id="look-up-an-exact-operation"><a class="header" href="#look-up-an-exact-operation">Look up an exact operation</a></h2>
 <p>The <a href="modules/index.html">module reference</a> is generated from runtime source and
 compiler-verified signatures.</p>
+<h2 id="measure-and-format-time"><a class="header" href="#measure-and-format-time">Measure and format time</a></h2>
+<p>Explicitly include <code>time.x</code>. A <code>Time</code> is an instant and a <code>Duration</code> a
+span, both in nanoseconds. <code>Time.now</code> reads the wall clock,
+<code>Time.monotonic</code> measures elapsed time, and <code>Time.sleep</code> waits.
+<code>Time.parse</code> and <code>Time.str</code> read and write RFC 3339 timestamps in UTC, and
+<code>Time.format</code> applies <code>strftime</code> conversions:</p>
+<pre class="shiki shiki-themes x2c-light x2c-dark x2c-code" style="--shiki-light:#24292e;--shiki-dark:#e9e5df;--shiki-light-bg:#fff;--shiki-dark-bg:#101011" tabindex="0"><code class="language-x2c no-highlight"><span class="line boring"><span style="--shiki-light:#D73A49;--shiki-dark:#F0ADA1">#include</span><span style="--shiki-light:#032F62;--shiki-dark:#9EDFB8"> "time.x"</span>
+</span><span class="line boring"><span style="--shiki-light:#D73A49;--shiki-dark:#F0ADA1">int</span><span style="--shiki-light:#6F42C1;--shiki-dark:#E9E5DF"> main</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">(</span><span style="--shiki-light:#D73A49;--shiki-dark:#F0ADA1">void</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">) {</span>
+</span><span class="line"><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">Time start </span><span style="--shiki-light:#D73A49;--shiki-dark:#E9E5DF">=</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF"> Time.</span><span style="--shiki-light:#6F42C1;--shiki-dark:#E9E5DF">parse</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">(</span><span style="--shiki-light:#032F62;--shiki-dark:#9EDFB8">"2026-10-28T14:05:09Z"</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">);</span>
+</span><span class="line"><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">Time due </span><span style="--shiki-light:#D73A49;--shiki-dark:#E9E5DF">=</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF"> start.</span><span style="--shiki-light:#6F42C1;--shiki-dark:#E9E5DF">plus</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">(Duration.</span><span style="--shiki-light:#6F42C1;--shiki-dark:#E9E5DF">seconds</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">(</span><span style="--shiki-light:#005CC5;--shiki-dark:#A9C9F5">90</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">));</span>
+</span><span class="line"><span style="--shiki-light:#6F42C1;--shiki-dark:#E9E5DF">printf</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">(</span><span style="--shiki-light:#032F62;--shiki-dark:#9EDFB8">"</span><span style="--shiki-light:#005CC5;--shiki-dark:#9EDFB8">%s</span><span style="--shiki-light:#005CC5;--shiki-dark:#9EDFB8"> %s\n</span><span style="--shiki-light:#032F62;--shiki-dark:#9EDFB8">"</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">, due.</span><span style="--shiki-light:#6F42C1;--shiki-dark:#E9E5DF">str</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">(), due.</span><span style="--shiki-light:#6F42C1;--shiki-dark:#E9E5DF">since</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">(start).</span><span style="--shiki-light:#6F42C1;--shiki-dark:#E9E5DF">str</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">());</span>
+</span><span class="line boring"><span style="--shiki-light:#D73A49;--shiki-dark:#F0ADA1">  return</span><span style="--shiki-light:#005CC5;--shiki-dark:#A9C9F5"> 0</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">;</span>
+</span><span class="line boring"><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">}</span></span></code></pre>
+
+<pre><code class="language-text">2026-10-28T14:06:39Z 1m30s
+</code></pre>
+<p><code>Time.local</code> and <code>Time.format_local</code> use the zone <code>TZ</code> selects. See
+<a href="../guide/time-random-encodings.html">Time, Random Values, and Encodings</a>.</p>
+<h2 id="generate-random-values"><a class="header" href="#generate-random-values">Generate random values</a></h2>
+<p>Explicitly include <code>random.x</code>. <code>Random.new(seed)</code> makes a repeatable
+xoshiro256** generator with <code>next</code>, <code>below</code>, <code>double</code>, <code>shuffle</code>, and
+<code>choice</code>. <code>Random.secure_fill</code> reads the operating system’s cryptographic
+generator, and <code>Uuid.v4</code> returns a random UUID.</p>
+<h2 id="encode-text-and-parse-urls"><a class="header" href="#encode-text-and-parse-urls">Encode text and parse URLs</a></h2>
+<p>Explicitly include <code>encoding.x</code> to iterate, count, and write the UTF-8 code
+points of a <code>String</code>, and to encode and decode base64, hexadecimal, and
+percent-encoded text. Explicitly include <code>url.x</code> to split a URL into its
+components with <code>Url.parse</code> and to read and write query strings:</p>
+<pre class="shiki shiki-themes x2c-light x2c-dark x2c-code" style="--shiki-light:#24292e;--shiki-dark:#e9e5df;--shiki-light-bg:#fff;--shiki-dark-bg:#101011" tabindex="0"><code class="language-x2c no-highlight"><span class="line boring"><span style="--shiki-light:#D73A49;--shiki-dark:#F0ADA1">#include</span><span style="--shiki-light:#032F62;--shiki-dark:#9EDFB8"> "url.x"</span>
+</span><span class="line boring"><span style="--shiki-light:#D73A49;--shiki-dark:#F0ADA1">int</span><span style="--shiki-light:#6F42C1;--shiki-dark:#E9E5DF"> main</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">(</span><span style="--shiki-light:#D73A49;--shiki-dark:#F0ADA1">void</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">) {</span>
+</span><span class="line"><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">Url url </span><span style="--shiki-light:#D73A49;--shiki-dark:#E9E5DF">=</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF"> Url.</span><span style="--shiki-light:#6F42C1;--shiki-dark:#E9E5DF">parse</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">(</span><span style="--shiki-light:#032F62;--shiki-dark:#9EDFB8">"https://example.com/search?q=two+words"</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">);</span>
+</span><span class="line"><span style="--shiki-light:#007C8A;--shiki-dark:#29D3E2">Map</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF"> query </span><span style="--shiki-light:#D73A49;--shiki-dark:#E9E5DF">=</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF"> Url.</span><span style="--shiki-light:#6F42C1;--shiki-dark:#E9E5DF">parse_query</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">(url.query);</span>
+</span><span class="line"><span style="--shiki-light:#6F42C1;--shiki-dark:#E9E5DF">printf</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">(</span><span style="--shiki-light:#032F62;--shiki-dark:#9EDFB8">"</span><span style="--shiki-light:#005CC5;--shiki-dark:#9EDFB8">%s</span><span style="--shiki-light:#005CC5;--shiki-dark:#9EDFB8"> %s</span><span style="--shiki-light:#005CC5;--shiki-dark:#9EDFB8"> %s\n</span><span style="--shiki-light:#032F62;--shiki-dark:#9EDFB8">"</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">, url.host, </span><span style="--shiki-light:#E36209;--shiki-dark:#E9E5DF">query</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">[</span><span style="--shiki-light:#032F62;--shiki-dark:#9EDFB8">"q"</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">], </span><span style="--shiki-light:#032F62;--shiki-dark:#9EDFB8">"x2c"</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">.</span><span style="--shiki-light:#6F42C1;--shiki-dark:#E9E5DF">base64_encode</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">());</span>
+</span><span class="line boring"><span style="--shiki-light:#D73A49;--shiki-dark:#F0ADA1">  return</span><span style="--shiki-light:#005CC5;--shiki-dark:#A9C9F5"> 0</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">;</span>
+</span><span class="line boring"><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">}</span></span></code></pre>
+
+<pre><code class="language-text">example.com two words eDJj
+</code></pre>
+<h2 id="open-a-socket"><a class="header" href="#open-a-socket">Open a socket</a></h2>
+<p>Explicitly include <code>net.x</code> for blocking TCP. <code>Listener.bind</code> returns a
+listening <code>Listener</code>, <code>Listener.accept</code> returns each accepted connection as a
+<code>Socket</code>, and <code>Socket.connect</code> opens a client <code>Socket</code>.
+Read and write through the Socket’s <code>input</code> and <code>output</code> Files. Both Socket
+and Listener adopt <code>Cleanup</code>. See <a href="../guide/networking.html">Sockets and HTTP</a>
+for timeouts, half-close, listener stopping, and the process-wide SIGPIPE
+setting.</p>
+<h2 id="serve-http"><a class="header" href="#serve-http">Serve HTTP</a></h2>
+<p>Explicitly include <code>http.x</code>. Register handlers with <code>Router</code>, construct an
+<code>HttpServer</code>, and call <code>serve</code> or <code>start</code>. Requests expose path captures,
+query fields, headers, and JSON; responses buffer text, JSON, or bytes.
+<code>Http.fail</code> selects a failure status before anything is sent. The
+<a href="../guide/networking.html">networking chapter</a> explains limits, worker pools,
+request storage, static files, and shutdown.</p>
 
                     </main>
+                    <script>
+                        // A generated page is edited through its generator.
+                        if ([...document.querySelector('#mdbook-content main').childNodes]
+                                .some(node => node.nodeType === Node.COMMENT_NODE &&
+                                      node.textContent.includes('Do not edit by hand'))) {
+                            document.querySelector('a[rel="edit"]')?.remove();
+                        }
+                    </script>
 
                     <nav class="x2c-pager" aria-label="Page navigation">
                         <a rel="prev" href="../library/index.html" class="x2c-pager-prev" aria-keyshortcuts="Left">
@@ -475,9 +544,9 @@ compiler-verified signatures.</p>
                         &copy; 2025&ndash;2026
                         <a href="https://flake.org">GWF</a>
                         &middot;
-                        <a href="https://github.com/gwf/x2c/blob/aa2b9b2575297711e5978acc53f87bd7f645f3c7/LICENSE">Apache 2.0</a>
+                        <a href="https://github.com/gwf/x2c/blob/2c5870d64d381a861054dae9927aa65adc87e9e0/LICENSE">Apache 2.0</a>
                         &middot;
-                        <a href="https://github.com/gwf/x2c/blob/aa2b9b2575297711e5978acc53f87bd7f645f3c7/TRADEMARKS.md">Trademarks</a>
+                        <a href="https://github.com/gwf/x2c/blob/2c5870d64d381a861054dae9927aa65adc87e9e0/TRADEMARKS.md">Trademarks</a>
                     </footer>
                 </div>
             </div>

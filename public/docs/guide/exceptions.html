@@ -1,9 +1,9 @@
 <!DOCTYPE HTML>
 <html lang="en" class="light sidebar-visible" dir="ltr">
-    <head><meta name="x2c-release-channel" content="staging"><meta name="x2c-candidate" content="candidate-aa2b9b2575297711e5978acc53f87bd7f645f3c7-39090113132-1">
+    <head><meta name="x2c-release-channel" content="staging"><meta name="x2c-candidate" content="candidate-aa2b9b2575297711e5978acc53f87bd7f645f3c7-39090113132-1"><meta name="x2c-site-source" content="2c5870d64d381a861054dae9927aa65adc87e9e0"><meta name="robots" content="noindex">
         <!-- Book generated using mdBook -->
         <meta charset="UTF-8">
-        <title>Exceptions and Cleanup - The x2c Book</title>
+        <title>Errors and Cleanup - The x2c Book</title>
 
 
         <!-- Custom HTML head -->
@@ -30,7 +30,7 @@
         <link rel="stylesheet" id="mdbook-ayu-highlight-css" href="../ayu-highlight-3fdfc3ac.css">
 
         <!-- Custom theme stylesheets -->
-        <link rel="stylesheet" href="../theme/header-f6c12aed.css">
+        <link rel="stylesheet" href="../theme/header-b540a03f.css">
         <link rel="stylesheet" href="../theme/x2c-fd3d182e.css">
 
 
@@ -39,21 +39,21 @@
             const path_to_root = "../";
             const default_light_theme = "light";
             const default_dark_theme = "light";
-            window.path_to_searchindex_js = "../searchindex-f4d06db2.js";
+            window.path_to_searchindex_js = "../searchindex-a3bdfad5.js";
         </script>
         <!-- Start loading toc.js asap -->
-        <script src="../toc-00ae7479.js"></script>
+        <script src="../toc-2248e0f3.js"></script>
         <!-- x2c publication metadata -->
-        <link rel="canonical" href="https://staging.x2c-lang.dev/docs/guide/exceptions.html">
+        <link rel="canonical" href="https://x2c-lang.dev/docs/guide/exceptions.html">
         <meta property="og:type" content="website">
-        <meta property="og:title" content="Exceptions and Cleanup - The x2c Book">
+        <meta property="og:title" content="Errors and Cleanup - The x2c Book">
         <meta property="og:description" content="The x2c language, standard library, and compiler.">
         <meta property="og:url" content="https://staging.x2c-lang.dev/docs/guide/exceptions.html">
         <meta property="og:image" content="https://staging.x2c-lang.dev/x2c-social.png">
         <meta property="og:image:width" content="1200">
         <meta property="og:image:height" content="630">
         <meta name="twitter:card" content="summary_large_image">
-        <meta name="twitter:title" content="Exceptions and Cleanup - The x2c Book">
+        <meta name="twitter:title" content="Errors and Cleanup - The x2c Book">
         <meta name="twitter:description" content="The x2c language, standard library, and compiler.">
         <meta name="twitter:image" content="https://staging.x2c-lang.dev/x2c-social.png">
     </head>
@@ -143,16 +143,12 @@
                             <button class="landing-tagline menu-title" type="button" title="Scroll to top">The x2c Book</button>
                         </div>
                         <nav class="landing-nav" aria-label="x2c website">
-                            <div class="landing-page-nav">
-                                <a href="../../#love">love</a>
-                                <a href="../../#power">power</a>
-                                <a href="../../#magic">magic</a>
-                            </div>
                             <div class="landing-site-nav">
                                 <a href="../../#install">install</a>
                                 <a href="../../#packages">packages</a>
                             </div>
                             <div class="landing-reference-nav">
+                                <a href="../../examples/">examples</a>
                                 <a href="../../about/">about</a>
                                 <a href="../" aria-current="page">docs</a>
                                 <a href="https://github.com/gwf/x2c">source</a>
@@ -222,13 +218,13 @@
 <p><span class="x2c-wordmark">x2c</span> adds structured errors to C. <code>raise</code> records an <code>Error</code>, a filtered
 <code>catch</code> selects it by cause, and <code>finally</code> and <code>defer</code> run cleanup when a
 block exits early. The <a href="system-macros.html">system macros</a> attach the same
-<code>defer</code> cleanup to managed locals and to <code>$scope</code>, <code>$let</code>, and <code>$lock</code>
+<code>defer</code> cleanup to managed locals and to region <code>auto</code>, <code>with</code>, and <code>$lock</code>
 bodies. The <a href="../reference/language.html#errors-and-cleanup">language reference</a>
 gives the full statement rules.</p>
 <h2 id="one-error-protocol"><a class="header" href="#one-error-protocol">One error protocol</a></h2>
 <p>The code that first detects a failure raises one structured <code>Error</code>:</p>
 <!-- ignore: standalone raise-site illustration; requested is supplied by its owner -->
-<pre class="shiki shiki-themes x2c-light x2c-dark x2c-code" style="--shiki-light:#24292e;--shiki-dark:#e9e5df;--shiki-light-bg:#fff;--shiki-dark-bg:#101011" tabindex="0"><code class="language-x2c no-highlight ignore"><span class="line"><span style="--shiki-light:#D73A49;--shiki-dark:#F0ADA1">raise</span><span style="--shiki-light:#A626A4;--shiki-light-font-weight:bold;--shiki-dark:#FF4FD8;--shiki-dark-font-weight:bold"> %(</span><span style="--shiki-light:#005CC5;--shiki-dark:#E9E5DF">size-limit</span><span style="--shiki-light:#A626A4;--shiki-light-font-weight:bold;--shiki-dark:#FF4FD8;--shiki-dark-font-weight:bold"> (</span><span style="--shiki-light:#005CC5;--shiki-dark:#E9E5DF">operation</span><span style="--shiki-light:#A626A4;--shiki-light-font-weight:bold;--shiki-dark:#FF4FD8;--shiki-dark-font-weight:bold"> "</span><span style="--shiki-light:#032F62;--shiki-dark:#9EDFB8">Block.reserve</span><span style="--shiki-light:#A626A4;--shiki-light-font-weight:bold;--shiki-dark:#FF4FD8;--shiki-dark-font-weight:bold">"</span><span style="--shiki-light:#A626A4;--shiki-light-font-weight:bold;--shiki-dark:#FF4FD8;--shiki-dark-font-weight:bold">)</span><span style="--shiki-light:#A626A4;--shiki-light-font-weight:bold;--shiki-dark:#FF4FD8;--shiki-dark-font-weight:bold"> (</span><span style="--shiki-light:#005CC5;--shiki-dark:#E9E5DF">bytes</span><span style="--shiki-light:#A626A4;--shiki-light-font-weight:bold;--shiki-dark:#FF4FD8;--shiki-dark-font-weight:bold"> $</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">requested</span><span style="--shiki-light:#A626A4;--shiki-light-font-weight:bold;--shiki-dark:#FF4FD8;--shiki-dark-font-weight:bold">))</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">;</span></span></code></pre>
+<pre class="shiki shiki-themes x2c-light x2c-dark x2c-code" style="--shiki-light:#24292e;--shiki-dark:#e9e5df;--shiki-light-bg:#fff;--shiki-dark-bg:#101011" tabindex="0"><code class="language-x2c no-highlight ignore"><span class="line"><span style="--shiki-light:#D73A49;--shiki-dark:#F0ADA1">raise</span><span style="--shiki-light:#A626A4;--shiki-light-font-weight:bold;--shiki-dark:#FF4FD8;--shiki-dark-font-weight:bold"> %(</span><span style="--shiki-light:#005CC5;--shiki-dark:#E9E5DF">size-limit</span><span style="--shiki-light:#A626A4;--shiki-light-font-weight:bold;--shiki-dark:#FF4FD8;--shiki-dark-font-weight:bold"> (</span><span style="--shiki-light:#005CC5;--shiki-dark:#E9E5DF">operation</span><span style="--shiki-light:#A626A4;--shiki-light-font-weight:bold;--shiki-dark:#FF4FD8;--shiki-dark-font-weight:bold"> "</span><span style="--shiki-light:#032F62;--shiki-dark:#9EDFB8">Block.reserve</span><span style="--shiki-light:#A626A4;--shiki-light-font-weight:bold;--shiki-dark:#FF4FD8;--shiki-dark-font-weight:bold">"</span><span style="--shiki-light:#A626A4;--shiki-light-font-weight:bold;--shiki-dark:#FF4FD8;--shiki-dark-font-weight:bold">)</span><span style="--shiki-light:#A626A4;--shiki-light-font-weight:bold;--shiki-dark:#FF4FD8;--shiki-dark-font-weight:bold"> (</span><span style="--shiki-light:#005CC5;--shiki-dark:#E9E5DF">capacity</span><span style="--shiki-light:#A626A4;--shiki-light-font-weight:bold;--shiki-dark:#FF4FD8;--shiki-dark-font-weight:bold"> $</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">requested</span><span style="--shiki-light:#A626A4;--shiki-light-font-weight:bold;--shiki-dark:#FF4FD8;--shiki-dark-font-weight:bold">))</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">;</span></span></code></pre>
 
 <p>The first item is a compact <code>Symbol</code> naming the cause. The remaining items are
 <code>(key value)</code> detail pairs. <code>Error</code> also records the source location. A code
@@ -263,14 +259,15 @@ APIs such as <code>File.readline_into</code>, <code>Map.try_get</code>, <code>It
 <code>String.try_long</code> keep those expected outcomes separate from their value
 output.</p>
 <h2 id="catching-by-cause"><a class="header" href="#catching-by-cause">Catching by cause</a></h2>
-<p><code>try</code> requires a following filtered <code>catch</code>, <code>finally</code>, or both. Adjacent
-<code>catch</code> arms select the newest <code>Error</code> by matching <code>%(CODE @DETAIL)</code>:</p>
+<p><code>try</code> requires a following <code>catch</code>, <code>finally</code>, or both. A bare <code>catch:</code>
+handles every cause. Filtered <code>catch</code> arms select the newest <code>Error</code> by
+matching <code>%(CODE @DETAIL)</code>:</p>
 <!-- ignore: illustrative `Block` and reporting callbacks are omitted -->
 <pre class="shiki shiki-themes x2c-light x2c-dark x2c-code" style="--shiki-light:#24292e;--shiki-dark:#e9e5df;--shiki-light-bg:#fff;--shiki-dark-bg:#101011" tabindex="0"><code class="language-x2c no-highlight ignore"><span class="line"><span style="--shiki-light:#A626A4;--shiki-light-font-weight:bold;--shiki-dark:#FF4FD8;--shiki-dark-font-weight:bold">try</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF"> {</span>
 </span><span class="line"><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">  block.</span><span style="--shiki-light:#6F42C1;--shiki-dark:#E9E5DF">reserve</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">(requested);</span>
 </span><span class="line"><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">}</span>
-</span><span class="line"><span style="--shiki-light:#D73A49;--shiki-dark:#F0ADA1">catch</span><span style="--shiki-light:#A626A4;--shiki-light-font-weight:bold;--shiki-dark:#FF4FD8;--shiki-dark-font-weight:bold"> %(</span><span style="--shiki-light:#005CC5;--shiki-dark:#E9E5DF">size-limit</span><span style="--shiki-light:#005CC5;--shiki-dark:#E9E5DF"> *</span><span style="--shiki-light:#A626A4;--shiki-light-font-weight:bold;--shiki-dark:#FF4FD8;--shiki-dark-font-weight:bold"> (</span><span style="--shiki-light:#005CC5;--shiki-dark:#E9E5DF">bytes</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF"> ?count</span><span style="--shiki-light:#A626A4;--shiki-light-font-weight:bold;--shiki-dark:#FF4FD8;--shiki-dark-font-weight:bold">)</span><span style="--shiki-light:#005CC5;--shiki-dark:#E9E5DF"> *</span><span style="--shiki-light:#A626A4;--shiki-light-font-weight:bold;--shiki-dark:#FF4FD8;--shiki-dark-font-weight:bold">)</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">: {</span>
-</span><span class="line"><span style="--shiki-light:#6F42C1;--shiki-dark:#E9E5DF">  printf</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">(</span><span style="--shiki-light:#032F62;--shiki-dark:#9EDFB8">"could not reserve </span><span style="--shiki-light:#005CC5;--shiki-dark:#9EDFB8">%ld</span><span style="--shiki-light:#032F62;--shiki-dark:#9EDFB8"> bytes</span><span style="--shiki-light:#005CC5;--shiki-dark:#9EDFB8">\n</span><span style="--shiki-light:#032F62;--shiki-dark:#9EDFB8">"</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">, count);</span>
+</span><span class="line"><span style="--shiki-light:#D73A49;--shiki-dark:#F0ADA1">catch</span><span style="--shiki-light:#A626A4;--shiki-light-font-weight:bold;--shiki-dark:#FF4FD8;--shiki-dark-font-weight:bold"> %(</span><span style="--shiki-light:#005CC5;--shiki-dark:#E9E5DF">size-limit</span><span style="--shiki-light:#005CC5;--shiki-dark:#E9E5DF"> *</span><span style="--shiki-light:#A626A4;--shiki-light-font-weight:bold;--shiki-dark:#FF4FD8;--shiki-dark-font-weight:bold"> (</span><span style="--shiki-light:#005CC5;--shiki-dark:#E9E5DF">capacity</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF"> ?count</span><span style="--shiki-light:#A626A4;--shiki-light-font-weight:bold;--shiki-dark:#FF4FD8;--shiki-dark-font-weight:bold">)</span><span style="--shiki-light:#005CC5;--shiki-dark:#E9E5DF"> *</span><span style="--shiki-light:#A626A4;--shiki-light-font-weight:bold;--shiki-dark:#FF4FD8;--shiki-dark-font-weight:bold">)</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">: {</span>
+</span><span class="line"><span style="--shiki-light:#6F42C1;--shiki-dark:#E9E5DF">  printf</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">(</span><span style="--shiki-light:#032F62;--shiki-dark:#9EDFB8">"could not reserve </span><span style="--shiki-light:#005CC5;--shiki-dark:#9EDFB8">%ld</span><span style="--shiki-light:#032F62;--shiki-dark:#9EDFB8"> elements</span><span style="--shiki-light:#005CC5;--shiki-dark:#9EDFB8">\n</span><span style="--shiki-light:#032F62;--shiki-dark:#9EDFB8">"</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">, count);</span>
 </span><span class="line"><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">}</span>
 </span><span class="line"><span style="--shiki-light:#D73A49;--shiki-dark:#F0ADA1">catch</span><span style="--shiki-light:#A626A4;--shiki-light-font-weight:bold;--shiki-dark:#FF4FD8;--shiki-dark-font-weight:bold"> %(</span><span style="--shiki-light:#005CC5;--shiki-dark:#E9E5DF">bad-arg</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF"> *detail</span><span style="--shiki-light:#A626A4;--shiki-light-font-weight:bold;--shiki-dark:#FF4FD8;--shiki-dark-font-weight:bold">)</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">:</span>
 </span><span class="line"><span style="--shiki-light:#6F42C1;--shiki-dark:#E9E5DF">  report_bad_argument</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">(detail);</span>
@@ -457,11 +454,11 @@ is a compile-time error because that region’s cleanup was never registered on
 the source path.</p>
 <h2 id="cleanup-and-scopes"><a class="header" href="#cleanup-and-scopes">Cleanup and scopes</a></h2>
 <p><code>Error</code> transfer does not release a <code>Scope</code> automatically. Write the region as
-<code>$scope()</code> whenever a raising call can cross the release; its deferred release
+<code>auto</code> whenever a raising call can cross the release; its deferred release
 runs on the error path too:</p>
 <pre class="shiki shiki-themes x2c-light x2c-dark x2c-code" style="--shiki-light:#24292e;--shiki-dark:#e9e5df;--shiki-light-bg:#fff;--shiki-dark-bg:#101011" tabindex="0"><code class="language-x2c no-highlight"><span class="line"><span style="--shiki-light:#D73A49;--shiki-dark:#F0ADA1">static</span><span style="--shiki-light:#D73A49;--shiki-dark:#F0ADA1"> void</span><span style="--shiki-light:#6F42C1;--shiki-dark:#E9E5DF"> render</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">(</span><span style="--shiki-light:#007C8A;--shiki-dark:#29D3E2">String</span><span style="--shiki-light:#E36209;--shiki-dark:#E9E5DF"> text</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">, </span><span style="--shiki-light:#D73A49;--shiki-dark:#F0ADA1">int</span><span style="--shiki-light:#E36209;--shiki-dark:#E9E5DF"> width</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">) {</span>
-</span><span class="line"><span style="--shiki-light:#A626A4;--shiki-light-font-weight:bold;--shiki-dark:#FF4FD8;--shiki-dark-font-weight:bold">  $</span><span style="--shiki-light:#005CC5;--shiki-dark:#E9E5DF">scope</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">() {</span>
-</span><span class="line"><span style="--shiki-light:#D73A49;--shiki-dark:#F0ADA1">    char</span><span style="--shiki-light:#D73A49;--shiki-dark:#E9E5DF"> *</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">line </span><span style="--shiki-light:#D73A49;--shiki-dark:#E9E5DF">=</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF"> Scope.</span><span style="--shiki-light:#6F42C1;--shiki-dark:#E9E5DF">malloc</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">(width </span><span style="--shiki-light:#D73A49;--shiki-dark:#E9E5DF">+</span><span style="--shiki-light:#005CC5;--shiki-dark:#A9C9F5"> 1</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">);</span>
+</span><span class="line"><span style="--shiki-light:#D73A49;--shiki-dark:#F0ADA1">  auto</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF"> {</span>
+</span><span class="line"><span style="--shiki-light:#D73A49;--shiki-dark:#F0ADA1">    char</span><span style="--shiki-light:#D73A49;--shiki-dark:#E9E5DF"> *</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">line </span><span style="--shiki-light:#D73A49;--shiki-dark:#E9E5DF">=</span><span style="--shiki-light:#6F42C1;--shiki-dark:#E9E5DF"> xmalloc</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">(width </span><span style="--shiki-light:#D73A49;--shiki-dark:#E9E5DF">+</span><span style="--shiki-light:#005CC5;--shiki-dark:#A9C9F5"> 1</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">);</span>
 </span><span class="line"><span style="--shiki-light:#D73A49;--shiki-dark:#F0ADA1">    if</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF"> (</span><span style="--shiki-light:#D73A49;--shiki-dark:#E9E5DF">!</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">text) {</span>
 </span><span class="line"><span style="--shiki-light:#A626A4;--shiki-light-font-weight:bold;--shiki-dark:#FF4FD8;--shiki-dark-font-weight:bold">      raise</span><span style="--shiki-light:#D73A49;--shiki-dark:#E9E5DF"> %</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">(bad</span><span style="--shiki-light:#D73A49;--shiki-dark:#E9E5DF">-</span><span style="--shiki-light:#6F42C1;--shiki-dark:#E9E5DF">arg</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF"> (operation </span><span style="--shiki-light:#032F62;--shiki-dark:#9EDFB8">"render"</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">));</span>
 </span><span class="line"><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">    }</span>
@@ -503,13 +500,25 @@ shutdown. <code>Logger</code> then reports any collected root errors once and cl
 handler. Finally, <code>Error</code> destroys its empty handler chain, stack, policy,
 pools, and <code>Scope</code>. A <code>raise</code> after that point terminates without allocating.
 The raw <code>Scope</code> leak report runs after all shutdown hooks.</p>
+<h2 id="where-to-go-next"><a class="header" href="#where-to-go-next">Where to go next</a></h2>
+<ul>
+<li><a href="protocols.html">Protocols</a> lets several types share methods and operators.</li>
+</ul>
 
                     </main>
+                    <script>
+                        // A generated page is edited through its generator.
+                        if ([...document.querySelector('#mdbook-content main').childNodes]
+                                .some(node => node.nodeType === Node.COMMENT_NODE &&
+                                      node.textContent.includes('Do not edit by hand'))) {
+                            document.querySelector('a[rel="edit"]')?.remove();
+                        }
+                    </script>
 
                     <nav class="x2c-pager" aria-label="Page navigation">
-                        <a rel="prev" href="../guide/contexts-and-threads.html" class="x2c-pager-prev" aria-keyshortcuts="Left">
+                        <a rel="prev" href="../guide/channels.html" class="x2c-pager-prev" aria-keyshortcuts="Left">
                             <span class="x2c-pager-label">previous</span>
-                            <span class="x2c-pager-title">Contexts and Threads</span>
+                            <span class="x2c-pager-title">Channels</span>
                         </a>
                         
                         <a rel="next prefetch" href="../guide/protocols.html" class="x2c-pager-next" aria-keyshortcuts="Right">
@@ -521,9 +530,9 @@ The raw <code>Scope</code> leak report runs after all shutdown hooks.</p>
                         &copy; 2025&ndash;2026
                         <a href="https://flake.org">GWF</a>
                         &middot;
-                        <a href="https://github.com/gwf/x2c/blob/aa2b9b2575297711e5978acc53f87bd7f645f3c7/LICENSE">Apache 2.0</a>
+                        <a href="https://github.com/gwf/x2c/blob/2c5870d64d381a861054dae9927aa65adc87e9e0/LICENSE">Apache 2.0</a>
                         &middot;
-                        <a href="https://github.com/gwf/x2c/blob/aa2b9b2575297711e5978acc53f87bd7f645f3c7/TRADEMARKS.md">Trademarks</a>
+                        <a href="https://github.com/gwf/x2c/blob/2c5870d64d381a861054dae9927aa65adc87e9e0/TRADEMARKS.md">Trademarks</a>
                     </footer>
                 </div>
             </div>

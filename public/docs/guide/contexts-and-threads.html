@@ -1,6 +1,6 @@
 <!DOCTYPE HTML>
 <html lang="en" class="light sidebar-visible" dir="ltr">
-    <head><meta name="x2c-release-channel" content="staging"><meta name="x2c-candidate" content="candidate-aa2b9b2575297711e5978acc53f87bd7f645f3c7-39090113132-1">
+    <head><meta name="x2c-release-channel" content="staging"><meta name="x2c-candidate" content="candidate-aa2b9b2575297711e5978acc53f87bd7f645f3c7-39090113132-1"><meta name="x2c-site-source" content="2c5870d64d381a861054dae9927aa65adc87e9e0"><meta name="robots" content="noindex">
         <!-- Book generated using mdBook -->
         <meta charset="UTF-8">
         <title>Contexts and Threads - The x2c Book</title>
@@ -30,7 +30,7 @@
         <link rel="stylesheet" id="mdbook-ayu-highlight-css" href="../ayu-highlight-3fdfc3ac.css">
 
         <!-- Custom theme stylesheets -->
-        <link rel="stylesheet" href="../theme/header-f6c12aed.css">
+        <link rel="stylesheet" href="../theme/header-b540a03f.css">
         <link rel="stylesheet" href="../theme/x2c-fd3d182e.css">
 
 
@@ -39,12 +39,12 @@
             const path_to_root = "../";
             const default_light_theme = "light";
             const default_dark_theme = "light";
-            window.path_to_searchindex_js = "../searchindex-f4d06db2.js";
+            window.path_to_searchindex_js = "../searchindex-a3bdfad5.js";
         </script>
         <!-- Start loading toc.js asap -->
-        <script src="../toc-00ae7479.js"></script>
+        <script src="../toc-2248e0f3.js"></script>
         <!-- x2c publication metadata -->
-        <link rel="canonical" href="https://staging.x2c-lang.dev/docs/guide/contexts-and-threads.html">
+        <link rel="canonical" href="https://x2c-lang.dev/docs/guide/contexts-and-threads.html">
         <meta property="og:type" content="website">
         <meta property="og:title" content="Contexts and Threads - The x2c Book">
         <meta property="og:description" content="The x2c language, standard library, and compiler.">
@@ -143,16 +143,12 @@
                             <button class="landing-tagline menu-title" type="button" title="Scroll to top">The x2c Book</button>
                         </div>
                         <nav class="landing-nav" aria-label="x2c website">
-                            <div class="landing-page-nav">
-                                <a href="../../#love">love</a>
-                                <a href="../../#power">power</a>
-                                <a href="../../#magic">magic</a>
-                            </div>
                             <div class="landing-site-nav">
                                 <a href="../../#install">install</a>
                                 <a href="../../#packages">packages</a>
                             </div>
                             <div class="landing-reference-nav">
+                                <a href="../../examples/">examples</a>
                                 <a href="../../about/">about</a>
                                 <a href="../" aria-current="page">docs</a>
                                 <a href="https://github.com/gwf/x2c">source</a>
@@ -226,7 +222,10 @@ active before it opened and reclaims everything that was not exported.</p>
 <p>If opening a <code>Context</code> fails, the parts already opened are closed before the
 failure reaches an outer <code>catch</code>. A failed open does not change
 <code>Context.current()</code> or leave a pool active.</p>
-<p>A <code>Thread</code> runs a callback in an isolated <code>Context</code> on a native worker thread.
+<p><code>Thread.start</code>, <code>Thread.start_raw</code>, and <code>Thread.run</code> run each callback on a
+native worker thread inside a <code>Context</code> that is not isolated. The callback
+gets fresh <code>Scope</code>, <code>Error</code>, and <code>Match</code> state and uses the shared process
+canonical pool, as described below.
 The worker may read parent values and may access shared mutable objects. The
 program must keep those objects alive and coordinate any access that could
 race.</p>
@@ -263,12 +262,12 @@ into the caller’s pool, and preserves the cycle:</p>
 </span><span class="line"><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">}</span></span></code></pre>
 
 <p>Always use the value returned by <code>Context.export</code>. Mutable <code>Array</code>s, <code>Map</code>s,
-<code>Block</code>s, <code>Bytes</code>, <code>Buffer</code>s, and wide scalar boxes retain their identity when their
-storage can be moved. Private <code>String</code>s, <code>Atom</code>s, and <code>List</code>s are canonicalized
-in the destination pool, so their pointers may change. Export walks nested
-<code>Array</code>s, <code>Map</code>s, and <code>List</code>s, including repeated references and <code>Array</code>/<code>Map</code>
-cycles. A registered custom value can provide its own <code>Context</code> exporter.
-<code>void</code> exports as <code>void</code>.</p>
+<code>Block</code>s, <code>Bytes</code>, <code>Buffer</code>s, and wide scalar boxes retain their identity when
+their storage can be moved. Private <code>String</code>s, <code>Atom</code>s, and <code>List</code>s are
+canonicalized in the destination pool, so their pointers may change. Export
+walks nested <code>Array</code>s, <code>Map</code>s, and <code>List</code>s, including repeated references and
+<code>Array</code>/<code>Map</code> cycles. A registered custom value can provide its own <code>Context</code>
+exporter. <code>void</code> exports as <code>void</code>.</p>
 <p>The seven packed <code>Array</code>s from <code>typed-array.x</code> and the four packed <code>Map</code>s
 from <code>typed-map.x</code> follow the same rule. A container owned by the source
 <code>Context</code> keeps its pointer, and its header and backing storage move
@@ -290,11 +289,53 @@ inherited or borrowed from its caller. Code that manually creates an unrelated
 value as though the <code>Context</code> owned it is undefined behavior.</p>
 <p>The complete program is in <code>examples/power/contexts.x</code>.</p>
 <h2 id="pass-shared-values-to-a-worker"><a class="header" href="#pass-shared-values-to-a-worker">Pass shared values to a worker</a></h2>
-<p><code>Thread.start</code> copies the input structure’s bytes. It does not copy anything
-reached through pointers in that structure. A pointer, <code>String</code>, <code>List</code>, <code>Map</code>,
-or other handle therefore refers to the same parent object in the worker. The
-copied bytes have <code>max_align_t</code> alignment, matching ordinary allocation; do not
-pass a structure that requires extended alignment beyond that.</p>
+<p><code>Thread.start(function, input)</code> calls a <code>Var</code>-to-<code>Var</code> function with one input.
+The input bits are copied, while referenced storage stays with its caller. Keep
+the input graph alive and read-only until join. This includes a Map’s contents
+and the storage of wide boxed scalars. Join returns result bits without
+exporting or transferring storage. Preserve worker-created mutable output
+explicitly before the callback exits. Each concurrent worker needs exclusive
+access to its output owner; do not allocate into a shared caller scope.</p>
+<pre class="shiki shiki-themes x2c-light x2c-dark x2c-code" style="--shiki-light:#24292e;--shiki-dark:#e9e5df;--shiki-light-bg:#fff;--shiki-dark-bg:#101011" tabindex="0"><code class="language-x2c no-highlight"><span class="line"><span style="--shiki-light:#D73A49;--shiki-dark:#F0ADA1">static</span><span style="--shiki-light:#007C8A;--shiki-dark:#29D3E2"> Var</span><span style="--shiki-light:#6F42C1;--shiki-dark:#E9E5DF"> twice</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">(</span><span style="--shiki-light:#007C8A;--shiki-dark:#29D3E2">Var</span><span style="--shiki-light:#E36209;--shiki-dark:#E9E5DF"> input</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">) </span><span style="--shiki-light:#A626A4;--shiki-light-font-weight:bold;--shiki-dark:#FF4FD8;--shiki-dark-font-weight:bold">=&gt;</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF"> (</span><span style="--shiki-light:#D73A49;--shiki-dark:#F0ADA1">int</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">) input </span><span style="--shiki-light:#D73A49;--shiki-dark:#E9E5DF">*</span><span style="--shiki-light:#005CC5;--shiki-dark:#A9C9F5"> 2</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">;</span>
+</span><span class="line">
+</span><span class="line"><span style="--shiki-light:#D73A49;--shiki-dark:#F0ADA1">int</span><span style="--shiki-light:#6F42C1;--shiki-dark:#E9E5DF"> main</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">(</span><span style="--shiki-light:#D73A49;--shiki-dark:#F0ADA1">void</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">) {</span>
+</span><span class="line"><span style="--shiki-light:#007C8A;--shiki-dark:#29D3E2">  Array</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF"> pending </span><span style="--shiki-light:#D73A49;--shiki-dark:#E9E5DF">=</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF"> [</span><span style="--shiki-light:#007C8A;--shiki-dark:#29D3E2">Thread</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">.</span><span style="--shiki-light:#6F42C1;--shiki-dark:#E9E5DF">start</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">(twice, </span><span style="--shiki-light:#005CC5;--shiki-dark:#A9C9F5">21</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">)];</span>
+</span><span class="line"><span style="--shiki-light:#6F42C1;--shiki-dark:#E9E5DF">  printf</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">(</span><span style="--shiki-light:#032F62;--shiki-dark:#9EDFB8">"</span><span style="--shiki-light:#005CC5;--shiki-dark:#9EDFB8">%s\n</span><span style="--shiki-light:#032F62;--shiki-dark:#9EDFB8">"</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">, </span><span style="--shiki-light:#007C8A;--shiki-dark:#29D3E2">Thread</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">.</span><span style="--shiki-light:#6F42C1;--shiki-dark:#E9E5DF">finish_any</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">(pending));</span>
+</span><span class="line"><span style="--shiki-light:#D73A49;--shiki-dark:#F0ADA1">  return</span><span style="--shiki-light:#005CC5;--shiki-dark:#A9C9F5"> 0</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">;</span>
+</span><span class="line"><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">}</span></span></code></pre>
+
+<pre><code class="language-text">42
+</code></pre>
+<p>For mutable output, supply an owner that only this worker uses until join:</p>
+<pre class="shiki shiki-themes x2c-light x2c-dark x2c-code" style="--shiki-light:#24292e;--shiki-dark:#e9e5df;--shiki-light-bg:#fff;--shiki-dark-bg:#101011" tabindex="0"><code class="language-x2c no-highlight"><span class="line"><span style="--shiki-light:#D73A49;--shiki-dark:#F0ADA1">static</span><span style="--shiki-light:#007C8A;--shiki-dark:#29D3E2"> Var</span><span style="--shiki-light:#6F42C1;--shiki-dark:#E9E5DF"> make_answer</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">(</span><span style="--shiki-light:#007C8A;--shiki-dark:#29D3E2">Var</span><span style="--shiki-light:#E36209;--shiki-dark:#E9E5DF"> destination</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">) {</span>
+</span><span class="line"><span style="--shiki-light:#007C8A;--shiki-dark:#29D3E2">  Scope</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF"> output </span><span style="--shiki-light:#D73A49;--shiki-dark:#E9E5DF">=</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF"> destination;</span>
+</span><span class="line"><span style="--shiki-light:#007C8A;--shiki-dark:#29D3E2">  Map</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF"> result </span><span style="--shiki-light:#D73A49;--shiki-dark:#E9E5DF">=</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF"> {answer: </span><span style="--shiki-light:#005CC5;--shiki-dark:#A9C9F5">42</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">};</span>
+</span><span class="line"><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">  result.</span><span style="--shiki-light:#6F42C1;--shiki-dark:#E9E5DF">move_to</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">(</span><span style="--shiki-light:#D73A49;--shiki-dark:#E9E5DF">&amp;</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">output);</span>
+</span><span class="line"><span style="--shiki-light:#D73A49;--shiki-dark:#F0ADA1">  return</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF"> result;</span>
+</span><span class="line"><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">}</span>
+</span><span class="line">
+</span><span class="line"><span style="--shiki-light:#D73A49;--shiki-dark:#F0ADA1">int</span><span style="--shiki-light:#6F42C1;--shiki-dark:#E9E5DF"> main</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">(</span><span style="--shiki-light:#D73A49;--shiki-dark:#F0ADA1">void</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">) {</span>
+</span><span class="line"><span style="--shiki-light:#007C8A;--shiki-dark:#29D3E2">  Scope</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF"> output </span><span style="--shiki-light:#D73A49;--shiki-dark:#E9E5DF">=</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF"> Scope.</span><span style="--shiki-light:#6F42C1;--shiki-dark:#E9E5DF">child</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">();</span>
+</span><span class="line"><span style="--shiki-light:#007C8A;--shiki-dark:#29D3E2">  Thread</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF"> worker </span><span style="--shiki-light:#D73A49;--shiki-dark:#E9E5DF">=</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF"> Thread.</span><span style="--shiki-light:#6F42C1;--shiki-dark:#E9E5DF">start</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">(make_answer, output);</span>
+</span><span class="line"><span style="--shiki-light:#007C8A;--shiki-dark:#29D3E2">  Map</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF"> result </span><span style="--shiki-light:#D73A49;--shiki-dark:#E9E5DF">=</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF"> worker.</span><span style="--shiki-light:#6F42C1;--shiki-dark:#E9E5DF">join</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">();</span>
+</span><span class="line"><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">  worker.</span><span style="--shiki-light:#6F42C1;--shiki-dark:#E9E5DF">free</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">();</span>
+</span><span class="line"><span style="--shiki-light:#6F42C1;--shiki-dark:#E9E5DF">  printf</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">(</span><span style="--shiki-light:#032F62;--shiki-dark:#9EDFB8">"</span><span style="--shiki-light:#005CC5;--shiki-dark:#9EDFB8">%d\n</span><span style="--shiki-light:#032F62;--shiki-dark:#9EDFB8">"</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">, </span><span style="--shiki-light:#E36209;--shiki-dark:#E9E5DF">result</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">[</span><span style="--shiki-light:#A626A4;--shiki-light-font-weight:bold;--shiki-dark:#FF4FD8;--shiki-dark-font-weight:bold">&lt;</span><span style="--shiki-light:#005CC5;--shiki-dark:#E9E5DF">answer</span><span style="--shiki-light:#A626A4;--shiki-light-font-weight:bold;--shiki-dark:#FF4FD8;--shiki-dark-font-weight:bold">&gt;</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">].</span><span style="--shiki-light:#6F42C1;--shiki-dark:#E9E5DF">int</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">());</span>
+</span><span class="line"><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">  output.</span><span style="--shiki-light:#6F42C1;--shiki-dark:#E9E5DF">destroy</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">();</span>
+</span><span class="line"><span style="--shiki-light:#D73A49;--shiki-dark:#F0ADA1">  return</span><span style="--shiki-light:#005CC5;--shiki-dark:#A9C9F5"> 0</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">;</span>
+</span><span class="line"><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">}</span></span></code></pre>
+
+<pre><code class="language-text">42
+</code></pre>
+<p>Each concurrent worker needs its own output scope. Destroy these scopes only
+after all their users have finished, including when a worker fails. A transfer
+moves the Map’s record, buffers, and explicitly owned contents; it does not
+follow references or adopt inserted members.</p>
+<p><code>Thread.start_raw</code> copies the input structure’s bytes. It does not copy
+anything reached through pointers in that structure. A pointer, <code>String</code>,
+<code>List</code>, <code>Map</code>, or other handle therefore refers to the same parent object in
+the worker. The copied bytes have <code>max_align_t</code> alignment, matching ordinary
+allocation; do not pass a structure that requires extended alignment beyond
+that.</p>
 <p>Parent immutable <code>String</code>s and <code>List</code>s can be read directly. Shared mutable
 objects can also be read or changed, but normal C data-race rules apply: a read
 is safe only when no thread can write at the same time, and coordinated writes
@@ -322,8 +363,8 @@ joined.</p>
 </span><span class="line"><span style="--shiki-light:#D73A49;--shiki-dark:#F0ADA1">  int</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF"> counter </span><span style="--shiki-light:#D73A49;--shiki-dark:#E9E5DF">=</span><span style="--shiki-light:#005CC5;--shiki-dark:#A9C9F5"> 0</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">;</span>
 </span><span class="line"><span style="--shiki-light:#007C8A;--shiki-dark:#29D3E2">  Mutex</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF"> mutex </span><span style="--shiki-light:#D73A49;--shiki-dark:#E9E5DF">=</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF"> Mutex.</span><span style="--shiki-light:#6F42C1;--shiki-dark:#E9E5DF">new</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">();</span>
 </span><span class="line"><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">  Work work </span><span style="--shiki-light:#D73A49;--shiki-dark:#E9E5DF">=</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF"> { </span><span style="--shiki-light:#005CC5;--shiki-dark:#A9C9F5">1000</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">, </span><span style="--shiki-light:#D73A49;--shiki-dark:#E9E5DF">&amp;</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">counter, mutex };</span>
-</span><span class="line"><span style="--shiki-light:#007C8A;--shiki-dark:#29D3E2">  Thread</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF"> first </span><span style="--shiki-light:#D73A49;--shiki-dark:#E9E5DF">=</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF"> Thread.</span><span style="--shiki-light:#6F42C1;--shiki-dark:#E9E5DF">start</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">(count, </span><span style="--shiki-light:#D73A49;--shiki-dark:#E9E5DF">&amp;</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">work, </span><span style="--shiki-light:#D73A49;--shiki-dark:#E9E5DF">sizeof</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">(work));</span>
-</span><span class="line"><span style="--shiki-light:#007C8A;--shiki-dark:#29D3E2">  Thread</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF"> second </span><span style="--shiki-light:#D73A49;--shiki-dark:#E9E5DF">=</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF"> Thread.</span><span style="--shiki-light:#6F42C1;--shiki-dark:#E9E5DF">start</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">(count, </span><span style="--shiki-light:#D73A49;--shiki-dark:#E9E5DF">&amp;</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">work, </span><span style="--shiki-light:#D73A49;--shiki-dark:#E9E5DF">sizeof</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">(work));</span>
+</span><span class="line"><span style="--shiki-light:#007C8A;--shiki-dark:#29D3E2">  Thread</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF"> first </span><span style="--shiki-light:#D73A49;--shiki-dark:#E9E5DF">=</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF"> Thread.</span><span style="--shiki-light:#6F42C1;--shiki-dark:#E9E5DF">start_raw</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">(count, </span><span style="--shiki-light:#D73A49;--shiki-dark:#E9E5DF">&amp;</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">work, </span><span style="--shiki-light:#D73A49;--shiki-dark:#E9E5DF">sizeof</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">(work));</span>
+</span><span class="line"><span style="--shiki-light:#007C8A;--shiki-dark:#29D3E2">  Thread</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF"> second </span><span style="--shiki-light:#D73A49;--shiki-dark:#E9E5DF">=</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF"> Thread.</span><span style="--shiki-light:#6F42C1;--shiki-dark:#E9E5DF">start_raw</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">(count, </span><span style="--shiki-light:#D73A49;--shiki-dark:#E9E5DF">&amp;</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">work, </span><span style="--shiki-light:#D73A49;--shiki-dark:#E9E5DF">sizeof</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">(work));</span>
 </span><span class="line">
 </span><span class="line"><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">  first.</span><span style="--shiki-light:#6F42C1;--shiki-dark:#E9E5DF">join</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">();</span>
 </span><span class="line"><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">  second.</span><span style="--shiki-light:#6F42C1;--shiki-dark:#E9E5DF">join</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">();</span>
@@ -333,47 +374,192 @@ joined.</p>
 </span><span class="line"><span style="--shiki-light:#D73A49;--shiki-dark:#F0ADA1">  return</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF"> counter </span><span style="--shiki-light:#D73A49;--shiki-dark:#E9E5DF">==</span><span style="--shiki-light:#005CC5;--shiki-dark:#A9C9F5"> 2000</span><span style="--shiki-light:#D73A49;--shiki-dark:#E9E5DF"> ?</span><span style="--shiki-light:#005CC5;--shiki-dark:#A9C9F5"> 0</span><span style="--shiki-light:#D73A49;--shiki-dark:#E9E5DF"> :</span><span style="--shiki-light:#005CC5;--shiki-dark:#A9C9F5"> 1</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">;</span>
 </span><span class="line"><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">}</span></span></code></pre>
 
-<p>Each worker gets a private canonical-value pool, so its temporary
-<code>String</code>s and <code>List</code>s are not kept for the life of the process. The
-callback returns one <code>Var</code>. <code>Thread.join</code> waits for the worker and exports
-that result into the joining <code>Scope</code> and active pool. Until the join, the
-result stays in the sealed worker pool, even after the callback finishes.
-Once the native join succeeds, the <code>Thread</code> consumes that storage, even if
-exporting the result raises. A failed export cannot be retried. Call
-<code>Thread.free</code> after <code>Thread.join</code> returns or after catching an <code>Error</code>
-raised by the join.</p>
-<p>A <code>Thread</code> cannot be detached or cancelled. Join every started <code>Thread</code>
-before the process exits. If a worker is
-still unjoined at shutdown, even one whose callback has finished, the
-runtime prints a message and aborts. The join reclaims the worker’s result
-<code>Scope</code> and pool.</p>
+<p>Workers start with the shared process canonical pool, so canonical Strings
+and Lists survive callback exit. Explicit private pools retain their own
+lifetime rules. Mutable callback storage is temporary. A callback that returns
+a Map, Array, boxed number, or custom allocation must explicitly preserve its
+storage before returning. A borrowed result retains its existing owner.</p>
+<p><code>Thread.join</code> waits for the worker and returns its result bits. It does not
+walk references or transfer ownership. A failed native join can be retried;
+a successful join consumes the handle even if reporting a captured Error
+raises. Call <code>Thread.free</code> after join returns or its Error is caught.</p>
+<p>Join every started Thread before process exit. <code>Thread.stop</code> requests
+cooperative stopping; it does not forcibly interrupt native I/O or computation.
+Shutdown aborts if a worker remains unjoined. Join releases captured Error
+storage, but leaves developer-owned results alone.</p>
 <p>A worker uses the starting thread’s <code>Error</code> policy. A cause whose policy is
 <code>&lt;collect&gt;</code>, <code>&lt;log&gt;</code>, or <code>&lt;ignore&gt;</code> returns to its <code>raise</code> inside the
 callback, as it does on the starting thread. A cause whose policy is
 <code>&lt;abort&gt;</code> leaves the callback. That includes every shared cause and every
 code that no policy names. <code>Thread.join</code> then raises <code>&lt;join-fail&gt;</code> with the
 worker’s captured errors, and that <code>raise</code> does not return to the joiner.
-So <code>Thread.join</code> either returns the worker’s exported result or transfers.
+So <code>Thread.join</code> either returns the worker’s result bits or transfers.
 A callback that returns <code>void</code> joins as <code>void</code>.</p>
-<p>Captured errors stay in the sealed worker storage and enter the joining
-pool only during <code>Thread.join</code>. A worker <code>Error</code> whose policy is <code>&lt;log&gt;</code>
-also passes through the global <code>Logger</code> error handler. <code>Logger</code> serializes
-its sinks. A memory sink copies worker <code>String</code>s and <code>List</code>s into the pool
-captured when its <code>Logger</code> was created, so logged entries stay valid after
-the worker exits.</p>
+<p>Captured Error allocations have separate storage until join. Their canonical
+values use the shared pool. Join preserves the captured errors for its caller.
+A worker <code>Error</code> whose policy is <code>&lt;log&gt;</code> also passes through the global
+<code>Logger</code> error handler. <code>Logger</code> serializes its sinks. A memory sink copies
+worker <code>String</code>s and <code>List</code>s into the pool captured when its <code>Logger</code> was
+created, so logged entries stay valid after the worker exits.</p>
 <p>The more complete <code>examples/power/threads.x</code> uses two workers, parent
-<code>String</code>s, private temporary <code>List</code>s and <code>String</code>s, a shared counter protected
-by a <code>Mutex</code>, joined <code>Map</code> results, and a global memory <code>Logger</code> sink.</p>
+<code>String</code>s and <code>List</code>s, a shared counter protected by a <code>Mutex</code>, explicitly
+owned Map results, and a global memory <code>Logger</code> sink.</p>
 <p>All type and protocol registration must finish before the first successful
-<code>Thread.start</code>. Starting native execution freezes descriptor declaration.
+<code>Thread.start</code> or <code>Thread.start_raw</code>. Starting native execution freezes
+descriptor declaration.
 Boxing is not frozen: a worker may box the first value of a declared class,
 and every thread then reads that class’s complete row.</p>
 <p><code>Thread.start</code> also turns on locking for the canonical-value pools. A process
 that has never started a worker does not lock them. Create native threads
 through <code>Thread</code>; one made by calling <code>pthread_create</code> directly can share
 interned values with no lock protecting them.</p>
+<h2 id="run-cooperating-jobs-as-one-batch"><a class="header" href="#run-cooperating-jobs-as-one-batch">Run cooperating jobs as one batch</a></h2>
+<p><code>Thread.run(jobs, completed)</code> accepts an Array of zero-argument <code>Func</code> values.
+It starts native workers and owns every handle until all jobs finish. Each
+successful joined result reaches <code>completed</code> on the calling thread. The
+callback is optional: <code>Thread.run(jobs)</code> discards result bits after joining. A
+void job result is also a successful completion.</p>
+<p>Capturing lambdas already produce <code>Func</code> values. Bind a direct function or a
+noncapturing lambda to <code>Func</code> before putting it in an Array. This uses the
+ordinary callable conversion rather than a separate batch calling convention.</p>
+<pre class="shiki shiki-themes x2c-light x2c-dark x2c-code" style="--shiki-light:#24292e;--shiki-dark:#e9e5df;--shiki-light-bg:#fff;--shiki-dark-bg:#101011" tabindex="0"><code class="language-x2c no-highlight"><span class="line"><span style="--shiki-light:#D73A49;--shiki-dark:#F0ADA1">static</span><span style="--shiki-light:#D73A49;--shiki-dark:#F0ADA1"> int</span><span style="--shiki-light:#6F42C1;--shiki-dark:#E9E5DF"> answer</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">(</span><span style="--shiki-light:#D73A49;--shiki-dark:#F0ADA1">void</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">) </span><span style="--shiki-light:#A626A4;--shiki-light-font-weight:bold;--shiki-dark:#FF4FD8;--shiki-dark-font-weight:bold">=&gt;</span><span style="--shiki-light:#005CC5;--shiki-dark:#A9C9F5"> 42</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">;</span>
+</span><span class="line">
+</span><span class="line"><span style="--shiki-light:#D73A49;--shiki-dark:#F0ADA1">int</span><span style="--shiki-light:#6F42C1;--shiki-dark:#E9E5DF"> main</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">(</span><span style="--shiki-light:#D73A49;--shiki-dark:#F0ADA1">void</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">) {</span>
+</span><span class="line"><span style="--shiki-light:#007C8A;--shiki-dark:#29D3E2">  Func</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF"> job </span><span style="--shiki-light:#D73A49;--shiki-dark:#E9E5DF">=</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF"> answer;</span>
+</span><span class="line"><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">  Thread.</span><span style="--shiki-light:#6F42C1;--shiki-dark:#E9E5DF">run</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">([job], </span><span style="--shiki-light:#A626A4;--shiki-light-font-weight:bold;--shiki-dark:#FF4FD8;--shiki-dark-font-weight:bold">%!</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">(</span><span style="--shiki-light:#007C8A;--shiki-dark:#29D3E2">Var</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF"> result) </span><span style="--shiki-light:#A626A4;--shiki-light-font-weight:bold;--shiki-dark:#FF4FD8;--shiki-dark-font-weight:bold">=&gt;</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF"> {</span>
+</span><span class="line"><span style="--shiki-light:#6F42C1;--shiki-dark:#E9E5DF">    printf</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">(</span><span style="--shiki-light:#032F62;--shiki-dark:#9EDFB8">"</span><span style="--shiki-light:#005CC5;--shiki-dark:#9EDFB8">%ld\n</span><span style="--shiki-light:#032F62;--shiki-dark:#9EDFB8">"</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">, result.</span><span style="--shiki-light:#6F42C1;--shiki-dark:#E9E5DF">integer</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">());</span>
+</span><span class="line"><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">  });</span>
+</span><span class="line"><span style="--shiki-light:#D73A49;--shiki-dark:#F0ADA1">  return</span><span style="--shiki-light:#005CC5;--shiki-dark:#A9C9F5"> 0</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">;</span>
+</span><span class="line"><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">}</span></span></code></pre>
+
+<pre><code class="language-text">42
+</code></pre>
+<p>Keep the jobs, their captures, callback code, and borrowed objects alive
+through <code>Thread.run</code>. Capturing a Map copies its handle; its contents can be
+changed by one designated writer while the caller waits. Changing a captured
+variable’s binding itself requires <code>using &amp;name</code>. The completion callback must
+perform short coordination and must not wait on participant progress.</p>
+<p>Each job has bounded mutable work storage but starts with the shared process
+canonical pool active. Interned Strings and Lists therefore survive job exit.
+They remain until process shutdown, so bounded communication does not bound
+canonical-pool memory. Opening an explicit private pool retains the usual
+lifetime rules; explicitly preserve survivors before closing it. Ordinary
+Thread callbacks also use the shared pool. ParallelMap borrows each result
+until its reducer returns.</p>
+<p>Completion callbacks run after job temporary storage has been reclaimed. Jobs
+must explicitly preserve any returned mutable storage before exit, for example
+by moving it into a separate output scope supplied for that job. Inserting a
+reference into a Map or Array does not preserve its owner. The developer owns
+output cleanup on both success and failure; Thread.run neither adopts nor
+destroys those output scopes.</p>
+<p>On startup, job, completion-callback, or coordinator-stop failure,
+<code>Thread.run</code> stops all remaining jobs before joining any of them. It preserves
+the triggering error, invokes no completion callbacks during failure cleanup,
+and waits for every started worker before returning control through the error.
+This includes partial startup and nested batches. Cleanup joins cannot be
+interrupted by a pending stop. A native join failure that prevents establishing
+safe completion aborts rather than return with live borrowers.</p>
+<h2 id="run-channel-jobs-on-one-native-thread"><a class="header" href="#run-channel-jobs-on-one-native-thread">Run Channel jobs on one native thread</a></h2>
+<p><code>Task.run(jobs, completed)</code> runs a batch on the calling native thread.
+Ordinary Channel waits park the current task so another job can run. Tasks
+keep stable native stacks, Error frames, and cleanup environments across
+suspension. They do not provide CPU parallelism. A blocking native call or
+computation that never waits delays every job in the batch.</p>
+<p>Use the same Channel operations and completion callback shape as <code>Thread.run</code>.
+The callback runs after job cleanup, under restored caller state, and must
+not wait for participant progress. The executable
+<code>examples/power/channel-service.x</code> shows request/reply and closes requests
+after both clients finish.</p>
+<p>Each task borrows the caller’s active scope and pool through the batch. It
+has its own default Scope slot, starts with no current Context, and copies
+effective Error policies and the error bound. Handlers, records, marks, and
+cleanup obligations start fresh. Opening a Context inside a job remains
+explicit. An ordinary Array return retains its owner and aliases; no implicit
+export or ownership transfer occurs.</p>
+<p>Lisp callback activations and recursive rendering paths also start fresh.
+Suspending either preserves that task’s activation. Completion callbacks and
+the caller resume with their own activation restored.</p>
+<p>Keep all borrowed owners, Channels, jobs, and captures alive through
+<code>Task.run</code>. The call returns or raises only after all participants finish
+cleanup. Job or completion-callback failure stops unfinished jobs and preserves
+the primary failure. Escaping job Errors are raised as <code>&lt;join-fail&gt;</code>, as
+<code>Thread.join</code> raises them. <code>Thread.stop</code> on the native owner requests batch
+cancellation. A message already committed stays accepted; an uncommitted owned
+send is rolled back.</p>
+<p>Source cleanup must not suspend. <code>Channel.close</code> is suitable for cleanup;
+other Channel operations keep their usual stop and wait behavior. Stop is
+cooperative, and catching it can delay shutdown. <code>Task.run</code> does not support
+nested calls; a nested call raises <code>&lt;bad-state&gt;</code>.</p>
+<p>Tasks run on macOS and Linux on arm64 and x86_64. Each task uses
+an 8 MiB usable, demand-paged stack plus a guard page. Set
+<code>X2C_TASK_STACK_BYTES</code> before the call to select another capacity of at least
+32 KiB; capacity rounds up to the native page size. Smaller stacks can exhaust
+space sooner. <code>Regex</code> compiling and matching, <code>Json</code> reading and writing, the
+Lisp reader, and Lisp evaluation stop before the stack runs out and raise
+their usual depth errors, so they allow less nesting on a small stack. Other
+overflow is a native failure, without guaranteed cleanup.
+Tasks stay on their original native thread. On other targets, <code>Task.run</code>
+raises <code>&lt;bad-state&gt;</code>.</p>
+<h2 id="cooperative-stopping"><a class="header" href="#cooperative-stopping">Cooperative stopping</a></h2>
+<p>An operation registers its Channel mutex and condition with its managed Thread.
+Stop publication takes that mutex, so a stop cannot pass between the final
+stop check and commitment or sleep. If stop has borrowed the registered mutex,
+the operation waits for stop to release it before returning.</p>
+<p><code>thread.stop()</code> records a persistent stop request and wakes the Thread’s
+registered Channel or completion wait. It does not close a Channel, transfer
+payload ownership, interrupt arbitrary native I/O, or forcibly terminate code.
+A blocked operation leaves its queue locks before raising
+<code>(bad-state (operation "Thread.stop") (cancelled 1))</code>. Ambient resumable Error
+policies cannot suppress this shared cause. Explicit catches can handle it,
+so code that ignores stopping can delay batch cleanup indefinitely.</p>
+<p>A Channel insertion, dequeue, or rendezvous that already committed succeeds
+even when a stop arrives before that operation returns. A later operation
+observes the pending stop. A stopped receive raises; it is not successful EOF.
+The normal application protocol still closes Channels and drains accepted data.</p>
+<p>A batch can stop only its own jobs. It does not acquire cancellation authority
+over independently owned services or everyone using a borrowed Channel. A
+stopped client is not evidence that a service finished reading borrowed request
+bytes. Keep those bytes under an owner that survives actual borrower
+completion, including failure cleanup. Services shared outside the batch need
+an explicit failure-reply or dependency protocol.</p>
+<h3 id="parallel-mapping-and-explicit-ownership"><a class="header" href="#parallel-mapping-and-explicit-ownership">Parallel mapping and explicit ownership</a></h3>
+<p><code>source.parallel_map(callback, workers).foldl(seed, reducer)</code> reuses bounded
+workers and invokes the reducer on the caller in completion order. Each worker
+keeps its callback storage alive until the reducer returns. Returning a value
+or inserting it into a container does not transfer ownership. The reducer must
+explicitly transfer any worker-owned storage it keeps, using the <code>move_to</code>
+operations. Untransferred storage is reclaimed by the worker.
+References can form cycles without changing this rule.</p>
+<p>With a <code>void</code> seed, the first result becomes the accumulator without a reducer
+call. Use that form only when the result survives worker cleanup independently.
+For worker-owned results, supply a seed and transfer storage in the reducer.
+<code>source.parallel_map_in(pool, callback, workers)</code> selects a borrowed
+String/List pool during callbacks. The caller keeps that pool and its ancestors
+alive until the fold finishes, including worker shutdown on failure. Workers
+restore their previous pool and never release the borrowed pool. Source
+traversal and the reducer continue in the caller’s active pool. A shared
+temporary pool can thus collect worker text while the reducer interns surviving
+words in the caller’s pool. All temporary canonical values remain until their
+owner releases the shared pool; concurrent interning uses the pool’s own locks.</p>
+<p>The ordinary <code>parallel_map</code> uses the process-wide pool.
+Canonical values use the shared pool; explicitly opened private pools retain
+their own lifetime rules. On failure, the fold requests stop on all workers
+before joining them. Channel waits cooperate; arbitrary native I/O does not.</p>
+<h2 id="where-to-go-next"><a class="header" href="#where-to-go-next">Where to go next</a></h2>
+<ul>
+<li><a href="storage-ownership.html">Explicit Storage Ownership</a> moves storage between
+owners and threads.</li>
+</ul>
 
                     </main>
+                    <script>
+                        // A generated page is edited through its generator.
+                        if ([...document.querySelector('#mdbook-content main').childNodes]
+                                .some(node => node.nodeType === Node.COMMENT_NODE &&
+                                      node.textContent.includes('Do not edit by hand'))) {
+                            document.querySelector('a[rel="edit"]')?.remove();
+                        }
+                    </script>
 
                     <nav class="x2c-pager" aria-label="Page navigation">
                         <a rel="prev" href="../guide/memory.html" class="x2c-pager-prev" aria-keyshortcuts="Left">
@@ -381,18 +567,18 @@ interned values with no lock protecting them.</p>
                             <span class="x2c-pager-title">Scopes and Lifetime</span>
                         </a>
                         
-                        <a rel="next prefetch" href="../guide/exceptions.html" class="x2c-pager-next" aria-keyshortcuts="Right">
+                        <a rel="next prefetch" href="../guide/storage-ownership.html" class="x2c-pager-next" aria-keyshortcuts="Right">
                             <span class="x2c-pager-label">next</span>
-                            <span class="x2c-pager-title">Exceptions and Cleanup</span>
+                            <span class="x2c-pager-title">Explicit Storage Ownership</span>
                         </a>
                     </nav>
                     <footer class="x2c-footer">
                         &copy; 2025&ndash;2026
                         <a href="https://flake.org">GWF</a>
                         &middot;
-                        <a href="https://github.com/gwf/x2c/blob/aa2b9b2575297711e5978acc53f87bd7f645f3c7/LICENSE">Apache 2.0</a>
+                        <a href="https://github.com/gwf/x2c/blob/2c5870d64d381a861054dae9927aa65adc87e9e0/LICENSE">Apache 2.0</a>
                         &middot;
-                        <a href="https://github.com/gwf/x2c/blob/aa2b9b2575297711e5978acc53f87bd7f645f3c7/TRADEMARKS.md">Trademarks</a>
+                        <a href="https://github.com/gwf/x2c/blob/2c5870d64d381a861054dae9927aa65adc87e9e0/TRADEMARKS.md">Trademarks</a>
                     </footer>
                 </div>
             </div>

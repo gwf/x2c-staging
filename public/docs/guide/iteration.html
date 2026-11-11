@@ -1,6 +1,6 @@
 <!DOCTYPE HTML>
 <html lang="en" class="light sidebar-visible" dir="ltr">
-    <head><meta name="x2c-release-channel" content="staging"><meta name="x2c-candidate" content="candidate-aa2b9b2575297711e5978acc53f87bd7f645f3c7-39090113132-1">
+    <head><meta name="x2c-release-channel" content="staging"><meta name="x2c-candidate" content="candidate-aa2b9b2575297711e5978acc53f87bd7f645f3c7-39090113132-1"><meta name="x2c-site-source" content="2c5870d64d381a861054dae9927aa65adc87e9e0"><meta name="robots" content="noindex">
         <!-- Book generated using mdBook -->
         <meta charset="UTF-8">
         <title>Iteration - The x2c Book</title>
@@ -30,7 +30,7 @@
         <link rel="stylesheet" id="mdbook-ayu-highlight-css" href="../ayu-highlight-3fdfc3ac.css">
 
         <!-- Custom theme stylesheets -->
-        <link rel="stylesheet" href="../theme/header-f6c12aed.css">
+        <link rel="stylesheet" href="../theme/header-b540a03f.css">
         <link rel="stylesheet" href="../theme/x2c-fd3d182e.css">
 
 
@@ -39,12 +39,12 @@
             const path_to_root = "../";
             const default_light_theme = "light";
             const default_dark_theme = "light";
-            window.path_to_searchindex_js = "../searchindex-f4d06db2.js";
+            window.path_to_searchindex_js = "../searchindex-a3bdfad5.js";
         </script>
         <!-- Start loading toc.js asap -->
-        <script src="../toc-00ae7479.js"></script>
+        <script src="../toc-2248e0f3.js"></script>
         <!-- x2c publication metadata -->
-        <link rel="canonical" href="https://staging.x2c-lang.dev/docs/guide/iteration.html">
+        <link rel="canonical" href="https://x2c-lang.dev/docs/guide/iteration.html">
         <meta property="og:type" content="website">
         <meta property="og:title" content="Iteration - The x2c Book">
         <meta property="og:description" content="The x2c language, standard library, and compiler.">
@@ -143,16 +143,12 @@
                             <button class="landing-tagline menu-title" type="button" title="Scroll to top">The x2c Book</button>
                         </div>
                         <nav class="landing-nav" aria-label="x2c website">
-                            <div class="landing-page-nav">
-                                <a href="../../#love">love</a>
-                                <a href="../../#power">power</a>
-                                <a href="../../#magic">magic</a>
-                            </div>
                             <div class="landing-site-nav">
                                 <a href="../../#install">install</a>
                                 <a href="../../#packages">packages</a>
                             </div>
                             <div class="landing-reference-nav">
+                                <a href="../../examples/">examples</a>
                                 <a href="../../about/">about</a>
                                 <a href="../" aria-current="page">docs</a>
                                 <a href="https://github.com/gwf/x2c">source</a>
@@ -219,14 +215,13 @@
                 <div id="mdbook-content" class="content">
                     <main>
                         <h1 id="iteration"><a class="header" href="#iteration">Iteration</a></h1>
-<p><span class="x2c-wordmark">x2c</span> has two ways to walk a collection. <code>foreach(T name, collection)</code> is the
-short form and covers most cases. <code>Iter</code> chains combine operations that process
+<p><span class="x2c-wordmark">x2c</span> has two ways to walk a collection. <code>foreach(T name in collection)</code> covers
+most cases. <code>Iter</code> chains combine operations that process
 one element at a time, then collect, aggregate, or loop over the result.</p>
-<p>At runtime, an immediately consumed chain uses caller stack storage for every
-stage. Name that storage yourself when the iterator has to stay live between
-expressions. In a meta function, the destination-free form allocates iterator
-state in the compile-time session <code>Scope</code>. The
-<a href="#the-storage-convention">storage convention</a> covers the runtime forms.</p>
+<p>An immediately consumed chain uses caller stack storage for every stage.
+Name that storage yourself when the iterator has to stay live between
+expressions. A <code>meta</code> function body compiles the same way. The
+<a href="#the-storage-convention">storage convention</a> gives the rules.</p>
 <p><a href="../reference/language.html">The language reference</a> states the <code>foreach</code> rules,
 and the <a href="../library/overview.html">standard library overview</a> links to every
 iterator operation.</p>
@@ -234,7 +229,7 @@ iterator operation.</p>
 <p>The loop header declares the loop variable and gives the collection:</p>
 <pre class="shiki shiki-themes x2c-light x2c-dark x2c-code" style="--shiki-light:#24292e;--shiki-dark:#e9e5df;--shiki-light-bg:#fff;--shiki-dark-bg:#101011" tabindex="0"><code class="language-x2c no-highlight"><span class="line"><span style="--shiki-light:#007C8A;--shiki-dark:#29D3E2">List</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF"> values </span><span style="--shiki-light:#D73A49;--shiki-dark:#E9E5DF">=</span><span style="--shiki-light:#A626A4;--shiki-light-font-weight:bold;--shiki-dark:#FF4FD8;--shiki-dark-font-weight:bold"> %(</span><span style="--shiki-light:#005CC5;--shiki-dark:#A9C9F5">10</span><span style="--shiki-light:#005CC5;--shiki-dark:#A9C9F5"> 20</span><span style="--shiki-light:#005CC5;--shiki-dark:#A9C9F5"> 30</span><span style="--shiki-light:#A626A4;--shiki-light-font-weight:bold;--shiki-dark:#FF4FD8;--shiki-dark-font-weight:bold">)</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">;</span>
 </span><span class="line"><span style="--shiki-light:#D73A49;--shiki-dark:#F0ADA1">int</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF"> total </span><span style="--shiki-light:#D73A49;--shiki-dark:#E9E5DF">=</span><span style="--shiki-light:#005CC5;--shiki-dark:#A9C9F5"> 0</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">;</span>
-</span><span class="line"><span style="--shiki-light:#A626A4;--shiki-light-font-weight:bold;--shiki-dark:#FF4FD8;--shiki-dark-font-weight:bold">foreach</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">(</span><span style="--shiki-light:#D73A49;--shiki-dark:#F0ADA1">int</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF"> value, values)</span>
+</span><span class="line"><span style="--shiki-light:#A626A4;--shiki-light-font-weight:bold;--shiki-dark:#FF4FD8;--shiki-dark-font-weight:bold">foreach</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">(</span><span style="--shiki-light:#D73A49;--shiki-dark:#F0ADA1">int</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF"> value </span><span style="--shiki-light:#A626A4;--shiki-light-font-weight:bold;--shiki-dark:#FF4FD8;--shiki-dark-font-weight:bold">in</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF"> values)</span>
 </span><span class="line"><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">  total </span><span style="--shiki-light:#D73A49;--shiki-dark:#E9E5DF">+=</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF"> value;</span>
 </span><span class="line"><span style="--shiki-light:#6F42C1;--shiki-dark:#E9E5DF">printf</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">(</span><span style="--shiki-light:#032F62;--shiki-dark:#9EDFB8">"total = </span><span style="--shiki-light:#005CC5;--shiki-dark:#9EDFB8">%d\n</span><span style="--shiki-light:#032F62;--shiki-dark:#9EDFB8">"</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">, total);</span></span></code></pre>
 
@@ -249,20 +244,26 @@ hand-rolled <code>cdr</code> walk, which pays a <code>car</code> and a <code>cdr
 <p><code>List</code>, <code>Array</code>, <code>Map</code>, and <code>String</code> each provide an iterator adapter in their
 own module, so all four work directly:</p>
 <pre class="shiki shiki-themes x2c-light x2c-dark x2c-code" style="--shiki-light:#24292e;--shiki-dark:#e9e5df;--shiki-light-bg:#fff;--shiki-dark-bg:#101011" tabindex="0"><code class="language-x2c no-highlight"><span class="line"><span style="--shiki-light:#007C8A;--shiki-dark:#29D3E2">Array</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF"> scores </span><span style="--shiki-light:#D73A49;--shiki-dark:#E9E5DF">=</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF"> [</span><span style="--shiki-light:#005CC5;--shiki-dark:#A9C9F5">3</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">, </span><span style="--shiki-light:#005CC5;--shiki-dark:#A9C9F5">4</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">, </span><span style="--shiki-light:#005CC5;--shiki-dark:#A9C9F5">5</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">];</span>
-</span><span class="line"><span style="--shiki-light:#A626A4;--shiki-light-font-weight:bold;--shiki-dark:#FF4FD8;--shiki-dark-font-weight:bold">foreach</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">(</span><span style="--shiki-light:#D73A49;--shiki-dark:#F0ADA1">int</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF"> score, scores)</span>
+</span><span class="line"><span style="--shiki-light:#A626A4;--shiki-light-font-weight:bold;--shiki-dark:#FF4FD8;--shiki-dark-font-weight:bold">foreach</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">(</span><span style="--shiki-light:#D73A49;--shiki-dark:#F0ADA1">int</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF"> score </span><span style="--shiki-light:#A626A4;--shiki-light-font-weight:bold;--shiki-dark:#FF4FD8;--shiki-dark-font-weight:bold">in</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF"> scores)</span>
 </span><span class="line"><span style="--shiki-light:#6F42C1;--shiki-dark:#E9E5DF">  printf</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">(</span><span style="--shiki-light:#032F62;--shiki-dark:#9EDFB8">"score = </span><span style="--shiki-light:#005CC5;--shiki-dark:#9EDFB8">%d\n</span><span style="--shiki-light:#032F62;--shiki-dark:#9EDFB8">"</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">, score);</span>
 </span><span class="line">
 </span><span class="line"><span style="--shiki-light:#007C8A;--shiki-dark:#29D3E2">Map</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF"> ages </span><span style="--shiki-light:#D73A49;--shiki-dark:#E9E5DF">=</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF"> {</span><span style="--shiki-light:#032F62;--shiki-dark:#9EDFB8">"ada"</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">: </span><span style="--shiki-light:#005CC5;--shiki-dark:#A9C9F5">36</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">, </span><span style="--shiki-light:#032F62;--shiki-dark:#9EDFB8">"alan"</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">: </span><span style="--shiki-light:#005CC5;--shiki-dark:#A9C9F5">41</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">};</span>
-</span><span class="line"><span style="--shiki-light:#A626A4;--shiki-light-font-weight:bold;--shiki-dark:#FF4FD8;--shiki-dark-font-weight:bold">foreach</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">(</span><span style="--shiki-light:#007C8A;--shiki-dark:#29D3E2">Var</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF"> (name, age), ages)</span>
-</span><span class="line"><span style="--shiki-light:#6F42C1;--shiki-dark:#E9E5DF">  printf</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">(</span><span style="--shiki-light:#032F62;--shiki-dark:#9EDFB8">"</span><span style="--shiki-light:#005CC5;--shiki-dark:#9EDFB8">%s</span><span style="--shiki-light:#032F62;--shiki-dark:#9EDFB8"> is </span><span style="--shiki-light:#005CC5;--shiki-dark:#9EDFB8">%d\n</span><span style="--shiki-light:#032F62;--shiki-dark:#9EDFB8">"</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">, name, age.</span><span style="--shiki-light:#D73A49;--shiki-dark:#F0ADA1">int</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">());</span>
+</span><span class="line"><span style="--shiki-light:#A626A4;--shiki-light-font-weight:bold;--shiki-dark:#FF4FD8;--shiki-dark-font-weight:bold">foreach</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF"> ((</span><span style="--shiki-light:#007C8A;--shiki-dark:#29D3E2">String</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF"> name, </span><span style="--shiki-light:#D73A49;--shiki-dark:#F0ADA1">int</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF"> age) </span><span style="--shiki-light:#A626A4;--shiki-light-font-weight:bold;--shiki-dark:#FF4FD8;--shiki-dark-font-weight:bold">in</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF"> ages)</span>
+</span><span class="line"><span style="--shiki-light:#6F42C1;--shiki-dark:#E9E5DF">  printf</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">(</span><span style="--shiki-light:#032F62;--shiki-dark:#9EDFB8">"</span><span style="--shiki-light:#005CC5;--shiki-dark:#9EDFB8">%s</span><span style="--shiki-light:#032F62;--shiki-dark:#9EDFB8"> is </span><span style="--shiki-light:#005CC5;--shiki-dark:#9EDFB8">%d\n</span><span style="--shiki-light:#032F62;--shiki-dark:#9EDFB8">"</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">, name, age);</span>
 </span><span class="line">
 </span><span class="line"><span style="--shiki-light:#007C8A;--shiki-dark:#29D3E2">String</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF"> word </span><span style="--shiki-light:#D73A49;--shiki-dark:#E9E5DF">=</span><span style="--shiki-light:#032F62;--shiki-dark:#9EDFB8"> "hi"</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">;</span>
-</span><span class="line"><span style="--shiki-light:#A626A4;--shiki-light-font-weight:bold;--shiki-dark:#FF4FD8;--shiki-dark-font-weight:bold">foreach</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">(</span><span style="--shiki-light:#D73A49;--shiki-dark:#F0ADA1">int</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF"> ch, word)</span>
+</span><span class="line"><span style="--shiki-light:#A626A4;--shiki-light-font-weight:bold;--shiki-dark:#FF4FD8;--shiki-dark-font-weight:bold">foreach</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">(</span><span style="--shiki-light:#D73A49;--shiki-dark:#F0ADA1">int</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF"> ch </span><span style="--shiki-light:#A626A4;--shiki-light-font-weight:bold;--shiki-dark:#FF4FD8;--shiki-dark-font-weight:bold">in</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF"> word)</span>
 </span><span class="line"><span style="--shiki-light:#6F42C1;--shiki-dark:#E9E5DF">  printf</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">(</span><span style="--shiki-light:#032F62;--shiki-dark:#9EDFB8">"char = </span><span style="--shiki-light:#005CC5;--shiki-dark:#9EDFB8">%c\n</span><span style="--shiki-light:#032F62;--shiki-dark:#9EDFB8">"</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">, ch);</span>
 </span><span class="line">
-</span><span class="line"><span style="--shiki-light:#A626A4;--shiki-light-font-weight:bold;--shiki-dark:#FF4FD8;--shiki-dark-font-weight:bold">foreach</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">(</span><span style="--shiki-light:#D73A49;--shiki-dark:#F0ADA1">char</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF"> ch, word)</span>
+</span><span class="line"><span style="--shiki-light:#A626A4;--shiki-light-font-weight:bold;--shiki-dark:#FF4FD8;--shiki-dark-font-weight:bold">foreach</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">(</span><span style="--shiki-light:#D73A49;--shiki-dark:#F0ADA1">char</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF"> ch </span><span style="--shiki-light:#A626A4;--shiki-light-font-weight:bold;--shiki-dark:#FF4FD8;--shiki-dark-font-weight:bold">in</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF"> word)</span>
 </span><span class="line"><span style="--shiki-light:#6F42C1;--shiki-dark:#E9E5DF">  printf</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">(</span><span style="--shiki-light:#032F62;--shiki-dark:#9EDFB8">"char = </span><span style="--shiki-light:#005CC5;--shiki-dark:#9EDFB8">%c\n</span><span style="--shiki-light:#032F62;--shiki-dark:#9EDFB8">"</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">, ch);</span></span></code></pre>
 
+<p>Parenthesize declarations to give each loop binding its own type, as in
+<code>foreach ((String name, int age) in ages)</code>. The shared-type form
+<code>foreach (Var (name, age) in ages)</code> remains available. Native cursors assign
+each output directly to its declared type; iterator outputs use the ordinary
+<code>Var</code> conversions. For example, <code>foreach ((Substr word, int count) in counts)</code>
+can traverse a <code>MapSubInt</code> without boxing keys or allocating an iterator.</p>
 <p>A <code>Map</code> yields its values, like every other collection. Two binders yield
 the key as well; with native loop types the loop does not allocate. For an
 iterator, <code>map.iter(&amp;storage)</code> yields the values, <code>map.keys(&amp;storage)</code>
@@ -284,16 +285,42 @@ variable as <code>int</code> when the byte is used numerically, or as <code>char
 passed to a character-oriented C API. Both forms traverse bytes, and neither
 decodes Unicode characters.</p>
 <h3 id="lazy-string-fields"><a class="header" href="#lazy-string-fields">Lazy String fields</a></h3>
+<p>For word counting without constructing a String for every word, include
+<code>substring.x</code> and request a <code>Substr</code> binding:</p>
+<pre class="shiki shiki-themes x2c-light x2c-dark x2c-code" style="--shiki-light:#24292e;--shiki-dark:#e9e5df;--shiki-light-bg:#fff;--shiki-dark-bg:#101011" tabindex="0"><code class="language-x2c no-highlight"><span class="line"><span style="--shiki-light:#D73A49;--shiki-dark:#F0ADA1">#include</span><span style="--shiki-light:#032F62;--shiki-dark:#9EDFB8"> "substring.x"</span>
+</span><span class="line boring"><span style="--shiki-light:#D73A49;--shiki-dark:#F0ADA1">int</span><span style="--shiki-light:#6F42C1;--shiki-dark:#E9E5DF"> main</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">(</span><span style="--shiki-light:#D73A49;--shiki-dark:#F0ADA1">void</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">) {</span>
+</span><span class="line"><span style="--shiki-light:#007C8A;--shiki-dark:#29D3E2">String</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF"> text </span><span style="--shiki-light:#D73A49;--shiki-dark:#E9E5DF">=</span><span style="--shiki-light:#032F62;--shiki-dark:#9EDFB8"> "one two one"</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">;</span>
+</span><span class="line"><span style="--shiki-light:#A626A4;--shiki-light-font-weight:bold;--shiki-dark:#FF4FD8;--shiki-dark-font-weight:bold">foreach</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF"> (Substr word </span><span style="--shiki-light:#A626A4;--shiki-light-font-weight:bold;--shiki-dark:#FF4FD8;--shiki-dark-font-weight:bold">in</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF"> text)</span>
+</span><span class="line"><span style="--shiki-light:#6F42C1;--shiki-dark:#E9E5DF">  printf</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">(</span><span style="--shiki-light:#032F62;--shiki-dark:#9EDFB8">"</span><span style="--shiki-light:#005CC5;--shiki-dark:#9EDFB8">%s\n</span><span style="--shiki-light:#032F62;--shiki-dark:#9EDFB8">"</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">, word.</span><span style="--shiki-light:#6F42C1;--shiki-dark:#E9E5DF">str</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">());</span>
+</span><span class="line boring"><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">}</span></span></code></pre>
+
+<p><code>Substr</code> is an alias for <code>Substring</code>, an immutable borrowed view with a source
+String, byte offset, and byte length. Iteration coalesces C whitespace and
+yields no empty words. The cursor and each view allocate nothing; keep the
+source String and its owning pool alive through every use of a view.</p>
+<p><code>text.substring(offset, length)</code> constructs a checked view. Negative or
+out-of-range spans raise <code>bad-arg</code>; an empty span at the end is valid.
+<code>len()</code>, <code>hash()</code>, <code>equal()</code>, and <code>compare()</code> operate on the borrowed bytes.
+Equal contents have equal hashes even when their sources or offsets differ.
+<code>.str()</code> and <code>.string()</code> materialize the same canonical String in the active
+pool chain. The result follows its actual pool’s lifetime; export it before
+closing that pool if it must survive.</p>
+<p><code>substring-map.x</code> provides <code>MapSubInt</code> for native occurrence counts. Its keys
+borrow their source Strings until cleanup; explicit Context export preserves
+those sources. <code>MapStringInt.add_substr(view, count)</code> instead retains String
+keys: it compares the view’s bytes on lookup and converts only missing keys.
+As with other mutable Maps, callers coordinate concurrent access. Neither
+operation changes the source String’s ownership.</p>
 <p><code>String</code> provides three ways to iterate over fields without first building a
 <code>List</code>:</p>
 <pre class="shiki shiki-themes x2c-light x2c-dark x2c-code" style="--shiki-light:#24292e;--shiki-dark:#e9e5df;--shiki-light-bg:#fff;--shiki-dark-bg:#101011" tabindex="0"><code class="language-x2c no-highlight"><span class="line boring"><span style="--shiki-light:#007C8A;--shiki-dark:#29D3E2">String</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF"> text </span><span style="--shiki-light:#D73A49;--shiki-dark:#E9E5DF">=</span><span style="--shiki-light:#032F62;--shiki-dark:#9EDFB8"> "one two</span><span style="--shiki-light:#005CC5;--shiki-dark:#9EDFB8">\n</span><span style="--shiki-light:#032F62;--shiki-dark:#9EDFB8">three:four"</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">;</span>
-</span><span class="line"><span style="--shiki-light:#A626A4;--shiki-light-font-weight:bold;--shiki-dark:#FF4FD8;--shiki-dark-font-weight:bold">foreach</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">(</span><span style="--shiki-light:#007C8A;--shiki-dark:#29D3E2">String</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF"> word, text.</span><span style="--shiki-light:#6F42C1;--shiki-dark:#E9E5DF">words</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">())</span>
+</span><span class="line"><span style="--shiki-light:#A626A4;--shiki-light-font-weight:bold;--shiki-dark:#FF4FD8;--shiki-dark-font-weight:bold">foreach</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">(</span><span style="--shiki-light:#007C8A;--shiki-dark:#29D3E2">String</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF"> word </span><span style="--shiki-light:#A626A4;--shiki-light-font-weight:bold;--shiki-dark:#FF4FD8;--shiki-dark-font-weight:bold">in</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF"> text.</span><span style="--shiki-light:#6F42C1;--shiki-dark:#E9E5DF">words</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">())</span>
 </span><span class="line"><span style="--shiki-light:#6F42C1;--shiki-dark:#E9E5DF">  printf</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">(</span><span style="--shiki-light:#032F62;--shiki-dark:#9EDFB8">"word=</span><span style="--shiki-light:#005CC5;--shiki-dark:#9EDFB8">%s\n</span><span style="--shiki-light:#032F62;--shiki-dark:#9EDFB8">"</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">, word);</span>
 </span><span class="line">
-</span><span class="line"><span style="--shiki-light:#A626A4;--shiki-light-font-weight:bold;--shiki-dark:#FF4FD8;--shiki-dark-font-weight:bold">foreach</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">(</span><span style="--shiki-light:#007C8A;--shiki-dark:#29D3E2">String</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF"> line, text.</span><span style="--shiki-light:#6F42C1;--shiki-dark:#E9E5DF">lines</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">())</span>
+</span><span class="line"><span style="--shiki-light:#A626A4;--shiki-light-font-weight:bold;--shiki-dark:#FF4FD8;--shiki-dark-font-weight:bold">foreach</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">(</span><span style="--shiki-light:#007C8A;--shiki-dark:#29D3E2">String</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF"> line </span><span style="--shiki-light:#A626A4;--shiki-light-font-weight:bold;--shiki-dark:#FF4FD8;--shiki-dark-font-weight:bold">in</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF"> text.</span><span style="--shiki-light:#6F42C1;--shiki-dark:#E9E5DF">lines</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">())</span>
 </span><span class="line"><span style="--shiki-light:#6F42C1;--shiki-dark:#E9E5DF">  printf</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">(</span><span style="--shiki-light:#032F62;--shiki-dark:#9EDFB8">"line=</span><span style="--shiki-light:#005CC5;--shiki-dark:#9EDFB8">%s\n</span><span style="--shiki-light:#032F62;--shiki-dark:#9EDFB8">"</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">, line);</span>
 </span><span class="line">
-</span><span class="line"><span style="--shiki-light:#A626A4;--shiki-light-font-weight:bold;--shiki-dark:#FF4FD8;--shiki-dark-font-weight:bold">foreach</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">(</span><span style="--shiki-light:#007C8A;--shiki-dark:#29D3E2">String</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF"> field, text.</span><span style="--shiki-light:#6F42C1;--shiki-dark:#E9E5DF">splits</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">(</span><span style="--shiki-light:#032F62;--shiki-dark:#9EDFB8">":"</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">))</span>
+</span><span class="line"><span style="--shiki-light:#A626A4;--shiki-light-font-weight:bold;--shiki-dark:#FF4FD8;--shiki-dark-font-weight:bold">foreach</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">(</span><span style="--shiki-light:#007C8A;--shiki-dark:#29D3E2">String</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF"> field </span><span style="--shiki-light:#A626A4;--shiki-light-font-weight:bold;--shiki-dark:#FF4FD8;--shiki-dark-font-weight:bold">in</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF"> text.</span><span style="--shiki-light:#6F42C1;--shiki-dark:#E9E5DF">splits</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">(</span><span style="--shiki-light:#032F62;--shiki-dark:#9EDFB8">":"</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">))</span>
 </span><span class="line"><span style="--shiki-light:#6F42C1;--shiki-dark:#E9E5DF">  printf</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">(</span><span style="--shiki-light:#032F62;--shiki-dark:#9EDFB8">"field=</span><span style="--shiki-light:#005CC5;--shiki-dark:#9EDFB8">%s\n</span><span style="--shiki-light:#032F62;--shiki-dark:#9EDFB8">"</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">, field);</span></span></code></pre>
 
 <p><code>words()</code> coalesces runs of C whitespace, ignores leading and trailing
@@ -311,7 +338,7 @@ that must survive.</p>
 <p>A <code>Var</code> is iterated through its descriptor, so a boxed <code>List</code> or <code>Array</code>
 iterates the way the unboxed value does. A boxed value with no iterator
 adapter produces an already-exhausted iterator, and the loop body runs zero
-times. A receiver with a statically known type must have a visible <code>Iter</code>
+times. A receiver without a matching native cursor must have a visible <code>Iter</code>
 conformance, from its own adoption or from the nearest typedef ancestor.
 <code>typedef List Ast;</code> lets <code>foreach</code> over <code>Ast</code> reuse <code>List</code>’s conformance
 without <code>protocol Iter(Ast);</code>. A type with neither is rejected as not
@@ -321,7 +348,7 @@ That combination appears at the end of this chapter.</p>
 <h3 id="what-the-loop-variables-type-means"><a class="header" href="#what-the-loop-variables-type-means">What the loop variable’s type means</a></h3>
 <p>The general <code>Iter</code> path yields a <code>Var</code>. The declared loop type selects the
 conversion applied to each element as it arrives. It does not filter the
-elements. <code>foreach(int value, values)</code> means “unbox each element with
+elements. <code>foreach(int value in values)</code> means “unbox each element with
 <code>Var.int</code>” on that path. Cursor-backed collections deliver their typed outputs
 directly.</p>
 <p>The conversions available for a loop variable are the <code>Var</code> conversions:
@@ -329,17 +356,29 @@ directly.</p>
 <code>String</code>, <code>Symbol</code>, <code>List</code>, <code>Array</code>, and <code>Map</code>. Declaring the loop variable
 as <code>Var</code> applies no conversion. Do that when the element type varies or when
 the body dispatches on the tag:</p>
-<pre class="shiki shiki-themes x2c-light x2c-dark x2c-code" style="--shiki-light:#24292e;--shiki-dark:#e9e5df;--shiki-light-bg:#fff;--shiki-dark-bg:#101011" tabindex="0"><code class="language-x2c no-highlight"><span class="line boring"><span style="--shiki-light:#007C8A;--shiki-dark:#29D3E2">List</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF"> values </span><span style="--shiki-light:#D73A49;--shiki-dark:#E9E5DF">=</span><span style="--shiki-light:#A626A4;--shiki-light-font-weight:bold;--shiki-dark:#FF4FD8;--shiki-dark-font-weight:bold"> %(</span><span style="--shiki-light:#005CC5;--shiki-dark:#A9C9F5">1</span><span style="--shiki-light:#005CC5;--shiki-dark:#A9C9F5"> 2</span><span style="--shiki-light:#005CC5;--shiki-dark:#A9C9F5"> 3</span><span style="--shiki-light:#A626A4;--shiki-light-font-weight:bold;--shiki-dark:#FF4FD8;--shiki-dark-font-weight:bold">)</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">;</span>
-</span><span class="line"><span style="--shiki-light:#A626A4;--shiki-light-font-weight:bold;--shiki-dark:#FF4FD8;--shiki-dark-font-weight:bold">foreach</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">(</span><span style="--shiki-light:#007C8A;--shiki-dark:#29D3E2">Var</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF"> item, values)</span>
+<pre class="shiki shiki-themes x2c-light x2c-dark x2c-code" style="--shiki-light:#24292e;--shiki-dark:#e9e5df;--shiki-light-bg:#fff;--shiki-dark-bg:#101011" tabindex="0"><code class="language-x2c no-highlight"><span class="line boring"><span style="--shiki-light:#007C8A;--shiki-dark:#29D3E2">List</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF"> values </span><span style="--shiki-light:#D73A49;--shiki-dark:#E9E5DF">=</span><span style="--shiki-light:#A626A4;--shiki-light-font-weight:bold;--shiki-dark:#FF4FD8;--shiki-dark-font-weight:bold"> %(</span><span style="--shiki-light:#005CC5;--shiki-dark:#A9C9F5">1</span><span style="--shiki-light:#A626A4;--shiki-light-font-weight:bold;--shiki-dark:#FF4FD8;--shiki-dark-font-weight:bold"> "</span><span style="--shiki-light:#032F62;--shiki-dark:#9EDFB8">two</span><span style="--shiki-light:#A626A4;--shiki-light-font-weight:bold;--shiki-dark:#FF4FD8;--shiki-dark-font-weight:bold">"</span><span style="--shiki-light:#005CC5;--shiki-dark:#E9E5DF"> three</span><span style="--shiki-light:#A626A4;--shiki-light-font-weight:bold;--shiki-dark:#FF4FD8;--shiki-dark-font-weight:bold">)</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">;</span>
+</span><span class="line"><span style="--shiki-light:#A626A4;--shiki-light-font-weight:bold;--shiki-dark:#FF4FD8;--shiki-dark-font-weight:bold">foreach</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">(</span><span style="--shiki-light:#007C8A;--shiki-dark:#29D3E2">Var</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF"> item </span><span style="--shiki-light:#A626A4;--shiki-light-font-weight:bold;--shiki-dark:#FF4FD8;--shiki-dark-font-weight:bold">in</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF"> values)</span>
 </span><span class="line"><span style="--shiki-light:#6F42C1;--shiki-dark:#E9E5DF">  printf</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">(</span><span style="--shiki-light:#032F62;--shiki-dark:#9EDFB8">"</span><span style="--shiki-light:#005CC5;--shiki-dark:#9EDFB8">%s\n</span><span style="--shiki-light:#032F62;--shiki-dark:#9EDFB8">"</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">, item);</span></span></code></pre>
 
 <p>If you declare a loop type that has no <code>Var</code> conversion, such as one of your
-own structs, <span class="x2c-wordmark">x2c</span> still translates the loop, and the C compiler reports an
-incompatible assignment to the loop variable. When that happens, pick a
-converting type or take a <code>Var</code> and convert in the body.</p>
+own structs, the loop does not compile. For a typedef name, <span class="x2c-wordmark">x2c</span> reports that
+it cannot convert <code>Var</code> to that type. For a <code>struct</code> tag, the C compiler
+reports an incompatible assignment to the loop variable. Pick a converting
+type, or take a <code>Var</code> and convert in the body.</p>
 <h3 id="what-foreach-guarantees"><a class="header" href="#what-foreach-guarantees">What foreach guarantees</a></h3>
-<p>The collection expression’s static type selects the traversal.
-Cursor-backed collections use their typed <code>try_next</code> member. A <code>Var</code>
+<p>For a statically typed collection other than <code>Iter</code>, the declared loop type
+can supply a native cursor. Foreach first looks for that type’s <code>try_next</code>
+method. Its first parameter must match the collection type. The output
+assigned to the last loop binding must match that binding’s type. A single
+binding receives the final output; two bindings receive the first two
+outputs. Ordinary member lookup follows typedef aliases. The cursor must be
+integral or have the collection’s own type, as with collection-owned
+cursors. A matching cursor needs no <code>Iter</code> adoption.</p>
+<p>For example, <code>foreach (Substr word in text)</code> uses the prototype
+<code>Substring.try_next(String, int &amp;, Substring &amp;)</code> declared in <code>substring.x</code>.
+It yields borrowed word views without constructing canonical Strings.</p>
+<p>If no element-owned cursor matches, foreach uses the collection’s
+<code>try_next</code> member, then its <code>Iter</code> conversion. A <code>Var</code>
 dispatches through its runtime descriptor, and an <code>Iter</code> is used as it
 stands. Foreach keeps the traversal state in local variables and converts
 each output to the declared loop type, so the loop itself allocates nothing
@@ -389,7 +428,7 @@ and the receiver is the storage:</p>
 </span><span class="line boring"><span style="--shiki-light:#D73A49;--shiki-dark:#F0ADA1">int</span><span style="--shiki-light:#6F42C1;--shiki-dark:#E9E5DF"> main</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">(</span><span style="--shiki-light:#D73A49;--shiki-dark:#F0ADA1">void</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">) {</span>
 </span><span class="line"><span style="--shiki-light:#D73A49;--shiki-dark:#F0ADA1">struct</span><span style="--shiki-light:#007C8A;--shiki-dark:#29D3E2"> Iter</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF"> storage;</span>
 </span><span class="line"><span style="--shiki-light:#007C8A;--shiki-dark:#29D3E2">Iter</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF"> powers </span><span style="--shiki-light:#D73A49;--shiki-dark:#E9E5DF">=</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF"> Iter.</span><span style="--shiki-light:#6F42C1;--shiki-dark:#E9E5DF">init</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">(</span><span style="--shiki-light:#D73A49;--shiki-dark:#E9E5DF">&amp;</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">storage, </span><span style="--shiki-light:#005CC5;--shiki-dark:#A9C9F5">64</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">, _powers_next, </span><span style="--shiki-light:#005CC5;--shiki-dark:#A9C9F5">1</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">);</span>
-</span><span class="line"><span style="--shiki-light:#A626A4;--shiki-light-font-weight:bold;--shiki-dark:#FF4FD8;--shiki-dark-font-weight:bold">foreach</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">(</span><span style="--shiki-light:#D73A49;--shiki-dark:#F0ADA1">int</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF"> value, powers)</span>
+</span><span class="line"><span style="--shiki-light:#A626A4;--shiki-light-font-weight:bold;--shiki-dark:#FF4FD8;--shiki-dark-font-weight:bold">foreach</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">(</span><span style="--shiki-light:#D73A49;--shiki-dark:#F0ADA1">int</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF"> value </span><span style="--shiki-light:#A626A4;--shiki-light-font-weight:bold;--shiki-dark:#FF4FD8;--shiki-dark-font-weight:bold">in</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF"> powers)</span>
 </span><span class="line"><span style="--shiki-light:#6F42C1;--shiki-dark:#E9E5DF">  printf</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">(</span><span style="--shiki-light:#032F62;--shiki-dark:#9EDFB8">"</span><span style="--shiki-light:#005CC5;--shiki-dark:#9EDFB8">%d\n</span><span style="--shiki-light:#032F62;--shiki-dark:#9EDFB8">"</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">, value);</span>
 </span><span class="line boring"><span style="--shiki-light:#D73A49;--shiki-dark:#F0ADA1">  return</span><span style="--shiki-light:#005CC5;--shiki-dark:#A9C9F5"> 0</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">;</span>
 </span><span class="line boring"><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">}</span></span></code></pre>
@@ -413,11 +452,11 @@ immediately:</p>
 </span><span class="line"><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">}</span>
 </span><span class="line">
 </span><span class="line"><span style="--shiki-light:#D73A49;--shiki-dark:#F0ADA1">int</span><span style="--shiki-light:#6F42C1;--shiki-dark:#E9E5DF"> main</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">(</span><span style="--shiki-light:#D73A49;--shiki-dark:#F0ADA1">void</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">) {</span>
-</span><span class="line"><span style="--shiki-light:#A626A4;--shiki-light-font-weight:bold;--shiki-dark:#FF4FD8;--shiki-dark-font-weight:bold">  $</span><span style="--shiki-light:#005CC5;--shiki-dark:#E9E5DF">scope</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">() {</span>
+</span><span class="line"><span style="--shiki-light:#D73A49;--shiki-dark:#F0ADA1">  auto</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF"> {</span>
 </span><span class="line"><span style="--shiki-light:#007C8A;--shiki-dark:#29D3E2">    Array</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF"> values </span><span style="--shiki-light:#D73A49;--shiki-dark:#E9E5DF">=</span><span style="--shiki-light:#6F42C1;--shiki-dark:#E9E5DF"> range</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">(</span><span style="--shiki-light:#005CC5;--shiki-dark:#A9C9F5">1</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">, </span><span style="--shiki-light:#005CC5;--shiki-dark:#A9C9F5">8</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">, </span><span style="--shiki-light:#005CC5;--shiki-dark:#A9C9F5">1</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">)</span>
 </span><span class="line"><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">      .</span><span style="--shiki-light:#6F42C1;--shiki-dark:#E9E5DF">map</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">(double_value)</span>
 </span><span class="line"><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">      .</span><span style="--shiki-light:#6F42C1;--shiki-dark:#E9E5DF">filter</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">(divisible_by_four);</span>
-</span><span class="line"><span style="--shiki-light:#A626A4;--shiki-light-font-weight:bold;--shiki-dark:#FF4FD8;--shiki-dark-font-weight:bold">    foreach</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">(</span><span style="--shiki-light:#D73A49;--shiki-dark:#F0ADA1">int</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF"> value, values)</span>
+</span><span class="line"><span style="--shiki-light:#A626A4;--shiki-light-font-weight:bold;--shiki-dark:#FF4FD8;--shiki-dark-font-weight:bold">    foreach</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">(</span><span style="--shiki-light:#D73A49;--shiki-dark:#F0ADA1">int</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF"> value </span><span style="--shiki-light:#A626A4;--shiki-light-font-weight:bold;--shiki-dark:#FF4FD8;--shiki-dark-font-weight:bold">in</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF"> values)</span>
 </span><span class="line"><span style="--shiki-light:#6F42C1;--shiki-dark:#E9E5DF">      printf</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">(</span><span style="--shiki-light:#032F62;--shiki-dark:#9EDFB8">"</span><span style="--shiki-light:#005CC5;--shiki-dark:#9EDFB8">%d\n</span><span style="--shiki-light:#032F62;--shiki-dark:#9EDFB8">"</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">, value);</span>
 </span><span class="line"><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">  }</span>
 </span><span class="line"><span style="--shiki-light:#D73A49;--shiki-dark:#F0ADA1">  return</span><span style="--shiki-light:#005CC5;--shiki-dark:#A9C9F5"> 0</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">;</span>
@@ -426,10 +465,11 @@ immediately:</p>
 <p><span class="x2c-wordmark">x2c</span> inserts a distinct <code>struct Iter</code> compound literal for each missing final
 destination. Those objects have automatic storage and remain alive through
 the enclosing block. Completion applies only when the chain ends in
-<code>try_next</code>, <code>next</code>, <code>done</code>, <code>list</code>, <code>array</code>, <code>foldl</code>, <code>any</code>, <code>all</code>, <code>find</code>,
-<code>count</code>, <code>sum</code>, <code>product</code>, <code>min</code>, <code>max</code>, or <code>foreach</code>. A <code>List</code> or <code>Array</code>
-destination ends the chain the same way: it calls <code>list</code> or <code>array</code> for you,
-which is why the chain above needs no explicit collector.</p>
+<code>try_next</code>, <code>next</code>, <code>list</code>, <code>array</code>, <code>foldl</code>, <code>any</code>, <code>all</code>, <code>find</code>, <code>count</code>,
+<code>sum</code>, <code>product</code>, <code>min</code>, <code>max</code>, <code>parallel_map</code>, <code>parallel_map_in</code>, or
+<code>foreach</code>. A <code>List</code> or <code>Array</code> destination ends the chain the same way: it
+calls <code>list</code> or <code>array</code> for you, which is why the chain above needs no
+explicit collector.</p>
 <p>It does not apply when an iterator is assigned, returned, or passed as an
 argument. Then declare one <code>struct Iter</code> for each stage:</p>
 <pre class="shiki shiki-themes x2c-light x2c-dark x2c-code" style="--shiki-light:#24292e;--shiki-dark:#e9e5df;--shiki-light-bg:#fff;--shiki-dark-bg:#101011" tabindex="0"><code class="language-x2c no-highlight"><span class="line boring"><span style="--shiki-light:#D73A49;--shiki-dark:#F0ADA1">static</span><span style="--shiki-light:#007C8A;--shiki-dark:#29D3E2"> Var</span><span style="--shiki-light:#6F42C1;--shiki-dark:#E9E5DF"> double_value</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">(</span><span style="--shiki-light:#007C8A;--shiki-dark:#29D3E2">Var</span><span style="--shiki-light:#E36209;--shiki-dark:#E9E5DF"> value</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">) { </span><span style="--shiki-light:#D73A49;--shiki-dark:#F0ADA1">return</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF"> value </span><span style="--shiki-light:#D73A49;--shiki-dark:#E9E5DF">*</span><span style="--shiki-light:#005CC5;--shiki-dark:#A9C9F5"> 2</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">; }</span>
@@ -457,7 +497,7 @@ is finished. To return a lazy iterator, its source storage, destination
 storage, and any dynamic or captured callback must outlive the returned
 value.</p>
 <p>The iterators need no cleanup. A collected <code>List</code> or <code>Array</code> is scope-owned
-data, so the first program brackets its work with <code>$scope()</code>. See
+data, so the first program brackets its work with <code>auto</code>. See
 <a href="memory.html">scopes and lifetime</a> for the region lifetime.</p>
 <h2 id="pipeline-operations"><a class="header" href="#pipeline-operations">Pipeline operations</a></h2>
 <p>These operations are lazy. The signatures show the fluent form; add a final
@@ -470,15 +510,18 @@ element and accumulator is passed as a value. A callback with a reference
 parameter is rejected when it is first invoked, and it never receives an
 alias into source storage. An empty source does not invoke or arity-check
 its callback.</p>
-<p><code>map</code>, <code>filter</code>, and <code>foldl</code> reject a null callback only when they invoke it.
-Lazy <code>map</code> and <code>filter</code> construction does not pull the source. Their first
-pull consumes one source element before a missing callback raises
-<code>&lt;bad-arg&gt;</code>. A seeded fold consumes one element before that failure; a
-seedless fold consumes its seed and the next element. Consumed inputs are
-not restored, just as when a callback itself raises. Empty inputs and
-seedless singleton folds need no invocation.</p>
+<p><code>map</code>, <code>filter</code>, <code>scan</code>, <code>map2</code>, <code>foldl</code>, <code>find</code>, <code>any</code>, and <code>all</code> reject a
+null callback only when they invoke it. Lazy stages do not pull the source
+when they are built. Their first pull consumes one source element, or one
+value from each side for <code>map2</code>, before a missing callback raises
+<code>&lt;bad-arg&gt;</code>. A seeded fold, <code>find</code>, <code>any</code>, or <code>all</code> consumes one element
+before that failure; a seedless fold consumes its seed and the next element.
+Consumed inputs are not restored, just as when a callback itself raises.
+Empty inputs and seedless singleton folds need no invocation, so empty
+<code>find</code>, <code>any</code>, and <code>all</code> calls return <code>void</code>, 0, and 1.</p>
 <p>This replaces the earlier null-callback identity behavior of <code>map</code>, immediate
-exhaustion of <code>filter</code>, and drain-without-combining behavior of <code>foldl</code>.
+exhaustion of <code>filter</code>, drain-without-combining behavior of <code>foldl</code>, NULL
+iterators from <code>scan</code> and <code>map2</code>, and fixed <code>find</code>, <code>any</code>, and <code>all</code> results.
 The corresponding String identity and List accumulator-preservation defaults
 also end; Lisp nil callbacks use the same native contract.</p>
 <ul>
@@ -535,12 +578,18 @@ its first element.</p>
 </span><span class="line boring"><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">}</span></span></code></pre>
 
 <p><code>iter.list()</code> and <code>iter.array()</code> build a fresh <code>List</code> or <code>Array</code> under the
-current scope, and a <code>List</code> or <code>Array</code> destination calls them for you, as
+active scope, and a <code>List</code> or <code>Array</code> destination calls them for you, as
 above. The aggregates are <code>count</code>, <code>sum</code>, <code>product</code>, <code>min</code>, <code>max</code>,
 <code>foldl</code>, <code>any</code>, <code>all</code>, and <code>find</code>. <code>sum</code> and <code>product</code> use <code>Var</code> arithmetic
 promotion. <code>min</code> and <code>max</code> use total <code>Var</code> ordering and keep the first of
 equal values. <code>min</code>, <code>max</code>, and <code>find</code> return <code>void</code> when there is nothing to
 return, and <code>foldl</code> given a <code>void</code> seed uses the first element as its seed.</p>
+<p><code>find(predicate)</code> has the same element-or-<code>void</code> result as Array and List
+search. It consumes through the first match and leaves the following elements
+available. An unsuccessful search exhausts the iterator. A null predicate
+raises <code>&lt;bad-arg&gt;</code> after the first element is pulled, and an empty iterator
+returns <code>void</code> without a call. Zero, false, and NULL are valid matched
+elements, so use <code>is void</code> to test absence.</p>
 <h2 id="handing-a-pipeline-to-foreach"><a class="header" href="#handing-a-pipeline-to-foreach">Handing a pipeline to foreach</a></h2>
 <p>An <code>Iter</code> is iterable, so <code>foreach</code> can consume a fluent pipeline directly.
 The compiler supplies stack storage for every stage, including both sides of
@@ -548,7 +597,7 @@ a <code>zip</code> or <code>map2</code>, before the loop starts pulling.</p>
 <pre class="shiki shiki-themes x2c-light x2c-dark x2c-code" style="--shiki-light:#24292e;--shiki-dark:#e9e5df;--shiki-light-bg:#fff;--shiki-dark-bg:#101011" tabindex="0"><code class="language-x2c no-highlight"><span class="line boring"><span style="--shiki-light:#D73A49;--shiki-dark:#F0ADA1">static</span><span style="--shiki-light:#D73A49;--shiki-dark:#F0ADA1"> int</span><span style="--shiki-light:#6F42C1;--shiki-dark:#E9E5DF"> is_even</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">(</span><span style="--shiki-light:#007C8A;--shiki-dark:#29D3E2">Var</span><span style="--shiki-light:#E36209;--shiki-dark:#E9E5DF"> value</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">) { </span><span style="--shiki-light:#D73A49;--shiki-dark:#F0ADA1">return</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF"> value </span><span style="--shiki-light:#D73A49;--shiki-dark:#E9E5DF">%</span><span style="--shiki-light:#005CC5;--shiki-dark:#A9C9F5"> 2</span><span style="--shiki-light:#D73A49;--shiki-dark:#E9E5DF"> ==</span><span style="--shiki-light:#005CC5;--shiki-dark:#A9C9F5"> 0</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">; }</span>
 </span><span class="line boring">
 </span><span class="line boring"><span style="--shiki-light:#D73A49;--shiki-dark:#F0ADA1">int</span><span style="--shiki-light:#6F42C1;--shiki-dark:#E9E5DF"> main</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">(</span><span style="--shiki-light:#D73A49;--shiki-dark:#F0ADA1">void</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">) {</span>
-</span><span class="line"><span style="--shiki-light:#A626A4;--shiki-light-font-weight:bold;--shiki-dark:#FF4FD8;--shiki-dark-font-weight:bold">foreach</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">(</span><span style="--shiki-light:#D73A49;--shiki-dark:#F0ADA1">int</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF"> value, </span><span style="--shiki-light:#6F42C1;--shiki-dark:#E9E5DF">range</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">(</span><span style="--shiki-light:#005CC5;--shiki-dark:#A9C9F5">1</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">, </span><span style="--shiki-light:#005CC5;--shiki-dark:#A9C9F5">10</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">, </span><span style="--shiki-light:#005CC5;--shiki-dark:#A9C9F5">1</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">).</span><span style="--shiki-light:#6F42C1;--shiki-dark:#E9E5DF">filter</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">(is_even))</span>
+</span><span class="line"><span style="--shiki-light:#A626A4;--shiki-light-font-weight:bold;--shiki-dark:#FF4FD8;--shiki-dark-font-weight:bold">foreach</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">(</span><span style="--shiki-light:#D73A49;--shiki-dark:#F0ADA1">int</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF"> value </span><span style="--shiki-light:#A626A4;--shiki-light-font-weight:bold;--shiki-dark:#FF4FD8;--shiki-dark-font-weight:bold">in</span><span style="--shiki-light:#6F42C1;--shiki-dark:#E9E5DF"> range</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">(</span><span style="--shiki-light:#005CC5;--shiki-dark:#A9C9F5">1</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">, </span><span style="--shiki-light:#005CC5;--shiki-dark:#A9C9F5">10</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">, </span><span style="--shiki-light:#005CC5;--shiki-dark:#A9C9F5">1</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">).</span><span style="--shiki-light:#6F42C1;--shiki-dark:#E9E5DF">filter</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">(is_even))</span>
 </span><span class="line"><span style="--shiki-light:#6F42C1;--shiki-dark:#E9E5DF">  printf</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">(</span><span style="--shiki-light:#032F62;--shiki-dark:#9EDFB8">"</span><span style="--shiki-light:#005CC5;--shiki-dark:#9EDFB8">%d\n</span><span style="--shiki-light:#032F62;--shiki-dark:#9EDFB8">"</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">, value);</span>
 </span><span class="line boring"><span style="--shiki-light:#D73A49;--shiki-dark:#F0ADA1">  return</span><span style="--shiki-light:#005CC5;--shiki-dark:#A9C9F5"> 0</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">;</span>
 </span><span class="line boring"><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">}</span></span></code></pre>
@@ -571,9 +620,20 @@ instead of a loop that ends silently;</li>
 <li>the traversal has to be paused, handed to another function, or resumed.
 The loop form cannot express that.</li>
 </ul>
-<p><a href="idioms.html">Idioms</a> shows how iteration combines with other <span class="x2c-wordmark">x2c</span> features.</p>
+<h2 id="where-to-go-next"><a class="header" href="#where-to-go-next">Where to go next</a></h2>
+<ul>
+<li><a href="memory.html">Scopes and Lifetime</a> explains who frees each allocation.</li>
+</ul>
 
                     </main>
+                    <script>
+                        // A generated page is edited through its generator.
+                        if ([...document.querySelector('#mdbook-content main').childNodes]
+                                .some(node => node.nodeType === Node.COMMENT_NODE &&
+                                      node.textContent.includes('Do not edit by hand'))) {
+                            document.querySelector('a[rel="edit"]')?.remove();
+                        }
+                    </script>
 
                     <nav class="x2c-pager" aria-label="Page navigation">
                         <a rel="prev" href="../guide/match.html" class="x2c-pager-prev" aria-keyshortcuts="Left">
@@ -590,9 +650,9 @@ The loop form cannot express that.</li>
                         &copy; 2025&ndash;2026
                         <a href="https://flake.org">GWF</a>
                         &middot;
-                        <a href="https://github.com/gwf/x2c/blob/aa2b9b2575297711e5978acc53f87bd7f645f3c7/LICENSE">Apache 2.0</a>
+                        <a href="https://github.com/gwf/x2c/blob/2c5870d64d381a861054dae9927aa65adc87e9e0/LICENSE">Apache 2.0</a>
                         &middot;
-                        <a href="https://github.com/gwf/x2c/blob/aa2b9b2575297711e5978acc53f87bd7f645f3c7/TRADEMARKS.md">Trademarks</a>
+                        <a href="https://github.com/gwf/x2c/blob/2c5870d64d381a861054dae9927aa65adc87e9e0/TRADEMARKS.md">Trademarks</a>
                     </footer>
                 </div>
             </div>

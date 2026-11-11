@@ -1,6 +1,6 @@
 <!DOCTYPE HTML>
 <html lang="en" class="light sidebar-visible" dir="ltr">
-    <head><meta name="x2c-release-channel" content="staging"><meta name="x2c-candidate" content="candidate-aa2b9b2575297711e5978acc53f87bd7f645f3c7-39090113132-1">
+    <head><meta name="x2c-release-channel" content="staging"><meta name="x2c-candidate" content="candidate-aa2b9b2575297711e5978acc53f87bd7f645f3c7-39090113132-1"><meta name="x2c-site-source" content="2c5870d64d381a861054dae9927aa65adc87e9e0"><meta name="robots" content="noindex">
         <!-- Book generated using mdBook -->
         <meta charset="UTF-8">
         <title>src/transform/transform.x - The x2c Book</title>
@@ -30,7 +30,7 @@
         <link rel="stylesheet" id="mdbook-ayu-highlight-css" href="../../ayu-highlight-3fdfc3ac.css">
 
         <!-- Custom theme stylesheets -->
-        <link rel="stylesheet" href="../../theme/header-f6c12aed.css">
+        <link rel="stylesheet" href="../../theme/header-b540a03f.css">
         <link rel="stylesheet" href="../../theme/x2c-fd3d182e.css">
 
 
@@ -39,12 +39,12 @@
             const path_to_root = "../../";
             const default_light_theme = "light";
             const default_dark_theme = "light";
-            window.path_to_searchindex_js = "../../searchindex-f4d06db2.js";
+            window.path_to_searchindex_js = "../../searchindex-a3bdfad5.js";
         </script>
         <!-- Start loading toc.js asap -->
-        <script src="../../toc-00ae7479.js"></script>
+        <script src="../../toc-2248e0f3.js"></script>
         <!-- x2c publication metadata -->
-        <link rel="canonical" href="https://staging.x2c-lang.dev/docs/internals/compiler-api/transform.html">
+        <link rel="canonical" href="https://x2c-lang.dev/docs/internals/compiler-api/transform.html">
         <meta property="og:type" content="website">
         <meta property="og:title" content="src/transform/transform.x - The x2c Book">
         <meta property="og:description" content="The x2c language, standard library, and compiler.">
@@ -143,16 +143,12 @@
                             <button class="landing-tagline menu-title" type="button" title="Scroll to top">The x2c Book</button>
                         </div>
                         <nav class="landing-nav" aria-label="x2c website">
-                            <div class="landing-page-nav">
-                                <a href="../../../#love">love</a>
-                                <a href="../../../#power">power</a>
-                                <a href="../../../#magic">magic</a>
-                            </div>
                             <div class="landing-site-nav">
                                 <a href="../../../#install">install</a>
                                 <a href="../../../#packages">packages</a>
                             </div>
                             <div class="landing-reference-nav">
+                                <a href="../../../examples/">examples</a>
                                 <a href="../../../about/">about</a>
                                 <a href="../../" aria-current="page">docs</a>
                                 <a href="https://github.com/gwf/x2c">source</a>
@@ -225,7 +221,7 @@
 Compatibility is not yet promised.</p>
 </blockquote>
 <h1 id="srctransformtransformx"><a class="header" href="#srctransformtransformx"><code>src/transform/transform.x</code></a></h1>
-<p>X2c AST transformation pipeline.</p>
+<p><span class="x2c-wordmark">x2c</span> AST transformation pipeline.</p>
 <h2 id="functions"><a class="header" href="#functions">Functions</a></h2>
 <div class="table-wrapper">
 <table>
@@ -236,6 +232,7 @@ Compatibility is not yet promised.</p>
 <tr><td><a href="#Compiler.call_in_order"><code>Compiler.call_in_order</code></a></td><td>Calls the typed callable <code>callee</code> with <code>arguments</code>, each converted to its parameter and evaluated once, in source order, as a statement expression.</td></tr>
 <tr><td><a href="#Compiler.lower_lambda_expr"><code>Compiler.lower_lambda_expr</code></a></td><td>Lowers a resolved lambda expression, under any position wrappers and parentheses, through the lambda rule of <code>src/components/lambda-functions.x</code>; other expressions pass through.</td></tr>
 <tr><td><a href="#Compiler.normalize"><code>Compiler.normalize</code></a></td><td>Normalizes one bound and typed node.</td></tr>
+<tr><td><a href="#Compiler.pack_rest_arguments"><code>Compiler.pack_rest_arguments</code></a></td><td>Preserves the fixed arguments for <code>params</code>, which ends in a rest parameter, and packs the remaining <code>args</code> into its container.</td></tr>
 <tr><td><a href="#Compiler.shipped_support"><code>Compiler.shipped_support</code></a></td><td>Adds to the unit’s pending support the file-scope code a rule gives the form <code>source</code> of <code>kind</code>, bound and lowered with the support.</td></tr>
 <tr><td><a href="#Compiler.transform"><code>Compiler.transform</code></a></td><td>Lowers a bound and typed top-level AST to the normalized form consumed by emission.</td></tr>
 </tbody>
@@ -248,7 +245,7 @@ Compatibility is not yet promised.</p>
 <p>Calls the typed callable <code>callee</code> with <code>arguments</code>, each converted to
 its parameter and evaluated once, in source order, as a statement
 expression.</p>
-<p>Source: <code>src/transform/literals.x:225</code></p>
+<p>Source: <code>src/transform/literals.x</code></p>
 <p><a id="Compiler.lower_lambda_expr"></a></p>
 <h4 id="compilerlower_lambda_expr"><a class="header" href="#compilerlower_lambda_expr">Compiler.lower_lambda_expr</a></h4>
 <p><code>List Compiler.lower_lambda_expr(Compiler c, List expression)</code></p>
@@ -258,22 +255,32 @@ parentheses, through the lambda rule of
 other expressions pass through. A noncapturing lambda typed <code>Func</code>,
 which only a meta body leaves unlifted, lifts to a <code>Func</code> of its native
 signature.</p>
-<p>Source: <code>src/transform/expressions.x:9</code></p>
+<p>Source: <code>src/transform/expressions.x</code></p>
 <p><a id="Compiler.normalize"></a></p>
 <h4 id="compilernormalize"><a class="header" href="#compilernormalize">Compiler.normalize</a></h4>
 <p><code>Ast Compiler.normalize(Compiler c, Ast ast)</code></p>
 <p>Normalizes one bound and typed node. Newly constructed syntax is
 normalized where it is produced; children enter the same operation, so
 completed units do not require another unit walk.</p>
-<p>Source: <code>src/transform/traversal.x:33</code></p>
+<p>Source: <code>src/transform/traversal.x</code></p>
+<p><a id="Compiler.pack_rest_arguments"></a></p>
+<h4 id="compilerpack_rest_arguments"><a class="header" href="#compilerpack_rest_arguments">Compiler.pack_rest_arguments</a></h4>
+<p><code>List Compiler.pack_rest_arguments(Compiler c, List params, List args)</code></p>
+<p>Preserves the fixed arguments for <code>params</code>, which ends in a rest
+parameter, and packs the remaining <code>args</code> into its container. A List
+tail uses ordinary List construction, where only an explicit splice
+contributes more than one element. A Map tail holds <code>key: value</code> entries
+and Map splices; later entries win. The caller changes the callee’s
+final parameter to the container before issuing this packed call.</p>
+<p>Source: <code>src/transform/expressions.x</code></p>
 <p><a id="Compiler.shipped_support"></a></p>
 <h4 id="compilershipped_support"><a class="header" href="#compilershipped_support">Compiler.shipped_support</a></h4>
-<p><code>void Compiler.shipped_support( Compiler c, Symbol kind, List source, String form)</code></p>
+<p><code>void Compiler.shipped_support(Compiler c, Symbol kind, List source, String form)</code></p>
 <p>Adds to the unit’s pending support the file-scope code a rule gives
 the form <code>source</code> of <code>kind</code>, bound and lowered with the support. The
 kernel has no lowering of its own for <code>source</code>, so no rule ends the
 translation as <code>_shipped_lowering</code> does.</p>
-<p>Source: <code>src/transform/traversal.x:121</code></p>
+<p>Source: <code>src/transform/traversal.x</code></p>
 <p><a id="Compiler.transform"></a></p>
 <h4 id="compilertransform"><a class="header" href="#compilertransform">Compiler.transform</a></h4>
 <p><code>List Compiler.transform(Compiler c, List ast)</code></p>
@@ -284,7 +291,7 @@ blocks absorb cleanup markers produced by declaration rewrites. Pending
 support declarations are lowered and appended after the input units. Their
 storage determines their interface visibility. The call may add
 generated origins or diagnostics to <code>c</code>.</p>
-<p>Source: <code>src/transform/traversal.x:13</code></p>
+<p>Source: <code>src/transform/traversal.x</code></p>
 <h2 id="design-notes"><a class="header" href="#design-notes">Design notes</a></h2>
 <p>Lowers typed expressions, literals, and statements into the AST forms
 consumed by C emission. One recursive normalizer rewrites each node
@@ -295,6 +302,14 @@ shipped components lower the forms the kernel no longer lowers, and
 active Compiler reports errors.</p>
 
                     </main>
+                    <script>
+                        // A generated page is edited through its generator.
+                        if ([...document.querySelector('#mdbook-content main').childNodes]
+                                .some(node => node.nodeType === Node.COMMENT_NODE &&
+                                      node.textContent.includes('Do not edit by hand'))) {
+                            document.querySelector('a[rel="edit"]')?.remove();
+                        }
+                    </script>
 
                     <nav class="x2c-pager" aria-label="Page navigation">
                         <a rel="prev" href="../../internals/compiler-api/symtab.html" class="x2c-pager-prev" aria-keyshortcuts="Left">
@@ -311,9 +326,9 @@ active Compiler reports errors.</p>
                         &copy; 2025&ndash;2026
                         <a href="https://flake.org">GWF</a>
                         &middot;
-                        <a href="https://github.com/gwf/x2c/blob/aa2b9b2575297711e5978acc53f87bd7f645f3c7/LICENSE">Apache 2.0</a>
+                        <a href="https://github.com/gwf/x2c/blob/2c5870d64d381a861054dae9927aa65adc87e9e0/LICENSE">Apache 2.0</a>
                         &middot;
-                        <a href="https://github.com/gwf/x2c/blob/aa2b9b2575297711e5978acc53f87bd7f645f3c7/TRADEMARKS.md">Trademarks</a>
+                        <a href="https://github.com/gwf/x2c/blob/2c5870d64d381a861054dae9927aa65adc87e9e0/TRADEMARKS.md">Trademarks</a>
                     </footer>
                 </div>
             </div>

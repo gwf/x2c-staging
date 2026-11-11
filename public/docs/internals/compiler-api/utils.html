@@ -1,6 +1,6 @@
 <!DOCTYPE HTML>
 <html lang="en" class="light sidebar-visible" dir="ltr">
-    <head><meta name="x2c-release-channel" content="staging"><meta name="x2c-candidate" content="candidate-aa2b9b2575297711e5978acc53f87bd7f645f3c7-39090113132-1">
+    <head><meta name="x2c-release-channel" content="staging"><meta name="x2c-candidate" content="candidate-aa2b9b2575297711e5978acc53f87bd7f645f3c7-39090113132-1"><meta name="x2c-site-source" content="2c5870d64d381a861054dae9927aa65adc87e9e0"><meta name="robots" content="noindex">
         <!-- Book generated using mdBook -->
         <meta charset="UTF-8">
         <title>src/utils.x - The x2c Book</title>
@@ -30,7 +30,7 @@
         <link rel="stylesheet" id="mdbook-ayu-highlight-css" href="../../ayu-highlight-3fdfc3ac.css">
 
         <!-- Custom theme stylesheets -->
-        <link rel="stylesheet" href="../../theme/header-f6c12aed.css">
+        <link rel="stylesheet" href="../../theme/header-b540a03f.css">
         <link rel="stylesheet" href="../../theme/x2c-fd3d182e.css">
 
 
@@ -39,12 +39,12 @@
             const path_to_root = "../../";
             const default_light_theme = "light";
             const default_dark_theme = "light";
-            window.path_to_searchindex_js = "../../searchindex-f4d06db2.js";
+            window.path_to_searchindex_js = "../../searchindex-a3bdfad5.js";
         </script>
         <!-- Start loading toc.js asap -->
-        <script src="../../toc-00ae7479.js"></script>
+        <script src="../../toc-2248e0f3.js"></script>
         <!-- x2c publication metadata -->
-        <link rel="canonical" href="https://staging.x2c-lang.dev/docs/internals/compiler-api/utils.html">
+        <link rel="canonical" href="https://x2c-lang.dev/docs/internals/compiler-api/utils.html">
         <meta property="og:type" content="website">
         <meta property="og:title" content="src/utils.x - The x2c Book">
         <meta property="og:description" content="The x2c language, standard library, and compiler.">
@@ -143,16 +143,12 @@
                             <button class="landing-tagline menu-title" type="button" title="Scroll to top">The x2c Book</button>
                         </div>
                         <nav class="landing-nav" aria-label="x2c website">
-                            <div class="landing-page-nav">
-                                <a href="../../../#love">love</a>
-                                <a href="../../../#power">power</a>
-                                <a href="../../../#magic">magic</a>
-                            </div>
                             <div class="landing-site-nav">
                                 <a href="../../../#install">install</a>
                                 <a href="../../../#packages">packages</a>
                             </div>
                             <div class="landing-reference-nav">
+                                <a href="../../../examples/">examples</a>
                                 <a href="../../../about/">about</a>
                                 <a href="../../" aria-current="page">docs</a>
                                 <a href="https://github.com/gwf/x2c">source</a>
@@ -240,9 +236,11 @@ Compatibility is not yet promised.</p>
 <tr><td><a href="#x2c_initialize_command_environment"><code>x2c_initialize_command_environment</code></a></td><td>Initializes an external command with the compiler identity embedded when it was built.</td></tr>
 <tr><td><a href="#x2c_initialize_environment"><code>x2c_initialize_environment</code></a></td><td>Initializes compiler paths and default include <code>List</code>s once.</td></tr>
 <tr><td><a href="#x2c_set_root"><code>x2c_set_root</code></a></td><td>Overrides the repository root and rebuilds its default include <code>List</code>s.</td></tr>
+<tr><td><a href="#Compiler.bootstrap_runtime_dir"><code>Compiler.bootstrap_runtime_dir</code></a></td><td>Returns the checked-in bootstrap’s runtime directory when this process is the bootstrap compiler, or NULL.</td></tr>
 <tr><td><a href="#Compiler.cache_root"><code>Compiler.cache_root</code></a></td><td>Returns the per-user cache root: <code>X2C_CACHE_DIR</code>, <code>XDG_CACHE_HOME/x2c</code>, or <code>~/.cache/x2c</code>, whichever is set first, or NULL when none is.</td></tr>
-<tr><td><a href="#Compiler.command_environment"><code>Compiler.command_environment</code></a></td><td>Returns the home, driver, and identity supplied to external commands.</td></tr>
+<tr><td><a href="#Compiler.command_environment"><code>Compiler.command_environment</code></a></td><td>Returns the home, driver, and identity supplied to an external command.</td></tr>
 <tr><td><a href="#Compiler.command_path"><code>Compiler.command_path</code></a></td><td>Returns an executable command in this compiler’s libexec, or NULL.</td></tr>
+<tr><td><a href="#Compiler.configure_logging"><code>Compiler.configure_logging</code></a></td><td>Sets the default <code>Logger</code>’s minimum level for one command: <code>&lt;debug&gt;</code> when <code>debugging</code> and <code>&lt;error&gt;</code> otherwise.</td></tr>
 <tr><td><a href="#Compiler.cpp_include_dirs"><code>Compiler.cpp_include_dirs</code></a></td><td>Returns the borrowed preprocessor <code>List</code> <code>&lt;root&gt;/lib</code>, then <code>&lt;root&gt;/src</code>.</td></tr>
 <tr><td><a href="#Compiler.default_include_dirs"><code>Compiler.default_include_dirs</code></a></td><td>Returns the borrowed default include <code>List</code>, <code>&lt;root&gt;/include/x2c</code>.</td></tr>
 <tr><td><a href="#Compiler.driver_executable"><code>Compiler.driver_executable</code></a></td><td>Returns the matching compiler executable for a recursive translation.</td></tr>
@@ -253,16 +251,18 @@ Compatibility is not yet promised.</p>
 <tr><td><a href="#Compiler.is_package_source"><code>Compiler.is_package_source</code></a></td><td>Recognizes a package’s <code>src/</code> files or its package-named legacy entry.</td></tr>
 <tr><td><a href="#Compiler.module_stamp"><code>Compiler.module_stamp</code></a></td><td>Returns the stamp a native module records: <code>x2c-module-stamp:</code> and the running compiler’s identity.</td></tr>
 <tr><td><a href="#Compiler.package_directory"><code>Compiler.package_directory</code></a></td><td>Returns the package directory that holds <code>path</code> below one of <code>roots</code>: the root’s child on the way to <code>path</code>, compared by canonical path, when that child’s name is an identifier.</td></tr>
+<tr><td><a href="#Compiler.prune_cache"><code>Compiler.prune_cache</code></a></td><td>Removes each entry of the cache <code>directory</code> whose recorded <code>source</code> file no longer exists and that no other run holds by its <code>lock</code>.</td></tr>
 <tr><td><a href="#Compiler.run_command"><code>Compiler.run_command</code></a></td><td>Runs an external command with inherited streams and returns its status.</td></tr>
 <tr><td><a href="#Compiler.stage_dir"><code>Compiler.stage_dir</code></a></td><td>Returns the directory of a compiler staged at <code>&lt;home&gt;/builds/&lt;stage&gt;/</code>, or NULL for any other compiler.</td></tr>
-<tr><td><a href="#Diagnostics.driver_error"><code>Diagnostics.driver_error</code></a></td><td>Prints <code>x2c: error: &lt;message&gt;</code> to stderr and exits with status 2.</td></tr>
-<tr><td><a href="#Diagnostics.host_error"><code>Diagnostics.host_error</code></a></td><td>Reports a caught <code>&lt;not-found&gt;</code> or <code>&lt;io-fail&gt;</code> through <code>Diagnostics.driver_error</code> as its operation, path or program, and system reason.</td></tr>
+<tr><td><a href="#Diagnostics.driver_error"><code>Diagnostics.driver_error</code></a></td><td>Reports <code>message</code> with no note and exits as <code>Diagnostics.driver_fail</code> does.</td></tr>
+<tr><td><a href="#Diagnostics.driver_fail"><code>Diagnostics.driver_fail</code></a></td><td>Reports <code>message</code> and <code>note</code> as <code>Diagnostics.driver_report</code> does and exits with status 2.</td></tr>
+<tr><td><a href="#Diagnostics.driver_report"><code>Diagnostics.driver_report</code></a></td><td>Prints <code>x2c: error: &lt;message&gt;</code> to stderr, then <code> note: &lt;note&gt;</code> when <code>note</code> is not NULL, after clearing a transient progress line.</td></tr>
+<tr><td><a href="#Diagnostics.host_error"><code>Diagnostics.host_error</code></a></td><td>Reports a caught <code>&lt;not-found&gt;</code> or <code>&lt;io-fail&gt;</code> through <code>Diagnostics.driver_error</code> as <code>cannot &lt;action&gt; '&lt;subject&gt;': &lt;reason&gt;</code>: what the operation was doing, its path or program, and the system reason.</td></tr>
 <tr><td><a href="#Env.find_program"><code>Env.find_program</code></a></td><td>Returns the spelling of the first <code>PATH</code> candidate for the program <code>name</code> that this process may execute, searched as <code>execvp</code> searches, or NULL.</td></tr>
-<tr><td><a href="#Job.decode_wait_status"><code>Job.decode_wait_status</code></a></td><td>Decodes the wait status <code>raw</code> of a child that has ended.</td></tr>
 <tr><td><a href="#Path.content_identity"><code>Path.content_identity</code></a></td><td>Returns the identity a compiler executable at <code>path</code> has when it runs: the FNV-1a hash of its bytes, or NULL when <code>path</code> is NULL or unreadable.</td></tr>
 <tr><td><a href="#Path.identifier_hash"><code>Path.identifier_hash</code></a></td><td>Hashes unit filename spelling for stable generated C identifiers.</td></tr>
 <tr><td><a href="#Path.is_layout_source"><code>Path.is_layout_source</code></a></td><td>Reports whether <code>path</code> names a file in the indentation syntax.</td></tr>
-<tr><td><a href="#Path.is_x2c_source"><code>Path.is_x2c_source</code></a></td><td>Reports whether <code>path</code> is <span class="x2c-wordmark">x2c</span> source: a <code>.x</code> or <code>.xp</code> file, or a file of any other name whose first line is a shebang, which is a script.</td></tr>
+<tr><td><a href="#Path.is_x2c_source"><code>Path.is_x2c_source</code></a></td><td>Reports whether <code>path</code> is <span class="x2c-wordmark">x2c</span> source: a <code>.x</code> or <code>.xp</code> file, or a script that starts with a shebang.</td></tr>
 <tr><td><a href="#Path.lock_file"><code>Path.lock_file</code></a></td><td>Locks the file <code>p</code>, creating it, and returns a descriptor that holds the lock until it is closed or the process exits.</td></tr>
 <tr><td><a href="#Path.publish_files"><code>Path.publish_files</code></a></td><td>Replaces each file named in <code>outputs</code>, a List of alternating paths and texts.</td></tr>
 <tr><td><a href="#SourceView.package_entry"><code>SourceView.package_entry</code></a></td><td>Resolves the first readable package entry under <code>roots</code>, preferring <code>.x</code> to <code>.xp</code>, using the importing compiler’s source view.</td></tr>
@@ -273,100 +273,116 @@ Compatibility is not yet promised.</p>
 <h4 id="fnv_bytes"><a class="header" href="#fnv_bytes">fnv_bytes</a></h4>
 <p><code>uint64_t fnv_bytes(uint64_t hash, const void *bytes, size_t length)</code></p>
 <p>Returns <code>hash</code> extended with <code>length</code> <code>bytes</code> by 64-bit FNV-1a.</p>
-<p>Source: <code>src/utils.x:404</code></p>
+<p>Source: <code>src/utils.x</code></p>
 <h4 id="fnv_file"><a class="header" href="#fnv_file">fnv_file</a></h4>
 <p><code>uint64_t fnv_file(uint64_t hash, String path, int &amp;ok)</code></p>
 <p>Returns <code>hash</code> extended with the contents of the file at <code>path</code>.
 A missing or unreadable file clears <code>ok</code>.</p>
-<p>Source: <code>src/utils.x:389</code></p>
+<p>Source: <code>src/utils.x</code></p>
 <h4 id="x2c_get_executable"><a class="header" href="#x2c_get_executable">x2c_get_executable</a></h4>
 <p><code>String x2c_get_executable(void)</code></p>
 <p>Returns the borrowed resolved executable path, or NULL when unavailable.</p>
-<p>Source: <code>src/utils.x:185</code></p>
+<p>Source: <code>src/utils.x</code></p>
 <h4 id="x2c_get_root"><a class="header" href="#x2c_get_root">x2c_get_root</a></h4>
 <p><code>String x2c_get_root(void)</code></p>
 <p>Returns the borrowed repository root, or NULL before it is configured.
 The root is absolute with symbolic links resolved, the one spelling
 paths below the home are compared in.</p>
-<p>Source: <code>src/utils.x:182</code></p>
+<p>Source: <code>src/utils.x</code></p>
 <h4 id="x2c_initialize_command_environment"><a class="header" href="#x2c_initialize_command_environment">x2c_initialize_command_environment</a></h4>
-<p><code>void x2c_initialize_command_environment( const char *argv0, String embedded_identity)</code></p>
+<p><code>void x2c_initialize_command_environment(const char *argv0, String embedded_identity)</code></p>
 <p>Initializes an external command with the compiler identity embedded when
 it was built. A driver-supplied identity must match that compiler.</p>
-<p>Source: <code>src/utils.x:86</code></p>
+<p>Source: <code>src/utils.x</code></p>
 <h4 id="x2c_initialize_environment"><a class="header" href="#x2c_initialize_environment">x2c_initialize_environment</a></h4>
 <p><code>void x2c_initialize_environment(const char *argv0)</code></p>
 <p>Initializes compiler paths and default include <code>List</code>s once.
 The executable is resolved from the host, <code>argv0</code>, or <code>PATH</code>. The home is
 <code>X2C_HOME</code> when it is set and not empty; otherwise discovery walks from
 the executable and then from the current directory to a directory holding
-<code>include/</code> and <code>etc/compiler-sdk.xlisp</code>, a source checkout or an
+<code>include/</code> and <code>etc/compiler-prelude.x</code>, a source checkout or an
 installed prefix alike. The root is kept absolute with symbolic links
 resolved, the one spelling every path below the home is compared in.
 Without a home the root is the current directory and <code>Compiler.home_dir</code>
 reports none. The compiler identity is taken here, before any later work
 could observe a replaced executable. An already configured root leaves all
 state unchanged.</p>
-<p>Source: <code>src/utils.x:79</code></p>
+<p>Source: <code>src/utils.x</code></p>
 <h4 id="x2c_set_root"><a class="header" href="#x2c_set_root">x2c_set_root</a></h4>
 <p><code>void x2c_set_root(String root)</code></p>
 <p>Overrides the repository root and rebuilds its default include <code>List</code>s.
 The root is resolved as environment setup resolves it. The rebuilt values
 must remain valid until the next override or the process no longer uses
 them.</p>
-<p>Source: <code>src/utils.x:168</code></p>
+<p>Source: <code>src/utils.x</code></p>
 <h3 id="compiler"><a class="header" href="#compiler"><code>Compiler</code></a></h3>
+<p><a id="Compiler.bootstrap_runtime_dir"></a></p>
+<h4 id="compilerbootstrap_runtime_dir"><a class="header" href="#compilerbootstrap_runtime_dir">Compiler.bootstrap_runtime_dir</a></h4>
+<p><code>String Compiler.bootstrap_runtime_dir(void)</code></p>
+<p>Returns the checked-in bootstrap’s runtime directory when this process
+is the bootstrap compiler, or NULL. Its headers and archive match the
+runtime the bootstrap compiler was built with.</p>
+<p>Source: <code>src/utils.x</code></p>
 <p><a id="Compiler.cache_root"></a></p>
 <h4 id="compilercache_root"><a class="header" href="#compilercache_root">Compiler.cache_root</a></h4>
 <p><code>String Compiler.cache_root(void)</code></p>
 <p>Returns the per-user cache root: <code>X2C_CACHE_DIR</code>, <code>XDG_CACHE_HOME/x2c</code>,
 or <code>~/.cache/x2c</code>, whichever is set first, or NULL when none is.</p>
-<p>Source: <code>src/utils.x:497</code></p>
+<p>Source: <code>src/utils.x</code></p>
 <p><a id="Compiler.command_environment"></a></p>
 <h4 id="compilercommand_environment"><a class="header" href="#compilercommand_environment">Compiler.command_environment</a></h4>
-<p><code>Map Compiler.command_environment(void)</code></p>
-<p>Returns the home, driver, and identity supplied to external commands.</p>
-<p>Source: <code>src/utils.x:245</code></p>
+<p><code>Map Compiler.command_environment(String name)</code></p>
+<p>Returns the home, driver, and identity supplied to an external command.
+REPL and language-server children also enable allocation accounting at
+startup for their statistics and retained-memory limits.</p>
+<p>Source: <code>src/utils.x</code></p>
 <p><a id="Compiler.command_path"></a></p>
 <h4 id="compilercommand_path"><a class="header" href="#compilercommand_path">Compiler.command_path</a></h4>
 <p><code>String Compiler.command_path(String name)</code></p>
 <p>Returns an executable command in this compiler’s libexec, or NULL.</p>
-<p>Source: <code>src/utils.x:237</code></p>
+<p>Source: <code>src/utils.x</code></p>
+<p><a id="Compiler.configure_logging"></a></p>
+<h4 id="compilerconfigure_logging"><a class="header" href="#compilerconfigure_logging">Compiler.configure_logging</a></h4>
+<p><code>void Compiler.configure_logging(int debugging)</code></p>
+<p>Sets the default <code>Logger</code>’s minimum level for one command: <code>&lt;debug&gt;</code>
+when <code>debugging</code> and <code>&lt;error&gt;</code> otherwise. Its stderr sink stays, so an
+uncaught error always prints its one-line <code>x2c: uncaught</code> report.</p>
+<p>Source: <code>src/utils.x</code></p>
 <p><a id="Compiler.cpp_include_dirs"></a></p>
 <h4 id="compilercpp_include_dirs"><a class="header" href="#compilercpp_include_dirs">Compiler.cpp_include_dirs</a></h4>
 <p><code>List Compiler.cpp_include_dirs(void)</code></p>
 <p>Returns the borrowed preprocessor <code>List</code> <code>&lt;root&gt;/lib</code>, then <code>&lt;root&gt;/src</code>.
 <code>&lt;root&gt;/src</code> is present only when the home has that directory. Returns
 NULL before environment setup.</p>
-<p>Source: <code>src/utils.x:278</code></p>
+<p>Source: <code>src/utils.x</code></p>
 <p><a id="Compiler.default_include_dirs"></a></p>
 <h4 id="compilerdefault_include_dirs"><a class="header" href="#compilerdefault_include_dirs">Compiler.default_include_dirs</a></h4>
 <p><code>List Compiler.default_include_dirs(void)</code></p>
 <p>Returns the borrowed default include <code>List</code>, <code>&lt;root&gt;/include/x2c</code>.
 Returns NULL before environment setup.</p>
-<p>Source: <code>src/utils.x:272</code></p>
+<p>Source: <code>src/utils.x</code></p>
 <p><a id="Compiler.driver_executable"></a></p>
 <h4 id="compilerdriver_executable"><a class="header" href="#compilerdriver_executable">Compiler.driver_executable</a></h4>
 <p><code>String Compiler.driver_executable(void)</code></p>
 <p>Returns the matching compiler executable for a recursive translation.
 External commands use the driver’s X2C path or their adjacent installed
 compiler. An unavailable or changed compiler returns NULL.</p>
-<p>Source: <code>src/utils.x:190</code></p>
+<p>Source: <code>src/utils.x</code></p>
 <p><a id="Compiler.home_dir"></a></p>
 <h4 id="compilerhome_dir"><a class="header" href="#compilerhome_dir">Compiler.home_dir</a></h4>
 <p><code>String Compiler.home_dir(void)</code></p>
 <p>Returns the discovered or configured home, or NULL when there is none.</p>
-<p>Source: <code>src/utils.x:206</code></p>
+<p>Source: <code>src/utils.x</code></p>
 <p><a id="Compiler.home_libexec"></a></p>
 <h4 id="compilerhome_libexec"><a class="header" href="#compilerhome_libexec">Compiler.home_libexec</a></h4>
 <p><code>String Compiler.home_libexec(void)</code></p>
 <p>Returns the command directory for this checkout or installed home.</p>
-<p>Source: <code>src/utils.x:225</code></p>
+<p>Source: <code>src/utils.x</code></p>
 <p><a id="Compiler.home_packages"></a></p>
 <h4 id="compilerhome_packages"><a class="header" href="#compilerhome_packages">Compiler.home_packages</a></h4>
 <p><code>String Compiler.home_packages(void)</code></p>
 <p>Returns <code>&lt;home&gt;/packages</code>, which may not exist, or NULL without a home.</p>
-<p>Source: <code>src/utils.x:219</code></p>
+<p>Source: <code>src/utils.x</code></p>
 <p><a id="Compiler.identity"></a></p>
 <h4 id="compileridentity"><a class="header" href="#compileridentity">Compiler.identity</a></h4>
 <p><code>String Compiler.identity(void)</code></p>
@@ -374,56 +390,78 @@ compiler. An unavailable or changed compiler returns NULL.</p>
 Ordinary compiler startup hashes its executable with FNV-1a; an external
 command uses the identity embedded from the compiler that built it.
 Returns NULL if ordinary startup could not read its executable.</p>
-<p>Source: <code>src/utils.x:365</code></p>
+<p>Source: <code>src/utils.x</code></p>
 <p><a id="Compiler.is_package_source"></a></p>
 <h4 id="compileris_package_source"><a class="header" href="#compileris_package_source">Compiler.is_package_source</a></h4>
 <p><code>int Compiler.is_package_source(String directory, String path)</code></p>
 <p>Recognizes a package’s <code>src/</code> files or its package-named legacy entry.
 Other files under the package directory are consumers.</p>
-<p>Source: <code>src/utils.x:352</code></p>
+<p>Source: <code>src/utils.x</code></p>
 <p><a id="Compiler.module_stamp"></a></p>
 <h4 id="compilermodule_stamp"><a class="header" href="#compilermodule_stamp">Compiler.module_stamp</a></h4>
 <p><code>String Compiler.module_stamp(void)</code></p>
 <p>Returns the stamp a native module records: <code>x2c-module-stamp:</code> and the
 running compiler’s identity. Returns NULL when the executable cannot be
 read. Only the compiler that built a module loads it.</p>
-<p>Source: <code>src/utils.x:371</code></p>
+<p>Source: <code>src/utils.x</code></p>
 <p><a id="Compiler.package_directory"></a></p>
 <h4 id="compilerpackage_directory"><a class="header" href="#compilerpackage_directory">Compiler.package_directory</a></h4>
 <p><code>String Compiler.package_directory(List roots, String path)</code></p>
 <p>Returns the package directory that holds <code>path</code> below one of <code>roots</code>:
 the root’s child on the way to <code>path</code>, compared by canonical path, when
 that child’s name is an identifier. Returns NULL for any other path.</p>
-<p>Source: <code>src/utils.x:318</code></p>
+<p>Source: <code>src/utils.x</code></p>
+<p><a id="Compiler.prune_cache"></a></p>
+<h4 id="compilerprune_cache"><a class="header" href="#compilerprune_cache">Compiler.prune_cache</a></h4>
+<p><code>void Compiler.prune_cache(String directory)</code></p>
+<p>Removes each entry of the cache <code>directory</code> whose recorded <code>source</code>
+file no longer exists and that no other run holds by its <code>lock</code>.
+An entry without a readable <code>source</code> file stays. Another process may
+prune the same cache, so an entry it removes or locks first is skipped.</p>
+<p>Source: <code>src/utils.x</code></p>
 <p><a id="Compiler.run_command"></a></p>
 <h4 id="compilerrun_command"><a class="header" href="#compilerrun_command">Compiler.run_command</a></h4>
 <p><code>int Compiler.run_command(String name, List arguments)</code></p>
 <p>Runs an external command with inherited streams and returns its status.
 Resolves only this compiler’s libexec and passes literal arguments without
 a shell. An unavailable command reports an error and exits with status 2.</p>
-<p>Source: <code>src/utils.x:259</code></p>
+<p>Source: <code>src/utils.x</code></p>
 <p><a id="Compiler.stage_dir"></a></p>
 <h4 id="compilerstage_dir"><a class="header" href="#compilerstage_dir">Compiler.stage_dir</a></h4>
 <p><code>String Compiler.stage_dir(void)</code></p>
 <p>Returns the directory of a compiler staged at <code>&lt;home&gt;/builds/&lt;stage&gt;/</code>,
 or NULL for any other compiler.</p>
-<p>Source: <code>src/utils.x:211</code></p>
+<p>Source: <code>src/utils.x</code></p>
 <h3 id="diagnostics"><a class="header" href="#diagnostics"><code>Diagnostics</code></a></h3>
 <p><a id="Diagnostics.driver_error"></a></p>
 <h4 id="diagnosticsdriver_error"><a class="header" href="#diagnosticsdriver_error">Diagnostics.driver_error</a></h4>
-<p><code>void Diagnostics.driver_error(const char *message)</code></p>
-<p>Prints <code>x2c: error: &lt;message&gt;</code> to stderr and exits with status 2.
-The streams are flushed and <code>atexit</code> handlers do not run, so the call is
-safe inside a <code>try</code> body or a catch arm, whose records those handlers
-would otherwise find still live.</p>
-<p>Source: <code>src/utils.x:476</code></p>
+<p><code>_Noreturn void Diagnostics.driver_error(const char *message)</code></p>
+<p>Reports <code>message</code> with no note and exits as <code>Diagnostics.driver_fail</code>
+does.</p>
+<p>Source: <code>src/utils.x</code></p>
+<p><a id="Diagnostics.driver_fail"></a></p>
+<h4 id="diagnosticsdriver_fail"><a class="header" href="#diagnosticsdriver_fail">Diagnostics.driver_fail</a></h4>
+<p><code>void Diagnostics.driver_fail(const char *message, const char *note)</code></p>
+<p>Reports <code>message</code> and <code>note</code> as <code>Diagnostics.driver_report</code> does and
+exits with status 2. The streams are flushed and <code>atexit</code> handlers do
+not run, so the call is safe inside a <code>try</code> body or a catch arm, whose
+records those handlers would otherwise find still live.</p>
+<p>Source: <code>src/utils.x</code></p>
+<p><a id="Diagnostics.driver_report"></a></p>
+<h4 id="diagnosticsdriver_report"><a class="header" href="#diagnosticsdriver_report">Diagnostics.driver_report</a></h4>
+<p><code>void Diagnostics.driver_report(const char *message, const char *note)</code></p>
+<p>Prints <code>x2c: error: &lt;message&gt;</code> to stderr, then <code>  note: &lt;note&gt;</code> when
+<code>note</code> is not NULL, after clearing a transient progress line. The
+caller decides how the command ends.</p>
+<p>Source: <code>src/utils.x</code></p>
 <p><a id="Diagnostics.host_error"></a></p>
 <h4 id="diagnosticshost_error"><a class="header" href="#diagnosticshost_error">Diagnostics.host_error</a></h4>
 <p><code>void Diagnostics.host_error(List detail)</code></p>
 <p>Reports a caught <code>&lt;not-found&gt;</code> or <code>&lt;io-fail&gt;</code> through
-<code>Diagnostics.driver_error</code> as its operation, path or program, and system
+<code>Diagnostics.driver_error</code> as <code>cannot &lt;action&gt; '&lt;subject&gt;': &lt;reason&gt;</code>:
+what the operation was doing, its path or program, and the system
 reason.</p>
-<p>Source: <code>src/utils.x:486</code></p>
+<p>Source: <code>src/utils.x</code></p>
 <h3 id="env"><a class="header" href="#env"><code>Env</code></a></h3>
 <p><a id="Env.find_program"></a></p>
 <h4 id="envfind_program"><a class="header" href="#envfind_program">Env.find_program</a></h4>
@@ -431,45 +469,38 @@ reason.</p>
 <p>Returns the spelling of the first <code>PATH</code> candidate for the program <code>name</code>
 that this process may execute, searched as <code>execvp</code> searches, or NULL.
 An empty entry names the current directory.</p>
-<p>Source: <code>src/utils.x:284</code></p>
-<h3 id="job"><a class="header" href="#job"><code>Job</code></a></h3>
-<p><a id="Job.decode_wait_status"></a></p>
-<h4 id="jobdecode_wait_status"><a class="header" href="#jobdecode_wait_status">Job.decode_wait_status</a></h4>
-<p><code>int Job.decode_wait_status(int raw, int &amp;signal)</code></p>
-<p>Decodes the wait status <code>raw</code> of a child that has ended. Returns its
-exit status, <code>128 + signal</code> when a signal ended it, or -1 otherwise,
-and stores that signal in <code>signal</code>, or 0 when no signal ended it.</p>
-<p>Source: <code>src/utils.x:463</code></p>
+<p>Source: <code>src/utils.x</code></p>
 <h3 id="path"><a class="header" href="#path"><code>Path</code></a></h3>
 <p><a id="Path.content_identity"></a></p>
 <h4 id="pathcontent_identity"><a class="header" href="#pathcontent_identity">Path.content_identity</a></h4>
 <p><code>String Path.content_identity(String path)</code></p>
 <p>Returns the identity a compiler executable at <code>path</code> has when it runs:
 the FNV-1a hash of its bytes, or NULL when <code>path</code> is NULL or unreadable.</p>
-<p>Source: <code>src/utils.x:379</code></p>
+<p>Source: <code>src/utils.x</code></p>
 <p><a id="Path.identifier_hash"></a></p>
 <h4 id="pathidentifier_hash"><a class="header" href="#pathidentifier_hash">Path.identifier_hash</a></h4>
 <p><code>String Path.identifier_hash(String filename)</code></p>
 <p>Hashes unit filename spelling for stable generated C identifiers.</p>
-<p>Source: <code>src/utils.x:414</code></p>
+<p>Source: <code>src/utils.x</code></p>
 <p><a id="Path.is_layout_source"></a></p>
 <h4 id="pathis_layout_source"><a class="header" href="#pathis_layout_source">Path.is_layout_source</a></h4>
 <p><code>int Path.is_layout_source(String path)</code></p>
 <p>Reports whether <code>path</code> names a file in the indentation syntax.</p>
-<p>Source: <code>src/utils.x:311</code></p>
+<p>Source: <code>src/utils.x</code></p>
 <p><a id="Path.is_x2c_source"></a></p>
 <h4 id="pathis_x2c_source"><a class="header" href="#pathis_x2c_source">Path.is_x2c_source</a></h4>
 <p><code>int Path.is_x2c_source(String path)</code></p>
-<p>Reports whether <code>path</code> is <span class="x2c-wordmark">x2c</span> source: a <code>.x</code> or <code>.xp</code> file, or a file
-of any other name whose first line is a shebang, which is a script.</p>
-<p>Source: <code>src/utils.x:297</code></p>
+<p>Reports whether <code>path</code> is <span class="x2c-wordmark">x2c</span> source: a <code>.x</code> or <code>.xp</code> file, or a script
+that starts with a shebang. Files ending in <code>.c</code>, <code>.h</code>, <code>.o</code>, or <code>.a</code>
+are excluded even when they start with a shebang.</p>
+<p>Source: <code>src/utils.x</code></p>
 <p><a id="Path.lock_file"></a></p>
 <h4 id="pathlock_file"><a class="header" href="#pathlock_file">Path.lock_file</a></h4>
 <p><code>int Path.lock_file(Path p, int wait)</code></p>
 <p>Locks the file <code>p</code>, creating it, and returns a descriptor that holds the
 lock until it is closed or the process exits. Returns -1 when <code>wait</code> is
-zero and another process holds the lock.</p>
-<p>Source: <code>src/utils.x:426</code></p>
+zero and another process holds the lock or <code>p</code> cannot be opened.</p>
+<p>Source: <code>src/utils.x</code></p>
 <p><a id="Path.publish_files"></a></p>
 <h4 id="pathpublish_files"><a class="header" href="#pathpublish_files">Path.publish_files</a></h4>
 <p><code>void Path.publish_files(List outputs)</code></p>
@@ -480,15 +511,15 @@ destination. The renames then run in order: each destination holds its
 old contents or its new ones, and a failed rename leaves the earlier
 destinations replaced.</p>
 <p><strong>Raises:</strong> <code>&lt;not-found&gt;</code> or <code>&lt;io-fail&gt;</code>, after removing the siblings.</p>
-<p>Source: <code>src/utils.x:446</code></p>
+<p>Source: <code>src/utils.x</code></p>
 <h3 id="sourceview"><a class="header" href="#sourceview"><code>SourceView</code></a></h3>
 <p><a id="SourceView.package_entry"></a></p>
 <h4 id="sourceviewpackage_entry"><a class="header" href="#sourceviewpackage_entry">SourceView.package_entry</a></h4>
-<p><code>String SourceView.package_entry( SourceView sources, List roots, String name, String &amp;directory)</code></p>
+<p><code>String SourceView.package_entry(SourceView sources, List roots, String name, String &amp;directory)</code></p>
 <p>Resolves the first readable package entry under <code>roots</code>, preferring <code>.x</code>
 to <code>.xp</code>, using the importing compiler’s source view. Returns its directory
 through <code>directory</code>, or NULL when the package does not exist.</p>
-<p>Source: <code>src/utils.x:334</code></p>
+<p>Source: <code>src/utils.x</code></p>
 <h2 id="public-types"><a class="header" href="#public-types">Public types</a></h2>
 <div class="table-wrapper">
 <table>
@@ -505,20 +536,28 @@ through <code>directory</code>, or NULL when the package does not exist.</p>
 <h3 id="compiler-1"><a class="header" href="#compiler-1">Compiler</a></h3>
 <p><code>typedef struct Compiler *Compiler</code></p>
 <p>Names the translation state that <code>src/compiler/compiler.x</code> defines.</p>
-<p>Source: <code>src/utils.x:31</code></p>
+<p>Source: <code>src/utils.x</code></p>
 <p><a id="Diagnostics"></a></p>
 <h3 id="diagnostics-1"><a class="header" href="#diagnostics-1">Diagnostics</a></h3>
 <p><code>typedef struct Diagnostics *Diagnostics</code></p>
 <p>Names the positioned diagnostic store that <code>src/diagnostics.x</code> defines.</p>
-<p>Source: <code>src/utils.x:34</code></p>
+<p>Source: <code>src/utils.x</code></p>
 <h2 id="design-notes"><a class="header" href="#design-notes">Design notes</a></h2>
 <p>Owns the environment the driver modules share: where the executable,
 home, stage, and packages are, which files are <span class="x2c-wordmark">x2c</span> source, the
 compiler’s identity, how a file is locked or replaced, and the
-driver’s fatal error line. Host tools run through
+driver’s log level and error lines. Host tools run through
 <code>lib/process.x</code>.</p>
 
                     </main>
+                    <script>
+                        // A generated page is edited through its generator.
+                        if ([...document.querySelector('#mdbook-content main').childNodes]
+                                .some(node => node.nodeType === Node.COMMENT_NODE &&
+                                      node.textContent.includes('Do not edit by hand'))) {
+                            document.querySelector('a[rel="edit"]')?.remove();
+                        }
+                    </script>
 
                     <nav class="x2c-pager" aria-label="Page navigation">
                         <a rel="prev" href="../../internals/compiler-api/type.html" class="x2c-pager-prev" aria-keyshortcuts="Left">
@@ -535,9 +574,9 @@ driver’s fatal error line. Host tools run through
                         &copy; 2025&ndash;2026
                         <a href="https://flake.org">GWF</a>
                         &middot;
-                        <a href="https://github.com/gwf/x2c/blob/aa2b9b2575297711e5978acc53f87bd7f645f3c7/LICENSE">Apache 2.0</a>
+                        <a href="https://github.com/gwf/x2c/blob/2c5870d64d381a861054dae9927aa65adc87e9e0/LICENSE">Apache 2.0</a>
                         &middot;
-                        <a href="https://github.com/gwf/x2c/blob/aa2b9b2575297711e5978acc53f87bd7f645f3c7/TRADEMARKS.md">Trademarks</a>
+                        <a href="https://github.com/gwf/x2c/blob/2c5870d64d381a861054dae9927aa65adc87e9e0/TRADEMARKS.md">Trademarks</a>
                     </footer>
                 </div>
             </div>

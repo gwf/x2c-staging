@@ -1,6 +1,6 @@
 <!DOCTYPE HTML>
 <html lang="en" class="light sidebar-visible" dir="ltr">
-    <head><meta name="x2c-release-channel" content="staging"><meta name="x2c-candidate" content="candidate-aa2b9b2575297711e5978acc53f87bd7f645f3c7-39090113132-1">
+    <head><meta name="x2c-release-channel" content="staging"><meta name="x2c-candidate" content="candidate-aa2b9b2575297711e5978acc53f87bd7f645f3c7-39090113132-1"><meta name="x2c-site-source" content="2c5870d64d381a861054dae9927aa65adc87e9e0"><meta name="robots" content="noindex">
         <!-- Book generated using mdBook -->
         <meta charset="UTF-8">
         <title>lib/block.x - The x2c Book</title>
@@ -30,7 +30,7 @@
         <link rel="stylesheet" id="mdbook-ayu-highlight-css" href="../../ayu-highlight-3fdfc3ac.css">
 
         <!-- Custom theme stylesheets -->
-        <link rel="stylesheet" href="../../theme/header-f6c12aed.css">
+        <link rel="stylesheet" href="../../theme/header-b540a03f.css">
         <link rel="stylesheet" href="../../theme/x2c-fd3d182e.css">
 
 
@@ -39,12 +39,12 @@
             const path_to_root = "../../";
             const default_light_theme = "light";
             const default_dark_theme = "light";
-            window.path_to_searchindex_js = "../../searchindex-f4d06db2.js";
+            window.path_to_searchindex_js = "../../searchindex-a3bdfad5.js";
         </script>
         <!-- Start loading toc.js asap -->
-        <script src="../../toc-00ae7479.js"></script>
+        <script src="../../toc-2248e0f3.js"></script>
         <!-- x2c publication metadata -->
-        <link rel="canonical" href="https://staging.x2c-lang.dev/docs/library/modules/block.html">
+        <link rel="canonical" href="https://x2c-lang.dev/docs/library/modules/block.html">
         <meta property="og:type" content="website">
         <meta property="og:title" content="lib/block.x - The x2c Book">
         <meta property="og:description" content="The x2c language, standard library, and compiler.">
@@ -143,16 +143,12 @@
                             <button class="landing-tagline menu-title" type="button" title="Scroll to top">The x2c Book</button>
                         </div>
                         <nav class="landing-nav" aria-label="x2c website">
-                            <div class="landing-page-nav">
-                                <a href="../../../#love">love</a>
-                                <a href="../../../#power">power</a>
-                                <a href="../../../#magic">magic</a>
-                            </div>
                             <div class="landing-site-nav">
                                 <a href="../../../#install">install</a>
                                 <a href="../../../#packages">packages</a>
                             </div>
                             <div class="landing-reference-nav">
+                                <a href="../../../examples/">examples</a>
                                 <a href="../../../about/">about</a>
                                 <a href="../../" aria-current="page">docs</a>
                                 <a href="https://github.com/gwf/x2c">source</a>
@@ -236,10 +232,12 @@
 <tr><td><a href="#Block.clear"><code>Block.clear</code></a></td><td>Removes every element from <code>block</code> without releasing capacity.</td></tr>
 <tr><td><a href="#Block.free"><code>Block.free</code></a></td><td>Releases the <code>Block</code> and its backing storage, invalidating every alias.</td></tr>
 <tr><td><a href="#Block.len"><code>Block.len</code></a></td><td>Returns the number of elements stored in <code>b</code>.</td></tr>
+<tr><td><a href="#Block.move_to"><code>Block.move_to</code></a></td><td>Moves <code>block</code>, its backing allocation, and owned contents into <code>scope</code>.</td></tr>
 <tr><td><a href="#Block.new"><code>Block.new</code></a></td><td>Allocates an empty <code>Block</code> for elements of <code>width</code> bytes.</td></tr>
 <tr><td><a href="#Block.pop"><code>Block.pop</code></a></td><td>Removes the final element of <code>block</code> when present.</td></tr>
 <tr><td><a href="#Block.push"><code>Block.push</code></a></td><td>Appends one copied element; storage and failures follow <code>Block.append</code>.</td></tr>
 <tr><td><a href="#Block.reserve"><code>Block.reserve</code></a></td><td>Ensures <code>block</code> can hold at least <code>minimum</code> elements.</td></tr>
+<tr><td><a href="#Block.scope"><code>Block.scope</code></a></td><td>Acquires this Block’s scope for explicitly owned contents.</td></tr>
 <tr><td><a href="#Block.truncate"><code>Block.truncate</code></a></td><td>Shortens <code>block</code> to at most <code>length</code> elements.</td></tr>
 <tr><td><a href="#Block.truth"><code>Block.truth</code></a></td><td>Returns nonzero when <code>block</code> contains at least one element.</td></tr>
 <tr><td><a href="#Block.try_pop"><code>Block.try_pop</code></a></td><td>Removes the final element of <code>b</code>, copying it to <code>out</code> when present.</td></tr>
@@ -267,7 +265,7 @@ Success may invalidate saved <code>Bytes</code> and element pointers.</p>
 reserved storage when growth is required; <code>&lt;size-limit&gt;</code> when the new
 extent cannot be represented; or <code>&lt;alloc-fail&gt;</code> when growth fails. These
 failures leave the <code>Block</code> unchanged.</p>
-<p>Source: <code>lib/block.x:86</code></p>
+<p>Source: <code>lib/block.x</code></p>
 <p><a id="Block.append_fill"></a></p>
 <h4 id="blockappend_fill"><a class="header" href="#blockappend_fill">Block.append_fill</a></h4>
 <p><code>void Block.append_fill(Block b, const void *element, size_t count)</code></p>
@@ -281,32 +279,43 @@ is preserved if growth relocates storage. Success may invalidate saved
 self-source element on a nonzero append; <code>&lt;size-limit&gt;</code> when the new
 extent cannot be represented; or <code>&lt;alloc-fail&gt;</code> when growth fails. These
 failures leave the <code>Block</code> unchanged.</p>
-<p>Source: <code>lib/block.x:152</code></p>
+<p>Source: <code>lib/block.x</code></p>
 <p><a id="Block.capacity"></a></p>
 <h4 id="blockcapacity"><a class="header" href="#blockcapacity">Block.capacity</a></h4>
 <p><code>inline size_t Block.capacity(Block b)</code></p>
 <p>Returns how many elements <code>b</code> can hold without growing.</p>
-<p>Source: <code>lib/block.x:244</code></p>
+<p>Source: <code>lib/block.x</code></p>
 <p><a id="Block.cleanup"></a></p>
 <h4 id="blockcleanup"><a class="header" href="#blockcleanup">Block.cleanup</a></h4>
 <p><code>void Block.cleanup(Block value)</code></p>
 <p>Ends the owned lifetime when a managed local leaves its block.</p>
-<p>Source: <code>lib/block.x:37</code></p>
+<p>Source: <code>lib/block.x</code></p>
 <p><a id="Block.clear"></a></p>
 <h4 id="blockclear"><a class="header" href="#blockclear">Block.clear</a></h4>
 <p><code>inline void Block.clear(Block block)</code></p>
 <p>Removes every element from <code>block</code> without releasing capacity.</p>
-<p>Source: <code>lib/block.x:257</code></p>
+<p>Source: <code>lib/block.x</code></p>
 <p><a id="Block.free"></a></p>
 <h4 id="blockfree"><a class="header" href="#blockfree">Block.free</a></h4>
 <p><code>void Block.free(Block b)</code></p>
 <p>Releases the <code>Block</code> and its backing storage, invalidating every alias.</p>
-<p>Source: <code>lib/block.x:306</code></p>
+<p>Source: <code>lib/block.x</code></p>
 <p><a id="Block.len"></a></p>
 <h4 id="blocklen"><a class="header" href="#blocklen">Block.len</a></h4>
 <p><code>inline size_t Block.len(Block b)</code></p>
 <p>Returns the number of elements stored in <code>b</code>.</p>
-<p>Source: <code>lib/block.x:241</code></p>
+<p>Source: <code>lib/block.x</code></p>
+<p><a id="Block.move_to"></a></p>
+<h4 id="blockmove_to"><a class="header" href="#blockmove_to">Block.move_to</a></h4>
+<p><code>void Block.move_to(Block block, Scope *scope)</code></p>
+<p>Moves <code>block</code>, its backing allocation, and owned contents into <code>scope</code>.
+This preserves the <code>Block</code> and <code>Bytes</code> pointers and contents while changing
+which <code>Scope</code> ends their lifetime. <code>Context</code> export calls this method
+instead of assuming a <code>Block</code> is one allocation.
+For a nonnull <code>Block</code>, raises <code>&lt;bad-arg&gt;</code> for a null destination slot, or
+<code>&lt;alloc-fail&gt;</code> when an empty slot cannot acquire a <code>Scope</code>. Failure leaves
+ownership unchanged.</p>
+<p>Source: <code>lib/block.x</code></p>
 <p><a id="Block.new"></a></p>
 <h4 id="blocknew"><a class="header" href="#blocknew">Block.new</a></h4>
 <p><code>Block Block.new(size_t width)</code></p>
@@ -314,17 +323,17 @@ failures leave the <code>Block</code> unchanged.</p>
 <p><strong>Raises:</strong> <code>&lt;bad-arg&gt;</code> when <code>width</code> is zero, <code>&lt;size-limit&gt;</code> when the initial
 allocation size cannot be represented, or <code>&lt;alloc-fail&gt;</code> when allocation
 fails.</p>
-<p>Source: <code>lib/block.x:288</code></p>
+<p>Source: <code>lib/block.x</code></p>
 <p><a id="Block.pop"></a></p>
 <h4 id="blockpop"><a class="header" href="#blockpop">Block.pop</a></h4>
 <p><code>inline void Block.pop(Block block)</code></p>
 <p>Removes the final element of <code>block</code> when present.</p>
-<p>Source: <code>lib/block.x:277</code></p>
+<p>Source: <code>lib/block.x</code></p>
 <p><a id="Block.push"></a></p>
 <h4 id="blockpush"><a class="header" href="#blockpush">Block.push</a></h4>
 <p><code>inline void Block.push(Block block, const void *source)</code></p>
 <p>Appends one copied element; storage and failures follow <code>Block.append</code>.</p>
-<p>Source: <code>lib/block.x:188</code></p>
+<p>Source: <code>lib/block.x</code></p>
 <p><a id="Block.reserve"></a></p>
 <h4 id="blockreserve"><a class="header" href="#blockreserve">Block.reserve</a></h4>
 <p><code>void Block.reserve(Block block, size_t minimum)</code></p>
@@ -334,24 +343,34 @@ The <code>Block</code> handle and contents remain stable, but growth may replace
 <p><strong>Raises:</strong> <code>&lt;bad-arg&gt;</code> when <code>block</code> is null, <code>&lt;size-limit&gt;</code> when the requested
 capacity cannot be represented, or <code>&lt;alloc-fail&gt;</code> when growth fails.
 These failures leave the <code>Block</code> unchanged.</p>
-<p>Source: <code>lib/block.x:205</code></p>
+<p>Source: <code>lib/block.x</code></p>
+<p><a id="Block.scope"></a></p>
+<h4 id="blockscope"><a class="header" href="#blockscope">Block.scope</a></h4>
+<p><code>Scope Block.scope(Block b)</code></p>
+<p>Acquires this Block’s scope for explicitly owned contents.
+The scope is created lazily beneath the handle’s allocation owner.
+The handle and backing storage stay outside it; elements remain bytes
+whose references are never adopted automatically. NULL returns NULL.</p>
+<p><strong>Raises:</strong> <code>&lt;alloc-fail&gt;</code> when creating the scope.</p>
+<p>Source: <code>lib/block.x</code></p>
 <p><a id="Block.truncate"></a></p>
 <h4 id="blocktruncate"><a class="header" href="#blocktruncate">Block.truncate</a></h4>
 <p><code>inline void Block.truncate(Block block, size_t length)</code></p>
 <p>Shortens <code>block</code> to at most <code>length</code> elements.</p>
-<p>Source: <code>lib/block.x:252</code></p>
+<p>Source: <code>lib/block.x</code></p>
 <p><a id="Block.truth"></a></p>
 <h4 id="blocktruth"><a class="header" href="#blocktruth">Block.truth</a></h4>
 <p><code>int Block.truth(Block block)</code></p>
 <p>Returns nonzero when <code>block</code> contains at least one element.</p>
-<p>Source: <code>lib/block.x:247</code></p>
+<p>Source: <code>lib/block.x</code></p>
 <p><a id="Block.try_pop"></a></p>
 <h4 id="blocktry_pop"><a class="header" href="#blocktry_pop">Block.try_pop</a></h4>
 <p><code>inline int Block.try_pop(Block b, void *out)</code></p>
 <p>Removes the final element of <code>b</code>, copying it to <code>out</code> when present.
-Returns zero for a null or empty <code>Block</code> and leaves <code>out</code> unchanged. A null
+Returns zero for an empty <code>Block</code> and leaves <code>out</code> unchanged.
+Raises <code>&lt;bad-arg&gt;</code> for a null Block. A null
 <code>out</code> still removes a present element.</p>
-<p>Source: <code>lib/block.x:265</code></p>
+<p>Source: <code>lib/block.x</code></p>
 <h3 id="bytes"><a class="header" href="#bytes"><code>Bytes</code></a></h3>
 <p><a id="Bytes.append"></a></p>
 <h4 id="bytesappend"><a class="header" href="#bytesappend">Bytes.append</a></h4>
@@ -359,7 +378,7 @@ Returns zero for a null or empty <code>Block</code> and leaves <code>out</code> 
 <p>Appends <code>count</code> elements to <code>bytes</code> and returns its current base pointer.
 Callers must use the return because growth may relocate storage. Raises:
 the same causes as <code>Block.append</code>; failure leaves the original view live.</p>
-<p>Source: <code>lib/block.x:135</code></p>
+<p>Source: <code>lib/block.x</code></p>
 <p><a id="Bytes.append_fill"></a></p>
 <h4 id="bytesappend_fill"><a class="header" href="#bytesappend_fill">Bytes.append_fill</a></h4>
 <p><code>inline Self Bytes.append_fill(Self bytes, const void *element, size_t count)</code></p>
@@ -367,18 +386,18 @@ the same causes as <code>Block.append</code>; failure leaves the original view l
 Callers must use the return because growth may relocate storage. Raises:
 the same causes as <code>Block.append_fill</code>; failure leaves the original view
 live.</p>
-<p>Source: <code>lib/block.x:181</code></p>
+<p>Source: <code>lib/block.x</code></p>
 <p><a id="Bytes.block"></a></p>
 <h4 id="bytesblock"><a class="header" href="#bytesblock">Bytes.block</a></h4>
 <p><code>inline Block Bytes.block(Bytes bytes)</code></p>
 <p>Returns the stable <code>Block</code> that owns the live <code>bytes</code> base pointer.
 An interior or stale pointer is invalid; NULL returns NULL.</p>
-<p>Source: <code>lib/block.x:68</code></p>
+<p>Source: <code>lib/block.x</code></p>
 <p><a id="Bytes.cleanup"></a></p>
 <h4 id="bytescleanup"><a class="header" href="#bytescleanup">Bytes.cleanup</a></h4>
 <p><code>void Bytes.cleanup(Bytes value)</code></p>
 <p>Ends the owned lifetime when a managed local leaves its block.</p>
-<p>Source: <code>lib/block.x:38</code></p>
+<p>Source: <code>lib/block.x</code></p>
 <p><a id="Bytes.new"></a></p>
 <h4 id="bytesnew"><a class="header" href="#bytesnew">Bytes.new</a></h4>
 <p><code>Bytes Bytes.new(size_t width)</code></p>
@@ -386,12 +405,12 @@ An interior or stale pointer is invalid; NULL returns NULL.</p>
 The result is the base view of a <code>Scope</code>-owned <code>Block</code>. Methods that may
 grow it return the current <code>Bytes</code> pointer, which callers must keep.</p>
 <p><strong>Raises:</strong> the same causes as <code>Block.new</code>.</p>
-<p>Source: <code>lib/block.x:303</code></p>
+<p>Source: <code>lib/block.x</code></p>
 <p><a id="Bytes.push"></a></p>
 <h4 id="bytespush"><a class="header" href="#bytespush">Bytes.push</a></h4>
 <p><code>inline Self Bytes.push(Self bytes, const void *source)</code></p>
 <p>Appends one element and returns the possibly relocated <code>Bytes</code> base.</p>
-<p>Source: <code>lib/block.x:193</code></p>
+<p>Source: <code>lib/block.x</code></p>
 <p><a id="Bytes.reserve"></a></p>
 <h4 id="bytesreserve"><a class="header" href="#bytesreserve">Bytes.reserve</a></h4>
 <p><code>inline Self Bytes.reserve(Self bytes, size_t minimum)</code></p>
@@ -399,12 +418,12 @@ grow it return the current <code>Bytes</code> pointer, which callers must keep.<
 Growth may relocate storage, so callers must use the returned <code>Bytes</code> and
 discard earlier views. Raises: the same causes as <code>Block.reserve</code>; failure
 leaves the original view live.</p>
-<p>Source: <code>lib/block.x:234</code></p>
+<p>Source: <code>lib/block.x</code></p>
 <p><a id="Bytes.try_pop"></a></p>
 <h4 id="bytestry_pop"><a class="header" href="#bytestry_pop">Bytes.try_pop</a></h4>
 <p><code>inline int Bytes.try_pop(Bytes bytes, void *out)</code></p>
 <p>Removes the final element through <code>bytes</code> as <code>Block.try_pop</code> does.</p>
-<p>Source: <code>lib/block.x:274</code></p>
+<p>Source: <code>lib/block.x</code></p>
 <h2 id="runtime-internal-callables"><a class="header" href="#runtime-internal-callables">Runtime-internal callables</a></h2>
 <p>These callables connect runtime translation units. They are documented
 for source readers but are not supported as user API.</p>
@@ -414,22 +433,14 @@ for source readers but are not supported as user API.</p>
 <tr><th>Function</th><th>Summary</th></tr>
 </thead>
 <tbody>
-<tr><td><a href="#Block.move_to"><code>Block.move_to</code></a></td><td>Moves <code>block</code> and its backing allocation into <code>scope</code>.</td></tr>
+<tr><td><a href="#x2c_block_bad_arg"><code>x2c_block_bad_arg</code></a></td><td>Raises <code>&lt;bad-arg&gt;</code> for a null handle in an inline Block removal.</td></tr>
 </tbody>
 </table>
 </div>
-<h3 id="block-1"><a class="header" href="#block-1"><code>Block</code></a></h3>
-<p><a id="Block.move_to"></a></p>
-<h4 id="blockmove_to"><a class="header" href="#blockmove_to">Block.move_to</a></h4>
-<p><code>void Block.move_to(Block block, Scope *scope)</code></p>
-<p>Moves <code>block</code> and its backing allocation into <code>scope</code>.
-This preserves the <code>Block</code> and <code>Bytes</code> pointers and contents while changing
-which <code>Scope</code> ends their lifetime. <code>Context</code> export calls this method
-instead of assuming a <code>Block</code> is one allocation.
-For a nonnull <code>Block</code>, raises <code>&lt;bad-arg&gt;</code> for a null destination slot, or
-<code>&lt;alloc-fail&gt;</code> when an empty slot cannot acquire a <code>Scope</code>. Failure leaves
-ownership unchanged.</p>
-<p>Source: <code>lib/block.x:320</code></p>
+<h3 id="x2c_block_bad_arg"><a class="header" href="#x2c_block_bad_arg">x2c_block_bad_arg</a></h3>
+<p><code>void x2c_block_bad_arg(Symbol action)</code></p>
+<p>Raises <code>&lt;bad-arg&gt;</code> for a null handle in an inline Block removal.</p>
+<p>Source: <code>lib/block.x</code></p>
 <h2 id="public-types"><a class="header" href="#public-types">Public types</a></h2>
 <div class="table-wrapper">
 <table>
@@ -442,15 +453,17 @@ ownership unchanged.</p>
 </table>
 </div>
 <p><a id="Block"></a></p>
-<h3 id="block-2"><a class="header" href="#block-2">Block</a></h3>
-<p><code>typedef struct Block { Bytes bytes, size_t width, length, cap; } *Block</code></p>
+<h3 id="block-1"><a class="header" href="#block-1">Block</a></h3>
+<p><code>typedef struct Block { Bytes bytes, size_t width, length, cap; Scope lifetime; } *Block</code></p>
 <p>Holds resizable contiguous storage for fixed-width elements.
 The object and backing allocation belong to the <code>Scope</code> active at
 construction unless <code>Block.move_to</code> transfers them. The <code>Block</code> handle
 remains stable, but <code>bytes</code> is a borrowed base pointer that growth may
 replace. Valid <code>Block</code>s have nonzero <code>width</code> and <code>length &lt;= cap</code>;
-<code>Block.free</code> invalidates the handle and every <code>Bytes</code> view.</p>
-<p>Source: <code>lib/block.x:33</code></p>
+<code>Block.free</code> invalidates the handle and every <code>Bytes</code> view.
+Mutating a null Block raises <code>&lt;bad-arg&gt;</code>. Observations treat it as empty,
+and release accepts NULL.</p>
+<p>Source: <code>lib/block.x</code></p>
 <h2 id="design-notes"><a class="header" href="#design-notes">Design notes</a></h2>
 <p><code>Block</code> maintains the length and capacity invariants for contiguous
 fixed-width storage. <code>Bytes</code> exposes the same allocation through its data
@@ -463,6 +476,14 @@ Growth rebases that range after reallocating the owning block.</p>
 <code>Bytes.block</code> storage view.</p>
 
                     </main>
+                    <script>
+                        // A generated page is edited through its generator.
+                        if ([...document.querySelector('#mdbook-content main').childNodes]
+                                .some(node => node.nodeType === Node.COMMENT_NODE &&
+                                      node.textContent.includes('Do not edit by hand'))) {
+                            document.querySelector('a[rel="edit"]')?.remove();
+                        }
+                    </script>
 
                     <nav class="x2c-pager" aria-label="Page navigation">
                         <a rel="prev" href="../../library/modules/atom.html" class="x2c-pager-prev" aria-keyshortcuts="Left">
@@ -479,9 +500,9 @@ Growth rebases that range after reallocating the owning block.</p>
                         &copy; 2025&ndash;2026
                         <a href="https://flake.org">GWF</a>
                         &middot;
-                        <a href="https://github.com/gwf/x2c/blob/aa2b9b2575297711e5978acc53f87bd7f645f3c7/LICENSE">Apache 2.0</a>
+                        <a href="https://github.com/gwf/x2c/blob/2c5870d64d381a861054dae9927aa65adc87e9e0/LICENSE">Apache 2.0</a>
                         &middot;
-                        <a href="https://github.com/gwf/x2c/blob/aa2b9b2575297711e5978acc53f87bd7f645f3c7/TRADEMARKS.md">Trademarks</a>
+                        <a href="https://github.com/gwf/x2c/blob/2c5870d64d381a861054dae9927aa65adc87e9e0/TRADEMARKS.md">Trademarks</a>
                     </footer>
                 </div>
             </div>

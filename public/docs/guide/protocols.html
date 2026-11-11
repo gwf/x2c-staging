@@ -1,6 +1,6 @@
 <!DOCTYPE HTML>
 <html lang="en" class="light sidebar-visible" dir="ltr">
-    <head><meta name="x2c-release-channel" content="staging"><meta name="x2c-candidate" content="candidate-aa2b9b2575297711e5978acc53f87bd7f645f3c7-39090113132-1">
+    <head><meta name="x2c-release-channel" content="staging"><meta name="x2c-candidate" content="candidate-aa2b9b2575297711e5978acc53f87bd7f645f3c7-39090113132-1"><meta name="x2c-site-source" content="2c5870d64d381a861054dae9927aa65adc87e9e0"><meta name="robots" content="noindex">
         <!-- Book generated using mdBook -->
         <meta charset="UTF-8">
         <title>Protocols - The x2c Book</title>
@@ -30,7 +30,7 @@
         <link rel="stylesheet" id="mdbook-ayu-highlight-css" href="../ayu-highlight-3fdfc3ac.css">
 
         <!-- Custom theme stylesheets -->
-        <link rel="stylesheet" href="../theme/header-f6c12aed.css">
+        <link rel="stylesheet" href="../theme/header-b540a03f.css">
         <link rel="stylesheet" href="../theme/x2c-fd3d182e.css">
 
 
@@ -39,12 +39,12 @@
             const path_to_root = "../";
             const default_light_theme = "light";
             const default_dark_theme = "light";
-            window.path_to_searchindex_js = "../searchindex-f4d06db2.js";
+            window.path_to_searchindex_js = "../searchindex-a3bdfad5.js";
         </script>
         <!-- Start loading toc.js asap -->
-        <script src="../toc-00ae7479.js"></script>
+        <script src="../toc-2248e0f3.js"></script>
         <!-- x2c publication metadata -->
-        <link rel="canonical" href="https://staging.x2c-lang.dev/docs/guide/protocols.html">
+        <link rel="canonical" href="https://x2c-lang.dev/docs/guide/protocols.html">
         <meta property="og:type" content="website">
         <meta property="og:title" content="Protocols - The x2c Book">
         <meta property="og:description" content="The x2c language, standard library, and compiler.">
@@ -143,16 +143,12 @@
                             <button class="landing-tagline menu-title" type="button" title="Scroll to top">The x2c Book</button>
                         </div>
                         <nav class="landing-nav" aria-label="x2c website">
-                            <div class="landing-page-nav">
-                                <a href="../../#love">love</a>
-                                <a href="../../#power">power</a>
-                                <a href="../../#magic">magic</a>
-                            </div>
                             <div class="landing-site-nav">
                                 <a href="../../#install">install</a>
                                 <a href="../../#packages">packages</a>
                             </div>
                             <div class="landing-reference-nav">
+                                <a href="../../examples/">examples</a>
                                 <a href="../../about/">about</a>
                                 <a href="../" aria-current="page">docs</a>
                                 <a href="https://github.com/gwf/x2c">source</a>
@@ -219,13 +215,17 @@
                 <div id="mdbook-content" class="content">
                     <main>
                         <h1 id="protocols"><a class="header" href="#protocols">Protocols</a></h1>
-<p><a href="system-macros.html#clean-up-an-initialized-local"><code>Cleanup(T)</code></a> declares
-<code>void T.cleanup(T)</code> for explicitly owned locals. Classes select their defaults
-and participate through the same protocol and method rules.</p>
+<p>A protocol is a compile-time relationship that lets several concrete types
+answer the same method calls and operators. Use one when values of different
+types should work with the same operations, such as <code>str</code> or indexing on a
+<code>Var</code>.</p>
 <p>A protocol declares methods that other concrete types can adopt. Its <em>base</em>
 is the type that declares those methods; a <em>participant</em> is a type that
 explicitly adopts them. The compiler selects each participant method or
 adapts a base method by converting its arguments and result.</p>
+<p><a href="system-macros.html#clean-up-an-initialized-local"><code>Cleanup(T)</code></a> declares
+<code>void T.cleanup(T)</code> for explicitly owned locals. Classes select their defaults
+and participate through the same protocol and method rules.</p>
 <p>The selected methods support dot calls, operators, and, for <code>Var</code>, calls on
 boxed values. Adoption works at compile time; it creates no runtime interface
 object. Functions with matching names do not imply adoption.</p>
@@ -359,8 +359,9 @@ gives the full rules, including signature conflicts and <code>Var(T)</code>.</p>
 <h2 id="operators"><a class="header" href="#operators">Operators</a></h2>
 <p>Operators call the same members as dot syntax: <code>+</code> calls <code>add</code>, <code>==</code> calls
 <code>equal</code>, <code>&lt;</code> compares through <code>compare</code>, conditions call <code>truth</code>, and indexing
-calls <code>getindex</code>. A participant may also declare <code>void T.discard(T)</code> to
-release each unnamed temporary in an operator chain. The reference lists
+calls <code>getindex</code>. A protocol may declare <code>void Self.discard(Self)</code>, which
+its participant implements as <code>void T.discard(T)</code>, to release unnamed
+temporaries consumed by protocol operations. The reference lists
 <a href="../reference/language.html#operators">every operator and its member</a>, with the
 rules for mixed operands and updates.</p>
 <h2 id="when-protocols-share-a-method"><a class="header" href="#when-protocols-share-a-method">When protocols share a method</a></h2>
@@ -370,7 +371,7 @@ implement the member on the participant to choose. The reference gives
 <a href="../reference/language.html#members-shared-by-several-protocols">the full rule</a>.</p>
 <p>Before adding a protocol member, inspect the conformance dump for every
 participant homonym and its signature:</p>
-<pre><code class="language-sh">./builds/0/x2c translate --dump-conformance path/to/unit.x
+<pre><code class="language-sh">x2c translate --dump-conformance path/to/unit.x
 </code></pre>
 <p>An existing method with the same name must have both the intended meaning and
 a compatible signature. Rename it before extending the protocol if it means
@@ -393,13 +394,13 @@ only <code>str</code>, and explicitly adopts the protocol:</p>
 </span><span class="line"><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">}</span>
 </span><span class="line">
 </span><span class="line"><span style="--shiki-light:#007C8A;--shiki-dark:#29D3E2">String</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF"> Vec.</span><span style="--shiki-light:#6F42C1;--shiki-dark:#E9E5DF">str</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">(Vec </span><span style="--shiki-light:#E36209;--shiki-dark:#E9E5DF">value</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">) {</span>
-</span><span class="line"><span style="--shiki-light:#D73A49;--shiki-dark:#F0ADA1">  return</span><span style="--shiki-light:#A626A4;--shiki-light-font-weight:bold;--shiki-dark:#FF4FD8;--shiki-dark-font-weight:bold"> %"</span><span style="--shiki-light:#032F62;--shiki-dark:#9EDFB8">Vec(</span><span style="--shiki-light:#A626A4;--shiki-light-font-weight:bold;--shiki-dark:#FF4FD8;--shiki-dark-font-weight:bold">${</span><span style="--shiki-light:#032F62;--shiki-dark:#9EDFB8">value.x</span><span style="--shiki-light:#A626A4;--shiki-light-font-weight:bold;--shiki-dark:#FF4FD8;--shiki-dark-font-weight:bold">}</span><span style="--shiki-light:#032F62;--shiki-dark:#9EDFB8">,</span><span style="--shiki-light:#A626A4;--shiki-light-font-weight:bold;--shiki-dark:#FF4FD8;--shiki-dark-font-weight:bold">${</span><span style="--shiki-light:#032F62;--shiki-dark:#9EDFB8">value.y</span><span style="--shiki-light:#A626A4;--shiki-light-font-weight:bold;--shiki-dark:#FF4FD8;--shiki-dark-font-weight:bold">}</span><span style="--shiki-light:#032F62;--shiki-dark:#9EDFB8">)</span><span style="--shiki-light:#A626A4;--shiki-light-font-weight:bold;--shiki-dark:#FF4FD8;--shiki-dark-font-weight:bold">"</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">;</span>
+</span><span class="line"><span style="--shiki-light:#D73A49;--shiki-dark:#F0ADA1">  return</span><span style="--shiki-light:#A626A4;--shiki-light-font-weight:bold;--shiki-dark:#FF4FD8;--shiki-dark-font-weight:bold"> %"</span><span style="--shiki-light:#032F62;--shiki-dark:#9EDFB8">Vec(</span><span style="--shiki-light:#A626A4;--shiki-light-font-weight:bold;--shiki-dark:#FF4FD8;--shiki-dark-font-weight:bold">$(</span><span style="--shiki-light:#032F62;--shiki-dark:#9EDFB8">value.x</span><span style="--shiki-light:#A626A4;--shiki-light-font-weight:bold;--shiki-dark:#FF4FD8;--shiki-dark-font-weight:bold">)</span><span style="--shiki-light:#032F62;--shiki-dark:#9EDFB8">,</span><span style="--shiki-light:#A626A4;--shiki-light-font-weight:bold;--shiki-dark:#FF4FD8;--shiki-dark-font-weight:bold">$(</span><span style="--shiki-light:#032F62;--shiki-dark:#9EDFB8">value.y</span><span style="--shiki-light:#A626A4;--shiki-light-font-weight:bold;--shiki-dark:#FF4FD8;--shiki-dark-font-weight:bold">)</span><span style="--shiki-light:#032F62;--shiki-dark:#9EDFB8">)</span><span style="--shiki-light:#A626A4;--shiki-light-font-weight:bold;--shiki-dark:#FF4FD8;--shiki-dark-font-weight:bold">"</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">;</span>
 </span><span class="line"><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">}</span>
 </span><span class="line">
 </span><span class="line"><span style="--shiki-light:#A626A4;--shiki-light-font-weight:bold;--shiki-dark:#FF4FD8;--shiki-dark-font-weight:bold">protocol</span><span style="--shiki-light:#6F42C1;--shiki-dark:#A6D9E5"> Var</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">(</span><span style="--shiki-light:#D73A49;--shiki-dark:#A6D9E5">Vec</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">);</span>
 </span><span class="line">
 </span><span class="line"><span style="--shiki-light:#D73A49;--shiki-dark:#F0ADA1">int</span><span style="--shiki-light:#6F42C1;--shiki-dark:#E9E5DF"> main</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">(</span><span style="--shiki-light:#D73A49;--shiki-dark:#F0ADA1">void</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">) {</span>
-</span><span class="line"><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">  Vec value </span><span style="--shiki-light:#D73A49;--shiki-dark:#E9E5DF">=</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF"> Scope.</span><span style="--shiki-light:#6F42C1;--shiki-dark:#E9E5DF">malloc</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">(</span><span style="--shiki-light:#D73A49;--shiki-dark:#E9E5DF">sizeof</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">(</span><span style="--shiki-light:#D73A49;--shiki-dark:#F0ADA1">struct</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF"> Vec));</span>
+</span><span class="line"><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">  Vec value </span><span style="--shiki-light:#D73A49;--shiki-dark:#E9E5DF">=</span><span style="--shiki-light:#6F42C1;--shiki-dark:#E9E5DF"> xmalloc</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">(</span><span style="--shiki-light:#D73A49;--shiki-dark:#E9E5DF">sizeof</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">(</span><span style="--shiki-light:#D73A49;--shiki-dark:#F0ADA1">struct</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF"> Vec));</span>
 </span><span class="line"><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">  value.x </span><span style="--shiki-light:#D73A49;--shiki-dark:#E9E5DF">=</span><span style="--shiki-light:#005CC5;--shiki-dark:#A9C9F5"> 1</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">;</span>
 </span><span class="line"><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">  value.y </span><span style="--shiki-light:#D73A49;--shiki-dark:#E9E5DF">=</span><span style="--shiki-light:#005CC5;--shiki-dark:#A9C9F5"> 2</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">;</span>
 </span><span class="line"><span style="--shiki-light:#007C8A;--shiki-dark:#29D3E2">  Var</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF"> boxed </span><span style="--shiki-light:#D73A49;--shiki-dark:#E9E5DF">=</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF"> value;</span>
@@ -432,7 +433,7 @@ The generated <code>Polar.angle</code> needs only the total forward view:</p>
 </span><span class="line"><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">}</span>
 </span><span class="line">
 </span><span class="line"><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">Cartesian Polar.</span><span style="--shiki-light:#6F42C1;--shiki-dark:#E9E5DF">cartesian</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">(Polar </span><span style="--shiki-light:#E36209;--shiki-dark:#E9E5DF">value</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">) {</span>
-</span><span class="line"><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">  Cartesian result </span><span style="--shiki-light:#D73A49;--shiki-dark:#E9E5DF">=</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF"> Scope.</span><span style="--shiki-light:#6F42C1;--shiki-dark:#E9E5DF">malloc</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">(</span><span style="--shiki-light:#D73A49;--shiki-dark:#E9E5DF">sizeof</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">(</span><span style="--shiki-light:#D73A49;--shiki-dark:#F0ADA1">struct</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF"> Cartesian));</span>
+</span><span class="line"><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">  Cartesian result </span><span style="--shiki-light:#D73A49;--shiki-dark:#E9E5DF">=</span><span style="--shiki-light:#6F42C1;--shiki-dark:#E9E5DF"> xmalloc</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">(</span><span style="--shiki-light:#D73A49;--shiki-dark:#E9E5DF">sizeof</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">(</span><span style="--shiki-light:#D73A49;--shiki-dark:#F0ADA1">struct</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF"> Cartesian));</span>
 </span><span class="line"><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">  result.x </span><span style="--shiki-light:#D73A49;--shiki-dark:#E9E5DF">=</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF"> value.radius </span><span style="--shiki-light:#D73A49;--shiki-dark:#E9E5DF">*</span><span style="--shiki-light:#6F42C1;--shiki-dark:#E9E5DF"> cos</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">(value.theta);</span>
 </span><span class="line"><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">  result.y </span><span style="--shiki-light:#D73A49;--shiki-dark:#E9E5DF">=</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF"> value.radius </span><span style="--shiki-light:#D73A49;--shiki-dark:#E9E5DF">*</span><span style="--shiki-light:#6F42C1;--shiki-dark:#E9E5DF"> sin</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">(value.theta);</span>
 </span><span class="line"><span style="--shiki-light:#D73A49;--shiki-dark:#F0ADA1">  return</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF"> result;</span>
@@ -453,7 +454,7 @@ The generated <code>Polar.angle</code> needs only the total forward view:</p>
 </span><span class="line"><span style="--shiki-light:#A626A4;--shiki-light-font-weight:bold;--shiki-dark:#FF4FD8;--shiki-dark-font-weight:bold">protocol</span><span style="--shiki-light:#6F42C1;--shiki-dark:#A6D9E5"> Cartesian</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">(</span><span style="--shiki-light:#D73A49;--shiki-dark:#A6D9E5">Polar</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">);</span>
 </span><span class="line">
 </span><span class="line"><span style="--shiki-light:#D73A49;--shiki-dark:#F0ADA1">int</span><span style="--shiki-light:#6F42C1;--shiki-dark:#E9E5DF"> main</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">(</span><span style="--shiki-light:#D73A49;--shiki-dark:#F0ADA1">void</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">) {</span>
-</span><span class="line"><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">  Polar value </span><span style="--shiki-light:#D73A49;--shiki-dark:#E9E5DF">=</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF"> Scope.</span><span style="--shiki-light:#6F42C1;--shiki-dark:#E9E5DF">malloc</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">(</span><span style="--shiki-light:#D73A49;--shiki-dark:#E9E5DF">sizeof</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">(</span><span style="--shiki-light:#D73A49;--shiki-dark:#F0ADA1">struct</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF"> Polar));</span>
+</span><span class="line"><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">  Polar value </span><span style="--shiki-light:#D73A49;--shiki-dark:#E9E5DF">=</span><span style="--shiki-light:#6F42C1;--shiki-dark:#E9E5DF"> xmalloc</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">(</span><span style="--shiki-light:#D73A49;--shiki-dark:#E9E5DF">sizeof</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">(</span><span style="--shiki-light:#D73A49;--shiki-dark:#F0ADA1">struct</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF"> Polar));</span>
 </span><span class="line"><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">  value.radius </span><span style="--shiki-light:#D73A49;--shiki-dark:#E9E5DF">=</span><span style="--shiki-light:#005CC5;--shiki-dark:#A9C9F5"> 2.0</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">;</span>
 </span><span class="line"><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">  value.theta </span><span style="--shiki-light:#D73A49;--shiki-dark:#E9E5DF">=</span><span style="--shiki-light:#005CC5;--shiki-dark:#A9C9F5"> 0.5</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">;</span>
 </span><span class="line"><span style="--shiki-light:#6F42C1;--shiki-dark:#E9E5DF">  printf</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">(</span><span style="--shiki-light:#032F62;--shiki-dark:#9EDFB8">"</span><span style="--shiki-light:#005CC5;--shiki-dark:#9EDFB8">%.1f</span><span style="--shiki-light:#005CC5;--shiki-dark:#9EDFB8"> %.1f\n</span><span style="--shiki-light:#032F62;--shiki-dark:#9EDFB8">"</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">, value.</span><span style="--shiki-light:#6F42C1;--shiki-dark:#E9E5DF">magnitude</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">(), value.</span><span style="--shiki-light:#6F42C1;--shiki-dark:#E9E5DF">angle</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">());</span>
@@ -502,13 +503,26 @@ public adoption places them in the participant’s generated header. If the
 protocol, participant, native target, or adoption is private, both remain in
 the participant’s C file. Variadic native targets and unsafe conversion
 directions are rejected.</p>
+<h2 id="where-to-go-next"><a class="header" href="#where-to-go-next">Where to go next</a></h2>
+<ul>
+<li><a href="system-macros.html">Classes and System Macros</a> declares types with their
+defaults.</li>
+</ul>
 
                     </main>
+                    <script>
+                        // A generated page is edited through its generator.
+                        if ([...document.querySelector('#mdbook-content main').childNodes]
+                                .some(node => node.nodeType === Node.COMMENT_NODE &&
+                                      node.textContent.includes('Do not edit by hand'))) {
+                            document.querySelector('a[rel="edit"]')?.remove();
+                        }
+                    </script>
 
                     <nav class="x2c-pager" aria-label="Page navigation">
                         <a rel="prev" href="../guide/exceptions.html" class="x2c-pager-prev" aria-keyshortcuts="Left">
                             <span class="x2c-pager-label">previous</span>
-                            <span class="x2c-pager-title">Exceptions and Cleanup</span>
+                            <span class="x2c-pager-title">Errors and Cleanup</span>
                         </a>
                         
                         <a rel="next prefetch" href="../guide/system-macros.html" class="x2c-pager-next" aria-keyshortcuts="Right">
@@ -520,9 +534,9 @@ directions are rejected.</p>
                         &copy; 2025&ndash;2026
                         <a href="https://flake.org">GWF</a>
                         &middot;
-                        <a href="https://github.com/gwf/x2c/blob/aa2b9b2575297711e5978acc53f87bd7f645f3c7/LICENSE">Apache 2.0</a>
+                        <a href="https://github.com/gwf/x2c/blob/2c5870d64d381a861054dae9927aa65adc87e9e0/LICENSE">Apache 2.0</a>
                         &middot;
-                        <a href="https://github.com/gwf/x2c/blob/aa2b9b2575297711e5978acc53f87bd7f645f3c7/TRADEMARKS.md">Trademarks</a>
+                        <a href="https://github.com/gwf/x2c/blob/2c5870d64d381a861054dae9927aa65adc87e9e0/TRADEMARKS.md">Trademarks</a>
                     </footer>
                 </div>
             </div>

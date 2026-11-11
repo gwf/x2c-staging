@@ -1,6 +1,6 @@
 <!DOCTYPE HTML>
 <html lang="en" class="light sidebar-visible" dir="ltr">
-    <head><meta name="x2c-release-channel" content="staging"><meta name="x2c-candidate" content="candidate-aa2b9b2575297711e5978acc53f87bd7f645f3c7-39090113132-1">
+    <head><meta name="x2c-release-channel" content="staging"><meta name="x2c-candidate" content="candidate-aa2b9b2575297711e5978acc53f87bd7f645f3c7-39090113132-1"><meta name="x2c-site-source" content="2c5870d64d381a861054dae9927aa65adc87e9e0"><meta name="robots" content="noindex">
         <!-- Book generated using mdBook -->
         <meta charset="UTF-8">
         <title>Scopes and Lifetime - The x2c Book</title>
@@ -30,7 +30,7 @@
         <link rel="stylesheet" id="mdbook-ayu-highlight-css" href="../ayu-highlight-3fdfc3ac.css">
 
         <!-- Custom theme stylesheets -->
-        <link rel="stylesheet" href="../theme/header-f6c12aed.css">
+        <link rel="stylesheet" href="../theme/header-b540a03f.css">
         <link rel="stylesheet" href="../theme/x2c-fd3d182e.css">
 
 
@@ -39,12 +39,12 @@
             const path_to_root = "../";
             const default_light_theme = "light";
             const default_dark_theme = "light";
-            window.path_to_searchindex_js = "../searchindex-f4d06db2.js";
+            window.path_to_searchindex_js = "../searchindex-a3bdfad5.js";
         </script>
         <!-- Start loading toc.js asap -->
-        <script src="../toc-00ae7479.js"></script>
+        <script src="../toc-2248e0f3.js"></script>
         <!-- x2c publication metadata -->
-        <link rel="canonical" href="https://staging.x2c-lang.dev/docs/guide/memory.html">
+        <link rel="canonical" href="https://x2c-lang.dev/docs/guide/memory.html">
         <meta property="og:type" content="website">
         <meta property="og:title" content="Scopes and Lifetime - The x2c Book">
         <meta property="og:description" content="The x2c language, standard library, and compiler.">
@@ -143,16 +143,12 @@
                             <button class="landing-tagline menu-title" type="button" title="Scroll to top">The x2c Book</button>
                         </div>
                         <nav class="landing-nav" aria-label="x2c website">
-                            <div class="landing-page-nav">
-                                <a href="../../#love">love</a>
-                                <a href="../../#power">power</a>
-                                <a href="../../#magic">magic</a>
-                            </div>
                             <div class="landing-site-nav">
                                 <a href="../../#install">install</a>
                                 <a href="../../#packages">packages</a>
                             </div>
                             <div class="landing-reference-nav">
+                                <a href="../../examples/">examples</a>
                                 <a href="../../about/">about</a>
                                 <a href="../" aria-current="page">docs</a>
                                 <a href="https://github.com/gwf/x2c">source</a>
@@ -228,11 +224,12 @@ default they last until the process exits.</li>
 <li>Mutable storage belongs to a <em>scope</em>. A scope frees its allocations
 together.</li>
 </ul>
-<p>The <a href="system-macros.html">system macros</a> provide <code>$scope()</code> for a retained
-region, <code>$scope(pointer)</code> for a temporary destination, and <code>$auto</code> for an
-explicitly owned local. Classes can also supply early <code>free</code> operations.
-The <a href="../library/overview.html">standard library overview</a> links to the detailed
-API reference.</p>
+<p>A <em>region</em> is a stretch of code whose allocations end together, such as an
+<code>auto</code> block; <a href="regions.html">The Region Model</a> lists every form. The <a href="system-macros.html">system
+macros</a> provide <code>auto</code> for an open region, <code>auto (pointer)</code>
+for a temporary destination, and initializer <code>auto</code> for an explicitly owned
+local. Classes can also supply early <code>free</code> operations. The <a href="../library/overview.html">standard library
+overview</a> links to the detailed API reference.</p>
 <h2 id="where-each-value-is-stored"><a class="header" href="#where-each-value-is-stored">Where each value is stored</a></h2>
 <p>A <code>Var</code> is eight bytes. Integers that fit, doubles, pointers, <code>Symbol</code>s,
 <code>Null</code>, and <code>void</code> are stored in those bytes and allocate nothing. The wide
@@ -256,30 +253,54 @@ inside it. The
 <code>Pool</code> calls described below give temporary <code>String</code> and <code>List</code> structure a
 shorter lifetime.</p>
 <p>All other storage is mutable and belongs to a scope: <code>Block</code>, <code>Array</code>,
-<code>Buffer</code>, wide <code>Var</code> boxes, and anything you request with <code>Scope.malloc</code>,
-<code>Scope.calloc</code>, or <code>Scope.memdup</code>.</p>
+<code>Map</code>, <code>Buffer</code>, wide <code>Var</code> boxes, and anything you request with
+<code>Scope.malloc</code>, <code>Scope.calloc</code>, or <code>Scope.memdup</code>.</p>
 <h2 id="a-scope-is-a-group-of-allocations"><a class="header" href="#a-scope-is-a-group-of-allocations">A scope is a group of allocations</a></h2>
-<p><code>Scope.retain</code> opens a new region on the currently active scope slot;
-<code>Scope.release</code> frees everything allocated inside it. Between them, the
-allocation calls go into the retained region:</p>
-<pre class="shiki shiki-themes x2c-light x2c-dark x2c-code" style="--shiki-light:#24292e;--shiki-dark:#e9e5df;--shiki-light-bg:#fff;--shiki-dark-bg:#101011" tabindex="0"><code class="language-x2c no-highlight"><span class="line"><span style="--shiki-light:#007C8A;--shiki-dark:#29D3E2">Scope</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">.</span><span style="--shiki-light:#6F42C1;--shiki-dark:#E9E5DF">retain</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">();</span>
-</span><span class="line"><span style="--shiki-light:#D73A49;--shiki-dark:#F0ADA1">char</span><span style="--shiki-light:#D73A49;--shiki-dark:#E9E5DF"> *</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">line </span><span style="--shiki-light:#D73A49;--shiki-dark:#E9E5DF">=</span><span style="--shiki-light:#007C8A;--shiki-dark:#29D3E2"> Scope</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">.</span><span style="--shiki-light:#6F42C1;--shiki-dark:#E9E5DF">malloc</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">(</span><span style="--shiki-light:#005CC5;--shiki-dark:#A9C9F5">32</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">);</span>
+<p>The public C-style names <code>xmalloc</code>, <code>xcalloc</code>, <code>xrealloc</code>, <code>xfree</code>, and
+<code>xmemdup</code> alias <code>Scope.malloc</code>, <code>Scope.calloc</code>, <code>Scope.realloc</code>, <code>Scope.free</code>,
+and <code>Scope.memdup</code>. They have the same signatures, error behavior, and
+compile-time availability. They are available through the standard prelude:</p>
+<pre class="shiki shiki-themes x2c-light x2c-dark x2c-code" style="--shiki-light:#24292e;--shiki-dark:#e9e5df;--shiki-light-bg:#fff;--shiki-dark-bg:#101011" tabindex="0"><code class="language-x2c no-highlight"><span class="line"><span style="--shiki-light:#D73A49;--shiki-dark:#F0ADA1">char</span><span style="--shiki-light:#D73A49;--shiki-dark:#E9E5DF"> *</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">word </span><span style="--shiki-light:#D73A49;--shiki-dark:#E9E5DF">=</span><span style="--shiki-light:#6F42C1;--shiki-dark:#E9E5DF"> xmemdup</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">(</span><span style="--shiki-light:#032F62;--shiki-dark:#9EDFB8">"first"</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">, </span><span style="--shiki-light:#005CC5;--shiki-dark:#A9C9F5">6</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">);</span>
+</span><span class="line"><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">word </span><span style="--shiki-light:#D73A49;--shiki-dark:#E9E5DF">=</span><span style="--shiki-light:#6F42C1;--shiki-dark:#E9E5DF"> xrealloc</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">(word, </span><span style="--shiki-light:#005CC5;--shiki-dark:#A9C9F5">32</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">);</span>
+</span><span class="line"><span style="--shiki-light:#6F42C1;--shiki-dark:#E9E5DF">strcpy</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">(word, </span><span style="--shiki-light:#032F62;--shiki-dark:#9EDFB8">"second"</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">);</span>
+</span><span class="line"><span style="--shiki-light:#6F42C1;--shiki-dark:#E9E5DF">puts</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">(word);</span>
+</span><span class="line"><span style="--shiki-light:#6F42C1;--shiki-dark:#E9E5DF">xfree</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">(word);</span></span></code></pre>
+
+<p>New allocations belong to the active scope. A nested open region
+or pushed scope becomes the destination for new allocations. Resizing an
+existing block preserves its owner. Allocations left in a scope are reclaimed
+when that scope ends; the default root ends at thread or process shutdown.</p>
+<p><code>xmalloc(0)</code> and zero-sized <code>xcalloc</code> requests return distinct managed
+pointers. <code>xmemdup(NULL, size)</code> and <code>xmemdup(ptr, 0)</code> return NULL.
+<code>xrealloc(NULL, size)</code> allocates, even when <code>size</code> is zero.
+<code>xrealloc(ptr, 0)</code> frees a nonnull pointer and returns NULL. <code>xfree(NULL)</code>
+does nothing. Size overflow and allocation failure follow the corresponding
+<code>Scope</code> operation’s errors.</p>
+<p>Keep native allocations with their native allocator. For example, a buffer
+allocated by <code>getline</code> must use native <code>free</code>. Passing that buffer to <code>xfree</code>
+or <code>xrealloc</code>, or passing managed memory to native <code>free</code> or <code>realloc</code>, is
+undefined behavior.</p>
+<p><code>Scope.open</code> opens a new region on the active scope slot;
+<code>Scope.close</code> frees everything allocated inside it. Between them, the
+allocation calls go into the open region:</p>
+<pre class="shiki shiki-themes x2c-light x2c-dark x2c-code" style="--shiki-light:#24292e;--shiki-dark:#e9e5df;--shiki-light-bg:#fff;--shiki-dark-bg:#101011" tabindex="0"><code class="language-x2c no-highlight"><span class="line"><span style="--shiki-light:#007C8A;--shiki-dark:#29D3E2">Scope</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">.</span><span style="--shiki-light:#6F42C1;--shiki-dark:#E9E5DF">open</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">();</span>
+</span><span class="line"><span style="--shiki-light:#D73A49;--shiki-dark:#F0ADA1">char</span><span style="--shiki-light:#D73A49;--shiki-dark:#E9E5DF"> *</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">line </span><span style="--shiki-light:#D73A49;--shiki-dark:#E9E5DF">=</span><span style="--shiki-light:#6F42C1;--shiki-dark:#E9E5DF"> xmalloc</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">(</span><span style="--shiki-light:#005CC5;--shiki-dark:#A9C9F5">32</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">);</span>
 </span><span class="line"><span style="--shiki-light:#6F42C1;--shiki-dark:#E9E5DF">snprintf</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">(line, </span><span style="--shiki-light:#005CC5;--shiki-dark:#A9C9F5">32</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">, </span><span style="--shiki-light:#032F62;--shiki-dark:#9EDFB8">"</span><span style="--shiki-light:#005CC5;--shiki-dark:#9EDFB8">%d</span><span style="--shiki-light:#032F62;--shiki-dark:#9EDFB8"> bytes"</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">, </span><span style="--shiki-light:#005CC5;--shiki-dark:#A9C9F5">32</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">);</span>
 </span><span class="line"><span style="--shiki-light:#6F42C1;--shiki-dark:#E9E5DF">puts</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">(line);</span>
-</span><span class="line"><span style="--shiki-light:#007C8A;--shiki-dark:#29D3E2">Scope</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">.</span><span style="--shiki-light:#6F42C1;--shiki-dark:#E9E5DF">release</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">();</span></span></code></pre>
+</span><span class="line"><span style="--shiki-light:#007C8A;--shiki-dark:#29D3E2">Scope</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">.</span><span style="--shiki-light:#6F42C1;--shiki-dark:#E9E5DF">close</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">();</span></span></code></pre>
 
-<p>Retained regions nest. Each <code>Scope.retain</code> must be paired with exactly one
-<code>Scope.release</code>. Use a nested region to free temporaries before the
+<p>Open regions nest. Each <code>Scope.open</code> must be paired with exactly one
+<code>Scope.close</code>. Use a nested region to free temporaries before the
 surrounding work finishes.</p>
-<p>The runtime checks each release against the active slot. An empty retained
-region releases normally. An extra release, or a release from a different
+<p>The runtime checks each close against the active slot. An empty open
+region closes normally. An extra close, or a close from a different
 pushed slot, raises <code>&lt;bad-state&gt;</code> and leaves the active region intact.
 A matching <code>catch</code> can handle the error. Without one, the default policy
 aborts the program.</p>
-<p>Storage returned by these calls is managed memory. <code>Scope.realloc</code> grows or
-shrinks it in place, and <code>Scope.free</code> frees it before the release. Most
-storage does not need <code>Scope.free</code>, because the release frees the whole
-region. <code>Scope.malloc_finalized</code>
+<p>Storage returned by these calls is managed memory. <code>Scope.realloc</code> resizes
+it and returns a pointer that can differ from the old one, and <code>Scope.free</code>
+frees it before the close. Most storage does not need <code>Scope.free</code>, because
+the close frees the whole region. <code>Scope.malloc_finalized</code>
 allocates storage that runs a function of your choice when it is reclaimed;
 see <a href="#attaching-a-finalizer">attaching a finalizer</a>.</p>
 <p>For storage that must outlive the current region, hold a scope in a variable
@@ -293,10 +314,14 @@ scope.
 </span><span class="line"><span style="--shiki-light:#6F42C1;--shiki-dark:#E9E5DF">puts</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">(copy);</span>
 </span><span class="line"><span style="--shiki-light:#007C8A;--shiki-dark:#29D3E2">Scope</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">.</span><span style="--shiki-light:#6F42C1;--shiki-dark:#E9E5DF">destroy</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">(work);</span></span></code></pre>
 
-<p><code>Scope.new_named</code> copies a diagnostic name. Name every long-lived scope.
-At exit the allocator reports each scope that is still alive, by name.
-Without the <code>Scope.destroy</code> line above, the program prints this on standard
-error before it ends:</p>
+<p><code>Scope.new_named</code> copies a diagnostic name, available through <code>Scope.name</code>.
+Name every long-lived scope. Allocation accounting is off by default.
+To collect statistics and report live scopes at exit, start the program with
+<code>X2C_SCOPE_ACCOUNTING=1</code>. The runtime reads the setting once at initialization;
+changing the environment afterward does not change the selected mode.
+<code>Scope.accounting_enabled()</code> reports that mode.</p>
+<p>With accounting enabled and without the <code>Scope.destroy</code> line above, the
+program prints this on standard error before it ends:</p>
 <pre><code class="language-text">Scope leak detected:
 	live_scopes: 1
 	live_allocations: 1
@@ -305,16 +330,23 @@ error before it ends:</p>
 </code></pre>
 <p>The last line counts the allocator’s own bookkeeping, such as the record
 holding that name. <code>Scope.stats</code> reports the same counters on demand, so
-you can check that a routine leaves no allocations behind.</p>
+you can check that a routine leaves no allocations behind. With accounting
+disabled, every <code>Scope.stats</code> field is zero and automatic leak reports are
+disabled. Allocation ownership, cleanup, finalizers, and diagnostic scope names
+work in either mode. The compiler enables accounting for its <code>repl</code> and <code>lsp</code>
+commands, which use these counters for statistics and retained-memory limits.</p>
 <p>When several operations should allocate in the same scope without passing a
 slot to every call, <code>Scope.push</code> makes a slot active and <code>Scope.pop</code>
 restores the previous one. <code>Scope.pop</code> with no push outstanding raises
-<code>&lt;bad-state&gt;</code>. <code>Scope.destroy</code> raises the same cause when the scope is still
-in use: the active root, a slot still on the pushed stack, or a scope that a
-later <code>Scope.retain</code> layered another region on top of. The scope is left
+<code>&lt;bad-state&gt;</code>. <code>Scope.destroy</code> raises the same cause for the current active
+root or a scope named by a slot still on the pushed stack. The scope is left
 intact. Uncaught, <code>&lt;bad-state&gt;</code> aborts the program.</p>
-<p>To release a region on every exit from a block, write it as <code>$scope()</code> or put
-the release in a <code>defer</code>. <a href="exceptions.html#finally-and-defer">Errors and
+<p>The caller must keep a scope alive while open regions or other users
+borrow it. Destroying an attached lower scope violates that lifetime contract;
+the runtime does not promise to detect it. A popped, detached chain can still
+be destroyed through its head.</p>
+<p>To close a region on every exit from a block, write it as <code>auto</code> or put
+the close in a <code>defer</code>. <a href="exceptions.html#finally-and-defer">Errors and
 Cleanup</a> gives the exit rules.</p>
 <h2 id="bounding-temporary-canonical-lists"><a class="header" href="#bounding-temporary-canonical-lists">Bounding temporary canonical Lists</a></h2>
 <p><code>Pool.open</code> and <code>Pool.close</code> give canonical values a shorter lifetime.
@@ -338,12 +370,12 @@ bracket bounds both:</p>
 </span><span class="line"><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">  Pool.</span><span style="--shiki-light:#6F42C1;--shiki-dark:#E9E5DF">open</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">();</span>
 </span><span class="line"><span style="--shiki-light:#A626A4;--shiki-light-font-weight:bold;--shiki-dark:#FF4FD8;--shiki-dark-font-weight:bold">  defer</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF"> Pool.</span><span style="--shiki-light:#6F42C1;--shiki-dark:#E9E5DF">close</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">();</span>
 </span><span class="line">
-</span><span class="line"><span style="--shiki-light:#007C8A;--shiki-dark:#29D3E2">  List</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF"> temporary </span><span style="--shiki-light:#D73A49;--shiki-dark:#E9E5DF">=</span><span style="--shiki-light:#A626A4;--shiki-light-font-weight:bold;--shiki-dark:#FF4FD8;--shiki-dark-font-weight:bold"> %($</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">input </span><span style="--shiki-light:#A626A4;--shiki-light-font-weight:bold;--shiki-dark:#FF4FD8;--shiki-dark-font-weight:bold">${</span><span style="--shiki-light:#6F42C1;--shiki-dark:#E9E5DF">build_left</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">(input)</span><span style="--shiki-light:#A626A4;--shiki-light-font-weight:bold;--shiki-dark:#FF4FD8;--shiki-dark-font-weight:bold">}</span><span style="--shiki-light:#A626A4;--shiki-light-font-weight:bold;--shiki-dark:#FF4FD8;--shiki-dark-font-weight:bold"> ${</span><span style="--shiki-light:#6F42C1;--shiki-dark:#E9E5DF">build_right</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">(input)</span><span style="--shiki-light:#A626A4;--shiki-light-font-weight:bold;--shiki-dark:#FF4FD8;--shiki-dark-font-weight:bold">})</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">;</span>
+</span><span class="line"><span style="--shiki-light:#007C8A;--shiki-dark:#29D3E2">  List</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF"> temporary </span><span style="--shiki-light:#D73A49;--shiki-dark:#E9E5DF">=</span><span style="--shiki-light:#A626A4;--shiki-light-font-weight:bold;--shiki-dark:#FF4FD8;--shiki-dark-font-weight:bold"> $</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">(input, </span><span style="--shiki-light:#6F42C1;--shiki-dark:#E9E5DF">build_left</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">(input), </span><span style="--shiki-light:#6F42C1;--shiki-dark:#E9E5DF">build_right</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">(input));</span>
 </span><span class="line"><span style="--shiki-light:#D73A49;--shiki-dark:#F0ADA1">  return</span><span style="--shiki-light:#6F42C1;--shiki-dark:#E9E5DF"> temporary_score</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">(temporary);</span>
 </span><span class="line"><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">}</span></span></code></pre>
 
 <p>Every <code>cons</code> inside the bracket remains canonical. <code>Pool.close</code>
-reclaims cells created in the innermost pool and forgets their identities.
+reclaims cells created in the innermost pool and discards their identities.
 Calls nest, and every successful <code>Pool.open</code> requires one matching
 <code>Pool.close</code>. Use <code>defer</code> when an error or early return can cross the
 boundary. <code>Pool.open_named</code> gives the bracket a name that appears in <code>Scope</code>
@@ -378,17 +410,35 @@ and, when it is opened isolated, a canonical-value pool of its own.
 <code>Error</code> state, and the <code>Match</code> state must also end with it. See
 <a href="contexts-and-threads.html">Contexts and Threads</a>.</p>
 <h2 id="moving-a-value-out-of-a-scope"><a class="header" href="#moving-a-value-out-of-a-scope">Moving a value out of a scope</a></h2>
-<p>When a region computes one result that must outlive it, use <code>Scope.move</code>.
-It relinks a single allocation onto another scope without copying
-it. The pointer does not change:</p>
+<p>When a region computes one result that must outlive it, move the result to
+a scope that outlives the region. <code>Scope.move</code> relinks a single allocation
+onto another scope without copying it. The pointer does not change:</p>
 <pre class="shiki shiki-themes x2c-light x2c-dark x2c-code" style="--shiki-light:#24292e;--shiki-dark:#e9e5df;--shiki-light-bg:#fff;--shiki-dark-bg:#101011" tabindex="0"><code class="language-x2c no-highlight"><span class="line"><span style="--shiki-light:#007C8A;--shiki-dark:#29D3E2">Scope</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF"> keep </span><span style="--shiki-light:#D73A49;--shiki-dark:#E9E5DF">=</span><span style="--shiki-light:#007C8A;--shiki-dark:#29D3E2"> Scope</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">.</span><span style="--shiki-light:#6F42C1;--shiki-dark:#E9E5DF">new_named</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">(</span><span style="--shiki-light:#032F62;--shiki-dark:#9EDFB8">"results"</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">);</span>
-</span><span class="line"><span style="--shiki-light:#007C8A;--shiki-dark:#29D3E2">Scope</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">.</span><span style="--shiki-light:#6F42C1;--shiki-dark:#E9E5DF">retain</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">();</span>
-</span><span class="line"><span style="--shiki-light:#D73A49;--shiki-dark:#F0ADA1">char</span><span style="--shiki-light:#D73A49;--shiki-dark:#E9E5DF"> *</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">text </span><span style="--shiki-light:#D73A49;--shiki-dark:#E9E5DF">=</span><span style="--shiki-light:#007C8A;--shiki-dark:#29D3E2"> Scope</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">.</span><span style="--shiki-light:#6F42C1;--shiki-dark:#E9E5DF">memdup</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">(</span><span style="--shiki-light:#032F62;--shiki-dark:#9EDFB8">"survivor"</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">, </span><span style="--shiki-light:#005CC5;--shiki-dark:#A9C9F5">9</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">);</span>
+</span><span class="line"><span style="--shiki-light:#007C8A;--shiki-dark:#29D3E2">Scope</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">.</span><span style="--shiki-light:#6F42C1;--shiki-dark:#E9E5DF">open</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">();</span>
+</span><span class="line"><span style="--shiki-light:#D73A49;--shiki-dark:#F0ADA1">char</span><span style="--shiki-light:#D73A49;--shiki-dark:#E9E5DF"> *</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">text </span><span style="--shiki-light:#D73A49;--shiki-dark:#E9E5DF">=</span><span style="--shiki-light:#6F42C1;--shiki-dark:#E9E5DF"> xmemdup</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">(</span><span style="--shiki-light:#032F62;--shiki-dark:#9EDFB8">"survivor"</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">, </span><span style="--shiki-light:#005CC5;--shiki-dark:#A9C9F5">9</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">);</span>
 </span><span class="line"><span style="--shiki-light:#007C8A;--shiki-dark:#29D3E2">Scope</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">.</span><span style="--shiki-light:#6F42C1;--shiki-dark:#E9E5DF">move</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">(text, </span><span style="--shiki-light:#D73A49;--shiki-dark:#E9E5DF">&amp;</span><span style="--shiki-light:#E36209;--shiki-dark:#E9E5DF">keep</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">);</span>
-</span><span class="line"><span style="--shiki-light:#007C8A;--shiki-dark:#29D3E2">Scope</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">.</span><span style="--shiki-light:#6F42C1;--shiki-dark:#E9E5DF">release</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">();</span>
+</span><span class="line"><span style="--shiki-light:#007C8A;--shiki-dark:#29D3E2">Scope</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">.</span><span style="--shiki-light:#6F42C1;--shiki-dark:#E9E5DF">close</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">();</span>
 </span><span class="line"><span style="--shiki-light:#6F42C1;--shiki-dark:#E9E5DF">puts</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">(text);</span>
 </span><span class="line"><span style="--shiki-light:#007C8A;--shiki-dark:#29D3E2">Scope</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">.</span><span style="--shiki-light:#6F42C1;--shiki-dark:#E9E5DF">destroy</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">(keep);</span></span></code></pre>
 
+<p>A container is more than one allocation. An <code>Array</code>, <code>Map</code>, <code>Block</code>, or
+<code>Buffer</code> is a record that holds separate buffers, so <code>Scope.move</code> moves only
+the record and leaves the buffers in the region. Move a container with its
+<code>move_to</code> method. It moves the record, the buffers, and any owned contents
+together, and the handle does not change:</p>
+<pre class="shiki shiki-themes x2c-light x2c-dark x2c-code" style="--shiki-light:#24292e;--shiki-dark:#e9e5df;--shiki-light-bg:#fff;--shiki-dark-bg:#101011" tabindex="0"><code class="language-x2c no-highlight"><span class="line"><span style="--shiki-light:#007C8A;--shiki-dark:#29D3E2">Scope</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF"> keep </span><span style="--shiki-light:#D73A49;--shiki-dark:#E9E5DF">=</span><span style="--shiki-light:#007C8A;--shiki-dark:#29D3E2"> Scope</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">.</span><span style="--shiki-light:#6F42C1;--shiki-dark:#E9E5DF">new_named</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">(</span><span style="--shiki-light:#032F62;--shiki-dark:#9EDFB8">"results"</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">);</span>
+</span><span class="line"><span style="--shiki-light:#007C8A;--shiki-dark:#29D3E2">Array</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF"> values;</span>
+</span><span class="line"><span style="--shiki-light:#D73A49;--shiki-dark:#F0ADA1">auto</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF"> {</span>
+</span><span class="line"><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">  values </span><span style="--shiki-light:#D73A49;--shiki-dark:#E9E5DF">=</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF"> [</span><span style="--shiki-light:#005CC5;--shiki-dark:#A9C9F5">1</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">, </span><span style="--shiki-light:#005CC5;--shiki-dark:#A9C9F5">2</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">, </span><span style="--shiki-light:#005CC5;--shiki-dark:#A9C9F5">3</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">];</span>
+</span><span class="line"><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">  values.</span><span style="--shiki-light:#6F42C1;--shiki-dark:#E9E5DF">move_to</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">(</span><span style="--shiki-light:#D73A49;--shiki-dark:#E9E5DF">&amp;</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">keep);</span>
+</span><span class="line"><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">}</span>
+</span><span class="line"><span style="--shiki-light:#6F42C1;--shiki-dark:#E9E5DF">printf</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">(</span><span style="--shiki-light:#032F62;--shiki-dark:#9EDFB8">"</span><span style="--shiki-light:#005CC5;--shiki-dark:#9EDFB8">%s\n</span><span style="--shiki-light:#032F62;--shiki-dark:#9EDFB8">"</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">, values.</span><span style="--shiki-light:#6F42C1;--shiki-dark:#E9E5DF">repr</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">());</span>
+</span><span class="line"><span style="--shiki-light:#007C8A;--shiki-dark:#29D3E2">Scope</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">.</span><span style="--shiki-light:#6F42C1;--shiki-dark:#E9E5DF">destroy</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">(keep);</span></span></code></pre>
+
+<pre><code class="language-text">[ 1, 2, 3 ]
+</code></pre>
+<p><a href="storage-ownership.html">Explicit Storage Ownership</a> describes <code>move_to</code> and
+owned contents.</p>
 <p>A <code>String</code> or a <code>List</code> needs no move, because canonical values
 outlive the scope that was active when they were built.</p>
 <h2 id="attaching-a-finalizer"><a class="header" href="#attaching-a-finalizer">Attaching a finalizer</a></h2>
@@ -413,15 +463,15 @@ from a C library, can release it when the record is reclaimed.
 </span><span class="line"><span style="--shiki-light:#D73A49;--shiki-dark:#F0ADA1">  return</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF"> feed;</span>
 </span><span class="line"><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">}</span>
 </span><span class="line boring"><span style="--shiki-light:#D73A49;--shiki-dark:#F0ADA1">int</span><span style="--shiki-light:#6F42C1;--shiki-dark:#E9E5DF"> main</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">(</span><span style="--shiki-light:#D73A49;--shiki-dark:#F0ADA1">void</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">) {</span>
-</span><span class="line boring"><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">  Scope.</span><span style="--shiki-light:#6F42C1;--shiki-dark:#E9E5DF">retain</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">();</span>
+</span><span class="line boring"><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">  Scope.</span><span style="--shiki-light:#6F42C1;--shiki-dark:#E9E5DF">open</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">();</span>
 </span><span class="line boring"><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">  Feed feed </span><span style="--shiki-light:#D73A49;--shiki-dark:#E9E5DF">=</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF"> Feed.</span><span style="--shiki-light:#6F42C1;--shiki-dark:#E9E5DF">open</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">();</span>
-</span><span class="line boring"><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">  Scope.</span><span style="--shiki-light:#6F42C1;--shiki-dark:#E9E5DF">release</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">();</span>
+</span><span class="line boring"><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">  Scope.</span><span style="--shiki-light:#6F42C1;--shiki-dark:#E9E5DF">close</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">();</span>
 </span><span class="line boring"><span style="--shiki-light:#D73A49;--shiki-dark:#F0ADA1">  return</span><span style="--shiki-light:#005CC5;--shiki-dark:#A9C9F5"> 0</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">;</span>
 </span><span class="line boring"><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">}</span></span></code></pre>
 
 <p>The finalizer runs exactly once with the record’s pointer: on <code>Scope.free</code>,
-on a <code>Scope.realloc</code> to size zero, when the owning scope is released or
-destroyed, or when shutdown releases its owning root region. A detached
+on a <code>Scope.realloc</code> to size zero, when the owning scope is closed or
+destroyed, or when shutdown destroys its owning root region. A detached
 <code>Scope</code> that is still live at shutdown is reported as a leak, and its
 finalizers do not run. The finalizer follows the record through <code>Scope.move</code>,
 and <code>Scope.realloc</code> keeps it and passes the resized pointer.
@@ -437,7 +487,7 @@ method clears the native field, the finalizer has nothing left to do.</p>
 <p><code>Block</code> is the fixed-width storage primitive. A <code>Block</code> owns a contiguous run
 of elements of one width, chosen at construction, and tracks their length and
 capacity. Its backing store comes from the active scope, so a
-<code>Block</code> created inside a retained region is freed when that region ends,
+<code>Block</code> created inside an open region is freed when that region ends,
 even if you never call <code>Block.free</code>.</p>
 <pre class="shiki shiki-themes x2c-light x2c-dark x2c-code" style="--shiki-light:#24292e;--shiki-dark:#e9e5df;--shiki-light-bg:#fff;--shiki-dark-bg:#101011" tabindex="0"><code class="language-x2c no-highlight"><span class="line"><span style="--shiki-light:#007C8A;--shiki-dark:#29D3E2">Block</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF"> ids </span><span style="--shiki-light:#D73A49;--shiki-dark:#E9E5DF">=</span><span style="--shiki-light:#007C8A;--shiki-dark:#29D3E2"> Block</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">.</span><span style="--shiki-light:#6F42C1;--shiki-dark:#E9E5DF">new</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">(</span><span style="--shiki-light:#D73A49;--shiki-dark:#E9E5DF">sizeof</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">(</span><span style="--shiki-light:#D73A49;--shiki-dark:#F0ADA1">int</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">));</span>
 </span><span class="line"><span style="--shiki-light:#D73A49;--shiki-dark:#F0ADA1">for</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF"> (</span><span style="--shiki-light:#D73A49;--shiki-dark:#F0ADA1">int</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF"> i </span><span style="--shiki-light:#D73A49;--shiki-dark:#E9E5DF">=</span><span style="--shiki-light:#005CC5;--shiki-dark:#A9C9F5"> 0</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">; i </span><span style="--shiki-light:#D73A49;--shiki-dark:#E9E5DF">&lt;</span><span style="--shiki-light:#005CC5;--shiki-dark:#A9C9F5"> 4</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">; i</span><span style="--shiki-light:#D73A49;--shiki-dark:#E9E5DF">++</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">) ids.</span><span style="--shiki-light:#6F42C1;--shiki-dark:#E9E5DF">push</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">(</span><span style="--shiki-light:#D73A49;--shiki-dark:#E9E5DF">&amp;</span><span style="--shiki-light:#E36209;--shiki-dark:#E9E5DF">i</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">);</span>
@@ -462,8 +512,8 @@ leading indentation of the current line for <code>push</code>, <code>pop</code>,
 <code>newline_indent</code>. Use <code>Block</code> for checked storage of some element type, and
 <code>Buffer</code> for assembling text.</p>
 <pre class="shiki shiki-themes x2c-light x2c-dark x2c-code" style="--shiki-light:#24292e;--shiki-dark:#e9e5df;--shiki-light-bg:#fff;--shiki-dark-bg:#101011" tabindex="0"><code class="language-x2c no-highlight"><span class="line"><span style="--shiki-light:#007C8A;--shiki-dark:#29D3E2">String</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF"> text;</span>
-</span><span class="line"><span style="--shiki-light:#A626A4;--shiki-light-font-weight:bold;--shiki-dark:#FF4FD8;--shiki-dark-font-weight:bold">$</span><span style="--shiki-light:#005CC5;--shiki-dark:#E9E5DF">scope</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">() {</span>
-</span><span class="line"><span style="--shiki-light:#007C8A;--shiki-dark:#29D3E2">  Buffer</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF"> out </span><span style="--shiki-light:#D73A49;--shiki-dark:#E9E5DF">=</span><span style="--shiki-light:#A626A4;--shiki-light-font-weight:bold;--shiki-dark:#FF4FD8;--shiki-dark-font-weight:bold"> $</span><span style="--shiki-light:#005CC5;--shiki-dark:#E9E5DF">auto</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">(Buffer.</span><span style="--shiki-light:#6F42C1;--shiki-dark:#E9E5DF">new</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">(</span><span style="--shiki-light:#005CC5;--shiki-dark:#A9C9F5">0</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">));</span>
+</span><span class="line"><span style="--shiki-light:#D73A49;--shiki-dark:#F0ADA1">auto</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF"> {</span>
+</span><span class="line"><span style="--shiki-light:#007C8A;--shiki-dark:#29D3E2">  Buffer</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF"> out </span><span style="--shiki-light:#D73A49;--shiki-dark:#E9E5DF">=</span><span style="--shiki-light:#D73A49;--shiki-dark:#F0ADA1"> auto</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF"> Buffer.</span><span style="--shiki-light:#6F42C1;--shiki-dark:#E9E5DF">new</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">(</span><span style="--shiki-light:#005CC5;--shiki-dark:#A9C9F5">0</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">);</span>
 </span><span class="line"><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">  out.</span><span style="--shiki-light:#6F42C1;--shiki-dark:#E9E5DF">write</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">(</span><span style="--shiki-light:#032F62;--shiki-dark:#9EDFB8">"case "</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">).</span><span style="--shiki-light:#6F42C1;--shiki-dark:#E9E5DF">printf</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">(</span><span style="--shiki-light:#032F62;--shiki-dark:#9EDFB8">"</span><span style="--shiki-light:#005CC5;--shiki-dark:#9EDFB8">%d</span><span style="--shiki-light:#032F62;--shiki-dark:#9EDFB8">"</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">, </span><span style="--shiki-light:#005CC5;--shiki-dark:#A9C9F5">7</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">).</span><span style="--shiki-light:#6F42C1;--shiki-dark:#E9E5DF">write</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">(</span><span style="--shiki-light:#032F62;--shiki-dark:#9EDFB8">":"</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">).</span><span style="--shiki-light:#6F42C1;--shiki-dark:#E9E5DF">newline_indent</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">();</span>
 </span><span class="line"><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">  text </span><span style="--shiki-light:#D73A49;--shiki-dark:#E9E5DF">=</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF"> out;</span>
 </span><span class="line"><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">}</span>
@@ -471,49 +521,51 @@ leading indentation of the current line for <code>push</code>, <code>pop</code>,
 
 <p>The <code>String</code> destination calls <code>Buffer.str</code>, which interns the accumulated
 text, so <code>text</code> is canonical. It stays valid after the <code>Buffer</code> cleanup and
-the region release free every byte the builder used. Most <span class="x2c-wordmark">x2c</span> code follows
+the region close free every byte the builder used. Most <span class="x2c-wordmark">x2c</span> code follows
 this pattern: mutable storage inside a region, a canonical result outside
 it.</p>
 <h2 id="choosing-when-to-free-storage"><a class="header" href="#choosing-when-to-free-storage">Choosing when to free storage</a></h2>
 <p>Free storage when the work that needs it is finished: a request has ended, a
 file has been parsed, or temporary values have been combined into one result.
 Do not wrap a scope around canonical values that already outlive it. That
-scope frees nothing and adds a release you can forget.</p>
+scope frees nothing and adds a close you can forget.</p>
 <p>A scope does not prevent dangling pointers:</p>
 <pre class="shiki shiki-themes x2c-light x2c-dark x2c-code" style="--shiki-light:#24292e;--shiki-dark:#e9e5df;--shiki-light-bg:#fff;--shiki-dark-bg:#101011" tabindex="0"><code class="language-x2c no-highlight"><span class="line"><span style="--shiki-light:#D73A49;--shiki-dark:#F0ADA1">static</span><span style="--shiki-light:#D73A49;--shiki-dark:#F0ADA1"> char</span><span style="--shiki-light:#D73A49;--shiki-dark:#E9E5DF"> *</span><span style="--shiki-light:#6F42C1;--shiki-dark:#E9E5DF">leaked_label</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">(</span><span style="--shiki-light:#D73A49;--shiki-dark:#F0ADA1">void</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">) {</span>
-</span><span class="line"><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">  Scope.</span><span style="--shiki-light:#6F42C1;--shiki-dark:#E9E5DF">retain</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">();</span>
-</span><span class="line"><span style="--shiki-light:#D73A49;--shiki-dark:#F0ADA1">  char</span><span style="--shiki-light:#D73A49;--shiki-dark:#E9E5DF"> *</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">label </span><span style="--shiki-light:#D73A49;--shiki-dark:#E9E5DF">=</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF"> Scope.</span><span style="--shiki-light:#6F42C1;--shiki-dark:#E9E5DF">memdup</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">(</span><span style="--shiki-light:#032F62;--shiki-dark:#9EDFB8">"temporary"</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">, </span><span style="--shiki-light:#005CC5;--shiki-dark:#A9C9F5">10</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">);</span>
-</span><span class="line"><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">  Scope.</span><span style="--shiki-light:#6F42C1;--shiki-dark:#E9E5DF">release</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">();</span>
+</span><span class="line"><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">  Scope.</span><span style="--shiki-light:#6F42C1;--shiki-dark:#E9E5DF">open</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">();</span>
+</span><span class="line"><span style="--shiki-light:#D73A49;--shiki-dark:#F0ADA1">  char</span><span style="--shiki-light:#D73A49;--shiki-dark:#E9E5DF"> *</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">label </span><span style="--shiki-light:#D73A49;--shiki-dark:#E9E5DF">=</span><span style="--shiki-light:#6F42C1;--shiki-dark:#E9E5DF"> xmemdup</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">(</span><span style="--shiki-light:#032F62;--shiki-dark:#9EDFB8">"temporary"</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">, </span><span style="--shiki-light:#005CC5;--shiki-dark:#A9C9F5">10</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">);</span>
+</span><span class="line"><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">  Scope.</span><span style="--shiki-light:#6F42C1;--shiki-dark:#E9E5DF">close</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">();</span>
 </span><span class="line"><span style="--shiki-light:#D73A49;--shiki-dark:#F0ADA1">  return</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF"> label;</span>
 </span><span class="line"><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">}</span></span></code></pre>
 
-<p><code>Scope.release</code> freed that storage. The returned pointer is dangling, and
+<p><code>Scope.close</code> freed that storage. The returned pointer is dangling, and
 every later use of it is undefined behavior. A use can read stale bytes,
 corrupt the allocator, or seem to work for a while.
 <code>Scope</code>s make lifetimes explicit and cheap to end. They do not check at
 runtime that a value has stopped being used. The same applies to a boxed wide
 <code>Var</code>: if you keep the <code>Var</code>, you must keep the scope that allocated the box.</p>
 <p>The compiler warns about this example because the escape is visible in the
-source: <code>label</code> is allocated between a retain and its release and read after
+source: <code>label</code> is allocated between an open and its close and read after
 it.</p>
 <p>To avoid dangling pointers:</p>
 <ul>
 <li>Return a canonical value (a <code>String</code>, a <code>List</code>, or a <code>Symbol</code>) when a
 result must cross a scope boundary.</li>
-<li>Use <code>Scope.move</code> when a mutable allocation must outlive its region.</li>
+<li>Use a container’s <code>move_to</code> method, or <code>Scope.move</code> for a single
+allocation, when mutable storage must outlive its region.</li>
 <li>When unsure, let the caller create the scope and pass the slot down. The
 lifetime is then chosen where the caller can see it.</li>
 </ul>
 <h2 id="lifetime-warnings"><a class="header" href="#lifetime-warnings">Lifetime warnings</a></h2>
 <p>Every allocation in this chapter belongs to a region: a part of the program
-that owns storage and ends at a known point. Regions are <code>$scope()</code> blocks,
-<code>Scope.retain</code> and <code>Scope.release</code> pairs, <code>$scope(&amp;slot)</code> pushes, <code>$auto</code>
+that owns storage and ends at a known point. Regions are <code>auto</code> blocks,
+<code>Scope.open</code> and <code>Scope.close</code> pairs, <code>auto (&amp;slot)</code> pushes, initializer <code>auto</code>
 locals, <code>Scope</code> locals that <code>Scope.destroy</code> ends, <code>Pool.open</code> brackets, and
 the function’s own locals and parameters.</p>
 <p>The rule is: a value allocated inside a region must not be reachable after
-that region ends. <code>Scope.move</code>, <code>Context.export</code>, <code>List.promote</code>, and
-returning a canonical value all follow the rule, because each gives the
-storage an owner that outlives the region.</p>
+that region ends. A container’s <code>move_to</code>, <code>Scope.move</code> of a single
+allocation, <code>Context.export</code>, <code>List.promote</code>, and returning a canonical value
+all follow the rule, because each gives the storage an owner that outlives
+the region.</p>
 <p>Translation warns when code breaks the rule. The warning includes the
 value’s name and the way it leaves, and a note gives the line that opened
 the region. A value leaves when it is:</p>
@@ -528,7 +580,14 @@ closure that leaves;</li>
 <code>Array.push</code>, that stores it in one of those places.</li>
 </ul>
 <p>The address of a local or parameter is reported the same way when it
-outlives the function. Two more warnings come from the same check.
+outlives the function. For an address into the current function’s frame, a
+raw pointer store with an unknown destination lifetime does not, by itself,
+establish retention after return. Ordinary translation leaves that case to
+the C lifetime contract.
+The optional audit still reports the possible escape, and a <code>meta</code> function
+still rejects it. Known retaining stores remain checked through helpers,
+and this boundary does not exempt uses of already ended regions.</p>
+<p>Two more warnings come from the same check.
 <code>after-free</code> reports a local read after <code>Scope.free</code>, <code>Scope.realloc</code>, or
 <code>Array.list_free</code> consumed it. <code>bad-free</code> reports <code>Scope.free</code> or
 <code>Scope.realloc</code> given a literal, a local’s address, or other storage no
@@ -539,8 +598,8 @@ an error; see <a href="meta-functions.html">Meta Functions</a>.</p>
 </span><span class="line boring"><span style="--shiki-light:#D73A49;--shiki-dark:#F0ADA1">int</span><span style="--shiki-light:#6F42C1;--shiki-dark:#E9E5DF"> main</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">(</span><span style="--shiki-light:#D73A49;--shiki-dark:#F0ADA1">void</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">) { </span><span style="--shiki-light:#007C8A;--shiki-dark:#29D3E2">Scope</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF"> keep </span><span style="--shiki-light:#D73A49;--shiki-dark:#E9E5DF">=</span><span style="--shiki-light:#005CC5;--shiki-dark:#E9E5DF"> NULL</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">; Scope.</span><span style="--shiki-light:#6F42C1;--shiki-dark:#E9E5DF">push</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">(</span><span style="--shiki-light:#D73A49;--shiki-dark:#E9E5DF">&amp;</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">keep); </span><span style="--shiki-light:#007C8A;--shiki-dark:#29D3E2">Entry</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF"> e </span><span style="--shiki-light:#D73A49;--shiki-dark:#E9E5DF">=</span><span style="--shiki-light:#6F42C1;--shiki-dark:#E9E5DF"> adopt</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">(</span><span style="--shiki-light:#D73A49;--shiki-dark:#E9E5DF">&amp;</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">keep);</span>
 </span><span class="line boring"><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">  Scope.</span><span style="--shiki-light:#6F42C1;--shiki-dark:#E9E5DF">pop</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">(); Scope.</span><span style="--shiki-light:#6F42C1;--shiki-dark:#E9E5DF">destroy</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">(keep); </span><span style="--shiki-light:#D73A49;--shiki-dark:#F0ADA1">return</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF"> e </span><span style="--shiki-light:#D73A49;--shiki-dark:#E9E5DF">!=</span><span style="--shiki-light:#005CC5;--shiki-dark:#E9E5DF"> NULL</span><span style="--shiki-light:#D73A49;--shiki-dark:#E9E5DF"> &amp;&amp;</span><span style="--shiki-light:#D73A49;--shiki-dark:#E9E5DF"> !</span><span style="--shiki-light:#6F42C1;--shiki-dark:#E9E5DF">label</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">().</span><span style="--shiki-light:#6F42C1;--shiki-dark:#E9E5DF">len</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">(); }</span>
 </span><span class="line"><span style="--shiki-light:#D73A49;--shiki-dark:#F0ADA1">static</span><span style="--shiki-light:#007C8A;--shiki-dark:#29D3E2"> Entry</span><span style="--shiki-light:#6F42C1;--shiki-dark:#E9E5DF"> adopt</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">(</span><span style="--shiki-light:#007C8A;--shiki-dark:#29D3E2">Scope</span><span style="--shiki-light:#D73A49;--shiki-dark:#E9E5DF"> *</span><span style="--shiki-light:#E36209;--shiki-dark:#E9E5DF">keep</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">) {</span>
-</span><span class="line"><span style="--shiki-light:#A626A4;--shiki-light-font-weight:bold;--shiki-dark:#FF4FD8;--shiki-dark-font-weight:bold">  $</span><span style="--shiki-light:#005CC5;--shiki-dark:#E9E5DF">scope</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">() {</span>
-</span><span class="line"><span style="--shiki-light:#007C8A;--shiki-dark:#29D3E2">    Entry</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF"> entry </span><span style="--shiki-light:#D73A49;--shiki-dark:#E9E5DF">=</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF"> Scope.</span><span style="--shiki-light:#6F42C1;--shiki-dark:#E9E5DF">calloc</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">(</span><span style="--shiki-light:#005CC5;--shiki-dark:#A9C9F5">1</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">, </span><span style="--shiki-light:#D73A49;--shiki-dark:#E9E5DF">sizeof</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">(</span><span style="--shiki-light:#D73A49;--shiki-dark:#F0ADA1">struct</span><span style="--shiki-light:#007C8A;--shiki-dark:#29D3E2"> Entry</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">));</span>
+</span><span class="line"><span style="--shiki-light:#D73A49;--shiki-dark:#F0ADA1">  auto</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF"> {</span>
+</span><span class="line"><span style="--shiki-light:#007C8A;--shiki-dark:#29D3E2">    Entry</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF"> entry </span><span style="--shiki-light:#D73A49;--shiki-dark:#E9E5DF">=</span><span style="--shiki-light:#6F42C1;--shiki-dark:#E9E5DF"> xcalloc</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">(</span><span style="--shiki-light:#005CC5;--shiki-dark:#A9C9F5">1</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">, </span><span style="--shiki-light:#D73A49;--shiki-dark:#E9E5DF">sizeof</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">(</span><span style="--shiki-light:#D73A49;--shiki-dark:#F0ADA1">struct</span><span style="--shiki-light:#007C8A;--shiki-dark:#29D3E2"> Entry</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">));</span>
 </span><span class="line"><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">    Scope.</span><span style="--shiki-light:#6F42C1;--shiki-dark:#E9E5DF">move</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">(entry, keep);</span>
 </span><span class="line"><span style="--shiki-light:#D73A49;--shiki-dark:#F0ADA1">    return</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF"> entry;</span>
 </span><span class="line"><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">  }</span>
@@ -548,7 +607,7 @@ an error; see <a href="meta-functions.html">Meta Functions</a>.</p>
 </span><span class="line"><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">}</span>
 </span><span class="line">
 </span><span class="line"><span style="--shiki-light:#D73A49;--shiki-dark:#F0ADA1">static</span><span style="--shiki-light:#007C8A;--shiki-dark:#29D3E2"> String</span><span style="--shiki-light:#6F42C1;--shiki-dark:#E9E5DF"> label</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">(</span><span style="--shiki-light:#D73A49;--shiki-dark:#F0ADA1">void</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">) {</span>
-</span><span class="line"><span style="--shiki-light:#A626A4;--shiki-light-font-weight:bold;--shiki-dark:#FF4FD8;--shiki-dark-font-weight:bold">  $</span><span style="--shiki-light:#005CC5;--shiki-dark:#E9E5DF">scope</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">() {</span>
+</span><span class="line"><span style="--shiki-light:#D73A49;--shiki-dark:#F0ADA1">  auto</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF"> {</span>
 </span><span class="line"><span style="--shiki-light:#007C8A;--shiki-dark:#29D3E2">    Buffer</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF"> out </span><span style="--shiki-light:#D73A49;--shiki-dark:#E9E5DF">=</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF"> Buffer.</span><span style="--shiki-light:#6F42C1;--shiki-dark:#E9E5DF">new</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">(</span><span style="--shiki-light:#005CC5;--shiki-dark:#A9C9F5">0</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">);</span>
 </span><span class="line"><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">    out.</span><span style="--shiki-light:#6F42C1;--shiki-dark:#E9E5DF">write</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">(</span><span style="--shiki-light:#032F62;--shiki-dark:#9EDFB8">"ready"</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">);</span>
 </span><span class="line"><span style="--shiki-light:#D73A49;--shiki-dark:#F0ADA1">    return</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF"> out;</span>
@@ -565,10 +624,10 @@ lexical pattern. <a href="regions.html">The Region Model</a> lists what they do 
 cover, the exemptions, and how the check works. To observe a dangling read
 at run time, link the program against <code>libx2c.a</code> and compile with
 <code>cc -fsanitize=address,undefined</code>.</p>
-<h2 id="ordinary-c-storage-still-works"><a class="header" href="#ordinary-c-storage-still-works">Ordinary C storage still works</a></h2>
+<h2 id="ordinary-c-storage"><a class="header" href="#ordinary-c-storage">Ordinary C storage</a></h2>
 <p><span class="x2c-wordmark">x2c</span> is a superset of C, and it does not change automatic or static storage.
-Locals, arrays, and <code>struct</code> values still live on the stack and end at the
-closing brace; <code>static</code> and file-scope objects still last for the program.
+Locals, arrays, and <code>struct</code> values live on the stack and end at the
+closing brace; <code>static</code> and file-scope objects last for the program.
 <code>Scope</code>s govern only what you explicitly allocate through them.</p>
 <p>Many library types store their state in memory the caller provides, so a
 loop can iterate without calling the allocator:</p>
@@ -583,14 +642,22 @@ see <a href="iteration.html">Iteration</a> for the protocol. An automatic local 
 parameter you assigned directly keeps its value when a <code>raise</code> transfers
 control to a <code>catch</code>. Your source needs no optimization-specific qualifiers
 for that.</p>
-<h2 id="where-to-look-next"><a class="header" href="#where-to-look-next">Where to look next</a></h2>
-<p>Read the <a href="../library/overview.html">standard library overview</a> and the
-<a href="../reference/language.html">language reference</a> for the rules.
-<a href="idioms.html">Idioms</a> shows how scopes combine with other <span class="x2c-wordmark">x2c</span> features.
-<a href="regions.html">The Region Model</a> covers the lifetime check: its guarantees,
-its limits, and how it compares with the checks in other languages.</p>
+<h2 id="where-to-go-next"><a class="header" href="#where-to-go-next">Where to go next</a></h2>
+<ul>
+<li><a href="contexts-and-threads.html">Contexts and Threads</a> gives work and threads their
+own scopes.</li>
+<li><a href="regions.html">The Region Model</a> covers the lifetime check.</li>
+</ul>
 
                     </main>
+                    <script>
+                        // A generated page is edited through its generator.
+                        if ([...document.querySelector('#mdbook-content main').childNodes]
+                                .some(node => node.nodeType === Node.COMMENT_NODE &&
+                                      node.textContent.includes('Do not edit by hand'))) {
+                            document.querySelector('a[rel="edit"]')?.remove();
+                        }
+                    </script>
 
                     <nav class="x2c-pager" aria-label="Page navigation">
                         <a rel="prev" href="../guide/iteration.html" class="x2c-pager-prev" aria-keyshortcuts="Left">
@@ -607,9 +674,9 @@ its limits, and how it compares with the checks in other languages.</p>
                         &copy; 2025&ndash;2026
                         <a href="https://flake.org">GWF</a>
                         &middot;
-                        <a href="https://github.com/gwf/x2c/blob/aa2b9b2575297711e5978acc53f87bd7f645f3c7/LICENSE">Apache 2.0</a>
+                        <a href="https://github.com/gwf/x2c/blob/2c5870d64d381a861054dae9927aa65adc87e9e0/LICENSE">Apache 2.0</a>
                         &middot;
-                        <a href="https://github.com/gwf/x2c/blob/aa2b9b2575297711e5978acc53f87bd7f645f3c7/TRADEMARKS.md">Trademarks</a>
+                        <a href="https://github.com/gwf/x2c/blob/2c5870d64d381a861054dae9927aa65adc87e9e0/TRADEMARKS.md">Trademarks</a>
                     </footer>
                 </div>
             </div>

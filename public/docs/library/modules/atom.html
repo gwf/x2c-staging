@@ -1,6 +1,6 @@
 <!DOCTYPE HTML>
 <html lang="en" class="light sidebar-visible" dir="ltr">
-    <head><meta name="x2c-release-channel" content="staging"><meta name="x2c-candidate" content="candidate-aa2b9b2575297711e5978acc53f87bd7f645f3c7-39090113132-1">
+    <head><meta name="x2c-release-channel" content="staging"><meta name="x2c-candidate" content="candidate-aa2b9b2575297711e5978acc53f87bd7f645f3c7-39090113132-1"><meta name="x2c-site-source" content="2c5870d64d381a861054dae9927aa65adc87e9e0"><meta name="robots" content="noindex">
         <!-- Book generated using mdBook -->
         <meta charset="UTF-8">
         <title>lib/atom.x - The x2c Book</title>
@@ -30,7 +30,7 @@
         <link rel="stylesheet" id="mdbook-ayu-highlight-css" href="../../ayu-highlight-3fdfc3ac.css">
 
         <!-- Custom theme stylesheets -->
-        <link rel="stylesheet" href="../../theme/header-f6c12aed.css">
+        <link rel="stylesheet" href="../../theme/header-b540a03f.css">
         <link rel="stylesheet" href="../../theme/x2c-fd3d182e.css">
 
 
@@ -39,12 +39,12 @@
             const path_to_root = "../../";
             const default_light_theme = "light";
             const default_dark_theme = "light";
-            window.path_to_searchindex_js = "../../searchindex-f4d06db2.js";
+            window.path_to_searchindex_js = "../../searchindex-a3bdfad5.js";
         </script>
         <!-- Start loading toc.js asap -->
-        <script src="../../toc-00ae7479.js"></script>
+        <script src="../../toc-2248e0f3.js"></script>
         <!-- x2c publication metadata -->
-        <link rel="canonical" href="https://staging.x2c-lang.dev/docs/library/modules/atom.html">
+        <link rel="canonical" href="https://x2c-lang.dev/docs/library/modules/atom.html">
         <meta property="og:type" content="website">
         <meta property="og:title" content="lib/atom.x - The x2c Book">
         <meta property="og:description" content="The x2c language, standard library, and compiler.">
@@ -143,16 +143,12 @@
                             <button class="landing-tagline menu-title" type="button" title="Scroll to top">The x2c Book</button>
                         </div>
                         <nav class="landing-nav" aria-label="x2c website">
-                            <div class="landing-page-nav">
-                                <a href="../../../#love">love</a>
-                                <a href="../../../#power">power</a>
-                                <a href="../../../#magic">magic</a>
-                            </div>
                             <div class="landing-site-nav">
                                 <a href="../../../#install">install</a>
                                 <a href="../../../#packages">packages</a>
                             </div>
                             <div class="landing-reference-nav">
+                                <a href="../../../examples/">examples</a>
                                 <a href="../../../about/">about</a>
                                 <a href="../../" aria-current="page">docs</a>
                                 <a href="https://github.com/gwf/x2c">source</a>
@@ -239,18 +235,17 @@
 <h4 id="atomwrite_str"><a class="header" href="#atomwrite_str">Atom.write_str</a></h4>
 <p><code>Buffer Atom.write_str(Atom atom, Buffer out)</code></p>
 <p>Appends the exact spelling of <code>atom</code> to <code>out</code>.
-Neither representation allocates a <code>String</code>. An <code>&lt;lsym&gt;</code> <code>Atom</code> already
-owns
-its bytes, and a compact <code>&lt;symbol&gt;</code> decodes straight into <code>out</code>. An invalid
-<code>Atom</code> appends nothing.</p>
+Neither representation allocates a <code>String</code>. An <code>&lt;lsym&gt;</code> <code>Atom</code> borrows
+its canonical bytes, and a compact <code>&lt;symbol&gt;</code> decodes straight into <code>out</code>.
+An invalid <code>Atom</code> appends nothing.</p>
 <p><strong>Raises:</strong> <code>&lt;size-limit&gt;</code> or <code>&lt;alloc-fail&gt;</code> when <code>out</code> cannot grow.</p>
-<p>Source: <code>lib/atom.x:54</code></p>
+<p>Source: <code>lib/atom.x</code></p>
 <h3 id="var"><a class="header" href="#var"><code>Var</code></a></h3>
 <p><a id="Var.is_atom"></a></p>
 <h4 id="varis_atom"><a class="header" href="#varis_atom">Var.is_atom</a></h4>
 <p><code>meta native int Var.is_atom(Var value)</code></p>
 <p>Reports whether <code>value</code> is an exact-spelling <code>Atom</code>.</p>
-<p>Source: <code>lib/atom.x:92</code></p>
+<p>Source: <code>lib/atom.x</code></p>
 <h2 id="advanced-and-interop-api"><a class="header" href="#advanced-and-interop-api">Advanced and interop API</a></h2>
 <div class="table-wrapper">
 <table>
@@ -272,13 +267,17 @@ its bytes, and a compact <code>&lt;symbol&gt;</code> decodes straight into <code
 <p><a id="Atom.bare_spelling"></a></p>
 <h4 id="atombare_spelling"><a class="header" href="#atombare_spelling">Atom.bare_spelling</a></h4>
 <p><code>int Atom.bare_spelling(String spelling)</code></p>
-<p>Reports whether a spelling can round-trip as a bare Lisp <code>Atom</code>.</p>
-<p>Source: <code>lib/atom.x:37</code></p>
+<p>Reports whether a spelling can round-trip as a bare Lisp <code>Atom</code>.
+The first byte is printable and not a delimiter. The spelling opens no
+comment, has no numeric prefix, and holds no backslash, which would read
+as an escape. Both reader scanners consume it whole. The unit-interface
+writer uses the same bare-symbol decision.</p>
+<p>Source: <code>lib/atom.x</code></p>
 <p><a id="Atom.first"></a></p>
 <h4 id="atomfirst"><a class="header" href="#atomfirst">Atom.first</a></h4>
 <p><code>char Atom.first(Atom atom)</code></p>
 <p>Returns the first byte of <code>atom</code>’s exact spelling, or NUL when invalid.</p>
-<p>Source: <code>lib/atom.x:108</code></p>
+<p>Source: <code>lib/atom.x</code></p>
 <p><a id="Atom.initialize"></a></p>
 <h4 id="atominitialize"><a class="header" href="#atominitialize">Atom.initialize</a></h4>
 <p><code>void Atom.initialize(void)</code></p>
@@ -287,71 +286,70 @@ Repeated calls after successful registration have no effect.</p>
 <p><strong>Raises:</strong> <code>&lt;bad-state&gt;</code> after descriptor registration is frozen,
 <code>&lt;alloc-fail&gt;</code> while lower-casing the descriptor name, or <code>&lt;init-fail&gt;</code>
 when registration returns zero.</p>
-<p>Source: <code>lib/atom.x:166</code></p>
+<p>Source: <code>lib/atom.x</code></p>
 <p><a id="Atom.intern"></a></p>
 <h4 id="atomintern"><a class="header" href="#atomintern">Atom.intern</a></h4>
 <p><code>Atom Atom.intern(String spelling)</code></p>
 <p>Returns the canonical <code>Atom</code> with the supplied exact spelling.
-Repeated interning of equal bytes returns a bit-identical <code>Atom</code>. A
-spelling
-that round-trips through either compact encoding becomes an immediate
+Interning equal bytes returns bit-identical <code>Atom</code>s. A spelling that
+round-trips through either compact encoding becomes an immediate
 <code>Symbol</code>; every other spelling borrows its canonical <code>String</code> under the
-module
-lifetime rule above. Use <code>Atom.promote</code> before a long <code>Atom</code> escapes its
-innermost owning pool.</p>
+module lifetime rule above. Use <code>Atom.promote</code> before a long <code>Atom</code>
+escapes its innermost owning pool.</p>
 <p><strong>Raises:</strong> <code>&lt;bad-arg&gt;</code> when <code>spelling</code> is null or empty, <code>&lt;alloc-fail&gt;</code> when
 its canonical <code>String</code> cannot be allocated, or <code>&lt;bad-enc&gt;</code> if the
-long-<code>Atom</code>
-pointer cannot be boxed.</p>
-<p>Source: <code>lib/atom.x:219</code></p>
+long-<code>Atom</code> pointer cannot be boxed.</p>
+<p>Source: <code>lib/atom.x</code></p>
 <p><a id="Atom.promote"></a></p>
 <h4 id="atompromote"><a class="header" href="#atompromote">Atom.promote</a></h4>
 <p><code>Self Atom.promote(Self atom)</code></p>
 <p>Promotes a long <code>Atom</code> spelling into its parent <code>String</code> pool.
-Returns <code>atom</code> unchanged. Compact <code>Atom</code>s and long spellings
-not owned by the
-innermost pool are unchanged. A promoted spelling keeps the same pointer.</p>
+Returns <code>atom</code> unchanged. Compact <code>Atom</code>s and long spellings not owned by
+the innermost pool are unchanged. A promoted spelling keeps the same
+pointer.</p>
 <p><strong>Raises:</strong> <code>&lt;alloc-fail&gt;</code> when promotion metadata cannot be allocated.</p>
-<p>Source: <code>lib/atom.x:26</code></p>
+<p>Source: <code>lib/atom.x</code></p>
 <p><a id="Atom.str"></a></p>
 <h4 id="atomstr"><a class="header" href="#atomstr">Atom.str</a></h4>
 <p><code>String Atom.str(Atom atom)</code></p>
 <p>Returns the exact spelling of <code>atom</code> as a <code>String</code>.
 A compact <code>Atom</code> is decoded and canonicalized through the active pool
-chain.
-A long <code>Atom</code> returns its borrowed canonical spelling under the module
-lifetime rule above. An invalid <code>Atom</code> returns NULL.</p>
+chain. A long <code>Atom</code> returns its borrowed canonical spelling under the
+module lifetime rule above. An invalid <code>Atom</code> returns NULL.</p>
 <p><strong>Raises:</strong> <code>&lt;alloc-fail&gt;</code> while canonicalizing a compact spelling.</p>
-<p>Source: <code>lib/atom.x:101</code></p>
+<p>Source: <code>lib/atom.x</code></p>
 <p><a id="Atom.write_repr"></a></p>
 <h4 id="atomwrite_repr"><a class="header" href="#atomwrite_repr">Atom.write_repr</a></h4>
 <p><code>Buffer Atom.write_repr(Atom value, Buffer out)</code></p>
 <p>Writes the escaped readable spelling of <code>atom</code> to <code>out</code>.
 The escaping makes the result readable as the same exact <code>Atom</code>. An invalid
 <code>Atom</code> appends nothing.</p>
-<p><strong>Raises:</strong> <code>&lt;alloc-fail&gt;</code> while decoding a compact <code>Atom</code>, or
-<code>&lt;size-limit&gt;</code> or
-<code>&lt;alloc-fail&gt;</code> when <code>out</code> cannot grow.</p>
-<p>Source: <code>lib/atom.x:67</code></p>
+<p><strong>Raises:</strong> <code>&lt;alloc-fail&gt;</code> while decoding a compact <code>Atom</code>, or <code>&lt;size-limit&gt;</code>
+or <code>&lt;alloc-fail&gt;</code> when <code>out</code> cannot grow.</p>
+<p>Source: <code>lib/atom.x</code></p>
 <h2 id="design-notes"><a class="header" href="#design-notes">Design notes</a></h2>
 <p>An <code>Atom</code> preserves its spelling exactly. Compact spellings use immediate
 <code>Symbol</code>s when <code>Symbol</code> encoding round-trips every byte; all other
-spellings
-use the private <code>&lt;lsym&gt;</code> representation with a direct pointer to the
-canonical <code>String</code>. <code>String</code> canonicalization makes equal long <code>Atom</code>s
+spellings use the private <code>&lt;lsym&gt;</code> representation with a direct pointer
+to the canonical <code>String</code>. Canonicalization makes equal long <code>Atom</code>s
 bit-identical. Compact <code>Atom</code>s have value lifetime. A long <code>Atom</code> borrows
-its
-canonical spelling, which may belong to any pool in the active chain and
-lives until its owning pool is released.</p>
-<h2 id="tests-and-examples"><a class="header" href="#tests-and-examples">Tests and examples</a></h2>
-<p><code>make verify</code> (<code>unittest/test-atom.x</code>).</p>
+its canonical spelling, which may belong to any pool in the active chain.
+The spelling lives until its owning pool is released.</p>
 
                     </main>
+                    <script>
+                        // A generated page is edited through its generator.
+                        if ([...document.querySelector('#mdbook-content main').childNodes]
+                                .some(node => node.nodeType === Node.COMMENT_NODE &&
+                                      node.textContent.includes('Do not edit by hand'))) {
+                            document.querySelector('a[rel="edit"]')?.remove();
+                        }
+                    </script>
 
                     <nav class="x2c-pager" aria-label="Page navigation">
                         <a rel="prev" href="../../library/modules/array.html" class="x2c-pager-prev" aria-keyshortcuts="Left">
                             <span class="x2c-pager-label">previous</span>
-                            <span class="x2c-pager-title">lib/array.x</span>
+                            <span class="x2c-pager-title">lib/array/array.x</span>
                         </a>
                         
                         <a rel="next prefetch" href="../../library/modules/block.html" class="x2c-pager-next" aria-keyshortcuts="Right">
@@ -363,9 +361,9 @@ lives until its owning pool is released.</p>
                         &copy; 2025&ndash;2026
                         <a href="https://flake.org">GWF</a>
                         &middot;
-                        <a href="https://github.com/gwf/x2c/blob/aa2b9b2575297711e5978acc53f87bd7f645f3c7/LICENSE">Apache 2.0</a>
+                        <a href="https://github.com/gwf/x2c/blob/2c5870d64d381a861054dae9927aa65adc87e9e0/LICENSE">Apache 2.0</a>
                         &middot;
-                        <a href="https://github.com/gwf/x2c/blob/aa2b9b2575297711e5978acc53f87bd7f645f3c7/TRADEMARKS.md">Trademarks</a>
+                        <a href="https://github.com/gwf/x2c/blob/2c5870d64d381a861054dae9927aa65adc87e9e0/TRADEMARKS.md">Trademarks</a>
                     </footer>
                 </div>
             </div>

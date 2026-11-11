@@ -1,6 +1,6 @@
 <!DOCTYPE HTML>
 <html lang="en" class="light sidebar-visible" dir="ltr">
-    <head><meta name="x2c-release-channel" content="staging"><meta name="x2c-candidate" content="candidate-aa2b9b2575297711e5978acc53f87bd7f645f3c7-39090113132-1">
+    <head><meta name="x2c-release-channel" content="staging"><meta name="x2c-candidate" content="candidate-aa2b9b2575297711e5978acc53f87bd7f645f3c7-39090113132-1"><meta name="x2c-site-source" content="2c5870d64d381a861054dae9927aa65adc87e9e0"><meta name="robots" content="noindex">
         <!-- Book generated using mdBook -->
         <meta charset="UTF-8">
         <title>src/sourceview.x - The x2c Book</title>
@@ -30,7 +30,7 @@
         <link rel="stylesheet" id="mdbook-ayu-highlight-css" href="../../ayu-highlight-3fdfc3ac.css">
 
         <!-- Custom theme stylesheets -->
-        <link rel="stylesheet" href="../../theme/header-f6c12aed.css">
+        <link rel="stylesheet" href="../../theme/header-b540a03f.css">
         <link rel="stylesheet" href="../../theme/x2c-fd3d182e.css">
 
 
@@ -39,12 +39,12 @@
             const path_to_root = "../../";
             const default_light_theme = "light";
             const default_dark_theme = "light";
-            window.path_to_searchindex_js = "../../searchindex-f4d06db2.js";
+            window.path_to_searchindex_js = "../../searchindex-a3bdfad5.js";
         </script>
         <!-- Start loading toc.js asap -->
-        <script src="../../toc-00ae7479.js"></script>
+        <script src="../../toc-2248e0f3.js"></script>
         <!-- x2c publication metadata -->
-        <link rel="canonical" href="https://staging.x2c-lang.dev/docs/internals/compiler-api/sourceview.html">
+        <link rel="canonical" href="https://x2c-lang.dev/docs/internals/compiler-api/sourceview.html">
         <meta property="og:type" content="website">
         <meta property="og:title" content="src/sourceview.x - The x2c Book">
         <meta property="og:description" content="The x2c language, standard library, and compiler.">
@@ -143,16 +143,12 @@
                             <button class="landing-tagline menu-title" type="button" title="Scroll to top">The x2c Book</button>
                         </div>
                         <nav class="landing-nav" aria-label="x2c website">
-                            <div class="landing-page-nav">
-                                <a href="../../../#love">love</a>
-                                <a href="../../../#power">power</a>
-                                <a href="../../../#magic">magic</a>
-                            </div>
                             <div class="landing-site-nav">
                                 <a href="../../../#install">install</a>
                                 <a href="../../../#packages">packages</a>
                             </div>
                             <div class="landing-reference-nav">
+                                <a href="../../../examples/">examples</a>
                                 <a href="../../../about/">about</a>
                                 <a href="../../" aria-current="page">docs</a>
                                 <a href="https://github.com/gwf/x2c">source</a>
@@ -236,8 +232,10 @@ Compatibility is not yet promised.</p>
 <tr><td><a href="#SourceView.exists"><code>SourceView.exists</code></a></td><td>Returns readable-file presence, including unsaved new files.</td></tr>
 <tr><td><a href="#SourceView.init"><code>SourceView.init</code></a></td><td>Initializes empty overlays in the current request lifetime.</td></tr>
 <tr><td><a href="#SourceView.is_changed"><code>SourceView.is_changed</code></a></td><td>Returns whether this logical file has an unsaved overlay.</td></tr>
-<tr><td><a href="#SourceView.read"><code>SourceView.read</code></a></td><td>Reads through the request overlay, falling back to a regular disk file.</td></tr>
+<tr><td><a href="#SourceView.read"><code>SourceView.read</code></a></td><td>Reads like <code>SourceView.read_text</code>, returning 0 instead of raising.</td></tr>
+<tr><td><a href="#SourceView.read_text"><code>SourceView.read_text</code></a></td><td>Returns the text at <code>path</code> through the request overlay, falling back to a regular disk file.</td></tr>
 <tr><td><a href="#SourceView.set"><code>SourceView.set</code></a></td><td>Stores an immutable snapshot under its logical source path.</td></tr>
+<tr><td><a href="#SourceView.unset"><code>SourceView.unset</code></a></td><td>Removes a closed document so subsequent reads use the disk file.</td></tr>
 </tbody>
 </table>
 </div>
@@ -246,30 +244,45 @@ Compatibility is not yet promised.</p>
 <h4 id="sourceviewexists"><a class="header" href="#sourceviewexists">SourceView.exists</a></h4>
 <p><code>int SourceView.exists(SourceView sources, String path)</code></p>
 <p>Returns readable-file presence, including unsaved new files.</p>
-<p>Source: <code>src/sourceview.x:46</code></p>
+<p>Source: <code>src/sourceview.x</code></p>
 <p><a id="SourceView.init"></a></p>
 <h4 id="sourceviewinit"><a class="header" href="#sourceviewinit">SourceView.init</a></h4>
 <p><code>void SourceView.init(SourceView sources)</code></p>
 <p>Initializes empty overlays in the current request lifetime.</p>
-<p>Source: <code>src/sourceview.x:28</code></p>
+<p>Source: <code>src/sourceview.x</code></p>
 <p><a id="SourceView.is_changed"></a></p>
 <h4 id="sourceviewis_changed"><a class="header" href="#sourceviewis_changed">SourceView.is_changed</a></h4>
 <p><code>int SourceView.is_changed(SourceView sources, String path)</code></p>
 <p>Returns whether this logical file has an unsaved overlay.</p>
-<p>Source: <code>src/sourceview.x:42</code></p>
+<p>Source: <code>src/sourceview.x</code></p>
 <p><a id="SourceView.read"></a></p>
 <h4 id="sourceviewread"><a class="header" href="#sourceviewread">SourceView.read</a></h4>
 <p><code>int SourceView.read(SourceView sources, String path, String volatile &amp;text)</code></p>
-<p>Reads through the request overlay, falling back to a regular disk file.
-The return value distinguishes an empty file from a failed read. Disk
-text belongs to the calling unit; configured snapshots remain borrowed.</p>
-<p>Source: <code>src/sourceview.x:56</code></p>
+<p>Reads like <code>SourceView.read_text</code>, returning 0 instead of raising. The
+return value distinguishes an empty file from a failed read.</p>
+<p>Source: <code>src/sourceview.x</code></p>
+<p><a id="SourceView.read_text"></a></p>
+<h4 id="sourceviewread_text"><a class="header" href="#sourceviewread_text">SourceView.read_text</a></h4>
+<p><code>String SourceView.read_text(SourceView s, String path)</code></p>
+<p>Returns the text at <code>path</code> through the request overlay, falling back to
+a regular disk file. An empty file is NULL. Disk text belongs to the
+calling unit; configured snapshots remain borrowed.</p>
+<p><strong>Raises:</strong> <code>&lt;not-found&gt;</code> or <code>&lt;io-fail&gt;</code> when the file cannot be opened or
+read, <code>&lt;io-fail&gt;</code> with a <code>reason</code> when it is not a regular file,
+<code>&lt;bad-arg&gt;</code> when it holds a NUL byte, or <code>&lt;size-limit&gt;</code> when it is too
+large for a <code>String</code>.</p>
+<p>Source: <code>src/sourceview.x</code></p>
 <p><a id="SourceView.set"></a></p>
 <h4 id="sourceviewset"><a class="header" href="#sourceviewset">SourceView.set</a></h4>
 <p><code>void SourceView.set(SourceView s, String path, String text, int changed)</code></p>
 <p>Stores an immutable snapshot under its logical source path. Empty text
 is a present snapshot, not a request to fall back to the disk file.</p>
-<p>Source: <code>src/sourceview.x:36</code></p>
+<p>Source: <code>src/sourceview.x</code></p>
+<p><a id="SourceView.unset"></a></p>
+<h4 id="sourceviewunset"><a class="header" href="#sourceviewunset">SourceView.unset</a></h4>
+<p><code>void SourceView.unset(SourceView s, String path)</code></p>
+<p>Removes a closed document so subsequent reads use the disk file.</p>
+<p>Source: <code>src/sourceview.x</code></p>
 <h2 id="public-types"><a class="header" href="#public-types">Public types</a></h2>
 <div class="table-wrapper">
 <table>
@@ -287,13 +300,21 @@ is a present snapshot, not a request to fall back to the disk file.</p>
 <p>Owns configured immutable overlays in the request’s active Context.
 A frontend and its units borrow this view. Text read from disk belongs
 to the reading unit, so the view never caches that shorter-lived text.</p>
-<p>Source: <code>src/sourceview.x:17</code></p>
+<p>Source: <code>src/sourceview.x</code></p>
 <h2 id="design-notes"><a class="header" href="#design-notes">Design notes</a></h2>
 <p>Logical paths keep their identity when an editor supplies unsaved text.
 Configure this view before opening a frontend unit; its immutable values
 and Map must outlive every compiler borrowing it.</p>
 
                     </main>
+                    <script>
+                        // A generated page is edited through its generator.
+                        if ([...document.querySelector('#mdbook-content main').childNodes]
+                                .some(node => node.nodeType === Node.COMMENT_NODE &&
+                                      node.textContent.includes('Do not edit by hand'))) {
+                            document.querySelector('a[rel="edit"]')?.remove();
+                        }
+                    </script>
 
                     <nav class="x2c-pager" aria-label="Page navigation">
                         <a rel="prev" href="../../internals/compiler-api/report.html" class="x2c-pager-prev" aria-keyshortcuts="Left">
@@ -310,9 +331,9 @@ and Map must outlive every compiler borrowing it.</p>
                         &copy; 2025&ndash;2026
                         <a href="https://flake.org">GWF</a>
                         &middot;
-                        <a href="https://github.com/gwf/x2c/blob/aa2b9b2575297711e5978acc53f87bd7f645f3c7/LICENSE">Apache 2.0</a>
+                        <a href="https://github.com/gwf/x2c/blob/2c5870d64d381a861054dae9927aa65adc87e9e0/LICENSE">Apache 2.0</a>
                         &middot;
-                        <a href="https://github.com/gwf/x2c/blob/aa2b9b2575297711e5978acc53f87bd7f645f3c7/TRADEMARKS.md">Trademarks</a>
+                        <a href="https://github.com/gwf/x2c/blob/2c5870d64d381a861054dae9927aa65adc87e9e0/TRADEMARKS.md">Trademarks</a>
                     </footer>
                 </div>
             </div>

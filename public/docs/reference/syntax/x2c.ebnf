@@ -6,7 +6,7 @@ source-unit = ( translation-unit | script-unit ) ;
 script-unit = ? script partition described in grammar.md entry points ? ;
 translation-unit = { unit-item } ;
 module-block = ( "module" , "{" , [ ( c-string , { ( "," , c-string ) } , [ "," ] ) ] , "}" ) ;
-private-interface = ? static typedef, protocol body, class, or Lisp interface item; D4 ? ;
+private-interface = ? static typedef, protocol body, or class; D4 ? ;
 module-declaration = ? module before a file-scope declaration, read as static; D4 ? ;
 unit-item = ( directive |
     static-assert |
@@ -14,14 +14,19 @@ unit-item = ( directive |
     protocol-form |
     macro-definition |
     keyword-definition |
+    unit-alias |
+    unalias |
     private-interface |
     module-declaration |
-    lisp-escape |
     linkage-group |
+    auto-region-function |
     declaration-definition |
     unit-extension ) ;
 linkage-group = ( "extern" , c-string , "{" , { unit-item } , "}" ) ;
 declaration-definition = ( [ ( "meta" , [ "native" ] ) ] , declaration-row , ( ";" | function-body ) ) ;
+auto-region-prefix = ( "auto" , [ ( "(" , assignment , ")" ) ] ) ;
+auto-region-function = ( auto-region-prefix , declaration-row , function-body ) ;
+auto-region-statement = ( auto-region-prefix , ? region target selected in statement position; G1 ? ) ;
 function-body = ( raw-block | ( "=" , ">" , expression , ";" ) ) ;
 import-declaration = ( "import" ,
     c-string ,
@@ -32,24 +37,51 @@ import-member = ( identifier , [ ( "as" , identifier ) ] ) ;
 static-assert = ( "_Static_assert" , "(" , assignment , "," , assignment , ")" , ";" ) ;
 declaration-row = ( declaration-group , { ( "," , declaration-group ) } ) ;
 declaration-group = ( typedef-declaration |
+    ( "auto" , { qualifier } , declaration-name , "=" , assignment ) |
     ( specifiers , declarator-list ) |
     ( specifiers , destructuring-targets , "=" , assignment ) ) ;
 typedef-declaration = ( "typedef" , { qualifier } , type-specifier , declarator-list ) ;
 specifiers = ( { declaration-prefix } , { qualifier } , type-specifier , { trailing-storage } ) ;
-declaration-prefix = ( storage | "inline" | "_Noreturn" | attribute | prefix-macro ) ;
+declaration-prefix = ( storage | "inline" | "_Noreturn" | alignment-specifier | attribute | prefix-macro ) ;
+alignment-specifier = ( "_Alignas" , "(" , ( type-name | expression ) , ")" ) ;
 trailing-storage = ( storage | "inline" | prefix-macro ) ;
 storage = ( ( "extern" , [ c-string ] ) | "static" | "auto" | "register" | "threaded" ) ;
 qualifier = ( "const" | "restrict" | "volatile" ) ;
-type-specifier = ( scalar-specifiers | "Self" | aggregate | enumeration | type-reference | type-slot ) ;
+type-specifier = ( scalar-specifiers |
+    "Self" |
+    aggregate |
+    enumeration |
+    type-reference |
+    typeof-specifier |
+    atomic-specifier |
+    type-slot ) ;
+atomic-specifier = ( "_Atomic" ,
+    ( ( "(" , type-name , ")" ) |
+    scalar-specifiers |
+    type-reference |
+    ( ( "struct" | "union" | "enum" ) , identifier ) ) ) ;
+typeof-specifier = ( ( "typeof" | "typeof_unqual" | "__typeof__" | "__typeof" ) ,
+    "(" ,
+    ( type-name | expression ) ,
+    ")" ) ;
 scalar-specifiers = ( scalar-word , { scalar-word } ) ;
-scalar-word = ( "void" | "char" | "short" | "int" | "long" | "float" | "double" | "signed" | "unsigned" ) ;
+scalar-word = ( "void" |
+    "char" |
+    "short" |
+    "int" |
+    "long" |
+    "float" |
+    "double" |
+    "signed" |
+    "unsigned" |
+    "_Complex" ) ;
 type-reference = ( identifier , [ ( "." , identifier ) ] ) ;
 type-name = ( { qualifier } , type-specifier , { pointer-part } ) ;
 type-operand = declaration-group ;
 declarator-list = ( init-declarator , { ( "," , init-declarator ) } ) ;
-init-declarator = ( ( declarator | declarator-row-slot ) , [ ( "=" , assignment ) ] ) ;
+init-declarator = ( ( declarator | declarator-row-slot ) , [ ( "=" , [ "auto" ] , assignment ) ] ) ;
 declarator = ( { pointer-part } , [ direct-declarator ] , { declarator-suffix } ) ;
-pointer-part = ( "*" | "^" | ( "&" , [ "?" ] ) | qualifier | qualifier-macro ) ;
+pointer-part = ( "*" | ( "&" , [ "?" ] ) | qualifier | qualifier-macro ) ;
 direct-declarator = ( declaration-name | ( "(" , declarator , ")" ) ) ;
 declaration-name = ( identifier | method-name | name-slot ) ;
 method-name = ( method-owner , "." , identifier ) ;
@@ -59,18 +91,28 @@ declarator-suffix = ( ( "[" , [ expression ] , "]" ) |
     ( ":" , primary ) |
     attribute ) ;
 parameter-list = ( parameter , { ( "," , parameter ) } ) ;
-parameter = ( ( { qualifier } , type-specifier , declarator ) | "..." | parameter-slot ) ;
+parameter = ( ( { qualifier } , type-specifier , declarator ) |
+    "..." |
+    ( ( "List" | "Map" ) , "@" , [ identifier ] ) |
+    parameter-slot ) ;
 destructuring-targets = ( "(" , identifier , "," , identifier , { ( "," , identifier ) } , ")" ) ;
 typed-destructuring = ( "(" , parameter-list , ")" , "=" , assignment , ";" ) ;
 aggregate = ( ( "struct" | "union" ) ,
     { attribute } ,
     [ declaration-name ] ,
     [ ( "{" , field , { field } , "}" , { attribute } ) ] ) ;
-field = ( ( [ "delegate" ] , declaration-row , ";" ) | static-assert | field-extension ) ;
+field = ( ( [ "delegate" ] , declaration-row , ";" ) |
+    static-assert |
+    field-alias |
+    field-extension ) ;
 enumeration = ( "enum" ,
     { attribute } ,
     [ declaration-name ] ,
-    [ ( "{" , [ ( enumerator , { ( "," , enumerator ) } , [ "," ] ) ] , "}" , { attribute } ) ] ) ;
+    [ ( "{" , enumerator-list , "}" , { attribute } ) ] ) ;
+enumerator-list = ( { enumerator-alias } ,
+    [ ( enumerator ,
+    { ( "," , { enumerator-alias } , enumerator ) } ,
+    [ ( "," , { enumerator-alias } ) ] ) ] ) ;
 enumerator = ( ( declaration-name , [ ( "=" , conditional ) ] ) | enumerator-extension ) ;
 named-type = ( ( identifier ,
     ( ";" |
@@ -108,10 +150,13 @@ block = ( ( "{" | "%{" ) , { block-item } , "}" ) ;
 block-item = ( directive |
     static-assert |
     ( declaration-row , ";" ) |
+    named-alias |
+    unalias |
     local-macro-definition |
     statement |
     block-extension ) ;
-statement = ( block |
+statement = ( auto-region-statement |
+    block |
     ";" |
     ( expression , ";" ) |
     typed-destructuring |
@@ -136,13 +181,25 @@ statement = ( block |
     ( "goto" , declaration-name , ";" ) |
     ( "defer" , governed ) |
     with-statement |
+    alias-statement |
     match-statement |
     try-statement |
     raise-statement |
     statement-extension ) ;
 for-init = ( type-operand | expression ) ;
 governed = ? one statement, with directive handling G1 ? ;
-with-statement = ( "with" , expression , [ ( "as" , identifier ) ] , raw-block ) ;
+with-statement = ( "with" , "(" , with-entry , { ( "," , with-entry ) } , ")" , raw-block ) ;
+with-entry = ( unary , "=" , assignment ) ;
+alias-head = ( "alias" , expression ) ;
+alias-name = ( "as" , identifier ) ;
+alias-to = ( "alias" , identifier , "to" , expression ) ;
+named-alias = ( ( ( alias-head , alias-name ) | alias-to ) , ";" ) ;
+alias-wrapper = ( ( alias-head , [ alias-name ] ) | alias-to ) ;
+alias-statement = ( alias-wrapper , raw-block ) ;
+unalias = ( "unalias" , identifier , ";" ) ;
+unit-alias = ( [ "static" ] , ( named-alias | ( alias-wrapper , "{" , { unit-item } , "}" ) ) ) ;
+field-alias = ( named-alias | unalias | ( alias-wrapper , "{" , { field } , "}" ) ) ;
+enumerator-alias = ( named-alias | unalias | ( alias-wrapper , "{" , enumerator-list , "}" ) ) ;
 match-statement = ( "match" ,
     "(" ,
     expression ,
@@ -178,7 +235,8 @@ logical-and = ( bitwise-or , { ( "&&" , bitwise-or ) } ) ;
 bitwise-or = ( bitwise-xor , { ( "|" , bitwise-xor ) } ) ;
 bitwise-xor = ( bitwise-and , { ( "^" , bitwise-and ) } ) ;
 bitwise-and = ( equality , { ( "&" , equality ) } ) ;
-equality = ( relational , { ( ( "==" | "!=" | "===" | "!==" ) , relational ) } ) ;
+equality = ( relational ,
+    { ( ( ( "==" | "!=" | "===" | "!==" ) , relational ) | ( "~=" , pattern ) ) } ) ;
 relational = ( shift ,
     { ( ( ( "<" | "<=" | ">" | ">=" | "in" ) , shift ) | ( "is" , [ "not" ] , type-selector ) ) } ) ;
 type-selector = ( type-name | ( "(" , type-name , ")" ) | cast ) ;
@@ -213,6 +271,8 @@ primary = ( atomic |
     initializer |
     array |
     map |
+    evaluated-list |
+    evaluated-map |
     quoted-list |
     quoted-array |
     quoted-map |
@@ -222,7 +282,6 @@ primary = ( atomic |
     generic |
     va-arg |
     offsetof |
-    lisp-escape |
     macro-expression |
     quotation |
     expression-slot ) ;
@@ -236,6 +295,12 @@ designator = ( ( "." , identifier ) | ( "[" , assignment , "]" ) ) ;
 array = ( "[" , [ ( assignment , { ( "," , assignment ) } , [ "," ] ) ] , "]" ) ;
 map = ( "{" , [ ( map-entry , { ( "," , map-entry ) } , [ "," ] ) ] , "}" ) ;
 map-entry = ( ( ( identifier | assignment ) , ":" , assignment ) | entry-extension ) ;
+evaluated-list = ( "$" , "(" , [ ( evaluated-item , { ( "," , evaluated-item ) } , [ "," ] ) ] , ")" ) ;
+evaluated-item = ( assignment | ( "@" , identifier ) | ( "@" , "(" , expression , ")" ) ) ;
+evaluated-map = ( ( ( "$" , "{" ) | "${" ) ,
+    [ ( evaluated-entry , { ( "," , evaluated-entry ) } , [ "," ] ) ] ,
+    "}" ) ;
+evaluated-entry = ( ( assignment , ":" , assignment ) | entry-extension ) ;
 generic = ( "_Generic" ,
     "(" ,
     assignment ,
@@ -262,20 +327,20 @@ capture-list = ( ( "&" , capture-name , { ( "," , "&" , capture-name ) } ) | cap
 capture-name = ( identifier | name-slot ) ;
 quoted-list = ( "%(" , { list-element } , ")" ) ;
 nested-list = ( "(" , { list-element } , ")" ) ;
-list-element = ( literal-element | insertion | splice | ( reader-prefix , list-element ) ) ;
+list-element = ( literal-element | insertion | splice | evaluated-map | ( reader-prefix , list-element ) ) ;
 literal-element = ( atomic | nested-list | quoted-array | quoted-map | percent-string | typed-capture ) ;
-insertion = ( ( "$" , identifier ) | ( "${" , expression , "}" ) ) ;
-splice = ( ( "@" , identifier ) | ( "@{" , expression , "}" ) ) ;
+insertion = ( ( "$" , identifier ) | ( "$(" , expression , ")" ) ) ;
+splice = ( ( "@" , identifier ) | ( "@(" , expression , ")" ) ) ;
 reader-prefix = ( "\'" | "`" | "," | ",@" ) ;
 typed-capture = ( "?(" , type-name , identifier , ")" ) ;
 quoted-array = ( "%[" , [ ( quoted-array-item , { ( "," , quoted-array-item ) } , [ "," ] ) ] , "]" ) ;
-quoted-array-item = ( data-element | argument-slot | ( "${" , argument-slot , "}" ) ) ;
-data-element = ( literal-element | insertion ) ;
+quoted-array-item = ( data-element | argument-slot | ( "$(" , argument-slot , ")" ) ) ;
+data-element = ( literal-element | insertion | evaluated-map ) ;
 quoted-map = ( "%{" , [ ( quoted-entry , { ( "," , quoted-entry ) } , [ "," ] ) ] , "}" ) ;
 quoted-entry = ( ( data-element , ":" , data-element ) | entry-extension | quoted-entry-extension ) ;
-quoted-entry-extension = ( "${" , entry-extension , "}" ) ;
+quoted-entry-extension = ( "$(" , entry-extension , ")" ) ;
 percent-string = ( "%\"" , { ( string-segment | insertion ) } , "\"" ) ;
-symbol-set = ( "%<<" , { symbol-set-member } , ">>" ) ;
+symbol-set = ( "%<" , { symbol-set-member } , ">" ) ;
 symbol-set-member = ? symbol-set-mode lit-atom or lit-symbol ? ;
 unit-extension = ( class-declaration | unit-macro | decorator ) ;
 class-declaration = ( "class" , named-type ) ;
@@ -303,7 +368,7 @@ meta-call = ( macro-name , "(" , [ ( meta-argument , { ( "," , meta-argument ) }
 meta-argument = ( assignment | meta-value-hole ) ;
 meta-value-hole = ? whole template hole passed as a value, under M5 ? ;
 macro-arguments = ? signature-directed argument sequence; contract M1 ? ;
-decorator = ? visible decorator invocation followed by its target; M3 ? ;
+decorator = ? visible decorator invocation followed by its target; returned zero-argument Decorators continue onto their next target; M3 ? ;
 quotation = ( "$" ,
     "!" ,
     ( ( "(" , expression , ")" ) |
@@ -311,7 +376,7 @@ quotation = ( "$" ,
     ( quotation-type , "{" , expression , "}" ) ) ) ;
 quotation-kind = ( result-kind | "Type" | "Param" ) ;
 quotation-type = ? type operand or computed type under M4 ? ;
-quotation-items = ? contents selected by quotation kind, with ${expr} and @{expr} holes; M4 ? ;
+quotation-items = ? contents selected by quotation kind, with $(expr) and @(expr) holes; M4 ? ;
 result-kind = ( "Expr" |
     "Expression" |
     "Stmt" |
@@ -330,6 +395,7 @@ hole-kind = ( "Expr" |
     "Unit" |
     "Function" |
     "NamedType" |
+    "Macro" |
     "Type" |
     "Decl" |
     "DeclaratorRow" |
@@ -355,11 +421,6 @@ statement-macro = ? statement-position macro/slot under M1-M5 ? ;
 field-extension = ? field-position macro/slot under M1-M5 ? ;
 enumerator-extension = ? enumerator-position macro/slot under M1-M5 ? ;
 entry-extension = ? map-entry-position macro/slot under M1-M5 ? ;
-lisp-escape = ( "$(" , { lisp-form } , ")" ) ;
-lisp-form = ( lisp-atom | ( "(" , { lisp-form } , ")" ) | ( reader-prefix , lisp-form ) | lisp-hole ) ;
-lisp-atom = ( integer | floating | c-string | symbol | lisp-identifier ) ;
-lisp-hole = ? template hole in compiler Lisp; M5 ? ;
-lisp-identifier = ? ident token in Lisp mode ? ;
 identifier = ? identifier accepted in the current name position; D1 ? ;
 integer = ? lit-int ? ;
 floating = ? lit-float ? ;

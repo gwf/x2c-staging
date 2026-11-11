@@ -1,6 +1,6 @@
 <!DOCTYPE HTML>
 <html lang="en" class="light sidebar-visible" dir="ltr">
-    <head><meta name="x2c-release-channel" content="staging"><meta name="x2c-candidate" content="candidate-aa2b9b2575297711e5978acc53f87bd7f645f3c7-39090113132-1">
+    <head><meta name="x2c-release-channel" content="staging"><meta name="x2c-candidate" content="candidate-aa2b9b2575297711e5978acc53f87bd7f645f3c7-39090113132-1"><meta name="x2c-site-source" content="2c5870d64d381a861054dae9927aa65adc87e9e0"><meta name="robots" content="noindex">
         <!-- Book generated using mdBook -->
         <meta charset="UTF-8">
         <title>src/protocol/protocol.x - The x2c Book</title>
@@ -30,7 +30,7 @@
         <link rel="stylesheet" id="mdbook-ayu-highlight-css" href="../../ayu-highlight-3fdfc3ac.css">
 
         <!-- Custom theme stylesheets -->
-        <link rel="stylesheet" href="../../theme/header-f6c12aed.css">
+        <link rel="stylesheet" href="../../theme/header-b540a03f.css">
         <link rel="stylesheet" href="../../theme/x2c-fd3d182e.css">
 
 
@@ -39,12 +39,12 @@
             const path_to_root = "../../";
             const default_light_theme = "light";
             const default_dark_theme = "light";
-            window.path_to_searchindex_js = "../../searchindex-f4d06db2.js";
+            window.path_to_searchindex_js = "../../searchindex-a3bdfad5.js";
         </script>
         <!-- Start loading toc.js asap -->
-        <script src="../../toc-00ae7479.js"></script>
+        <script src="../../toc-2248e0f3.js"></script>
         <!-- x2c publication metadata -->
-        <link rel="canonical" href="https://staging.x2c-lang.dev/docs/internals/compiler-api/protocol.html">
+        <link rel="canonical" href="https://x2c-lang.dev/docs/internals/compiler-api/protocol.html">
         <meta property="og:type" content="website">
         <meta property="og:title" content="src/protocol/protocol.x - The x2c Book">
         <meta property="og:description" content="The x2c language, standard library, and compiler.">
@@ -143,16 +143,12 @@
                             <button class="landing-tagline menu-title" type="button" title="Scroll to top">The x2c Book</button>
                         </div>
                         <nav class="landing-nav" aria-label="x2c website">
-                            <div class="landing-page-nav">
-                                <a href="../../../#love">love</a>
-                                <a href="../../../#power">power</a>
-                                <a href="../../../#magic">magic</a>
-                            </div>
                             <div class="landing-site-nav">
                                 <a href="../../../#install">install</a>
                                 <a href="../../../#packages">packages</a>
                             </div>
                             <div class="landing-reference-nav">
+                                <a href="../../../examples/">examples</a>
                                 <a href="../../../about/">about</a>
                                 <a href="../../" aria-current="page">docs</a>
                                 <a href="https://github.com/gwf/x2c">source</a>
@@ -242,13 +238,14 @@ Compatibility is not yet promised.</p>
 <tr><td><a href="#Compiler.native_protocol_alias"><code>Compiler.native_protocol_alias</code></a></td><td>Reports whether a generated member names a native protocol host function.</td></tr>
 <tr><td><a href="#Compiler.parse_protocol_declaration"><code>Compiler.parse_protocol_declaration</code></a></td><td>Parses a protocol body or concrete adoption at the current token.</td></tr>
 <tr><td><a href="#Compiler.protocol_discard_helper"><code>Compiler.protocol_discard_helper</code></a></td><td>The <code>discard_helper</code> for <code>participant</code>’s protocol <code>member</code>.</td></tr>
+<tr><td><a href="#Compiler.protocol_helper_call"><code>Compiler.protocol_helper_call</code></a></td><td>Returns <code>call</code>, which calls the generated protocol helper <code>name</code> from the code being lowered.</td></tr>
 <tr><td><a href="#Compiler.protocol_member_names"><code>Compiler.protocol_member_names</code></a></td><td>Returns unique member spellings from the participant’s visible adopted conformances.</td></tr>
 <tr><td><a href="#Compiler.protocol_members_for"><code>Compiler.protocol_members_for</code></a></td><td>Returns the resolved conformance for <code>participant</code> and <code>base</code>, if any.</td></tr>
 <tr><td><a href="#Compiler.protocol_rejects_direct_member"><code>Compiler.protocol_rejects_direct_member</code></a></td><td>Reports whether conformance supersedes an ambient direct member: 0 when it does not, 1 when the participant’s own adoption does, and 2 when an ancestor’s adoption does.</td></tr>
 <tr><td><a href="#Compiler.protocol_update_helper"><code>Compiler.protocol_update_helper</code></a></td><td>Returns a generated helper for a direct protocol-backed update.</td></tr>
 <tr><td><a href="#Compiler.publish_protocol_node"><code>Compiler.publish_protocol_node</code></a></td><td>Validates and installs one normalized protocol or adoption node.</td></tr>
 <tr><td><a href="#Compiler.rebuild_protocols"><code>Compiler.rebuild_protocols</code></a></td><td>Rebuilds the per-unit protocol and adoption registries from <code>symbols</code>.</td></tr>
-<tr><td><a href="#Compiler.record_source_typedef"><code>Compiler.record_source_typedef</code></a></td><td>Remembers a source typedef’s declaration and visibility, which native alias insertion reads for its participant.</td></tr>
+<tr><td><a href="#Compiler.record_source_typedef"><code>Compiler.record_source_typedef</code></a></td><td>Records a source typedef’s declaration and visibility, which native alias insertion reads for its participant.</td></tr>
 <tr><td><a href="#Compiler.resolve_as_declared"><code>Compiler.resolve_as_declared</code></a></td><td>Resolves the adoptions visible in <code>symbols</code> as a declaring unit’s full parse resolves its own: before the parse, and again, after the generated members are published, where the parse publishes each one.</td></tr>
 <tr><td><a href="#Compiler.resolve_protocol_member"><code>Compiler.resolve_protocol_member</code></a></td><td>Resolves a protocol member for <code>participant</code>.</td></tr>
 <tr><td><a href="#Compiler.resolve_protocols"><code>Compiler.resolve_protocols</code></a></td><td>Resolves every visible adoption into the current conformance registry.</td></tr>
@@ -263,18 +260,19 @@ Compatibility is not yet promised.</p>
 <p><code>Map Compiler.conformance_rows(Compiler c, List adoptions)</code></p>
 <p>Returns the interface rows of the resolved conformances <code>adoptions</code>
 declare.</p>
-<p>Source: <code>src/protocol/resolution.x:211</code></p>
+<p>Source: <code>src/protocol/resolution.x</code></p>
 <p><a id="Compiler.discard_helper"></a></p>
 <h4 id="compilerdiscard_helper"><a class="header" href="#compilerdiscard_helper">Compiler.discard_helper</a></h4>
-<p><code>List Compiler.discard_helper( Compiler c, List binding, Type signature, String stem, int which)</code></p>
+<p><code>List Compiler.discard_helper(Compiler c, List binding, Type signature, String stem, int which)</code></p>
 <p>Returns <code>(binding signature)</code> for a generated helper that calls the
 function <code>binding</code> of type <code>signature</code> and then discards the unnamed
 argument temporaries <code>which</code> selects (bit <code>n</code> for argument <code>n</code>). A
 discarded argument is one the compiler produced for this call alone, so
 its <code>discard</code> member may release what it owns before the enclosing scope
-ends. Returns null when no selected argument type has a <code>discard</code> member,
-or an ordinary pointer or aggregate result may borrow an argument.</p>
-<p>Source: <code>src/protocol/call-helpers.x:131</code></p>
+ends. A public inline body’s helper has external linkage. Returns null
+when no selected argument type has a <code>discard</code> member, or an ordinary
+pointer or aggregate result may borrow an argument.</p>
+<p>Source: <code>src/protocol/call-helpers.x</code></p>
 <p><a id="Compiler.dump_conformance"></a></p>
 <h4 id="compilerdump_conformance"><a class="header" href="#compilerdump_conformance">Compiler.dump_conformance</a></h4>
 <p><code>void Compiler.dump_conformance(Compiler c, Map globs)</code></p>
@@ -282,14 +280,16 @@ or an ordinary pointer or aggregate result may borrow an argument.</p>
 Rows are ordered by participant and protocol and identify whether each
 adoption is owned by this unit, so prelude and live symbol modes can be
 compared.</p>
-<p>Source: <code>src/protocol/lookup.x:163</code></p>
+<p>Source: <code>src/protocol/lookup.x</code></p>
 <p><a id="Compiler.forward_parameters"></a></p>
 <h4 id="compilerforward_parameters"><a class="header" href="#compilerforward_parameters">Compiler.forward_parameters</a></h4>
 <p><code>List Compiler.forward_parameters(Compiler c, List types)</code></p>
 <p>Returns <code>(declarations arguments)</code> for a helper that forwards its
 parameters of <code>types</code>: each declaration names a fresh parameter <code>a0</code>,
-<code>a1</code>, …, and each argument reads it.</p>
-<p>Source: <code>src/protocol/call-helpers.x:29</code></p>
+<code>a1</code>, …, and each argument reads it. A rest parameter forwards its
+List elements or Map entries with an explicit splice. A helper without
+parameters declares <code>(void)</code>, because <code>()</code> is unprototyped C.</p>
+<p>Source: <code>src/protocol/call-helpers.x</code></p>
 <p><a id="Compiler.generate_protocol_adapters"></a></p>
 <h4 id="compilergenerate_protocol_adapters"><a class="header" href="#compilergenerate_protocol_adapters">Compiler.generate_protocol_adapters</a></h4>
 <p><code>List Compiler.generate_protocol_adapters(Compiler c, List ast)</code></p>
@@ -298,22 +298,22 @@ parameters of <code>types</code>: each declaration names a fresh parameter <code
 public or private boundary. Each other conformance whose forward converter
 the unit defines goes to the rule on the <code>conform</code> head, which
 <code>src/components/protocol-adapters.x</code> registers to write its adapters into
-the unit’s
-pending support. The external conformances the unit declares are first
-recorded in its interface. Returns <code>ast</code> with native insertions applied.</p>
-<p>Source: <code>src/protocol/adapters.x:111</code></p>
+the unit’s pending support. The external conformances the unit declares
+are first recorded in its interface. Returns <code>ast</code> with native insertions
+applied.</p>
+<p>Source: <code>src/protocol/adapters.x</code></p>
 <p><a id="Compiler.install_generated_protocol_symbols"></a></p>
 <h4 id="compilerinstall_generated_protocol_symbols"><a class="header" href="#compilerinstall_generated_protocol_symbols">Compiler.install_generated_protocol_symbols</a></h4>
 <p><code>void Compiler.install_generated_protocol_symbols(Compiler c)</code></p>
 <p>Publishes external native alias and ordinary adapter signatures.
 Protocols must already be resolved in the active symbol table.</p>
-<p>Source: <code>src/protocol/adapters.x:150</code></p>
+<p>Source: <code>src/protocol/adapters.x</code></p>
 <p><a id="Compiler.native_protocol_alias"></a></p>
 <h4 id="compilernative_protocol_alias"><a class="header" href="#compilernative_protocol_alias">Compiler.native_protocol_alias</a></h4>
 <p><code>int Compiler.native_protocol_alias(Compiler c, String name)</code></p>
 <p>Reports whether a generated member names a native protocol host function.
 Its defining header supplies the alias instead of a C prototype.</p>
-<p>Source: <code>src/protocol/adapters.x:191</code></p>
+<p>Source: <code>src/protocol/adapters.x</code></p>
 <p><a id="Compiler.parse_protocol_declaration"></a></p>
 <h4 id="compilerparse_protocol_declaration"><a class="header" href="#compilerparse_protocol_declaration">Compiler.parse_protocol_declaration</a></h4>
 <p><code>List Compiler.parse_protocol_declaration(Compiler c)</code></p>
@@ -323,18 +323,26 @@ publishes the normalized row immediately. Macro-hole parsing returns syntax
 for later binding; shallow parsing publishes only when protocol collection
 is enabled and otherwise returns the uninstalled node. A leading <code>meta</code>
 makes an adoption’s witnesses available to compile-time code.</p>
-<p>Source: <code>src/protocol/declarations.x:122</code></p>
+<p>Source: <code>src/protocol/declarations.x</code></p>
 <p><a id="Compiler.protocol_discard_helper"></a></p>
 <h4 id="compilerprotocol_discard_helper"><a class="header" href="#compilerprotocol_discard_helper">Compiler.protocol_discard_helper</a></h4>
-<p><code>List Compiler.protocol_discard_helper( Compiler c, Type participant, String member, int which)</code></p>
+<p><code>List Compiler.protocol_discard_helper(Compiler c, Type participant, String member, int which)</code></p>
 <p>The <code>discard_helper</code> for <code>participant</code>’s protocol <code>member</code>.</p>
-<p>Source: <code>src/protocol/call-helpers.x:157</code></p>
+<p>Source: <code>src/protocol/call-helpers.x</code></p>
+<p><a id="Compiler.protocol_helper_call"></a></p>
+<h4 id="compilerprotocol_helper_call"><a class="header" href="#compilerprotocol_helper_call">Compiler.protocol_helper_call</a></h4>
+<p><code>List Compiler.protocol_helper_call(Compiler c, String name, List call)</code></p>
+<p>Returns <code>call</code>, which calls the generated protocol helper <code>name</code> from
+the code being lowered. A public inline body’s helper has external
+linkage, and the unit’s header carries that body too, so there the call
+declares the helper first.</p>
+<p>Source: <code>src/protocol/call-helpers.x</code></p>
 <p><a id="Compiler.protocol_member_names"></a></p>
 <h4 id="compilerprotocol_member_names"><a class="header" href="#compilerprotocol_member_names">Compiler.protocol_member_names</a></h4>
 <p><code>List Compiler.protocol_member_names(Compiler c, Type participant)</code></p>
 <p>Returns unique member spellings from the participant’s visible adopted
 conformances. Resolution remains responsible for selecting a binding.</p>
-<p>Source: <code>src/protocol/lookup.x:105</code></p>
+<p>Source: <code>src/protocol/lookup.x</code></p>
 <p><a id="Compiler.protocol_members_for"></a></p>
 <h4 id="compilerprotocol_members_for"><a class="header" href="#compilerprotocol_members_for">Compiler.protocol_members_for</a></h4>
 <p><code>List Compiler.protocol_members_for(Compiler c, Type participant, Type base)</code></p>
@@ -342,35 +350,37 @@ conformances. Resolution remains responsible for selecting a binding.</p>
 Lookup canonicalizes the participant and may use the nearest adopted
 typedef ancestor. Native conformances install their generated bindings
 before the cached conformance row is returned.</p>
-<p>Source: <code>src/protocol/lookup.x:21</code></p>
+<p>Source: <code>src/protocol/lookup.x</code></p>
 <p><a id="Compiler.protocol_rejects_direct_member"></a></p>
 <h4 id="compilerprotocol_rejects_direct_member"><a class="header" href="#compilerprotocol_rejects_direct_member">Compiler.protocol_rejects_direct_member</a></h4>
-<p><code>int Compiler.protocol_rejects_direct_member( Compiler c, Type participant, String member)</code></p>
+<p><code>int Compiler.protocol_rejects_direct_member(Compiler c, Type participant, String member)</code></p>
 <p>Reports whether conformance supersedes an ambient direct member: 0 when
 it does not, 1 when the participant’s own adoption does, and 2 when an
-ancestor’s adoption does. The answer is cached for the canonical
+ancestor’s adoption does. The result is cached for the canonical
 participant and uses the first visible adopted ancestor that declares
 the member.</p>
-<p>Source: <code>src/protocol/lookup.x:130</code></p>
+<p>Source: <code>src/protocol/lookup.x</code></p>
 <p><a id="Compiler.protocol_update_helper"></a></p>
 <h4 id="compilerprotocol_update_helper"><a class="header" href="#compilerprotocol_update_helper">Compiler.protocol_update_helper</a></h4>
-<p><code>String Compiler.protocol_update_helper( Compiler c, Type participant, String member, int postfix)</code></p>
+<p><code>String Compiler.protocol_update_helper(Compiler c, Type participant, String member, int postfix, int discard_rhs)</code></p>
 <p>Returns a generated helper for a direct protocol-backed update.
-The resolved member must have exactly <code>(Participant, RHS) -&gt; Participant</code>.
-A matching helper is emitted once into the unit’s pending support;
-<code>postfix</code> selects whether it returns the old or stored value. Returns null
+The resolved member must have exactly <code>(Participant, RHS) -&gt; Participant</code>,
+where the receiver and result may be any typedef that resolves to the
+participant’s type. A matching helper is emitted once into the unit’s
+pending support; <code>postfix</code> selects whether it returns the old or stored
+value. A public inline body’s helper has external linkage. Returns null
 when the member cannot implement this update shape.</p>
-<p>Source: <code>src/protocol/call-helpers.x:62</code></p>
+<p>Source: <code>src/protocol/call-helpers.x</code></p>
 <p><a id="Compiler.publish_protocol_node"></a></p>
 <h4 id="compilerpublish_protocol_node"><a class="header" href="#compilerpublish_protocol_node">Compiler.publish_protocol_node</a></h4>
-<p><code>List Compiler.publish_protocol_node( Compiler c, List node, Token participant_token, Token representation_token)</code></p>
+<p><code>List Compiler.publish_protocol_node(Compiler c, List node, Token participant_token, Token representation_token)</code></p>
 <p>Validates and installs one normalized protocol or adoption node.
 The node must carry a protocol record or supported adoption shape with its
 storage and source location. Installation invalidates cached protocol
 decisions and returns the canonical published node. Generated contexts may
 also retain that node in <code>Sym</code> for replay. A <code>(meta-protocol ADOPTION)</code>
 node publishes its adoption and marks it for compile-time code.</p>
-<p>Source: <code>src/protocol/registry.x:249</code></p>
+<p>Source: <code>src/protocol/registry.x</code></p>
 <p><a id="Compiler.rebuild_protocols"></a></p>
 <h4 id="compilerrebuild_protocols"><a class="header" href="#compilerrebuild_protocols">Compiler.rebuild_protocols</a></h4>
 <p><code>void Compiler.rebuild_protocols(Compiler c, Map symbols)</code></p>
@@ -379,13 +389,13 @@ Existing rows, helper decisions, and lookup caches are discarded; a null
 map leaves those registries empty. The conformance rows included
 interfaces recorded are kept for reuse. Conformance reset and resolution
 belong to <code>resolve_protocols</code>.</p>
-<p>Source: <code>src/protocol/registry.x:505</code></p>
+<p>Source: <code>src/protocol/registry.x</code></p>
 <p><a id="Compiler.record_source_typedef"></a></p>
 <h4 id="compilerrecord_source_typedef"><a class="header" href="#compilerrecord_source_typedef">Compiler.record_source_typedef</a></h4>
-<p><code>void Compiler.record_source_typedef( Compiler c, String name, List declaration, int private)</code></p>
-<p>Remembers a source typedef’s declaration and visibility, which native
+<p><code>void Compiler.record_source_typedef(Compiler c, String name, List declaration, int private)</code></p>
+<p>Records a source typedef’s declaration and visibility, which native
 alias insertion reads for its participant.</p>
-<p>Source: <code>src/protocol/adapters.x:371</code></p>
+<p>Source: <code>src/protocol/adapters.x</code></p>
 <p><a id="Compiler.resolve_as_declared"></a></p>
 <h4 id="compilerresolve_as_declared"><a class="header" href="#compilerresolve_as_declared">Compiler.resolve_as_declared</a></h4>
 <p><code>void Compiler.resolve_as_declared(Compiler c, Map symbols)</code></p>
@@ -393,16 +403,16 @@ alias insertion reads for its participant.</p>
 parse resolves its own: before the parse, and again, after the
 generated members are published, where the parse publishes each one.
 Their declaring units report their failures, so nothing is reported.</p>
-<p>Source: <code>src/protocol/resolution.x:227</code></p>
+<p>Source: <code>src/protocol/resolution.x</code></p>
 <p><a id="Compiler.resolve_protocol_member"></a></p>
 <h4 id="compilerresolve_protocol_member"><a class="header" href="#compilerresolve_protocol_member">Compiler.resolve_protocol_member</a></h4>
-<p><code>List Compiler.resolve_protocol_member( Compiler c, Type participant, String member_name)</code></p>
+<p><code>List Compiler.resolve_protocol_member(Compiler c, Type participant, String member_name)</code></p>
 <p>Resolves a protocol member for <code>participant</code>.
 Returns a <code>(binding signature)</code> pair for the selected implementation or
 null when no eligible resolved member exists; positive and negative
 results are cached. Inside the selected implementation itself the result
 is null, so the member’s own body keeps the native operation.</p>
-<p>Source: <code>src/protocol/lookup.x:216</code></p>
+<p>Source: <code>src/protocol/lookup.x</code></p>
 <p><a id="Compiler.resolve_protocols"></a></p>
 <h4 id="compilerresolve_protocols"><a class="header" href="#compilerresolve_protocols">Compiler.resolve_protocols</a></h4>
 <p><code>void Compiler.resolve_protocols(Compiler c)</code></p>
@@ -411,37 +421,45 @@ Resolution starts from an empty registry; diagnostics are located only for
 adoptions owned by the current translation unit. An adoption another
 unit declared and recorded keeps that conformance, which is installed
 when it is first used.</p>
-<p>Source: <code>src/protocol/resolution.x:145</code></p>
+<p>Source: <code>src/protocol/resolution.x</code></p>
 <p><a id="Compiler.reverse_converter_spelling"></a></p>
 <h4 id="compilerreverse_converter_spelling"><a class="header" href="#compilerreverse_converter_spelling">Compiler.reverse_converter_spelling</a></h4>
-<p><code>String Compiler.reverse_converter_spelling( Compiler c, String base_name, String infix, String participant)</code></p>
+<p><code>String Compiler.reverse_converter_spelling(Compiler c, String base_name, String infix, String participant)</code></p>
 <p>Returns the conventional reverse converter spelling.
 A <code>Base.participant</code> reverse converter is declared under the participant’s
 source spelling, and package mode rewrites that joined name as a whole, so
 the package prefix sits at the front of the derived binding instead of
 inside it. The split is keyed on a known package because a foreign
 header may spell <code>__</code> in a type name.</p>
-<p>Source: <code>src/protocol/registry.x:225</code></p>
+<p>Source: <code>src/protocol/registry.x</code></p>
 <p><a id="Compiler.wrapper_function"></a></p>
 <h4 id="compilerwrapper_function"><a class="header" href="#compilerwrapper_function">Compiler.wrapper_function</a></h4>
-<p><code>List Compiler.wrapper_function( Compiler c, Type result, List binding, List params, List body)</code></p>
+<p><code>List Compiler.wrapper_function(Compiler c, Type result, List binding, List params, List body)</code></p>
 <p>Returns the function <code>result name(params) { body }</code> bound in this
 unit. <code>result</code> is the storage class and result type, so static, inline
 and external helpers share it; <code>params</code> are the parameter declarations,
 and <code>body</code> its lowered statements.</p>
-<p>Source: <code>src/protocol/call-helpers.x:19</code></p>
+<p>Source: <code>src/protocol/call-helpers.x</code></p>
 <h2 id="design-notes"><a class="header" href="#design-notes">Design notes</a></h2>
 <p>This module owns the protocol feature: it parses protocol and adoption
 declarations, keeps their rows in per-unit registries, resolves each
-adoption into a conformance, answers member and operator lookups, and
+adoption into a conformance, resolves member and operator lookups, and
 presents each conformance as native aliases or a <code>conform</code> form, from which
 <code>src/components/protocol-adapters.x</code> writes the adapters. Registries are
-rebuilt per
-translation unit; a static row is visible only in the unit of its canonical
-source path. The unit that declares an external adoption resolves it and
-records the conformance in its interface, which an including unit reuses.</p>
+rebuilt per translation unit; a static row is visible only in the unit of
+its canonical source path. The unit that declares an external adoption
+resolves it and records the conformance in its interface, which an
+including unit reuses.</p>
 
                     </main>
+                    <script>
+                        // A generated page is edited through its generator.
+                        if ([...document.querySelector('#mdbook-content main').childNodes]
+                                .some(node => node.nodeType === Node.COMMENT_NODE &&
+                                      node.textContent.includes('Do not edit by hand'))) {
+                            document.querySelector('a[rel="edit"]')?.remove();
+                        }
+                    </script>
 
                     <nav class="x2c-pager" aria-label="Page navigation">
                         <a rel="prev" href="../../internals/compiler-api/project.html" class="x2c-pager-prev" aria-keyshortcuts="Left">
@@ -458,9 +476,9 @@ records the conformance in its interface, which an including unit reuses.</p>
                         &copy; 2025&ndash;2026
                         <a href="https://flake.org">GWF</a>
                         &middot;
-                        <a href="https://github.com/gwf/x2c/blob/aa2b9b2575297711e5978acc53f87bd7f645f3c7/LICENSE">Apache 2.0</a>
+                        <a href="https://github.com/gwf/x2c/blob/2c5870d64d381a861054dae9927aa65adc87e9e0/LICENSE">Apache 2.0</a>
                         &middot;
-                        <a href="https://github.com/gwf/x2c/blob/aa2b9b2575297711e5978acc53f87bd7f645f3c7/TRADEMARKS.md">Trademarks</a>
+                        <a href="https://github.com/gwf/x2c/blob/2c5870d64d381a861054dae9927aa65adc87e9e0/TRADEMARKS.md">Trademarks</a>
                     </footer>
                 </div>
             </div>
