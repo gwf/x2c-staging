@@ -1,6 +1,6 @@
 <!DOCTYPE HTML>
 <html lang="en" class="light sidebar-visible" dir="ltr">
-    <head><meta name="x2c-release-channel" content="staging"><meta name="x2c-candidate" content="candidate-aa2b9b2575297711e5978acc53f87bd7f645f3c7-39090113132-1"><meta name="x2c-site-source" content="2c5870d64d381a861054dae9927aa65adc87e9e0"><meta name="robots" content="noindex">
+    <head><meta name="x2c-release-channel" content="staging"><meta name="x2c-candidate" content="candidate-aa2b9b2575297711e5978acc53f87bd7f645f3c7-39090113132-1"><meta name="x2c-site-source" content="5cef5c568d6a86785f6b06462b486f33458991b2"><meta name="robots" content="noindex">
         <!-- Book generated using mdBook -->
         <meta charset="UTF-8">
         <title>Language Reference - The x2c Book</title>
@@ -39,7 +39,7 @@
             const path_to_root = "../";
             const default_light_theme = "light";
             const default_dark_theme = "light";
-            window.path_to_searchindex_js = "../searchindex-a3bdfad5.js";
+            window.path_to_searchindex_js = "../searchindex-b73816d6.js";
         </script>
         <!-- Start loading toc.js asap -->
         <script src="../toc-2248e0f3.js"></script>
@@ -1253,7 +1253,11 @@ brace-elision rules:</p>
 </span><span class="line"><span style="--shiki-light:#D73A49;--shiki-dark:#E9E5DF">typedef</span><span style="--shiki-light:#D73A49;--shiki-dark:#F0ADA1"> struct</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF"> Record { </span><span style="--shiki-light:#007C8A;--shiki-dark:#29D3E2">String</span><span style="--shiki-light:#E36209;--shiki-dark:#E9E5DF"> names</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">[</span><span style="--shiki-light:#005CC5;--shiki-dark:#A9C9F5">2</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">]; </span><span style="--shiki-light:#007C8A;--shiki-dark:#29D3E2">Var</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF"> last; } Record;</span>
 </span><span class="line"><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">Record record </span><span style="--shiki-light:#D73A49;--shiki-dark:#E9E5DF">=</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF"> {.</span><span style="--shiki-light:#E36209;--shiki-dark:#E9E5DF">names</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">[</span><span style="--shiki-light:#005CC5;--shiki-dark:#A9C9F5">1</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">] </span><span style="--shiki-light:#D73A49;--shiki-dark:#E9E5DF">=</span><span style="--shiki-light:#032F62;--shiki-dark:#9EDFB8"> "second"</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">, </span><span style="--shiki-light:#032F62;--shiki-dark:#9EDFB8">"last"</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">};</span></span></code></pre>
 
-<p>Each supplied value converts to its destination element or field type. After
+<p>Each supplied value converts to its destination element or field type. A
+value that the converter of an aggregate destination accepts converts to
+that whole aggregate instead of initializing its first member: with
+<code>Size int.size(int)</code> and a field <code>Size width</code>, <code>{ .width = 5 }</code> stores
+<code>int_size(5)</code>. After
 <code>.names[1] = "second"</code> above, the next value initializes <code>last</code>, including its
 ordinary conversion to <code>Var</code>. With <code>.names = "first", "second", "last"</code>,
 brace elision fills both array elements before continuing to <code>last</code>. Explicit
@@ -1279,7 +1283,9 @@ expression’s type, so <code>typeof(name) copy = name;</code> declares <code>co
 type of <code>name</code>. An operand that only C can type, such as a system header’s
 macro, gives a type <span class="x2c-wordmark">x2c</span> does not resolve; the generated C spells it
 <code>__typeof__(operand)</code>, and C types it. <code>typeof_unqual</code> names the same type
-without its qualifiers.</p>
+without its qualifiers. In a macro body, an operand that holds a hole is
+typed where the macro expands, so <code>typeof($value) copy = $value;</code> declares
+<code>copy</code> with the argument’s type and <code>copy.method()</code> resolves.</p>
 <h3 id="alignment-atomic-and-complex-types"><a class="header" href="#alignment-atomic-and-complex-types">Alignment, atomic, and complex types</a></h3>
 <p>C11’s alignment specifier, <code>_Alignas(constant)</code> or <code>_Alignas(type)</code>, is a
 declaration specifier. Write it with the storage class, before the type.
@@ -2362,7 +2368,14 @@ or 0.</p>
 <p><code>Code.type</code> returns the canonical semantic <code>Type</code> for supported typed
 syntax. During expansion, syntax a template left untyped is resolved where the
 expansion stands, so a template’s locals, casts, and method results report
-their declared types.</p>
+their declared types. An <code>x2c_ident</code> name value and an untyped quotation are
+resolved the same way, so <code>Code.type(x2c_ident("puts"))</code> is the type of the
+function <code>puts</code>. The <code>Type</code> omits the storage class and the qualifiers of the
+value itself. It keeps the qualifiers of what a pointer points at and of what
+a function returns: a <code>const char *</code> local reports <code>(* const char)</code>, and
+<code>Type.return_type</code> of a function that returns <code>const char *</code> reports the
+same. A declaration written with the reported <code>Type</code> therefore accepts the
+value it was read from.</p>
 <p><code>Code.binding_spelling</code> accepts a name hole’s valid identifier <code>String</code> or
 compiler-issued identifier and binding syntax, and returns its source spelling
 without exposing the numeric identity. Unknown, malformed, and forged binding
@@ -4658,9 +4671,9 @@ retaining storage, and already ended regions, including through helpers.</p>
                         &copy; 2025&ndash;2026
                         <a href="https://flake.org">GWF</a>
                         &middot;
-                        <a href="https://github.com/gwf/x2c/blob/2c5870d64d381a861054dae9927aa65adc87e9e0/LICENSE">Apache 2.0</a>
+                        <a href="https://github.com/gwf/x2c/blob/5cef5c568d6a86785f6b06462b486f33458991b2/LICENSE">Apache 2.0</a>
                         &middot;
-                        <a href="https://github.com/gwf/x2c/blob/2c5870d64d381a861054dae9927aa65adc87e9e0/TRADEMARKS.md">Trademarks</a>
+                        <a href="https://github.com/gwf/x2c/blob/5cef5c568d6a86785f6b06462b486f33458991b2/TRADEMARKS.md">Trademarks</a>
                     </footer>
                 </div>
             </div>
