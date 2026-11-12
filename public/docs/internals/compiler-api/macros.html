@@ -1,6 +1,6 @@
 <!DOCTYPE HTML>
 <html lang="en" class="light sidebar-visible" dir="ltr">
-    <head><meta name="x2c-release-channel" content="staging"><meta name="x2c-candidate" content="candidate-aa2b9b2575297711e5978acc53f87bd7f645f3c7-39090113132-1"><meta name="x2c-site-source" content="5cef5c568d6a86785f6b06462b486f33458991b2"><meta name="robots" content="noindex">
+    <head><meta name="x2c-release-channel" content="staging"><meta name="x2c-candidate" content="candidate-aa2b9b2575297711e5978acc53f87bd7f645f3c7-39090113132-1"><meta name="x2c-site-source" content="f0b406f8b736bbcd60574efe07c8aa1e6c73ccde"><meta name="robots" content="noindex">
         <!-- Book generated using mdBook -->
         <meta charset="UTF-8">
         <title>src/macros/macros.x - The x2c Book</title>
@@ -32,6 +32,7 @@
         <!-- Custom theme stylesheets -->
         <link rel="stylesheet" href="../../theme/header-b540a03f.css">
         <link rel="stylesheet" href="../../theme/x2c-fd3d182e.css">
+        <link rel="stylesheet" href="../../theme/reading-a43255fd.css">
 
 
         <!-- Provide site root and default themes to javascript -->
@@ -39,7 +40,7 @@
             const path_to_root = "../../";
             const default_light_theme = "light";
             const default_dark_theme = "light";
-            window.path_to_searchindex_js = "../../searchindex-b73816d6.js";
+            window.path_to_searchindex_js = "../../searchindex-f614bc42.js";
         </script>
         <!-- Start loading toc.js asap -->
         <script src="../../toc-2248e0f3.js"></script>
@@ -236,6 +237,8 @@ Compatibility is not yet promised.</p>
 <tr><td><a href="#Compiler.applying_shipped"><code>Compiler.applying_shipped</code></a></td><td>Whether the rule whose meta function now runs is shipped, so that the names it calls resolve to the copies the compiler links.</td></tr>
 <tr><td><a href="#Compiler.bind_code_value"><code>Compiler.bind_code_value</code></a></td><td>Binds a code-value carrier that a meta call returned outside a macro value application as an application binds it, under a transaction that also covers its effects.</td></tr>
 <tr><td><a href="#Compiler.bind_meta_statement"><code>Compiler.bind_meta_statement</code></a></td><td>Binds a compile-time code <code>value</code> returned to a statement at <code>context</code>.</td></tr>
+<tr><td><a href="#Compiler.bind_method_decorator"><code>Compiler.bind_method_decorator</code></a></td><td>Applies a template’s <code>(method-decorator CALL TARGET)</code> as the decorator <code>$T.name</code> of the call’s receiver, at <code>position</code>.</td></tr>
+<tr><td><a href="#Compiler.bind_method_macro"><code>Compiler.bind_method_macro</code></a></td><td>Expands a template’s method-form call <code>receiver.name(supplied)</code> as the Expression macro <code>$T.name</code> once the receiver has its type where the template expands.</td></tr>
 <tr><td><a href="#Compiler.capture_macro_value"><code>Compiler.capture_macro_value</code></a></td><td>Returns an anonymous macro definition as a <code>Macro</code> value.</td></tr>
 <tr><td><a href="#Compiler.check_included_names"><code>Compiler.check_included_names</code></a></td><td>Reports the first of <code>names</code>, aliases that <code>globs</code> did not bind before the include at <code>site</code>, that the include declared.</td></tr>
 <tr><td><a href="#Compiler.enter_alias_body"><code>Compiler.enter_alias_body</code></a></td><td>Starts a declaration body whose aliases end at its closing brace, and returns the alias state that <code>Compiler.leave_alias_body</code> restores.</td></tr>
@@ -253,6 +256,7 @@ Compatibility is not yet promised.</p>
 <tr><td><a href="#Compiler.local_macro_form_is_definition"><code>Compiler.local_macro_form_is_definition</code></a></td><td>Returns whether the current tokens begin a local macro definition.</td></tr>
 <tr><td><a href="#Compiler.lower_replacement"><code>Compiler.lower_replacement</code></a></td><td>Lowers <code>replacement</code>, which <code>Compiler.rewrite_lowered</code> bound for the lowered statement <code>source</code>, and keeps each part of <code>source</code> it holds as it is, so no statement rule is offered that part again.</td></tr>
 <tr><td><a href="#Compiler.lower_rewrite"><code>Compiler.lower_rewrite</code></a></td><td>Binds and lowers a replacement while its rule remains active.</td></tr>
+<tr><td><a href="#Compiler.macro_definition_name"><code>Compiler.macro_definition_name</code></a></td><td>Returns a definition’s name: <code>name</code> itself, or the name a template computed, <code>(macro-name PART ...)</code> with its holes filled, joined as <code>PART.PART</code>.</td></tr>
 <tr><td><a href="#Compiler.macro_form_is_definition"><code>Compiler.macro_form_is_definition</code></a></td><td>Returns whether the current tokens have macro-definition introducer form.</td></tr>
 <tr><td><a href="#Compiler.macro_introduced_name"><code>Compiler.macro_introduced_name</code></a></td><td>Returns the current declaration’s definition-local identity.</td></tr>
 <tr><td><a href="#Compiler.macro_invocation_collection"><code>Compiler.macro_invocation_collection</code></a></td><td>Returns how collection treats the macro invocation at the cursor.</td></tr>
@@ -263,8 +267,10 @@ Compatibility is not yet promised.</p>
 <tr><td><a href="#Compiler.macro_tag_name"><code>Compiler.macro_tag_name</code></a></td><td>Returns a template’s local binding for tag <code>name</code> of <code>kind</code>, or NULL when it names a visible public tag.</td></tr>
 <tr><td><a href="#Compiler.macro_targets_unit"><code>Compiler.macro_targets_unit</code></a></td><td>Reports whether the macro invocation at the cursor produces file-scope syntax, directly or through the target it decorates.</td></tr>
 <tr><td><a href="#Compiler.macro_value_literal"><code>Compiler.macro_value_literal</code></a></td><td>Returns the literal expression that carries <code>value</code>, a macro definition or one of its references, as run-time data.</td></tr>
+<tr><td><a href="#Compiler.mark_method_call"><code>Compiler.mark_method_call</code></a></td><td>Marks a template’s call <code>receiver.name(...)</code> written in the template of a macro <code>$T.name</code> as <code>(expr () (method-call DEFINITION CALL))</code>, so that where the template expands the call is <code>$T.name</code>’s method, not the macro.</td></tr>
 <tr><td><a href="#Compiler.marked_rewrite"><code>Compiler.marked_rewrite</code></a></td><td>Matches the member rules registered for each field keyword that <code>aggregate</code> declares a field with, as <code>Compiler.rewrite</code> matches those keyed by a receiver type.</td></tr>
 <tr><td><a href="#Compiler.meta_call_starts_declaration"><code>Compiler.meta_call_starts_declaration</code></a></td><td>Returns whether tokens after an explicit meta call continue a declaration.</td></tr>
+<tr><td><a href="#Compiler.method_decorator_target"><code>Compiler.method_decorator_target</code></a></td><td>Returns where the target begins when a file-scope item at the cursor has the shape of a method-form decorator application, <code>receiver.name(arguments) TARGET</code>, or NULL.</td></tr>
 <tr><td><a href="#Compiler.named_alias_expression"><code>Compiler.named_alias_expression</code></a></td><td>Resolves a visible alias by spelling for parsed and constructed names.</td></tr>
 <tr><td><a href="#Compiler.parse_alias_declaration"><code>Compiler.parse_alias_declaration</code></a></td><td>Parses an alias or its removal at file scope.</td></tr>
 <tr><td><a href="#Compiler.parse_alias_member"><code>Compiler.parse_alias_member</code></a></td><td>Parses an alias among the members of an aggregate or enum body, where <code>position</code> is <code>&lt;field&gt;</code> or <code>&lt;enumerator&gt;</code> and <code>context</code> is the aggregate type.</td></tr>
@@ -272,6 +278,8 @@ Compatibility is not yet promised.</p>
 <tr><td><a href="#Compiler.parse_keyword_definition"><code>Compiler.parse_keyword_definition</code></a></td><td>Parses and installs one source-local <code>keyword</code> alias.</td></tr>
 <tr><td><a href="#Compiler.parse_macro_definition"><code>Compiler.parse_macro_definition</code></a></td><td>Parses the macro definition at the current token into a <code>macrodef</code> <code>List</code>.</td></tr>
 <tr><td><a href="#Compiler.parse_macro_quotation"><code>Compiler.parse_macro_quotation</code></a></td><td>Parses a quotation at <code>$!</code> into the code it builds from the locals its body names.</td></tr>
+<tr><td><a href="#Compiler.parse_method_decorator"><code>Compiler.parse_method_decorator</code></a></td><td>Parses the method-form decorator application whose arguments begin at the cursor, after <code>try_parse_method_macro</code> raised <code>&lt;method-dec&gt;</code> for the expression statement that begins at <code>start</code>.</td></tr>
+<tr><td><a href="#Compiler.parse_unit_method_decorator"><code>Compiler.parse_unit_method_decorator</code></a></td><td>Parses the file-scope method-form decorator application at the cursor, which <code>method_decorator_target</code> recognized, through the ordinary expression parse of its receiver.</td></tr>
 <tr><td><a href="#Compiler.peek_macro_hole"><code>Compiler.peek_macro_hole</code></a></td><td>Returns the registered hole descriptor for a named or expression hole.</td></tr>
 <tr><td><a href="#Compiler.place"><code>Compiler.place</code></a></td><td>Places <code>code</code> where <code>where</code> says, under the active expansion’s transaction: <code>(after-statement)</code> after the enclosing block item or initialized declarator; <code>(block-exit)</code> on every exit from the enclosing block from that point on, as a <code>defer</code> placed after it; <code>(function-entry)</code> at the entry of the enclosing function, at parse or transform time, in placement order before its first statement; <code>(unit-support)</code> among the unit’s support declarations, once per KEY with <code>(unit-support KEY)</code>; or <code>(unit-init)</code> in the unit’s file initialization, in AREA with <code>(unit-init AREA)</code>.</td></tr>
 <tr><td><a href="#Compiler.print_macro_expansion"><code>Compiler.print_macro_expansion</code></a></td><td>Prints one invocation frame and the bound result of its expansion.</td></tr>
@@ -295,6 +303,8 @@ Compatibility is not yet promised.</p>
 <tr><td><a href="#Compiler.try_parse_macro_slot"><code>Compiler.try_parse_macro_slot</code></a></td><td>Parses a macro hole or meta call slot for <code>role</code> while reading a template.</td></tr>
 <tr><td><a href="#Compiler.try_parse_macro_subpattern"><code>Compiler.try_parse_macro_subpattern</code></a></td><td>Parses <code>$NAME(P, ...)</code> in a pattern, where each argument is a pattern, into the pattern for code NAME builds with each argument pattern in its hole.</td></tr>
 <tr><td><a href="#Compiler.try_parse_macro_target_at"><code>Compiler.try_parse_macro_target_at</code></a></td><td>Parses a direct or keyword-alias macro at the requested syntax position.</td></tr>
+<tr><td><a href="#Compiler.try_parse_method_macro"><code>Compiler.try_parse_method_macro</code></a></td><td>Expands <code>receiver.name(...)</code> as the Expression macro <code>$T.name</code> of the receiver’s named type <code>T</code>, with the receiver as its first explicit argument.</td></tr>
+<tr><td><a href="#Compiler.try_parse_static_macro"><code>Compiler.try_parse_static_macro</code></a></td><td>Expands <code>T.name(...)</code> as the Expression macro <code>$T.name</code> when <code>T</code> names a type, with the call’s arguments unchanged, as <code>$T.name(...)</code> takes them.</td></tr>
 <tr><td><a href="#Compiler.unbound_alias_names"><code>Compiler.unbound_alias_names</code></a></td><td>Returns the names of the unit’s file-scope aliases that <code>globs</code>, the unit’s names in source order, does not bind.</td></tr>
 <tr><td><a href="#Compiler.watched_step"><code>Compiler.watched_step</code></a></td><td>Lowers <code>ast</code> when it is a value the active lowering watches; NULL otherwise.</td></tr>
 </tbody>
@@ -351,6 +361,20 @@ also covers its effects.</p>
 <p>Binds a compile-time code <code>value</code> returned to a statement at
 <code>context</code>.</p>
 <p>Source: <code>src/macros/templates.x</code></p>
+<p><a id="Compiler.bind_method_decorator"></a></p>
+<h4 id="compilerbind_method_decorator"><a class="header" href="#compilerbind_method_decorator">Compiler.bind_method_decorator</a></h4>
+<p><code>List Compiler.bind_method_decorator(Compiler c, List call, List target, Symbol position)</code></p>
+<p>Applies a template’s <code>(method-decorator CALL TARGET)</code> as the decorator
+<code>$T.name</code> of the call’s receiver, at <code>position</code>.</p>
+<p>Source: <code>src/macros/invocations/expressions.x</code></p>
+<p><a id="Compiler.bind_method_macro"></a></p>
+<h4 id="compilerbind_method_macro"><a class="header" href="#compilerbind_method_macro">Compiler.bind_method_macro</a></h4>
+<p><code>List Compiler.bind_method_macro(Compiler c, List receiver, String name, List supplied, Var own)</code></p>
+<p>Expands a template’s method-form call <code>receiver.name(supplied)</code> as the
+Expression macro <code>$T.name</code> once the receiver has its type where the
+template expands. Returns NULL when no such macro applies, or when the
+call was written in the template of the macro <code>own</code> that it names.</p>
+<p>Source: <code>src/macros/invocations/expressions.x</code></p>
 <p><a id="Compiler.capture_macro_value"></a></p>
 <h4 id="compilercapture_macro_value"><a class="header" href="#compilercapture_macro_value">Compiler.capture_macro_value</a></h4>
 <p><code>List Compiler.capture_macro_value(Compiler c, List definition)</code></p>
@@ -474,6 +498,13 @@ already established for its parent. A replacement whose template and
 slot signatures an earlier use in the unit prepared lowers only its
 captured values.</p>
 <p>Source: <code>src/macros/rewrites.x</code></p>
+<p><a id="Compiler.macro_definition_name"></a></p>
+<h4 id="compilermacro_definition_name"><a class="header" href="#compilermacro_definition_name">Compiler.macro_definition_name</a></h4>
+<p><code>Atom Compiler.macro_definition_name(Var name)</code></p>
+<p>Returns a definition’s name: <code>name</code> itself, or the name a template
+computed, <code>(macro-name PART ...)</code> with its holes filled, joined as
+<code>PART.PART</code>.</p>
+<p>Source: <code>src/macros/invocations/recognition.x</code></p>
 <p><a id="Compiler.macro_form_is_definition"></a></p>
 <h4 id="compilermacro_form_is_definition"><a class="header" href="#compilermacro_form_is_definition">Compiler.macro_form_is_definition</a></h4>
 <p><code>int Compiler.macro_form_is_definition(Compiler c)</code></p>
@@ -544,6 +575,14 @@ such an invocation at file scope. This query does not consume tokens.</p>
 <p>Returns the literal expression that carries <code>value</code>, a macro definition
 or one of its references, as run-time data.</p>
 <p>Source: <code>src/macros/values.x</code></p>
+<p><a id="Compiler.mark_method_call"></a></p>
+<h4 id="compilermark_method_call"><a class="header" href="#compilermark_method_call">Compiler.mark_method_call</a></h4>
+<p><code>List Compiler.mark_method_call(Compiler c, List call, Var member)</code></p>
+<p>Marks a template’s call <code>receiver.name(...)</code> written in the template of
+a macro <code>$T.name</code> as <code>(expr () (method-call DEFINITION CALL))</code>, so that
+where the template expands the call is <code>$T.name</code>’s method, not the
+macro. Returns <code>call</code> unchanged otherwise.</p>
+<p>Source: <code>src/macros/invocations/expressions.x</code></p>
 <p><a id="Compiler.marked_rewrite"></a></p>
 <h4 id="compilermarked_rewrite"><a class="header" href="#compilermarked_rewrite">Compiler.marked_rewrite</a></h4>
 <p><code>List Compiler.marked_rewrite(Compiler c, Type aggregate, List source, Token site)</code></p>
@@ -558,6 +597,17 @@ keyed by a receiver type.</p>
 declaration. The balanced argument group is inspected without moving
 the compiler cursor; a visible source macro retains its own grammar.</p>
 <p>Source: <code>src/macros/definitions/slots.x</code></p>
+<p><a id="Compiler.method_decorator_target"></a></p>
+<h4 id="compilermethod_decorator_target"><a class="header" href="#compilermethod_decorator_target">Compiler.method_decorator_target</a></h4>
+<p><code>Token Compiler.method_decorator_target(Compiler c)</code></p>
+<p>Returns where the target begins when a file-scope item at the cursor
+has the shape of a method-form decorator application,
+<code>receiver.name(arguments) TARGET</code>, or NULL. The item begins with a
+variable, followed by a postfix chain whose last step is <code>.name(...)</code>,
+a target follows, and some macro is named <code>$T.name</code>. No declaration has
+that shape, so every other item keeps the declaration parser and its
+diagnostics. This query does not consume tokens.</p>
+<p>Source: <code>src/macros/invocations/expressions.x</code></p>
 <p><a id="Compiler.named_alias_expression"></a></p>
 <h4 id="compilernamed_alias_expression"><a class="header" href="#compilernamed_alias_expression">Compiler.named_alias_expression</a></h4>
 <p><code>List Compiler.named_alias_expression(Compiler c, String name)</code></p>
@@ -612,6 +662,22 @@ template remains syntax for later binding at its expansion site.</p>
 <p>Parses a quotation at <code>$!</code> into the code it builds from the locals its
 body names.</p>
 <p>Source: <code>src/macros/definitions/quotations.x</code></p>
+<p><a id="Compiler.parse_method_decorator"></a></p>
+<h4 id="compilerparse_method_decorator"><a class="header" href="#compilerparse_method_decorator">Compiler.parse_method_decorator</a></h4>
+<p><code>List Compiler.parse_method_decorator(Compiler c, Token start, Symbol position)</code></p>
+<p>Parses the method-form decorator application whose arguments begin at
+the cursor, after <code>try_parse_method_macro</code> raised <code>&lt;method-dec&gt;</code> for
+the expression statement that begins at <code>start</code>. In a template whose
+receiver has no type yet, the result is <code>(method-decorator CALL TARGET)</code>, which <code>bind_method_decorator</code> applies where it expands.</p>
+<p>Source: <code>src/macros/invocations/expressions.x</code></p>
+<p><a id="Compiler.parse_unit_method_decorator"></a></p>
+<h4 id="compilerparse_unit_method_decorator"><a class="header" href="#compilerparse_unit_method_decorator">Compiler.parse_unit_method_decorator</a></h4>
+<p><code>List Compiler.parse_unit_method_decorator(Compiler c)</code></p>
+<p>Parses the file-scope method-form decorator application at the cursor,
+which <code>method_decorator_target</code> recognized, through the ordinary
+expression parse of its receiver. Returns NULL, with the cursor
+restored, when the receiver’s type has no such decorator.</p>
+<p>Source: <code>src/macros/invocations/expressions.x</code></p>
 <p><a id="Compiler.peek_macro_hole"></a></p>
 <h4 id="compilerpeek_macro_hole"><a class="header" href="#compilerpeek_macro_hole">Compiler.peek_macro_hole</a></h4>
 <p><code>List Compiler.peek_macro_hole(Compiler c)</code></p>
@@ -790,6 +856,29 @@ Returns NULL without consuming a macro hole or an invocation that
 deferred <code>(seq (macro-invoke ...))</code>, and ordinary parsing returns the bound
 expansion.</p>
 <p>Source: <code>src/macros/invocations/targets.x</code></p>
+<p><a id="Compiler.try_parse_method_macro"></a></p>
+<h4 id="compilertry_parse_method_macro"><a class="header" href="#compilertry_parse_method_macro">Compiler.try_parse_method_macro</a></h4>
+<p><code>List Compiler.try_parse_method_macro(Compiler c, List receiver, Token start, Token dot)</code></p>
+<p>Expands <code>receiver.name(...)</code> as the Expression macro <code>$T.name</code> of the
+receiver’s named type <code>T</code>, with the receiver as its first explicit
+argument. The receiver’s postfix expression begins at <code>start</code>, and
+<code>dot</code> is its <code>.</code>. Returns NULL, consuming nothing, when no such macro
+applies; the call is then an ordinary method call.</p>
+<p><strong>Raises:</strong> <code>&lt;method-dec&gt;</code> when <code>start</code> begins an expression statement, a
+target follows the arguments, and <code>$T.name</code> is a decorator or, in a
+template other than <code>$T.name</code>’s own, may be one where the template
+expands. The statement continues with <code>parse_method_decorator</code>.</p>
+<p>Source: <code>src/macros/invocations/expressions.x</code></p>
+<p><a id="Compiler.try_parse_static_macro"></a></p>
+<h4 id="compilertry_parse_static_macro"><a class="header" href="#compilertry_parse_static_macro">Compiler.try_parse_static_macro</a></h4>
+<p><code>List Compiler.try_parse_static_macro(Compiler c, String spelling, Token start)</code></p>
+<p>Expands <code>T.name(...)</code> as the Expression macro <code>$T.name</code> when <code>T</code> names
+a type, with the call’s arguments unchanged, as <code>$T.name(...)</code> takes
+them. <code>spelling</code> is the call’s folded name, as <code>T_name</code>, whose <code>T.name</code>
+tokens end at the cursor. Returns NULL, consuming nothing, when no such
+macro applies. Raises <code>&lt;method-dec&gt;</code> as <code>try_parse_method_macro</code> does
+for a decorator <code>$T.name</code> at the start of a statement.</p>
+<p>Source: <code>src/macros/invocations/expressions.x</code></p>
 <p><a id="Compiler.unbound_alias_names"></a></p>
 <h4 id="compilerunbound_alias_names"><a class="header" href="#compilerunbound_alias_names">Compiler.unbound_alias_names</a></h4>
 <p><code>List Compiler.unbound_alias_names(Compiler c, Map globs)</code></p>
@@ -840,9 +929,9 @@ A template’s meta-call slots, <code>$name(...)</code> and <code>@name(...)</co
                         &copy; 2025&ndash;2026
                         <a href="https://flake.org">GWF</a>
                         &middot;
-                        <a href="https://github.com/gwf/x2c/blob/5cef5c568d6a86785f6b06462b486f33458991b2/LICENSE">Apache 2.0</a>
+                        <a href="https://github.com/gwf/x2c/blob/f0b406f8b736bbcd60574efe07c8aa1e6c73ccde/LICENSE">Apache 2.0</a>
                         &middot;
-                        <a href="https://github.com/gwf/x2c/blob/5cef5c568d6a86785f6b06462b486f33458991b2/TRADEMARKS.md">Trademarks</a>
+                        <a href="https://github.com/gwf/x2c/blob/f0b406f8b736bbcd60574efe07c8aa1e6c73ccde/TRADEMARKS.md">Trademarks</a>
                     </footer>
                 </div>
             </div>

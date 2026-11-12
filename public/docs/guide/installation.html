@@ -1,6 +1,6 @@
 <!DOCTYPE HTML>
 <html lang="en" class="light sidebar-visible" dir="ltr">
-    <head><meta name="x2c-release-channel" content="staging"><meta name="x2c-candidate" content="candidate-aa2b9b2575297711e5978acc53f87bd7f645f3c7-39090113132-1"><meta name="x2c-site-source" content="5cef5c568d6a86785f6b06462b486f33458991b2"><meta name="robots" content="noindex">
+    <head><meta name="x2c-release-channel" content="staging"><meta name="x2c-candidate" content="candidate-aa2b9b2575297711e5978acc53f87bd7f645f3c7-39090113132-1"><meta name="x2c-site-source" content="f0b406f8b736bbcd60574efe07c8aa1e6c73ccde"><meta name="robots" content="noindex">
         <!-- Book generated using mdBook -->
         <meta charset="UTF-8">
         <title>Install a Native Compiler - The x2c Book</title>
@@ -32,6 +32,7 @@
         <!-- Custom theme stylesheets -->
         <link rel="stylesheet" href="../theme/header-b540a03f.css">
         <link rel="stylesheet" href="../theme/x2c-fd3d182e.css">
+        <link rel="stylesheet" href="../theme/reading-a43255fd.css">
 
 
         <!-- Provide site root and default themes to javascript -->
@@ -39,7 +40,7 @@
             const path_to_root = "../";
             const default_light_theme = "light";
             const default_dark_theme = "light";
-            window.path_to_searchindex_js = "../searchindex-b73816d6.js";
+            window.path_to_searchindex_js = "../searchindex-f614bc42.js";
         </script>
         <!-- Start loading toc.js asap -->
         <script src="../toc-2248e0f3.js"></script>
@@ -216,9 +217,7 @@
                     <main>
                         <h1 id="install-a-native-compiler"><a class="header" href="#install-a-native-compiler">Install a Native Compiler</a></h1>
 <p>Install a release with one command, or build and install from a source
-checkout. Then create a first project, run it, and build it for a debugger.
-Notes for upgrading existing code are at the
-<a href="#upgrading-existing-code">end of this chapter</a>.</p>
+checkout. Then create a first project, run it, and build it for a debugger.</p>
 <h2 id="supported-platforms"><a class="header" href="#supported-platforms">Supported platforms</a></h2>
 <div class="table-wrapper">
 <table>
@@ -418,131 +417,6 @@ X2C_HOME="$HOME/src/x2c" x2c env
 <p>Keep the global prefix on a release, so a problem seen through it reproduces
 for other users. Compiler development itself runs through <code>make</code> inside the
 checkout and does not depend on which compiler <code>PATH</code> selects.</p>
-<h2 id="upgrading-existing-code"><a class="header" href="#upgrading-existing-code">Upgrading existing code</a></h2>
-<h3 id="upgrading-from-015x"><a class="header" href="#upgrading-from-015x">Upgrading from 0.15.x</a></h3>
-<p>Code written for 0.15.x needs these changes:</p>
-<div class="table-wrapper">
-<table>
-<thead>
-<tr><th>0.15.x</th><th>Now</th></tr>
-</thead>
-<tbody>
-<tr><td><code>%&lt;&lt;a b&gt;&gt;</code></td><td><code>%&lt;a b&gt;</code></td></tr>
-<tr><td>an object or function named <code>expand</code></td><td>another name</td></tr>
-<tr><td><code>$let(place, value) { ... }</code></td><td><code>with (place = value) { ... }</code></td></tr>
-<tr><td><code>with expr as name { ... }</code></td><td><code>{ alias expr as name; ... }</code></td></tr>
-<tr><td><code>Scope.retain()</code></td><td><code>Scope.open()</code></td></tr>
-<tr><td><code>Scope.release()</code></td><td><code>Scope.close()</code></td></tr>
-<tr><td><code>array.find(value)</code></td><td><code>array.index(value)</code></td></tr>
-<tr><td><code>array.indexof(value)</code></td><td><code>array.index(value)</code></td></tr>
-<tr><td><code>text.try_long(&amp;value)</code></td><td><code>text.try_long(value)</code></td></tr>
-<tr><td><code>Symbol.try_new(text, &amp;symbol)</code></td><td><code>Symbol.try_new(text, symbol)</code></td></tr>
-<tr><td><code>x2c_normalize_slice(&amp;start, &amp;stop, 1, n)</code></td><td><code>x2c_normalize_slice(start, stop, 1, n)</code></td></tr>
-<tr><td><code>pattern.format(values)</code></td><td><code>pattern.format(@values)</code></td></tr>
-<tr><td><code>logger.info(&lt;app&gt;, fields)</code></td><td><code>logger.info(&lt;app&gt;, @fields)</code></td></tr>
-<tr><td><code>statement.bind(values)</code> in sqlite</td><td><code>statement.bind(@values)</code></td></tr>
-</tbody>
-</table>
-</div>
-<p><code>array.find</code> now takes a predicate and returns the first accepted element
-as a <code>Var</code>, or <code>void</code> when none is accepted. <code>try_double</code> changes as
-<code>try_long</code> does. A bare List passed to <code>format</code>, a Logger method, or <code>bind</code>
-is now one value, so splice the List with <code>@</code> to keep the 0.15.x meaning.
-Array search changes C prototypes, so rebuild native code that calls
-<code>Array_find</code> or <code>Array_indexof</code>.</p>
-<p><code>SymbolSet</code> literals now use single angles, and <code>%&lt;&lt;a b&gt;&gt;</code> is an invalid
-token. An unescaped <code>&gt;</code> closes the literal, so write a member that contains
-<code>&gt;</code> as a quoted String, as in <code>%&lt;"&gt;" "&gt;="&gt;</code>. <code>expand</code> is a keyword alias
-that maps rows over a macro, so rename an object or function that used that
-name; a <code>Type.expand</code> method is unaffected.</p>
-<p><code>Scope.open</code> and <code>Scope.close</code> keep the old nested-region behavior and <code>void</code>
-return types. Keep each open paired with one close, normally through <code>defer</code>.
-In native C, rename <code>Scope_retain</code> to <code>Scope_open</code> and <code>Scope_release</code> to
-<code>Scope_close</code>. Apply these changes only to Scope: <code>Pool.retain</code>,
-<code>Pool.release</code>, and <code>Pool.up</code> keep their existing contracts.</p>
-<p><code>Scope.up</code> has no replacement field. Revise code that used it to use public
-Scope operations. The public Scope layout has changed; regenerate C and
-rebuild native libraries, extensions, and object files that use Scope against
-matching compiler/runtime headers. See the
-<a href="../library/modules/scope.html">Scope API</a>.</p>
-<p>The compiler no longer evaluates Lisp. Move a compile-time Lisp form into a
-<code>meta</code> function and call that function with <code>$</code>:</p>
-<!-- ignore: a 0.15.x compile-time Lisp form that the compiler now rejects. -->
-<pre class="shiki shiki-themes x2c-light x2c-dark x2c-code" style="--shiki-light:#24292e;--shiki-dark:#e9e5df;--shiki-light-bg:#fff;--shiki-dark-bg:#101011" tabindex="0"><code class="language-x2c no-highlight ignore"><span class="line"><span style="--shiki-light:#D73A49;--shiki-dark:#F0ADA1">int</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF"> answer </span><span style="--shiki-light:#D73A49;--shiki-dark:#E9E5DF">=</span><span style="--shiki-light:#A626A4;--shiki-light-font-weight:bold;--shiki-dark:#FF4FD8;--shiki-dark-font-weight:bold"> $</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">(</span><span style="--shiki-light:#D73A49;--shiki-dark:#E9E5DF">*</span><span style="--shiki-light:#005CC5;--shiki-dark:#A9C9F5"> 6</span><span style="--shiki-light:#005CC5;--shiki-dark:#A9C9F5"> 7</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">);</span></span></code></pre>
-
-<pre class="shiki shiki-themes x2c-light x2c-dark x2c-code" style="--shiki-light:#24292e;--shiki-dark:#e9e5df;--shiki-light-bg:#fff;--shiki-dark-bg:#101011" tabindex="0"><code class="language-x2c no-highlight"><span class="line"><span style="--shiki-light:#A626A4;--shiki-light-font-weight:bold;--shiki-dark:#FF4FD8;--shiki-dark-font-weight:bold">meta</span><span style="--shiki-light:#D73A49;--shiki-dark:#F0ADA1"> static</span><span style="--shiki-light:#D73A49;--shiki-dark:#F0ADA1"> int</span><span style="--shiki-light:#6F42C1;--shiki-dark:#E9E5DF"> product</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">(</span><span style="--shiki-light:#D73A49;--shiki-dark:#F0ADA1">int</span><span style="--shiki-light:#E36209;--shiki-dark:#E9E5DF"> a</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">, </span><span style="--shiki-light:#D73A49;--shiki-dark:#F0ADA1">int</span><span style="--shiki-light:#E36209;--shiki-dark:#E9E5DF"> b</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">) </span><span style="--shiki-light:#A626A4;--shiki-light-font-weight:bold;--shiki-dark:#FF4FD8;--shiki-dark-font-weight:bold">=&gt;</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF"> a </span><span style="--shiki-light:#D73A49;--shiki-dark:#E9E5DF">*</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF"> b;</span>
-</span><span class="line">
-</span><span class="line"><span style="--shiki-light:#D73A49;--shiki-dark:#F0ADA1">int</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF"> answer </span><span style="--shiki-light:#D73A49;--shiki-dark:#E9E5DF">=</span><span style="--shiki-light:#A626A4;--shiki-light-font-weight:bold;--shiki-dark:#FF4FD8;--shiki-dark-font-weight:bold"> $</span><span style="--shiki-light:#6F42C1;--shiki-dark:#FF715A">product</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">(</span><span style="--shiki-light:#005CC5;--shiki-dark:#A9C9F5">6</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">, </span><span style="--shiki-light:#005CC5;--shiki-dark:#A9C9F5">7</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">);</span></span></code></pre>
-
-<p>A <code>.xlisp</code> file that <code>$(import "file.xlisp")</code> loaded becomes a <code>.x</code> file of
-<code>meta</code> functions, which the unit reaches with <code>#include</code>. Runtime <code>Lisp</code>
-sessions and their <code>.xlisp</code> files are unchanged.</p>
-<p>The <code>$switch</code> decorator is removed. Give each case run of an ordinary
-<code>switch</code> its own block and <code>break</code>:</p>
-<!-- ignore: the 0.15.x $switch decorator, which this release removes. -->
-<pre class="shiki shiki-themes x2c-light x2c-dark x2c-code" style="--shiki-light:#24292e;--shiki-dark:#e9e5df;--shiki-light-bg:#fff;--shiki-dark-bg:#101011" tabindex="0"><code class="language-x2c no-highlight ignore"><span class="line"><span style="--shiki-light:#A626A4;--shiki-light-font-weight:bold;--shiki-dark:#FF4FD8;--shiki-dark-font-weight:bold">$</span><span style="--shiki-light:#6F42C1;--shiki-dark:#FF715A">switch</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">(code)</span>
-</span><span class="line"><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">{</span>
-</span><span class="line"><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">  case </span><span style="--shiki-light:#005CC5;--shiki-dark:#A9C9F5">1</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">:</span>
-</span><span class="line"><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">  case </span><span style="--shiki-light:#005CC5;--shiki-dark:#A9C9F5">2</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">:</span>
-</span><span class="line"><span style="--shiki-light:#007C8A;--shiki-dark:#29D3E2">    String</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF"> shared </span><span style="--shiki-light:#D73A49;--shiki-dark:#E9E5DF">=</span><span style="--shiki-light:#032F62;--shiki-dark:#9EDFB8"> "low"</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">;</span>
-</span><span class="line"><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">    reached </span><span style="--shiki-light:#D73A49;--shiki-dark:#E9E5DF">=</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF"> shared;</span>
-</span><span class="line"><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">  default:</span>
-</span><span class="line"><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">    reached </span><span style="--shiki-light:#D73A49;--shiki-dark:#E9E5DF">=</span><span style="--shiki-light:#032F62;--shiki-dark:#9EDFB8"> "other"</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">;</span>
-</span><span class="line"><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">}</span></span></code></pre>
-
-<pre class="shiki shiki-themes x2c-light x2c-dark x2c-code" style="--shiki-light:#24292e;--shiki-dark:#e9e5df;--shiki-light-bg:#fff;--shiki-dark-bg:#101011" tabindex="0"><code class="language-x2c no-highlight"><span class="line boring"><span style="--shiki-light:#D73A49;--shiki-dark:#F0ADA1">int</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF"> code </span><span style="--shiki-light:#D73A49;--shiki-dark:#E9E5DF">=</span><span style="--shiki-light:#005CC5;--shiki-dark:#A9C9F5"> 2</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">;</span>
-</span><span class="line boring"><span style="--shiki-light:#007C8A;--shiki-dark:#29D3E2">String</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF"> reached </span><span style="--shiki-light:#D73A49;--shiki-dark:#E9E5DF">=</span><span style="--shiki-light:#005CC5;--shiki-dark:#E9E5DF"> NULL</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">;</span>
-</span><span class="line"><span style="--shiki-light:#D73A49;--shiki-dark:#F0ADA1">switch</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF"> (code) {</span>
-</span><span class="line"><span style="--shiki-light:#D73A49;--shiki-dark:#F0ADA1">  case</span><span style="--shiki-light:#005CC5;--shiki-dark:#A9C9F5"> 1</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">:</span>
-</span><span class="line"><span style="--shiki-light:#D73A49;--shiki-dark:#F0ADA1">  case</span><span style="--shiki-light:#005CC5;--shiki-dark:#A9C9F5"> 2</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">: {</span>
-</span><span class="line"><span style="--shiki-light:#007C8A;--shiki-dark:#29D3E2">    String</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF"> shared </span><span style="--shiki-light:#D73A49;--shiki-dark:#E9E5DF">=</span><span style="--shiki-light:#032F62;--shiki-dark:#9EDFB8"> "low"</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">;</span>
-</span><span class="line"><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">    reached </span><span style="--shiki-light:#D73A49;--shiki-dark:#E9E5DF">=</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF"> shared;</span>
-</span><span class="line"><span style="--shiki-light:#D73A49;--shiki-dark:#F0ADA1">    break</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">;</span>
-</span><span class="line"><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">  }</span>
-</span><span class="line"><span style="--shiki-light:#D73A49;--shiki-dark:#F0ADA1">  default</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">:</span>
-</span><span class="line"><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">    reached </span><span style="--shiki-light:#D73A49;--shiki-dark:#E9E5DF">=</span><span style="--shiki-light:#032F62;--shiki-dark:#9EDFB8"> "other"</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">;</span>
-</span><span class="line"><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">}</span></span></code></pre>
-
-<p>A declaration prefixed by an object-like attribute macro, such as
-<code>#define WEAK __attribute__((weak))</code>, now keeps the attribute in its unit’s
-generated C, so a <code>WEAK</code> definition is weak.</p>
-<p><code>x2c lsp</code> replaces <code>x2c editor</code>. Rebuild and reinstall the VS Code
-extension from <code>etc/vsc-extension</code>; it starts <code>x2c lsp</code> and needs VS Code
-1.82 or newer. Replace the removed <code>x2c.semantic.workerPath</code> setting with
-<code>x2c.semantic.compilerPath</code>.</p>
-<p>An upgrade removes <code>x2c repl</code> from the prefix. The native library
-playground is available only in a source checkout: run <code>make commands</code>,
-then <code>./x2c repl</code>. See <a href="repl.html">Library Playground</a>.</p>
-<h4 id="long-double-hashes"><a class="header" href="#long-double-hashes">Long-double hashes</a></h4>
-<p>On x87 targets, <code>Var</code> identity, content hashing, and total ordering for boxed
-<code>long double</code> values now use the ten value bytes and ignore six padding bytes.
-This preserves precision, signed-zero identity, and NaN payload distinctions.
-The box layout is unchanged. Other long-double formats keep their native
-payload width.</p>
-<p>Recompute any stored or precomputed hashes of affected values when upgrading.
-Rebuild indexes that reuse those hashes from the original values. See
-<a href="../library/modules/var.html#Var.wide_hash">Var.wide_hash</a> and
-<a href="../library/modules/var.html#Var.wide_equal">Var.wide_equal</a>.</p>
-<h4 id="using-cooperative-task-batches"><a class="header" href="#using-cooperative-task-batches">Using cooperative task batches</a></h4>
-<p><code>Task.run</code> runs Channel jobs cooperatively on one native thread. See
-<a href="contexts-and-threads.html#run-channel-jobs-on-one-native-thread">Run Channel jobs on one native
-thread</a>.</p>
-<h3 id="upgrading-from-0140"><a class="header" href="#upgrading-from-0140">Upgrading from 0.14.0</a></h3>
-<p>Version 0.15.0 reads package native arguments from <code>&lt;name&gt;.native.rsp</code> instead
-of <code>&lt;name&gt;.link</code>. The installer keeps existing packages, so rebuild source
-packages and replace old native bundles with bundles built for 0.15.0.</p>
-<p>The SQLite package calls its prepared-statement type <code>Prepared</code> instead of
-<code>Statement</code>; change imports and typed variables, and use <code>Var.prepared</code> in
-place of <code>Var.statement</code>. Automatic differentiation moved from the runtime
-to the optional <code>autodiff</code> package.
-Build or install that package and use <code>import "autodiff"</code> for its runtime types
-and macros.</p>
-<p>The removed <code>List.pool_*</code> operations now belong to <code>Pool</code>. The removed
-<code>List.reduce</code>, <code>Array.reduce</code>, and <code>Iter.reduce</code> operations have no matching
-method; use <code>Iter.foldl</code> when an explicit seed fits. Use <code>Var.truth</code> in place
-of <code>Var.truthy</code>. <code>FileReadStatus</code> is a <code>Symbol</code>: compare a raw read’s status
-with <code>&lt;data&gt;</code>, <code>&lt;eof&gt;</code>, and <code>&lt;error&gt;</code> in place of <code>FILE_READ_DATA</code>,
-<code>FILE_READ_EOF</code>, and <code>FILE_READ_ERROR</code>.</p>
 
                     </main>
                     <script>
@@ -569,9 +443,9 @@ with <code>&lt;data&gt;</code>, <code>&lt;eof&gt;</code>, and <code>&lt;error&gt
                         &copy; 2025&ndash;2026
                         <a href="https://flake.org">GWF</a>
                         &middot;
-                        <a href="https://github.com/gwf/x2c/blob/5cef5c568d6a86785f6b06462b486f33458991b2/LICENSE">Apache 2.0</a>
+                        <a href="https://github.com/gwf/x2c/blob/f0b406f8b736bbcd60574efe07c8aa1e6c73ccde/LICENSE">Apache 2.0</a>
                         &middot;
-                        <a href="https://github.com/gwf/x2c/blob/5cef5c568d6a86785f6b06462b486f33458991b2/TRADEMARKS.md">Trademarks</a>
+                        <a href="https://github.com/gwf/x2c/blob/f0b406f8b736bbcd60574efe07c8aa1e6c73ccde/TRADEMARKS.md">Trademarks</a>
                     </footer>
                 </div>
             </div>

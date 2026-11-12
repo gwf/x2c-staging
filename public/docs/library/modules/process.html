@@ -1,6 +1,6 @@
 <!DOCTYPE HTML>
 <html lang="en" class="light sidebar-visible" dir="ltr">
-    <head><meta name="x2c-release-channel" content="staging"><meta name="x2c-candidate" content="candidate-aa2b9b2575297711e5978acc53f87bd7f645f3c7-39090113132-1"><meta name="x2c-site-source" content="5cef5c568d6a86785f6b06462b486f33458991b2"><meta name="robots" content="noindex">
+    <head><meta name="x2c-release-channel" content="staging"><meta name="x2c-candidate" content="candidate-aa2b9b2575297711e5978acc53f87bd7f645f3c7-39090113132-1"><meta name="x2c-site-source" content="f0b406f8b736bbcd60574efe07c8aa1e6c73ccde"><meta name="robots" content="noindex">
         <!-- Book generated using mdBook -->
         <meta charset="UTF-8">
         <title>lib/process.x - The x2c Book</title>
@@ -32,6 +32,7 @@
         <!-- Custom theme stylesheets -->
         <link rel="stylesheet" href="../../theme/header-b540a03f.css">
         <link rel="stylesheet" href="../../theme/x2c-fd3d182e.css">
+        <link rel="stylesheet" href="../../theme/reading-a43255fd.css">
 
 
         <!-- Provide site root and default themes to javascript -->
@@ -39,7 +40,7 @@
             const path_to_root = "../../";
             const default_light_theme = "light";
             const default_dark_theme = "light";
-            window.path_to_searchindex_js = "../../searchindex-b73816d6.js";
+            window.path_to_searchindex_js = "../../searchindex-f614bc42.js";
         </script>
         <!-- Start loading toc.js asap -->
         <script src="../../toc-2248e0f3.js"></script>
@@ -232,10 +233,10 @@
 <tr><td><a href="#Job.errors"><code>Job.errors</code></a></td><td>Returns the captured standard error of <code>job</code>, starting it and waiting as needed, or NULL when standard error was not captured or was empty.</td></tr>
 <tr><td><a href="#Job.kill"><code>Job.kill</code></a></td><td>Sends <code>signal</code> to every stage of <code>job</code> that is still running.</td></tr>
 <tr><td><a href="#Job.lines"><code>Job.lines</code></a></td><td>Returns the captured standard output of <code>job</code> as lines without their endings.</td></tr>
-<tr><td><a href="#Job.live"><code>Job.live</code></a></td><td>Makes <code>job</code> pass standard output through instead of capturing it, the same as <code>options({stdout: &lt;inherit&gt;})</code>, and returns it.</td></tr>
-<tr><td><a href="#Job.options"><code>Job.options</code></a></td><td>Sets <code>options</code> on <code>job</code> and returns it.</td></tr>
+<tr><td><a href="#Job.live"><code>Job.live</code></a></td><td>Makes <code>job</code> pass standard output through instead of capturing it, the same as <code>options(stdout: &lt;inherit&gt;)</code>, and returns it.</td></tr>
+<tr><td><a href="#Job.options"><code>Job.options</code></a></td><td>Sets keyword options on <code>job</code> and returns it.</td></tr>
 <tr><td><a href="#Job.output"><code>Job.output</code></a></td><td>Returns the captured standard output of <code>job</code>, starting it and waiting as needed.</td></tr>
-<tr><td><a href="#Job.pipe"><code>Job.pipe</code></a></td><td>Adds <code>command</code> after the last stage of <code>job</code>, reading that stage’s output, and returns the job.</td></tr>
+<tr><td><a href="#Job.pipe"><code>Job.pipe</code></a></td><td>Adds each command after the last stage of <code>job</code>, reading that stage’s output, and returns the job.</td></tr>
 <tr><td><a href="#Job.ready"><code>Job.ready</code></a></td><td>Reports whether every stage of <code>job</code> has exited, without blocking.</td></tr>
 <tr><td><a href="#Job.run"><code>Job.run</code></a></td><td>Passes standard output through, waits for <code>job</code>, and raises when its status is not zero: <code>live()</code> followed by <code>check()</code>.</td></tr>
 <tr><td><a href="#Job.start"><code>Job.start</code></a></td><td>Starts <code>job</code> without waiting and returns it.</td></tr>
@@ -292,13 +293,15 @@ endings.</p>
 <h4 id="joblive"><a class="header" href="#joblive">Job.live</a></h4>
 <p><code>Job Job.live(Job job)</code></p>
 <p>Makes <code>job</code> pass standard output through instead of capturing it, the
-same as <code>options({stdout: &lt;inherit&gt;})</code>, and returns it.</p>
+same as <code>options(stdout: &lt;inherit&gt;)</code>, and returns it.</p>
 <p><strong>Raises:</strong> <code>&lt;bad-arg&gt;</code> for NULL or a job that has started.</p>
 <p>Source: <code>lib/process.x</code></p>
 <p><a id="Job.options"></a></p>
 <h4 id="joboptions"><a class="header" href="#joboptions">Job.options</a></h4>
-<p><code>Job Job.options(Job job, Map options)</code></p>
-<p>Sets <code>options</code> on <code>job</code> and returns it.
+<p><code>Job Job.options(Job job, Map @options)</code></p>
+<p>Sets keyword options on <code>job</code> and returns it.
+Splice an existing Map with <code>@options</code>. With no options, the job’s
+launch settings are unchanged.
 The keys are atoms: <code>dir</code> names the working directory, <code>env</code> is a <code>Map</code>
 of variables added to the inherited environment, and <code>input</code> is a
 <code>String</code> given to the first stage’s standard input. <code>stdout</code> is
@@ -307,7 +310,7 @@ of variables added to the inherited environment, and <code>input</code> is a
 applies to every stage. A key set again replaces its earlier value.</p>
 <pre class="shiki shiki-themes x2c-light x2c-dark x2c-code" style="--shiki-light:#24292e;--shiki-dark:#e9e5df;--shiki-light-bg:#fff;--shiki-dark-bg:#101011" tabindex="0"><code class="language-x2c no-highlight"><span class="line boring"><span style="--shiki-light:#D73A49;--shiki-dark:#F0ADA1">#include</span><span style="--shiki-light:#032F62;--shiki-dark:#9EDFB8"> "process.x"</span>
 </span><span class="line boring"><span style="--shiki-light:#D73A49;--shiki-dark:#F0ADA1">int</span><span style="--shiki-light:#6F42C1;--shiki-dark:#E9E5DF"> main</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">(</span><span style="--shiki-light:#D73A49;--shiki-dark:#F0ADA1">void</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">) {</span>
-</span><span class="line"><span style="--shiki-light:#007C8A;--shiki-dark:#29D3E2">String</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF"> root </span><span style="--shiki-light:#D73A49;--shiki-dark:#E9E5DF">=</span><span style="--shiki-light:#A626A4;--shiki-light-font-weight:bold;--shiki-dark:#FF4FD8;--shiki-dark-font-weight:bold"> %(</span><span style="--shiki-light:#005CC5;--shiki-dark:#E9E5DF">pwd</span><span style="--shiki-light:#A626A4;--shiki-light-font-weight:bold;--shiki-dark:#FF4FD8;--shiki-dark-font-weight:bold">)</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">.</span><span style="--shiki-light:#6F42C1;--shiki-dark:#E9E5DF">job</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">().</span><span style="--shiki-light:#6F42C1;--shiki-dark:#E9E5DF">options</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">({dir: </span><span style="--shiki-light:#032F62;--shiki-dark:#9EDFB8">"/"</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">}).</span><span style="--shiki-light:#6F42C1;--shiki-dark:#E9E5DF">output</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">();</span>
+</span><span class="line"><span style="--shiki-light:#007C8A;--shiki-dark:#29D3E2">String</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF"> root </span><span style="--shiki-light:#D73A49;--shiki-dark:#E9E5DF">=</span><span style="--shiki-light:#A626A4;--shiki-light-font-weight:bold;--shiki-dark:#FF4FD8;--shiki-dark-font-weight:bold"> %(</span><span style="--shiki-light:#005CC5;--shiki-dark:#E9E5DF">pwd</span><span style="--shiki-light:#A626A4;--shiki-light-font-weight:bold;--shiki-dark:#FF4FD8;--shiki-dark-font-weight:bold">)</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">.</span><span style="--shiki-light:#6F42C1;--shiki-dark:#E9E5DF">job</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">().</span><span style="--shiki-light:#6F42C1;--shiki-dark:#E9E5DF">options</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">(dir: </span><span style="--shiki-light:#032F62;--shiki-dark:#9EDFB8">"/"</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">).</span><span style="--shiki-light:#6F42C1;--shiki-dark:#E9E5DF">output</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">();</span>
 </span><span class="line boring"><span style="--shiki-light:#D73A49;--shiki-dark:#F0ADA1">  return</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF"> root </span><span style="--shiki-light:#D73A49;--shiki-dark:#E9E5DF">==</span><span style="--shiki-light:#032F62;--shiki-dark:#9EDFB8"> "/</span><span style="--shiki-light:#005CC5;--shiki-dark:#9EDFB8">\n</span><span style="--shiki-light:#032F62;--shiki-dark:#9EDFB8">"</span><span style="--shiki-light:#D73A49;--shiki-dark:#E9E5DF"> ?</span><span style="--shiki-light:#005CC5;--shiki-dark:#A9C9F5"> 0</span><span style="--shiki-light:#D73A49;--shiki-dark:#E9E5DF"> :</span><span style="--shiki-light:#005CC5;--shiki-dark:#A9C9F5"> 1</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">;</span>
 </span><span class="line boring"><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">}</span></span></code></pre>
 
@@ -323,10 +326,11 @@ contains a NUL byte.</p>
 <p>Source: <code>lib/process.x</code></p>
 <p><a id="Job.pipe"></a></p>
 <h4 id="jobpipe"><a class="header" href="#jobpipe">Job.pipe</a></h4>
-<p><code>Job Job.pipe(Job job, List command)</code></p>
-<p>Adds <code>command</code> after the last stage of <code>job</code>, reading that stage’s
-output, and returns the job. A pipeline <code>command</code> adds each of its
-stages.</p>
+<p><code>Job Job.pipe(Job job, List @commands)</code></p>
+<p>Adds each command after the last stage of <code>job</code>, reading that stage’s
+output, and returns the job. Each command is a List; a pipeline adds
+each of its stages. Pass several commands or splice a List of commands
+with <code>@commands</code>. With no commands, returns the unchanged job.</p>
 <p><strong>Raises:</strong> <code>&lt;bad-arg&gt;</code> for NULL or a job that has started.</p>
 <p>Source: <code>lib/process.x</code></p>
 <p><a id="Job.ready"></a></p>
@@ -445,7 +449,7 @@ process’s own environment is read here too, beside the <code>env</code> option
 sets a child’s.</p>
 <h2 id="examples"><a class="header" href="#examples">Examples</a></h2>
 <ul>
-<li><a href="https://github.com/gwf/x2c/blob/5cef5c568d6a86785f6b06462b486f33458991b2/examples/scripts/line-counts.x"><code>scripts/line-counts</code></a></li>
+<li><a href="https://github.com/gwf/x2c/blob/f0b406f8b736bbcd60574efe07c8aa1e6c73ccde/examples/scripts/line-counts.x"><code>scripts/line-counts</code></a></li>
 </ul>
 
                     </main>
@@ -473,9 +477,9 @@ sets a child’s.</p>
                         &copy; 2025&ndash;2026
                         <a href="https://flake.org">GWF</a>
                         &middot;
-                        <a href="https://github.com/gwf/x2c/blob/5cef5c568d6a86785f6b06462b486f33458991b2/LICENSE">Apache 2.0</a>
+                        <a href="https://github.com/gwf/x2c/blob/f0b406f8b736bbcd60574efe07c8aa1e6c73ccde/LICENSE">Apache 2.0</a>
                         &middot;
-                        <a href="https://github.com/gwf/x2c/blob/5cef5c568d6a86785f6b06462b486f33458991b2/TRADEMARKS.md">Trademarks</a>
+                        <a href="https://github.com/gwf/x2c/blob/f0b406f8b736bbcd60574efe07c8aa1e6c73ccde/TRADEMARKS.md">Trademarks</a>
                     </footer>
                 </div>
             </div>
