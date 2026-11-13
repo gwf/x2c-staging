@@ -1,6 +1,6 @@
 <!DOCTYPE HTML>
 <html lang="en" class="light sidebar-visible" dir="ltr">
-    <head><meta name="x2c-release-channel" content="staging"><meta name="x2c-candidate" content="candidate-aa2b9b2575297711e5978acc53f87bd7f645f3c7-39090113132-1"><meta name="x2c-site-source" content="30b47efa19187e2273163d1261d84e892da95c25"><meta name="robots" content="noindex">
+    <head><meta name="x2c-release-channel" content="staging"><meta name="x2c-candidate" content="candidate-aa2b9b2575297711e5978acc53f87bd7f645f3c7-39090113132-1"><meta name="x2c-site-source" content="bb2442f9bef8ab326f83089a25089304d40349cc"><meta name="robots" content="noindex">
         <!-- Book generated using mdBook -->
         <meta charset="UTF-8">
         <title>Iteration - The x2c Book</title>
@@ -40,10 +40,10 @@
             const path_to_root = "../";
             const default_light_theme = "light";
             const default_dark_theme = "light";
-            window.path_to_searchindex_js = "../searchindex-ad40fbe3.js";
+            window.path_to_searchindex_js = "../searchindex-dc351a14.js";
         </script>
         <!-- Start loading toc.js asap -->
-        <script src="../toc-ffcfcd8d.js"></script>
+        <script src="../toc-ed291a6e.js"></script>
         <!-- x2c publication metadata -->
         <link rel="canonical" href="https://x2c-lang.dev/docs/guide/iteration.html">
         <meta property="og:type" content="website">
@@ -174,9 +174,6 @@
                                 <li role="none"><button role="menuitem" class="theme" id="mdbook-theme-light">Light</button></li>
                                 <li role="none"><button role="menuitem" class="theme" id="mdbook-theme-ayu">Dark</button></li>
                             </ul>
-                            <a href="https://github.com/gwf/x2c/edit/main/docs/src/guide/iteration.md" title="Suggest an edit" aria-label="Suggest an edit" rel="edit" class="icon-button">
-                                <span class=fa-svg id="git-edit-button"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc. --><path d="M421.7 220.3l-11.3 11.3-22.6 22.6-205 205c-6.6 6.6-14.8 11.5-23.8 14.1L30.8 511c-8.4 2.5-17.5 .2-23.7-6.1S-1.5 489.7 1 481.2L38.7 353.1c2.6-9 7.5-17.2 14.1-23.8l205-205 22.6-22.6 11.3-11.3 33.9 33.9 62.1 62.1 33.9 33.9zM96 353.9l-9.3 9.3c-.9 .9-1.6 2.1-2 3.4l-25.3 86 86-25.3c1.3-.4 2.5-1.1 3.4-2l9.3-9.3H112c-8.8 0-16-7.2-16-16V353.9zM453.3 19.3l39.4 39.4c25 25 25 65.5 0 90.5l-14.5 14.5-22.6 22.6-11.3 11.3-33.9-33.9-62.1-62.1L314.3 67.7l11.3-11.3 22.6-22.6 14.5-14.5c25-25 65.5-25 90.5 0z"/></svg></span>
-                            </a>
                         </div>
                     </div>
                 </header>
@@ -221,8 +218,8 @@ most cases. <code>Iter</code> chains combine operations that process
 one element at a time, then collect, aggregate, or loop over the result.</p>
 <p>An immediately consumed chain uses caller stack storage for every stage.
 Name that storage yourself when the iterator has to stay live between
-expressions. A <code>meta</code> function body compiles the same way. The
-<a href="#the-storage-convention">storage convention</a> gives the rules.</p>
+expressions. The <a href="#the-storage-convention">storage convention</a> gives the
+rules.</p>
 <p><a href="../reference/language.html">The language reference</a> states the <code>foreach</code> rules,
 and the <a href="../library/overview.html">standard library overview</a> links to every
 iterator operation.</p>
@@ -264,7 +261,8 @@ own module, so all four work directly:</p>
 <code>foreach (Var (name, age) in ages)</code> remains available. Native cursors assign
 each output directly to its declared type; iterator outputs use the ordinary
 <code>Var</code> conversions. For example, <code>foreach ((Substr word, int count) in counts)</code>
-can traverse a <code>MapSubInt</code> without boxing keys or allocating an iterator.</p>
+can traverse a <code>MapSubInt</code> without boxing keys or allocating an iterator;
+<a href="#lazy-string-fields">lazy String fields</a> introduces both types.</p>
 <p>A <code>Map</code> yields its values, like every other collection. Two binders yield
 the key as well; with native loop types the loop does not allocate. For an
 iterator, <code>map.iter(&amp;storage)</code> yields the values, <code>map.keys(&amp;storage)</code>
@@ -298,18 +296,21 @@ decodes Unicode characters.</p>
 <p><code>Substr</code> is an alias for <code>Substring</code>, an immutable borrowed view with a source
 String, byte offset, and byte length. Iteration coalesces C whitespace and
 yields no empty words. The cursor and each view allocate nothing; keep the
-source String and its owning pool alive through every use of a view.</p>
+source String and its owning pool (see
+<a href="memory.html#bounding-temporary-canonical-lists">Scopes and Lifetime</a>) alive
+through every use of a view.</p>
 <p><code>text.substring(offset, length)</code> constructs a checked view. Negative or
-out-of-range spans raise <code>bad-arg</code>; an empty span at the end is valid.
+out-of-range spans raise <code>&lt;bad-arg&gt;</code>; an empty span at the end is valid.
 <code>len()</code>, <code>hash()</code>, <code>equal()</code>, and <code>compare()</code> operate on the borrowed bytes.
 Equal contents have equal hashes even when their sources or offsets differ.
 <code>.str()</code> and <code>.string()</code> materialize the same canonical String in the active
 pool chain. The result follows its actual pool’s lifetime; export it before
 closing that pool if it must survive.</p>
 <p><code>substring-map.x</code> provides <code>MapSubInt</code> for native occurrence counts. Its keys
-borrow their source Strings until cleanup; explicit Context export preserves
-those sources. <code>MapStringInt.add_substr(view, count)</code> instead retains String
-keys: it compares the view’s bytes on lookup and converts only missing keys.
+borrow their source Strings until cleanup; explicit <code>Context</code> export (see
+<a href="contexts-and-threads.html">Contexts and Threads</a>) preserves those sources.
+<code>MapStringInt.add_substr(view, count)</code> instead retains String keys: it
+compares the view’s bytes on lookup and converts only missing keys.
 As with other mutable Maps, callers coordinate concurrent access. Neither
 operation changes the source String’s ownership.</p>
 <p><code>String</code> provides three ways to iterate over fields without first building a
@@ -471,12 +472,14 @@ immediately:</p>
 
 <p><span class="x2c-wordmark">x2c</span> inserts a distinct <code>struct Iter</code> compound literal for each missing final
 destination. Those objects have automatic storage and remain alive through
-the enclosing block. Completion applies only when the chain ends in
+the enclosing block.
+Completion applies only when the chain ends in
 <code>try_next</code>, <code>next</code>, <code>list</code>, <code>array</code>, <code>foldl</code>, <code>any</code>, <code>all</code>, <code>find</code>, <code>count</code>,
 <code>sum</code>, <code>product</code>, <code>min</code>, <code>max</code>, <code>parallel_map</code>, <code>parallel_map_in</code>, or
 <code>foreach</code>. A <code>List</code> or <code>Array</code> destination ends the chain the same way: it
 calls <code>list</code> or <code>array</code> for you, which is why the chain above needs no
-explicit collector.</p>
+explicit collector. Iterator destination omission also works in a <code>meta</code>
+function body.</p>
 <p>It does not apply when an iterator is assigned, returned, or passed as an
 argument. Then declare one <code>struct Iter</code> for each stage:</p>
 <pre class="shiki shiki-themes x2c-light x2c-dark x2c-code" style="--shiki-light:#24292e;--shiki-dark:#e9e5df;--shiki-light-bg:#fff;--shiki-dark-bg:#101011" tabindex="0"><code class="language-x2c no-highlight"><span class="line boring"><span style="--shiki-light:#D73A49;--shiki-dark:#F0ADA1">static</span><span style="--shiki-light:#007C8A;--shiki-dark:#29D3E2"> Var</span><span style="--shiki-light:#6F42C1;--shiki-dark:#E9E5DF"> double_value</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">(</span><span style="--shiki-light:#007C8A;--shiki-dark:#29D3E2">Var</span><span style="--shiki-light:#E36209;--shiki-dark:#E9E5DF"> value</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">) { </span><span style="--shiki-light:#D73A49;--shiki-dark:#F0ADA1">return</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF"> value </span><span style="--shiki-light:#D73A49;--shiki-dark:#E9E5DF">*</span><span style="--shiki-light:#005CC5;--shiki-dark:#A9C9F5"> 2</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">; }</span>
@@ -504,8 +507,8 @@ is finished. To return a lazy iterator, its source storage, destination
 storage, and any dynamic or captured callback must outlive the returned
 value.</p>
 <p>The iterators need no cleanup. A collected <code>List</code> or <code>Array</code> is scope-owned
-data, so the first program brackets its work with <code>auto</code>. See
-<a href="memory.html">scopes and lifetime</a> for the region lifetime.</p>
+data, so the first example in this section brackets its work with <code>auto</code>.
+See <a href="memory.html">scopes and lifetime</a> for the region lifetime.</p>
 <h2 id="pipeline-operations"><a class="header" href="#pipeline-operations">Pipeline operations</a></h2>
 <p>These operations are lazy. The signatures show the fluent form; add a final
 <code>&amp;storage</code> when retaining a result. There is no <code>take_while</code>, <code>flat_map</code>, or
@@ -526,11 +529,6 @@ before that failure; a seedless fold consumes its seed and the next element.
 Consumed inputs are not restored, just as when a callback itself raises.
 Empty inputs and seedless singleton folds need no invocation, so empty
 <code>find</code>, <code>any</code>, and <code>all</code> calls return <code>void</code>, 0, and 1.</p>
-<p>This replaces the earlier null-callback identity behavior of <code>map</code>, immediate
-exhaustion of <code>filter</code>, drain-without-combining behavior of <code>foldl</code>, NULL
-iterators from <code>scan</code> and <code>map2</code>, and fixed <code>find</code>, <code>any</code>, and <code>all</code> results.
-The corresponding String identity and List accumulator-preservation defaults
-also end; Lisp nil callbacks use the same native contract.</p>
 <ul>
 <li><code>range(end)</code>, <code>range(start, end)</code>, or <code>range(start, end, step)</code>:
 each <code>int</code> in the inclusive range.</li>
@@ -568,8 +566,9 @@ lag between them.</li>
 </ul>
 <p>Nothing runs until you ask for an element. Each stage then requests an
 element from its source. Taking two elements from a <code>map</code> over a range calls
-the mapping function twice. The pipeline above starts when <code>array()</code> requests
-its first element.</p>
+the mapping function twice. The first pipeline in
+<a href="#the-storage-convention">the storage convention</a> starts when the implicit
+collection requests its first element.</p>
 <h2 id="collecting-and-folding"><a class="header" href="#collecting-and-folding">Collecting and folding</a></h2>
 <p>Constructing an iterator does not consume it. Collectors and aggregates do:</p>
 <pre class="shiki shiki-themes x2c-light x2c-dark x2c-code" style="--shiki-light:#24292e;--shiki-dark:#e9e5df;--shiki-light-bg:#fff;--shiki-dark-bg:#101011" tabindex="0"><code class="language-x2c no-highlight"><span class="line boring"><span style="--shiki-light:#D73A49;--shiki-dark:#F0ADA1">static</span><span style="--shiki-light:#D73A49;--shiki-dark:#F0ADA1"> int</span><span style="--shiki-light:#6F42C1;--shiki-dark:#E9E5DF"> over_two</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">(</span><span style="--shiki-light:#007C8A;--shiki-dark:#29D3E2">Var</span><span style="--shiki-light:#E36209;--shiki-dark:#E9E5DF"> value</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">) { </span><span style="--shiki-light:#D73A49;--shiki-dark:#F0ADA1">return</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF"> value </span><span style="--shiki-light:#D73A49;--shiki-dark:#E9E5DF">&gt;</span><span style="--shiki-light:#005CC5;--shiki-dark:#A9C9F5"> 2</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">; }</span>
@@ -658,9 +657,9 @@ The loop form cannot express that.</li>
                         &copy; 2025&ndash;2026
                         <a href="https://flake.org">GWF</a>
                         &middot;
-                        <a href="https://github.com/gwf/x2c/blob/30b47efa19187e2273163d1261d84e892da95c25/LICENSE">Apache 2.0</a>
+                        <a href="https://github.com/gwf/x2c/blob/bb2442f9bef8ab326f83089a25089304d40349cc/LICENSE">Apache 2.0</a>
                         &middot;
-                        <a href="https://github.com/gwf/x2c/blob/30b47efa19187e2273163d1261d84e892da95c25/TRADEMARKS.md">Trademarks</a>
+                        <a href="https://github.com/gwf/x2c/blob/bb2442f9bef8ab326f83089a25089304d40349cc/TRADEMARKS.md">Trademarks</a>
                     </footer>
                 </div>
             </div>

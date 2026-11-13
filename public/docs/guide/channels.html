@@ -1,6 +1,6 @@
 <!DOCTYPE HTML>
 <html lang="en" class="light sidebar-visible" dir="ltr">
-    <head><meta name="x2c-release-channel" content="staging"><meta name="x2c-candidate" content="candidate-aa2b9b2575297711e5978acc53f87bd7f645f3c7-39090113132-1"><meta name="x2c-site-source" content="30b47efa19187e2273163d1261d84e892da95c25"><meta name="robots" content="noindex">
+    <head><meta name="x2c-release-channel" content="staging"><meta name="x2c-candidate" content="candidate-aa2b9b2575297711e5978acc53f87bd7f645f3c7-39090113132-1"><meta name="x2c-site-source" content="bb2442f9bef8ab326f83089a25089304d40349cc"><meta name="robots" content="noindex">
         <!-- Book generated using mdBook -->
         <meta charset="UTF-8">
         <title>Channels - The x2c Book</title>
@@ -40,10 +40,10 @@
             const path_to_root = "../";
             const default_light_theme = "light";
             const default_dark_theme = "light";
-            window.path_to_searchindex_js = "../searchindex-ad40fbe3.js";
+            window.path_to_searchindex_js = "../searchindex-dc351a14.js";
         </script>
         <!-- Start loading toc.js asap -->
-        <script src="../toc-ffcfcd8d.js"></script>
+        <script src="../toc-ed291a6e.js"></script>
         <!-- x2c publication metadata -->
         <link rel="canonical" href="https://x2c-lang.dev/docs/guide/channels.html">
         <meta property="og:type" content="website">
@@ -174,9 +174,6 @@
                                 <li role="none"><button role="menuitem" class="theme" id="mdbook-theme-light">Light</button></li>
                                 <li role="none"><button role="menuitem" class="theme" id="mdbook-theme-ayu">Dark</button></li>
                             </ul>
-                            <a href="https://github.com/gwf/x2c/edit/main/docs/src/guide/channels.md" title="Suggest an edit" aria-label="Suggest an edit" rel="edit" class="icon-button">
-                                <span class=fa-svg id="git-edit-button"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc. --><path d="M421.7 220.3l-11.3 11.3-22.6 22.6-205 205c-6.6 6.6-14.8 11.5-23.8 14.1L30.8 511c-8.4 2.5-17.5 .2-23.7-6.1S-1.5 489.7 1 481.2L38.7 353.1c2.6-9 7.5-17.2 14.1-23.8l205-205 22.6-22.6 11.3-11.3 33.9 33.9 62.1 62.1 33.9 33.9zM96 353.9l-9.3 9.3c-.9 .9-1.6 2.1-2 3.4l-25.3 86 86-25.3c1.3-.4 2.5-1.1 3.4-2l9.3-9.3H112c-8.8 0-16-7.2-16-16V353.9zM453.3 19.3l39.4 39.4c25 25 25 65.5 0 90.5l-14.5 14.5-22.6 22.6-11.3 11.3-33.9-33.9-62.1-62.1L314.3 67.7l11.3-11.3 22.6-22.6 14.5-14.5c25-25 65.5-25 90.5 0z"/></svg></span>
-                            </a>
                         </div>
                     </div>
                 </header>
@@ -216,10 +213,14 @@
                 <div id="mdbook-content" class="content">
                     <main>
                         <h1 id="channels"><a class="header" href="#channels">Channels</a></h1>
-<p>A <code>Channel</code> communicates non-void <code>Var</code> values between threads. Ordinary <code>send</code>
-and receive preserve borrowed payload ownership. <code>send_owned</code> explicitly hands
-off one exclusively owned storage subtree. The application is responsible
-for independent nested lifetimes, aliases, and coordinated mutable access.</p>
+<p>A <code>Channel</code> passes <code>Var</code> values between threads or tasks. <code>send</code> puts a value
+in; <code>receive</code> or <code>foreach</code> takes values out until the channel is closed and
+drained. This chapter covers closing and draining, capacity and message types,
+handing off storage with <code>send_owned</code>, and stopping a blocked operation.</p>
+<p>Plain <code>send</code> lends the value: the sender keeps ownership and keeps the value
+alive while receivers use it. <code>send_owned</code> hands one container’s storage to
+the receiver. The application is responsible for independent nested
+lifetimes, aliases, and coordinated mutable access.</p>
 <h2 id="send-close-and-drain"><a class="header" href="#send-close-and-drain">Send, close, and drain</a></h2>
 <p><code>send</code> blocks until the channel accepts a message. <code>receive</code> blocks until a
 message is available, or returns <code>void</code> after normal closure and draining.
@@ -294,9 +295,9 @@ any owned contents into it:</p>
 </span><span class="line"><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">results.</span><span style="--shiki-light:#6F42C1;--shiki-dark:#E9E5DF">send_owned</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">(part);</span></span></code></pre>
 
 <p>This is physical storage movement, not traversal of keys, elements, or
-referenced objects. The transport scope stays detached while queued. Queue
-records contain only the <code>Var</code> bits and an owned flag; the object’s allocation
-header recovers that scope. Workers never adopt into a shared <code>Channel</code> scope.</p>
+referenced objects. The transport scope stays detached while queued. Do not
+move a payload into <code>channel.scope()</code> yourself; that scope is not a shared
+destination for senders.</p>
 <p>On failed send, ordinary container records, buffers, and owned contents return
 to their original allocation owner. An owned-content scope also regains
 its exact original parent, including a deliberately separate or detached owner.
@@ -306,15 +307,15 @@ before preparation leave ownership unchanged.</p>
 must not be sent twice. Do not leave a separate initializer <code>auto</code> or deferred
 cleanup armed for it; sending cannot disarm cleanup that is already armed.
 Unrelated aliases do not disappear when ownership changes.</p>
-<p>Receipt moves ordinary <code>Map</code> or <code>Array</code> storage into the receiver’s private
-active <code>Scope</code> and destroys the empty transport <code>Scope</code> before returning. The
+<p>Receipt moves ordinary <code>Map</code> or <code>Array</code> storage into the receiver’s active
+<code>Scope</code> and destroys the empty transport <code>Scope</code> before returning. The
 receiver may clean up the container directly or move its complete storage to
-another owner. If the receiver fails, private-scope teardown reclaims the
-received storage.</p>
-<p>The automatic path handles ordinary <code>Map</code> and <code>Array</code> tags. Typed containers
-and custom roots require a caller-prepared exclusive inactive subtree
-containing their complete physical storage. For example, prepare a packed
-<code>ArrayInt</code> with <code>move_to</code>:</p>
+another owner. If the receiver fails, cleanup of its active <code>Scope</code> reclaims
+the received storage.</p>
+<p>The automatic path handles ordinary <code>Map</code> and <code>Array</code> tags. A typed container
+or other custom value needs a scope that the caller prepares: a scope that
+nothing else uses, that is not active, and that holds all of the value’s
+storage. For example, prepare a packed <code>ArrayInt</code> with <code>move_to</code>:</p>
 <!-- ignore: illustrative fragment with optional typed-array.x and a Channel -->
 <pre class="shiki shiki-themes x2c-light x2c-dark x2c-code" style="--shiki-light:#24292e;--shiki-dark:#e9e5df;--shiki-light-bg:#fff;--shiki-dark-bg:#101011" tabindex="0"><code class="language-x2c no-highlight ignore"><span class="line"><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">ArrayInt values </span><span style="--shiki-light:#D73A49;--shiki-dark:#E9E5DF">=</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF"> ArrayInt.</span><span style="--shiki-light:#6F42C1;--shiki-dark:#E9E5DF">new</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">();</span>
 </span><span class="line"><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">values.</span><span style="--shiki-light:#6F42C1;--shiki-dark:#E9E5DF">push</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">(</span><span style="--shiki-light:#005CC5;--shiki-dark:#A9C9F5">17</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">);</span>
@@ -324,27 +325,24 @@ containing their complete physical storage. For example, prepare a packed
 
 <p>Until acceptance the caller owns this prepared scope. Failure restores its
 original parent; a prepared detached scope stays detached and caller-owned.
-After acceptance it belongs to the queue, then joins the receiver’s private
-scope as a child. A custom root must be a live nonnull <code>Scope</code> allocation whose
-allocation owner is that exclusive inactive subtree. The operation does not
-discover pointer provenance or validate an object graph. Canonical Strings and
-Lists, ordinary scalars, borrowed buffers, and interior pointers do not meet
-that custom-root contract.</p>
+After acceptance it belongs to the queue, then becomes a child of the
+receiver’s active <code>Scope</code>. The value sent must be a live, nonnull pointer
+from a <code>Scope</code> allocator, and its allocation owner must be that prepared
+scope. The operation does not discover pointer provenance or validate an
+object graph. Canonical Strings and Lists, ordinary scalars, borrowed
+buffers, and interior pointers do not meet that requirement.</p>
 <p>Nested mutable values keep independent ownership unless explicitly moved into
 the container’s owned contents before handoff. Calling <code>scope()</code> creates that
 owned-content scope lazily; it does not group the record or buffers. Move a
 nested container’s complete storage with <code>move_to</code>, rather than moving only its
 content scope. Private-pool String keys do not become safe when their <code>Map</code>
-moves. Shared process-pool <code>String</code> values stay borrowable because the pool
-outlives all jobs.</p>
-<p>A <code>Channel</code>’s own storage scope, returned by <code>channel.scope()</code>, owns its native
-mutex and condition. Independent Channels do not share either object. Native
-threads wait on the <code>Channel</code>’s condition using its mutex. Tasks instead <a href="contexts-and-threads.html#run-channel-jobs-on-one-native-thread">park
-through their
-scheduler</a>.
-Queue nodes use native allocation independently of <code>Scope</code> allocation lists.
-Allocation/tree metadata belongs to exclusive private owners; no <code>Scope</code> or
-replacement tree mutex coordinates senders through a <code>Channel</code>.</p>
+moves. Shared process-pool <code>String</code> values stay borrowable; see <a href="contexts-and-threads.html#interned-values-outlive-workers">Interned
+values outlive
+workers</a>.</p>
+<p><code>channel.scope()</code> returns the <code>Channel</code>’s own storage scope, which owns its
+native mutex and condition. A native thread that waits on a <code>Channel</code> blocks.
+A <a href="contexts-and-threads.html#run-channel-jobs-on-one-native-thread">task</a> that
+waits is suspended so another task can run.</p>
 <p>Finish every user and waiter before freeing a <code>Channel</code> or destroying its
 owner. Cleanup explicitly destroys undelivered owned subtrees and frees native
 queue nodes outside the queue mutex. It never destroys ordinary borrowed
@@ -357,18 +355,22 @@ native-resource finalizer.</p>
 stops all remaining jobs before joining them, and preserves the triggering
 error. Blocked <code>Channel</code> operations wake on their own Thread’s stop request and
 unwind after releasing queue locks. They do not report successful exhaustion.</p>
-<p>Acceptance and delivery have synchronized commitment points. A committed send
-or receive succeeds despite a later stop. A pending stop before commitment
-prevents that operation and raises the Thread stop cause. A stopped rendezvous
-participant cannot be matched by another operation.</p>
-<p>Thread stopping does not close Channels or stop unrelated users. Computation
-and arbitrary native I/O are cooperative. A cancelled client’s request bytes
-must stay alive until the actual service borrower finishes. Keep them under an
-owner that survives the whole batch when that is the simplest arrangement.</p>
-<p>Batch jobs use the shared process canonical pool by default. Interned <code>String</code>
-values there outlive the jobs, but stay until process shutdown. Explicit
-private pools keep their own lifetime obligations. Transport and wakeups use
-raw storage and native synchronization; they do not require interning.</p>
+<p>A send commits when the <code>Channel</code> accepts its value, and a receive commits
+when it takes a value. A committed send or receive succeeds despite a later
+stop. A pending stop before commitment prevents that operation and raises the
+<a href="contexts-and-threads.html#cooperative-stopping">Thread stop cause</a>. A stopped
+rendezvous participant cannot be matched by another operation.</p>
+<p>Thread stopping does not close Channels or stop unrelated users. A stop does
+not interrupt computation or arbitrary native I/O. A cancelled client’s
+request bytes must stay alive until the actual service borrower finishes.
+Keep them under an owner that survives the whole batch when that is the
+simplest arrangement.</p>
+<p>Batch jobs use the shared process canonical pool by default. Interned
+<code>String</code> values there outlive the jobs and stay until process shutdown, as
+<a href="contexts-and-threads.html#interned-values-outlive-workers">Interned values outlive
+workers</a> describes.
+Explicit private pools keep their own lifetime obligations. Sending a value
+does not intern or copy its contents.</p>
 <h2 id="where-to-go-next"><a class="header" href="#where-to-go-next">Where to go next</a></h2>
 <ul>
 <li><a href="exceptions.html">Errors and Cleanup</a> covers raised causes and cleanup.</li>
@@ -399,9 +401,9 @@ raw storage and native synchronization; they do not require interning.</p>
                         &copy; 2025&ndash;2026
                         <a href="https://flake.org">GWF</a>
                         &middot;
-                        <a href="https://github.com/gwf/x2c/blob/30b47efa19187e2273163d1261d84e892da95c25/LICENSE">Apache 2.0</a>
+                        <a href="https://github.com/gwf/x2c/blob/bb2442f9bef8ab326f83089a25089304d40349cc/LICENSE">Apache 2.0</a>
                         &middot;
-                        <a href="https://github.com/gwf/x2c/blob/30b47efa19187e2273163d1261d84e892da95c25/TRADEMARKS.md">Trademarks</a>
+                        <a href="https://github.com/gwf/x2c/blob/bb2442f9bef8ab326f83089a25089304d40349cc/TRADEMARKS.md">Trademarks</a>
                     </footer>
                 </div>
             </div>

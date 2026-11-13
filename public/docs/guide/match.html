@@ -1,6 +1,6 @@
 <!DOCTYPE HTML>
 <html lang="en" class="light sidebar-visible" dir="ltr">
-    <head><meta name="x2c-release-channel" content="staging"><meta name="x2c-candidate" content="candidate-aa2b9b2575297711e5978acc53f87bd7f645f3c7-39090113132-1"><meta name="x2c-site-source" content="30b47efa19187e2273163d1261d84e892da95c25"><meta name="robots" content="noindex">
+    <head><meta name="x2c-release-channel" content="staging"><meta name="x2c-candidate" content="candidate-aa2b9b2575297711e5978acc53f87bd7f645f3c7-39090113132-1"><meta name="x2c-site-source" content="bb2442f9bef8ab326f83089a25089304d40349cc"><meta name="robots" content="noindex">
         <!-- Book generated using mdBook -->
         <meta charset="UTF-8">
         <title>Pattern Matching - The x2c Book</title>
@@ -40,10 +40,10 @@
             const path_to_root = "../";
             const default_light_theme = "light";
             const default_dark_theme = "light";
-            window.path_to_searchindex_js = "../searchindex-ad40fbe3.js";
+            window.path_to_searchindex_js = "../searchindex-dc351a14.js";
         </script>
         <!-- Start loading toc.js asap -->
-        <script src="../toc-ffcfcd8d.js"></script>
+        <script src="../toc-ed291a6e.js"></script>
         <!-- x2c publication metadata -->
         <link rel="canonical" href="https://x2c-lang.dev/docs/guide/match.html">
         <meta property="og:type" content="website">
@@ -174,9 +174,6 @@
                                 <li role="none"><button role="menuitem" class="theme" id="mdbook-theme-light">Light</button></li>
                                 <li role="none"><button role="menuitem" class="theme" id="mdbook-theme-ayu">Dark</button></li>
                             </ul>
-                            <a href="https://github.com/gwf/x2c/edit/main/docs/src/guide/match.md" title="Suggest an edit" aria-label="Suggest an edit" rel="edit" class="icon-button">
-                                <span class=fa-svg id="git-edit-button"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc. --><path d="M421.7 220.3l-11.3 11.3-22.6 22.6-205 205c-6.6 6.6-14.8 11.5-23.8 14.1L30.8 511c-8.4 2.5-17.5 .2-23.7-6.1S-1.5 489.7 1 481.2L38.7 353.1c2.6-9 7.5-17.2 14.1-23.8l205-205 22.6-22.6 11.3-11.3 33.9 33.9 62.1 62.1 33.9 33.9zM96 353.9l-9.3 9.3c-.9 .9-1.6 2.1-2 3.4l-25.3 86 86-25.3c1.3-.4 2.5-1.1 3.4-2l9.3-9.3H112c-8.8 0-16-7.2-16-16V353.9zM453.3 19.3l39.4 39.4c25 25 25 65.5 0 90.5l-14.5 14.5-22.6 22.6-11.3 11.3-33.9-33.9-62.1-62.1L314.3 67.7l11.3-11.3 22.6-22.6 14.5-14.5c25-25 65.5-25 90.5 0z"/></svg></span>
-                            </a>
                         </div>
                     </div>
                 </header>
@@ -218,8 +215,8 @@
                         <h1 id="pattern-matching"><a class="header" href="#pattern-matching">Pattern Matching</a></h1>
 <p>A <code>match</code> statement takes a <code>List</code> apart by its shape. You write a pattern
 that looks like the data and name the pieces you need. The names become
-ordinary local variables. One pattern replaces a chain of <code>List_car</code>,
-<code>List_cdr</code>, length checks, and tag tests.</p>
+ordinary local variables. One pattern replaces a chain of <code>car</code> and
+<code>cdr</code> calls, length checks, and tag tests.</p>
 <p>The <code>match</code> statement and the runtime matcher share one pattern language. The
 exhaustive rules are in <a href="../reference/language.html">the language reference</a>.</p>
 <h2 id="the-match-statement"><a class="header" href="#the-match-statement">The match statement</a></h2>
@@ -263,7 +260,7 @@ pattern.</p>
 <code>?(String text)</code> or <code>?(List payload)</code>. This is an exception to the pattern’s
 bare-spelling rule. The compiler represents a named type such as <code>String</code>
 with the type List <code>%("String")</code>; <code>%(String)</code> instead contains an <code>Atom</code>.
-See <a href="../reference/language.html#macro-values">type syntax in macro values</a>.</p>
+See <a href="../reference/language.html#quotations">type syntax in quotations</a>.</p>
 <p>Typedefs use their underlying <code>Var</code> tag. Since <code>Type</code> is a typedef for
 <code>List</code>, <code>?(Type type)</code> tests for a List payload. It does not check whether
 the List contains valid type syntax.</p>
@@ -280,12 +277,10 @@ matches, with its captures in scope. A false guard tries the next arm;
 errors propagate normally. The guard uses ordinary expression truth rules.</p>
 <p>A typed name has the same type throughout its arm, including other occurrences
 written as <code>?name</code> and occurrences in alternative patterns. Repeated names
-require equal values. <code>!quote</code> stays opaque, and each binder must be assigned
-in every alternative. Explicit <code>(!is ?name type string)</code> keeps <code>name</code> as a
-<code>Var</code>.</p>
-<p>The shorthand lowers to the <code>!is</code> pattern predicate and ordinary
-typed local declarations. An expression guard lowers to an ordinary <code>if</code>;
-both forms match exactly as the explicit patterns do.</p>
+require equal values, and each binder must be assigned in every
+alternative. The shorthand matches exactly as the <code>!is</code> pattern operator
+does (see <a href="#pattern-operators">pattern operators</a>), and an expression guard
+lowers to an ordinary <code>if</code>.</p>
 <h2 id="the-pattern-vocabulary"><a class="header" href="#the-pattern-vocabulary">The pattern vocabulary</a></h2>
 <p>Patterns are written in <code>List</code>-literal notation, which is described in
 <a href="collections.html">strings, lists, arrays, and maps</a>.</p>
@@ -334,8 +329,8 @@ structure without any index arithmetic:</p>
 </span><span class="line"><span style="--shiki-light:#D73A49;--shiki-dark:#F0ADA1">  case</span><span style="--shiki-light:#A626A4;--shiki-light-font-weight:bold;--shiki-dark:#FF4FD8;--shiki-dark-font-weight:bold"> %(</span><span style="--shiki-light:#005CC5;--shiki-dark:#E9E5DF">tree</span><span style="--shiki-light:#005CC5;--shiki-dark:#E9E5DF"> ?</span><span style="--shiki-light:#A626A4;--shiki-light-font-weight:bold;--shiki-dark:#FF4FD8;--shiki-dark-font-weight:bold"> $</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">wanted</span><span style="--shiki-light:#A626A4;--shiki-light-font-weight:bold;--shiki-dark:#FF4FD8;--shiki-dark-font-weight:bold">)</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">: </span><span style="--shiki-light:#6F42C1;--shiki-dark:#E9E5DF">printf</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">(</span><span style="--shiki-light:#032F62;--shiki-dark:#9EDFB8">"ends with the wanted tag</span><span style="--shiki-light:#005CC5;--shiki-dark:#9EDFB8">\n</span><span style="--shiki-light:#032F62;--shiki-dark:#9EDFB8">"</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">);</span>
 </span><span class="line"><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">}</span></span></code></pre>
 
-<h3 id="guards"><a class="header" href="#guards">Guards</a></h3>
-<p>Six guard operators turn a position in a pattern into a test. Each is written
+<h3 id="pattern-operators"><a class="header" href="#pattern-operators">Pattern operators</a></h3>
+<p>Six pattern operators turn a position in a pattern into a test. Each is written
 as a sublist headed by the operator.</p>
 <p><code>(!or a b ...)</code> succeeds when any alternative matches, <code>(!and a b ...)</code> when
 all of them do, and <code>(!not a b ...)</code> when none of them do:</p>
@@ -356,11 +351,14 @@ all of them do, and <code>(!not a b ...)</code> when none of them do:</p>
 binder interpretation inside it. <code>(!is ...)</code> is the type and category
 predicate: <code>(!is type string)</code> checks a <code>Var</code> tag, and <code>(!is atom)</code>,
 <code>(!is binder)</code>, <code>(!is op)</code>, <code>(!is var binder)</code>, and <code>(!is list binder)</code> check
-the named category.</p>
-<p>Every guard except <code>!quote</code> accepts an optional leading binder, which
-captures the slice of input the guard checked. A leading binder needs at
-least one operand after it, so <code>(!not ?y)</code> tests <code>?y</code> rather than capturing
-it, and <code>(!set ?w a b)</code> captures the <code>a</code>-or-<code>b</code> membership:</p>
+the named category. <code>(!is atom)</code> accepts any non-List element (Lisp’s sense
+of atom), including numbers.</p>
+<p>Every pattern operator except <code>!quote</code> accepts an optional leading binder,
+which captures the slice of input the operator checked. A binder captured
+by <code>(!is ?name type string)</code> stays a <code>Var</code>, unlike <code>?(String name)</code>. A
+leading binder needs at least one operand after it, so <code>(!not ?y)</code> tests
+<code>?y</code> rather than capturing it, and <code>(!set ?w a b)</code> captures the <code>a</code>-or-<code>b</code>
+membership:</p>
 <pre class="shiki shiki-themes x2c-light x2c-dark x2c-code" style="--shiki-light:#24292e;--shiki-dark:#e9e5df;--shiki-light-bg:#fff;--shiki-dark-bg:#101011" tabindex="0"><code class="language-x2c no-highlight"><span class="line"><span style="--shiki-light:#A626A4;--shiki-light-font-weight:bold;--shiki-dark:#FF4FD8;--shiki-dark-font-weight:bold">match</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF"> (</span><span style="--shiki-light:#A626A4;--shiki-light-font-weight:bold;--shiki-dark:#FF4FD8;--shiki-dark-font-weight:bold">%(</span><span style="--shiki-light:#005CC5;--shiki-dark:#E9E5DF">node</span><span style="--shiki-light:#005CC5;--shiki-dark:#A9C9F5"> 7</span><span style="--shiki-light:#005CC5;--shiki-dark:#A9C9F5"> 8</span><span style="--shiki-light:#A626A4;--shiki-light-font-weight:bold;--shiki-dark:#FF4FD8;--shiki-dark-font-weight:bold">)</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">) {</span>
 </span><span class="line"><span style="--shiki-light:#D73A49;--shiki-dark:#F0ADA1">  case</span><span style="--shiki-light:#A626A4;--shiki-light-font-weight:bold;--shiki-dark:#FF4FD8;--shiki-dark-font-weight:bold"> %(</span><span style="--shiki-light:#005CC5;--shiki-dark:#E9E5DF">!set</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF"> ?whole </span><span style="--shiki-light:#A626A4;--shiki-light-font-weight:bold;--shiki-dark:#FF4FD8;--shiki-dark-font-weight:bold">(</span><span style="--shiki-light:#005CC5;--shiki-dark:#E9E5DF">node</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF"> ?a ?b</span><span style="--shiki-light:#A626A4;--shiki-light-font-weight:bold;--shiki-dark:#FF4FD8;--shiki-dark-font-weight:bold">))</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">:</span>
 </span><span class="line"><span style="--shiki-light:#6F42C1;--shiki-dark:#E9E5DF">    printf</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">(</span><span style="--shiki-light:#032F62;--shiki-dark:#9EDFB8">"</span><span style="--shiki-light:#005CC5;--shiki-dark:#9EDFB8">%s</span><span style="--shiki-light:#032F62;--shiki-dark:#9EDFB8"> holds </span><span style="--shiki-light:#005CC5;--shiki-dark:#9EDFB8">%d</span><span style="--shiki-light:#032F62;--shiki-dark:#9EDFB8"> and </span><span style="--shiki-light:#005CC5;--shiki-dark:#9EDFB8">%d\n</span><span style="--shiki-light:#032F62;--shiki-dark:#9EDFB8">"</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">,</span>
@@ -381,10 +379,9 @@ it, and <code>(!set ?w a b)</code> captures the <code>a</code>-or-<code>b</code>
 
 <p>Runtime-built patterns may put an interned operator <code>Symbol</code> in the head
 position. <code>List.match(input, %($op ...))</code> applies the same operator semantics
-as its literal spelling, and the runtime operator suite checks <code>!or</code>, <code>!not</code>,
-<code>!quote</code>, <code>!is</code>, and nested dynamic forms. Source <code>match</code> arms should spell
-operators literally so the compiler can determine which named binders are
-available to the arm body.</p>
+as its literal spelling. Source <code>match</code> arms should spell operators literally
+so the compiler can determine which named binders are available to the arm
+body.</p>
 <p>The <code>?binder?</code>, <code>*binder?</code>, and <code>!op?</code> spellings are reserved in <code>!is</code>
 operand positions. They are not named binders and do not execute a predicate.
 Use the <code>(!is ...)</code> forms above.</p>
@@ -533,16 +530,15 @@ typed capture such as <code>?(String value)</code>, which fails the arm on a tag
 mismatch.</p>
 <h2 id="limitations"><a class="header" href="#limitations">Limitations</a></h2>
 <p><code>default</code> must be the last arm. The compiler diagnoses a later arm. A final
-<code>default</code> runs only when every earlier case failed. Each branch of a
-conditional group may end with its own <code>default</code>, as long as no arm follows
-the group.</p>
+<code>default</code> runs only when every earlier case failed. Each branch of an <code>#if</code>
+group may end with its own <code>default</code>, as long as no arm follows the group.</p>
 <p>A <code>case</code> pattern must be a <code>%(...)</code> <code>List</code> literal or the pattern of a
 <a href="../reference/language.html#macro-values">Macro value</a>, such as
 <code>$add(?left, ?right)</code>. The runtime matcher accepts a standalone <code>Symbol</code>
 pattern such as <code>&lt;?whole&gt;</code>, but the statement form does not. The compiler
 rejects any other case pattern with a positioned <span class="x2c-wordmark">x2c</span> diagnostic before
 generating C.</p>
-<p>Source guard operators must be literal. Runtime-built patterns may
+<p>Source pattern operators must be literal. Runtime-built patterns may
 interpolate an interned operator <code>Symbol</code>, but a source arm needs a literal
 operator so definite binder assignment can be checked. The <code>?binder?</code> family
 is reserved and is not a working predicate.</p>
@@ -578,9 +574,9 @@ operations by API tier.</p>
                         &copy; 2025&ndash;2026
                         <a href="https://flake.org">GWF</a>
                         &middot;
-                        <a href="https://github.com/gwf/x2c/blob/30b47efa19187e2273163d1261d84e892da95c25/LICENSE">Apache 2.0</a>
+                        <a href="https://github.com/gwf/x2c/blob/bb2442f9bef8ab326f83089a25089304d40349cc/LICENSE">Apache 2.0</a>
                         &middot;
-                        <a href="https://github.com/gwf/x2c/blob/30b47efa19187e2273163d1261d84e892da95c25/TRADEMARKS.md">Trademarks</a>
+                        <a href="https://github.com/gwf/x2c/blob/bb2442f9bef8ab326f83089a25089304d40349cc/TRADEMARKS.md">Trademarks</a>
                     </footer>
                 </div>
             </div>

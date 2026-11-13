@@ -1,6 +1,6 @@
 <!DOCTYPE HTML>
 <html lang="en" class="light sidebar-visible" dir="ltr">
-    <head><meta name="x2c-release-channel" content="staging"><meta name="x2c-candidate" content="candidate-aa2b9b2575297711e5978acc53f87bd7f645f3c7-39090113132-1"><meta name="x2c-site-source" content="30b47efa19187e2273163d1261d84e892da95c25"><meta name="robots" content="noindex">
+    <head><meta name="x2c-release-channel" content="staging"><meta name="x2c-candidate" content="candidate-aa2b9b2575297711e5978acc53f87bd7f645f3c7-39090113132-1"><meta name="x2c-site-source" content="bb2442f9bef8ab326f83089a25089304d40349cc"><meta name="robots" content="noindex">
         <!-- Book generated using mdBook -->
         <meta charset="UTF-8">
         <title>Release Notes - The x2c Book</title>
@@ -40,10 +40,10 @@
             const path_to_root = "../";
             const default_light_theme = "light";
             const default_dark_theme = "light";
-            window.path_to_searchindex_js = "../searchindex-ad40fbe3.js";
+            window.path_to_searchindex_js = "../searchindex-dc351a14.js";
         </script>
         <!-- Start loading toc.js asap -->
-        <script src="../toc-ffcfcd8d.js"></script>
+        <script src="../toc-ed291a6e.js"></script>
         <!-- x2c publication metadata -->
         <link rel="canonical" href="https://x2c-lang.dev/docs/reference/release-notes.html">
         <meta property="og:type" content="website">
@@ -174,9 +174,6 @@
                                 <li role="none"><button role="menuitem" class="theme" id="mdbook-theme-light">Light</button></li>
                                 <li role="none"><button role="menuitem" class="theme" id="mdbook-theme-ayu">Dark</button></li>
                             </ul>
-                            <a href="https://github.com/gwf/x2c/edit/main/docs/src/reference/release-notes.md" title="Suggest an edit" aria-label="Suggest an edit" rel="edit" class="icon-button">
-                                <span class=fa-svg id="git-edit-button"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc. --><path d="M421.7 220.3l-11.3 11.3-22.6 22.6-205 205c-6.6 6.6-14.8 11.5-23.8 14.1L30.8 511c-8.4 2.5-17.5 .2-23.7-6.1S-1.5 489.7 1 481.2L38.7 353.1c2.6-9 7.5-17.2 14.1-23.8l205-205 22.6-22.6 11.3-11.3 33.9 33.9 62.1 62.1 33.9 33.9zM96 353.9l-9.3 9.3c-.9 .9-1.6 2.1-2 3.4l-25.3 86 86-25.3c1.3-.4 2.5-1.1 3.4-2l9.3-9.3H112c-8.8 0-16-7.2-16-16V353.9zM453.3 19.3l39.4 39.4c25 25 25 65.5 0 90.5l-14.5 14.5-22.6 22.6-11.3 11.3-33.9-33.9-62.1-62.1L314.3 67.7l11.3-11.3 22.6-22.6 14.5-14.5c25-25 65.5-25 90.5 0z"/></svg></span>
-                            </a>
                         </div>
                     </div>
                 </header>
@@ -219,12 +216,45 @@
 <p>Each section summarizes what changed for a user of the compiler, runtime,
 commands, and packages since the previous release.</p>
 <h2 id="0160-unreleased"><a class="header" href="#0160-unreleased">0.16.0 (unreleased)</a></h2>
+<p>Compile-time code is ordinary <span class="x2c-wordmark">x2c</span>: the compiler no longer evaluates Lisp,
+and <code>$(...)</code> builds an evaluated List. The release adds temporary
+assignments with <code>with</code>, expression aliases, rest parameters, pattern
+conditions, Channels and tasks, networking, testing, and the <code>x2c lsp</code> and
+<code>x2c test</code> commands.</p>
+<h3 id="upgrading-from-0151"><a class="header" href="#upgrading-from-0151">Upgrading from 0.15.1</a></h3>
+<ul>
+<li><code>$let(place, value) body</code> becomes <code>with (place = value) { body }</code>; a body
+without braces needs them.</li>
+<li><code>with expression as name { ... }</code> becomes
+<code>alias expression as name { ... }</code>, and <code>with expression { ... }</code> becomes
+<code>alias expression { ... }</code>.</li>
+<li>A compile-time Lisp form such as <code>$(import "file.xlisp")</code> becomes a
+<code>meta</code> function called with <code>$helper(...)</code>; <code>$(...)</code> in code now builds
+an evaluated List.</li>
+<li>An object or function named <code>expand</code> can be declared but not read or
+called; rename it.</li>
+<li><code>%&lt;&lt;a b c&gt;&gt;</code> becomes <code>%&lt;a b c&gt;</code>.</li>
+<li><code>array.find(value)</code> and <code>array.indexof(value)</code> become <code>array.index(value)</code>.</li>
+<li><code>Scope.retain()</code> and <code>Scope.release()</code> become <code>Scope.open()</code> and
+<code>Scope.close()</code>. The <code>Scope.up</code> field, which linked a region to the region
+opened after it, is removed and has no replacement.</li>
+<li><code>text.try_long(&amp;value)</code> becomes <code>text.try_long(value)</code>, and likewise for
+<code>String.try_double</code> and <code>Symbol.try_new</code>.</li>
+<li>A <code>List</code> passed as the values of <code>String.format</code>, <code>Logger.log</code>, or the
+<code>log_*</code> functions becomes <code>@values</code>, or separate arguments.</li>
+<li><code>$switch</code> becomes an ordinary <code>switch</code> with a block and <code>break</code> per case.</li>
+<li><code>x2c editor</code> becomes <code>x2c lsp</code>.</li>
+<li>A <code>List</code>, <code>Array</code>, <code>Map</code>, or <code>Symbol</code> passed to a printf-family <code>%s</code> is an
+error; pass its <code>.str()</code> or <code>.repr()</code>, or pass a <code>Var</code>.</li>
+<li><code>x2c repl</code> is not installed by releases; build it in a checkout with
+<code>make commands</code>.</li>
+</ul>
 <h3 id="language"><a class="header" href="#language">Language</a></h3>
 <ul>
 <li>The compiler no longer evaluates Lisp. The compile-time <code>$(...)</code> and
 <code>@(...)</code> Lisp forms, including <code>$(import "file.xlisp")</code>, are removed.
-<code>$(...)</code> now builds an evaluated List, so a former form at file scope
-reports <code>an evaluated collection is an expression, not a top-level form</code>.
+Such a form at file scope reports
+<code>an evaluated collection is an expression, not a top-level form</code>.
 Write the computation as a <code>meta</code> function and call it with
 <code>$helper(...)</code> or <code>@helper(...)</code>, and use the operations in <code>meta.x</code> by
 their <span class="x2c-wordmark">x2c</span> names, such as <code>x2c_ident</code> and <code>Code.binding_spelling</code>, in place
@@ -284,17 +314,18 @@ attribute, and the generated header declares <code>extern int weak_value;</code>
 typedef keeps a leading attribute, written or through such a macro, in its
 C and its header. A function-like wrapper such as <code>PUBLIC(const char *)</code>
 still contributes only its type. See
-<a href="language.html#directives-in-the-generated-c">Directives in the generated C</a>.</li>
+<a href="language.html#c-headers-and-native-declaration-macros">C headers and native declaration
+macros</a>.</li>
 <li><code>SymbolSet</code> literals are written <code>%&lt;a b c&gt;</code>; the 0.15.x <code>%&lt;&lt;a b c&gt;&gt;</code>
 spelling is an invalid token. An unescaped <code>&gt;</code> closes the literal unless
 it belongs to a quoted or angle-form member, so <code>%&lt;"&gt;" "&gt;=" "&gt;&gt;"&gt;</code> holds
 three operator Symbols, and <code>x %&lt;foo&gt;</code> after an operand is still modulo
-by <code>&lt;foo&gt;</code>. See
-<a href="language.html#percent-literals-quote-and-unquote">Percent literals, quote, and unquote</a>.</li>
+by <code>&lt;foo&gt;</code>. See <a href="language.html#symbol-sets">Symbol sets</a>.</li>
 <li><code>associated</code>, <code>catch</code>, <code>delegate</code>, <code>finally</code>, <code>import</code>, <code>protocol</code>,
 <code>raise</code>, <code>threaded</code>, and <code>try</code> are contextual keywords: outside their
 keyword forms they can name objects, functions, parameters, fields,
-typedefs, and labels. <code>defer</code> and the C keywords remain reserved. See
+typedefs, and labels. <code>defer</code> remains reserved in expressions, and the C
+keywords remain reserved. See
 <a href="language.html#contextual-keywords">Contextual keywords</a>.</li>
 <li>A decorator can take a <code>Macro</code> target, and a decorator can return another
 decorator, which then consumes the next source target. <code>expand ROWS</code>
@@ -336,7 +367,7 @@ and Iter <code>find</code> keep their contracts.</p>
 </li>
 <li>
 <p><code>Task.run</code> runs zero-argument jobs cooperatively on the calling native
-thread, using existing Channels. Results keep ordinary ownership, and every
+thread, using Channels. Results keep ordinary ownership, and every
 exit finishes all job cleanup. Blocking native calls block the batch. The
 guarded-stack backend supports macOS and Linux on arm64 and x86_64. See
 <a href="../library/modules/task.html#Task.run">Task.run</a> and
@@ -414,6 +445,11 @@ percent encodings, and URL parsing. See
 compile-time code.</p>
 </li>
 <li>
+<p><code>Type.spelling</code> returns a type as a declaration spells it without a name,
+such as <code>int *</code> or <code>int (*)(int, char *)</code>. See
+<a href="../library/modules/type.html#Type.spelling">Type.spelling</a>.</p>
+</li>
+<li>
 <p>A C string passed through a <code>Func</code> is boxed as a <code>String</code>, so <code>String</code>,
 native pointer, and <code>Var</code> parameters all accept it.</p>
 </li>
@@ -449,68 +485,56 @@ longer install it. See <a href="../guide/repl.html">Library Playground</a>.</li>
 cache root whose recorded program source no longer exists, as script
 builds do under <code>scripts/</code> and <code>runs/</code>. <code>Compiler.prune_cache</code> in the
 compiler API holds that rule.</li>
+<li><code>x2c lint</code> and <code>x2c graph</code> are experimental: a checkout builds them with
+<code>make commands</code>, and installations do not include them.</li>
+<li>A warning prints as <code>file:line:column: warning: code: message</code>, so it is
+distinct from an error. See
+<a href="cli.html#compiler-diagnostics">Compiler diagnostics</a>.</li>
 <li>The sqlite package joins the checked packages.</li>
 </ul>
 <h3 id="fixed-defects"><a class="header" href="#fixed-defects">Fixed defects</a></h3>
 <ul>
-<li>
-<p>Regex matching checks the stack floor for sequential and nested groups,
-so excessive matching recursion raises a catchable size-limit error.</p>
-</li>
-<li>
-<p>Calls through a pointer to a function typedef now convert arguments as
-calls through a function-pointer typedef do, including boxing into <code>Var</code>.</p>
-</li>
-<li>
-<p>An array dimension constructed by a macro can contain another expression
-macro; the ordinary binder resolves it before interface emission.</p>
-</li>
-<li>
-<p>Typed callback adapters retain pointee qualifiers in their result checks
-and generated calls. A const result cannot become a mutable pointer result.</p>
-</li>
-<li>
-<p>Region diagnostics now follow receiver returns from <code>Array.update_n</code>,
-<code>Map.update_n</code>, and <code>Map.merge_with</code>, including compile-time definitions.</p>
-</li>
-<li>
-<p>A <code>~=</code> pattern condition whose false branch continues with <code>else if</code> now
+<li>A printf-family <code>%s</code> with a static format prints the empty <code>String</code> as no
+text; it printed <code>(null)</code>.</li>
+<li>A <code>List</code>, <code>Array</code>, <code>Map</code>, or <code>Symbol</code> at a printf-family <code>%s</code> is a
+compile-time error; it was passed as a raw pointer and printed garbage or
+crashed.</li>
+<li>Diagnostics spell types as declarations do, such as <code>int *</code> and
+<code>double (int)</code>, name the method, function, or macro in argument-count
+errors, and omit expansion notes that pointed into the compiler’s own
+definitions.</li>
+<li>Regex matching checks the stack floor for sequential and nested groups,
+so excessive matching recursion raises a catchable size-limit error.</li>
+<li>Calls through a pointer to a function typedef now convert arguments as
+calls through a function-pointer typedef do, including boxing into <code>Var</code>.</li>
+<li>An array dimension constructed by a macro can contain another expression
+macro; the ordinary binder resolves it before interface emission.</li>
+<li>Typed callback adapters retain pointee qualifiers in their result checks
+and generated calls. A const result cannot become a mutable pointer result.</li>
+<li>Region diagnostics now follow receiver returns from <code>Array.update_n</code>,
+<code>Map.update_n</code>, and <code>Map.merge_with</code>, including compile-time definitions.</li>
+<li>A <code>~=</code> pattern condition whose false branch continues with <code>else if</code> now
 places that continuation inside a block, so the generated C keeps the
-branch and compiles without a dangling-else warning.</p>
-</li>
-<li>
-<p>With <code>--cpp</code>, a macro whose name is a keyword spelling expands source
+branch and compiles without a dangling-else warning.</li>
+<li>With <code>--cpp</code>, a macro whose name is a keyword spelling expands source
 tokens only; the same spelling stored as a literal atom, as in <code>%(if)</code>,
-is left intact.</p>
-</li>
-<li>
-<p>A generated protocol owner whose signature conflicts with the adopted
+is left intact.</li>
+<li>A generated protocol owner whose signature conflicts with the adopted
 protocol is reported at the adoption, with the expected and actual
-signatures, instead of as a bare argument-count error.</p>
-</li>
-<li>
-<p>With <code>--cpp</code>, collection decides a header’s later <code>#ifndef</code> arm as a
+signatures, instead of as a bare argument-count error.</li>
+<li>With <code>--cpp</code>, collection decides a header’s later <code>#ifndef</code> arm as a
 linear reading of the header does, even when an <code>#include</code> sits inside an
-earlier undecided group such as <code>#ifdef __APPLE__</code>.</p>
-</li>
-<li>
-<p>With <code>--cpp</code>, <code>#if</code> reads a character constant as the C compiler does, so
+earlier undecided group such as <code>#ifdef __APPLE__</code>.</li>
+<li>With <code>--cpp</code>, <code>#if</code> reads a character constant as the C compiler does, so
 <code>'\0' == 0</code> holds and <code>'\xff'</code> is negative; multi-character constants,
-shift counts outside 0 to 63, and <code>LONG_MIN / -1</code> stay undecided.</p>
-</li>
-<li>
-<p>An arm that C never takes, such as the <code>#else</code> of <code>#ifndef __cplusplus</code>,
+shift counts outside 0 to 63, and <code>LONG_MIN / -1</code> stay undecided.</li>
+<li>An arm that C never takes, such as the <code>#else</code> of <code>#ifndef __cplusplus</code>,
 stays hidden after an <code>#include</code> earlier in its group, so C++ text there
-no longer fails collection.</p>
-</li>
-<li>
-<p>A playground candidate whose worker fails while starting reports
-<code>session unchanged</code> and keeps the active session.</p>
-</li>
-<li>
-<p><code>:reload</code> after loading a manifest rebuilds the selected roots once
-instead of adding the manifest’s inputs to them again.</p>
-</li>
+no longer fails collection.</li>
+<li>A playground candidate whose worker fails while starting reports
+<code>session unchanged</code> and keeps the active session.</li>
+<li><code>:reload</code> after loading a manifest rebuilds the selected roots once
+instead of adding the manifest’s inputs to them again.</li>
 </ul>
 <h2 id="0151-2026-10-17"><a class="header" href="#0151-2026-10-17">0.15.1 (2026-10-17)</a></h2>
 <p>A patch release of 0.15.0. Existing installations upgrade in place; no
@@ -648,9 +672,9 @@ flags are repaired for package builds.</li>
                         &copy; 2025&ndash;2026
                         <a href="https://flake.org">GWF</a>
                         &middot;
-                        <a href="https://github.com/gwf/x2c/blob/30b47efa19187e2273163d1261d84e892da95c25/LICENSE">Apache 2.0</a>
+                        <a href="https://github.com/gwf/x2c/blob/bb2442f9bef8ab326f83089a25089304d40349cc/LICENSE">Apache 2.0</a>
                         &middot;
-                        <a href="https://github.com/gwf/x2c/blob/30b47efa19187e2273163d1261d84e892da95c25/TRADEMARKS.md">Trademarks</a>
+                        <a href="https://github.com/gwf/x2c/blob/bb2442f9bef8ab326f83089a25089304d40349cc/TRADEMARKS.md">Trademarks</a>
                     </footer>
                 </div>
             </div>

@@ -1,6 +1,6 @@
 <!DOCTYPE HTML>
 <html lang="en" class="light sidebar-visible" dir="ltr">
-    <head><meta name="x2c-release-channel" content="staging"><meta name="x2c-candidate" content="candidate-aa2b9b2575297711e5978acc53f87bd7f645f3c7-39090113132-1"><meta name="x2c-site-source" content="30b47efa19187e2273163d1261d84e892da95c25"><meta name="robots" content="noindex">
+    <head><meta name="x2c-release-channel" content="staging"><meta name="x2c-candidate" content="candidate-aa2b9b2575297711e5978acc53f87bd7f645f3c7-39090113132-1"><meta name="x2c-site-source" content="bb2442f9bef8ab326f83089a25089304d40349cc"><meta name="robots" content="noindex">
         <!-- Book generated using mdBook -->
         <meta charset="UTF-8">
         <title>Building the Compiler - The x2c Book</title>
@@ -40,10 +40,10 @@
             const path_to_root = "../";
             const default_light_theme = "light";
             const default_dark_theme = "light";
-            window.path_to_searchindex_js = "../searchindex-ad40fbe3.js";
+            window.path_to_searchindex_js = "../searchindex-dc351a14.js";
         </script>
         <!-- Start loading toc.js asap -->
-        <script src="../toc-ffcfcd8d.js"></script>
+        <script src="../toc-ed291a6e.js"></script>
         <!-- x2c publication metadata -->
         <link rel="canonical" href="https://x2c-lang.dev/docs/internals/building.html">
         <meta property="og:type" content="website">
@@ -174,9 +174,6 @@
                                 <li role="none"><button role="menuitem" class="theme" id="mdbook-theme-light">Light</button></li>
                                 <li role="none"><button role="menuitem" class="theme" id="mdbook-theme-ayu">Dark</button></li>
                             </ul>
-                            <a href="https://github.com/gwf/x2c/edit/main/docs/src/internals/building.md" title="Suggest an edit" aria-label="Suggest an edit" rel="edit" class="icon-button">
-                                <span class=fa-svg id="git-edit-button"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc. --><path d="M421.7 220.3l-11.3 11.3-22.6 22.6-205 205c-6.6 6.6-14.8 11.5-23.8 14.1L30.8 511c-8.4 2.5-17.5 .2-23.7-6.1S-1.5 489.7 1 481.2L38.7 353.1c2.6-9 7.5-17.2 14.1-23.8l205-205 22.6-22.6 11.3-11.3 33.9 33.9 62.1 62.1 33.9 33.9zM96 353.9l-9.3 9.3c-.9 .9-1.6 2.1-2 3.4l-25.3 86 86-25.3c1.3-.4 2.5-1.1 3.4-2l9.3-9.3H112c-8.8 0-16-7.2-16-16V353.9zM453.3 19.3l39.4 39.4c25 25 25 65.5 0 90.5l-14.5 14.5-22.6 22.6-11.3 11.3-33.9-33.9-62.1-62.1L314.3 67.7l11.3-11.3 22.6-22.6 14.5-14.5c25-25 65.5-25 90.5 0z"/></svg></span>
-                            </a>
                         </div>
                     </div>
                 </header>
@@ -237,9 +234,41 @@ and <code>make build-safe</code> run <code>make configure</code> automatically b
 work or cleaning.</p>
 <p>For optional packages, use <code>./configure --packages</code>, or name only the ones
 you intend to build, such as <code>./configure --packages termbox2</code>. See the
-<a href="https://github.com/gwf/x2c/blob/30b47efa19187e2273163d1261d84e892da95c25/packages/README.md">package instructions</a> for native dependencies.
+<a href="https://github.com/gwf/x2c/blob/bb2442f9bef8ab326f83089a25089304d40349cc/packages/README.md">package instructions</a> for native dependencies.
 These reports check command availability and required OpenSSL Perl modules;
 upstream configure scripts and compilers still check platform support.</p>
+<h2 id="build-a-fresh-clone"><a class="header" href="#build-a-fresh-clone">Build a fresh clone</a></h2>
+<ol>
+<li>
+<p>Clone the repository and enter it:</p>
+<pre><code class="language-sh">git clone https://github.com/gwf/x2c.git
+cd x2c
+</code></pre>
+</li>
+<li>
+<p>Build the compiler as <code>./x2c</code>:</p>
+<pre><code class="language-sh">make build-safe
+</code></pre>
+</li>
+<li>
+<p>Build the external commands, such as <code>x2c new</code> and <code>x2c test</code>:</p>
+<pre><code class="language-sh">make commands
+</code></pre>
+</li>
+<li>
+<p>Run an example:</p>
+<pre><code class="language-sh">./x2c run -q examples/foreach.x
+</code></pre>
+</li>
+</ol>
+<p><code>./x2c</code> is a tracked symbolic link to <code>builds/0/x2c</code>, the development
+compiler, so a command run from the repository root uses it without <code>PATH</code>.
+The book writes the installed compiler as <code>x2c</code> and the checkout’s compiler
+as <code>./x2c</code>.</p>
+<p><code>make build-safe</code> builds the compiler and <code>x2c-build</code> only; <code>build</code>, <code>run</code>,
+and <code>script</code> use that external command. <code>make commands</code> builds <code>new</code>,
+<code>package</code>, <code>test</code>, and <code>lsp</code>, along with the experimental <code>bind</code>, <code>graph</code>,
+<code>lint</code>, and <code>repl</code>, which an install does not include.</p>
 <h2 id="why-a-bootstrap-exists"><a class="header" href="#why-a-bootstrap-exists">Why a bootstrap exists</a></h2>
 <p>The compiler and runtime are written in <span class="x2c-wordmark">x2c</span>. A fresh machine cannot translate
 those <code>.x</code> sources until an <span class="x2c-wordmark">x2c</span> compiler already exists. The repository
@@ -278,7 +307,12 @@ sections of <code>docs/src/SUMMARY.md</code>, and <code>site/public/llms.txt</co
 </ul>
 </li>
 </ul>
-<p>Do not hand-edit any of them; regenerate them with their targets.</p>
+<p>Do not hand-edit any of them; regenerate them with their targets.
+<code>tools/gen-linked-meta.sh</code> writes <code>src/linked-meta.x</code>, and
+<code>tools/gen-meta-queries.sh</code> writes <code>etc/meta-queries.x</code>. They select the
+compiler’s linked copies and the helper’s forwarders from the <code>meta</code> rows
+that <code>--dump-definitions</code> prints; see
+<a href="../reference/cli.html#inspection-modes">inspection modes</a>.</p>
 <h2 id="unit-interfaces-and-native-bindings"><a class="header" href="#unit-interfaces-and-native-bindings">Unit interfaces and native bindings</a></h2>
 <p>Each translated unit writes a unit interface, <code>&lt;stem&gt;.xi</code>, beside its <code>.c</code>
 and <code>.h</code>. A stage build leaves the runtime’s interfaces under <code>builds/N/lib</code>.
@@ -307,7 +341,7 @@ writes <code>builds/wasm/libx2c.a</code>. <code>tools/wasm-build</code> translat
 and links the whole archive directly with Emscripten. It writes an ES module
 loader (<code>.js</code>) and a <code>.wasm</code> file beside the requested output stem. The
 native runtime archive is never passed to this link. Neither command is
-part of <code>make check</code>; the manual check workflow has an optional wasm job.</p>
+part of <code>make check</code>.</p>
 <p>The build defaults to <code>emcc</code>, <code>emar</code>, signed characters, size optimization,
 and Emscripten longjmp support. <code>WASM_CC</code>, <code>WASM_AR</code>, and <code>WASM_CFLAGS</code>
 override the corresponding build settings. <code>tools/wasm-build</code> also accepts
@@ -329,23 +363,27 @@ unsupported in this single-threaded browser build. <code>Job</code>, <code>File.
 behavior. In-memory HTTP parsing, routing, and response construction remain
 available. Browser execution requires Memory64;
 check the playground’s support notice before running a program.</p>
-<h2 id="installation-layouts-and-release-candidates"><a class="header" href="#installation-layouts-and-release-candidates">Installation layouts and release candidates</a></h2>
+<h2 id="installation-layouts"><a class="header" href="#installation-layouts">Installation layouts</a></h2>
 <p>With no <code>PREFIX</code>, <code>make install</code> runs <code>make build-install</code>: it copies the
 development compiler to <code>bin/x2c-&lt;branch&gt;</code>, links <code>bin/x2c</code> to that copy, and
 installs the shipped commands under <code>libexec/x2c/</code>.</p>
-<p><code>tools/check-install-script.sh</code> exercises the release installer against a
-release layout built from the current tree. The <code>check</code> workflow’s
-<code>windows_spike</code> input tests the WSL2 and MSYS2 routes.</p>
-<p>Install a shared prefix from a tagged <code>main</code>, so a defect seen through it
-reproduces for every user. Validate a staging candidate in a fresh scratch
-prefix with its explicit package index, then remove that prefix. The staging
-site supplies the candidate installer and commands; a bare <code>x2c install</code>
-uses the production package index. The compiler version alone does not
-distinguish two candidates of the same version.</p>
+<h2 id="syntax-feature-records"><a class="header" href="#syntax-feature-records">Syntax feature records</a></h2>
 <p>The feature records in <code>etc/syntax/extensions.x</code> connect each syntax family
 to grammar productions, lexical rules, example spellings, and a reference
 section. The table in <a href="../guide/x2c-syntax-map.html">What <span class="x2c-wordmark">x2c</span> Adds to C Syntax</a>
 is generated from those records.</p>
+<h2 id="package-extensions"><a class="header" href="#package-extensions">Package extensions</a></h2>
+<p><code>--extension &lt;dir&gt;</code> links a package’s compile-time part into a compiler that
+<code>build</code> makes;
+<a href="../reference/cli.html#build-native-artifacts">build native artifacts</a>
+describes the option. The compiler’s own sources are inputs, so run the
+build from a checkout whose compiler is built. Name every compiler unit and
+both header search roots. In this example, <code>packages/tally</code> is the
+package’s directory:</p>
+<pre><code class="language-sh">tools/sources.sh |
+  xargs ./x2c build --extension packages/tally \
+    --x-include-dir src --c-include-dir builds/0/src --output /tmp/x2c
+</code></pre>
 <h2 id="checking-book-samples"><a class="header" href="#checking-book-samples">Checking book samples</a></h2>
 <p><code>make doc-examples</code> compiles the book and website samples. No checked sample
 imports an optional package, so the check needs no package preparation.</p>
@@ -377,9 +415,9 @@ the <a href="implementation-map.html">Implementation Map</a> for feature ownersh
                         &copy; 2025&ndash;2026
                         <a href="https://flake.org">GWF</a>
                         &middot;
-                        <a href="https://github.com/gwf/x2c/blob/30b47efa19187e2273163d1261d84e892da95c25/LICENSE">Apache 2.0</a>
+                        <a href="https://github.com/gwf/x2c/blob/bb2442f9bef8ab326f83089a25089304d40349cc/LICENSE">Apache 2.0</a>
                         &middot;
-                        <a href="https://github.com/gwf/x2c/blob/30b47efa19187e2273163d1261d84e892da95c25/TRADEMARKS.md">Trademarks</a>
+                        <a href="https://github.com/gwf/x2c/blob/bb2442f9bef8ab326f83089a25089304d40349cc/TRADEMARKS.md">Trademarks</a>
                     </footer>
                 </div>
             </div>

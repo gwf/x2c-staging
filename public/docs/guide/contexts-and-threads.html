@@ -1,6 +1,6 @@
 <!DOCTYPE HTML>
 <html lang="en" class="light sidebar-visible" dir="ltr">
-    <head><meta name="x2c-release-channel" content="staging"><meta name="x2c-candidate" content="candidate-aa2b9b2575297711e5978acc53f87bd7f645f3c7-39090113132-1"><meta name="x2c-site-source" content="30b47efa19187e2273163d1261d84e892da95c25"><meta name="robots" content="noindex">
+    <head><meta name="x2c-release-channel" content="staging"><meta name="x2c-candidate" content="candidate-aa2b9b2575297711e5978acc53f87bd7f645f3c7-39090113132-1"><meta name="x2c-site-source" content="bb2442f9bef8ab326f83089a25089304d40349cc"><meta name="robots" content="noindex">
         <!-- Book generated using mdBook -->
         <meta charset="UTF-8">
         <title>Contexts and Threads - The x2c Book</title>
@@ -40,10 +40,10 @@
             const path_to_root = "../";
             const default_light_theme = "light";
             const default_dark_theme = "light";
-            window.path_to_searchindex_js = "../searchindex-ad40fbe3.js";
+            window.path_to_searchindex_js = "../searchindex-dc351a14.js";
         </script>
         <!-- Start loading toc.js asap -->
-        <script src="../toc-ffcfcd8d.js"></script>
+        <script src="../toc-ed291a6e.js"></script>
         <!-- x2c publication metadata -->
         <link rel="canonical" href="https://x2c-lang.dev/docs/guide/contexts-and-threads.html">
         <meta property="og:type" content="website">
@@ -174,9 +174,6 @@
                                 <li role="none"><button role="menuitem" class="theme" id="mdbook-theme-light">Light</button></li>
                                 <li role="none"><button role="menuitem" class="theme" id="mdbook-theme-ayu">Dark</button></li>
                             </ul>
-                            <a href="https://github.com/gwf/x2c/edit/main/docs/src/guide/contexts-and-threads.md" title="Suggest an edit" aria-label="Suggest an edit" rel="edit" class="icon-button">
-                                <span class=fa-svg id="git-edit-button"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc. --><path d="M421.7 220.3l-11.3 11.3-22.6 22.6-205 205c-6.6 6.6-14.8 11.5-23.8 14.1L30.8 511c-8.4 2.5-17.5 .2-23.7-6.1S-1.5 489.7 1 481.2L38.7 353.1c2.6-9 7.5-17.2 14.1-23.8l205-205 22.6-22.6 11.3-11.3 33.9 33.9 62.1 62.1 33.9 33.9zM96 353.9l-9.3 9.3c-.9 .9-1.6 2.1-2 3.4l-25.3 86 86-25.3c1.3-.4 2.5-1.1 3.4-2l9.3-9.3H112c-8.8 0-16-7.2-16-16V353.9zM453.3 19.3l39.4 39.4c25 25 25 65.5 0 90.5l-14.5 14.5-22.6 22.6-11.3 11.3-33.9-33.9-62.1-62.1L314.3 67.7l11.3-11.3 22.6-22.6 14.5-14.5c25-25 65.5-25 90.5 0z"/></svg></span>
-                            </a>
                         </div>
                     </div>
                 </header>
@@ -216,21 +213,16 @@
                 <div id="mdbook-content" class="content">
                     <main>
                         <h1 id="contexts-and-threads"><a class="header" href="#contexts-and-threads">Contexts and Threads</a></h1>
-<p>A <code>Context</code> gives a task its own <code>Scope</code>, <code>Error</code> state, and <code>Match</code> state. An
-isolated <code>Context</code> also gives it a child canonical-value pool, which its
-<code>String</code>s and <code>List</code>s share. Closing the <code>Context</code> restores the state that was
-active before it opened and reclaims everything that was not exported.</p>
-<p>If opening a <code>Context</code> fails, the parts already opened are closed before the
-failure reaches an outer <code>catch</code>. A failed open does not change
-<code>Context.current()</code> or leave a pool active.</p>
-<p><code>Thread.start</code>, <code>Thread.start_raw</code>, and <code>Thread.run</code> run each callback on a
-native worker thread inside a <code>Context</code> that is not isolated. The callback
-gets fresh <code>Scope</code>, <code>Error</code>, and <code>Match</code> state and uses the shared process
-canonical pool, as described below.
-The worker may read parent values and may access shared mutable objects. The
-program must keep those objects alive and coordinate any access that could
-race.</p>
+<p>A <code>Context</code> runs a piece of work with its own <code>Scope</code>, <code>Error</code> state, and
+<code>Match</code> state, and reclaims what that work allocated when it closes. A
+<code>Thread</code> runs a function on another native thread. This chapter covers
+bounded work in a <code>Context</code>, starting and joining threads, running batches
+of jobs on threads or as <code>Channel</code> tasks on one thread, stopping jobs, and
+mapping over data in parallel.</p>
 <h2 id="use-a-context-for-bounded-work"><a class="header" href="#use-a-context-for-bounded-work">Use a Context for bounded work</a></h2>
+<p>Open a <code>Context</code>, do the work, export the values that must survive, and close
+the <code>Context</code>. Closing it restores the state that was active before it opened
+and reclaims everything that was not exported.</p>
 <p><code>Context.open</code> and <code>Context.open_named</code> use the current canonical-value
 pool. Use them when the work needs fresh <code>Scope</code>, <code>Error</code>, and <code>Match</code> state
 and its <code>String</code>s and <code>List</code>s should live as long as the caller’s.</p>
@@ -239,6 +231,9 @@ New temporary <code>String</code>s and <code>List</code>s are then reclaimed whe
 closes. Values already in a parent pool stay visible and keep their
 identity. The name given to a <code>_named</code> form appears only in <code>Scope</code> leak
 diagnostics.</p>
+<p>If opening a <code>Context</code> fails, the parts already opened are closed before the
+failure reaches an outer <code>catch</code>. A failed open does not change
+<code>Context.current()</code> or leave a pool active.</p>
 <p>The following program builds a cyclic mutable result around a private <code>String</code>,
 exports it, and closes the <code>Context</code>. <code>Context.export</code> moves the <code>Array</code> and
 <code>Map</code> storage into the caller’s <code>Scope</code>, copies the private immutable values
@@ -263,15 +258,15 @@ into the caller’s pool, and preserves the cycle:</p>
 </span><span class="line"><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">}</span></span></code></pre>
 
 <p>Always use the value returned by <code>Context.export</code>. Mutable <code>Array</code>s, <code>Map</code>s,
-<code>Block</code>s, <code>Bytes</code>, <code>Buffer</code>s, and wide scalar boxes retain their identity when
-their storage can be moved. Private <code>String</code>s, <code>Atom</code>s, and <code>List</code>s are
-canonicalized in the destination pool, so their pointers may change. Export
-walks nested <code>Array</code>s, <code>Map</code>s, and <code>List</code>s, including repeated references and
-<code>Array</code>/<code>Map</code> cycles. A registered custom value can provide its own <code>Context</code>
-exporter. <code>void</code> exports as <code>void</code>.</p>
+<code>Block</code>s, <code>Bytes</code>, <code>Buffer</code>s, and boxed wide numbers such as <code>long</code> retain
+their identity when their storage can be moved. Private <code>String</code>s, <code>Atom</code>s,
+and <code>List</code>s are canonicalized in the destination pool, so their pointers may
+change. Export walks nested <code>Array</code>s, <code>Map</code>s, and <code>List</code>s, including repeated
+references and <code>Array</code>/<code>Map</code> cycles. A registered custom value can provide
+its own <code>Context</code> exporter. <code>void</code> exports as <code>void</code>.</p>
 <p>The seven packed <code>Array</code>s from <code>typed-array.x</code> and the four packed <code>Map</code>s
 from <code>typed-map.x</code> follow the same rule. A container owned by the source
-<code>Context</code> keeps its pointer, and its header and backing storage move
+<code>Context</code> keeps its pointer, and its record and backing storage move
 together. A borrowed container is returned unchanged. The numeric families
 keep their native entries and continue growing in the destination <code>Scope</code>.
 <code>ArrayString</code> canonicalizes its elements, <code>MapStringString</code> its keys and
@@ -286,17 +281,15 @@ and moves its owned allocations through the <code>Context</code> helpers; applic
 still calls <code>Context.export</code> on the complete value.</p>
 <p>Export covers values allocated through the active <code>Context</code> and values
 inherited or borrowed from its caller. Code that manually creates an unrelated
-<code>Scope</code> or immutable pool must manage that lifetime itself; returning such a
-value as though the <code>Context</code> owned it is undefined behavior.</p>
-<p>The complete program is in <code>examples/power/contexts.x</code>.</p>
+<code>Scope</code> or canonical-value pool must manage that lifetime itself; returning
+such a value as though the <code>Context</code> owned it is undefined behavior.</p>
+<p>The complete program is <code>contexts.x</code> in the <span class="x2c-wordmark">x2c</span> home’s <code>examples/power/</code>
+directory.</p>
 <h2 id="pass-shared-values-to-a-worker"><a class="header" href="#pass-shared-values-to-a-worker">Pass shared values to a worker</a></h2>
-<p><code>Thread.start(function, input)</code> calls a <code>Var</code>-to-<code>Var</code> function with one input.
-The input bits are copied, while referenced storage stays with its caller. Keep
-the input graph alive and read-only until join. This includes a Map’s contents
-and the storage of wide boxed scalars. Join returns result bits without
-exporting or transferring storage. Preserve worker-created mutable output
-explicitly before the callback exits. Each concurrent worker needs exclusive
-access to its output owner; do not allocate into a shared caller scope.</p>
+<p><code>Thread.start(function, input)</code> runs a <code>Var</code>-to-<code>Var</code> function on a new
+native worker thread and returns a <code>Thread</code> handle. Keep everything the input
+refers to alive and unchanged until the worker is joined. Preserve any
+mutable output explicitly before the function returns.</p>
 <pre class="shiki shiki-themes x2c-light x2c-dark x2c-code" style="--shiki-light:#24292e;--shiki-dark:#e9e5df;--shiki-light-bg:#fff;--shiki-dark-bg:#101011" tabindex="0"><code class="language-x2c no-highlight"><span class="line"><span style="--shiki-light:#D73A49;--shiki-dark:#F0ADA1">static</span><span style="--shiki-light:#007C8A;--shiki-dark:#29D3E2"> Var</span><span style="--shiki-light:#6F42C1;--shiki-dark:#E9E5DF"> twice</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">(</span><span style="--shiki-light:#007C8A;--shiki-dark:#29D3E2">Var</span><span style="--shiki-light:#E36209;--shiki-dark:#E9E5DF"> input</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">) </span><span style="--shiki-light:#A626A4;--shiki-light-font-weight:bold;--shiki-dark:#FF4FD8;--shiki-dark-font-weight:bold">=&gt;</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF"> (</span><span style="--shiki-light:#D73A49;--shiki-dark:#F0ADA1">int</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">) input </span><span style="--shiki-light:#D73A49;--shiki-dark:#E9E5DF">*</span><span style="--shiki-light:#005CC5;--shiki-dark:#A9C9F5"> 2</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">;</span>
 </span><span class="line">
 </span><span class="line"><span style="--shiki-light:#D73A49;--shiki-dark:#F0ADA1">int</span><span style="--shiki-light:#6F42C1;--shiki-dark:#E9E5DF"> main</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">(</span><span style="--shiki-light:#D73A49;--shiki-dark:#F0ADA1">void</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">) {</span>
@@ -307,6 +300,16 @@ access to its output owner; do not allocate into a shared caller scope.</p>
 
 <pre><code class="language-text">42
 </code></pre>
+<p><code>Thread.finish_any</code> waits until a thread in the <code>Array</code> has finished, joins
+it, removes it from the <code>Array</code>, frees its handle, and returns its result.</p>
+<p>The worker runs inside a <code>Context</code> that is not isolated. It gets fresh
+<code>Scope</code>, <code>Error</code>, and <code>Match</code> state and uses the shared process pool, as
+<a href="#interned-values-outlive-workers">Interned values outlive workers</a>
+describes.</p>
+<p>The input bits are copied, while referenced storage stays with its caller. Keep
+the input graph alive and read-only until join. This includes a Map’s contents
+and the storage of boxed wide numbers. Join returns result bits without
+exporting or transferring storage.</p>
 <p>For mutable output, supply an owner that only this worker uses until join:</p>
 <pre class="shiki shiki-themes x2c-light x2c-dark x2c-code" style="--shiki-light:#24292e;--shiki-dark:#e9e5df;--shiki-light-bg:#fff;--shiki-dark-bg:#101011" tabindex="0"><code class="language-x2c no-highlight"><span class="line"><span style="--shiki-light:#D73A49;--shiki-dark:#F0ADA1">static</span><span style="--shiki-light:#007C8A;--shiki-dark:#29D3E2"> Var</span><span style="--shiki-light:#6F42C1;--shiki-dark:#E9E5DF"> make_answer</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">(</span><span style="--shiki-light:#007C8A;--shiki-dark:#29D3E2">Var</span><span style="--shiki-light:#E36209;--shiki-dark:#E9E5DF"> destination</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">) {</span>
 </span><span class="line"><span style="--shiki-light:#007C8A;--shiki-dark:#29D3E2">  Scope</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF"> output </span><span style="--shiki-light:#D73A49;--shiki-dark:#E9E5DF">=</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF"> destination;</span>
@@ -375,45 +378,57 @@ joined.</p>
 </span><span class="line"><span style="--shiki-light:#D73A49;--shiki-dark:#F0ADA1">  return</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF"> counter </span><span style="--shiki-light:#D73A49;--shiki-dark:#E9E5DF">==</span><span style="--shiki-light:#005CC5;--shiki-dark:#A9C9F5"> 2000</span><span style="--shiki-light:#D73A49;--shiki-dark:#E9E5DF"> ?</span><span style="--shiki-light:#005CC5;--shiki-dark:#A9C9F5"> 0</span><span style="--shiki-light:#D73A49;--shiki-dark:#E9E5DF"> :</span><span style="--shiki-light:#005CC5;--shiki-dark:#A9C9F5"> 1</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">;</span>
 </span><span class="line"><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">}</span></span></code></pre>
 
-<p>Workers start with the shared process canonical pool, so canonical Strings
-and Lists survive callback exit. Explicit private pools retain their own
-lifetime rules. Mutable callback storage is temporary. A callback that returns
-a Map, Array, boxed number, or custom allocation must explicitly preserve its
-storage before returning. A borrowed result retains its existing owner.</p>
+<p>Mutable callback storage is temporary. A callback that returns a Map, Array,
+boxed number, or custom allocation must explicitly preserve its storage before
+returning. A borrowed result retains its existing owner. Interned <code>String</code>s
+and <code>List</code>s need no preservation; see
+<a href="#interned-values-outlive-workers">Interned values outlive workers</a>.</p>
 <p><code>Thread.join</code> waits for the worker and returns its result bits. It does not
-walk references or transfer ownership. A failed native join can be retried;
-a successful join consumes the handle even if reporting a captured Error
-raises. Call <code>Thread.free</code> after join returns or its Error is caught.</p>
-<p>Join every started Thread before process exit. <code>Thread.stop</code> requests
-cooperative stopping; it does not forcibly interrupt native I/O or computation.
-Shutdown aborts if a worker remains unjoined. Join releases captured Error
-storage, but leaves developer-owned results alone.</p>
-<p>A worker uses the starting thread’s <code>Error</code> policy. A cause whose policy is
-<code>&lt;collect&gt;</code>, <code>&lt;log&gt;</code>, or <code>&lt;ignore&gt;</code> returns to its <code>raise</code> inside the
-callback, as it does on the starting thread. A cause whose policy is
-<code>&lt;abort&gt;</code> leaves the callback. That includes every shared cause and every
-code that no policy names. <code>Thread.join</code> then raises <code>&lt;join-fail&gt;</code> with the
-worker’s captured errors, and that <code>raise</code> does not return to the joiner.
-So <code>Thread.join</code> either returns the worker’s result bits or transfers.
-A callback that returns <code>void</code> joins as <code>void</code>.</p>
-<p>Captured Error allocations have separate storage until join. Their canonical
-values use the shared pool. Join preserves the captured errors for its caller.
-A worker <code>Error</code> whose policy is <code>&lt;log&gt;</code> also passes through the global
-<code>Logger</code> error handler. <code>Logger</code> serializes its sinks. A memory sink copies
-worker <code>String</code>s and <code>List</code>s into the pool captured when its <code>Logger</code> was
-created, so logged entries stay valid after the worker exits.</p>
-<p>The more complete <code>examples/power/threads.x</code> uses two workers, parent
-<code>String</code>s and <code>List</code>s, a shared counter protected by a <code>Mutex</code>, explicitly
-owned Map results, and a global memory <code>Logger</code> sink.</p>
-<p>All type and protocol registration must finish before the first successful
-<code>Thread.start</code> or <code>Thread.start_raw</code>. Starting native execution freezes
-descriptor declaration.
-Boxing is not frozen: a worker may box the first value of a declared class,
-and every thread then reads that class’s complete row.</p>
+walk references or transfer ownership. A callback that returns <code>void</code> joins
+as <code>void</code>. A failed native join can be retried; a successful join consumes
+the handle even if it then raises the worker’s error. Call <code>Thread.free</code>
+after join returns or after its <code>Error</code> is caught.</p>
+<p>Join every started Thread before process exit. Shutdown aborts if a worker
+remains unjoined. <code>Thread.stop</code> requests <a href="#cooperative-stopping">cooperative
+stopping</a>; it does not forcibly interrupt native I/O
+or computation.</p>
+<p>A worker uses the starting thread’s <code>Error</code> policy, described in
+<a href="exceptions.html#handlers-and-policy">Handlers and policy</a>. A cause whose
+policy is <code>&lt;collect&gt;</code>, <code>&lt;log&gt;</code>, or <code>&lt;ignore&gt;</code> returns to its <code>raise</code> inside
+the callback, as it does on the starting thread. A cause whose policy is
+<code>&lt;abort&gt;</code> ends the callback instead. That policy applies to every code with
+no policy set and to every <a href="exceptions.html#one-error-protocol">shared cause</a>,
+the built-in codes that always abort. <code>Thread.join</code> then raises <code>&lt;join-fail&gt;</code>
+with the worker’s captured errors, and that <code>raise</code> does not return to the
+joiner. Catch <code>&lt;join-fail&gt;</code> around the join to handle a failed worker.</p>
+<p>Join preserves the captured errors for its caller. A worker <code>Error</code> whose
+policy is <code>&lt;log&gt;</code> also passes through the global <code>Logger</code> error handler.
+<code>Logger</code> serializes its sinks. A memory sink copies worker <code>String</code>s and
+<code>List</code>s into the pool captured when its <code>Logger</code> was created, so logged
+entries stay valid after the worker exits.</p>
+<p>The more complete <code>threads.x</code>, in the same <code>examples/power/</code> directory, uses
+two workers, parent <code>String</code>s and <code>List</code>s, a shared counter protected by a
+<code>Mutex</code>, explicitly owned Map results, and a global memory <code>Logger</code> sink.</p>
+<p>Finish all type and protocol registration before the first successful
+<code>Thread.start</code> or <code>Thread.start_raw</code>. After that, registering another type
+or protocol raises <code>&lt;bad-state&gt;</code>. Boxing is not restricted: a worker may box
+the first value of a type that was declared before the start.</p>
 <p><code>Thread.start</code> also turns on locking for the canonical-value pools. A process
 that has never started a worker does not lock them. Create native threads
 through <code>Thread</code>; one made by calling <code>pthread_create</code> directly can share
 interned values with no lock protecting them.</p>
+<h2 id="interned-values-outlive-workers"><a class="header" href="#interned-values-outlive-workers">Interned values outlive workers</a></h2>
+<p>Workers started by <code>Thread.start</code>, <code>Thread.start_raw</code>, and
+<a href="#run-cooperating-jobs-as-one-batch"><code>Thread.run</code></a>, and the callbacks of
+the ordinary <a href="#parallel-mapping-and-explicit-ownership"><code>parallel_map</code></a>, begin
+with the shared process pool active. This is the root canonical-value pool
+that every thread starts in. A <code>String</code> or <code>List</code> that a worker interns there
+stays valid after the worker exits, so it needs no export or move.</p>
+<p>Those values also stay until process shutdown. Ending a job does not reclaim
+them, and a <code>Channel</code>’s capacity does not bound them. To bound that memory,
+open an isolated <code>Context</code> or a pool inside the job. An explicitly opened
+pool keeps its usual rule: export or copy the values that must survive before
+closing it.</p>
 <h2 id="run-cooperating-jobs-as-one-batch"><a class="header" href="#run-cooperating-jobs-as-one-batch">Run cooperating jobs as one batch</a></h2>
 <p><code>Thread.run(jobs, completed)</code> accepts an Array of zero-argument <code>Func</code> values.
 It starts native workers and owns every handle until all jobs finish. Each
@@ -440,13 +455,9 @@ through <code>Thread.run</code>. Capturing a Map copies its handle; its contents
 changed by one designated writer while the caller waits. Changing a captured
 variable’s binding itself requires <code>using &amp;name</code>. The completion callback must
 perform short coordination and must not wait on participant progress.</p>
-<p>Each job has bounded mutable work storage but starts with the shared process
-canonical pool active. Interned Strings and Lists therefore survive job exit.
-They remain until process shutdown, so bounded communication does not bound
-canonical-pool memory. Opening an explicit private pool retains the usual
-lifetime rules; explicitly preserve survivors before closing it. Ordinary
-Thread callbacks also use the shared pool. ParallelMap borrows each result
-until its reducer returns.</p>
+<p>Each job’s temporary mutable storage is reclaimed when the job exits. Its
+interned <code>String</code>s and <code>List</code>s use the shared process pool, as described in
+<a href="#interned-values-outlive-workers">Interned values outlive workers</a>.</p>
 <p>Completion callbacks run after job temporary storage has been reclaimed. Jobs
 must explicitly preserve any returned mutable storage before exit, for example
 by moving it into a separate output scope supplied for that job. Inserting a
@@ -461,36 +472,39 @@ This includes partial startup and nested batches. Cleanup joins cannot be
 interrupted by a pending stop. A native join failure that prevents establishing
 safe completion aborts rather than return with live borrowers.</p>
 <h2 id="run-channel-jobs-on-one-native-thread"><a class="header" href="#run-channel-jobs-on-one-native-thread">Run Channel jobs on one native thread</a></h2>
-<p><code>Task.run(jobs, completed)</code> runs a batch on the calling native thread.
-Ordinary Channel waits park the current task so another job can run. Tasks
-keep stable native stacks, Error frames, and cleanup environments across
-suspension. They do not provide CPU parallelism. A blocking native call or
-computation that never waits delays every job in the batch.</p>
+<p>A <a href="channels.html"><code>Channel</code></a> passes <code>Var</code> values between threads or tasks.
+<code>Task.run(jobs, completed)</code> runs a batch of jobs, called tasks, on the calling
+native thread. When a task waits on a <code>Channel</code>, it is suspended so another
+task can run. Each task has its own native stack, so its pending <code>catch</code>
+handlers and cleanup stay in place while it waits. Tasks do not provide CPU
+parallelism. A blocking native call or computation that never waits delays
+every job in the batch.</p>
 <p>Use the same Channel operations and completion callback shape as <code>Thread.run</code>.
 The callback runs after job cleanup, under restored caller state, and must
-not wait for participant progress. The executable
-<code>examples/power/channel-service.x</code> shows request/reply and closes requests
-after both clients finish.</p>
-<p>Each task borrows the caller’s active scope and pool through the batch. It
-has its own default Scope slot, starts with no current Context, and copies
-effective Error policies and the error bound. Handlers, records, marks, and
-cleanup obligations start fresh. Opening a Context inside a job remains
-explicit. An ordinary Array return retains its owner and aliases; no implicit
-export or ownership transfer occurs.</p>
-<p>Lisp callback activations and recursive rendering paths also start fresh.
-Suspending either preserves that task’s activation. Completion callbacks and
-the caller resume with their own activation restored.</p>
+not wait for participant progress. The executable <code>channel-service.x</code>, in the
+<span class="x2c-wordmark">x2c</span> home’s <code>examples/power/</code> directory, shows request/reply and closes
+requests after both clients finish.</p>
+<p>Each task allocates in the caller’s active <code>Scope</code> and uses the caller’s
+canonical-value pool for the whole batch. Its own <code>Scope.push</code> and
+<code>Scope.pop</code> calls affect only that task. A task starts with no current
+<code>Context</code>. It copies the caller’s <code>Error</code> policies and error bound, but it
+starts with no <code>Error.push</code> handlers, no recorded errors, and no pending
+cleanup of its own. Opening a Context inside a job remains explicit. An
+ordinary Array return retains its owner and aliases; no implicit export or
+ownership transfer occurs.</p>
 <p>Keep all borrowed owners, Channels, jobs, and captures alive through
 <code>Task.run</code>. The call returns or raises only after all participants finish
 cleanup. Job or completion-callback failure stops unfinished jobs and preserves
 the primary failure. Escaping job Errors are raised as <code>&lt;join-fail&gt;</code>, as
-<code>Thread.join</code> raises them. <code>Thread.stop</code> on the native owner requests batch
-cancellation. A message already committed stays accepted; an uncommitted owned
-send is rolled back.</p>
-<p>Source cleanup must not suspend. <code>Channel.close</code> is suitable for cleanup;
-other Channel operations keep their usual stop and wait behavior. Stop is
-cooperative, and catching it can delay shutdown. <code>Task.run</code> does not support
-nested calls; a nested call raises <code>&lt;bad-state&gt;</code>.</p>
+<code>Thread.join</code> raises them. Calling <code>Thread.stop</code> on the <code>Thread</code> that runs
+<code>Task.run</code> requests that the batch stop. A <code>Channel</code> message already accepted
+stays accepted; an owned send that was not yet accepted returns its storage
+to the sender.</p>
+<p>Cleanup code in a job, such as a <code>defer</code> or <code>finally</code> body, must not suspend.
+<code>Channel.close</code> does not wait and is suitable for cleanup; other Channel
+operations can wait or be stopped as usual. Stop is cooperative, and catching
+it can delay shutdown. <code>Task.run</code> does not support nested calls; a nested call
+raises <code>&lt;bad-state&gt;</code>.</p>
 <p>Tasks run on macOS and Linux on arm64 and x86_64. Each task uses
 an 8 MiB usable, demand-paged stack plus a guard page. Set
 <code>X2C_TASK_STACK_BYTES</code> before the call to select another capacity of at least
@@ -502,35 +516,37 @@ overflow is a native failure, without guaranteed cleanup.
 Tasks stay on their original native thread. On other targets, <code>Task.run</code>
 raises <code>&lt;bad-state&gt;</code>.</p>
 <h2 id="cooperative-stopping"><a class="header" href="#cooperative-stopping">Cooperative stopping</a></h2>
-<p>An operation registers its Channel mutex and condition with its managed Thread.
-Stop publication takes that mutex, so a stop cannot pass between the final
-stop check and commitment or sleep. If stop has borrowed the registered mutex,
-the operation waits for stop to release it before returning.</p>
-<p><code>thread.stop()</code> records a persistent stop request and wakes the Thread’s
-registered Channel or completion wait. It does not close a Channel, transfer
-payload ownership, interrupt arbitrary native I/O, or forcibly terminate code.
-A blocked operation leaves its queue locks before raising
-<code>(bad-state (operation "Thread.stop") (cancelled 1))</code>. Ambient resumable Error
-policies cannot suppress this shared cause. Explicit catches can handle it,
-so code that ignores stopping can delay batch cleanup indefinitely.</p>
+<p><code>thread.stop()</code> asks a <code>Thread</code> to stop; it does not interrupt the thread. The
+request persists. It wakes the Thread if it is waiting on a <code>Channel</code> or for
+job completion, and any later such wait observes it. Computation and native
+I/O that never wait keep running. Stopping does not close a Channel, transfer
+payload ownership, or forcibly terminate code.</p>
+<p>A stopped operation releases its queue locks and then raises
+<code>(bad-state (operation "Thread.stop") (cancelled 1))</code>. This is a
+<a href="exceptions.html#one-error-protocol">shared cause</a>, so no <code>Error</code> policy can
+make it resume. An explicit <code>catch</code> can handle it, so code that ignores
+stopping can delay batch cleanup indefinitely.</p>
 <p>A Channel insertion, dequeue, or rendezvous that already committed succeeds
 even when a stop arrives before that operation returns. A later operation
 observes the pending stop. A stopped receive raises; it is not successful EOF.
 The normal application protocol still closes Channels and drains accepted data.</p>
-<p>A batch can stop only its own jobs. It does not acquire cancellation authority
-over independently owned services or everyone using a borrowed Channel. A
-stopped client is not evidence that a service finished reading borrowed request
-bytes. Keep those bytes under an owner that survives actual borrower
-completion, including failure cleanup. Services shared outside the batch need
-an explicit failure-reply or dependency protocol.</p>
-<h3 id="parallel-mapping-and-explicit-ownership"><a class="header" href="#parallel-mapping-and-explicit-ownership">Parallel mapping and explicit ownership</a></h3>
+<p>A batch can stop only its own jobs. Stopping it does not stop independently
+owned services or other users of a borrowed Channel. A stopped client is not
+evidence that a service finished reading borrowed request bytes. Keep those
+bytes under an owner that survives actual borrower completion, including
+failure cleanup. A service shared outside the batch needs an explicit way to
+learn that a client failed, such as a failure reply.</p>
+<h2 id="parallel-mapping-and-explicit-ownership"><a class="header" href="#parallel-mapping-and-explicit-ownership">Parallel mapping and explicit ownership</a></h2>
+<p><code>source.parallel_map(callback, workers)</code> describes mapping <code>callback</code> over the
+iterator <code>source</code> with at most <code>workers</code> threads. Nothing runs until
+<code>.foldl(seed, reducer)</code> consumes it. The reducer runs on the caller in
+completion order. If the reducer keeps worker-owned storage, it must move
+that storage to its own owner with a <code>move_to</code> operation.</p>
 <p><code>source.parallel_map(callback, workers).foldl(seed, reducer)</code> reuses bounded
-workers and invokes the reducer on the caller in completion order. Each worker
-keeps its callback storage alive until the reducer returns. Returning a value
-or inserting it into a container does not transfer ownership. The reducer must
-explicitly transfer any worker-owned storage it keeps, using the <code>move_to</code>
-operations. Untransferred storage is reclaimed by the worker.
-References can form cycles without changing this rule.</p>
+workers. Each worker keeps its callback storage alive until the reducer
+returns. Returning a value or inserting it into a container does not transfer
+ownership. Untransferred storage is reclaimed by the worker. References can
+form cycles without changing this rule.</p>
 <p>With a <code>void</code> seed, the first result becomes the accumulator without a reducer
 call. Use that form only when the result survives worker cleanup independently.
 For worker-owned results, supply a seed and transfer storage in the reducer.
@@ -540,12 +556,12 @@ alive until the fold finishes, including worker shutdown on failure. Workers
 restore their previous pool and never release the borrowed pool. Source
 traversal and the reducer continue in the caller’s active pool. A shared
 temporary pool can thus collect worker text while the reducer interns surviving
-words in the caller’s pool. All temporary canonical values remain until their
-owner releases the shared pool; concurrent interning uses the pool’s own locks.</p>
-<p>The ordinary <code>parallel_map</code> uses the process-wide pool.
-Canonical values use the shared pool; explicitly opened private pools retain
-their own lifetime rules. On failure, the fold requests stop on all workers
-before joining them. Channel waits cooperate; arbitrary native I/O does not.</p>
+words in the caller’s pool. All temporary canonical values remain until the
+caller closes that pool. Workers may intern into it concurrently.</p>
+<p>The ordinary <code>parallel_map</code> uses the shared process pool, as described in
+<a href="#interned-values-outlive-workers">Interned values outlive workers</a>. On
+failure, the fold requests stop on all workers before joining them. A stop
+wakes a worker waiting on a Channel; it does not interrupt native I/O.</p>
 <h2 id="where-to-go-next"><a class="header" href="#where-to-go-next">Where to go next</a></h2>
 <ul>
 <li><a href="storage-ownership.html">Explicit Storage Ownership</a> moves storage between
@@ -577,9 +593,9 @@ owners and threads.</li>
                         &copy; 2025&ndash;2026
                         <a href="https://flake.org">GWF</a>
                         &middot;
-                        <a href="https://github.com/gwf/x2c/blob/30b47efa19187e2273163d1261d84e892da95c25/LICENSE">Apache 2.0</a>
+                        <a href="https://github.com/gwf/x2c/blob/bb2442f9bef8ab326f83089a25089304d40349cc/LICENSE">Apache 2.0</a>
                         &middot;
-                        <a href="https://github.com/gwf/x2c/blob/30b47efa19187e2273163d1261d84e892da95c25/TRADEMARKS.md">Trademarks</a>
+                        <a href="https://github.com/gwf/x2c/blob/bb2442f9bef8ab326f83089a25089304d40349cc/TRADEMARKS.md">Trademarks</a>
                     </footer>
                 </div>
             </div>

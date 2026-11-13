@@ -1,6 +1,6 @@
 <!DOCTYPE HTML>
 <html lang="en" class="light sidebar-visible" dir="ltr">
-    <head><meta name="x2c-release-channel" content="staging"><meta name="x2c-candidate" content="candidate-aa2b9b2575297711e5978acc53f87bd7f645f3c7-39090113132-1"><meta name="x2c-site-source" content="30b47efa19187e2273163d1261d84e892da95c25"><meta name="robots" content="noindex">
+    <head><meta name="x2c-release-channel" content="staging"><meta name="x2c-candidate" content="candidate-aa2b9b2575297711e5978acc53f87bd7f645f3c7-39090113132-1"><meta name="x2c-site-source" content="bb2442f9bef8ab326f83089a25089304d40349cc"><meta name="robots" content="noindex">
         <!-- Book generated using mdBook -->
         <meta charset="UTF-8">
         <title>Protocols - The x2c Book</title>
@@ -40,10 +40,10 @@
             const path_to_root = "../";
             const default_light_theme = "light";
             const default_dark_theme = "light";
-            window.path_to_searchindex_js = "../searchindex-ad40fbe3.js";
+            window.path_to_searchindex_js = "../searchindex-dc351a14.js";
         </script>
         <!-- Start loading toc.js asap -->
-        <script src="../toc-ffcfcd8d.js"></script>
+        <script src="../toc-ed291a6e.js"></script>
         <!-- x2c publication metadata -->
         <link rel="canonical" href="https://x2c-lang.dev/docs/guide/protocols.html">
         <meta property="og:type" content="website">
@@ -174,9 +174,6 @@
                                 <li role="none"><button role="menuitem" class="theme" id="mdbook-theme-light">Light</button></li>
                                 <li role="none"><button role="menuitem" class="theme" id="mdbook-theme-ayu">Dark</button></li>
                             </ul>
-                            <a href="https://github.com/gwf/x2c/edit/main/docs/src/guide/protocols.md" title="Suggest an edit" aria-label="Suggest an edit" rel="edit" class="icon-button">
-                                <span class=fa-svg id="git-edit-button"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc. --><path d="M421.7 220.3l-11.3 11.3-22.6 22.6-205 205c-6.6 6.6-14.8 11.5-23.8 14.1L30.8 511c-8.4 2.5-17.5 .2-23.7-6.1S-1.5 489.7 1 481.2L38.7 353.1c2.6-9 7.5-17.2 14.1-23.8l205-205 22.6-22.6 11.3-11.3 33.9 33.9 62.1 62.1 33.9 33.9zM96 353.9l-9.3 9.3c-.9 .9-1.6 2.1-2 3.4l-25.3 86 86-25.3c1.3-.4 2.5-1.1 3.4-2l9.3-9.3H112c-8.8 0-16-7.2-16-16V353.9zM453.3 19.3l39.4 39.4c25 25 25 65.5 0 90.5l-14.5 14.5-22.6 22.6-11.3 11.3-33.9-33.9-62.1-62.1L314.3 67.7l11.3-11.3 22.6-22.6 14.5-14.5c25-25 65.5-25 90.5 0z"/></svg></span>
-                            </a>
                         </div>
                     </div>
                 </header>
@@ -264,7 +261,9 @@ continue to use its own methods.</p>
 <p>A typedef can inherit the nearest visible ancestor’s resolved protocol
 methods without its own adoption. It also inherits the associated types,
 conversions, and representation unchanged. The compiler creates no new
-adoption, adapter, alias, descriptor, tag, or registration for that use.</p>
+adoption, adapter, alias, descriptor, tag, or registration for that use. A
+<code>Var</code> descriptor is the per-tag table of methods the runtime uses for boxed
+values.</p>
 <p>An explicit adoption on the typedef takes precedence and resolves those
 choices again. If it is invalid, the compiler reports the error; it does not
 fall back to an ancestor.</p>
@@ -333,8 +332,9 @@ gives the <a href="../reference/language.html#protocols">linkage and visibility 
 <p>An adoption needs only the conversions that its generated adapters use. Name
 the forward conversion <code>Base P.base(P)</code> and the reverse <code>P Base.p(Base)</code>. The
 forward conversion must accept every participant value. The reverse may fail
-for a base value that holds no <code>P</code>. <code>Var(T)</code> descriptor thunks both unbox
-arguments and box results, so most object participants need both:</p>
+for a base value that holds no <code>P</code>. <code>Var(T)</code> descriptor thunks, the
+generated descriptor entries that call <code>T</code>’s methods, both unbox arguments
+and box results, so most object participants need both:</p>
 <pre class="shiki shiki-themes x2c-light x2c-dark x2c-code" style="--shiki-light:#24292e;--shiki-dark:#e9e5df;--shiki-light-bg:#fff;--shiki-dark-bg:#101011" tabindex="0"><code class="language-x2c no-highlight"><span class="line boring"><span style="--shiki-light:#D73A49;--shiki-dark:#E9E5DF">typedef</span><span style="--shiki-light:#D73A49;--shiki-dark:#F0ADA1"> struct</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF"> Vec </span><span style="--shiki-light:#D73A49;--shiki-dark:#E9E5DF">*</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">Vec;</span>
 </span><span class="line"><span style="--shiki-light:#007C8A;--shiki-dark:#29D3E2">Var</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF"> Vec.</span><span style="--shiki-light:#6F42C1;--shiki-dark:#E9E5DF">var</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">(Vec </span><span style="--shiki-light:#E36209;--shiki-dark:#E9E5DF">value</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">);</span>
 </span><span class="line"><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">Vec </span><span style="--shiki-light:#007C8A;--shiki-dark:#29D3E2">Var</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">.</span><span style="--shiki-light:#6F42C1;--shiki-dark:#E9E5DF">vec</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">(</span><span style="--shiki-light:#007C8A;--shiki-dark:#29D3E2">Var</span><span style="--shiki-light:#E36209;--shiki-dark:#E9E5DF"> value</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">);</span>
@@ -351,8 +351,8 @@ adoption can use a method inherited through the participant’s typedef chain:</
 </span><span class="line"><span style="--shiki-light:#A626A4;--shiki-light-font-weight:bold;--shiki-dark:#FF4FD8;--shiki-dark-font-weight:bold">protocol</span><span style="--shiki-light:#6F42C1;--shiki-dark:#A6D9E5"> Iter</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">(</span><span style="--shiki-light:#D73A49;--shiki-dark:#A6D9E5">Domain</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">);</span></span></code></pre>
 
 <p><code>Domain</code> already iterates through its inherited <code>List</code> adoption. The
-explicit adoption selects <code>List.iter</code>, so iteration calls <code>List_iter</code>
-directly, with no <code>Domain.iter</code> forwarding method.</p>
+explicit adoption selects <code>List.iter</code>, so iteration calls it directly, with
+no <code>Domain.iter</code> forwarding method.</p>
 <p><code>associated Name = Default;</code> declares a type that each participant binds from
 its own signatures. <code>Array</code> binds an index <code>Key</code> to <code>int</code>, while <code>Map</code> binds
 it to <code>Var</code>. <a href="../reference/language.html#member-resolution">Member resolution</a>
@@ -414,8 +414,9 @@ that unboxes once and then calls <code>Vec.str</code>. Vec does not gain <code>a
 or any other omitted member. Removing <code>protocol Var(Vec);</code> removes protocol
 participation even though both conversion functions still exist.</p>
 <h3 id="polar-a-total-forward-view"><a class="header" href="#polar-a-total-forward-view">Polar: a total forward view</a></h3>
-<p>Polar implements <code>magnitude</code> and inherits the <code>Cartesian.angle</code> member.
-The generated <code>Polar.angle</code> needs only the total forward view:</p>
+<p>Polar implements <code>magnitude</code>, and the compiler adapts the base’s
+<code>Cartesian.angle</code> through the <code>Polar.cartesian</code> view. The generated
+<code>Polar.angle</code> needs only the total forward view:</p>
 <pre class="shiki shiki-themes x2c-light x2c-dark x2c-code" style="--shiki-light:#24292e;--shiki-dark:#e9e5df;--shiki-light-bg:#fff;--shiki-dark-bg:#101011" tabindex="0"><code class="language-x2c no-highlight"><span class="line"><span style="--shiki-light:#D73A49;--shiki-dark:#F0ADA1">#include</span><span style="--shiki-light:#032F62;--shiki-dark:#9EDFB8"> &lt;math.h&gt;</span>
 </span><span class="line">
 </span><span class="line"><span style="--shiki-light:#D73A49;--shiki-dark:#E9E5DF">typedef</span><span style="--shiki-light:#D73A49;--shiki-dark:#F0ADA1"> struct</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF"> Cartesian {</span>
@@ -466,9 +467,8 @@ The generated <code>Polar.angle</code> needs only the total forward view:</p>
 generates only forward calls. A same-name incompatible <code>Polar.angle</code> would be
 a hard error at <code>protocol Cartesian(Polar);</code>.</p>
 <h3 id="bytes-ordinary-defaults-and-punctuation"><a class="header" href="#bytes-ordinary-defaults-and-punctuation">Bytes: ordinary defaults and punctuation</a></h3>
-<p>The built-in manifest declares <code>protocol Block(Bytes);</code> centrally. The
-<code>Bytes.block</code> forward view is declared in <code>common.x</code> and implemented in
-<code>block.x</code>; no reverse <code>Block.bytes</code> adapter is needed. Members such as
+<p>The runtime declares <code>protocol Block(Bytes);</code> with a <code>Bytes.block</code> forward
+view; no reverse <code>Block.bytes</code> adapter is needed. Members such as
 <code>len</code>, <code>truth</code>, <code>pop</code>, <code>free</code>, and <code>truncate</code> forward through that view.</p>
 <pre class="shiki shiki-themes x2c-light x2c-dark x2c-code" style="--shiki-light:#24292e;--shiki-dark:#e9e5df;--shiki-light-bg:#fff;--shiki-dark-bg:#101011" tabindex="0"><code class="language-x2c no-highlight"><span class="line"><span style="--shiki-light:#D73A49;--shiki-dark:#F0ADA1">int</span><span style="--shiki-light:#6F42C1;--shiki-dark:#E9E5DF"> main</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">(</span><span style="--shiki-light:#D73A49;--shiki-dark:#F0ADA1">void</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">) {</span>
 </span><span class="line"><span style="--shiki-light:#007C8A;--shiki-dark:#29D3E2">  Bytes</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF"> bytes </span><span style="--shiki-light:#D73A49;--shiki-dark:#E9E5DF">=</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF"> Bytes.</span><span style="--shiki-light:#6F42C1;--shiki-dark:#E9E5DF">new</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">(</span><span style="--shiki-light:#D73A49;--shiki-dark:#E9E5DF">sizeof</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">(</span><span style="--shiki-light:#D73A49;--shiki-dark:#F0ADA1">int</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">));</span>
@@ -535,9 +535,9 @@ defaults.</li>
                         &copy; 2025&ndash;2026
                         <a href="https://flake.org">GWF</a>
                         &middot;
-                        <a href="https://github.com/gwf/x2c/blob/30b47efa19187e2273163d1261d84e892da95c25/LICENSE">Apache 2.0</a>
+                        <a href="https://github.com/gwf/x2c/blob/bb2442f9bef8ab326f83089a25089304d40349cc/LICENSE">Apache 2.0</a>
                         &middot;
-                        <a href="https://github.com/gwf/x2c/blob/30b47efa19187e2273163d1261d84e892da95c25/TRADEMARKS.md">Trademarks</a>
+                        <a href="https://github.com/gwf/x2c/blob/bb2442f9bef8ab326f83089a25089304d40349cc/TRADEMARKS.md">Trademarks</a>
                     </footer>
                 </div>
             </div>

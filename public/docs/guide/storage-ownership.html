@@ -1,6 +1,6 @@
 <!DOCTYPE HTML>
 <html lang="en" class="light sidebar-visible" dir="ltr">
-    <head><meta name="x2c-release-channel" content="staging"><meta name="x2c-candidate" content="candidate-aa2b9b2575297711e5978acc53f87bd7f645f3c7-39090113132-1"><meta name="x2c-site-source" content="30b47efa19187e2273163d1261d84e892da95c25"><meta name="robots" content="noindex">
+    <head><meta name="x2c-release-channel" content="staging"><meta name="x2c-candidate" content="candidate-aa2b9b2575297711e5978acc53f87bd7f645f3c7-39090113132-1"><meta name="x2c-site-source" content="bb2442f9bef8ab326f83089a25089304d40349cc"><meta name="robots" content="noindex">
         <!-- Book generated using mdBook -->
         <meta charset="UTF-8">
         <title>Explicit Storage Ownership - The x2c Book</title>
@@ -40,10 +40,10 @@
             const path_to_root = "../";
             const default_light_theme = "light";
             const default_dark_theme = "light";
-            window.path_to_searchindex_js = "../searchindex-ad40fbe3.js";
+            window.path_to_searchindex_js = "../searchindex-dc351a14.js";
         </script>
         <!-- Start loading toc.js asap -->
-        <script src="../toc-ffcfcd8d.js"></script>
+        <script src="../toc-ed291a6e.js"></script>
         <!-- x2c publication metadata -->
         <link rel="canonical" href="https://x2c-lang.dev/docs/guide/storage-ownership.html">
         <meta property="og:type" content="website">
@@ -174,9 +174,6 @@
                                 <li role="none"><button role="menuitem" class="theme" id="mdbook-theme-light">Light</button></li>
                                 <li role="none"><button role="menuitem" class="theme" id="mdbook-theme-ayu">Dark</button></li>
                             </ul>
-                            <a href="https://github.com/gwf/x2c/edit/main/docs/src/guide/storage-ownership.md" title="Suggest an edit" aria-label="Suggest an edit" rel="edit" class="icon-button">
-                                <span class=fa-svg id="git-edit-button"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc. --><path d="M421.7 220.3l-11.3 11.3-22.6 22.6-205 205c-6.6 6.6-14.8 11.5-23.8 14.1L30.8 511c-8.4 2.5-17.5 .2-23.7-6.1S-1.5 489.7 1 481.2L38.7 353.1c2.6-9 7.5-17.2 14.1-23.8l205-205 22.6-22.6 11.3-11.3 33.9 33.9 62.1 62.1 33.9 33.9zM96 353.9l-9.3 9.3c-.9 .9-1.6 2.1-2 3.4l-25.3 86 86-25.3c1.3-.4 2.5-1.1 3.4-2l9.3-9.3H112c-8.8 0-16-7.2-16-16V353.9zM453.3 19.3l39.4 39.4c25 25 25 65.5 0 90.5l-14.5 14.5-22.6 22.6-11.3 11.3-33.9-33.9-62.1-62.1L314.3 67.7l11.3-11.3 22.6-22.6 14.5-14.5c25-25 65.5-25 90.5 0z"/></svg></span>
-                            </a>
                         </div>
                     </div>
                 </header>
@@ -220,14 +217,15 @@
 destroying the owner destroys everything it adopted. Use it when nested
 containers or graph nodes should share one lifetime, or when a container’s
 storage moves to another thread.</p>
-<p>Each thread has a root <code>Scope</code>. Explicit regions provide shorter allocation
-lifetimes. A <code>Map</code> or <code>Array</code> record and its backing allocations belong to the
-scope active at construction. Growth replaces buffers under the record’s
-current allocation owner without changing the container handle.</p>
-<p><code>container.scope()</code> explicitly acquires a separate scope for owned contents.
-That scope is created lazily beneath <code>Scope.owner(container)</code>. The container
-record and buffers stay outside it. Ordinary construction, copying, slicing,
-and insertion do not create an owned-content scope or adopt referenced values.</p>
+<p>A <code>Map</code> or <code>Array</code> has a record, the fixed structure its handle points to,
+and backing buffers that hold its entries. Both belong to the scope that was
+active when the container was built, called its allocation owner. Growth
+replaces buffers under that owner without changing the container handle.</p>
+<p><code>container.scope()</code> returns a separate scope for the container’s owned
+contents. It creates that scope on first use, beneath the container’s
+allocation owner, <code>Scope.owner(container)</code>. The container record and buffers
+stay outside it. Ordinary construction, copying, slicing, and insertion do
+not create an owned-content scope or adopt referenced values.</p>
 <h2 id="adopt-a-container"><a class="header" href="#adopt-a-container">Adopt a container</a></h2>
 <p>Move the inner container into the outer container’s owned-content scope:</p>
 <pre class="shiki shiki-themes x2c-light x2c-dark x2c-code" style="--shiki-light:#24292e;--shiki-dark:#e9e5df;--shiki-light-bg:#fff;--shiki-dark-bg:#101011" tabindex="0"><code class="language-x2c no-highlight"><span class="line"><span style="--shiki-light:#007C8A;--shiki-dark:#29D3E2">Map</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF"> parent </span><span style="--shiki-light:#D73A49;--shiki-dark:#E9E5DF">=</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF"> {};</span>
@@ -238,16 +236,17 @@ and insertion do not create an owned-content scope or adopt referenced values.</
 </span><span class="line"><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">child.</span><span style="--shiki-light:#6F42C1;--shiki-dark:#E9E5DF">push</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">(</span><span style="--shiki-light:#005CC5;--shiki-dark:#A9C9F5">42</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">);</span>
 </span><span class="line"><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">parent.</span><span style="--shiki-light:#6F42C1;--shiki-dark:#E9E5DF">cleanup</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">();</span></span></code></pre>
 
+<p><code>cleanup</code> destroys the container and everything it owns.</p>
 <p><code>move_to</code> moves the child’s record, backing buffers, and any owned-content
 scope together. The insertion stores a reference. These are separate
 operations. After the move, destroying the parent destroys the child as well.
 Do not schedule another cleanup through an alias to that child. Every pointer
 into either destroyed container becomes invalid.</p>
 <p><code>container.move_to(&amp;destination)</code> preserves addresses and moves a fixed
-number of allocation records plus any owned-content scope. The destination
-slot acquires a <code>Scope</code> if empty. Container cleanup destroys nullable owned
-contents, then frees its buffers and record. Unadopted referenced values
-keep their independent owners.</p>
+number of allocations plus any owned-content scope. The destination
+slot acquires a <code>Scope</code> if empty. Container cleanup destroys the
+owned-content scope, if the container has one, and then frees its buffers and
+record. Unadopted referenced values keep their independent owners.</p>
 <p><code>scope.transfer(destination)</code> reparents a complete ownership subtree. It
 changes a fixed number of ownership links without copying elements or walking
 descendants. Destruction visits and frees the adopted storage.</p>
@@ -257,15 +256,20 @@ scopes, so <code>Scope.owner(pointer)</code> continues to report them. Reattach 
 another transfer, or destroy the detached scope explicitly.</p>
 <p>Transfers require exclusive access to the source and affected ownership
 lists. Concurrent adoption into a shared parent is unsupported. The source
-must not be active on an allocation stack. A nonnull destination must be live
-and must not be the source or its descendant. The runtime does not prove
-graph lifetimes or revoke aliases. Transferring storage does not grant
-exclusive access to referenced values.</p>
+must not be the active scope or pushed with <code>Scope.push</code>. A nonnull
+destination must be live and must not be the source or its descendant. The
+runtime does not prove graph lifetimes or revoke aliases. Transferring
+storage does not grant exclusive access to referenced values.</p>
 <p>Converting a container to <code>Scope</code> calls <code>scope()</code> and can allocate its owned
 contents scope. Moving that scope alone moves only those contents; it does
 not move the container’s record or buffers. Use <code>move_to</code> for the complete
 container. <code>scope.parent()</code> returns the lifetime parent. <code>Scope.owner(pointer)</code>
 reports an individual managed allocation’s owner without acquiring any scope.</p>
+<p>A <code>Block</code> follows the same rules. It stores fixed-width elements as bytes
+and does not know their type. <code>Block.new</code> allocates its handle and backing
+storage like any other managed container. <code>Block.scope()</code> creates an
+owned-content scope on first use without inspecting the elements. Arrays use
+the same storage.</p>
 <h2 id="give-graph-nodes-a-common-owner"><a class="header" href="#give-graph-nodes-a-common-owner">Give graph nodes a common owner</a></h2>
 <p>Object references may form cycles. The lifetime hierarchy must not.</p>
 <pre class="shiki shiki-themes x2c-light x2c-dark x2c-code" style="--shiki-light:#24292e;--shiki-dark:#e9e5df;--shiki-light-bg:#fff;--shiki-dark-bg:#101011" tabindex="0"><code class="language-x2c no-highlight"><span class="line"><span style="--shiki-light:#007C8A;--shiki-dark:#29D3E2">Scope</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF"> graph </span><span style="--shiki-light:#D73A49;--shiki-dark:#E9E5DF">=</span><span style="--shiki-light:#D73A49;--shiki-dark:#F0ADA1"> auto</span><span style="--shiki-light:#007C8A;--shiki-dark:#29D3E2"> Scope</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">.</span><span style="--shiki-light:#6F42C1;--shiki-dark:#E9E5DF">new</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">();</span>
@@ -290,11 +294,11 @@ send one <code>Map</code> to several workers, keep it alive, and refrain from wr
 until their reads finish.</p>
 <p><code>Channel.send_owned</code> explicitly groups a private container’s record, buffers,
 and owned contents for transfer. A failed send restores its original owner.
-After acceptance, the <code>Channel</code> holds the detached payload without adopting it
-as a child. The receiver recovers its scope from the allocation header, moves
-ordinary container storage to its private active scope, and destroys the empty
-transport scope before returning. Prepared custom subtrees attach beneath that
-private scope. Abandoned payloads are destroyed after all <code>Channel</code> users
+After acceptance, the payload belongs to the <code>Channel</code> until a receiver takes
+it. On receipt, ordinary <code>Map</code> and <code>Array</code> storage moves into the receiver’s
+active <code>Scope</code>. A typed container or custom value sent with a scope the
+caller prepared keeps that scope, which becomes a child of the receiver’s
+active <code>Scope</code>. Abandoned payloads are destroyed after all <code>Channel</code> users
 finish. See <a href="channels.html">Channels</a> for the transport contract.</p>
 <p>The developer coordinates reads, writes, and destruction, including allocation
 and ownership links. <code>Scope</code> operations do not lock those links. A thread must
@@ -304,20 +308,16 @@ that storage. Sending successfully does not mean a borrower has finished.</p>
 <p>Strings and cons cells belong to canonical pools. Moving a <code>Map</code> cannot
 extend the lifetime of keys in a private pool. An immutable cons cell can also
 reference a mutable object whose lifetime remains independent.</p>
-<p>Batch execution selects the process canonical pool for ordinary job interning.
-Those values outlive jobs and returned <code>Map</code> values, with retention until
-process shutdown. Deliberately shorter-lived pools remain the developer’s
-responsibility. <code>Channel</code> capacity does not bound canonical-pool retention.</p>
+<p>Batch jobs intern into the shared process pool, so those values outlive jobs
+and returned <code>Map</code> values. <a href="contexts-and-threads.html#interned-values-outlive-workers">Interned values outlive
+workers</a> states that
+rule and how to bound the memory it retains.</p>
 <p>Explicit <code>Context.export</code> is recursive: it exports private
 canonical values, preserves container identities, and keeps explicitly adopted
 children under their parent when both participate in the same root export.
 Reference traversal order does not change that adoption. Exporting only a child
-can move it independently. The export memo breaks reference cycles and records
-storage moves; root export commits the moves after recursive value export.
-This operation is separate from both <code>Scope</code> transfer and <code>Channel</code> transport.</p>
-<p>Blocks are type agnostic. <code>Block.new</code> creates ordinary managed handle and
-backing allocations. <code>Block.scope()</code> lazily acquires an owned-content scope
-without inspecting the fixed-width elements. Arrays use the same storage.</p>
+can move it independently. This operation is separate from both <code>Scope</code>
+transfer and <code>Channel</code> transport.</p>
 <h2 id="where-to-go-next"><a class="header" href="#where-to-go-next">Where to go next</a></h2>
 <ul>
 <li><a href="channels.html">Channels</a> covers owned sends between threads.</li>
@@ -348,9 +348,9 @@ without inspecting the fixed-width elements. Arrays use the same storage.</p>
                         &copy; 2025&ndash;2026
                         <a href="https://flake.org">GWF</a>
                         &middot;
-                        <a href="https://github.com/gwf/x2c/blob/30b47efa19187e2273163d1261d84e892da95c25/LICENSE">Apache 2.0</a>
+                        <a href="https://github.com/gwf/x2c/blob/bb2442f9bef8ab326f83089a25089304d40349cc/LICENSE">Apache 2.0</a>
                         &middot;
-                        <a href="https://github.com/gwf/x2c/blob/30b47efa19187e2273163d1261d84e892da95c25/TRADEMARKS.md">Trademarks</a>
+                        <a href="https://github.com/gwf/x2c/blob/bb2442f9bef8ab326f83089a25089304d40349cc/TRADEMARKS.md">Trademarks</a>
                     </footer>
                 </div>
             </div>

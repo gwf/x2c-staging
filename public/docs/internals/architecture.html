@@ -1,6 +1,6 @@
 <!DOCTYPE HTML>
 <html lang="en" class="light sidebar-visible" dir="ltr">
-    <head><meta name="x2c-release-channel" content="staging"><meta name="x2c-candidate" content="candidate-aa2b9b2575297711e5978acc53f87bd7f645f3c7-39090113132-1"><meta name="x2c-site-source" content="30b47efa19187e2273163d1261d84e892da95c25"><meta name="robots" content="noindex">
+    <head><meta name="x2c-release-channel" content="staging"><meta name="x2c-candidate" content="candidate-aa2b9b2575297711e5978acc53f87bd7f645f3c7-39090113132-1"><meta name="x2c-site-source" content="bb2442f9bef8ab326f83089a25089304d40349cc"><meta name="robots" content="noindex">
         <!-- Book generated using mdBook -->
         <meta charset="UTF-8">
         <title>Compiler Architecture - The x2c Book</title>
@@ -40,10 +40,10 @@
             const path_to_root = "../";
             const default_light_theme = "light";
             const default_dark_theme = "light";
-            window.path_to_searchindex_js = "../searchindex-ad40fbe3.js";
+            window.path_to_searchindex_js = "../searchindex-dc351a14.js";
         </script>
         <!-- Start loading toc.js asap -->
-        <script src="../toc-ffcfcd8d.js"></script>
+        <script src="../toc-ed291a6e.js"></script>
         <!-- x2c publication metadata -->
         <link rel="canonical" href="https://x2c-lang.dev/docs/internals/architecture.html">
         <meta property="og:type" content="website">
@@ -174,9 +174,6 @@
                                 <li role="none"><button role="menuitem" class="theme" id="mdbook-theme-light">Light</button></li>
                                 <li role="none"><button role="menuitem" class="theme" id="mdbook-theme-ayu">Dark</button></li>
                             </ul>
-                            <a href="https://github.com/gwf/x2c/edit/main/docs/src/internals/architecture.md" title="Suggest an edit" aria-label="Suggest an edit" rel="edit" class="icon-button">
-                                <span class=fa-svg id="git-edit-button"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc. --><path d="M421.7 220.3l-11.3 11.3-22.6 22.6-205 205c-6.6 6.6-14.8 11.5-23.8 14.1L30.8 511c-8.4 2.5-17.5 .2-23.7-6.1S-1.5 489.7 1 481.2L38.7 353.1c2.6-9 7.5-17.2 14.1-23.8l205-205 22.6-22.6 11.3-11.3 33.9 33.9 62.1 62.1 33.9 33.9zM96 353.9l-9.3 9.3c-.9 .9-1.6 2.1-2 3.4l-25.3 86 86-25.3c1.3-.4 2.5-1.1 3.4-2l9.3-9.3H112c-8.8 0-16-7.2-16-16V353.9zM453.3 19.3l39.4 39.4c25 25 25 65.5 0 90.5l-14.5 14.5-22.6 22.6-11.3 11.3-33.9-33.9-62.1-62.1L314.3 67.7l11.3-11.3 22.6-22.6 14.5-14.5c25-25 65.5-25 90.5 0z"/></svg></span>
-                            </a>
                         </div>
                     </div>
                 </header>
@@ -258,7 +255,8 @@ builds and is not tracked. <code>include/x2c/</code> holds only symlinks: the ru
 <code>.x</code> sources from <code>lib/</code>, and the <code>.h</code> files stage 0 generated from them.
 That is where <code>cc -iquote include/x2c</code> finds runtime headers. The C under
 <code>bootstrap/</code> is tracked, and it is re-emitted from a known-good stage 0
-instead of edited by hand. The compiler under development is <code>builds/0/x2c</code>; see
+instead of edited by hand. The compiler under development is
+<code>builds/0/x2c</code>, which <code>./x2c</code> links to; see
 <a href="building.html">building the compiler</a> for how it is built.</p>
 <h2 id="the-compiler-pipeline"><a class="header" href="#the-compiler-pipeline">The compiler pipeline</a></h2>
 <p>The compiler lives under <code>src/</code>. <code>src/main.x</code> dispatches commands;
@@ -280,8 +278,8 @@ memory. For each input file the translator runs one pipeline:</p>
 </code></pre>
 <p>Most phases have a flag that prints their output and stops, so the same file
 can be printed after each phase; the flags are in
-<a href="../reference/cli.html">compiler options</a>. The example below follows one file
-through the phases.</p>
+<a href="../reference/cli.html#inspection-modes">inspection modes</a>. The example below
+follows one file through the phases.</p>
 <h3 id="a-worked-example"><a class="header" href="#a-worked-example">A worked example</a></h3>
 <pre class="shiki shiki-themes x2c-light x2c-dark x2c-code" style="--shiki-light:#24292e;--shiki-dark:#e9e5df;--shiki-light-bg:#fff;--shiki-dark-bg:#101011" tabindex="0"><code class="language-x2c no-highlight"><span class="line"><span style="--shiki-light:#007C8A;--shiki-dark:#29D3E2">String</span><span style="--shiki-light:#6F42C1;--shiki-dark:#E9E5DF"> greet</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">(</span><span style="--shiki-light:#007C8A;--shiki-dark:#29D3E2">String</span><span style="--shiki-light:#E36209;--shiki-dark:#E9E5DF"> name</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">) {</span>
 </span><span class="line"><span style="--shiki-light:#D73A49;--shiki-dark:#F0ADA1">  return</span><span style="--shiki-light:#A626A4;--shiki-light-font-weight:bold;--shiki-dark:#FF4FD8;--shiki-dark-font-weight:bold"> %"</span><span style="--shiki-light:#032F62;--shiki-dark:#9EDFB8">hello, </span><span style="--shiki-light:#A626A4;--shiki-light-font-weight:bold;--shiki-dark:#FF4FD8;--shiki-dark-font-weight:bold">$</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">name</span><span style="--shiki-light:#A626A4;--shiki-light-font-weight:bold;--shiki-dark:#FF4FD8;--shiki-dark-font-weight:bold">"</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">;</span>
@@ -290,7 +288,7 @@ through the phases.</p>
 <p>Saved as <code>greet.x</code> in the repository root and translated into a scratch
 directory,</p>
 <pre><code class="language-sh">mkdir -p /tmp/x2c-arch
-./builds/0/x2c translate --out-dir /tmp/x2c-arch greet.x
+./x2c translate --out-dir /tmp/x2c-arch greet.x
 </code></pre>
 <p>it produces <code>greet.h</code>:</p>
 <pre><code class="language-text">/* auto-generated by x2c.  Do not edit! */
@@ -344,10 +342,10 @@ were written. Ordinary directive scanning precedes parsing; optional
 <a href="#preprocessing">preprocessing</a> expands C macros only when requested.</p>
 <p>After directive handling and optional CPP, the compiler changes contextual
 <span class="x2c-wordmark">x2c</span> keyword tokens to identifiers. Parsing then uses the ordinary symbol table
-to distinguish keyword forms from names. The scanner retains its existing
+to distinguish keyword forms from names. The scanner keeps its
 percent/angle literal choices; retagging does not rescan literal contents.
 C keywords, <code>defer</code>, and the two C thread-local spellings stay reserved.</p>
-<pre><code class="language-sh">./builds/0/x2c translate --dump-tokens greet.x
+<pre><code class="language-sh">./x2c translate --dump-tokens greet.x
 </code></pre>
 <pre><code class="language-text">(   1, 1  )	ident               String
 (   1, 7  )	space               ␠
@@ -401,12 +399,11 @@ dependencies before their bodies are parsed. Included source bodies belong
 to their own units and do not enter this unit’s hash map.</p>
 <p>Linked providers retain one source hash and their direct dependency hashes.
 Imported functions refer to that provider record. The collector checks the
-dependency graph once per translation process, using its existing source
+dependency graph once per translation process, using its recorded source
 hashes. A changed provider or dependency requires rebuilding its meta code.</p>
-<p>The public <code>x2c_meta_definition_hashes()</code> query still returns String hashes for
-definitions parsed so far. A compiler-private native query reads their existing
-reference lists for linked generation; it adds no public library callable or
-separate stored inventory.</p>
+<p>The public <code>x2c_meta_definition_hashes()</code> query returns String hashes for
+definitions parsed so far. A compiler-private native query reads their
+reference lists for linked generation.</p>
 <h4 id="unit-interfaces"><a class="header" href="#unit-interfaces">Unit interfaces</a></h4>
 <p>A file’s contribution is collected once per process. Translating a unit
 also writes it beside the generated C as a unit interface, <code>&lt;stem&gt;.xi</code>: the
@@ -429,7 +426,7 @@ imports a package records none. Cold collection and interface replay use
 the same ordered parts,
 while the full parser installs included compile-time definitions at their
 include positions. Macro names become visible immediately; their templates
-are decoded into the current unit only on first use. The existing semantic
+are decoded into the current unit only on first use. The semantic
 write log restores that decode if its expansion rolls back.
 Local declaration productions stay in their owning unit’s
 Context until full parsing consumes them. Their syntax, macro frames, and
@@ -542,7 +539,7 @@ matches their canonical capture rows once, replaces the template once, and
 hands the result to the ordinary recursive syntax binder. Nested invocations
 and <code>meta</code> call slots are evaluated when that binder reaches them; there is no
 second macro grammar or post-expansion validation pass.</p>
-<pre><code class="language-sh">./builds/0/x2c translate --dump-ast greet.x
+<pre><code class="language-sh">./x2c translate --dump-ast greet.x
 </code></pre>
 <pre><code class="language-text">(function ("String")
  (bind (binding 1 "greet")
@@ -564,7 +561,7 @@ not a source token or AST node.</p>
 <p>The parser has already cached the literal. The literal segment <code>"hello, "</code> holds
 no dynamic references, so <code>src/literals/literals.x</code> recorded it as a cacheable
 constant and the AST refers to it by slot:</p>
-<pre><code class="language-sh">./builds/0/x2c translate --dump-cache greet.x
+<pre><code class="language-sh">./x2c translate --dump-cache greet.x
 </code></pre>
 <pre><code class="language-text">0	==&gt;	(string (expr ("String") (literal ("String") "hello, ")))
 </code></pre>
@@ -596,7 +593,7 @@ the rest of its block. The pass also keeps the locals and parameters a
 landing’s parts write valid across <code>sigsetjmp</code>, as C requires: it qualifies
 them <code>volatile</code> unless their address escapes. Transfer rewriting follows
 expression and lambda normalization within the function.</p>
-<pre><code class="language-sh">./builds/0/x2c translate --dump-transforms greet.x
+<pre><code class="language-sh">./x2c translate --dump-transforms greet.x
 </code></pre>
 <pre><code class="language-text">(function ("String")
  (bind (binding 1 "greet")
@@ -604,26 +601,28 @@ expression and lambda normalization within the function.</p>
  (block
   (at 2 (return
          (expr ("String")
-          ("String_join(NULL, "
-           (expr ("List")
-            (cons (expr ("Var")
-                   (call (expr ((func (("String"))) "Var")
-                          (ident (binding 3 "String_var")))
-                    (args (expr ("String") (cache 0)))))
+          (call (expr ((func (("String") ("List"))) "String")
+                 (ident (binding 3 "String_join")))
+           (args (expr () (ident (binding 4 "NULL")))
+            (expr ("List")
              (cons (expr ("Var")
                     (call (expr ((func (("String"))) "Var")
-                           (ident (binding 3 "String_var")))
-                     (args (expr ("String") (ident (binding 2 "name"))))))
-              (nil)))) ")"))))))
+                           (ident (binding 5 "String_var")))
+                     (args (expr ("String") (cache 0)))))
+              (expr ("List")
+               (cons (expr ("Var")
+                      (call (expr ((func (("String"))) "Var")
+                             (ident (binding 5 "String_var")))
+                       (args (expr ("String") (ident (binding 2 "name"))))))
+                (nil))))))))))))
 </code></pre>
-<p>The interpolation is gone, replaced by a <code>String_join</code> call over a cons list
-of boxed <code>Var</code> values, each <code>String_var</code> call naming its callee as a resolved
-binding carrying that function’s type.
+<p>The interpolation is gone, replaced by an ordinary <code>String_join</code> call. Its
+arguments are <code>NULL</code> and a cons list of boxed <code>Var</code> values. Each callee,
+<code>String_join</code> and each <code>String_var</code>, is a resolved binding carrying that
+function’s type, so the emitter prints the call from typed nodes.
 <code>src/components/interpolation.x</code> wrote the join; see <a href="#builtin-components">builtin
 components</a>. The <code>return</code> no longer carries a type
-annotation; nothing downstream needs it. Some children are now raw C text.
-Lowering may produce emitter-ready fragments, so <code>"String_join(NULL, "</code> sits
-in the tree as a <code>String</code> instead of a call node.</p>
+annotation; nothing downstream needs it.</p>
 <h3 id="generation-and-cache-staging"><a class="header" href="#generation-and-cache-staging">Generation and cache staging</a></h3>
 <p>Generation splits the lowered AST for one unit into two ASTs, one per output
 file, and adds the generated initialization that makes cached constants work.
@@ -671,7 +670,7 @@ already placed every cleanup statement, so emission prints frames, records,
 and statements where the AST puts them. Preprocessor nodes are re-emitted here
 too, with <code>.x</code> include targets rewritten to the generated <code>.h</code> they correspond
 to.</p>
-<pre><code class="language-sh">./builds/0/x2c translate --dump-code greet.x
+<pre><code class="language-sh">./x2c translate --dump-code greet.x
 </code></pre>
 <pre><code class="language-text">String greet(String name){
   return String_join(NULL, cons(String_var(_0), cons(String_var(name), NULL)));
@@ -1093,9 +1092,9 @@ from it, not the compiler that translates the edit.</p>
                     </script>
 
                     <nav class="x2c-pager" aria-label="Page navigation">
-                        <a rel="prev" href="../internals/compiler-api/transform.html" class="x2c-pager-prev" aria-keyshortcuts="Left">
+                        <a rel="prev" href="../guide/regions.html" class="x2c-pager-prev" aria-keyshortcuts="Left">
                             <span class="x2c-pager-label">previous</span>
-                            <span class="x2c-pager-title">src/transform/transform.x</span>
+                            <span class="x2c-pager-title">The Region Model</span>
                         </a>
                         
                         <a rel="next prefetch" href="../internals/ast-grammar.html" class="x2c-pager-next" aria-keyshortcuts="Right">
@@ -1107,9 +1106,9 @@ from it, not the compiler that translates the edit.</p>
                         &copy; 2025&ndash;2026
                         <a href="https://flake.org">GWF</a>
                         &middot;
-                        <a href="https://github.com/gwf/x2c/blob/30b47efa19187e2273163d1261d84e892da95c25/LICENSE">Apache 2.0</a>
+                        <a href="https://github.com/gwf/x2c/blob/bb2442f9bef8ab326f83089a25089304d40349cc/LICENSE">Apache 2.0</a>
                         &middot;
-                        <a href="https://github.com/gwf/x2c/blob/30b47efa19187e2273163d1261d84e892da95c25/TRADEMARKS.md">Trademarks</a>
+                        <a href="https://github.com/gwf/x2c/blob/bb2442f9bef8ab326f83089a25089304d40349cc/TRADEMARKS.md">Trademarks</a>
                     </footer>
                 </div>
             </div>
