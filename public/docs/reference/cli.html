@@ -1,6 +1,6 @@
 <!DOCTYPE HTML>
 <html lang="en" class="light sidebar-visible" dir="ltr">
-    <head><meta name="x2c-release-channel" content="staging"><meta name="x2c-candidate" content="candidate-aa02ed22468b7d6d741bf7fd97169f836efa1224-43741196018-1"><meta name="x2c-site-source" content="aa02ed22468b7d6d741bf7fd97169f836efa1224"><meta name="robots" content="noindex">
+    <head><meta name="x2c-release-channel" content="staging"><meta name="x2c-candidate" content="candidate-3f6cd0a90fdca9056a7340e551ffa8a19de6d535-43787984814-1"><meta name="x2c-site-source" content="3f6cd0a90fdca9056a7340e551ffa8a19de6d535"><meta name="robots" content="noindex">
         <!-- Book generated using mdBook -->
         <meta charset="UTF-8">
         <title>Command-Line Interface - The x2c Book</title>
@@ -41,7 +41,7 @@
             const path_to_root = "../";
             const default_light_theme = "light";
             const default_dark_theme = "light";
-            window.path_to_searchindex_js = "../searchindex-05d984eb.js";
+            window.path_to_searchindex_js = "../searchindex-85a6d464.js";
         </script>
         <!-- Start loading toc.js asap -->
         <script src="../toc-ed291a6e.js"></script>
@@ -221,11 +221,12 @@
 compiler as <code>x2c</code>. Every invocation begins with a command, and <code>x2c help</code>
 lists every command the compiler has. An installed compiler has <code>translate</code>,
 <code>build</code>, <code>run</code>, <code>new</code>, <code>script</code>, <code>env</code>, <code>install</code>, <code>remove</code>, <code>list</code>, <code>help</code>,
-<code>lsp</code>, <code>package</code>, and <code>test</code>. The driver runs some of them through
+<code>lsp</code>, <code>package</code>, <code>test</code>, and <code>update</code>. The driver runs some of them through
 <a href="#commands">external commands</a>: <code>build</code>, <code>run</code>, and <code>script</code> through
 <code>x2c-build</code>, <code>new</code> through <code>x2c-new</code>, <code>install</code>, <code>remove</code>, <code>list</code>, and
 <code>package</code> through <code>x2c-package</code>, <code>lsp</code> through <code>x2c-lsp</code>, and <code>test</code> through
-<code>x2c-test</code>. A checkout can also build the experimental commands
+<code>x2c-test</code>; <code>update</code> runs through <code>x2c-update</code>. A checkout can also build the
+experimental commands
 <code>bind</code>, <code>graph</code>, <code>lint</code>, and <code>repl</code>, which an install does not include.</p>
 <p>This chapter has these sections:</p>
 <ul>
@@ -245,6 +246,7 @@ header and package search.</li>
 <li><a href="#c-compiler-and-linker-options">C compiler and linker options</a>: defines,
 optimization, linking, and C compiler selection.</li>
 <li><a href="#packages">Packages</a>: <code>install</code>, <code>remove</code>, and <code>list</code>.</li>
+<li><a href="#compiler-updates">Compiler updates</a>: check and update an official compiler.</li>
 <li><a href="#environment">Environment</a>: <code>x2c env</code>, the home, and environment
 variables.</li>
 <li><a href="#commands">Commands</a>: every command <code>x2c help</code> lists, external commands,
@@ -267,6 +269,39 @@ x2c build --help
 x2c run --help
 x2c script --help
 </code></pre>
+<h2 id="compiler-updates"><a class="header" href="#compiler-updates">Compiler updates</a></h2>
+<p><code>install</code>, <code>remove</code>, and <code>list</code> manage packages. <code>update</code> manages an official
+compiler installation:</p>
+<pre><code class="language-sh">x2c update
+x2c update --version 0.16.0
+</code></pre>
+<p>The command’s check option reports the installed and available versions
+without changing the installation or downloading a compiler archive.
+<code>x2c help update</code> lists that option, and
+<a href="../guide/installation.html#install-a-release">Install a release</a> shows it.
+Ordinary updates install only a newer version. An explicit version can
+select an older release deliberately.
+The target is the invoked executable’s installation, not <code>X2C_HOME</code>, the
+working directory, or another executable on <code>PATH</code>. The recorded release
+source supplies update metadata; ambient installer variables do not change it.
+Candidate installations pinned to a staging tag require their release
+installer to select another candidate; a version number alone does not select
+candidate bytes. A successful check returns 0 whether an update is available
+or not. Errors return 1 and invalid options return 2.</p>
+<p>Source installations report the <code>make install</code> command for their checkout.
+Unknown-origin installations require an explicit reinstall to establish their
+origin. A release update does not switch a source installation to releases.</p>
+<p>Stop builds and other installation work before updating. Native packages built
+for a different compiler version block replacement; remove those packages with
+<code>x2c remove</code>, update, and reinstall compatible packages. Source packages are
+retained. Unrelated files outside <code>packages/</code> also block release replacement.
+Move those files outside the prefix before retrying.</p>
+<p>The installer stages and checks the replacement before changing the prefix.
+It excludes concurrent installers and restores the old prefix after a handled
+replacement failure. An unhandled interruption can leave a backup and a lock;
+the next attempt reports recovery instructions. Do not delete those files
+before restoring the installation. Replacement is not atomic for concurrent
+compilation, and there is no retained-version rollback command.</p>
 <h2 id="translate-to-c"><a class="header" href="#translate-to-c">Translate to C</a></h2>
 <p><code>translate</code> writes one matching <code>.c</code>, <code>.h</code>, <code>.xi</code>, and default <code>.d</code> file for
 each explicit <code>.x</code> input. The <code>.xi</code> file is the unit’s
@@ -1005,10 +1040,14 @@ rename, and cancellation.</p>
 installation or a checkout build, set:</p>
 <pre><code class="language-json">"x2c.semantic.compilerPath": "/path/to/x2c/bin/x2c"
 </code></pre>
-<p>Selection order is an explicit <code>x2c.semantic.compilerPath</code>, executable
-<code>./x2c</code> in the trusted workspace, then <code>x2c</code> on <code>PATH</code>. An explicit
-selection never switches to another compiler. Setup errors appear in the
-<strong><span class="x2c-wordmark">x2c</span></strong> Output channel. The extension does not build or install the compiler.</p>
+<p>Selection order is an explicit <code>x2c.semantic.compilerPath</code>, <code>x2c</code> on
+<code>PATH</code>, then <code>~/.local/x2c/bin/x2c</code>. The extension does not automatically
+select a workspace’s <code>./x2c</code>; select a development compiler explicitly.
+An explicit selection never switches to another compiler. The <strong><span class="x2c-wordmark">x2c</span></strong> Output
+channel shows the selected executable, selection reason, and server errors.
+Startup failures show a notification with <strong>Show Output</strong>. After repairing
+an installation, reload the window or change the <span class="x2c-wordmark">x2c</span> settings to retry.
+The extension does not build or install the compiler.</p>
 <p>Configure the server with ordinary compiler arguments:</p>
 <pre><code class="language-json">"x2c.semantic.arguments": ["build", "--target", "app", "--profile", "debug"]
 </code></pre>
@@ -1179,8 +1218,8 @@ output.</p>
                 <span class="x2c-wordmark footer-wordmark">x2c</span>
             </a>
             <p>&copy; 2025&ndash;2026 <a href="https://flake.org">GWF</a> &middot;
-                <a href="https://github.com/gwf/x2c/blob/aa02ed22468b7d6d741bf7fd97169f836efa1224/LICENSE">Apache 2.0</a> &middot;
-                <a href="https://github.com/gwf/x2c/blob/aa02ed22468b7d6d741bf7fd97169f836efa1224/TRADEMARKS.md">Trademarks</a> &middot;
+                <a href="https://github.com/gwf/x2c/blob/3f6cd0a90fdca9056a7340e551ffa8a19de6d535/LICENSE">Apache 2.0</a> &middot;
+                <a href="https://github.com/gwf/x2c/blob/3f6cd0a90fdca9056a7340e551ffa8a19de6d535/TRADEMARKS.md">Trademarks</a> &middot;
                 <a href="../../x2c-book.pdf">Book PDF</a></p>
             <a href="#mdbook-content" class="footer-top">Back to top <span aria-hidden="true">&uarr;</span></a>
         </footer>

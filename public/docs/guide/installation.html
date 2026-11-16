@@ -1,6 +1,6 @@
 <!DOCTYPE HTML>
 <html lang="en" class="light sidebar-visible" dir="ltr">
-    <head><meta name="x2c-release-channel" content="staging"><meta name="x2c-candidate" content="candidate-aa02ed22468b7d6d741bf7fd97169f836efa1224-43741196018-1"><meta name="x2c-site-source" content="aa02ed22468b7d6d741bf7fd97169f836efa1224"><meta name="robots" content="noindex">
+    <head><meta name="x2c-release-channel" content="staging"><meta name="x2c-candidate" content="candidate-3f6cd0a90fdca9056a7340e551ffa8a19de6d535-43787984814-1"><meta name="x2c-site-source" content="3f6cd0a90fdca9056a7340e551ffa8a19de6d535"><meta name="robots" content="noindex">
         <!-- Book generated using mdBook -->
         <meta charset="UTF-8">
         <title>Install a Native Compiler - The x2c Book</title>
@@ -41,7 +41,7 @@
             const path_to_root = "../";
             const default_light_theme = "light";
             const default_dark_theme = "light";
-            window.path_to_searchindex_js = "../searchindex-05d984eb.js";
+            window.path_to_searchindex_js = "../searchindex-85a6d464.js";
         </script>
         <!-- Start loading toc.js asap -->
         <script src="../toc-ed291a6e.js"></script>
@@ -229,7 +229,6 @@ checkout. Then create a first project, run it, and build it for a debugger.</p>
 <tr><td>macOS 15 or later</td><td>arm64, x86_64</td><td>release or source</td></tr>
 <tr><td>Linux with glibc 2.38 or later</td><td>x86_64, aarch64</td><td>release or source</td></tr>
 <tr><td>Windows through WSL2</td><td>as for Linux</td><td>release or source</td></tr>
-<tr><td>Windows through MSYS2</td><td>x86_64</td><td>source only</td></tr>
 </tbody>
 </table>
 </div>
@@ -250,8 +249,23 @@ pins a release; pass options to the script with <code>sh -s --</code>. The curre
 version comes from <code>https://x2c-lang.dev/x2c-version.txt</code>. Releases publish
 the compiler for macOS on arm64 and x86_64 and for Linux on x86_64 and
 aarch64, and every release’s downloads stay available.</p>
-<p>To upgrade, run the installer again. It replaces the compiler in the same
-prefix and keeps installed packages.</p>
+<p>After an official installation, check for and install compiler updates with:</p>
+<pre><code class="language-sh">x2c update --check
+x2c update
+</code></pre>
+<p>The update uses the invoked compiler’s installation and recorded release
+source, including a custom prefix. <code>X2C_HOME</code> does not redirect it. An ordinary
+update never downgrades; <code>x2c update --version &lt;n&gt;</code> explicitly selects a
+version; an explicit version also permits reinstallation. An ordinary update
+to an equal version needs no download. Checking does not change files.
+See <a href="../reference/cli.html#compiler-updates">compiler updates</a> for compatibility
+and recovery behavior.</p>
+<p>The installer can also be run again. An older installation without recorded
+origin needs one installer run with <code>--replace-origin</code> before <code>x2c update</code>
+can manage it. A source installation also requires <code>--replace-origin</code> to
+convert it to a release.
+Do not use that option to update a personal compiler from a local checkout;
+use <code>make install</code> there instead.</p>
 <p>To uninstall, remove the prefix directory and the <code>export</code> line from your
 shell startup file. Removing the prefix also removes the packages installed
 in it:</p>
@@ -274,9 +288,14 @@ The checkout is then a complete <span class="x2c-wordmark">x2c</span> home. Use 
 <code>make build-install</code> before putting its <code>bin/</code> on <code>PATH</code>. The
 <a href="#developer-workflow">developer workflow</a> explains using it in place.</p>
 <p>To install into a prefix instead:</p>
-<pre><code class="language-sh">make install PREFIX="$HOME/.local/x2c"
+<pre><code class="language-sh">make install
 export PATH="$HOME/.local/x2c/bin:$PATH"
 </code></pre>
+<p><code>make install</code> defaults to <code>$HOME/.local/x2c</code>. Run it again from the checkout
+to update that installation from your current source, including local edits.
+It does not fetch Git changes. <code>PREFIX=/another/path</code> selects a different
+destination. The installation records its source directory; <code>x2c update</code>
+shows the corresponding Make command instead of replacing it with a release.</p>
 <p>The install command builds the compiler and its commands, then installs the
 compiler, the shipped commands under <code>libexec/x2c/</code>, and the matching
 runtime, headers, compiler prelude, runtime Lisp assets, unit interfaces
@@ -371,12 +390,16 @@ Move or rename the complete prefix to relocate it. Keep <code>bin</code>, <code>
 may contain spaces. Quote the compiler path when invoking it:</p>
 <pre><code class="language-sh">"/path with spaces/x2c/bin/x2c" build src/main.x -o hello
 </code></pre>
-<p>An upgrade stages a complete payload, replaces files owned by the previous
-installation, and removes obsolete owned files using its inventory. It leaves
-unrelated files alone and does not overwrite an unrelated file with the same
-name. Publication replaces individual files; do not run an installation while
-programs are compiling against it. Keep <code>.x2c-install-manifest</code> with the prefix
-so upgrades retain ownership and build identity information.</p>
+<p>A source upgrade stages a complete payload, replaces files owned by the
+previous installation, and removes obsolete owned files using its inventory.
+It leaves unrelated files alone and does not overwrite an unrelated file
+with the same name. Publication replaces individual files.</p>
+<p>A release upgrade replaces the complete compiler tree and moves its packages
+into the new tree. It refuses unrelated files outside <code>packages/</code> instead of
+deleting them. Both routes require an idle prefix: do not install while
+programs are compiling against it. Keep <code>.x2c-install-manifest</code> and
+<code>.x2c-install-origin</code> with the prefix; they record payload ownership and
+installation origin respectively.</p>
 <p>For a packaging staging directory, use <code>DESTDIR</code> with the intended prefix:</p>
 <pre><code class="language-sh">make install PREFIX=/opt/x2c DESTDIR="$PWD/staging"
 </code></pre>
@@ -406,14 +429,7 @@ curl -fsSL https://x2c-lang.dev/install.sh | sh
 home, because builds under <code>/mnt/c</code> are slower. Use clang
 15 or newer, or <code>gcc</code>: Ubuntu 22.04 ships clang 14, which rejects two static
 initializers in the runtime.</p>
-<p>A source checkout also builds under MSYS2 with its <code>gcc</code>, given three
-settings: check the repository out with LF line endings
-(<code>git config core.autocrlf false</code>), enable native symlinks
-(<code>export MSYS=winsymlinks:native</code>, which needs Developer Mode or an
-administrator shell), and select the compiler with <code>CC=gcc X2C_CC=gcc</code>.
-<code>make build-safe</code> then produces a working compiler. Native Windows without a
-POSIX layer is not supported, and under MSYS2 only a source build is
-supported.</p>
+<p>Native Windows is not supported.</p>
 <h2 id="developer-workflow"><a class="header" href="#developer-workflow">Developer workflow</a></h2>
 <p>Clone the default branch for released source; release tags mark published
 versions. A source checkout is the development install. After
@@ -429,9 +445,12 @@ Select the checkout for one shell with <code>PATH</code>, or for one command wit
 <pre><code class="language-sh">export PATH="$HOME/src/x2c/bin:$PATH"
 X2C_HOME="$HOME/src/x2c" x2c env
 </code></pre>
-<p>Keep the global prefix on a release, so a problem seen through it reproduces
-for other users. Compiler development itself runs through <code>make</code> inside the
-checkout and does not depend on which compiler <code>PATH</code> selects.</p>
+<p>Choose whether your personal prefix follows releases or your local source.
+Use <code>x2c update</code> for a release installation, or <code>make install</code> in the checkout
+for a source installation. <code>make build-install</code> only selects the checkout’s
+branch-named compiler; it does not update your personal prefix. Compiler
+development itself runs through <code>make</code> inside the checkout and does not depend
+on which compiler <code>PATH</code> selects.</p>
 
                     </main>
                     <script>
@@ -468,8 +487,8 @@ checkout and does not depend on which compiler <code>PATH</code> selects.</p>
                 <span class="x2c-wordmark footer-wordmark">x2c</span>
             </a>
             <p>&copy; 2025&ndash;2026 <a href="https://flake.org">GWF</a> &middot;
-                <a href="https://github.com/gwf/x2c/blob/aa02ed22468b7d6d741bf7fd97169f836efa1224/LICENSE">Apache 2.0</a> &middot;
-                <a href="https://github.com/gwf/x2c/blob/aa02ed22468b7d6d741bf7fd97169f836efa1224/TRADEMARKS.md">Trademarks</a> &middot;
+                <a href="https://github.com/gwf/x2c/blob/3f6cd0a90fdca9056a7340e551ffa8a19de6d535/LICENSE">Apache 2.0</a> &middot;
+                <a href="https://github.com/gwf/x2c/blob/3f6cd0a90fdca9056a7340e551ffa8a19de6d535/TRADEMARKS.md">Trademarks</a> &middot;
                 <a href="../../x2c-book.pdf">Book PDF</a></p>
             <a href="#mdbook-content" class="footer-top">Back to top <span aria-hidden="true">&uarr;</span></a>
         </footer>

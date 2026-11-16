@@ -1,0 +1,1344 @@
+<!DOCTYPE html><html lang="en"><head><meta name="x2c-release-channel" content="staging"><meta name="x2c-candidate" content="candidate-3f6cd0a90fdca9056a7340e551ffa8a19de6d535-43787984814-1"><meta name="x2c-site-source" content="3f6cd0a90fdca9056a7340e551ffa8a19de6d535"><meta name="robots" content="noindex"><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><meta name="theme-color" content="#f4f1ec"><meta name="description" content="From a Var to your own types, operators, patterns, macros, and cooperating threads."><meta property="og:type" content="website"><meta property="og:title" content="Walk through the language — x2c"><meta property="og:description" content="From a Var to your own types, operators, patterns, macros, and cooperating threads."><meta property="og:url" content="https://staging.x2c-lang.dev/examples/language/"><meta property="og:image" content="https://staging.x2c-lang.dev/x2c-social.png"><meta property="og:image:alt" content="Walk through the language. From a Var to your own types, operators, patterns, macros, and cooperating threads."><meta property="og:image:width" content="1200"><meta property="og:image:height" content="630"><meta name="twitter:card" content="summary_large_image"><meta name="twitter:title" content="Walk through the language — x2c"><meta name="twitter:description" content="From a Var to your own types, operators, patterns, macros, and cooperating threads."><meta name="twitter:image" content="https://staging.x2c-lang.dev/x2c-social.png"><meta name="twitter:image:alt" content="Walk through the language. From a Var to your own types, operators, patterns, macros, and cooperating threads."><link rel="canonical" href="https://x2c-lang.dev/examples/language/"><link rel="icon" href="/x2c-naked.svg" type="image/svg+xml"><link rel="apple-touch-icon" href="/apple-touch-icon.png"><link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin><link href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=Archivo:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet"><title>Walk through the language — x2c</title><link rel="stylesheet" href="/assets/BaseLayout.DQOBqKuX.css"><style>html:has(.examples-shell){--sidebar-width:min(var(--sidebar-target-width), 80vw);--sidebar-resize-indicator-width:8px;--sidebar-resize-indicator-space:2px;--icons:var(--muted-dark)}.examples-shell{--sans-font:Archivo, Helvetica, sans-serif;--mono-font:"JetBrains Mono", monospace;--examples-top:var(--landing-header-height,69px)}.examples-shell .sidebar{top:var(--examples-top);z-index:19;border-right:1px solid var(--line);font:14px/1.4 Archivo,sans-serif}.examples-reading{padding:42px clamp(20px,4vw,64px) 80px}.examples-reading>*{max-width:var(--reading-width,720px);margin-left:auto;margin-right:auto}.examples-topic-heading{margin-bottom:56px}.examples-topic-heading h1{margin:0 0 20px;font:400 clamp(38px,4vw,56px)/1.05 Instrument Serif,Georgia,serif}.examples-topic-heading>p:last-child,.reading-example-prose{color:var(--muted-dark)}.reading-example{border-top:1px solid var(--line);margin-bottom:64px;padding-top:30px}.reading-example :is(h1,h2){margin:0 0 20px;font:400 34px/1.1 Instrument Serif,Georgia,serif}.reading-example .about-eyebrow{margin-bottom:10px}.reading-example-prose{margin-bottom:24px}.reading-example-prose p{margin:0 0 14px}.reading-source-bar{overflow-wrap:anywhere;justify-content:space-between;gap:16px;padding:10px 0;font:12px/1.5 JetBrains Mono,monospace;display:flex}.reading-source{background:var(--code);min-width:0}.reading-source pre{margin:0;padding:20px;font-size:13px;line-height:1.7;overflow-x:auto}.reading-run{color:var(--muted-dark);flex-wrap:wrap;align-items:center;gap:12px;padding:14px 0;font-size:12px;display:flex}.reading-run button{background:var(--red-text);color:var(--paper);font:inherit;cursor:pointer;border:0;padding:8px 18px}.reading-run button:disabled{opacity:.5}.reading-output h3{margin:8px 0;font:500 12px/1.5 JetBrains Mono,monospace}.reading-output pre{white-space:pre-wrap;overflow-wrap:anywhere;background:#8080800f;max-height:360px;margin:0;padding:16px;font:12px/1.7 JetBrains Mono,monospace;overflow-y:auto}.reading-output{border:1px solid var(--line);background:#8080800f;grid-template-columns:repeat(2,minmax(0,1fr));display:grid}.reading-output>div{min-width:0}.reading-output>div+div{border-left:1px solid var(--line)}.reading-output h3{border-bottom:1px solid var(--line);margin:0;padding:10px 16px}.reading-output pre{background:0 0;min-height:4.5em}.reading-output [data-output]:empty:before{content:"Run to see actual output.";color:var(--muted-dark)}.reading-run{min-height:64px}.reading-local{overflow-wrap:anywhere;font-size:12px}.reading-local pre{white-space:pre-wrap;margin:6px 0 0}.reading-output-expected{grid-template-columns:minmax(0,1fr)}.examples-reading .example-page{width:100%;padding:0}.examples-reading .example-heading h1{font-size:clamp(38px,4vw,56px)}.examples-reading .example-demonstration{flex-direction:column;display:flex}.examples-reading .walkthrough-notes{background:0 0;order:-1}.examples-reading .example-demonstration .feature-copy{padding:0 0 24px}.examples-reading .example-reading{display:block}@media (width<=800px){.examples-reading{padding:28px 20px 48px}.reading-source pre{padding:14px;font-size:12px}}.reading-example:has(h1){border-top:0;padding-top:0}.reading-example h1{font-size:clamp(38px,4vw,56px)}.reading-example>header{scroll-margin-top:20px}
+.complete-example-link[data-astro-cid-mcnawpcz]{color:var(--coral);margin:12px 0 0;font-size:.8rem;display:inline-block}
+.example-page{width:min(100%,1180px);margin:0 auto;padding:clamp(42px,6vw,76px) clamp(16px,2.5vw,36px) 64px}.example-heading{margin-bottom:36px}.example-eyebrow{color:var(--red-text);letter-spacing:.035em;margin:0 0 16px;font:500 11px/1.5 JetBrains Mono,monospace}.example-breadcrumb{color:var(--muted-dark)}.example-breadcrumb a{color:inherit;text-decoration:none}.example-breadcrumb a:hover{text-decoration:underline}.example-heading h1{letter-spacing:-.025em;text-wrap:balance;max-width:1000px;margin:0 0 20px;font:400 clamp(46px,6.5vw,78px)/.98 Instrument Serif,Georgia,serif}.example-premise{color:var(--muted-dark);margin:0;font-size:clamp(17px,1.9vw,20px);line-height:1.55}.example-heading .example-actions{flex-wrap:wrap;align-items:center;gap:14px 26px;margin-top:26px;font:13px/1.5 JetBrains Mono,monospace;display:flex}.example-heading .example-actions a{text-underline-offset:4px}.example-heading .example-actions a:hover{text-decoration:underline}.example-heading .example-run-link{color:var(--red-text);font-weight:600}.example-demonstration{grid-template-columns:minmax(0,1.35fr) minmax(0,1fr);align-items:stretch;margin-bottom:clamp(38px,5vw,64px);display:grid}.example-demonstration>*{min-width:0}.walkthrough-code{background:var(--code)}.walkthrough-notes{background:var(--panel);display:flow-root}.example-demonstration .feature-code{padding:clamp(14px,2vw,24px)}.example-demonstration .feature-code pre{margin:0;font-size:clamp(11px,1.05vw,12px);line-height:1.8;overflow-x:auto}.example-demonstration .feature-copy{background:0 0;border:0;align-content:start;padding:clamp(16px,2.5vw,30px);display:flow-root}.code-note{margin-top:24px;display:flow-root}.example-demonstration .feature-result-image{object-fit:contain;width:100%;max-width:500px;max-height:240px;margin:0 0 14px}.example-page[data-example=game-of-life] .feature-result-image{max-width:350px;max-height:220px}.example-page[data-example=embedded-lisp] .feature-result-image{max-width:192px;max-height:210px;margin-inline:auto}.example-demonstration .animation-toggle{color:var(--muted-dark);margin-bottom:18px}.example-reading{width:min(100%,780px);margin-inline:auto}.example-prose{color:var(--muted-dark);font-size:16px;line-height:1.8}.example-prose h2,.example-run h2{color:var(--dark);letter-spacing:-.015em;margin:38px 0 15px;font:400 clamp(29px,3.5vw,38px)/1.12 Instrument Serif,Georgia,serif}.example-prose h2:first-child{margin-top:0}.example-prose p{margin:0 0 18px}.example-prose a{text-underline-offset:3px;text-decoration:underline 1px}.example-output{background:var(--panel);border-top:1px solid var(--panel-rule);margin:34px 0 0}.example-output figcaption{color:var(--muted-dark);flex-wrap:wrap;justify-content:space-between;gap:8px 16px;padding:16px 22px 0;font:500 11px/1.5 JetBrains Mono,monospace;display:flex}.example-output pre{margin:0;padding:18px 22px 24px;font:12px/1.9 JetBrains Mono,monospace;overflow-x:auto}.example-run{border-top:1px solid var(--line);margin-top:48px;padding-top:34px}.example-run .example-eyebrow{margin-bottom:9px}.example-run h2{margin-top:0}.example-run-intro{color:var(--muted-dark);font-size:16px;line-height:1.7}.example-next{border-top:1px solid var(--line);grid-template-columns:repeat(2,minmax(0,1fr));gap:26px;margin-top:44px;padding-top:24px;display:grid}.example-next a{flex-direction:column;gap:9px;display:flex}.example-next a[rel=next]{text-align:right;align-items:end}.example-next small{color:var(--muted-dark);font-size:11px}.example-next>a>span{font:400 26px/1.1 Instrument Serif,Georgia,serif}@media (width<=720px){.example-demonstration{grid-template-columns:minmax(0,1fr)}}@media (width<=639px){.example-page{padding-top:36px}.example-heading{margin-bottom:28px}.example-heading .example-actions{gap:15px 20px}.example-demonstration .feature-code{padding:18px 16px}.example-demonstration .feature-code pre{font-size:11px}.example-prose{font-size:15px;line-height:1.75}.example-output figcaption{padding-inline:16px}.example-output pre{padding-inline:16px;font-size:11px}.example-next{gap:22px}.example-next>a>span{font-size:23px}}
+.example-actions a{color:inherit;text-underline-offset:3px;text-decoration:underline}.copy-button{color:inherit;background:color-mix(in srgb, currentColor 9%, transparent);white-space:nowrap;cursor:pointer;border:0;border-radius:999px;padding:1px 6px;font:400 12px/18px Archivo,Helvetica,sans-serif;position:relative}.copy-button:hover{background:color-mix(in srgb, currentColor 13%, transparent)}.copy-mark{visibility:hidden;width:1em;height:1em;margin:auto;position:absolute;inset:0}.copy-button[data-copied] .copy-label{visibility:hidden}.copy-button[data-copied] .copy-mark{visibility:visible}.copy-status:not(.copy-error){clip-path:inset(50%);white-space:nowrap;width:1px;height:1px;position:absolute;overflow:hidden}.copy-status.copy-error{margin-left:8px;font-size:.85em}.example-actions a:focus-visible,.copy-button:focus-visible{outline:2px solid var(--coral);outline-offset:5px}
+.core-setup[data-astro-cid-mvuqqe5a]{min-width:0}.setup-prerequisites[data-astro-cid-mvuqqe5a]{color:var(--muted-dark);margin:0 0 22px;font-size:15px;line-height:1.65}.setup-prerequisites[data-astro-cid-mvuqqe5a] a[data-astro-cid-mvuqqe5a]{text-decoration:underline}.setup-recipe[data-astro-cid-mvuqqe5a]{background:var(--code);margin:0}.setup-recipe[data-astro-cid-mvuqqe5a] figcaption[data-astro-cid-mvuqqe5a]{border-bottom:1px solid var(--hairline-on-dark);color:var(--muted-light);flex-wrap:wrap;justify-content:space-between;align-items:center;gap:8px 20px;padding:14px 22px;font:500 11px/1.5 JetBrains Mono,monospace;display:flex}.core-setup[data-astro-cid-mvuqqe5a] pre{margin:0;padding:22px;font:12px/1.9 JetBrains Mono,monospace;overflow-x:auto}@media (width<=639px){.core-setup[data-astro-cid-mvuqqe5a] pre{padding:16px;font-size:11px}.setup-recipe[data-astro-cid-mvuqqe5a] figcaption[data-astro-cid-mvuqqe5a]{padding:12px 16px}}
+</style></head><body><a class="skip-link" href="#main">skip to content</a><header class="landing-header examples-header"><label id="mdbook-sidebar-toggle" class="sidebar-toggle" for="mdbook-sidebar-toggle-anchor" tabindex="0" role="button" aria-label="Toggle example index" aria-controls="mdbook-sidebar" aria-expanded="true"><svg aria-hidden="true" width="16" height="16" viewBox="0 0 16 16"><path d="M1 3h14M1 8h14M1 13h14" fill="none" stroke="currentColor"></path></svg></label><div class="landing-header-inner"><div class="landing-branding" data-tagline-rotator data-taglines="[&quot;the world's most hackable compiler&quot;,&quot;the love child of C and Lisp&quot;,&quot;C with batteries, without bullshit&quot;,&quot;it's pronounced ecstasy for a reason&quot;,&quot;a compiler for your compiler's compiler&quot;,&quot;a language for thinking in code&quot;,&quot;be sure to drink plenty of water&quot;,&quot;C made readable, composable, reflective&quot;,&quot;the language of love, power, and magic&quot;,&quot;know C? You already write x2c&quot;]"><a class="landing-brand" href="/" aria-label="x2c home"><svg viewBox="0 0 100 100" width="22" height="22" aria-hidden="true"><g fill="none" stroke="#da291c" stroke-width="17" stroke-linecap="butt"><path d="M9 16 A34.5 34.5 0 0 1 9 84"></path><path d="M91 16 A34.5 34.5 0 0 0 91 84"></path></g></svg><span class="x2c-wordmark landing-wordmark">x2c</span></a><button type="button" data-tagline class="landing-tagline" aria-label="Show another tagline">the world&#39;s most hackable compiler</button><span class="tagline-status" role="status" data-tagline-status></span></div><nav class="landing-nav" aria-label="Primary navigation"><div class="landing-site-nav"><a href="/#install" data-header-section="install">install</a><a href="/#packages" data-header-section="packages">packages</a></div><div class="landing-reference-nav"><a href="/examples/" aria-current="page">examples</a><a href="/docs/">docs</a><a href="/about/">about</a><a href="https://github.com/gwf/x2c">source</a></div></nav></div></header><script type="module">var e=document.querySelector(`.landing-header`),t=()=>{document.documentElement.style.setProperty(`--landing-header-height`,`${e.getBoundingClientRect().height}px`)};new ResizeObserver(t).observe(e),t();var n=Array.from(e.querySelectorAll(`[data-header-section]`)).map(e=>({link:e,section:document.getElementById(e.dataset.headerSection)})).filter(e=>e.section!==null);if(n.length){let t=()=>{let t=e.getBoundingClientRect().bottom+24;for(let{link:e,section:r}of n){let n=r.getBoundingClientRect();n.top<=t&&n.bottom>t?e.setAttribute(`aria-current`,`location`):e.removeAttribute(`aria-current`)}};document.addEventListener(`scroll`,t,{passive:!0}),window.addEventListener(`resize`,t),window.addEventListener(`pageshow`,t),new ResizeObserver(t).observe(document.body),t()}var r=700,i=`ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789@#$%&*+-=<>?`;for(let e of document.querySelectorAll(`[data-tagline-rotator]`)){let t=JSON.parse(e.dataset.taglines??`[]`),n=e.querySelector(`[data-tagline]`),a=e.querySelector(`[data-tagline-status]`),o=Math.floor(Math.random()*t.length),s=0,c=t[o],l=()=>i[Math.floor(Math.random()*74)],u=(e,t,i)=>{let o=performance.now(),c=Math.max(e.length,t.length);n.setAttribute(`data-matrix`,``);let u=e=>{if(i!==s)return;let d=Math.min((e-o)/r,1),f=Math.max(0,(d-.2)/.8),p=Math.floor(f*t.length),m=``;for(let e=0;e<c;e++)e<p?m+=t[e]:e<t.length&&t[e]===` `?m+=` `:m+=l();n.textContent=m,d<1?requestAnimationFrame(u):(n.textContent=t,n.removeAttribute(`data-matrix`),a.textContent=t)};requestAnimationFrame(u)},d=(e,r=!0,i=!0)=>{let l=++s,d=c;o=(e+t.length)%t.length,c=t[o],r?u(d,c,l):(n.textContent=c,n.removeAttribute(`data-matrix`),i&&(a.textContent=c))};n.addEventListener(`click`,()=>{let e=1+Math.floor(Math.random()*(t.length-1)),n=window.matchMedia(`(prefers-reduced-motion: reduce)`).matches;d(o+e,!n)}),d(o,!matchMedia(`(prefers-reduced-motion: reduce)`).matches,!1)}</script><main id="main" tabindex="-1"><style>.page-wrapper {
+    box-sizing: border-box;
+    background-color: var(--bg);
+}
+html:not(.js) .page-wrapper,
+.js:not(.sidebar-resizing) .page-wrapper {
+    transition: margin-left 0.3s ease, transform 0.3s ease; /* Animation: slide away */
+}
+[dir=rtl]:not(.js) .page-wrapper,
+[dir=rtl].js:not(.sidebar-resizing) .page-wrapper {
+    transition: margin-right 0.3s ease, transform 0.3s ease; /* Animation: slide away */
+}
+
+.sidebar {
+    position: fixed;
+    left: 0;
+    top: 0;
+    bottom: 0;
+    width: var(--sidebar-width);
+    font-size: 0.875em;
+    box-sizing: border-box;
+    -webkit-overflow-scrolling: touch;
+    overscroll-behavior-y: contain;
+    background-color: var(--sidebar-bg);
+    color: var(--sidebar-fg);
+}
+.sidebar-iframe-inner {
+    --padding: 10px;
+
+    background-color: var(--sidebar-bg);
+    padding: var(--padding);
+    margin: 0;
+    font-size: 1.4rem;
+    color: var(--sidebar-fg);
+    min-height: calc(100vh - var(--padding) * 2);
+}
+.sidebar-iframe-outer {
+    border: none;
+    height: 100%;
+    position: absolute;
+    top: 0;
+    bottom: 0;
+    left: 0;
+    right: 0;
+}
+[dir=rtl] .sidebar { left: unset; right: 0; }
+.sidebar-resizing {
+    -moz-user-select: none;
+    -webkit-user-select: none;
+    -ms-user-select: none;
+    user-select: none;
+}
+html:not(.sidebar-resizing) .sidebar {
+    transition: transform 0.3s; /* Animation: slide away */
+}
+.sidebar code {
+    line-height: 2em;
+}
+.sidebar .sidebar-scrollbox {
+    overflow-y: auto;
+    position: absolute;
+    top: 0;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    padding: 10px 10px;
+}
+.sidebar .sidebar-resize-handle {
+    position: absolute;
+    cursor: col-resize;
+    width: 0;
+    right: calc(var(--sidebar-resize-indicator-width) * -1);
+    top: 0;
+    bottom: 0;
+    display: flex;
+    align-items: center;
+}
+
+.sidebar-resize-handle .sidebar-resize-indicator {
+    width: 100%;
+    height: 16px;
+    color: var(--icons);
+    margin-inline-start: var(--sidebar-resize-indicator-space);
+    display: flex;
+    align-items: center;
+    justify-content: flex-start;
+}
+.sidebar-resize-handle .sidebar-resize-indicator::before {
+    content: "";
+    width: 2px;
+    height: 12px;
+    border-left: dotted 2px currentColor;
+}
+.sidebar-resize-handle .sidebar-resize-indicator::after {
+    content: "";
+    width: 2px;
+    height: 16px;
+    border-left: dotted 2px currentColor;
+}
+
+[dir=rtl] .sidebar .sidebar-resize-handle {
+    left: calc(var(--sidebar-resize-indicator-width) * -1);
+    right: unset;
+}
+.js .sidebar .sidebar-resize-handle {
+    cursor: col-resize;
+    width: calc(var(--sidebar-resize-indicator-width) - var(--sidebar-resize-indicator-space));
+}
+
+html:not(.js) .sidebar-resize-handle {
+    display: none;
+}
+
+/* sidebar-hidden */
+#mdbook-sidebar-toggle-anchor:not(:checked) ~ .sidebar {
+    transform: translateX(calc(0px - var(--sidebar-width) - var(--sidebar-resize-indicator-width)));
+}
+[dir=rtl] #mdbook-sidebar-toggle-anchor:not(:checked) ~ .sidebar {
+    transform: translateX(calc(var(--sidebar-width) + var(--sidebar-resize-indicator-width)));
+}
+.sidebar::-webkit-scrollbar {
+    background: var(--sidebar-bg);
+}
+.sidebar::-webkit-scrollbar-thumb {
+    background: var(--scrollbar);
+}
+
+/* sidebar-visible */
+#mdbook-sidebar-toggle-anchor:checked ~ .page-wrapper {
+    transform: translateX(calc(var(--sidebar-width) + var(--sidebar-resize-indicator-width)));
+}
+[dir=rtl] #mdbook-sidebar-toggle-anchor:checked ~ .page-wrapper {
+    transform: translateX(calc(0px - var(--sidebar-width) - var(--sidebar-resize-indicator-width)));
+}
+@media only screen and (min-width: 620px) {
+    #mdbook-sidebar-toggle-anchor:checked ~ .page-wrapper {
+        transform: none;
+        margin-inline-start: calc(var(--sidebar-width) + var(--sidebar-resize-indicator-width));
+    }
+    [dir=rtl] #mdbook-sidebar-toggle-anchor:checked ~ .page-wrapper {
+        transform: none;
+    }
+}
+
+.chapter {
+    list-style: none outside none;
+    padding-inline-start: 0;
+    line-height: 2.2em;
+}
+
+.chapter li {
+    color: var(--sidebar-non-existant);
+}
+
+/* This is a span wrapping the chapter link and the fold chevron. */
+.chapter-link-wrapper {
+    /* Used to position the chevron to the right, allowing the text to wrap before it. */
+    display: flex;
+}
+
+.chapter li a {
+    /* Remove underlines. */
+    text-decoration: none;
+    color: var(--sidebar-fg);
+}
+
+.chapter li a:hover {
+    color: var(--sidebar-active);
+}
+
+.chapter li a.active {
+    color: var(--sidebar-active);
+}
+
+/* This is the toggle chevron. */
+.chapter-fold-toggle {
+    cursor: pointer;
+    /* Positions the chevron to the side. */
+    margin-inline-start: auto;
+    padding: 0 10px;
+    user-select: none;
+    opacity: 0.68;
+}
+
+.chapter-fold-toggle div {
+    transition: transform 0.5s;
+}
+
+/* collapse the section */
+.chapter li:not(.expanded) > ol {
+    display: none;
+}
+
+.chapter li.chapter-item {
+    line-height: 1.5em;
+    margin-block-start: 0.6em;
+}
+
+.chapter li.header-item {
+    /* Make sure there is plenty of spacing between sections so they don't blend in
+       with each other. */
+    margin-block-end: 0.5em;
+    /* Avoid too much spacing between lines when section heading word wraps so that
+       it can be distinguished between successive headings. */
+    line-height: 1.5em;
+}
+
+/* When expanded, rotate the chevron to point down. */
+.chapter li.expanded > span > .chapter-fold-toggle div {
+    transform: rotate(90deg);
+}
+
+.chapter a.current-header {
+    color: var(--sidebar-active);
+}
+
+.on-this-page {
+    margin-left: 22px;
+    border-inline-start: 4px solid var(--sidebar-header-border-color);
+    padding-left: 8px;
+}
+
+.on-this-page > ol {
+    padding-left: 0;
+}
+
+/* Horizontal line in chapter list. */
+.spacer {
+    width: 100%;
+    height: 3px;
+    margin: 5px 0px;
+}
+.chapter .spacer {
+    background-color: var(--sidebar-spacer);
+}
+
+/* On touch devices, add more vertical spacing to make it easier to tap links. */
+@media (-moz-touch-enabled: 1), (pointer: coarse) {
+    .chapter li a { padding: 5px 0; }
+    .spacer { margin: 10px 0; }
+}
+
+.section {
+    list-style: none outside none;
+    padding-inline-start: 20px;
+    line-height: 1.9em;
+}
+
+/* Sidebar */
+/* Keep the header fixed when the narrow-screen sidebar opens. */
+#mdbook-sidebar-toggle-anchor:checked ~ .page-wrapper { transform: none; }
+
+
+:root {
+  --sidebar-target-width: 300px;
+}
+
+.sidebar {
+  font-family: var(--sans-font);
+  font-size: 14px;
+}
+
+.sidebar .sidebar-scrollbox {
+  padding: 18px 18px 40px;
+}
+
+.chapter {
+  margin-block: 14px;
+}
+
+.chapter .section {
+  margin-block: 0;
+}
+
+.chapter li.chapter-item {
+  margin-block-start: 0.35em;
+  line-height: 1.4;
+}
+
+.chapter li.part-title {
+  margin-block: 1.6em 0.5em;
+  color: var(--nav-muted);
+  font: 500 11px/1.2 var(--mono-font);
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.chapter li > .chapter-link-wrapper > a:has(> strong),
+.chapter li > a:has(> strong) {
+  display: grid;
+  grid-template-columns: var(--chapter-number-width, 3ch) minmax(0, 1fr);
+  column-gap: 8px;
+  align-items: baseline;
+}
+
+.chapter li > .chapter-link-wrapper > a > strong,
+.chapter li > a > strong {
+  margin-right: 0;
+  text-align: left;
+  color: var(--nav-muted);
+  font: 500 11.5px/1 var(--mono-font);
+  font-variant-numeric: tabular-nums;
+}
+
+.chapter li a.active {
+  color: var(--sidebar-active);
+  font-weight: 600;
+}
+
+.chapter li:not(.expanded) > .on-this-page {
+  display: none;
+}
+
+.chapter .chapter-fold-toggle {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-sizing: border-box;
+  flex: 0 0 28px;
+  width: 28px;
+  min-width: 28px;
+  height: 1.4em;
+  align-self: flex-start;
+  font: inherit;
+  padding: 0;
+  border: 0;
+  background: none;
+  color: var(--sidebar-fg);
+  opacity: 1;
+}
+
+.chapter .chapter-fold-toggle div {
+  box-sizing: border-box;
+  flex: none;
+  width: 7px;
+  height: 7px;
+  border-right: 2px solid currentColor;
+  border-bottom: 2px solid currentColor;
+  font-size: 0;
+  transform: rotate(-45deg);
+  transition: transform 120ms ease;
+}
+
+.chapter li.expanded > span > .chapter-fold-toggle div {
+  transform: rotate(45deg);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .chapter .chapter-fold-toggle div {
+    transition: none;
+  }
+}
+
+.chapter a.current-header {
+  font-weight: 500;
+}
+
+.on-this-page {
+  margin-inline-start: 0;
+  border-inline-start: 1px solid var(--hairline);
+  padding-inline-start: 13px;
+}
+
+.on-this-page > ol {
+  font-size: 13px;
+}
+
+.chapter-item:has(> .chapter-link-wrapper > a > strong) > .on-this-page {
+  margin-inline-start: calc(var(--chapter-number-width, 3ch) + 8px);
+}
+
+.section {
+  padding-inline-start: 14px;
+  line-height: 1.5;
+}
+
+.chapter .section:has(> li > .chapter-link-wrapper > a > strong),
+.chapter .section:has(> li > a > strong) {
+  padding-inline-start: 0;
+}
+
+.section li {
+  margin-block-start: 0.3em;
+}
+
+.sidebar-resize-handle {
+  background: none;
+}
+
+
+.examples-shell { --x2c-red-text: var(--red-text); --sidebar-bg: #ece8e1;
+--sidebar-fg: #3a3632;
+--sidebar-non-existant: #8f8983;
+--sidebar-active: var(--x2c-red-text);
+--sidebar-spacer: rgba(23, 23, 23, 0.14); }</style><div class="examples-shell" data-examples-shell><input type="checkbox" id="mdbook-sidebar-toggle-anchor" hidden><script>/* Sidebar bootstrap */
+            document.documentElement.classList.add('js');
+            let sidebar = 'hidden';
+            const sidebar_toggle = document.getElementById("mdbook-sidebar-toggle-anchor");
+            if (document.body.clientWidth >= 1080) {
+                try { sidebar = localStorage.getItem('mdbook-sidebar') || 'visible'; }
+                catch { sidebar = 'visible'; }
+            }
+            try {
+                const width = Number(localStorage.getItem('mdbook-sidebar-width'));
+                if (width >= 150) {
+                    document.documentElement.style.setProperty('--sidebar-target-width', width + 'px');
+                }
+            } catch {}
+            sidebar_toggle.checked = sidebar === 'visible';
+            document.documentElement.classList.toggle('sidebar-visible', sidebar_toggle.checked);
+            </script><nav id="mdbook-sidebar" class="sidebar examples-index" aria-label="Example index"><div class="sidebar-scrollbox"><ol class="chapter"><li class="part-title">Start here</li><li class="chapter-item" data-example-section="essentials"><span class="chapter-link-wrapper"><a href="/examples/essentials/"><strong>1.</strong> x2c essentials</a></span><ol class="section"></ol></li><li class="chapter-item" data-example-section="language" data-track-example-sections><span class="chapter-link-wrapper"><a href="/examples/language/" class="active"><strong>2.</strong> Language walkthrough</a></span><ol class="section"></ol></li><li class="part-title">Language examples</li><li class="chapter-item" data-example-section="love"><span class="chapter-link-wrapper"><a href="/examples/love/"><strong>3.</strong> Love</a><button class="chapter-fold-toggle" aria-label="Toggle Love" aria-expanded="false" type="button"><div aria-hidden="true">&#10097;</div></button></span><ol class="section"><li class="chapter-item"><a href="/examples/love/#love-values" data-index-link><strong>3.1.</strong> var</a></li><li class="chapter-item"><a href="/examples/love/#love-symbols" data-index-link><strong>3.2.</strong> names</a></li><li class="chapter-item"><a href="/examples/love/#love-strings" data-index-link><strong>3.3.</strong> text</a></li><li class="chapter-item"><a href="/examples/love/#love-collections" data-index-link><strong>3.4.</strong> collections</a></li><li class="chapter-item"><a href="/examples/love/#love-literals" data-index-link><strong>3.5.</strong> literals</a></li><li class="chapter-item"><a href="/examples/love/#love-two-kinds" data-index-link><strong>3.6.</strong> two tests</a></li><li class="chapter-item"><a href="/examples/love/#love-files" data-index-link><strong>3.7.</strong> files</a></li><li class="chapter-item"><a href="/examples/love/#love-loops" data-index-link><strong>3.8.</strong> loops</a></li><li class="chapter-item"><a href="/examples/love/#power-scopes" data-index-link><strong>3.9.</strong> memory</a></li><li class="chapter-item"><a href="/examples/love/#love-lists" data-index-link><strong>3.10.</strong> lists</a></li><li class="chapter-item"><a href="/examples/love/#love-arrays" data-index-link><strong>3.11.</strong> arrays</a></li><li class="chapter-item"><a href="/examples/love/#love-maps" data-index-link><strong>3.12.</strong> maps</a></li><li class="chapter-item"><a href="/examples/love/#love-methods" data-index-link><strong>3.13.</strong> methods</a></li></ol></li><li class="chapter-item" data-example-section="power"><span class="chapter-link-wrapper"><a href="/examples/power/"><strong>4.</strong> Power</a><button class="chapter-fold-toggle" aria-label="Toggle Power" aria-expanded="false" type="button"><div aria-hidden="true">&#10097;</div></button></span><ol class="section"><li class="chapter-item"><a href="/examples/power/#power-classes" data-index-link><strong>4.1.</strong> classes</a></li><li class="chapter-item"><a href="/examples/power/#power-protocols" data-index-link><strong>4.2.</strong> protocols</a></li><li class="chapter-item"><a href="/examples/power/#power-indexing" data-index-link><strong>4.3.</strong> indexing</a></li><li class="chapter-item"><a href="/examples/power/#power-destructuring" data-index-link><strong>4.4.</strong> destructuring</a></li><li class="chapter-item"><a href="/examples/power/#power-match" data-index-link><strong>4.5.</strong> matching</a></li><li class="chapter-item"><a href="/examples/power/#power-iterators" data-index-link><strong>4.6.</strong> iterators</a></li><li class="chapter-item"><a href="/examples/power/#power-exceptions" data-index-link><strong>4.7.</strong> errors</a></li><li class="chapter-item"><a href="/examples/power/#power-channels" data-index-link><strong>4.8.</strong> channels</a></li><li class="chapter-item"><a href="/examples/power/#power-imports" data-index-link><strong>4.9.</strong> packages</a></li><li class="chapter-item"><a href="/examples/power/#power-counting" data-index-link><strong>4.10.</strong> counting</a></li><li class="chapter-item"><a href="/examples/power/#power-threads" data-index-link><strong>4.11.</strong> threads</a></li></ol></li><li class="chapter-item" data-example-section="magic"><span class="chapter-link-wrapper"><a href="/examples/magic/"><strong>5.</strong> Magic</a><button class="chapter-fold-toggle" aria-label="Toggle Magic" aria-expanded="false" type="button"><div aria-hidden="true">&#10097;</div></button></span><ol class="section"><li class="chapter-item"><a href="/examples/magic/#magic-runtime" data-index-link><strong>5.1.</strong> runtime Lisp</a></li><li class="chapter-item"><a href="/examples/magic/#magic-derive" data-index-link><strong>5.2.</strong> macros</a></li><li class="chapter-item"><a href="/examples/magic/#magic-macros" data-index-link><strong>5.3.</strong> templates</a></li><li class="chapter-item"><a href="/examples/magic/#magic-decorators" data-index-link><strong>5.4.</strong> decorators</a></li><li class="chapter-item"><a href="/examples/magic/#magic-keywords" data-index-link><strong>5.5.</strong> keywords</a></li><li class="chapter-item"><a href="/examples/magic/#magic-extensions" data-index-link><strong>5.6.</strong> extensions</a></li><li class="chapter-item"><a href="/examples/magic/#magic-fields" data-index-link><strong>5.7.</strong> meta</a></li><li class="chapter-item"><a href="/examples/magic/#magic-compile-time" data-index-link><strong>5.8.</strong> compile time</a></li><li class="chapter-item"><a href="/examples/magic/#magic-autodiff" data-index-link><strong>5.9.</strong> autodiff</a></li><li class="chapter-item"><a href="/examples/magic/#magic-operators" data-index-link><strong>5.10.</strong> operators</a></li><li class="chapter-item"><a href="/examples/magic/#magic-ways-to-agree" data-index-link><strong>5.11.</strong> same list</a></li></ol></li><li class="part-title">Complete programs</li><li class="chapter-item expanded" data-example-section="programs"><span class="chapter-link-wrapper"><a href="/examples/programs/"><strong>6.</strong> Programs</a><button class="chapter-fold-toggle" aria-label="Toggle Programs" aria-expanded="true" type="button"><div aria-hidden="true">&#10097;</div></button></span><ol class="section"><li class="chapter-item"><a href="/examples/literate-lisp/" data-index-link><strong>6.1.</strong> Literate Lisp</a></li><li class="chapter-item"><a href="/examples/notes/" data-index-link><strong>6.2.</strong> Notes service</a></li><li class="chapter-item"><a href="/examples/torch/" data-index-link><strong>6.3.</strong> Recognize digits</a></li><li class="chapter-item"><a href="/examples/game-of-life/" data-index-link><strong>6.4.</strong> Game of Life in a TTY</a></li><li class="chapter-item"><a href="/examples/embedded-lisp/" data-index-link><strong>6.5.</strong> Embed scripting</a></li><li class="chapter-item"><a href="/examples/autodiff/" data-index-link><strong>6.6.</strong> Differentiate a function</a></li></ol></li><li class="part-title">Progressions and comparisons</li><li class="chapter-item" data-example-section="from-c"><span class="chapter-link-wrapper"><a href="/examples/from-c/"><strong>7.</strong> From C to x2c</a><button class="chapter-fold-toggle" aria-label="Toggle From C to x2c" aria-expanded="false" type="button"><div aria-hidden="true">&#10097;</div></button></span><ol class="section"><li class="chapter-item"><a href="/examples/from-c/#overview" data-index-link><strong>7.1.</strong> The destination</a></li><li class="chapter-item"><a href="/examples/from-c/#baseline" data-index-link><strong>7.2.</strong> V0: The C baseline</a></li><li class="chapter-item"><a href="/examples/from-c/#v1" data-index-link><strong>7.3.</strong> V1: Automatic cleanup</a></li><li class="chapter-item"><a href="/examples/from-c/#v2" data-index-link><strong>7.4.</strong> V2: Borrowed words</a></li><li class="chapter-item"><a href="/examples/from-c/#v3" data-index-link><strong>7.5.</strong> V3: Top ten</a></li><li class="chapter-item"><a href="/examples/from-c/#v4" data-index-link><strong>7.6.</strong> V4: A count map</a></li><li class="chapter-item"><a href="/examples/from-c/#v5" data-index-link><strong>7.7.</strong> V5: One operation</a></li><li class="chapter-item"><a href="/examples/from-c/#v6" data-index-link><strong>7.8.</strong> V6: Directories</a></li><li class="chapter-item"><a href="/examples/from-c/#v7" data-index-link><strong>7.9.</strong> V7: Parallel work</a></li><li class="chapter-item"><a href="/examples/from-c/#v8" data-index-link><strong>7.10.</strong> V8: A reusable API</a></li><li class="chapter-item"><a href="/examples/from-c/#performance" data-index-link><strong>7.11.</strong> Measured performance</a></li><li class="chapter-item"><a href="/examples/from-c/#run" data-index-link><strong>7.12.</strong> Run it locally</a></li><li class="chapter-item"><a href="/examples/from-c/#compare" data-index-link><strong>7.13.</strong> Complete source</a></li></ol></li><li class="chapter-item" data-example-section="shootout"><span class="chapter-link-wrapper"><a href="/examples/shootout/"><strong>8.</strong> Programming language shootout</a><button class="chapter-fold-toggle" aria-label="Toggle Programming language shootout" aria-expanded="false" type="button"><div aria-hidden="true">&#10097;</div></button></span><ol class="section"><li class="chapter-item"><a href="/examples/shootout/#charts" data-index-link><strong>8.1.</strong> Runtime by problem</a></li><li class="chapter-item"><a href="/examples/shootout/#representation" data-index-link><strong>8.2.</strong> Data representation</a></li><li class="chapter-item"><a href="/examples/shootout/#buffers" data-index-link><strong>8.3.</strong> Buffered work</a></li><li class="chapter-item"><a href="/examples/shootout/#source-size" data-index-link><strong>8.4.</strong> Source-size tradeoffs</a></li><li class="chapter-item"><a href="/examples/shootout/#languages" data-index-link><strong>8.5.</strong> Other languages</a></li><li class="chapter-item"><a href="/examples/shootout/#method" data-index-link><strong>8.6.</strong> Measurement scope</a></li><li class="chapter-item"><a href="/examples/shootout/#programs" data-index-link><strong>8.7.</strong> Complete programs</a></li><li class="chapter-item"><a href="/examples/shootout/#nbody" data-index-link><strong>8.8.</strong> n-body</a></li><li class="chapter-item"><a href="/examples/shootout/#spectralnorm" data-index-link><strong>8.9.</strong> spectral norm</a></li><li class="chapter-item"><a href="/examples/shootout/#fannkuchredux" data-index-link><strong>8.10.</strong> fannkuch-redux</a></li><li class="chapter-item"><a href="/examples/shootout/#mandelbrot" data-index-link><strong>8.11.</strong> Mandelbrot bitmap</a></li><li class="chapter-item"><a href="/examples/shootout/#fasta" data-index-link><strong>8.12.</strong> fasta</a></li><li class="chapter-item"><a href="/examples/shootout/#knucleotide" data-index-link><strong>8.13.</strong> k-nucleotide</a></li><li class="chapter-item"><a href="/examples/shootout/#revcomp" data-index-link><strong>8.14.</strong> reverse-complement</a></li><li class="chapter-item"><a href="/examples/shootout/#binarytrees" data-index-link><strong>8.15.</strong> binary-trees</a></li><li class="chapter-item"><a href="/examples/shootout/#regexredux" data-index-link><strong>8.16.</strong> regex-redux</a></li><li class="chapter-item"><a href="/examples/shootout/#pidigits" data-index-link><strong>8.17.</strong> pidigits</a></li></ol></li></ol></div><div id="mdbook-sidebar-resize-handle" class="sidebar-resize-handle"><div class="sidebar-resize-indicator"></div></div></nav><script>
+    try {
+      if (!sessionStorage.getItem("examples-visited") && document.body.clientWidth >= 1080) {
+        document.getElementById("mdbook-sidebar-toggle-anchor").checked = true;
+        document.documentElement.classList.add("sidebar-visible");
+      }
+      // The entry route redirects; initialize the session on its destination.
+      if (!/\/examples\/(?:index.html)?$/.test(location.pathname)) {
+        sessionStorage.setItem("examples-visited", "true");
+      }
+    } catch {}
+    for (const item of document.querySelectorAll("[data-example-section]")) {
+      const key = `examples-section-${item.dataset.exampleSection}`;
+      try {
+        const saved = sessionStorage.getItem(key);
+        if (saved !== null) item.classList.toggle("expanded", saved === "open");
+      } catch {}
+      item.querySelector(".chapter-fold-toggle")?.setAttribute(
+        "aria-expanded", String(item.classList.contains("expanded")));
+    }
+  </script><div class="page-wrapper examples-reading"><article class="example-page" data-example="language" data-section="tours" data-surface="detail"><header class="example-heading"><h1>Walk through the language.</h1><p class="example-premise">From a Var to your own types, operators, patterns, macros, and cooperating threads.</p><nav class="example-actions" aria-label="Example actions"><a class="example-run-link" href="#run" data-example-action="run">Run it locally <span aria-hidden="true">&darr;</span></a><a href="https://github.com/gwf/x2c/blob/3f6cd0a90fdca9056a7340e551ffa8a19de6d535/examples/tours/language.x" data-example-action="source">Full source</a><a href="/docs/guide/x2c-syntax-map.html" data-example-action="guide">Read the guide</a><span class="copy-control"><button type="button" class="copy-button" data-copy-text="https://staging.x2c-lang.dev/examples/language/" data-copy-action="share" aria-label="Copy link" hidden><span class="copy-label">Copy link</span><svg class="copy-mark" viewBox="0 0 16 16" aria-hidden="true"><path d="m3 8 3 3 7-7" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"></path></svg></button><span class="copy-status" role="status"></span></span><script type="module" src="/assets/CopyButton.astro_astro_type_script_index_0_lang.BvWLTxxp.js"></script></nav></header><div class="example-prose"><p>This walkthrough introduces the main language features in twelve steps.
+It begins with <code>Var</code>, then builds through text and collections to functions,
+user-defined types, classes, protocols, pattern matching, cleanup, and
+compile-time code. Two workers finish by counting words through a channel.</p>
+<p>Definitions appear beside the section that introduces them. Read from the top;
+<code>main</code> at the bottom calls each section in order. Small recurring examples
+keep the focus on the language rather than application setup.</p>
+<p>The shorter <a href="../essentials/">essentials walkthrough</a> emphasizes concepts and
+gotchas. The <a href="../../docs/guide/from-c.html">language guide</a> supplies the fuller
+rules, including source organization and alternate indentation syntax.</p>
+</div><nav class="example-prose" aria-label="Walkthrough sections"><h2>In this walkthrough</h2><ol><li><a href="#line-9">Values and types</a></li><li><a href="#line-22">Names and text</a></li><li><a href="#line-36">Collections and literals</a></li><li><a href="#line-62">Iteration and absence</a></li><li><a href="#line-85">Functions and closures</a></li><li><a href="#line-111">Types and methods</a></li><li><a href="#line-134">Classes</a></li><li><a href="#line-155">Protocols and operators</a></li><li><a href="#line-179">Patterns and templates</a></li><li><a href="#line-201">Lifetime and errors</a></li><li><a href="#line-236">Compile-time code</a></li><li><a href="#line-268">Threads and channels</a></li></ol></nav><section id="source" aria-label="Complete walkthrough source"><div class="reading-source-bar"><span>examples/tours/language.x</span></div><div class="reading-source" tabindex="0" role="region" aria-label="Source code; scroll horizontally on narrow screens"><pre class="astro-code x2c-dark" style="background-color:#101011;color:#e9e5df; overflow-x: auto;" tabindex="0" data-language="x2c"><code><span class="line" id="line-1"><span style="color:#8B857F">/*  language.x -- a language walkthrough, from values to generated code.</span></span>
+<span class="line" id="line-2"></span>
+<span class="line" id="line-3"><span style="color:#8B857F">    Run: x2c run examples/tours/language.x</span></span>
+<span class="line" id="line-4"><span style="color:#8B857F">    Read in order; main at the end runs the numbered sections.</span></span>
+<span class="line" id="line-5"><span style="color:#8B857F">    The book's Language guide explains the details omitted here.</span></span>
+<span class="line" id="line-6"><span style="color:#8B857F">*/</span></span>
+<span class="line" id="line-7"><span style="color:#F0ADA1">#include</span><span style="color:#9EDFB8"> "meta.x"</span></span>
+<span class="line" id="line-8"></span>
+<span class="line" id="line-9"><span style="color:#8B857F">/* 1. Values and types</span></span>
+<span class="line" id="line-10"><span style="color:#8B857F">   Var carries a runtime tag. Typed destinations request conversions;</span></span>
+<span class="line" id="line-11"><span style="color:#8B857F">   ordinary int arithmetic remains native C arithmetic. */</span></span>
+<span class="line" id="line-12"><span style="color:#F0ADA1">static</span><span style="color:#F0ADA1"> void</span><span style="color:#E9E5DF"> values(</span><span style="color:#F0ADA1">void</span><span style="color:#E9E5DF">) {</span></span>
+<span class="line" id="line-13"><span style="color:#29D3E2">  Var</span><span style="color:#E9E5DF"> value = </span><span style="color:#A9C9F5">42</span><span style="color:#E9E5DF">;</span></span>
+<span class="line" id="line-14"><span style="color:#E9E5DF">  value += </span><span style="color:#A9C9F5">1</span><span style="color:#E9E5DF">;</span></span>
+<span class="line" id="line-15"><span style="color:#F0ADA1">  int</span><span style="color:#E9E5DF"> count = value;</span></span>
+<span class="line" id="line-16"><span style="color:#F0ADA1">  double</span><span style="color:#E9E5DF"> half = count / </span><span style="color:#A9C9F5">2.0</span><span style="color:#E9E5DF">;</span></span>
+<span class="line" id="line-17"><span style="color:#E9E5DF">  printf(</span><span style="color:#9EDFB8">"1. values: %s, native %d, half %.1f\n"</span><span style="color:#E9E5DF">, value, count, half);</span></span>
+<span class="line" id="line-18"><span style="color:#E9E5DF">  value = </span><span style="color:#9EDFB8">"ready"</span><span style="color:#E9E5DF">;</span></span>
+<span class="line" id="line-19"><span style="color:#E9E5DF">  printf(</span><span style="color:#9EDFB8">"   now %s, String tag %d\n"</span><span style="color:#E9E5DF">, value, value </span><span style="color:#FF4FD8;font-weight:bold">is</span><span style="color:#29D3E2"> String</span><span style="color:#E9E5DF">);</span></span>
+<span class="line" id="line-20"><span style="color:#E9E5DF">}</span></span>
+<span class="line" id="line-21"></span>
+<span class="line" id="line-22"><span style="color:#8B857F">/* 2. Names and text</span></span>
+<span class="line" id="line-23"><span style="color:#8B857F">   Symbols encode short names. Atoms also represent longer exact names.</span></span>
+<span class="line" id="line-24"><span style="color:#8B857F">   Strings are immutable, canonical text; + and slices produce values. */</span></span>
+<span class="line" id="line-25"><span style="color:#F0ADA1">static</span><span style="color:#F0ADA1"> void</span><span style="color:#E9E5DF"> text(</span><span style="color:#F0ADA1">void</span><span style="color:#E9E5DF">) {</span></span>
+<span class="line" id="line-26"><span style="color:#29D3E2">  Symbol</span><span style="color:#E9E5DF"> phase = </span><span style="color:#FF4FD8;font-weight:bold">&#x3C;</span><span style="color:#E9E5DF">ready</span><span style="color:#FF4FD8;font-weight:bold">></span><span style="color:#E9E5DF">;</span></span>
+<span class="line" id="line-27"><span style="color:#29D3E2">  Atom</span><span style="color:#E9E5DF"> name = </span><span style="color:#FF4FD8;font-weight:bold">%(</span><span style="color:#E9E5DF">a-name-too-long-for-a-symbol</span><span style="color:#FF4FD8;font-weight:bold">)</span><span style="color:#E9E5DF">.car();</span></span>
+<span class="line" id="line-28"><span style="color:#29D3E2">  SymbolSet</span><span style="color:#E9E5DF"> phases = </span><span style="color:#FF4FD8;font-weight:bold">%&#x3C;</span><span style="color:#E9E5DF">ready running done</span><span style="color:#FF4FD8;font-weight:bold">></span><span style="color:#E9E5DF">;</span></span>
+<span class="line" id="line-29"><span style="color:#29D3E2">  String</span><span style="color:#E9E5DF"> greeting = </span><span style="color:#9EDFB8">"hello"</span><span style="color:#E9E5DF"> + </span><span style="color:#9EDFB8">" world"</span><span style="color:#E9E5DF">, expected = </span><span style="color:#9EDFB8">"hello world"</span><span style="color:#E9E5DF">;</span></span>
+<span class="line" id="line-30"><span style="color:#E9E5DF">  puts(</span><span style="color:#FF4FD8;font-weight:bold">%"</span><span style="color:#9EDFB8">2. text: </span><span style="color:#FF4FD8;font-weight:bold">$</span><span style="color:#E9E5DF">greeting</span><span style="color:#9EDFB8">; </span><span style="color:#FF4FD8;font-weight:bold">$(</span><span style="color:#E9E5DF">greeting</span><span style="color:#9EDFB8">[</span><span style="color:#A9C9F5">0</span><span style="color:#9EDFB8">:</span><span style="color:#A9C9F5">5</span><span style="color:#9EDFB8">]</span><span style="color:#FF4FD8;font-weight:bold">)</span><span style="color:#9EDFB8">; </span><span style="color:#FF4FD8;font-weight:bold">$</span><span style="color:#E9E5DF">phase</span><span style="color:#FF4FD8;font-weight:bold">"</span><span style="color:#E9E5DF">);</span></span>
+<span class="line" id="line-31"><span style="color:#E9E5DF">  printf(</span><span style="color:#9EDFB8">"   %s; phase index %d\n"</span><span style="color:#E9E5DF">, name, phases.index(phase));</span></span>
+<span class="line" id="line-32"><span style="color:#E9E5DF">  printf(</span><span style="color:#9EDFB8">"   equal %d, identical %d\n"</span><span style="color:#E9E5DF">,</span></span>
+<span class="line" id="line-33"><span style="color:#E9E5DF">         greeting == expected, greeting === expected);</span></span>
+<span class="line" id="line-34"><span style="color:#E9E5DF">}</span></span>
+<span class="line" id="line-35"></span>
+<span class="line" id="line-36"><span style="color:#8B857F">/* 3. Collections and literals</span></span>
+<span class="line" id="line-37"><span style="color:#8B857F">   Lists are immutable and share tails. Arrays and Maps are mutable;</span></span>
+<span class="line" id="line-38"><span style="color:#8B857F">   copying a handle shares its object. Percent literals quote names as data. */</span></span>
+<span class="line" id="line-39"><span style="color:#F0ADA1">static</span><span style="color:#F0ADA1"> void</span><span style="color:#E9E5DF"> collections(</span><span style="color:#F0ADA1">void</span><span style="color:#E9E5DF">) {</span></span>
+<span class="line" id="line-40"><span style="color:#F0ADA1">  int</span><span style="color:#E9E5DF"> n = </span><span style="color:#A9C9F5">2</span><span style="color:#E9E5DF">;</span></span>
+<span class="line" id="line-41"><span style="color:#29D3E2">  List</span><span style="color:#E9E5DF"> quoted = </span><span style="color:#FF4FD8;font-weight:bold">%(</span><span style="color:#E9E5DF">n </span><span style="color:#FF4FD8;font-weight:bold">$</span><span style="color:#E9E5DF">n </span><span style="color:#FF4FD8;font-weight:bold">$(</span><span style="color:#E9E5DF">n + </span><span style="color:#A9C9F5">1</span><span style="color:#FF4FD8;font-weight:bold">))</span><span style="color:#E9E5DF">;</span></span>
+<span class="line" id="line-42"><span style="color:#29D3E2">  List</span><span style="color:#E9E5DF"> evaluated = </span><span style="color:#FF4FD8;font-weight:bold">$</span><span style="color:#E9E5DF">(n, n + </span><span style="color:#A9C9F5">1</span><span style="color:#E9E5DF">), extended = </span><span style="color:#FF4FD8;font-weight:bold">%(</span><span style="color:#A9C9F5">1</span><span style="color:#FF4FD8;font-weight:bold"> @</span><span style="color:#E9E5DF">evaluated</span><span style="color:#FF4FD8;font-weight:bold">)</span><span style="color:#E9E5DF">;</span></span>
+<span class="line" id="line-43"><span style="color:#29D3E2">  Array</span><span style="color:#E9E5DF"> numbers = [</span><span style="color:#A9C9F5">1</span><span style="color:#E9E5DF">, n, n + </span><span style="color:#A9C9F5">1</span><span style="color:#E9E5DF">], shared = numbers;</span></span>
+<span class="line" id="line-44"><span style="color:#E9E5DF">  shared[</span><span style="color:#A9C9F5">0</span><span style="color:#E9E5DF">] = </span><span style="color:#A9C9F5">9</span><span style="color:#E9E5DF">;</span></span>
+<span class="line" id="line-45"><span style="color:#29D3E2">  String</span><span style="color:#E9E5DF"> key = </span><span style="color:#9EDFB8">"answer"</span><span style="color:#E9E5DF">;</span></span>
+<span class="line" id="line-46"><span style="color:#29D3E2">  Map</span><span style="color:#E9E5DF"> named = {key: n}, computed = </span><span style="color:#FF4FD8;font-weight:bold">${</span><span style="color:#E9E5DF">key: n</span><span style="color:#FF4FD8;font-weight:bold">}</span><span style="color:#E9E5DF">;</span></span>
+<span class="line" id="line-47"><span style="color:#E9E5DF">  printf(</span><span style="color:#9EDFB8">"3. lists: %s; %s; %s\n"</span><span style="color:#E9E5DF">,</span></span>
+<span class="line" id="line-48"><span style="color:#E9E5DF">         quoted.repr(), evaluated.repr(), extended.repr());</span></span>
+<span class="line" id="line-49"><span style="color:#E9E5DF">  printf(</span><span style="color:#9EDFB8">"   array %s; last %s; slice %s\n"</span><span style="color:#E9E5DF">,</span></span>
+<span class="line" id="line-50"><span style="color:#E9E5DF">         numbers.repr(), numbers[-</span><span style="color:#A9C9F5">1</span><span style="color:#E9E5DF">], numbers[</span><span style="color:#A9C9F5">1</span><span style="color:#E9E5DF">:].repr());</span></span>
+<span class="line" id="line-51"><span style="color:#E9E5DF">  printf(</span><span style="color:#9EDFB8">"   map keys: %s / %s; member %d\n"</span><span style="color:#E9E5DF">,</span></span>
+<span class="line" id="line-52"><span style="color:#E9E5DF">         named.keys().list().repr(), computed.keys().list().repr(),</span></span>
+<span class="line" id="line-53"><span style="color:#E9E5DF">         key </span><span style="color:#FF4FD8;font-weight:bold">in</span><span style="color:#E9E5DF"> computed);</span></span>
+<span class="line" id="line-54"><span style="color:#E9E5DF">  printf(</span><span style="color:#9EDFB8">"   shared tail %d; shared object %d\n"</span><span style="color:#E9E5DF">,</span></span>
+<span class="line" id="line-55"><span style="color:#E9E5DF">         extended.cdr() === evaluated, numbers === shared);</span></span>
+<span class="line" id="line-56"><span style="color:#8B857F">  // Quoted Array/Map contents follow the same data-reading rule.</span></span>
+<span class="line" id="line-57"><span style="color:#29D3E2">  Array</span><span style="color:#E9E5DF"> tags = </span><span style="color:#FF4FD8;font-weight:bold">%[</span><span style="color:#E9E5DF">ready, done</span><span style="color:#FF4FD8;font-weight:bold">]</span><span style="color:#E9E5DF">;</span></span>
+<span class="line" id="line-58"><span style="color:#29D3E2">  Map</span><span style="color:#E9E5DF"> settings = </span><span style="color:#FF4FD8;font-weight:bold">%{</span><span style="color:#E9E5DF">mode: fast</span><span style="color:#FF4FD8;font-weight:bold">}</span><span style="color:#E9E5DF">;</span></span>
+<span class="line" id="line-59"><span style="color:#E9E5DF">  printf(</span><span style="color:#9EDFB8">"   quoted: %s %s\n"</span><span style="color:#E9E5DF">, tags.repr(), settings[</span><span style="color:#FF4FD8;font-weight:bold">&#x3C;</span><span style="color:#E9E5DF">mode</span><span style="color:#FF4FD8;font-weight:bold">></span><span style="color:#E9E5DF">]);</span></span>
+<span class="line" id="line-60"><span style="color:#E9E5DF">}</span></span>
+<span class="line" id="line-61"></span>
+<span class="line" id="line-62"><span style="color:#8B857F">/* 4. Iteration and absence</span></span>
+<span class="line" id="line-63"><span style="color:#8B857F">   foreach converts each item to the declared type. try_get reports presence</span></span>
+<span class="line" id="line-64"><span style="color:#8B857F">   separately from its output: a stored zero is still a present value. */</span></span>
+<span class="line" id="line-65"><span style="color:#F0ADA1">static</span><span style="color:#F0ADA1"> void</span><span style="color:#E9E5DF"> iteration(</span><span style="color:#F0ADA1">void</span><span style="color:#E9E5DF">) {</span></span>
+<span class="line" id="line-66"><span style="color:#29D3E2">  List</span><span style="color:#E9E5DF"> numbers = </span><span style="color:#FF4FD8;font-weight:bold">%(</span><span style="color:#A9C9F5">1</span><span style="color:#A9C9F5"> 2</span><span style="color:#A9C9F5"> 3</span><span style="color:#A9C9F5"> 4</span><span style="color:#FF4FD8;font-weight:bold">)</span><span style="color:#E9E5DF">;</span></span>
+<span class="line" id="line-67"><span style="color:#F0ADA1">  int</span><span style="color:#E9E5DF"> total = </span><span style="color:#A9C9F5">0</span><span style="color:#E9E5DF">;</span></span>
+<span class="line" id="line-68"><span style="color:#FF4FD8;font-weight:bold">  foreach</span><span style="color:#E9E5DF"> (</span><span style="color:#F0ADA1">int</span><span style="color:#E9E5DF"> n </span><span style="color:#FF4FD8;font-weight:bold">in</span><span style="color:#E9E5DF"> numbers) {</span></span>
+<span class="line" id="line-69"><span style="color:#F0ADA1">    if</span><span style="color:#E9E5DF"> (n == </span><span style="color:#A9C9F5">2</span><span style="color:#E9E5DF">) </span><span style="color:#F0ADA1">continue</span><span style="color:#E9E5DF">;</span></span>
+<span class="line" id="line-70"><span style="color:#E9E5DF">    total += n;</span></span>
+<span class="line" id="line-71"><span style="color:#E9E5DF">  }</span></span>
+<span class="line" id="line-72"><span style="color:#E9E5DF">  (</span><span style="color:#F0ADA1">int</span><span style="color:#E9E5DF"> first, </span><span style="color:#29D3E2">String</span><span style="color:#E9E5DF"> label) = </span><span style="color:#FF4FD8;font-weight:bold">%(</span><span style="color:#A9C9F5">7</span><span style="color:#FF4FD8;font-weight:bold"> "</span><span style="color:#9EDFB8">seven</span><span style="color:#FF4FD8;font-weight:bold">"</span><span style="color:#FF4FD8;font-weight:bold">)</span><span style="color:#E9E5DF">;</span></span>
+<span class="line" id="line-73"><span style="color:#29D3E2">  Map</span><span style="color:#E9E5DF"> counts = {zero: </span><span style="color:#A9C9F5">0</span><span style="color:#E9E5DF">};</span></span>
+<span class="line" id="line-74"><span style="color:#29D3E2">  Var</span><span style="color:#E9E5DF"> found;</span></span>
+<span class="line" id="line-75"><span style="color:#F0ADA1">  int</span><span style="color:#E9E5DF"> present = counts.try_get(</span><span style="color:#FF4FD8;font-weight:bold">&#x3C;</span><span style="color:#E9E5DF">zero</span><span style="color:#FF4FD8;font-weight:bold">></span><span style="color:#E9E5DF">, found);</span></span>
+<span class="line" id="line-76"><span style="color:#E9E5DF">  printf(</span><span style="color:#9EDFB8">"4. iteration: sum %d; unpacked %d %s\n"</span><span style="color:#E9E5DF">, total, first, label);</span></span>
+<span class="line" id="line-77"><span style="color:#E9E5DF">  printf(</span><span style="color:#9EDFB8">"   zero present %d, value %s; absent %d\n"</span><span style="color:#E9E5DF">,</span></span>
+<span class="line" id="line-78"><span style="color:#E9E5DF">         present, found, </span><span style="color:#FF4FD8;font-weight:bold">&#x3C;</span><span style="color:#E9E5DF">missing</span><span style="color:#FF4FD8;font-weight:bold">></span><span style="color:#FF4FD8;font-weight:bold"> in</span><span style="color:#E9E5DF"> counts);</span></span>
+<span class="line" id="line-79"><span style="color:#8B857F">  // False does not mean absent: empty containers and numeric zero are false.</span></span>
+<span class="line" id="line-80"><span style="color:#29D3E2">  Array</span><span style="color:#E9E5DF"> empty = </span><span style="color:#F0ADA1">[]</span><span style="color:#E9E5DF">;</span></span>
+<span class="line" id="line-81"><span style="color:#E9E5DF">  printf(</span><span style="color:#9EDFB8">"   empty truth %d; null differs from void %d\n"</span><span style="color:#E9E5DF">,</span></span>
+<span class="line" id="line-82"><span style="color:#E9E5DF">         empty ? </span><span style="color:#A9C9F5">1</span><span style="color:#E9E5DF"> : </span><span style="color:#A9C9F5">0</span><span style="color:#E9E5DF">, (</span><span style="color:#29D3E2">Var</span><span style="color:#E9E5DF">) NULL !== void);</span></span>
+<span class="line" id="line-83"><span style="color:#E9E5DF">}</span></span>
+<span class="line" id="line-84"></span>
+<span class="line" id="line-85"><span style="color:#8B857F">/* 5. Functions and closures</span></span>
+<span class="line" id="line-86"><span style="color:#8B857F">   References borrow caller storage; call without &#x26;. Rest parameters collect</span></span>
+<span class="line" id="line-87"><span style="color:#8B857F">   arguments into a List or Map. @ explicitly splices arguments. */</span></span>
+<span class="line" id="line-88"><span style="color:#F0ADA1">static</span><span style="color:#F0ADA1"> int</span><span style="color:#E9E5DF"> square(</span><span style="color:#F0ADA1">int</span><span style="color:#E9E5DF"> n) </span><span style="color:#FF4FD8;font-weight:bold">=></span><span style="color:#E9E5DF"> n * n;</span></span>
+<span class="line" id="line-89"><span style="color:#F0ADA1">static</span><span style="color:#F0ADA1"> void</span><span style="color:#E9E5DF"> increment(</span><span style="color:#F0ADA1">int</span><span style="color:#E9E5DF"> &#x26;n) </span><span style="color:#FF4FD8;font-weight:bold">=></span><span style="color:#E9E5DF"> n++;</span></span>
+<span class="line" id="line-90"><span style="color:#F0ADA1">static</span><span style="color:#29D3E2"> List</span><span style="color:#E9E5DF"> collect(</span><span style="color:#29D3E2">List</span><span style="color:#FF4FD8;font-weight:bold"> @</span><span style="color:#E9E5DF">items) </span><span style="color:#FF4FD8;font-weight:bold">=></span><span style="color:#E9E5DF"> items;</span></span>
+<span class="line" id="line-91"><span style="color:#F0ADA1">static</span><span style="color:#29D3E2"> String</span><span style="color:#E9E5DF"> describe(</span><span style="color:#29D3E2">String</span><span style="color:#E9E5DF"> name, </span><span style="color:#29D3E2">Map</span><span style="color:#FF4FD8;font-weight:bold"> @</span><span style="color:#E9E5DF">options) </span><span style="color:#FF4FD8;font-weight:bold">=></span></span>
+<span class="line" id="line-92"><span style="color:#FF4FD8;font-weight:bold">  %"$</span><span style="color:#E9E5DF">name</span><span style="color:#9EDFB8">: </span><span style="color:#FF4FD8;font-weight:bold">$(</span><span style="color:#9EDFB8">options.</span><span style="color:#E9E5DF">getdefault</span><span style="color:#9EDFB8">(</span><span style="color:#FF4FD8;font-weight:bold">&#x3C;</span><span style="color:#9EDFB8">count</span><span style="color:#FF4FD8;font-weight:bold">></span><span style="color:#9EDFB8">, </span><span style="color:#A9C9F5">1</span><span style="color:#9EDFB8">)</span><span style="color:#FF4FD8;font-weight:bold">)"</span><span style="color:#E9E5DF">;</span></span>
+<span class="line" id="line-93"></span>
+<span class="line" id="line-94"><span style="color:#F0ADA1">static</span><span style="color:#F0ADA1"> void</span><span style="color:#E9E5DF"> functions(</span><span style="color:#F0ADA1">void</span><span style="color:#E9E5DF">) {</span></span>
+<span class="line" id="line-95"><span style="color:#F0ADA1">  int</span><span style="color:#E9E5DF"> count = </span><span style="color:#A9C9F5">3</span><span style="color:#E9E5DF">;</span></span>
+<span class="line" id="line-96"><span style="color:#E9E5DF">  increment(count);</span></span>
+<span class="line" id="line-97"><span style="color:#29D3E2">  List</span><span style="color:#E9E5DF"> pair = </span><span style="color:#FF4FD8;font-weight:bold">%(</span><span style="color:#A9C9F5">2</span><span style="color:#A9C9F5"> 3</span><span style="color:#FF4FD8;font-weight:bold">)</span><span style="color:#E9E5DF">;</span></span>
+<span class="line" id="line-98"><span style="color:#E9E5DF">  printf(</span><span style="color:#9EDFB8">"5. functions: %d; %s; %s\n"</span><span style="color:#E9E5DF">,</span></span>
+<span class="line" id="line-99"><span style="color:#E9E5DF">         square(count), collect(</span><span style="color:#A9C9F5">1</span><span style="color:#E9E5DF">, </span><span style="color:#FF4FD8;font-weight:bold">@</span><span style="color:#E9E5DF">pair).repr(),</span></span>
+<span class="line" id="line-100"><span style="color:#E9E5DF">         describe(</span><span style="color:#9EDFB8">"items"</span><span style="color:#E9E5DF">, count: count));</span></span>
+<span class="line" id="line-101"><span style="color:#29D3E2">  Func</span><span style="color:#E9E5DF"> snapshot = </span><span style="color:#FF4FD8;font-weight:bold">%!</span><span style="color:#E9E5DF">() </span><span style="color:#FF4FD8;font-weight:bold">=></span><span style="color:#E9E5DF"> count;</span></span>
+<span class="line" id="line-102"><span style="color:#29D3E2">  Func</span><span style="color:#E9E5DF"> update = </span><span style="color:#FF4FD8;font-weight:bold">%!</span><span style="color:#E9E5DF">(</span><span style="color:#F0ADA1">int</span><span style="color:#E9E5DF"> n) </span><span style="color:#FF4FD8;font-weight:bold">using</span><span style="color:#E9E5DF"> &#x26;count </span><span style="color:#FF4FD8;font-weight:bold">=></span><span style="color:#E9E5DF"> count += n;</span></span>
+<span class="line" id="line-103"><span style="color:#E9E5DF">  count = </span><span style="color:#A9C9F5">10</span><span style="color:#E9E5DF">;</span></span>
+<span class="line" id="line-104"><span style="color:#29D3E2">  Var</span><span style="color:#E9E5DF"> old = snapshot(), next = update(</span><span style="color:#A9C9F5">2</span><span style="color:#E9E5DF">);</span></span>
+<span class="line" id="line-105"><span style="color:#E9E5DF">  printf(</span><span style="color:#9EDFB8">"   captured %s; shared %s; local %d\n"</span><span style="color:#E9E5DF">, old, next, count);</span></span>
+<span class="line" id="line-106"><span style="color:#29D3E2">  List</span><span style="color:#E9E5DF"> doubled = pair.map(</span><span style="color:#FF4FD8;font-weight:bold">%!</span><span style="color:#E9E5DF">(</span><span style="color:#F0ADA1">int</span><span style="color:#E9E5DF"> n) </span><span style="color:#FF4FD8;font-weight:bold">=></span><span style="color:#E9E5DF"> n * </span><span style="color:#A9C9F5">2</span><span style="color:#E9E5DF">);</span></span>
+<span class="line" id="line-107"><span style="color:#29D3E2">  Var</span><span style="color:#E9E5DF"> total = pair.iter().map(square).foldl(</span><span style="color:#A9C9F5">0</span><span style="color:#E9E5DF">, </span><span style="color:#FF4FD8;font-weight:bold">%!</span><span style="color:#E9E5DF">(</span><span style="color:#F0ADA1">int</span><span style="color:#E9E5DF"> a, </span><span style="color:#F0ADA1">int</span><span style="color:#E9E5DF"> b) </span><span style="color:#FF4FD8;font-weight:bold">=></span><span style="color:#E9E5DF"> a + b);</span></span>
+<span class="line" id="line-108"><span style="color:#E9E5DF">  printf(</span><span style="color:#9EDFB8">"   mapped %s; lazy squares total %s\n"</span><span style="color:#E9E5DF">, doubled.repr(), total);</span></span>
+<span class="line" id="line-109"><span style="color:#E9E5DF">}</span></span>
+<span class="line" id="line-110"></span>
+<span class="line" id="line-111"><span style="color:#8B857F">/* 6. Types and methods</span></span>
+<span class="line" id="line-112"><span style="color:#8B857F">   A method is a type-qualified function. A reference receiver updates the</span></span>
+<span class="line" id="line-113"><span style="color:#8B857F">   original record. delegate forwards unresolved methods through a field. */</span></span>
+<span class="line" id="line-114"><span style="color:#E9E5DF">typedef </span><span style="color:#F0ADA1">struct</span><span style="color:#E9E5DF"> Counter { </span><span style="color:#F0ADA1">int</span><span style="color:#E9E5DF"> value; } Counter;</span></span>
+<span class="line" id="line-115"><span style="color:#F0ADA1">static</span><span style="color:#F0ADA1"> void</span><span style="color:#E9E5DF"> Counter.add(Counter &#x26;c, </span><span style="color:#F0ADA1">int</span><span style="color:#E9E5DF"> amount) </span><span style="color:#FF4FD8;font-weight:bold">=></span><span style="color:#E9E5DF"> c.value += amount;</span></span>
+<span class="line" id="line-116"><span style="color:#F0ADA1">static</span><span style="color:#F0ADA1"> int</span><span style="color:#E9E5DF"> Counter.read(Counter c) </span><span style="color:#FF4FD8;font-weight:bold">=></span><span style="color:#E9E5DF"> c.value;</span></span>
+<span class="line" id="line-117"><span style="color:#E9E5DF">typedef </span><span style="color:#F0ADA1">struct</span><span style="color:#E9E5DF"> Meter { </span><span style="color:#FF4FD8;font-weight:bold">delegate</span><span style="color:#E9E5DF"> Counter counter; } Meter;</span></span>
+<span class="line" id="line-118"><span style="color:#E9E5DF">typedef </span><span style="color:#29D3E2">List</span><span style="color:#E9E5DF"> Trail;</span></span>
+<span class="line" id="line-119"><span style="color:#F0ADA1">static</span><span style="color:#FF4FD8;font-weight:bold"> Self</span><span style="color:#E9E5DF"> Trail.record(</span><span style="color:#FF4FD8;font-weight:bold">Self</span><span style="color:#E9E5DF"> trail, </span><span style="color:#29D3E2">Var</span><span style="color:#E9E5DF"> item) </span><span style="color:#FF4FD8;font-weight:bold">=></span><span style="color:#E9E5DF"> cons(item, trail);</span></span>
+<span class="line" id="line-120"></span>
+<span class="line" id="line-121"><span style="color:#F0ADA1">static</span><span style="color:#F0ADA1"> void</span><span style="color:#E9E5DF"> methods(</span><span style="color:#F0ADA1">void</span><span style="color:#E9E5DF">) {</span></span>
+<span class="line" id="line-122"><span style="color:#E9E5DF">  Counter counter = {</span><span style="color:#A9C9F5">2</span><span style="color:#E9E5DF">};</span></span>
+<span class="line" id="line-123"><span style="color:#E9E5DF">  counter.add(</span><span style="color:#A9C9F5">3</span><span style="color:#E9E5DF">);</span></span>
+<span class="line" id="line-124"><span style="color:#E9E5DF">  Counter copy = counter;</span></span>
+<span class="line" id="line-125"><span style="color:#E9E5DF">  copy.add(</span><span style="color:#A9C9F5">1</span><span style="color:#E9E5DF">);</span></span>
+<span class="line" id="line-126"><span style="color:#E9E5DF">  Meter meter = {counter};</span></span>
+<span class="line" id="line-127"><span style="color:#E9E5DF">  Trail trail = </span><span style="color:#FF4FD8;font-weight:bold">%(</span><span style="color:#A9C9F5">2</span><span style="color:#FF4FD8;font-weight:bold">)</span><span style="color:#E9E5DF">;</span></span>
+<span class="line" id="line-128"><span style="color:#E9E5DF">  trail = trail.record(</span><span style="color:#A9C9F5">3</span><span style="color:#E9E5DF">).record(</span><span style="color:#A9C9F5">4</span><span style="color:#E9E5DF">);</span></span>
+<span class="line" id="line-129"><span style="color:#E9E5DF">  printf(</span><span style="color:#9EDFB8">"6. methods: original %d, copy %d, delegated %d\n"</span><span style="color:#E9E5DF">,</span></span>
+<span class="line" id="line-130"><span style="color:#E9E5DF">         counter.read(), copy.read(), meter.read());</span></span>
+<span class="line" id="line-131"><span style="color:#E9E5DF">  printf(</span><span style="color:#9EDFB8">"   typedef keeps its methods: %s\n"</span><span style="color:#E9E5DF">, trail.repr());</span></span>
+<span class="line" id="line-132"><span style="color:#E9E5DF">}</span></span>
+<span class="line" id="line-133"></span>
+<span class="line" id="line-134"><span style="color:#8B857F">/* 7. Classes</span></span>
+<span class="line" id="line-135"><span style="color:#8B857F">   class generates operations for a chosen C representation. Point is a</span></span>
+<span class="line" id="line-136"><span style="color:#8B857F">   record value; Node is a pointer. Record copying is shallow, not recursive. */</span></span>
+<span class="line" id="line-137"><span style="color:#FF4FD8;font-weight:bold">class</span><span style="color:#E9E5DF"> Point { </span><span style="color:#F0ADA1">int</span><span style="color:#E9E5DF"> x; </span><span style="color:#F0ADA1">int</span><span style="color:#E9E5DF"> y; };</span></span>
+<span class="line" id="line-138"><span style="color:#FF4FD8;font-weight:bold">class</span><span style="color:#E9E5DF"> Node { </span><span style="color:#F0ADA1">int</span><span style="color:#E9E5DF"> value; } *;</span></span>
+<span class="line" id="line-139"><span style="color:#F0ADA1">static</span><span style="color:#F0ADA1"> void</span><span style="color:#E9E5DF"> Point.move(Point &#x26;p, </span><span style="color:#F0ADA1">int</span><span style="color:#E9E5DF"> dx, </span><span style="color:#F0ADA1">int</span><span style="color:#E9E5DF"> dy) { p.x += dx; p.y += dy; }</span></span>
+<span class="line" id="line-140"></span>
+<span class="line" id="line-141"><span style="color:#F0ADA1">static</span><span style="color:#F0ADA1"> void</span><span style="color:#E9E5DF"> classes(</span><span style="color:#F0ADA1">void</span><span style="color:#E9E5DF">) {</span></span>
+<span class="line" id="line-142"><span style="color:#E9E5DF">  Point point = Point.new(</span><span style="color:#A9C9F5">2</span><span style="color:#E9E5DF">, </span><span style="color:#A9C9F5">3</span><span style="color:#E9E5DF">), copy = point;</span></span>
+<span class="line" id="line-143"><span style="color:#E9E5DF">  point.move(</span><span style="color:#A9C9F5">1</span><span style="color:#E9E5DF">, </span><span style="color:#A9C9F5">1</span><span style="color:#E9E5DF">);</span></span>
+<span class="line" id="line-144"><span style="color:#29D3E2">  Var</span><span style="color:#E9E5DF"> boxed = point;</span><span style="color:#8B857F"> // Boxing a record copies it into owned storage.</span></span>
+<span class="line" id="line-145"><span style="color:#29D3E2">  Map</span><span style="color:#E9E5DF"> labels = {};</span></span>
+<span class="line" id="line-146"><span style="color:#E9E5DF">  labels[boxed] = </span><span style="color:#9EDFB8">"here"</span><span style="color:#E9E5DF">;</span></span>
+<span class="line" id="line-147"><span style="color:#E9E5DF">  printf(</span><span style="color:#9EDFB8">"7. classes: moved %d,%d; copy %d,%d; equal key %s\n"</span><span style="color:#E9E5DF">,</span></span>
+<span class="line" id="line-148"><span style="color:#E9E5DF">         point.x, point.y, copy.x, copy.y, labels[Point.new(</span><span style="color:#A9C9F5">3</span><span style="color:#E9E5DF">, </span><span style="color:#A9C9F5">4</span><span style="color:#E9E5DF">)]);</span></span>
+<span class="line" id="line-149"><span style="color:#E9E5DF">  Node node = </span><span style="color:#F0ADA1">auto</span><span style="color:#E9E5DF"> Node.new(</span><span style="color:#A9C9F5">7</span><span style="color:#E9E5DF">);</span></span>
+<span class="line" id="line-150"><span style="color:#E9E5DF">  Node same = node;</span></span>
+<span class="line" id="line-151"><span style="color:#E9E5DF">  same.value++;</span></span>
+<span class="line" id="line-152"><span style="color:#E9E5DF">  printf(</span><span style="color:#9EDFB8">"   pointer copies share: %d\n"</span><span style="color:#E9E5DF">, node.value);</span></span>
+<span class="line" id="line-153"><span style="color:#E9E5DF">}</span></span>
+<span class="line" id="line-154"></span>
+<span class="line" id="line-155"><span style="color:#8B857F">/* 8. Protocols and operators</span></span>
+<span class="line" id="line-156"><span style="color:#8B857F">   A typedef can reuse storage while defining new operations. Explicit</span></span>
+<span class="line" id="line-157"><span style="color:#8B857F">   adoption connects those methods to a protocol; names alone do not. */</span></span>
+<span class="line" id="line-158"><span style="color:#E9E5DF">typedef </span><span style="color:#29D3E2">Map</span><span style="color:#E9E5DF"> Set;</span></span>
+<span class="line" id="line-159"><span style="color:#F0ADA1">static</span><span style="color:#E9E5DF"> Set Set.new(</span><span style="color:#29D3E2">List</span><span style="color:#E9E5DF"> keys) {</span></span>
+<span class="line" id="line-160"><span style="color:#E9E5DF">  Set set = {};</span></span>
+<span class="line" id="line-161"><span style="color:#FF4FD8;font-weight:bold">  foreach</span><span style="color:#E9E5DF"> (</span><span style="color:#29D3E2">Var</span><span style="color:#E9E5DF"> key </span><span style="color:#FF4FD8;font-weight:bold">in</span><span style="color:#E9E5DF"> keys) set[key] = </span><span style="color:#A9C9F5">1</span><span style="color:#E9E5DF">;</span></span>
+<span class="line" id="line-162"><span style="color:#F0ADA1">  return</span><span style="color:#E9E5DF"> set;</span></span>
+<span class="line" id="line-163"><span style="color:#E9E5DF">}</span></span>
+<span class="line" id="line-164"><span style="color:#F0ADA1">static</span><span style="color:#E9E5DF"> Set Set.add(Set a, Set b) </span><span style="color:#FF4FD8;font-weight:bold">=></span><span style="color:#E9E5DF"> a.copy().merge(b);</span></span>
+<span class="line" id="line-165"><span style="color:#F0ADA1">static</span><span style="color:#E9E5DF"> Set Set.mul(Set a, Set b) </span><span style="color:#FF4FD8;font-weight:bold">=></span></span>
+<span class="line" id="line-166"><span style="color:#E9E5DF">  Set.new(a.keys().filter(</span><span style="color:#FF4FD8;font-weight:bold">%!</span><span style="color:#E9E5DF">(</span><span style="color:#29D3E2">Var</span><span style="color:#E9E5DF"> key) </span><span style="color:#FF4FD8;font-weight:bold">=></span><span style="color:#E9E5DF"> key </span><span style="color:#FF4FD8;font-weight:bold">in</span><span style="color:#E9E5DF"> b));</span></span>
+<span class="line" id="line-167"><span style="color:#FF4FD8;font-weight:bold">protocol</span><span style="color:#A6D9E5"> Map</span><span style="color:#E9E5DF">(</span><span style="color:#A6D9E5">T</span><span style="color:#E9E5DF">) { T T.add(T, T); T T.mul(T, T); }</span></span>
+<span class="line" id="line-168"><span style="color:#FF4FD8;font-weight:bold">protocol</span><span style="color:#A6D9E5"> Map</span><span style="color:#E9E5DF">(</span><span style="color:#A6D9E5">Set</span><span style="color:#E9E5DF">);</span></span>
+<span class="line" id="line-169"></span>
+<span class="line" id="line-170"><span style="color:#F0ADA1">static</span><span style="color:#F0ADA1"> void</span><span style="color:#E9E5DF"> operators(</span><span style="color:#F0ADA1">void</span><span style="color:#E9E5DF">) {</span></span>
+<span class="line" id="line-171"><span style="color:#E9E5DF">  Set a = Set.new(</span><span style="color:#FF4FD8;font-weight:bold">%(</span><span style="color:#E9E5DF">apple pear</span><span style="color:#FF4FD8;font-weight:bold">)</span><span style="color:#E9E5DF">), b = Set.new(</span><span style="color:#FF4FD8;font-weight:bold">%(</span><span style="color:#E9E5DF">pear bread</span><span style="color:#FF4FD8;font-weight:bold">)</span><span style="color:#E9E5DF">);</span></span>
+<span class="line" id="line-172"><span style="color:#E9E5DF">  Set combined = a + b, common = a * b;</span></span>
+<span class="line" id="line-173"><span style="color:#8B857F">  // Map traversal has no promised order; sort before presenting keys.</span></span>
+<span class="line" id="line-174"><span style="color:#E9E5DF">  printf(</span><span style="color:#9EDFB8">"8. operators: union %s; intersection %s\n"</span><span style="color:#E9E5DF">,</span></span>
+<span class="line" id="line-175"><span style="color:#E9E5DF">         combined.keys().list().sort().repr(),</span></span>
+<span class="line" id="line-176"><span style="color:#E9E5DF">         common.keys().list().sort().repr());</span></span>
+<span class="line" id="line-177"><span style="color:#E9E5DF">}</span></span>
+<span class="line" id="line-178"></span>
+<span class="line" id="line-179"><span style="color:#8B857F">/* 9. Patterns and templates</span></span>
+<span class="line" id="line-180"><span style="color:#8B857F">   Match arms try in order without fallthrough. Typed captures test tags,</span></span>
+<span class="line" id="line-181"><span style="color:#8B857F">   not convertibility. A rest capture is a List; $ inserts and @ splices. */</span></span>
+<span class="line" id="line-182"><span style="color:#F0ADA1">static</span><span style="color:#29D3E2"> List</span><span style="color:#E9E5DF"> simplify(</span><span style="color:#29D3E2">List</span><span style="color:#E9E5DF"> expression) {</span></span>
+<span class="line" id="line-183"><span style="color:#FF4FD8;font-weight:bold">  match</span><span style="color:#E9E5DF"> (expression) {</span></span>
+<span class="line" id="line-184"><span style="color:#F0ADA1">    case</span><span style="color:#FF4FD8;font-weight:bold"> %(</span><span style="color:#E9E5DF">add ?value </span><span style="color:#A9C9F5">0</span><span style="color:#FF4FD8;font-weight:bold">)</span><span style="color:#E9E5DF">: </span><span style="color:#F0ADA1">return</span><span style="color:#FF4FD8;font-weight:bold"> %(</span><span style="color:#E9E5DF">value </span><span style="color:#FF4FD8;font-weight:bold">$</span><span style="color:#E9E5DF">value</span><span style="color:#FF4FD8;font-weight:bold">)</span><span style="color:#E9E5DF">;</span></span>
+<span class="line" id="line-185"><span style="color:#F0ADA1">    case</span><span style="color:#FF4FD8;font-weight:bold"> %(</span><span style="color:#E9E5DF">add ?(</span><span style="color:#F0ADA1">int</span><span style="color:#E9E5DF"> a) ?(</span><span style="color:#F0ADA1">int</span><span style="color:#E9E5DF"> b)</span><span style="color:#FF4FD8;font-weight:bold">)</span><span style="color:#E9E5DF">: </span><span style="color:#F0ADA1">return</span><span style="color:#FF4FD8;font-weight:bold"> %(</span><span style="color:#E9E5DF">value </span><span style="color:#FF4FD8;font-weight:bold">$(</span><span style="color:#E9E5DF">a + b</span><span style="color:#FF4FD8;font-weight:bold">))</span><span style="color:#E9E5DF">;</span></span>
+<span class="line" id="line-186"><span style="color:#E9E5DF">    default: </span><span style="color:#F0ADA1">return</span><span style="color:#E9E5DF"> expression;</span></span>
+<span class="line" id="line-187"><span style="color:#E9E5DF">  }</span></span>
+<span class="line" id="line-188"><span style="color:#E9E5DF">}</span></span>
+<span class="line" id="line-189"></span>
+<span class="line" id="line-190"><span style="color:#F0ADA1">static</span><span style="color:#F0ADA1"> void</span><span style="color:#E9E5DF"> patterns(</span><span style="color:#F0ADA1">void</span><span style="color:#E9E5DF">) {</span></span>
+<span class="line" id="line-191"><span style="color:#29D3E2">  List</span><span style="color:#E9E5DF"> command = </span><span style="color:#FF4FD8;font-weight:bold">%(</span><span style="color:#E9E5DF">move </span><span style="color:#FF4FD8;font-weight:bold">(</span><span style="color:#A9C9F5">3</span><span style="color:#A9C9F5"> 4</span><span style="color:#FF4FD8;font-weight:bold">)</span><span style="color:#E9E5DF"> fast quiet</span><span style="color:#FF4FD8;font-weight:bold">)</span><span style="color:#E9E5DF">;</span></span>
+<span class="line" id="line-192"><span style="color:#FF4FD8;font-weight:bold">  match</span><span style="color:#E9E5DF"> (command) {</span></span>
+<span class="line" id="line-193"><span style="color:#F0ADA1">    case</span><span style="color:#FF4FD8;font-weight:bold"> %(</span><span style="color:#E9E5DF">move </span><span style="color:#FF4FD8;font-weight:bold">(</span><span style="color:#E9E5DF">?(</span><span style="color:#F0ADA1">int</span><span style="color:#E9E5DF"> x) ?(</span><span style="color:#F0ADA1">int</span><span style="color:#E9E5DF"> y)</span><span style="color:#FF4FD8;font-weight:bold">)</span><span style="color:#E9E5DF"> *flags</span><span style="color:#FF4FD8;font-weight:bold">)</span><span style="color:#F0ADA1"> if</span><span style="color:#E9E5DF"> (x > </span><span style="color:#A9C9F5">0</span><span style="color:#E9E5DF">):</span></span>
+<span class="line" id="line-194"><span style="color:#E9E5DF">      printf(</span><span style="color:#9EDFB8">"9. patterns: %s\n"</span><span style="color:#E9E5DF">, </span><span style="color:#FF4FD8;font-weight:bold">%(</span><span style="color:#E9E5DF">at </span><span style="color:#FF4FD8;font-weight:bold">$</span><span style="color:#E9E5DF">x </span><span style="color:#FF4FD8;font-weight:bold">$</span><span style="color:#E9E5DF">y </span><span style="color:#FF4FD8;font-weight:bold">@</span><span style="color:#E9E5DF">flags</span><span style="color:#FF4FD8;font-weight:bold">)</span><span style="color:#E9E5DF">.repr());</span></span>
+<span class="line" id="line-195"><span style="color:#E9E5DF">    default: puts(</span><span style="color:#9EDFB8">"9. patterns: no move"</span><span style="color:#E9E5DF">);</span></span>
+<span class="line" id="line-196"><span style="color:#E9E5DF">  }</span></span>
+<span class="line" id="line-197"><span style="color:#29D3E2">  List</span><span style="color:#E9E5DF"> result = simplify(</span><span style="color:#FF4FD8;font-weight:bold">%(</span><span style="color:#E9E5DF">add </span><span style="color:#A9C9F5">2</span><span style="color:#A9C9F5"> 3</span><span style="color:#FF4FD8;font-weight:bold">)</span><span style="color:#E9E5DF">);</span></span>
+<span class="line" id="line-198"><span style="color:#F0ADA1">  if</span><span style="color:#E9E5DF"> (result ~= </span><span style="color:#FF4FD8;font-weight:bold">%(</span><span style="color:#E9E5DF">value ?(</span><span style="color:#F0ADA1">int</span><span style="color:#E9E5DF"> n)</span><span style="color:#FF4FD8;font-weight:bold">)</span><span style="color:#E9E5DF">) printf(</span><span style="color:#9EDFB8">"   simplified %d\n"</span><span style="color:#E9E5DF">, n);</span></span>
+<span class="line" id="line-199"><span style="color:#E9E5DF">}</span></span>
+<span class="line" id="line-200"></span>
+<span class="line" id="line-201"><span style="color:#8B857F">/* 10. Lifetime and errors</span></span>
+<span class="line" id="line-202"><span style="color:#8B857F">   A region frees mutable allocations together. Canonical text belongs to a</span></span>
+<span class="line" id="line-203"><span style="color:#8B857F">   pool, normally lasting until shutdown. Containers do not adopt references. */</span></span>
+<span class="line" id="line-204"><span style="color:#F0ADA1">static</span><span style="color:#29D3E2"> String</span><span style="color:#E9E5DF"> make_label(</span><span style="color:#F0ADA1">void</span><span style="color:#E9E5DF">) {</span></span>
+<span class="line" id="line-205"><span style="color:#F0ADA1">  auto</span><span style="color:#E9E5DF"> {</span></span>
+<span class="line" id="line-206"><span style="color:#29D3E2">    Buffer</span><span style="color:#E9E5DF"> out = Buffer.new();</span></span>
+<span class="line" id="line-207"><span style="color:#E9E5DF">    out.write(</span><span style="color:#9EDFB8">"ready"</span><span style="color:#E9E5DF">).write(</span><span style="color:#9EDFB8">"!"</span><span style="color:#E9E5DF">);</span></span>
+<span class="line" id="line-208"><span style="color:#F0ADA1">    return</span><span style="color:#E9E5DF"> out;</span><span style="color:#8B857F"> // The String conversion interns text before the region ends.</span></span>
+<span class="line" id="line-209"><span style="color:#E9E5DF">  }</span></span>
+<span class="line" id="line-210"><span style="color:#F0ADA1">  return</span><span style="color:#E9E5DF"> NULL;</span></span>
+<span class="line" id="line-211"><span style="color:#E9E5DF">}</span></span>
+<span class="line" id="line-212"></span>
+<span class="line" id="line-213"><span style="color:#F0ADA1">static</span><span style="color:#F0ADA1"> void</span><span style="color:#E9E5DF"> lifetime(</span><span style="color:#F0ADA1">void</span><span style="color:#E9E5DF">) {</span></span>
+<span class="line" id="line-214"><span style="color:#E9E5DF">  puts(</span><span style="color:#FF4FD8;font-weight:bold">%"</span><span style="color:#9EDFB8">10. lifetime: </span><span style="color:#FF4FD8;font-weight:bold">$(</span><span style="color:#E9E5DF">make_label</span><span style="color:#9EDFB8">()</span><span style="color:#FF4FD8;font-weight:bold">)"</span><span style="color:#E9E5DF">);</span></span>
+<span class="line" id="line-215"><span style="color:#29D3E2">  Scope</span><span style="color:#E9E5DF"> saved = </span><span style="color:#F0ADA1">auto</span><span style="color:#E9E5DF"> Scope.new();</span></span>
+<span class="line" id="line-216"><span style="color:#29D3E2">  Array</span><span style="color:#E9E5DF"> kept;</span></span>
+<span class="line" id="line-217"><span style="color:#F0ADA1">  auto</span><span style="color:#E9E5DF"> {</span></span>
+<span class="line" id="line-218"><span style="color:#29D3E2">    Array</span><span style="color:#E9E5DF"> temporary = [</span><span style="color:#A9C9F5">1</span><span style="color:#E9E5DF">, </span><span style="color:#A9C9F5">2</span><span style="color:#E9E5DF">];</span></span>
+<span class="line" id="line-219"><span style="color:#E9E5DF">    temporary.move_to(&#x26;saved);</span><span style="color:#8B857F"> // Preserve the container beyond this region.</span></span>
+<span class="line" id="line-220"><span style="color:#E9E5DF">    kept = temporary;</span></span>
+<span class="line" id="line-221"><span style="color:#E9E5DF">  }</span></span>
+<span class="line" id="line-222"><span style="color:#E9E5DF">  printf(</span><span style="color:#9EDFB8">"   retained %s\n"</span><span style="color:#E9E5DF">, kept.repr());</span></span>
+<span class="line" id="line-223"><span style="color:#F0ADA1">  int</span><span style="color:#E9E5DF"> level = </span><span style="color:#A9C9F5">1</span><span style="color:#E9E5DF">;</span></span>
+<span class="line" id="line-224"><span style="color:#FF4FD8;font-weight:bold">  with</span><span style="color:#E9E5DF"> (level = </span><span style="color:#A9C9F5">9</span><span style="color:#E9E5DF">) { printf(</span><span style="color:#9EDFB8">"   temporary %d\n"</span><span style="color:#E9E5DF">, level); }</span></span>
+<span class="line" id="line-225"><span style="color:#F0ADA1">  alias</span><span style="color:#E9E5DF"> kept[</span><span style="color:#A9C9F5">0</span><span style="color:#E9E5DF">] </span><span style="color:#F0ADA1">as</span><span style="color:#E9E5DF"> first;</span></span>
+<span class="line" id="line-226"><span style="color:#E9E5DF">  first += </span><span style="color:#A9C9F5">4</span><span style="color:#E9E5DF">;</span><span style="color:#8B857F"> // An alias substitutes its expression on each use.</span></span>
+<span class="line" id="line-227"><span style="color:#E9E5DF">  printf(</span><span style="color:#9EDFB8">"   restored %d; aliased %s\n"</span><span style="color:#E9E5DF">, level, kept[</span><span style="color:#A9C9F5">0</span><span style="color:#E9E5DF">]);</span></span>
+<span class="line" id="line-228"><span style="color:#FF4FD8;font-weight:bold">  try</span><span style="color:#E9E5DF"> {</span></span>
+<span class="line" id="line-229"><span style="color:#FF4FD8;font-weight:bold">    defer</span><span style="color:#E9E5DF"> puts(</span><span style="color:#9EDFB8">"   cleanup before catch"</span><span style="color:#E9E5DF">);</span></span>
+<span class="line" id="line-230"><span style="color:#FF4FD8;font-weight:bold">    raise</span><span style="color:#E9E5DF"> %(bad-arg (operation </span><span style="color:#9EDFB8">"tour"</span><span style="color:#E9E5DF">));</span></span>
+<span class="line" id="line-231"><span style="color:#E9E5DF">  }</span></span>
+<span class="line" id="line-232"><span style="color:#FF4FD8;font-weight:bold">  catch</span><span style="color:#E9E5DF"> %(bad-arg *details): puts(</span><span style="color:#9EDFB8">"   caught bad-arg"</span><span style="color:#E9E5DF">);</span></span>
+<span class="line" id="line-233"><span style="color:#FF4FD8;font-weight:bold">  finally</span><span style="color:#E9E5DF"> puts(</span><span style="color:#9EDFB8">"   finally"</span><span style="color:#E9E5DF">);</span></span>
+<span class="line" id="line-234"><span style="color:#E9E5DF">}</span></span>
+<span class="line" id="line-235"></span>
+<span class="line" id="line-236"><span style="color:#8B857F">/* 11. Compile-time code</span></span>
+<span class="line" id="line-237"><span style="color:#8B857F">   An ordinary call runs now; $ calls a meta function during translation.</span></span>
+<span class="line" id="line-238"><span style="color:#8B857F">   A macro receives syntax. Its declared locals are private per expansion;</span></span>
+<span class="line" id="line-239"><span style="color:#8B857F">   free names resolve at the call site unless kept with using. */</span></span>
+<span class="line" id="line-240"><span style="color:#FF4FD8;font-weight:bold">meta</span><span style="color:#F0ADA1"> static</span><span style="color:#F0ADA1"> int</span><span style="color:#E9E5DF"> cube(</span><span style="color:#F0ADA1">int</span><span style="color:#E9E5DF"> n) </span><span style="color:#FF4FD8;font-weight:bold">=></span><span style="color:#E9E5DF"> n * n * n;</span></span>
+<span class="line" id="line-241"><span style="color:#F0ADA1">static</span><span style="color:#F0ADA1"> int</span><span style="color:#E9E5DF"> factor = </span><span style="color:#A9C9F5">2</span><span style="color:#E9E5DF">;</span></span>
+<span class="line" id="line-242"><span style="color:#FF4FD8;font-weight:bold">macro</span><span style="color:#FFB454;font-style:italic"> Expression</span><span style="color:#FF4FD8;font-weight:bold"> $</span><span style="color:#FF715A">scaled</span><span style="color:#E9E5DF">(</span><span style="color:#FFB454;font-style:italic">Expr</span><span style="color:#FF4FD8;font-weight:bold"> $</span><span style="color:#E9E5DF">n) </span><span style="color:#FF4FD8;font-weight:bold">=></span><span style="color:#FF4FD8;font-weight:bold"> $</span><span style="color:#E9E5DF">n * factor;</span></span>
+<span class="line" id="line-243"><span style="color:#FF4FD8;font-weight:bold">macro</span><span style="color:#FFB454;font-style:italic"> Expression</span><span style="color:#FF4FD8;font-weight:bold"> $</span><span style="color:#FF715A">fixed</span><span style="color:#E9E5DF">(</span><span style="color:#FFB454;font-style:italic">Expr</span><span style="color:#FF4FD8;font-weight:bold"> $</span><span style="color:#E9E5DF">n) </span><span style="color:#FF4FD8;font-weight:bold">using</span><span style="color:#E9E5DF"> factor </span><span style="color:#FF4FD8;font-weight:bold">=></span><span style="color:#FF4FD8;font-weight:bold"> $</span><span style="color:#E9E5DF">n * factor;</span></span>
+<span class="line" id="line-244"></span>
+<span class="line" id="line-245"><span style="color:#FF4FD8;font-weight:bold">macro</span><span style="color:#FFB454;font-style:italic"> Decorator</span><span style="color:#FF4FD8;font-weight:bold"> $</span><span style="color:#FF715A">twice</span><span style="color:#E9E5DF">(</span><span style="color:#FFB454;font-style:italic">Stmt</span><span style="color:#FF4FD8;font-weight:bold"> $</span><span style="color:#E9E5DF">body) {</span></span>
+<span class="line" id="line-246"><span style="color:#E9E5DF">  { </span><span style="color:#F0ADA1">for</span><span style="color:#E9E5DF"> (</span><span style="color:#F0ADA1">int</span><span style="color:#E9E5DF"> repeat = </span><span style="color:#A9C9F5">0</span><span style="color:#E9E5DF">; repeat &#x3C; </span><span style="color:#A9C9F5">2</span><span style="color:#E9E5DF">; repeat++) </span><span style="color:#FF4FD8;font-weight:bold">$</span><span style="color:#E9E5DF">body }</span></span>
+<span class="line" id="line-247"><span style="color:#E9E5DF">}</span></span>
+<span class="line" id="line-248"><span style="color:#FF4FD8;font-weight:bold">keyword</span><span style="color:#FF715A"> twice</span><span style="color:#FF4FD8;font-weight:bold"> $</span><span style="color:#FF715A">twice</span><span style="color:#E9E5DF">;</span></span>
+<span class="line" id="line-249"></span>
+<span class="line" id="line-250"><span style="color:#8B857F">// A quotation writes generated code in source form; the hole inserts syntax.</span></span>
+<span class="line" id="line-251"><span style="color:#FF4FD8;font-weight:bold">meta</span><span style="color:#F0ADA1"> static</span><span style="color:#29D3E2"> List</span><span style="color:#E9E5DF"> report_code(</span><span style="color:#29D3E2">List</span><span style="color:#E9E5DF"> value) </span><span style="color:#FF4FD8;font-weight:bold">=></span></span>
+<span class="line" id="line-252"><span style="color:#FF4FD8;font-weight:bold">  $!</span><span style="color:#E9E5DF">{ printf(</span><span style="color:#9EDFB8">"   generated report: %s\n"</span><span style="color:#E9E5DF">, (</span><span style="color:#29D3E2">Var</span><span style="color:#E9E5DF">) </span><span style="color:#FF4FD8;font-weight:bold">$</span><span style="color:#E9E5DF">value); };</span></span>
+<span class="line" id="line-253"><span style="color:#FF4FD8;font-weight:bold">macro</span><span style="color:#FFB454;font-style:italic"> Stmt</span><span style="color:#FF4FD8;font-weight:bold"> $</span><span style="color:#FF715A">report</span><span style="color:#E9E5DF">(</span><span style="color:#FFB454;font-style:italic">Expr</span><span style="color:#FF4FD8;font-weight:bold"> $</span><span style="color:#E9E5DF">value) </span><span style="color:#FF4FD8;font-weight:bold">=></span><span style="color:#FF4FD8;font-weight:bold"> $</span><span style="color:#FF715A">report_code</span><span style="color:#E9E5DF">(</span><span style="color:#FF4FD8;font-weight:bold">$</span><span style="color:#E9E5DF">value);</span></span>
+<span class="line" id="line-254"></span>
+<span class="line" id="line-255"><span style="color:#F0ADA1">static</span><span style="color:#F0ADA1"> void</span><span style="color:#E9E5DF"> compile_time(</span><span style="color:#F0ADA1">void</span><span style="color:#E9E5DF">) {</span></span>
+<span class="line" id="line-256"><span style="color:#F0ADA1">  int</span><span style="color:#E9E5DF"> n = </span><span style="color:#A9C9F5">3</span><span style="color:#E9E5DF">;</span></span>
+<span class="line" id="line-257"><span style="color:#E9E5DF">  printf(</span><span style="color:#9EDFB8">"11. meta: runtime %d; compile time %d\n"</span><span style="color:#E9E5DF">, cube(n), </span><span style="color:#FF4FD8;font-weight:bold">$</span><span style="color:#FF715A">cube</span><span style="color:#E9E5DF">(</span><span style="color:#A9C9F5">3</span><span style="color:#E9E5DF">));</span></span>
+<span class="line" id="line-258"><span style="color:#F0ADA1">  int</span><span style="color:#E9E5DF"> factor = </span><span style="color:#A9C9F5">10</span><span style="color:#E9E5DF">;</span></span>
+<span class="line" id="line-259"><span style="color:#E9E5DF">  printf(</span><span style="color:#9EDFB8">"   caller name %d; kept name %d\n"</span><span style="color:#E9E5DF">, </span><span style="color:#FF4FD8;font-weight:bold">$</span><span style="color:#FF715A">scaled</span><span style="color:#E9E5DF">(</span><span style="color:#A9C9F5">3</span><span style="color:#E9E5DF">), </span><span style="color:#FF4FD8;font-weight:bold">$</span><span style="color:#FF715A">fixed</span><span style="color:#E9E5DF">(</span><span style="color:#A9C9F5">3</span><span style="color:#E9E5DF">));</span></span>
+<span class="line" id="line-260"><span style="color:#F0ADA1">  int</span><span style="color:#E9E5DF"> total = </span><span style="color:#A9C9F5">0</span><span style="color:#E9E5DF">;</span></span>
+<span class="line" id="line-261"><span style="color:#E9E5DF">  twice { total++; }</span></span>
+<span class="line" id="line-262"><span style="color:#FF4FD8;font-weight:bold">  $</span><span style="color:#FF715A">report</span><span style="color:#E9E5DF">(total);</span></span>
+<span class="line" id="line-263"><span style="color:#8B857F">  // Lisp is a runtime library, not the implementation of meta functions.</span></span>
+<span class="line" id="line-264"><span style="color:#29D3E2">  Lisp</span><span style="color:#E9E5DF"> lisp = </span><span style="color:#F0ADA1">auto</span><span style="color:#E9E5DF"> Lisp.new();</span></span>
+<span class="line" id="line-265"><span style="color:#E9E5DF">  printf(</span><span style="color:#9EDFB8">"   runtime Lisp: %s\n"</span><span style="color:#E9E5DF">, lisp.eval(</span><span style="color:#FF4FD8;font-weight:bold">%(</span><span style="color:#E9E5DF">+ </span><span style="color:#A9C9F5">2</span><span style="color:#A9C9F5"> 3</span><span style="color:#FF4FD8;font-weight:bold">)</span><span style="color:#E9E5DF">));</span></span>
+<span class="line" id="line-266"><span style="color:#E9E5DF">}</span></span>
+<span class="line" id="line-267"></span>
+<span class="line" id="line-268"><span style="color:#8B857F">/* 12. Threads and channels</span></span>
+<span class="line" id="line-269"><span style="color:#8B857F">   One worker writes counts; main reads only after Thread.run joins both.</span></span>
+<span class="line" id="line-270"><span style="color:#8B857F">   The parent owns the Map and Channel throughout. Strings are canonical.</span></span>
+<span class="line" id="line-271"><span style="color:#8B857F">   Channel capacity bounds queued messages, not the canonical-value pool. */</span></span>
+<span class="line" id="line-272"><span style="color:#F0ADA1">static</span><span style="color:#F0ADA1"> void</span><span style="color:#E9E5DF"> workers(</span><span style="color:#F0ADA1">void</span><span style="color:#E9E5DF">) {</span></span>
+<span class="line" id="line-273"><span style="color:#E9E5DF">  Channel lines = </span><span style="color:#F0ADA1">auto</span><span style="color:#E9E5DF"> Channel.new(</span><span style="color:#FF4FD8;font-weight:bold">&#x3C;</span><span style="color:#E9E5DF">string</span><span style="color:#FF4FD8;font-weight:bold">></span><span style="color:#E9E5DF">, </span><span style="color:#A9C9F5">2</span><span style="color:#E9E5DF">);</span></span>
+<span class="line" id="line-274"><span style="color:#29D3E2">  Map</span><span style="color:#E9E5DF"> counts = {};</span></span>
+<span class="line" id="line-275"><span style="color:#E9E5DF">  Thread.run([</span></span>
+<span class="line" id="line-276"><span style="color:#FF4FD8;font-weight:bold">    %!</span><span style="color:#E9E5DF">() </span><span style="color:#FF4FD8;font-weight:bold">=></span><span style="color:#E9E5DF"> {</span></span>
+<span class="line" id="line-277"><span style="color:#FF4FD8;font-weight:bold">      defer</span><span style="color:#E9E5DF"> lines.close();</span></span>
+<span class="line" id="line-278"><span style="color:#FF4FD8;font-weight:bold">      foreach</span><span style="color:#E9E5DF"> (</span><span style="color:#29D3E2">String</span><span style="color:#E9E5DF"> line </span><span style="color:#F0ADA1">in</span><span style="color:#FF4FD8;font-weight:bold"> %(</span><span style="color:#FF4FD8;font-weight:bold">"</span><span style="color:#9EDFB8">tea and cake</span><span style="color:#FF4FD8;font-weight:bold">"</span><span style="color:#FF4FD8;font-weight:bold"> "</span><span style="color:#9EDFB8">more cake</span><span style="color:#FF4FD8;font-weight:bold">"</span><span style="color:#FF4FD8;font-weight:bold">)</span><span style="color:#E9E5DF">) lines.send(line);</span></span>
+<span class="line" id="line-279"><span style="color:#E9E5DF">    },</span></span>
+<span class="line" id="line-280"><span style="color:#FF4FD8;font-weight:bold">    %!</span><span style="color:#E9E5DF">() </span><span style="color:#FF4FD8;font-weight:bold">=></span><span style="color:#E9E5DF"> {</span></span>
+<span class="line" id="line-281"><span style="color:#FF4FD8;font-weight:bold">      foreach</span><span style="color:#E9E5DF"> (</span><span style="color:#29D3E2">String</span><span style="color:#E9E5DF"> line </span><span style="color:#FF4FD8;font-weight:bold">in</span><span style="color:#E9E5DF"> lines)</span></span>
+<span class="line" id="line-282"><span style="color:#FF4FD8;font-weight:bold">        foreach</span><span style="color:#E9E5DF"> (</span><span style="color:#29D3E2">String</span><span style="color:#E9E5DF"> word </span><span style="color:#FF4FD8;font-weight:bold">in</span><span style="color:#E9E5DF"> line.words()) counts[word] += </span><span style="color:#A9C9F5">1</span><span style="color:#E9E5DF">;</span></span>
+<span class="line" id="line-283"><span style="color:#E9E5DF">    }</span></span>
+<span class="line" id="line-284"><span style="color:#E9E5DF">  ]);</span></span>
+<span class="line" id="line-285"><span style="color:#E9E5DF">  printf(</span><span style="color:#9EDFB8">"12. threads: cake %s, tea %s\n"</span><span style="color:#E9E5DF">, counts[</span><span style="color:#9EDFB8">"cake"</span><span style="color:#E9E5DF">], counts[</span><span style="color:#9EDFB8">"tea"</span><span style="color:#E9E5DF">]);</span></span>
+<span class="line" id="line-286"><span style="color:#E9E5DF">}</span></span>
+<span class="line" id="line-287"></span>
+<span class="line" id="line-288"><span style="color:#F0ADA1">int</span><span style="color:#E9E5DF"> main(</span><span style="color:#F0ADA1">void</span><span style="color:#E9E5DF">) {</span></span>
+<span class="line" id="line-289"><span style="color:#F0ADA1">  auto</span><span style="color:#E9E5DF"> {</span></span>
+<span class="line" id="line-290"><span style="color:#E9E5DF">    values();</span></span>
+<span class="line" id="line-291"><span style="color:#E9E5DF">    text();</span></span>
+<span class="line" id="line-292"><span style="color:#E9E5DF">    collections();</span></span>
+<span class="line" id="line-293"><span style="color:#E9E5DF">    iteration();</span></span>
+<span class="line" id="line-294"><span style="color:#E9E5DF">    functions();</span></span>
+<span class="line" id="line-295"><span style="color:#E9E5DF">    methods();</span></span>
+<span class="line" id="line-296"><span style="color:#E9E5DF">    classes();</span></span>
+<span class="line" id="line-297"><span style="color:#E9E5DF">    operators();</span></span>
+<span class="line" id="line-298"><span style="color:#E9E5DF">    patterns();</span></span>
+<span class="line" id="line-299"><span style="color:#E9E5DF">    lifetime();</span></span>
+<span class="line" id="line-300"><span style="color:#E9E5DF">    compile_time();</span></span>
+<span class="line" id="line-301"><span style="color:#E9E5DF">    workers();</span></span>
+<span class="line" id="line-302"><span style="color:#E9E5DF">  }</span></span>
+<span class="line" id="line-303"><span style="color:#F0ADA1">  return</span><span style="color:#A9C9F5"> 0</span><span style="color:#E9E5DF">;</span></span>
+<span class="line" id="line-304"><span style="color:#E9E5DF">}</span></span></code></pre></div></section><div class="example-reading"><figure class="example-output"><figcaption><span>language.x</span><span>Expected output</span></figcaption><pre><code>1. values: 43, native 43, half 21.5
+   now ready, String tag 1
+2. text: hello world; hello; ready
+   a-name-too-long-for-a-symbol; phase index 0
+   equal 1, identical 1
+3. lists: (n 2 3); (2 3); (1 2 3)
+   array [ 9, 2, 3 ]; last 3; slice [ 2, 3 ]
+   map keys: (key) / (&quot;answer&quot;); member 1
+   shared tail 1; shared object 1
+   quoted: [ &lt;ready&gt;, &lt;done&gt; ] fast
+4. iteration: sum 8; unpacked 7 seven
+   zero present 1, value 0; absent 0
+   empty truth 0; null differs from void 1
+5. functions: 16; (1 2 3); items: 4
+   captured 4; shared 12; local 12
+   mapped (4 6); lazy squares total 13
+6. methods: original 5, copy 6, delegated 5
+   typedef keeps its methods: (4 3 2)
+7. classes: moved 3,4; copy 2,3; equal key here
+   pointer copies share: 8
+8. operators: union (apple bread pear); intersection (pear)
+9. patterns: (at 3 4 fast quiet)
+   simplified 5
+10. lifetime: ready!
+   retained [ 1, 2 ]
+   temporary 9
+   restored 1; aliased 5
+   cleanup before catch
+   caught bad-arg
+   finally
+11. meta: runtime 27; compile time 27
+   caller name 30; kept name 6
+   generated report: 2
+   runtime Lisp: 5
+12. threads: cake 2, tea 1
+</code></pre></figure><section id="run" class="example-run" aria-labelledby="run-heading"><p class="example-eyebrow">Your turn</p><h2 id="run-heading">Run it locally.</h2><p class="example-run-intro">This is one native program. It needs no input files or optional packages. Run it locally to include the final threads-and-channels section.</p><div class="core-setup" data-astro-cid-mvuqqe5a><p class="setup-prerequisites" data-astro-cid-mvuqqe5a>You need Git, a GCC- or Clang-compatible C compiler, ar, GNU Make, and Bash. The <a href="/docs/internals/building.html" data-example-action="guide" data-astro-cid-mvuqqe5a>build guide</a> covers setup in detail.</p><figure class="setup-recipe" data-astro-cid-mvuqqe5a><figcaption data-astro-cid-mvuqqe5a><span data-astro-cid-mvuqqe5a>From a new checkout</span><span class="copy-control"><button type="button" class="copy-button" data-copy-text="git clone https://github.com/gwf/x2c.git
+cd x2c
+git checkout --detach 3f6cd0a90fdca9056a7340e551ffa8a19de6d535
+make build-safe
+
+./x2c run examples/tours/language.x" data-copy-action="copy-run" aria-label="Copy commands" hidden><span class="copy-label">Copy commands</span><svg class="copy-mark" viewBox="0 0 16 16" aria-hidden="true"><path d="m3 8 3 3 7-7" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"></path></svg></button><span class="copy-status" role="status"></span></span></figcaption><pre class="astro-code x2c-dark" style="background-color:#101011;color:#e9e5df; overflow-x: auto;" tabindex="0" data-astro-cid-mvuqqe5a data-language="sh"><code><span class="line"><span style="color:#E9E5DF">git </span><span style="color:#9EDFB8">clone</span><span style="color:#9EDFB8"> https://github.com/gwf/x2c.git</span></span>
+<span class="line"><span style="color:#E9E5DF">cd </span><span style="color:#9EDFB8">x2c</span></span>
+<span class="line"><span style="color:#E9E5DF">git </span><span style="color:#9EDFB8">checkout</span><span style="color:#9EDFB8"> --detach</span><span style="color:#9EDFB8"> 3f6cd0a90fdca9056a7340e551ffa8a19de6d535</span></span>
+<span class="line"><span style="color:#E9E5DF">make </span><span style="color:#9EDFB8">build-safe</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#E9E5DF">./x2c </span><span style="color:#9EDFB8">run</span><span style="color:#9EDFB8"> examples/tours/language.x</span></span></code></pre></figure></div></section></div><nav class="example-next" aria-label="Browse examples"><a href="/examples/essentials/" rel="prev"><small>Previous example</small><span><span aria-hidden="true">&larr;</span> x2c essentials.</span></a><a href="/examples/literate-lisp/" rel="next"><small>Next example</small><span>Build a Lisp in about 1,000 lines. <span aria-hidden="true">&rarr;</span></span></a></nav></article></div></div><script>(function sidebar() {
+    const sidebar = document.getElementById('mdbook-sidebar');
+    const sidebarLinks = document.querySelectorAll('#mdbook-sidebar a');
+    const sidebarToggleButton = document.getElementById('mdbook-sidebar-toggle');
+    const sidebarResizeHandle = document.getElementById('mdbook-sidebar-resize-handle');
+    const sidebarCheckbox = document.getElementById('mdbook-sidebar-toggle-anchor');
+    let firstContact = null;
+
+
+    /* Because we cannot change the `display` using only CSS after/before the transition, we
+       need JS to do it. We change the display to prevent the browsers search to find text inside
+       the collapsed sidebar. */
+    if (!document.documentElement.classList.contains('sidebar-visible')) {
+        sidebar.style.display = 'none';
+    }
+    sidebar.addEventListener('transitionend', () => {
+        /* We only change the display to "none" if we're collapsing the sidebar. */
+        if (!sidebarCheckbox.checked) {
+            sidebar.style.display = 'none';
+        }
+    });
+    sidebarToggleButton.addEventListener('click', () => {
+        /* To allow the sidebar expansion animation, we first need to put back the display. */
+        if (!sidebarCheckbox.checked) {
+            sidebar.style.display = '';
+            // Workaround for Safari skipping the animation when changing
+            // `display` and a transform in the same event loop. This forces a
+            // reflow after updating the display.
+            sidebar.offsetHeight;
+        }
+    });
+
+    function showSidebar() {
+        document.documentElement.classList.add('sidebar-visible');
+        Array.from(sidebarLinks).forEach(function(link) {
+            link.setAttribute('tabIndex', 0);
+        });
+        sidebarToggleButton.setAttribute('aria-expanded', true);
+        sidebar.setAttribute('aria-hidden', false);
+        try {
+            localStorage.setItem('mdbook-sidebar', 'visible');
+        } catch {
+            // Ignore error.
+        }
+    }
+
+    function hideSidebar() {
+        document.documentElement.classList.remove('sidebar-visible');
+        Array.from(sidebarLinks).forEach(function(link) {
+            link.setAttribute('tabIndex', -1);
+        });
+        sidebarToggleButton.setAttribute('aria-expanded', false);
+        sidebar.setAttribute('aria-hidden', true);
+        try {
+            localStorage.setItem('mdbook-sidebar', 'hidden');
+        } catch {
+            // Ignore error.
+        }
+    }
+
+    // Toggle sidebar
+    sidebarCheckbox.addEventListener('change', function sidebarToggle() {
+        if (sidebarCheckbox.checked) {
+            const current_width = parseInt(
+                document.documentElement.style.getPropertyValue('--sidebar-target-width'), 10);
+            if (current_width < 150) {
+                document.documentElement.style.setProperty('--sidebar-target-width', '150px');
+            }
+            showSidebar();
+        } else {
+            hideSidebar();
+        }
+    });
+
+    sidebarResizeHandle.addEventListener('mousedown', initResize, false);
+
+    function initResize() {
+        window.addEventListener('mousemove', resize, false);
+        window.addEventListener('mouseup', stopResize, false);
+        document.documentElement.classList.add('sidebar-resizing');
+    }
+    function resize(e) {
+        let pos = e.clientX - sidebar.offsetLeft;
+        if (pos < 20) {
+            hideSidebar();
+        } else {
+            if (!document.documentElement.classList.contains('sidebar-visible')) {
+                showSidebar();
+            }
+            pos = Math.min(pos, window.innerWidth - 100);
+            document.documentElement.style.setProperty('--sidebar-target-width', pos + 'px');
+        }
+    }
+    //on mouseup remove windows functions mousemove & mouseup
+    function stopResize() {
+        document.documentElement.classList.remove('sidebar-resizing');
+        window.removeEventListener('mousemove', resize, false);
+        window.removeEventListener('mouseup', stopResize, false);
+    }
+
+    document.addEventListener('touchstart', function(e) {
+        firstContact = {
+            x: e.touches[0].clientX,
+            time: Date.now(),
+        };
+    }, { passive: true });
+
+    document.addEventListener('touchmove', function(e) {
+        if (!firstContact) {
+            return;
+        }
+
+        const curX = e.touches[0].clientX;
+        const xDiff = curX - firstContact.x,
+            tDiff = Date.now() - firstContact.time;
+
+        if (tDiff < 250 && Math.abs(xDiff) >= 150) {
+            if (xDiff >= 0 && firstContact.x < Math.min(document.body.clientWidth * 0.25, 300)) {
+                showSidebar();
+            } else if (xDiff < 0 && curX < 300) {
+                hideSidebar();
+            }
+
+            firstContact = null;
+        }
+    }, { passive: true });
+})();
+
+
+(() => {
+        // Toggle buttons
+        const sidebarAnchorToggles = document.querySelectorAll('.chapter-fold-toggle');
+        function toggleSection(ev) {
+            ev.currentTarget.parentElement.parentElement.classList.toggle('expanded');
+        }
+        Array.from(sidebarAnchorToggles).forEach(el => {
+            el.addEventListener('click', toggleSection);
+        });
+
+})();/* Sidebar interactions */
+            document.addEventListener('DOMContentLoaded', () => {
+                const sidebar = document.querySelector('#mdbook-sidebar');
+                sidebar.querySelectorAll('ol').forEach(list => {
+                    const numbers = list.querySelectorAll(
+                        ':scope > li > .chapter-link-wrapper > a > strong, :scope > li > a > strong');
+                    if (numbers.length) {
+                        const width = Math.max(...Array.from(numbers,
+                            number => number.textContent.trim().length));
+                        list.style.setProperty('--chapter-number-width', width + 'ch');
+                    }
+                });
+                const revealChapter = link => {
+                    let item = link.closest('li');
+                    while (item && sidebar.contains(item)) {
+                        item.classList.add('expanded');
+                        item.querySelector(':scope > .chapter-link-wrapper > .chapter-fold-toggle')
+                            ?.setAttribute('aria-expanded', 'true');
+                        item = item.parentElement.closest('li');
+                    }
+                };
+                sidebar.querySelectorAll('a.active').forEach(revealChapter);
+                const scrollbox = sidebar.querySelector('.sidebar-scrollbox');
+                let followedLink;
+                const followCurrentSection = () => {
+                    const link = sidebar.querySelector('a.current-header') ||
+                        sidebar.querySelector('a.active');
+                    if (!link || link === followedLink || !link.getClientRects().length) return;
+                    followedLink = link;
+                    const bounds = scrollbox.getBoundingClientRect();
+                    const row = link.getBoundingClientRect();
+                    const padding = 12;
+                    if (row.top < bounds.top + padding) {
+                        scrollbox.scrollTop += row.top - bounds.top - padding;
+                    } else if (row.bottom > bounds.bottom - padding) {
+                        scrollbox.scrollTop += row.bottom - bounds.bottom + padding;
+                    }
+                };
+                new MutationObserver(followCurrentSection).observe(sidebar, {
+                    subtree: true, attributes: true, attributeFilter: ['class'],
+                });
+                requestAnimationFrame(followCurrentSection);
+
+                sidebar.addEventListener('click', event => {
+                    const link = event.target.closest('a');
+                    if (!link || link.classList.contains('chapter-fold-toggle')) return;
+                    const target = new URL(link.href);
+                    const pagePath = path => path.replace(/index\.html$/, '').replace(/\/$/, '');
+                    const toggle = link.parentElement.querySelector('.chapter-fold-toggle');
+                    if (toggle && !target.hash && target.origin === location.origin &&
+                        pagePath(target.pathname) === pagePath(location.pathname)) {
+                        event.preventDefault();
+                        toggle.click();
+                    } else {
+                        revealChapter(link);
+                    }
+                });
+                const chapter = sidebar.querySelector('a.active');
+                const item = chapter?.closest('.chapter-item');
+                if (item?.querySelector(':scope > .on-this-page')) {
+                    const row = chapter.parentElement;
+                    if (!row.querySelector('.chapter-fold-toggle')) {
+                        const toggle = document.createElement('button');
+                        toggle.type = 'button';
+                        toggle.className = 'chapter-fold-toggle';
+                        toggle.appendChild(document.createElement('div'));
+                        toggle.addEventListener('click', () => {
+                            item.classList.toggle('expanded');
+                        });
+                        row.appendChild(toggle);
+                    }
+                }
+                sidebar.querySelectorAll('.chapter-fold-toggle').forEach(toggle => {
+                    const row = toggle.parentElement;
+                    const item = row.parentElement;
+                    const title = row.querySelector('a').textContent.trim();
+                    toggle.setAttribute('aria-label', 'Toggle ' + title);
+                    const update = () => toggle.setAttribute('aria-expanded',
+                        String(item.classList.contains('expanded')));
+                    update();
+                    toggle.addEventListener('click', update);
+                    if (toggle.tagName === 'A') {
+                        toggle.setAttribute('role', 'button');
+                        toggle.tabIndex = 0;
+                        toggle.addEventListener('keydown', event => {
+                            if (event.key === 'Enter' || event.key === ' ') {
+                                event.preventDefault();
+                                toggle.click();
+                            }
+                        });
+                    }
+                });
+                const checkbox = document.getElementById('mdbook-sidebar-toggle-anchor');
+                const button = document.getElementById('mdbook-sidebar-toggle');
+                const resize = document.getElementById('mdbook-sidebar-resize-handle');
+                button.tabIndex = 0;
+                button.setAttribute('role', 'button');
+                button.addEventListener('keydown', event => {
+                    if (event.key === 'Enter' || event.key === ' ') {
+                        event.preventDefault();
+                        button.click();
+                    }
+                });
+                const updateFocus = () => {
+                    const visible = checkbox.checked;
+                    sidebar.setAttribute('aria-hidden', String(!visible));
+                    if (visible) {
+                        followedLink = null;
+                        requestAnimationFrame(followCurrentSection);
+                    }
+                    button.setAttribute('aria-expanded', String(visible));
+                    sidebar.querySelectorAll('a, button').forEach(control => {
+                        control.tabIndex = visible ? 0 : -1;
+                    });
+                };
+                checkbox.addEventListener('change', updateFocus);
+                updateFocus();
+                sidebar.addEventListener('click', event => {
+                    if (!event.defaultPrevented && innerWidth < 1080 &&
+                        event.target.closest('a:not(.chapter-fold-toggle)') && checkbox.checked) {
+                        button.click();
+                    }
+                });
+                addEventListener('keydown', event => {
+                    if (event.key === 'Escape' && checkbox.checked) {
+                        button.click();
+                        button.focus();
+                    }
+                });
+                resize.addEventListener('mousedown', () => {
+                    window.addEventListener('mouseup', () => {
+                        checkbox.checked = document.documentElement.classList.contains('sidebar-visible');
+                        updateFocus();
+                        const width = parseFloat(document.documentElement.style.getPropertyValue('--sidebar-target-width'));
+                        if (width >= 150) {
+                            try { localStorage.setItem('mdbook-sidebar-width', String(width)); } catch {}
+                        }
+                    }, { once: true });
+                });
+            });
+            </script><script>(function() {
+    // This is used to detect which direction the page has scrolled since the
+    // last scroll event.
+    let lastKnownScrollPosition = 0;
+    // This is the threshold in px from the top of the screen where it will
+    // consider a header the "current" header when scrolling down.
+    const defaultDownThreshold = 150;
+    // Same as defaultDownThreshold, except when scrolling up.
+    const defaultUpThreshold = 300;
+    // The threshold is a virtual horizontal line on the screen where it
+    // considers the "current" header to be above the line. The threshold is
+    // modified dynamically to handle headers that are near the bottom of the
+    // screen, and to slightly offset the behavior when scrolling up vs down.
+    let threshold = defaultDownThreshold;
+    // This is used to disable updates while scrolling. This is needed when
+    // clicking the header in the sidebar, which triggers a scroll event. It
+    // is somewhat finicky to detect when the scroll has finished, so this
+    // uses a relatively dumb system of disabling scroll updates for a short
+    // time after the click.
+    let disableScroll = false;
+    // Array of header elements on the page.
+    let headers;
+    // Array of li elements that are initially collapsed headers in the sidebar.
+    // I'm not sure why eslint seems to have a false positive here.
+    // eslint-disable-next-line prefer-const
+    let headerToggles = [];
+    // This is a debugging tool for the threshold which you can enable in the console.
+    let thresholdDebug = false;
+
+    // Updates the threshold based on the scroll position.
+    function updateThreshold() {
+        const scrollTop = window.pageYOffset || document.documentElement.scrollTop;
+        const windowHeight = window.innerHeight;
+        const documentHeight = document.documentElement.scrollHeight;
+
+        // The number of pixels below the viewport, at most documentHeight.
+        // This is used to push the threshold down to the bottom of the page
+        // as the user scrolls towards the bottom.
+        const pixelsBelow = Math.max(0, documentHeight - (scrollTop + windowHeight));
+        // The number of pixels above the viewport, at least defaultDownThreshold.
+        // Similar to pixelsBelow, this is used to push the threshold back towards
+        // the top when reaching the top of the page.
+        const pixelsAbove = Math.max(0, defaultDownThreshold - scrollTop);
+        // How much the threshold should be offset once it gets close to the
+        // bottom of the page.
+        const bottomAdd = Math.max(0, windowHeight - pixelsBelow - defaultDownThreshold);
+        let adjustedBottomAdd = bottomAdd;
+
+        // Adjusts bottomAdd for a small document. The calculation above
+        // assumes the document is at least twice the windowheight in size. If
+        // it is less than that, then bottomAdd needs to be shrunk
+        // proportional to the difference in size.
+        if (documentHeight < windowHeight * 2) {
+            const maxPixelsBelow = documentHeight - windowHeight;
+            const t = 1 - pixelsBelow / Math.max(1, maxPixelsBelow);
+            const clamp = Math.max(0, Math.min(1, t));
+            adjustedBottomAdd *= clamp;
+        }
+
+        let scrollingDown = true;
+        if (scrollTop < lastKnownScrollPosition) {
+            scrollingDown = false;
+        }
+
+        if (scrollingDown) {
+            // When scrolling down, move the threshold up towards the default
+            // downwards threshold position. If near the bottom of the page,
+            // adjustedBottomAdd will offset the threshold towards the bottom
+            // of the page.
+            const amountScrolledDown = scrollTop - lastKnownScrollPosition;
+            const adjustedDefault = defaultDownThreshold + adjustedBottomAdd;
+            threshold = Math.max(adjustedDefault, threshold - amountScrolledDown);
+        } else {
+            // When scrolling up, move the threshold down towards the default
+            // upwards threshold position. If near the bottom of the page,
+            // quickly transition the threshold back up where it normally
+            // belongs.
+            const amountScrolledUp = lastKnownScrollPosition - scrollTop;
+            const adjustedDefault = defaultUpThreshold - pixelsAbove
+                + Math.max(0, adjustedBottomAdd - defaultDownThreshold);
+            threshold = Math.min(adjustedDefault, threshold + amountScrolledUp);
+        }
+
+        if (documentHeight <= windowHeight) {
+            threshold = 0;
+        }
+
+        if (thresholdDebug) {
+            const id = 'mdbook-threshold-debug-data';
+            let data = document.getElementById(id);
+            if (data === null) {
+                data = document.createElement('div');
+                data.id = id;
+                data.style.cssText = `
+                    position: fixed;
+                    top: 50px;
+                    right: 10px;
+                    background-color: 0xeeeeee;
+                    z-index: 9999;
+                    pointer-events: none;
+                `;
+                document.body.appendChild(data);
+            }
+            data.innerHTML = `
+                <table>
+                  <tr><td>documentHeight</td><td>${documentHeight.toFixed(1)}</td></tr>
+                  <tr><td>windowHeight</td><td>${windowHeight.toFixed(1)}</td></tr>
+                  <tr><td>scrollTop</td><td>${scrollTop.toFixed(1)}</td></tr>
+                  <tr><td>pixelsAbove</td><td>${pixelsAbove.toFixed(1)}</td></tr>
+                  <tr><td>pixelsBelow</td><td>${pixelsBelow.toFixed(1)}</td></tr>
+                  <tr><td>bottomAdd</td><td>${bottomAdd.toFixed(1)}</td></tr>
+                  <tr><td>adjustedBottomAdd</td><td>${adjustedBottomAdd.toFixed(1)}</td></tr>
+                  <tr><td>scrollingDown</td><td>${scrollingDown}</td></tr>
+                  <tr><td>threshold</td><td>${threshold.toFixed(1)}</td></tr>
+                </table>
+            `;
+            drawDebugLine();
+        }
+
+        lastKnownScrollPosition = scrollTop;
+    }
+
+    function drawDebugLine() {
+        if (!document.body) {
+            return;
+        }
+        const id = 'mdbook-threshold-debug-line';
+        const existingLine = document.getElementById(id);
+        if (existingLine) {
+            existingLine.remove();
+        }
+        const line = document.createElement('div');
+        line.id = id;
+        line.style.cssText = `
+            position: fixed;
+            top: ${threshold}px;
+            left: 0;
+            width: 100vw;
+            height: 2px;
+            background-color: red;
+            z-index: 9999;
+            pointer-events: none;
+        `;
+        document.body.appendChild(line);
+    }
+
+    function mdbookEnableThresholdDebug() {
+        thresholdDebug = true;
+        updateThreshold();
+        drawDebugLine();
+    }
+
+    window.mdbookEnableThresholdDebug = mdbookEnableThresholdDebug;
+
+    // Updates which headers in the sidebar should be expanded. If the current
+    // header is inside a collapsed group, then it, and all its parents should
+    // be expanded.
+    function updateHeaderExpanded(currentA) {
+        // Add expanded to all header-item li ancestors.
+        let current = currentA.parentElement;
+        while (current) {
+            if (current.tagName === 'LI' && current.classList.contains('header-item')) {
+                current.classList.add('expanded');
+            }
+            current = current.parentElement;
+        }
+    }
+
+    // Updates which header is marked as the "current" header in the sidebar.
+    // This is done with a virtual Y threshold, where headers at or below
+    // that line will be considered the current one.
+    function updateCurrentHeader() {
+        if (!headers || !headers.length) {
+            return;
+        }
+
+        // Reset the classes, which will be rebuilt below.
+        const els = document.getElementsByClassName('current-header');
+        for (const el of els) {
+            el.classList.remove('current-header');
+        }
+        for (const toggle of headerToggles) {
+            toggle.classList.remove('expanded');
+        }
+
+        // Find the last header that is above the threshold.
+        let lastHeader = null;
+        for (const header of headers) {
+            const rect = header.getBoundingClientRect();
+            if (rect.top <= threshold) {
+                lastHeader = header;
+            } else {
+                break;
+            }
+        }
+        if (lastHeader === null) {
+            lastHeader = headers[0];
+            const rect = lastHeader.getBoundingClientRect();
+            const windowHeight = window.innerHeight;
+            if (rect.top >= windowHeight) {
+                return;
+            }
+        }
+
+        // Get the anchor in the summary.
+        const href = '#' + lastHeader.id;
+        const a = [...document.querySelectorAll('.header-in-summary')]
+            .find(element => element.getAttribute('href') === href);
+        if (!a) {
+            return;
+        }
+
+        a.classList.add('current-header');
+
+        updateHeaderExpanded(a);
+    }
+
+    // Updates which header is "current" based on the threshold line.
+    function reloadCurrentHeader() {
+        if (disableScroll) {
+            return;
+        }
+        updateThreshold();
+        updateCurrentHeader();
+    }
+
+
+    // When clicking on a header in the sidebar, this adjusts the threshold so
+    // that it is located next to the header. This is so that header becomes
+    // "current".
+    function headerThresholdClick(event) {
+        // See disableScroll description why this is done.
+        disableScroll = true;
+        setTimeout(() => {
+            disableScroll = false;
+        }, 100);
+        // requestAnimationFrame is used to delay the update of the "current"
+        // header until after the scroll is done, and the header is in the new
+        // position.
+        requestAnimationFrame(() => {
+            requestAnimationFrame(() => {
+                // Closest is needed because if it has child elements like <code>.
+                const a = event.target.closest('a');
+                const href = a.getAttribute('href');
+                const targetId = href.substring(1);
+                const targetElement = document.getElementById(targetId);
+                if (targetElement) {
+                    threshold = targetElement.getBoundingClientRect().bottom;
+                    updateCurrentHeader();
+                }
+            });
+        });
+    }
+
+
+    document.addEventListener('DOMContentLoaded', () => {
+        const group = document.querySelector('[data-track-example-sections]');
+        if (!group) return;
+        headers = [];
+        for (const link of group.querySelectorAll('[data-index-link]')) {
+            const hash = new URL(link.href).hash;
+            const section = document.getElementById(hash.slice(1));
+            if (!section) continue;
+            headers.push(section);
+            link.href = hash;
+            link.classList.add('header-in-summary');
+            link.addEventListener('click', headerThresholdClick);
+        }
+        reloadCurrentHeader();
+    });
+    document.addEventListener('scroll', reloadCurrentHeader, { passive: true });
+})();</script><script type="module">var e=document.querySelector(`#mdbook-sidebar`),t=e.querySelector(`.sidebar-scrollbox`);t.scrollTop=Number(sessionStorage.getItem(`examples-index-scroll`)||0),e.addEventListener(`click`,e=>{let n=e.target.closest(`.chapter-fold-toggle`)?.closest(`[data-example-section]`);if(n)try{sessionStorage.setItem(`examples-section-${n.dataset.exampleSection}`,n.classList.contains(`expanded`)?`open`:`closed`)}catch{}sessionStorage.setItem(`examples-index-scroll`,String(t.scrollTop))}),addEventListener(`pagehide`,()=>{for(let t of e.querySelectorAll(`[data-example-section]`))try{sessionStorage.setItem(`examples-section-${t.dataset.exampleSection}`,t.classList.contains(`expanded`)?`open`:`closed`)}catch{}});</script></main><footer class="landing-footer"><a href="/" class="footer-brand" aria-label="x2c home"><svg viewBox="0 0 100 100" width="18" height="18" aria-hidden="true"><g fill="none" stroke="#da291c" stroke-width="17" stroke-linecap="butt"><path d="M9 16 A34.5 34.5 0 0 1 9 84"></path><path d="M91 16 A34.5 34.5 0 0 0 91 84"></path></g></svg><span class="x2c-wordmark footer-wordmark">x2c</span></a><p>&copy; 2025&ndash;2026 <a href="https://flake.org">GWF</a> &middot; <a href="https://github.com/gwf/x2c/blob/3f6cd0a90fdca9056a7340e551ffa8a19de6d535/LICENSE">Apache 2.0</a> &middot; <a href="https://github.com/gwf/x2c/blob/3f6cd0a90fdca9056a7340e551ffa8a19de6d535/TRADEMARKS.md">Trademarks</a> &middot; <a href="/x2c-book.pdf">Book PDF</a></p><a href="#main" class="footer-top dark-link">Back to top <span aria-hidden="true">&uarr;</span></a></footer></body></html><script type="module" src="/assets/BaseLayout.astro_astro_type_script_index_0_lang.DQO0jBL6.js"></script>
