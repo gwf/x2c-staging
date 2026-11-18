@@ -1,6 +1,6 @@
 <!DOCTYPE HTML>
 <html lang="en" class="light sidebar-visible" dir="ltr">
-    <head><meta name="x2c-release-channel" content="staging"><meta name="x2c-candidate" content="candidate-dbb82213e36d72f73b0be2ff3fe136ac78aae811-43901439345-2"><meta name="x2c-site-source" content="fee9387e0d697b1b0808a540de2643478a938287"><meta name="robots" content="noindex">
+    <head><meta name="x2c-release-channel" content="staging"><meta name="x2c-candidate" content="candidate-dbb82213e36d72f73b0be2ff3fe136ac78aae811-43901439345-2"><meta name="x2c-site-source" content="112e413b2865ed06304c57c1d0e16e01d617d87b"><meta name="robots" content="noindex">
         <!-- Book generated using mdBook -->
         <meta charset="UTF-8">
         <title>Building Interfaces with x2cui - The x2c Book</title>
@@ -41,10 +41,10 @@
             const path_to_root = "../";
             const default_light_theme = "light";
             const default_dark_theme = "light";
-            window.path_to_searchindex_js = "../searchindex-76105bb3.js";
+            window.path_to_searchindex_js = "../searchindex-bb12fb94.js";
         </script>
         <!-- Start loading toc.js asap -->
-        <script src="../toc-ed291a6e.js"></script>
+        <script src="../toc-4b92af2b.js"></script>
         <!-- x2c publication metadata -->
         <link rel="canonical" href="https://x2c-lang.dev/docs/guide/x2cui.html">
         <meta property="og:type" content="website">
@@ -218,16 +218,17 @@
                     <main>
                         <h1 id="building-interfaces-with-x2cui"><a class="header" href="#building-interfaces-with-x2cui">Building Interfaces with x2cui</a></h1>
 <p>For the full component forms, collections, and build profile, see the
-<a href="https://github.com/gwf/x2c/blob/fee9387e0d697b1b0808a540de2643478a938287/packages/x2cui/README.md">x2cui package README</a>.
+<a href="https://github.com/gwf/x2c/blob/112e413b2865ed06304c57c1d0e16e01d617d87b/packages/x2cui/README.md">x2cui package README</a>.
 This chapter belongs to <a href="../library/advanced-topics.html">Advanced Topics</a>.</p>
 <p>The <code>x2cui</code> package draws windows and user interfaces from <span class="x2c-wordmark">x2c</span>. It is an
-interface to <a href="https://github.com/yappologistic/CUI">CUI</a> 1.4.0, a C99
+interface to <a href="https://github.com/yappologistic/CUI">CUI</a> revision
+<code>a5c9ef5efc39</code> (after 1.4.0), a C99
 immediate-mode UI library that draws its own components. A program
 describes the whole screen with calls on every frame. CUI lays the screen
 out, handles the mouse and keyboard, and draws it in a window or into
 pixels. The entry unit is <code>packages/x2cui/src/x2cui.x</code>, and every public
 name compiles to <code>x2cui__*</code>.</p>
-<p>The package is experimental. CUI 1.4.0 passes off-screen checks on macOS
+<p>The package is experimental. The pinned revision passes off-screen checks on macOS
 arm64 and under Node with WebAssembly. Linux arm64 and x86_64 checks
 were last run with CUI 1.3.1; the Linux windowed path has not been tested.
 The package has
@@ -517,9 +518,10 @@ folder that match a search, one <code>ui.item</code> row each, with a context
 menu. <code>builds/mail --shot IMAGE.png</code> draws the inbox.</li>
 <li><code>orders.x</code> is a table of recent orders with a Map of columns, sorted
 by the header clicked. <code>builds/orders --shot IMAGE.png</code> draws it.</li>
-<li><code>gallery.x</code> has 27 pages, with each page in a file under
+<li><code>gallery.x</code> has 31 pages, with each page in a file under
 <code>examples/gallery/</code>. It ports CUI’s gallery and adds an Instruments
-page for dot charts, event tracks, readouts, and dot displays.
+page for dot charts, event tracks, readouts, and dot displays. Further pages
+cover creative controls, canvas tools, voice displays, and loading patterns.
 <code>make -C packages/x2cui run-gallery</code> opens it, and
 <code>builds/gallery --shots DIR</code> draws every page.</li>
 <li><code>stress.x</code> animates as many moving circles or cards as its slider asks
@@ -527,7 +529,7 @@ for and shows the frame rate. <code>make -C packages/x2cui run-stress</code> ope
 it. <code>builds/stress --frames N</code> times N frames off screen and prints the
 means.</li>
 <li><code>scenes.x</code> is a check, not an application. It draws one small scene for
-each of CUI’s 205 components, and <code>--check</code> fails when a component in
+each of CUI’s 232 component entries, and <code>--check</code> fails when a component in
 CUI’s header has no scene.</li>
 </ul>
 <p>The gallery and the stress test also run in a browser, from the same <span class="x2c-wordmark">x2c</span>
@@ -537,9 +539,61 @@ make -C packages/x2cui web-serve  # then open http://127.0.0.1:4399/
 </code></pre>
 <p><code>http://127.0.0.1:4399/?stress</code> opens the stress test. The program is
 64-bit WebAssembly drawn with WebGL 2. The browser must support 64-bit
-WebAssembly memory and JavaScript Promise Integration. CUI 1.4.0 has been
-tested off screen under Node. Interactive Chromium testing was last run
-with CUI 1.3.1; see the package’s <code>PROFILE.md</code> for verification details.</p>
+WebAssembly memory and JavaScript Promise Integration. The pinned revision
+has been tested off screen under Node and interactively in headless Chromium;
+see the package’s <code>PROFILE.md</code> for verification details.</p>
+<h2 id="additional-controls-and-input-services"><a class="header" href="#additional-controls-and-input-services">Additional controls and input services</a></h2>
+<p>The experimental revision adds creative sliders and palette tools, grouped
+and floating toolbars, text formatting, canvas controls, selection actions,
+voice waveforms and notes, and loading patterns. <code>ui.spinner</code> accepts style
+options while preserving the default ring. <code>ui.skeleton_group</code>, <code>ui.veil</code>,
+and <code>ui.toolbar_group</code> are block forms.</p>
+<p><code>ui.get_clipboard_text()</code> copies platform clipboard text into an owned
+String; <code>ui.set_clipboard_text(text)</code> writes through the platform hook.
+Without hooks, the getter returns an empty String and the setter does nothing.
+<code>voice_resample(levels, columns)</code> returns an owned ArrayFloat of peak levels.</p>
+<p>A custom canvas registers <code>ui.wheel_region(id, rect)</code> while painting and
+consumes <code>ui.wheel_take(id, delta)</code> before it copies paint data. The region
+uses a separate stable ID and previous-frame geometry. It captures both
+axes; content-edge handoff to a parent is the custom component’s decision.
+Focused-component keyboard handling is described below. IME composition
+remains outside that contract.</p>
+<p>The native App methods include maximize, minimize, restore, window_state,
+placement, set_position, and follow_system_theme. They retain CUI’s platform
+contracts; see the pinned raw header for placement support on each backend.</p>
+<h2 id="focused-component-keyboard-handling"><a class="header" href="#focused-component-keyboard-handling">Focused-component keyboard handling</a></h2>
+<p><code>ui.canvas_input(id, width, height, paint, user, user_size)</code> submits a custom
+component that participates in focus and owns its keyboard interpretation.
+It does not need a text buffer. Its key map can execute component commands,
+emit typed host requests, or decline an event for host fallback.</p>
+<p>Use <code>ui.set_input_hook</code> to capture ordered events in an application-owned
+queue. Events and committed text are borrowed during capture. Copy retained
+text, unregister during replay, and unregister before releasing callback data.
+The raw capture callback must contain <span class="x2c-wordmark">x2c</span> Errors and report them after native
+event collection returns.</p>
+<p>After beginning a frame and before submitting components, call
+<code>ui.dispatch_input(&amp;event, route, user)</code> for a captured key, committed-text,
+or window-focus event. The synchronous callback receives <code>(Ui, user, event)</code>.
+Route to the eligible component first, then the active host scope and permitted
+application shortcuts. Return true when handled, including an intentionally
+blocked operation, or false for CUI defaults. Unhandled Tab traverses focus.
+The <span class="x2c-wordmark">x2c</span> wrapper raises callback Errors after returning safely from CUI.</p>
+<p><code>ui.input_repeated()</code> describes repeated downs during routing. Physical held
+state from <code>ui.key_down(key)</code> is distinct from default-action eligibility from
+<code>ui.key_action_down(key)</code>. Consuming input never suppresses key-release or
+modifier bookkeeping. Consumed and inactive downs cannot activate default held
+behavior until release. Committed text remains separate from physical keys.</p>
+<p>Retain the scoped ID from <code>ui.make_id(id)</code>. <code>ui.request_component_focus(id)</code>
+resolves against a completed submission and admits only a participating,
+enabled component. <code>ui.component_has_input(id)</code> checks focus, membership,
+window activation, and overlay ownership at completed-submission boundaries.
+Notify components when ownership changes after every completed submission,
+including empty frames, so they can cancel local held-key and chord state.</p>
+<p>The host owns any reconciliation needed after changing an already-submitted
+dialog. CUI adds no queue or unconditional second pass. Existing built-in
+controls retain their input path; this API does not add general widget event
+bubbling or IME composition. <code>ui.draw_text_slanted</code> exposes styled drawing for
+custom components without access to CUI’s private vertex storage.</p>
 <h2 id="the-native-api"><a class="header" href="#the-native-api">The native API</a></h2>
 <p>Importing the package also makes CUI’s C API available under its own
 names, through the published header <code>src/cui-1.4.h</code>. <code>Ui</code> is CUI’s
@@ -569,9 +623,9 @@ WebGL 2.</li>
 no bidirectional text.</li>
 <li>A program draws from one thread. The package keeps one unlocked table,
 shared by every <code>Ui</code>, of the arrays it builds for Lists of Strings.</li>
-<li>The package applies two patches to CUI, <code>table-row-state</code> and
-<code>focusable-canvas</code>, and an upgrade of CUI must remake them.
-<code>PROFILE.md</code> describes both.</li>
+<li>The package applies <code>table-row-state</code>, <code>focusable-canvas</code>, and
+<code>component-input</code> patches to CUI. The browser also has an OpenGL ES patch.
+An upstream upgrade must revalidate them; <code>PROFILE.md</code> records the profile.</li>
 </ul>
 <h2 id="where-to-go-next"><a class="header" href="#where-to-go-next">Where to go next</a></h2>
 <ul>
@@ -614,8 +668,8 @@ packages.</li>
                 <span class="x2c-wordmark footer-wordmark">x2c</span>
             </a>
             <p>&copy; 2025&ndash;2026 <a href="https://flake.org">GWF</a> &middot;
-                <a href="https://github.com/gwf/x2c/blob/fee9387e0d697b1b0808a540de2643478a938287/LICENSE">Apache 2.0</a> &middot;
-                <a href="https://github.com/gwf/x2c/blob/fee9387e0d697b1b0808a540de2643478a938287/TRADEMARKS.md">Trademarks</a> &middot;
+                <a href="https://github.com/gwf/x2c/blob/112e413b2865ed06304c57c1d0e16e01d617d87b/LICENSE">Apache 2.0</a> &middot;
+                <a href="https://github.com/gwf/x2c/blob/112e413b2865ed06304c57c1d0e16e01d617d87b/TRADEMARKS.md">Trademarks</a> &middot;
                 <a href="../../x2c-book.pdf">Book PDF</a></p>
             <a href="#mdbook-content" class="footer-top">Back to top <span aria-hidden="true">&uarr;</span></a>
         </footer>
