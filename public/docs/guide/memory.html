@@ -1,6 +1,6 @@
 <!DOCTYPE HTML>
 <html lang="en" class="light sidebar-visible" dir="ltr">
-    <head><meta name="x2c-release-channel" content="staging"><meta name="x2c-candidate" content="candidate-dbb82213e36d72f73b0be2ff3fe136ac78aae811-43901439345-2"><meta name="x2c-site-source" content="41db5bec6153473e3ea5e1ee141252abcb38d93b"><meta name="robots" content="noindex">
+    <head><meta name="x2c-release-channel" content="staging"><meta name="x2c-candidate" content="candidate-dbb82213e36d72f73b0be2ff3fe136ac78aae811-43901439345-2"><meta name="x2c-site-source" content="73ef2edd945ff94d828856b0d8d6de43d84896e0"><meta name="robots" content="noindex">
         <!-- Book generated using mdBook -->
         <meta charset="UTF-8">
         <title>Scopes and Lifetime - The x2c Book</title>
@@ -41,7 +41,7 @@
             const path_to_root = "../";
             const default_light_theme = "light";
             const default_dark_theme = "light";
-            window.path_to_searchindex_js = "../searchindex-2d9fa7d7.js";
+            window.path_to_searchindex_js = "../searchindex-3b52a977.js";
         </script>
         <!-- Start loading toc.js asap -->
         <script src="../toc-4b92af2b.js"></script>
@@ -303,12 +303,11 @@ region closes normally. An extra close, or a close from a different
 pushed slot, raises <code>&lt;bad-state&gt;</code> and leaves the open region intact.
 A matching <code>catch</code> can handle the error. Without one, the default policy
 aborts the program.</p>
-<p>Storage returned by these calls is managed memory. <code>Scope.realloc</code> resizes
-it and returns a pointer that can differ from the old one, and <code>Scope.free</code>
-frees it before the close. Most storage does not need <code>Scope.free</code>, because
-the close frees the whole region. <code>Scope.malloc_finalized</code>
-allocates storage that runs a function of your choice when it is reclaimed;
-see <a href="#attaching-a-finalizer">attaching a finalizer</a>.</p>
+<p>These calls return managed memory. <code>Scope.realloc</code> resizes it and may return
+a different pointer. <code>Scope.free</code> frees it before the close. Most storage
+does not need <code>Scope.free</code>, because the close frees the whole region. Pass a
+function to <code>Scope.malloc_finalized</code> to run it when the allocator reclaims
+the storage. See <a href="#attaching-a-finalizer">attaching a finalizer</a>.</p>
 <p>For storage that must outlive the current region, hold a scope in a variable
 of type <code>Scope</code> and allocate into it directly. <code>Scope.malloc_in</code>,
 <code>Scope.calloc_in</code>, and <code>Scope.memdup_in</code> take the slot’s address. They do
@@ -524,11 +523,10 @@ leading indentation of the current line for <code>push</code>, <code>pop</code>,
 </span><span class="line"><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">}</span>
 </span><span class="line"><span style="--shiki-light:#6F42C1;--shiki-dark:#E9E5DF">puts</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">(text);</span></span></code></pre>
 
-<p>The <code>String</code> destination calls <code>Buffer.str</code>, which interns the accumulated
-text, so <code>text</code> is canonical. It stays valid after the <code>Buffer</code> cleanup and
-the region close free every byte the builder used. Most <span class="x2c-wordmark">x2c</span> code follows
-this pattern: mutable storage inside a region, a canonical result outside
-it.</p>
+<p>The <code>String</code> destination calls <code>Buffer.str</code> to intern the accumulated text.
+<code>text</code> belongs to the canonical pool and stays valid after cleanup frees the
+builder’s storage. This pattern keeps the mutable builder inside the region
+and the canonical result available outside it.</p>
 <h2 id="choosing-when-to-free-storage"><a class="header" href="#choosing-when-to-free-storage">Choosing when to free storage</a></h2>
 <p>Free storage when the work that needs it is finished: a request has ended, a
 file has been parsed, or temporary values have been combined into one result.
@@ -681,8 +679,8 @@ own scopes.</li>
                 <span class="x2c-wordmark footer-wordmark">x2c</span>
             </a>
             <p>&copy; 2025&ndash;2026 <a href="https://flake.org">GWF</a> &middot;
-                <a href="https://github.com/gwf/x2c/blob/41db5bec6153473e3ea5e1ee141252abcb38d93b/LICENSE">Apache 2.0</a> &middot;
-                <a href="https://github.com/gwf/x2c/blob/41db5bec6153473e3ea5e1ee141252abcb38d93b/TRADEMARKS.md">Trademarks</a> &middot;
+                <a href="https://github.com/gwf/x2c/blob/73ef2edd945ff94d828856b0d8d6de43d84896e0/LICENSE">Apache 2.0</a> &middot;
+                <a href="https://github.com/gwf/x2c/blob/73ef2edd945ff94d828856b0d8d6de43d84896e0/TRADEMARKS.md">Trademarks</a> &middot;
                 <a href="../../x2c-book.pdf">Book PDF</a></p>
             <a href="#mdbook-content" class="footer-top">Back to top <span aria-hidden="true">&uarr;</span></a>
         </footer>

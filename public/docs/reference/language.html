@@ -1,6 +1,6 @@
 <!DOCTYPE HTML>
 <html lang="en" class="light sidebar-visible" dir="ltr">
-    <head><meta name="x2c-release-channel" content="staging"><meta name="x2c-candidate" content="candidate-dbb82213e36d72f73b0be2ff3fe136ac78aae811-43901439345-2"><meta name="x2c-site-source" content="41db5bec6153473e3ea5e1ee141252abcb38d93b"><meta name="robots" content="noindex">
+    <head><meta name="x2c-release-channel" content="staging"><meta name="x2c-candidate" content="candidate-dbb82213e36d72f73b0be2ff3fe136ac78aae811-43901439345-2"><meta name="x2c-site-source" content="73ef2edd945ff94d828856b0d8d6de43d84896e0"><meta name="robots" content="noindex">
         <!-- Book generated using mdBook -->
         <meta charset="UTF-8">
         <title>Language Reference - The x2c Book</title>
@@ -41,7 +41,7 @@
             const path_to_root = "../";
             const default_light_theme = "light";
             const default_dark_theme = "light";
-            window.path_to_searchindex_js = "../searchindex-2d9fa7d7.js";
+            window.path_to_searchindex_js = "../searchindex-3b52a977.js";
         </script>
         <!-- Start loading toc.js asap -->
         <script src="../toc-4b92af2b.js"></script>
@@ -443,12 +443,12 @@ name is visible only in its declaring file. Enumerators of a
 enumerators of an enum declared without a typedef stay unit-wide, even under
 <code>static</code>. A later declaration without <code>static</code> refers to the file’s static, as
 in C. Examples are the definition after a <code>static</code> prototype and a block-scope
-<code>extern</code> declaration or prototype. A file’s statics take a prefix in the
-generated C: the file’s path relative to the entry’s directory without its
-extension, with each character that cannot continue a C identifier made <code>_</code>,
-then <code>___</code>. The prefix starts with <code>f</code>, the normalized path’s length, and <code>_</code>;
-a path that starts with a digit gets a leading <code>x</code> before its length is
-measured. Under the entry <code>parser/parser.x</code>, a static <code>advance</code> in
+<code>extern</code> declaration or prototype. To form the prefix for a file’s static
+names, take its path relative to the entry’s directory and drop the extension.
+Replace characters that cannot continue a C identifier with <code>_</code>. If the
+normalized path starts with a digit, prepend <code>x</code> before measuring its length.
+The prefix is <code>f</code>, the length, <code>_</code>, the normalized path, then <code>___</code>. Under the
+entry <code>parser/parser.x</code>, a static <code>advance</code> in
 <code>parser/statements/loops.x</code> emits as <code>f16_statements_loops___advance</code>, and one
 in the entry itself as <code>f6_parser___advance</code>. Trailing <code>_</code> of the path’s
 spelling are dropped first, so <code>a.x</code> and <code>a-.x</code> give one prefix. A package
@@ -471,8 +471,9 @@ word an identifier.</p>
 <p>A quoted include of a file beside the member includes that file, in
 collection and in the generated C. Any other include resolves as it
 would at the block’s position in the entry.</p>
-<p>Members are not translation units. A build never lists them; the entry’s
-generated C and header contain everything. The entry’s depfile and interface
+<p>When building a module unit, list only its entry as a build input. The entry’s
+generated C and header include the members’ code and declarations. The entry’s
+depfile and interface
 depend on each member’s content, so editing a member translates the entry
 again and changes what an including unit collects. Translated on its own, a
 member is an ordinary file.</p>
@@ -519,10 +520,10 @@ are defined, and those functions can call one another. The declarations
 among the statements are locals of that body, so functions cannot refer to
 them. Lambdas capture them as usual. Write <code>static</code> for a variable that
 functions share.</p>
-<p>Falling off the end of the statements returns zero, and <code>return</code> among them
-sets the exit status. A <code>&lt;cmd-fail&gt;</code> that no statement catches prints the
-command and its status on standard error, and that status becomes the exit
-status. Any other uncaught <code>Error</code> prints its cause and details on standard
+<p>A script exits with status 0 when it reaches the end of its statements. An
+explicit <code>return</code> sets the exit status. For an uncaught <code>&lt;cmd-fail&gt;</code>, the script
+prints the command and its status on standard error and exits with that status.
+For any other uncaught <code>Error</code>, it prints the cause and details on standard
 error and exits with status 1.</p>
 <pre class="shiki shiki-themes x2c-light x2c-dark x2c-code" style="--shiki-light:#24292e;--shiki-dark:#e9e5df;--shiki-light-bg:#fff;--shiki-dark-bg:#101011" tabindex="0"><code class="language-x2c no-highlight"><span class="line"><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">#</span><span style="--shiki-light:#D73A49;--shiki-dark:#E9E5DF">!/</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">usr</span><span style="--shiki-light:#D73A49;--shiki-dark:#E9E5DF">/</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">bin</span><span style="--shiki-light:#D73A49;--shiki-dark:#E9E5DF">/</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">env </span><span style="--shiki-light:#D73A49;--shiki-dark:#E9E5DF">-</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">S x2c script</span>
 </span><span class="line"><span style="--shiki-light:#D73A49;--shiki-dark:#F0ADA1">static</span><span style="--shiki-light:#007C8A;--shiki-dark:#29D3E2"> String</span><span style="--shiki-light:#6F42C1;--shiki-dark:#E9E5DF"> greeting</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">(</span><span style="--shiki-light:#007C8A;--shiki-dark:#29D3E2">String</span><span style="--shiki-light:#E36209;--shiki-dark:#E9E5DF"> name</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">) </span><span style="--shiki-light:#A626A4;--shiki-light-font-weight:bold;--shiki-dark:#FF4FD8;--shiki-dark-font-weight:bold">=&gt;</span><span style="--shiki-light:#A626A4;--shiki-light-font-weight:bold;--shiki-dark:#FF4FD8;--shiki-dark-font-weight:bold"> %"</span><span style="--shiki-light:#032F62;--shiki-dark:#9EDFB8">hello, </span><span style="--shiki-light:#A626A4;--shiki-light-font-weight:bold;--shiki-dark:#FF4FD8;--shiki-dark-font-weight:bold">$</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">name</span><span style="--shiki-light:#A626A4;--shiki-light-font-weight:bold;--shiki-dark:#FF4FD8;--shiki-dark-font-weight:bold">"</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">;</span>
@@ -1131,8 +1132,8 @@ and declares nothing, so <code>_</code> may appear more than once: <code>Var (_,
 not accepted inside the parentheses. Inside a <code>%()</code> <code>List</code> literal, use
 <code>$(...)</code> to insert a C character expression because the <code>List</code> reader reads a
 bare single quote as <code>quote</code>.</p>
-<p>The singleton assignment destructures. It assigns element zero; the left side
-is not a parenthesized scalar assignment.</p>
+<p>An assignment with one name in parentheses still destructures the List. It
+assigns element zero to that name.</p>
 <p>The source expression is evaluated once. Elements are then assigned from left
 to right through the same conversions used by ordinary initialization or
 assignment. Extra source elements are ignored. If the <code>List</code> is short,
@@ -1626,8 +1627,9 @@ the captured member spelling unchanged.</p>
 <p>A registered <code>Type</code> hole may likewise supply the type name before <code>.</code> in a
 method declaration in a <code>Unit</code> template, as in <code>inline Var $type.$method($type value)</code>. A literal registered type may use the same member form, as in
 <code>Logger.$method</code>. Both expansions use the <code>Type_method</code> declaration identity.</p>
-<p>Repeated <code>Unit</code>-macro applications over <code>Type</code> holes are how <span class="x2c-wordmark">x2c</span> writes
-compile-time generic code. Every supplied type must already be a valid named C
+<p>To generate a family of concrete declarations at compile time, invoke a <code>Unit</code>
+macro with a different <code>Type</code> argument for each member of the family. Every
+supplied type must already be a valid named C
 type, and every expansion produces separately typed declarations and
 definitions. There is no runtime type argument, erased element representation,
 or parameterized type spelling such as <code>Box&lt;T&gt;</code>. A macro generates named
@@ -2322,7 +2324,8 @@ literal. A <code>case</code> on a macro value captures what a spliced slot built
 capture is bound to the slot’s sequence hole, with one element per statement.
 Each element can then be recognized with a <code>case</code> on the macro that built it.
 The pattern a literal macro value derives is prepared once per process.</p>
-<p>A macro’s pattern is also a pattern wherever patterns go. In a <code>case</code>,
+<p>You can use a pattern derived from a macro wherever a pattern is accepted. In a
+<code>case</code>,
 <code>$($name(P, ...))</code> is the pattern of code <code>$name</code> builds with each argument
 pattern in its hole, derived while the compiler reads the <code>case</code>. Each
 argument is a binder or wildcard, another <code>$name(...)</code> pattern, or a
@@ -2441,7 +2444,8 @@ apply a template, and inside another quotation it is written as a hole,
 checking it. A typed quotation states the type the code has; it converts
 nothing, so write a cast inside the braces when the code needs one. See <a href="../guide/generating-code.html#code-that-knows-its-type">Code
 with an explicit type</a>.</p>
-<p><code>$!Type{ T }</code> builds the type <code>T</code>, written as a cast writes a type name.
+<p><code>$!Type{ T }</code> builds type syntax for <code>T</code>. Inside the braces, write the type as
+you would in a cast.
 <code>$!Param{ P }</code> builds one parameter declaration. A <code>Type</code> local or a
 <code>$(...)</code> hole of type <code>Type</code> may stand for a type or for the base a
 declarator modifies. Both build where they are written: they bind nothing,
@@ -2761,7 +2765,7 @@ parser has already consumed, such as a multi-line interpolated <code>%"..."</cod
 rejected; read its spelling with <code>Code.source_text</code> instead.</p>
 <p><code>Type.members</code> returns an enum’s members in source order as <code>(("NAME" VALUE) ...)</code>. <code>VALUE</code> is one of these:</p>
 <ul>
-<li><code>nil</code> when the member takes its position’s value;</li>
+<li><code>nil</code> when the enum member has no explicit initializer,</li>
 <li>the literal’s exact spelling as a <code>String</code> when the initializer is one
 literal, including its base, suffix, and character quotes;</li>
 <li>otherwise the initializer’s expression node, which a generator can splice
@@ -2789,9 +2793,9 @@ code-value carrier do. Placed code that declares a name the result uses
 takes it from <code>x2c_binding_fresh</code>. <code>where</code> is one of these Lists:</p>
 <ul>
 <li><code>(after-statement)</code> places code after the initialized declarator that
-<code>x2c_enclosing</code> returns, or otherwise after the enclosing block item. A
-declaration split after the declarator keeps the declarators before it in
-their own declaration, its shared inline type, and initialization order.
+<code>x2c_enclosing</code> returns, or otherwise after the enclosing block item.
+Splitting the declaration keeps the declarators through that point together.
+The split preserves the shared inline type and the initialization order.
 The placing expansion’s result must be that declarator’s complete
 initializer, through parentheses and typed expression shells. Otherwise,
 or when the declarator is not an item of a block, as in a <code>for</code> header,
@@ -3681,8 +3685,9 @@ declarator-shaped types must be parenthesized:</p>
 </span><span class="line"><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">         double_pointer_value </span><span style="--shiki-light:#A626A4;--shiki-light-font-weight:bold;--shiki-dark:#FF4FD8;--shiki-dark-font-weight:bold">is</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF"> (</span><span style="--shiki-light:#D73A49;--shiki-dark:#F0ADA1">int</span><span style="--shiki-light:#D73A49;--shiki-dark:#E9E5DF"> **</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">);</span>
 </span><span class="line"><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">}</span></span></code></pre>
 
-<p>An unparenthesized pointer selector is rejected with the parenthesized
-spelling. <code>Array</code>s, function types, unsupported pointer depths, unknown types,
+<p>If a pointer selector omits its parentheses, the compiler rejects it and shows
+the parenthesized spelling. <code>Array</code>s, function types, unsupported pointer
+depths, unknown types,
 and aggregates without a <code>Var(T)</code> adoption have no tag to select and are
 rejected. Enum selectors are rejected because enum values box as the shared
 <code>&lt;i32&gt;</code> family and retain no nominal enum identity.</p>
@@ -4402,8 +4407,9 @@ bare <code>Symbol</code>, a binder, or any single pattern, so
 optional default and must be last. Every filter expression is evaluated once
 when the <code>try</code> is entered.</p>
 <p>Selecting a filtered arm consumes the errors accumulated since that arm was
-registered and transfers through each intervening cleanup frame. Its
-<code>finally</code> and <code>defer</code> cleanup runs before the selected arm. A <code>finally</code> body
+registered. Control passes through each intervening cleanup frame, running its
+<code>finally</code> and <code>defer</code> cleanup before entering the selected arm. A <code>finally</code>
+body
 may not define a label, because its statements are repeated on each path that
 leaves the region. The transferring registration is removed before the arm
 executes, so raising a replacement <code>Error</code> continues outward instead of
@@ -4411,9 +4417,9 @@ re-entering the same arm. When no arm
 matches, the <code>Error</code> continues outward unchanged. Catch bindings are borrowed
 through the selected arm and must be copied with <code>Error.snapshot</code> to outlive
 it.</p>
-<p>Generated <code>Error</code> transfer preserves the automatic locals and parameters a
-protected body modifies with optimization enabled, whether the
-body assigns them by name or writes through a pointer it holds the address in.
+<p>Even with optimization enabled, generated <code>Error</code> transfer preserves changes a
+protected body makes to automatic locals and parameters. This includes direct
+assignments and writes through pointers to those variables.
 The compiler supplies the required volatile C representation for those values
 and for the transfer state its frames carry; source code does not need
 optimization-specific qualifiers for ordinary assignments in <code>try</code>, <code>catch</code>,
@@ -4678,8 +4684,9 @@ retain source-file context.</p>
 <p>The active host-preprocessed stream is shallow-parsed only to establish the
 global environment. Full parsing, diagnostics, and emitted source still come
 from <span class="x2c-wordmark">x2c</span>’s own token stream.</p>
-<p>A failed host preprocess prints its captured stderr, reports a structured <span class="x2c-wordmark">x2c</span>
-driver diagnostic at the first directive, and exits nonzero. Partial host
+<p>If host preprocessing fails, <span class="x2c-wordmark">x2c</span> prints the host preprocessor’s captured
+standard error, reports a structured driver diagnostic at the first directive,
+and exits with a nonzero status. Partial host
 stdout is never parsed after failure. <code>--no-cpp</code> bypasses this discovery pass;
 <code>--dump-cpp-text</code> exposes the successful host output.</p>
 <h3 id="directives-in-the-generated-c"><a class="header" href="#directives-in-the-generated-c">Directives in the generated C</a></h3>
@@ -4785,8 +4792,9 @@ The <code>$lisp.bind</code> spelling needs no include. The macros
 live in <code>lib/lisp-bindings.x</code>. A bound function stays an ordinary <span class="x2c-wordmark">x2c</span>
 function, callable natively and from Lisp. Binding a direct function creates
 a fresh <code>Func</code> handle, which the session releases in <code>Lisp.destroy()</code>.</p>
-<p>A free name in a Lisp <code>lambda</code> or <code>defmacro</code> body reads the definitions the
-body was written next to, and then the session’s globals. The environment the
+<p>Lisp looks up a free name in a <code>lambda</code> or <code>defmacro</code> body in the lexical
+environment where the body was defined, then in the session’s globals. The
+environment the
 call was written in is not part of that chain, so a caller that binds the same
 name changes nothing about what the body reads. A lambda written inside a
 binding form reads that form’s bindings and keeps the values it was made with.
@@ -4955,8 +4963,8 @@ retaining storage, and already ended regions, including through helpers.</p>
                 <span class="x2c-wordmark footer-wordmark">x2c</span>
             </a>
             <p>&copy; 2025&ndash;2026 <a href="https://flake.org">GWF</a> &middot;
-                <a href="https://github.com/gwf/x2c/blob/41db5bec6153473e3ea5e1ee141252abcb38d93b/LICENSE">Apache 2.0</a> &middot;
-                <a href="https://github.com/gwf/x2c/blob/41db5bec6153473e3ea5e1ee141252abcb38d93b/TRADEMARKS.md">Trademarks</a> &middot;
+                <a href="https://github.com/gwf/x2c/blob/73ef2edd945ff94d828856b0d8d6de43d84896e0/LICENSE">Apache 2.0</a> &middot;
+                <a href="https://github.com/gwf/x2c/blob/73ef2edd945ff94d828856b0d8d6de43d84896e0/TRADEMARKS.md">Trademarks</a> &middot;
                 <a href="../../x2c-book.pdf">Book PDF</a></p>
             <a href="#mdbook-content" class="footer-top">Back to top <span aria-hidden="true">&uarr;</span></a>
         </footer>

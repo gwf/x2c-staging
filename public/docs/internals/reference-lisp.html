@@ -1,6 +1,6 @@
 <!DOCTYPE HTML>
 <html lang="en" class="light sidebar-visible" dir="ltr">
-    <head><meta name="x2c-release-channel" content="staging"><meta name="x2c-candidate" content="candidate-dbb82213e36d72f73b0be2ff3fe136ac78aae811-43901439345-2"><meta name="x2c-site-source" content="41db5bec6153473e3ea5e1ee141252abcb38d93b"><meta name="robots" content="noindex">
+    <head><meta name="x2c-release-channel" content="staging"><meta name="x2c-candidate" content="candidate-dbb82213e36d72f73b0be2ff3fe136ac78aae811-43901439345-2"><meta name="x2c-site-source" content="73ef2edd945ff94d828856b0d8d6de43d84896e0"><meta name="robots" content="noindex">
         <!-- Book generated using mdBook -->
         <meta charset="UTF-8">
         <title>Literate Lisp in x2c - The x2c Book</title>
@@ -41,7 +41,7 @@
             const path_to_root = "../";
             const default_light_theme = "light";
             const default_dark_theme = "light";
-            window.path_to_searchindex_js = "../searchindex-2d9fa7d7.js";
+            window.path_to_searchindex_js = "../searchindex-3b52a977.js";
         </script>
         <!-- Start loading toc.js asap -->
         <script src="../toc-4b92af2b.js"></script>
@@ -217,7 +217,7 @@
                 <div id="mdbook-content" class="content">
                     <main>
                         <h1 id="literate-lisp-in-x2c"><a class="header" href="#literate-lisp-in-x2c">Literate Lisp in <span class="x2c-wordmark">x2c</span></a></h1>
-<p><a href="https://github.com/gwf/x2c/blob/41db5bec6153473e3ea5e1ee141252abcb38d93b/examples/programs/literate-lisp.x">The reference interpreter</a> implements <span class="x2c-wordmark">x2c</span> Lisp in one source file. It
+<p><a href="https://github.com/gwf/x2c/blob/73ef2edd945ff94d828856b0d8d6de43d84896e0/examples/programs/literate-lisp.x">The reference interpreter</a> implements <span class="x2c-wordmark">x2c</span> Lisp in one source file. It
 implements its reader, environments, closures, special forms, native registry,
 and standard vocabulary. Evaluation recurses over ordinary values; it never
 constructs a Lisp session, calls the production evaluator, or uses its
@@ -298,10 +298,8 @@ functions in Lisp itself. <span class="x2c-wordmark">x2c</span> hoists its initi
 function. Native definitions appear only in the table, rather than being
 declared again in this List. The few text adapters that return <code>Var</code> preserve
 signatures printed in Lisp error messages.</p>
-<p>The source uses ordinary runtime collection and pattern operations, including
-<code>List.match</code> and replacement. Those operations retain their normal runtime
-implementation; this example reimplements only Lisp evaluation and uses
-<span class="x2c-wordmark">x2c</span>’s collection and pattern operations unchanged.</p>
+<p>The interpreter calls the existing <span class="x2c-wordmark">x2c</span> runtime for collection and pattern
+operations, including <code>List.match</code> and replacement.</p>
 <h2 id="agreement-with-x2c-lisp"><a class="header" href="#agreement-with-x2c-lisp">Agreement with <span class="x2c-wordmark">x2c</span> Lisp</a></h2>
 <p>The reference follows <span class="x2c-wordmark">x2c</span> Lisp, including behavior that differs from Scheme:</p>
 <ul>
@@ -337,11 +335,11 @@ implementations; they do not prove identical behavior for every program.</p>
 <p>The production evaluator recurses on the C stack for every nested form and
 every call except a call in tail position, which reuses its caller’s frame.
 A self-recursive loop written in tail position therefore runs in constant
-native stack. Each public entry measures the stack. Forms and calls nested
-below it may then use the smaller of 6 MB and four fifths of the thread’s
-remaining stack, and one nested beyond that raises <code>&lt;call-stack&gt;</code>. Each
-public entry, such as
-<code>Lisp.eval</code>, also opens a budget of 40,000,000 calls, tail calls included;
+native stack. At each public entry, the evaluator measures the thread’s
+remaining stack. It limits nested forms and calls to 6 MB or four fifths of the
+remaining stack, whichever is smaller. Exceeding that limit raises
+<code>&lt;call-stack&gt;</code>. Each public entry, such as <code>Lisp.eval</code>, also opens a budget of
+40,000,000 calls, tail calls included.
 <code>Lisp.call_budget</code> changes it. Exhausting it raises <code>&lt;call-stack&gt;</code> with
 reason <code>"steps"</code>. Free names resolve through the Lambda’s captures and
 then the session globals and reserved names, never through caller locals.
@@ -350,7 +348,7 @@ The production step budget and interruption flag stop evaluation through
 but reject returning <code>ignore</code>, <code>log</code>, or <code>collect</code> policies. A later public
 entry opens a fresh budget; the session owner clears its interruption flag.</p>
 <h2 id="the-showcase-and-comparison"><a class="header" href="#the-showcase-and-comparison">The showcase and comparison</a></h2>
-<p><a href="https://github.com/gwf/x2c/blob/41db5bec6153473e3ea5e1ee141252abcb38d93b/examples/data/reference-lisp/showcase.xlisp">The Lisp demonstration</a>
+<p><a href="https://github.com/gwf/x2c/blob/73ef2edd945ff94d828856b0d8d6de43d84896e0/examples/data/reference-lisp/showcase.xlisp">The Lisp demonstration</a>
 differentiates <code>x*x + 3*x</code> using recursive pattern matching, simplifies the
 result, evaluates both expressions at <code>x = 5</code>, and maps a captured offset over
 a List. Its result is:</p>
@@ -416,8 +414,8 @@ separately, without subtracting it from the other measurements.</p>
                 <span class="x2c-wordmark footer-wordmark">x2c</span>
             </a>
             <p>&copy; 2025&ndash;2026 <a href="https://flake.org">GWF</a> &middot;
-                <a href="https://github.com/gwf/x2c/blob/41db5bec6153473e3ea5e1ee141252abcb38d93b/LICENSE">Apache 2.0</a> &middot;
-                <a href="https://github.com/gwf/x2c/blob/41db5bec6153473e3ea5e1ee141252abcb38d93b/TRADEMARKS.md">Trademarks</a> &middot;
+                <a href="https://github.com/gwf/x2c/blob/73ef2edd945ff94d828856b0d8d6de43d84896e0/LICENSE">Apache 2.0</a> &middot;
+                <a href="https://github.com/gwf/x2c/blob/73ef2edd945ff94d828856b0d8d6de43d84896e0/TRADEMARKS.md">Trademarks</a> &middot;
                 <a href="../../x2c-book.pdf">Book PDF</a></p>
             <a href="#mdbook-content" class="footer-top">Back to top <span aria-hidden="true">&uarr;</span></a>
         </footer>

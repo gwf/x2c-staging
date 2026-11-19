@@ -1,6 +1,6 @@
 <!DOCTYPE HTML>
 <html lang="en" class="light sidebar-visible" dir="ltr">
-    <head><meta name="x2c-release-channel" content="staging"><meta name="x2c-candidate" content="candidate-dbb82213e36d72f73b0be2ff3fe136ac78aae811-43901439345-2"><meta name="x2c-site-source" content="41db5bec6153473e3ea5e1ee141252abcb38d93b"><meta name="robots" content="noindex">
+    <head><meta name="x2c-release-channel" content="staging"><meta name="x2c-candidate" content="candidate-dbb82213e36d72f73b0be2ff3fe136ac78aae811-43901439345-2"><meta name="x2c-site-source" content="73ef2edd945ff94d828856b0d8d6de43d84896e0"><meta name="robots" content="noindex">
         <!-- Book generated using mdBook -->
         <meta charset="UTF-8">
         <title>Classes and System Macros - The x2c Book</title>
@@ -41,7 +41,7 @@
             const path_to_root = "../";
             const default_light_theme = "light";
             const default_dark_theme = "light";
-            window.path_to_searchindex_js = "../searchindex-2d9fa7d7.js";
+            window.path_to_searchindex_js = "../searchindex-3b52a977.js";
         </script>
         <!-- Start loading toc.js asap -->
         <script src="../toc-4b92af2b.js"></script>
@@ -236,7 +236,7 @@ runtime prelude, which every unit loads; see
 <tr><td>Initializer <code>auto</code></td><td>Keyword after <code>=</code></td><td>Clean up the acquired value at block exit</td></tr>
 <tr><td><code>foreach</code></td><td>Shipped keyword alias</td><td>Traverse through the ordinary Iter protocol</td></tr>
 <tr><td><code>alias</code></td><td>Contextual grammar</td><td>Name a source expression within a scope</td></tr>
-<tr><td><code>$dedent</code>, <code>$assert</code>, <code>$time</code></td><td>Shipped, explicit <code>#include</code></td><td>Remove boilerplate C leaves to every caller</td></tr>
+<tr><td><code>$dedent</code>, <code>$assert</code>, <code>$time</code></td><td>Shipped, explicit <code>#include</code></td><td>Strip text indentation, report a failed assertion, or time a statement</td></tr>
 <tr><td>Project macros</td><td>Explicit import</td><td>Supply project-specific syntax and policy</td></tr>
 </tbody>
 </table>
@@ -662,7 +662,8 @@ position; nested <code>$auto</code> calls are rejected. Initializer <code>auto</
 follow <code>=</code>. Declaration <code>auto</code>, written before the type or name, instead
 cleans the variable’s value at exit. See
 <a href="../reference/language.html#managed-declarations-and-initializers">Managed declarations and initializers</a>.</p>
-<h2 id="include-the-rest-of-the-set"><a class="header" href="#include-the-rest-of-the-set">Include the rest of the set</a></h2>
+<p><a id="include-the-rest-of-the-set"></a></p>
+<h2 id="macros-that-require-an-include"><a class="header" href="#macros-that-require-an-include">Macros that require an include</a></h2>
 <p><code>class</code>, <code>foreach</code>, <code>with</code>, <code>alias</code>, <code>$lock</code>, and <code>auto</code> need no include. A
 second set ships in <code>lib/system-macros.x</code> and becomes available with one
 line:</p>
@@ -690,7 +691,8 @@ literals; explicit <code>\r\n</code> escapes remain CRLF.
 Other expressions call <code>String.dedent</code> at run time and evaluate their input
 once. An interpolated block therefore means the same thing and costs one call.
 Use <code>String.dedent</code> directly on text that arrives from a file or an argument.</p>
-<h3 id="report-the-check-you-actually-wrote"><a class="header" href="#report-the-check-you-actually-wrote">Report the check you actually wrote</a></h3>
+<p><a id="report-the-check-you-actually-wrote"></a></p>
+<h3 id="report-a-failed-assertion-with-assert"><a class="header" href="#report-a-failed-assertion-with-assert">Report a failed assertion with <code>$assert</code></a></h3>
 <p><code>$assert</code> raises <code>&lt;invariant&gt;</code> carrying the failing expression as written and
 the source line it was written on. It transfers to a catch like any other <span class="x2c-wordmark">x2c</span>
 error, and <code>NDEBUG</code> does not remove it:</p>
@@ -704,8 +706,8 @@ error, and <code>NDEBUG</code> does not remove it:</p>
 </span><span class="line"><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">}</span></span></code></pre>
 
 <h3 id="measure-a-statement-in-place"><a class="header" href="#measure-a-statement-in-place">Measure a statement in place</a></h3>
-<p><code>$time</code> wraps its target in a monotonic clock pair and reports the duration on
-stderr. The caller includes <code>&lt;time.h&gt;</code>:</p>
+<p><code>$time</code> reads a monotonic clock before and after the decorated statement
+and reports the duration on stderr. The caller includes <code>&lt;time.h&gt;</code>:</p>
 <pre class="shiki shiki-themes x2c-light x2c-dark x2c-code" style="--shiki-light:#24292e;--shiki-dark:#e9e5df;--shiki-light-bg:#fff;--shiki-dark-bg:#101011" tabindex="0"><code class="language-x2c no-highlight"><span class="line boring"><span style="--shiki-light:#D73A49;--shiki-dark:#F0ADA1">#include</span><span style="--shiki-light:#032F62;--shiki-dark:#9EDFB8"> &lt;time.h&gt;</span>
 </span><span class="line boring"><span style="--shiki-light:#D73A49;--shiki-dark:#F0ADA1">#include</span><span style="--shiki-light:#032F62;--shiki-dark:#9EDFB8"> "system-macros.x"</span>
 </span><span class="line"><span style="--shiki-light:#D73A49;--shiki-dark:#F0ADA1">int</span><span style="--shiki-light:#6F42C1;--shiki-dark:#E9E5DF"> main</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">(</span><span style="--shiki-light:#D73A49;--shiki-dark:#F0ADA1">void</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">) {</span>
@@ -718,7 +720,8 @@ stderr. The caller includes <code>&lt;time.h&gt;</code>:</p>
 
 <p>The report runs from a <code>defer</code>, so decorating a whole function body still
 reports when that body returns or a cause transfers out of it.</p>
-<h2 id="a-complete-resource-using-program"><a class="header" href="#a-complete-resource-using-program">A complete resource-using program</a></h2>
+<p><a id="a-complete-resource-using-program"></a></p>
+<h2 id="collect-line-lengths-from-a-file"><a class="header" href="#collect-line-lengths-from-a-file">Collect line lengths from a file</a></h2>
 <p>This program collects line lengths from a file. The open region owns all
 allocations; the managed locals close the file and release the mutable history
 before that region ends. The History method makes ownership of its Array
@@ -785,8 +788,8 @@ explicit.</p>
                 <span class="x2c-wordmark footer-wordmark">x2c</span>
             </a>
             <p>&copy; 2025&ndash;2026 <a href="https://flake.org">GWF</a> &middot;
-                <a href="https://github.com/gwf/x2c/blob/41db5bec6153473e3ea5e1ee141252abcb38d93b/LICENSE">Apache 2.0</a> &middot;
-                <a href="https://github.com/gwf/x2c/blob/41db5bec6153473e3ea5e1ee141252abcb38d93b/TRADEMARKS.md">Trademarks</a> &middot;
+                <a href="https://github.com/gwf/x2c/blob/73ef2edd945ff94d828856b0d8d6de43d84896e0/LICENSE">Apache 2.0</a> &middot;
+                <a href="https://github.com/gwf/x2c/blob/73ef2edd945ff94d828856b0d8d6de43d84896e0/TRADEMARKS.md">Trademarks</a> &middot;
                 <a href="../../x2c-book.pdf">Book PDF</a></p>
             <a href="#mdbook-content" class="footer-top">Back to top <span aria-hidden="true">&uarr;</span></a>
         </footer>

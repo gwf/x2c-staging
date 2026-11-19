@@ -1,6 +1,6 @@
 <!DOCTYPE HTML>
 <html lang="en" class="light sidebar-visible" dir="ltr">
-    <head><meta name="x2c-release-channel" content="staging"><meta name="x2c-candidate" content="candidate-dbb82213e36d72f73b0be2ff3fe136ac78aae811-43901439345-2"><meta name="x2c-site-source" content="41db5bec6153473e3ea5e1ee141252abcb38d93b"><meta name="robots" content="noindex">
+    <head><meta name="x2c-release-channel" content="staging"><meta name="x2c-candidate" content="candidate-dbb82213e36d72f73b0be2ff3fe136ac78aae811-43901439345-2"><meta name="x2c-site-source" content="73ef2edd945ff94d828856b0d8d6de43d84896e0"><meta name="robots" content="noindex">
         <!-- Book generated using mdBook -->
         <meta charset="UTF-8">
         <title>Compiler Architecture - The x2c Book</title>
@@ -41,7 +41,7 @@
             const path_to_root = "../";
             const default_light_theme = "light";
             const default_dark_theme = "light";
-            window.path_to_searchindex_js = "../searchindex-2d9fa7d7.js";
+            window.path_to_searchindex_js = "../searchindex-3b52a977.js";
         </script>
         <!-- Start loading toc.js asap -->
         <script src="../toc-4b92af2b.js"></script>
@@ -680,8 +680,9 @@ to.</p>
   return String_join(NULL, cons(String_var(_0), cons(String_var(name), NULL)));
 }
 </code></pre>
-<p>That is the emitted unit on its own. The include lines, the <code>_0</code> static, and
-<code>_file_init_</code> are added afterwards by generation. The final <code>greet.c</code> defines
+<p><code>--dump-code</code> shows the function body and signature. The generated files also
+include the include directives, the <code>_0</code> static, and <code>_file_init_</code>. The final
+<code>greet.c</code> defines
 the header’s guard macro and includes <code>x2c.h</code> itself, and <code>greet.h</code> holds
 the declaration.</p>
 <h3 id="formatting-and-output"><a class="header" href="#formatting-and-output">Formatting and output</a></h3>
@@ -971,9 +972,10 @@ operand has <code>Var</code> identity, after protocol operators resolved, presen
 typed <code>Var</code>, and normalizes the replacement as it would its own lowering. A
 binary operator returns a call of its inline lane in <code>lib/common.x</code> or of
 <code>Var.binary</code> through <code>Code.lowered</code>, so an operator chain does not rebind
-its remaining terms at each level; an update returns the lowered call of
-its storage’s update helper with the target’s address, the form the
-cleanup walk recognizes as a write. Truthiness stays a conversion the
+its remaining terms at each level. For an update, the translator returns a
+lowered call to the storage-specific helper and passes the target’s address.
+The cleanup walk recognizes that call as a write. Truthiness stays a conversion
+the
 transform applies at condition positions, and slices,
 comparisons, and a participant’s direct compound update remain in the
 transform. When a rewrite lowers its replacement, the source expressions the
@@ -984,9 +986,10 @@ without the subject’s bindings matches without collecting them.</p>
 keyed by the <code>raise</code> head. Its translator converts the code to a <code>Symbol</code> and
 each detail key and value to a <code>Var</code> with <code>Code.convert</code>, promotes a C string
 literal value with <code>Code.promoted</code>, and reports a value whose type is not
-immutable with <code>x2c_diagnostic_error_at</code>, which returns so the translation goes
-on. It returns the converted raise as a lowered carrier, which binding leaves
-as it is. The compiler lowers that raise’s parts in source order, moving them
+immutable with <code>x2c_diagnostic_error_at</code>. That call records the error and
+returns control to the translator. The translator returns the converted raise
+as a lowered carrier, which the binder leaves intact. The compiler lowers that
+raise’s parts in source order, moving them
 into temporaries as literal parts move, and builds its literals at run time.</p>
 <p><code>src/components/pattern-match.x</code> registers <code>match</code> on the statement family
 keyed by the <code>match</code> head. Its translator returns a lowered carrier of verbatim
@@ -1074,10 +1077,11 @@ typedef’s header boundary.</p>
 <p><code>src/components/macro-mapping.x</code> supplies <code>_x2c_expand_rows</code>, the operation
 behind <code>expand</code>. The <code>$expand</code> decorator in <code>etc/compiler-prelude.x</code>
 declares it with a bodyless <code>meta</code> prototype and passes it the row List and
-the following macro. It reads the rows as a compile-time value and returns one
-pending application of the macro for each row, so ordinary insertion binds
-them. It reports a decorator as the macro, input that is not a List, and a row
-with the wrong number of arguments.</p>
+the following macro. <code>_x2c_expand_rows</code> reads the rows as a compile-time value
+and returns one pending macro application per row. The compiler binds those
+applications when it inserts them. The helper reports an error if it receives a
+decorator, if the input is not a List, or if a row has the wrong number of
+arguments.</p>
 <p>The rewrite components and <code>src/grammar.x</code>, whose source forms they
 recognize, are compiler prelude sources. The compiler links
 <code>macro-mapping.x</code> without reading it as a prelude source.</p>
@@ -1120,8 +1124,8 @@ from it, not the compiler that translates the edit.</p>
                 <span class="x2c-wordmark footer-wordmark">x2c</span>
             </a>
             <p>&copy; 2025&ndash;2026 <a href="https://flake.org">GWF</a> &middot;
-                <a href="https://github.com/gwf/x2c/blob/41db5bec6153473e3ea5e1ee141252abcb38d93b/LICENSE">Apache 2.0</a> &middot;
-                <a href="https://github.com/gwf/x2c/blob/41db5bec6153473e3ea5e1ee141252abcb38d93b/TRADEMARKS.md">Trademarks</a> &middot;
+                <a href="https://github.com/gwf/x2c/blob/73ef2edd945ff94d828856b0d8d6de43d84896e0/LICENSE">Apache 2.0</a> &middot;
+                <a href="https://github.com/gwf/x2c/blob/73ef2edd945ff94d828856b0d8d6de43d84896e0/TRADEMARKS.md">Trademarks</a> &middot;
                 <a href="../../x2c-book.pdf">Book PDF</a></p>
             <a href="#mdbook-content" class="footer-top">Back to top <span aria-hidden="true">&uarr;</span></a>
         </footer>

@@ -1,6 +1,6 @@
 <!DOCTYPE HTML>
 <html lang="en" class="light sidebar-visible" dir="ltr">
-    <head><meta name="x2c-release-channel" content="staging"><meta name="x2c-candidate" content="candidate-dbb82213e36d72f73b0be2ff3fe136ac78aae811-43901439345-2"><meta name="x2c-site-source" content="41db5bec6153473e3ea5e1ee141252abcb38d93b"><meta name="robots" content="noindex">
+    <head><meta name="x2c-release-channel" content="staging"><meta name="x2c-candidate" content="candidate-dbb82213e36d72f73b0be2ff3fe136ac78aae811-43901439345-2"><meta name="x2c-site-source" content="73ef2edd945ff94d828856b0d8d6de43d84896e0"><meta name="robots" content="noindex">
         <!-- Book generated using mdBook -->
         <meta charset="UTF-8">
         <title>Contexts and Threads - The x2c Book</title>
@@ -41,7 +41,7 @@
             const path_to_root = "../";
             const default_light_theme = "light";
             const default_dark_theme = "light";
-            window.path_to_searchindex_js = "../searchindex-2d9fa7d7.js";
+            window.path_to_searchindex_js = "../searchindex-3b52a977.js";
         </script>
         <!-- Start loading toc.js asap -->
         <script src="../toc-4b92af2b.js"></script>
@@ -217,12 +217,9 @@
                 <div id="mdbook-content" class="content">
                     <main>
                         <h1 id="contexts-and-threads"><a class="header" href="#contexts-and-threads">Contexts and Threads</a></h1>
-<p>A <code>Context</code> runs a piece of work with its own <code>Scope</code>, <code>Error</code> state, and
-<code>Match</code> state, and reclaims what that work allocated when it closes. A
-<code>Thread</code> runs a function on another native thread. This chapter covers
-bounded work in a <code>Context</code>, starting and joining threads, running batches
-of jobs on threads or as <code>Channel</code> tasks on one thread, stopping jobs, and
-mapping over data in parallel.</p>
+<p>A <code>Context</code> gives work its own <code>Scope</code>, <code>Error</code> state, and <code>Match</code> state.
+Closing the <code>Context</code> reclaims what the work allocated. A <code>Thread</code> runs a
+function on another native thread.</p>
 <h2 id="use-a-context-for-bounded-work"><a class="header" href="#use-a-context-for-bounded-work">Use a Context for bounded work</a></h2>
 <p>Open a <code>Context</code>, do the work, export the values that must survive, and close
 the <code>Context</code>. Closing it restores the state that was active before it opened
@@ -535,11 +532,11 @@ even when a stop arrives before that operation returns. A later operation
 observes the pending stop. A stopped receive raises; it is not successful EOF.
 The normal application protocol still closes Channels and drains accepted data.</p>
 <p>A batch can stop only its own jobs. Stopping it does not stop independently
-owned services or other users of a borrowed Channel. A stopped client is not
-evidence that a service finished reading borrowed request bytes. Keep those
-bytes under an owner that survives actual borrower completion, including
-failure cleanup. A service shared outside the batch needs an explicit way to
-learn that a client failed, such as a failure reply.</p>
+owned services or other users of a borrowed Channel. A service can still be
+reading borrowed request bytes after a client stops. Keep those bytes alive
+until the service finishes using them, including during failure cleanup.
+A service shared outside the batch needs an explicit way to learn that a
+client failed, such as a failure reply.</p>
 <h2 id="parallel-mapping-and-explicit-ownership"><a class="header" href="#parallel-mapping-and-explicit-ownership">Parallel mapping and explicit ownership</a></h2>
 <p><code>source.parallel_map(callback, workers)</code> describes mapping <code>callback</code> over the
 iterator <code>source</code> with at most <code>workers</code> threads. Nothing runs until
@@ -607,8 +604,8 @@ owners and threads.</li>
                 <span class="x2c-wordmark footer-wordmark">x2c</span>
             </a>
             <p>&copy; 2025&ndash;2026 <a href="https://flake.org">GWF</a> &middot;
-                <a href="https://github.com/gwf/x2c/blob/41db5bec6153473e3ea5e1ee141252abcb38d93b/LICENSE">Apache 2.0</a> &middot;
-                <a href="https://github.com/gwf/x2c/blob/41db5bec6153473e3ea5e1ee141252abcb38d93b/TRADEMARKS.md">Trademarks</a> &middot;
+                <a href="https://github.com/gwf/x2c/blob/73ef2edd945ff94d828856b0d8d6de43d84896e0/LICENSE">Apache 2.0</a> &middot;
+                <a href="https://github.com/gwf/x2c/blob/73ef2edd945ff94d828856b0d8d6de43d84896e0/TRADEMARKS.md">Trademarks</a> &middot;
                 <a href="../../x2c-book.pdf">Book PDF</a></p>
             <a href="#mdbook-content" class="footer-top">Back to top <span aria-hidden="true">&uarr;</span></a>
         </footer>

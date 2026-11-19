@@ -1,6 +1,6 @@
 <!DOCTYPE HTML>
 <html lang="en" class="light sidebar-visible" dir="ltr">
-    <head><meta name="x2c-release-channel" content="staging"><meta name="x2c-candidate" content="candidate-dbb82213e36d72f73b0be2ff3fe136ac78aae811-43901439345-2"><meta name="x2c-site-source" content="41db5bec6153473e3ea5e1ee141252abcb38d93b"><meta name="robots" content="noindex">
+    <head><meta name="x2c-release-channel" content="staging"><meta name="x2c-candidate" content="candidate-dbb82213e36d72f73b0be2ff3fe136ac78aae811-43901439345-2"><meta name="x2c-site-source" content="73ef2edd945ff94d828856b0d8d6de43d84896e0"><meta name="robots" content="noindex">
         <!-- Book generated using mdBook -->
         <meta charset="UTF-8">
         <title>Command-Line Interface - The x2c Book</title>
@@ -41,7 +41,7 @@
             const path_to_root = "../";
             const default_light_theme = "light";
             const default_dark_theme = "light";
-            window.path_to_searchindex_js = "../searchindex-2d9fa7d7.js";
+            window.path_to_searchindex_js = "../searchindex-3b52a977.js";
         </script>
         <!-- Start loading toc.js asap -->
         <script src="../toc-4b92af2b.js"></script>
@@ -259,7 +259,7 @@ warnings, JSON diagnostics, and build receipts.</li>
 depfiles, build reuse, and external Make builds.</li>
 <li><a href="#help-version-and-status">Help, version, and status</a>: exit status.</li>
 </ul>
-<p>Examples write the installed compiler as <code>x2c</code>; in a source checkout, write
+<p>The examples use <code>x2c</code> to run the installed compiler. In a source checkout, use
 <code>./x2c</code>. <a href="../internals/building.html">Building the Compiler</a> describes how a
 checkout builds the compiler and its commands.</p>
 <p>The generated help is the short option reference:</p>
@@ -324,8 +324,9 @@ collected declarations the parent already read. <code>-j</code>, or <code>--jobs
 number of workers:</p>
 <pre><code class="language-sh">x2c translate -j 8 --out-dir /tmp/x2c-generated src/*.x
 </code></pre>
-<p>Each unit is translated by exactly one worker and writes only its own files,
-so the generated <code>.c</code> and <code>.h</code> are byte-identical to a serial run. A <code>.d</code> file
+<p>Exactly one worker translates each unit and writes that unit’s files. The
+generated <code>.c</code> and <code>.h</code> match the output of a serial run byte for byte. A <code>.d</code>
+file
 may list more prerequisites than the serial run produces, and never fewer. A
 worker that parses a header records what that parse reads, where a serial run
 replays the header from its process cache. The default limit is the host’s
@@ -357,8 +358,9 @@ and <code>run</code>:</p>
 --cpp-symbols           Use CPP collection for this translation
 </code></pre>
 <p>C macro expansion is off by default. Use <code>--cpp</code> when existing C requires
-macro-generated grammar. It does not discover <span class="x2c-wordmark">x2c</span> module or meta constructs
-inside C macros. <code>--no-cpp</code> suppresses expansion even when <code>--cpp</code> is present.
+macro-generated grammar. Expansion with <code>--cpp</code> does not discover <span class="x2c-wordmark">x2c</span> module or
+meta constructs inside C macros. <code>--no-cpp</code> suppresses expansion even when
+<code>--cpp</code> is present.
 The host-symbol collection modes retain their separate purpose.</p>
 <h3 id="source-mapping"><a class="header" href="#source-mapping">Source mapping</a></h3>
 <p><code>build</code>, <code>run</code>, and <code>script</code> map generated C locations to the original <code>.x</code> sources by
@@ -380,8 +382,9 @@ optimized-away values.</p>
 <p>On macOS, mapped executable builds with effective native debug information
 also produce <code>&lt;output&gt;.dSYM</code> before removing temporary objects. Move that
 companion directory with the executable to retain native debug information.
-Symbol assembly adds time only to these requested debug links. Its failure
-fails the build and retains intermediates for diagnosis. A later <code>-Xcc -g0</code>
+Symbol assembly adds time only to these requested debug links. If symbol
+assembly fails, the build stops and leaves its intermediate files for
+diagnosis. A later <code>-Xcc -g0</code>
 overrides an earlier <code>-g</code>, including one selected by a project profile.
 Linux builds produce no companion directory. <code>--build-dir</code> and <code>--save-temps</code>
 retain intermediate files on either platform.</p>
@@ -416,8 +419,9 @@ and stops.</li>
 selected, expanded, and bound it, one <code>List</code> form per line. Documentation
 generators and repository tools read it instead of scanning source text.
 Each unit starts with <code>(unit PATH)</code>, so one command can inspect several
-files. A file that opens with a block comment, after any directives, then
-prints <code>(module TEXT)</code> with the comment as written. Each function, including
+files. If the file opens with a block comment after any directives, the command
+then prints <code>(module TEXT)</code> with the comment as written. Each function,
+including
 static functions, foreign aliases, and functions a Unit macro or <code>class</code>
 produced, prints a <code>function</code> row, and each <code>typedef</code> or <code>class</code> prints a
 <code>type</code> row:</p>
@@ -460,8 +464,9 @@ as its unit interface records them.</li>
 <li><code>kind</code> is <code>alias</code>, <code>struct</code>, <code>union</code>, <code>enum</code>, <code>callback</code>, or <code>class</code>, and
 <code>private</code> is 1 for a type declared with <code>static</code>.</li>
 </ul>
-<p>A bodied <code>meta</code> function the file spells prints a <code>meta</code> row after the
-definitions, <code>(meta (name NAME) (line LINE) (comptime N))</code>, where
+<p>After the definitions, the command prints one <code>meta</code> row for each <code>meta</code>
+function whose body is written in the source file. The row is
+<code>(meta (name NAME) (line LINE) (comptime N))</code>.
 <code>N</code> is 1 when the function reaches a compiler operation and so has
 no runtime form. A compile-time-only function is not part of the
 translated unit and has no <code>function</code> row.</p>
@@ -777,8 +782,8 @@ the manifest, one <code>name version kind platform url sha256</code> row per pac
 Keep that file with the manifest so a later build reproduces the same
 packages. A manifest with no <code>[dependencies]</code> section pins nothing, so a
 lockfile left beside it is removed.</p>
-<p>A build whose lockfile already covers every pinned package, at the pinned
-version and installed in the home, reads no index and makes no network
+<p>If the lockfile covers every package pin and those versions are already
+installed in the <span class="x2c-wordmark">x2c</span> home, the build reads no index and makes no network
 request. A pin the lockfile covers but the home does not hold is installed
 from the url and sha256 that lockfile recorded, not from the index, so the
 archive is the one the lockfile pinned however the index has changed. Only a
@@ -1116,8 +1121,9 @@ absolute otherwise. A pseudo-source such as <code>&lt;stdin&gt;</code> keeps its
 <li><code>line</code> and <code>column</code> are one-based, <code>length</code> is the token width in bytes,
 and <code>position</code> is its zero-based byte offset. All five location fields are
 <code>null</code> for a diagnostic without a location.</li>
-<li><code>notes</code> holds the note line that standard error shows, the text notes
-joined with spaces, or nothing when the diagnostic has no notes.</li>
+<li><code>notes</code> holds the same note text printed on standard error, with multiple
+notes joined by spaces. The field has no text when the diagnostic has no
+notes.</li>
 </ul>
 <p>Macros and <code>meta</code> functions may print to standard output and standard error,
 so neither stream contains JSON. Parallel translation workers share the file;
@@ -1218,8 +1224,8 @@ output.</p>
                 <span class="x2c-wordmark footer-wordmark">x2c</span>
             </a>
             <p>&copy; 2025&ndash;2026 <a href="https://flake.org">GWF</a> &middot;
-                <a href="https://github.com/gwf/x2c/blob/41db5bec6153473e3ea5e1ee141252abcb38d93b/LICENSE">Apache 2.0</a> &middot;
-                <a href="https://github.com/gwf/x2c/blob/41db5bec6153473e3ea5e1ee141252abcb38d93b/TRADEMARKS.md">Trademarks</a> &middot;
+                <a href="https://github.com/gwf/x2c/blob/73ef2edd945ff94d828856b0d8d6de43d84896e0/LICENSE">Apache 2.0</a> &middot;
+                <a href="https://github.com/gwf/x2c/blob/73ef2edd945ff94d828856b0d8d6de43d84896e0/TRADEMARKS.md">Trademarks</a> &middot;
                 <a href="../../x2c-book.pdf">Book PDF</a></p>
             <a href="#mdbook-content" class="footer-top">Back to top <span aria-hidden="true">&uarr;</span></a>
         </footer>

@@ -1,6 +1,6 @@
 <!DOCTYPE HTML>
 <html lang="en" class="light sidebar-visible" dir="ltr">
-    <head><meta name="x2c-release-channel" content="staging"><meta name="x2c-candidate" content="candidate-dbb82213e36d72f73b0be2ff3fe136ac78aae811-43901439345-2"><meta name="x2c-site-source" content="41db5bec6153473e3ea5e1ee141252abcb38d93b"><meta name="robots" content="noindex">
+    <head><meta name="x2c-release-channel" content="staging"><meta name="x2c-candidate" content="candidate-dbb82213e36d72f73b0be2ff3fe136ac78aae811-43901439345-2"><meta name="x2c-site-source" content="73ef2edd945ff94d828856b0d8d6de43d84896e0"><meta name="robots" content="noindex">
         <!-- Book generated using mdBook -->
         <meta charset="UTF-8">
         <title>Channels - The x2c Book</title>
@@ -41,7 +41,7 @@
             const path_to_root = "../";
             const default_light_theme = "light";
             const default_dark_theme = "light";
-            window.path_to_searchindex_js = "../searchindex-2d9fa7d7.js";
+            window.path_to_searchindex_js = "../searchindex-3b52a977.js";
         </script>
         <!-- Start loading toc.js asap -->
         <script src="../toc-4b92af2b.js"></script>
@@ -218,9 +218,8 @@
                     <main>
                         <h1 id="channels"><a class="header" href="#channels">Channels</a></h1>
 <p>A <code>Channel</code> passes <code>Var</code> values between threads or tasks. <code>send</code> puts a value
-in; <code>receive</code> or <code>foreach</code> takes values out until the channel is closed and
-drained. This chapter covers closing and draining, capacity and message types,
-handing off storage with <code>send_owned</code>, and stopping a blocked operation.</p>
+in. <code>receive</code> or <code>foreach</code> takes values out until the channel is closed and
+drained.</p>
 <p>Plain <code>send</code> lends the value: the sender keeps ownership and keeps the value
 alive while receivers use it. <code>send_owned</code> hands one container’s storage to
 the receiver. The application is responsible for independent nested
@@ -283,12 +282,12 @@ and invalid capacities raise <code>&lt;bad-arg&gt;</code>; mismatched messages r
 competing senders or receivers. Successful send means acceptance, not completed
 processing.</p>
 <h2 id="borrow-or-hand-off-storage"><a class="header" href="#borrow-or-hand-off-storage">Borrow or hand off storage</a></h2>
-<p>Ordinary <code>send(value)</code> copies <code>Var</code> representation bits. The sender keeps its
-storage ownership, and the application keeps storage alive for every borrower.
-It can send
-the same parent-owned <code>Map</code> to several readers without transferring it, while
-preventing writes until those readers finish. Send acceptance is not evidence
-that any borrower has finished using the object.</p>
+<p>Ordinary <code>send(value)</code> copies <code>Var</code> representation bits. The sender keeps
+ownership, and the application keeps storage alive for every borrower. For
+example, the application can send the same parent-owned <code>Map</code> to several
+readers without transferring it and prevent writes until those readers
+finish. Send acceptance is not evidence that any borrower has finished
+using the object.</p>
 <p>Use <code>send_owned</code> when a worker produces a <code>Map</code> whose storage must survive
 worker exit. Ordinary <code>Map</code> and <code>Array</code> values start with records and buffers
 in their current allocation owner and no owned-content scope. The send creates
@@ -365,10 +364,9 @@ stop. A pending stop before commitment prevents that operation and raises the
 <a href="contexts-and-threads.html#cooperative-stopping">Thread stop cause</a>. A stopped
 rendezvous participant cannot be matched by another operation.</p>
 <p>Thread stopping does not close Channels or stop unrelated users. A stop does
-not interrupt computation or arbitrary native I/O. A cancelled client’s
-request bytes must stay alive until the actual service borrower finishes.
-Keep them under an owner that survives the whole batch when that is the
-simplest arrangement.</p>
+not interrupt computation or arbitrary native I/O. Keep a cancelled client’s
+request bytes alive until the service finishes borrowing them. The owner can
+outlive the whole batch if that is the simplest arrangement.</p>
 <p>Batch jobs use the shared process canonical pool by default. Interned
 <code>String</code> values there outlive the jobs and stay until process shutdown, as
 <a href="contexts-and-threads.html#interned-values-outlive-workers">Interned values outlive
@@ -415,8 +413,8 @@ does not intern or copy its contents.</p>
                 <span class="x2c-wordmark footer-wordmark">x2c</span>
             </a>
             <p>&copy; 2025&ndash;2026 <a href="https://flake.org">GWF</a> &middot;
-                <a href="https://github.com/gwf/x2c/blob/41db5bec6153473e3ea5e1ee141252abcb38d93b/LICENSE">Apache 2.0</a> &middot;
-                <a href="https://github.com/gwf/x2c/blob/41db5bec6153473e3ea5e1ee141252abcb38d93b/TRADEMARKS.md">Trademarks</a> &middot;
+                <a href="https://github.com/gwf/x2c/blob/73ef2edd945ff94d828856b0d8d6de43d84896e0/LICENSE">Apache 2.0</a> &middot;
+                <a href="https://github.com/gwf/x2c/blob/73ef2edd945ff94d828856b0d8d6de43d84896e0/TRADEMARKS.md">Trademarks</a> &middot;
                 <a href="../../x2c-book.pdf">Book PDF</a></p>
             <a href="#mdbook-content" class="footer-top">Back to top <span aria-hidden="true">&uarr;</span></a>
         </footer>

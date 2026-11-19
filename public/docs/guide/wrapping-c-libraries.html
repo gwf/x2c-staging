@@ -1,6 +1,6 @@
 <!DOCTYPE HTML>
 <html lang="en" class="light sidebar-visible" dir="ltr">
-    <head><meta name="x2c-release-channel" content="staging"><meta name="x2c-candidate" content="candidate-dbb82213e36d72f73b0be2ff3fe136ac78aae811-43901439345-2"><meta name="x2c-site-source" content="41db5bec6153473e3ea5e1ee141252abcb38d93b"><meta name="robots" content="noindex">
+    <head><meta name="x2c-release-channel" content="staging"><meta name="x2c-candidate" content="candidate-dbb82213e36d72f73b0be2ff3fe136ac78aae811-43901439345-2"><meta name="x2c-site-source" content="73ef2edd945ff94d828856b0d8d6de43d84896e0"><meta name="robots" content="noindex">
         <!-- Book generated using mdBook -->
         <meta charset="UTF-8">
         <title>Wrapping a C Library - The x2c Book</title>
@@ -41,7 +41,7 @@
             const path_to_root = "../";
             const default_light_theme = "light";
             const default_dark_theme = "light";
-            window.path_to_searchindex_js = "../searchindex-2d9fa7d7.js";
+            window.path_to_searchindex_js = "../searchindex-3b52a977.js";
         </script>
         <!-- Start loading toc.js asap -->
         <script src="../toc-4b92af2b.js"></script>
@@ -217,8 +217,8 @@
                 <div id="mdbook-content" class="content">
                     <main>
                         <h1 id="wrapping-a-c-library"><a class="header" href="#wrapping-a-c-library">Wrapping a C Library</a></h1>
-<p>The <a href="packages.html">previous chapter</a> explains how to build and import a package.
-This chapter explains how to design one around a C library.</p>
+<p>Once you know how to <a href="packages.html">build and import a package</a>, you can design
+an <span class="x2c-wordmark">x2c</span> API around a C library.</p>
 <p>Provide an <span class="x2c-wordmark">x2c</span> API for ordinary use, with strings, collections, indexing,
 iteration, <code>defer</code>, and <code>Error</code> where they simplify the caller’s work. Keep the
 pinned C API available under its own names for features the wrapper does not
@@ -241,16 +241,16 @@ const char  *feed_strerror(int code);
 <p>A real package includes a pinned header here. The examples declare these
 names in hidden lines, visible through the eye icon, so each example compiles
 on its own.</p>
-<p>These five functions leave five things for the caller to manage:</p>
+<p>Callers of this C API have these obligations:</p>
 <div class="table-wrapper">
 <table>
 <thead>
 <tr><th>Concern</th><th>Here</th></tr>
 </thead>
 <tbody>
-<tr><td>allocation and release</td><td><code>feed_open</code> / <code>feed_close</code>, and nothing frees it for you</td></tr>
+<tr><td>allocation and release</td><td>the caller must release the parser from <code>feed_open</code> with <code>feed_close</code></td></tr>
 <tr><td>pointer plus length</td><td><code>feed_next</code> yields <code>const char *</code> and a separate length</td></tr>
-<tr><td>borrowed storage</td><td>that pointer is invalidated by the next <code>feed_next</code></td></tr>
+<tr><td>borrowed storage</td><td>the next <code>feed_next</code> call invalidates the title pointer</td></tr>
 <tr><td>status versus absence</td><td><code>feed_next</code> returns 1, 0 for end, negative for failure</td></tr>
 <tr><td>callback and its state</td><td><code>feed_scan</code> calls back into a C frame with a <code>void *</code></td></tr>
 </tbody>
@@ -263,10 +263,9 @@ as a native C value.</p>
 thread-local state, callbacks on threads the caller did not start, and bytes
 that <code>String</code> cannot hold, such as embedded NUL.</p>
 <h2 id="start-with-the-tasks"><a class="header" href="#start-with-the-tasks">Start with the tasks</a></h2>
-<p>Start by listing the tasks a developer brings to this kind of library. Then
-ask whether the imported <span class="x2c-wordmark">x2c</span> API can perform each task without requiring the
-raw C header or a hand-written loop over lower-level operations. Measure the
-wrapper by the tasks the <span class="x2c-wordmark">x2c</span> API performs.</p>
+<p>List the tasks a developer brings to this kind of library. For each task,
+check whether the imported <span class="x2c-wordmark">x2c</span> API can perform it without the raw C header
+or a hand-written loop over lower-level operations.</p>
 <p>For a regular-expression library such as PCRE2, the list might be:</p>
 <ul>
 <li>Compile a pattern, match, and read named and numbered captures.</li>
@@ -493,10 +492,10 @@ explicitly when that information is unnecessary.</p>
 <h3 id="make-lossy-conversion-opt-in"><a class="header" href="#make-lossy-conversion-opt-in">Make lossy conversion opt-in</a></h3>
 <p>When conversion does not cover the native value’s whole domain, name the
 loss and make conversion opt-in.</p>
-<h3 id="keep-bytes-x2c-cannot-hold-on-the-raw-api"><a class="header" href="#keep-bytes-x2c-cannot-hold-on-the-raw-api">Keep bytes <span class="x2c-wordmark">x2c</span> cannot hold on the raw API</a></h3>
-<p>When <span class="x2c-wordmark">x2c</span> cannot represent the bytes, keep that path raw. <code>String</code>
-excludes embedded NUL, so PCRE2’s explicit-length binary matching stays on the
-raw header.</p>
+<p><a id="keep-bytes-x2c-cannot-hold-on-the-raw-api"></a></p>
+<h3 id="use-the-raw-api-for-bytes-x2c-cannot-represent"><a class="header" href="#use-the-raw-api-for-bytes-x2c-cannot-represent">Use the raw API for bytes <span class="x2c-wordmark">x2c</span> cannot represent</a></h3>
+<p><code>String</code> excludes embedded NUL, so expose PCRE2’s explicit-length binary
+matching through the raw header.</p>
 <p>Add indexing and iteration when they simplify the caller’s code. Inside a
 protocol member named <code>getindex</code>, a bare <code>item.getindex(...)</code> would resolve to
 the member itself, hence the cast:</p>
@@ -692,8 +691,8 @@ written down and tested.</li>
 <li>Lisp bindings, if provided, are in the package.</li>
 <li>The source version, build options, hashes, and licenses are recorded.</li>
 </ul>
-<p>Reread the short application as a new reader would, and revise it until a
-new reader can follow it.</p>
+<p>Reread the short application. Check that a reader new to the package can
+follow the example from setup to result.</p>
 <p>See <code>packages/pcre2/README.md</code> and <code>packages/yyjson/README.md</code> for complete
 examples of package documentation.</p>
 
@@ -732,8 +731,8 @@ examples of package documentation.</p>
                 <span class="x2c-wordmark footer-wordmark">x2c</span>
             </a>
             <p>&copy; 2025&ndash;2026 <a href="https://flake.org">GWF</a> &middot;
-                <a href="https://github.com/gwf/x2c/blob/41db5bec6153473e3ea5e1ee141252abcb38d93b/LICENSE">Apache 2.0</a> &middot;
-                <a href="https://github.com/gwf/x2c/blob/41db5bec6153473e3ea5e1ee141252abcb38d93b/TRADEMARKS.md">Trademarks</a> &middot;
+                <a href="https://github.com/gwf/x2c/blob/73ef2edd945ff94d828856b0d8d6de43d84896e0/LICENSE">Apache 2.0</a> &middot;
+                <a href="https://github.com/gwf/x2c/blob/73ef2edd945ff94d828856b0d8d6de43d84896e0/TRADEMARKS.md">Trademarks</a> &middot;
                 <a href="../../x2c-book.pdf">Book PDF</a></p>
             <a href="#mdbook-content" class="footer-top">Back to top <span aria-hidden="true">&uarr;</span></a>
         </footer>

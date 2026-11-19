@@ -1,6 +1,6 @@
 <!DOCTYPE HTML>
 <html lang="en" class="light sidebar-visible" dir="ltr">
-    <head><meta name="x2c-release-channel" content="staging"><meta name="x2c-candidate" content="candidate-dbb82213e36d72f73b0be2ff3fe136ac78aae811-43901439345-2"><meta name="x2c-site-source" content="41db5bec6153473e3ea5e1ee141252abcb38d93b"><meta name="robots" content="noindex">
+    <head><meta name="x2c-release-channel" content="staging"><meta name="x2c-candidate" content="candidate-dbb82213e36d72f73b0be2ff3fe136ac78aae811-43901439345-2"><meta name="x2c-site-source" content="73ef2edd945ff94d828856b0d8d6de43d84896e0"><meta name="robots" content="noindex">
         <!-- Book generated using mdBook -->
         <meta charset="UTF-8">
         <title>Meta Functions - The x2c Book</title>
@@ -41,7 +41,7 @@
             const path_to_root = "../";
             const default_light_theme = "light";
             const default_dark_theme = "light";
-            window.path_to_searchindex_js = "../searchindex-2d9fa7d7.js";
+            window.path_to_searchindex_js = "../searchindex-3b52a977.js";
         </script>
         <!-- Start loading toc.js asap -->
         <script src="../toc-4b92af2b.js"></script>
@@ -223,14 +223,10 @@ when a value or a piece of code can be computed before the program runs.</p>
 <p>A <code>meta</code> function uses the <span class="x2c-wordmark">x2c</span> backend and the host compiler
 selected by <code>--meta-cc</code>. It runs as native code during translation, and its
 body is ordinary <span class="x2c-wordmark">x2c</span>: anything the unit can compile, it can run during
-translation. Two questions remain, both at the boundary between the
-program and compile-time code:</p>
-<ol>
-<li>Which arguments can cross: a <code>$helper(...)</code> call passes constants,
-captured syntax, or the results of other <code>$</code> calls.</li>
-<li>Which results can become program code: returning a value to another
-meta function and inserting it with <code>$helper(...)</code> have different limits.</li>
-</ol>
+translation. A <code>$helper(...)</code> call from program code passes constants,
+captured syntax, or the results of other <code>$</code> calls. A meta function can
+return values to another meta function that the compiler cannot insert
+into the program.</p>
 <p><code>meta</code> is not a purity annotation. A body can mutate locals, arrays, maps
 and structs, and pass local addresses to other meta functions. Its
 compile-time objects belong to the compiler; they are not the objects the
@@ -291,8 +287,8 @@ and one runs in the compiler. Both come from the same body. A
 <a href="generating-code.html#rewriting-a-function-definition">rewrite rule</a> in your
 program changes only the program’s copy; the copy the compiler runs is
 compiled as written. Functions that call a compiler query or build a source
-template, directly or through another meta function, are exceptions: they
-only run during translation. We will reach those after ordinary calculations.</p>
+template, directly or through another meta function, run only during
+translation.</p>
 <h2 id="compute-the-arguments-too"><a class="header" href="#compute-the-arguments-too">Compute the arguments too</a></h2>
 <p>An explicit call can calculate its arguments before invoking the function:</p>
 <pre class="shiki shiki-themes x2c-light x2c-dark x2c-code" style="--shiki-light:#24292e;--shiki-dark:#e9e5df;--shiki-light-bg:#fff;--shiki-dark-bg:#101011" tabindex="0"><code class="language-x2c no-highlight"><span class="line"><span style="--shiki-light:#A626A4;--shiki-light-font-weight:bold;--shiki-dark:#FF4FD8;--shiki-dark-font-weight:bold">meta</span><span style="--shiki-light:#D73A49;--shiki-dark:#F0ADA1"> int</span><span style="--shiki-light:#6F42C1;--shiki-dark:#E9E5DF"> twice</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">(</span><span style="--shiki-light:#D73A49;--shiki-dark:#F0ADA1">int</span><span style="--shiki-light:#E36209;--shiki-dark:#E9E5DF"> n</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">) </span><span style="--shiki-light:#A626A4;--shiki-light-font-weight:bold;--shiki-dark:#FF4FD8;--shiki-dark-font-weight:bold">=&gt;</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF"> n </span><span style="--shiki-light:#D73A49;--shiki-dark:#E9E5DF">*</span><span style="--shiki-light:#005CC5;--shiki-dark:#A9C9F5"> 2</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">;</span>
@@ -445,9 +441,9 @@ at the declaration:</p>
   ^^^^
   note: name: sin signature: float (double)
 </code></pre>
-<p>Two kinds of function follow a rule. An iterator operation takes its
-destination last: its last parameter and its result are <code>Iter</code>. Compile-time
-code may omit that destination; the call then allocates one with <code>Iter.new</code>
+<p>Iterator and <code>Func</code> signatures have special rules. An iterator operation has
+<code>Iter</code> as its last parameter and result. Compile-time code may omit that
+parameter, in which case the compiler creates a destination with <code>Iter.new</code>
 before calling the native operation. A declared <code>Func</code> parameter matches any
 <code>Var</code> parameter of the compiler’s target, which receives the compile-time
 callable and adapts it.</p>
@@ -533,12 +529,11 @@ call of a meta function that calls it is diagnosed at the call. Here
 compile-time code calls it. <code>sin(1.0)</code> stays a call in the generated C;
 write <code>$sin(1.0)</code> to compute the value during translation.</p>
 <h2 id="native-modules"><a class="header" href="#native-modules">Native modules</a></h2>
-<p>The project’s bodied <code>meta</code> functions need no module of your own: the
-compiler builds the project meta module from them and caches it, as
-<a href="#how-a-meta-function-runs">How a meta function runs</a> describes. A native
-module is built ahead of time instead, by you or by a package. It lets
-compile-time code call functions that are not part of the project meta
-module, and it can be shared between projects. Define each function with
+<p>The compiler builds and caches the project meta module from the project’s
+<code>meta</code> functions with bodies, as
+<a href="#how-a-meta-function-runs">How a meta function runs</a> describes. You or a package can build a native module ahead of time. This
+lets compile-time code call functions outside the project meta module, and
+several projects can share the native module. Define each function with
 <code>meta native</code>:</p>
 <pre class="shiki shiki-themes x2c-light x2c-dark x2c-code" style="--shiki-light:#24292e;--shiki-dark:#e9e5df;--shiki-light-bg:#fff;--shiki-dark-bg:#101011" tabindex="0"><code class="language-x2c no-highlight"><span class="line"><span style="--shiki-light:#A626A4;--shiki-light-font-weight:bold;--shiki-dark:#FF4FD8;--shiki-dark-font-weight:bold">meta</span><span style="--shiki-light:#A626A4;--shiki-light-font-weight:bold;--shiki-dark:#FF4FD8;--shiki-dark-font-weight:bold"> native</span><span style="--shiki-light:#D73A49;--shiki-dark:#F0ADA1"> int</span><span style="--shiki-light:#6F42C1;--shiki-dark:#E9E5DF"> triple</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">(</span><span style="--shiki-light:#D73A49;--shiki-dark:#F0ADA1">int</span><span style="--shiki-light:#E36209;--shiki-dark:#E9E5DF"> x</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">) { </span><span style="--shiki-light:#D73A49;--shiki-dark:#F0ADA1">return</span><span style="--shiki-light:#005CC5;--shiki-dark:#A9C9F5"> 3</span><span style="--shiki-light:#D73A49;--shiki-dark:#E9E5DF"> *</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF"> x; }</span></span></code></pre>
 
@@ -756,18 +751,17 @@ pointer after <code>Scope.free</code> or <code>Scope.realloc</code> ended it is 
 is freeing or reallocating a literal, a local’s address, or other storage
 no Scope allocator returned.</p>
 <h2 id="how-a-meta-function-runs"><a class="header" href="#how-a-meta-function-runs">How a meta function runs</a></h2>
-<p>A translation runs in two phases. Before any unit is translated, the
-compiler gathers the bodied <code>meta</code> functions the inputs reach: those of
-each ordinary source module an input reaches, directly, through includes,
-or through a package. It emits them, with the declarations they use, as C
-through the ordinary backend, compiles them with the host C compiler
-(<code>--meta-cc</code>, default <code>cc</code>, never the target <code>--cc</code>), and links them with
-the host runtime into one helper program, the project meta module. Each
-unit’s meta functions form a group, which has access to the headers that
-unit includes, found from the unit’s directory and the <code>-I</code> directories. The
-translation then sends each <code>$</code> call of one of those functions to the helper
-and inserts the reply. A project whose inputs reach no <code>meta</code> function
-builds nothing extra.</p>
+<p>Before translating any unit, the compiler collects the <code>meta</code> functions
+with bodies from the ordinary source modules the inputs reach, whether
+directly, through includes, or through packages. It emits those functions
+and their declarations as C through the ordinary backend. It then compiles
+them with the host C compiler (<code>--meta-cc</code>, default <code>cc</code>) and links them with
+the host runtime into one helper program, the project meta module. The target
+<code>--cc</code> does not select that compiler. Each unit’s meta functions form a group
+that uses the unit’s included headers, found from its directory and the <code>-I</code>
+directories. During translation, the compiler sends each <code>$</code> call of one of
+these functions to the helper and inserts the reply. A project whose inputs
+reach no <code>meta</code> function builds nothing extra.</p>
 <p>A call runs with the functions of the file that wrote it. An included
 <code>.x</code> file computes its file-scope constants, such as an enumerator or an
 array size, with its own <code>meta</code> functions, as its own translation does.
@@ -797,7 +791,7 @@ meets compile-time code, and means evaluate now and insert the result.</p>
 captures come from its value, so a <code>$f(...)</code> call in it runs while the
 body is translated. Only meta code linked into the compiler can run then,
 such as the
-<a href="https://github.com/gwf/x2c/blob/41db5bec6153473e3ea5e1ee141252abcb38d93b/src/grammar.x">source-form builders</a>.
+<a href="https://github.com/gwf/x2c/blob/73ef2edd945ff94d828856b0d8d6de43d84896e0/src/grammar.x">source-form builders</a>.
 A call of a project function waits until the body runs, so a pattern built
 by one cannot capture.</p>
 <p>Each unit gets its own <code>meta static</code> values: the helper runs their
@@ -813,10 +807,9 @@ compiler while the call waits. The compiler evaluates each query using the state
 at the <code>$</code> call’s site, so a project function gets the same result as
 compiler-linked meta code at the same place. <code>Code.source_text</code> reads only the text a
 <code>Source</code> parameter carries.</p>
-<p>Running compile-time code needs what building the program needs: the C
-compiler and the runtime headers. A project meta module that does not
-compile is reported at the call with the C compiler’s first error and the
-directory that keeps its C.</p>
+<p>The project meta module needs a C compiler and the runtime headers. If it
+fails to compile, the diagnostic at the call includes the C compiler’s first
+error and the directory containing the emitted C.</p>
 <p>A raise inside a <code>meta</code> body becomes a diagnostic at the <code>$</code> call. A body
 that crashes, exits, or overflows the stack ends the helper; the call is
 reported with the function and the reason, and the next call starts a new
@@ -977,9 +970,9 @@ templates, quotations, and compiler queries.</p>
 <h2 id="sharing-a-meta-function-between-units"><a class="header" href="#sharing-a-meta-function-between-units">Sharing a <code>meta</code> function between units</a></h2>
 <p>Define a shared <code>meta</code> function in an ordinary <code>.x</code> module, beside any macros
 and runtime code that use it. The project meta build compiles the provider’s
-meta code into the project meta module. A meta function must be written in
-source: a definition inside a macro template, or one produced by a <code>$</code> call,
-is reported where it is written.</p>
+meta code into the project meta module. Define each meta function directly in
+source. The compiler reports an error at a definition inside a macro template
+or one produced by a <code>$</code> call.</p>
 <p>The provider includes its own dependencies. A consumer includes the provider:</p>
 <pre><code class="language-text">#include "shape.x"
 </code></pre>
@@ -1064,8 +1057,8 @@ compile-time values.</li>
                 <span class="x2c-wordmark footer-wordmark">x2c</span>
             </a>
             <p>&copy; 2025&ndash;2026 <a href="https://flake.org">GWF</a> &middot;
-                <a href="https://github.com/gwf/x2c/blob/41db5bec6153473e3ea5e1ee141252abcb38d93b/LICENSE">Apache 2.0</a> &middot;
-                <a href="https://github.com/gwf/x2c/blob/41db5bec6153473e3ea5e1ee141252abcb38d93b/TRADEMARKS.md">Trademarks</a> &middot;
+                <a href="https://github.com/gwf/x2c/blob/73ef2edd945ff94d828856b0d8d6de43d84896e0/LICENSE">Apache 2.0</a> &middot;
+                <a href="https://github.com/gwf/x2c/blob/73ef2edd945ff94d828856b0d8d6de43d84896e0/TRADEMARKS.md">Trademarks</a> &middot;
                 <a href="../../x2c-book.pdf">Book PDF</a></p>
             <a href="#mdbook-content" class="footer-top">Back to top <span aria-hidden="true">&uarr;</span></a>
         </footer>

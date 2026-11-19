@@ -1,6 +1,6 @@
 <!DOCTYPE HTML>
 <html lang="en" class="light sidebar-visible" dir="ltr">
-    <head><meta name="x2c-release-channel" content="staging"><meta name="x2c-candidate" content="candidate-dbb82213e36d72f73b0be2ff3fe136ac78aae811-43901439345-2"><meta name="x2c-site-source" content="41db5bec6153473e3ea5e1ee141252abcb38d93b"><meta name="robots" content="noindex">
+    <head><meta name="x2c-release-channel" content="staging"><meta name="x2c-candidate" content="candidate-dbb82213e36d72f73b0be2ff3fe136ac78aae811-43901439345-2"><meta name="x2c-site-source" content="73ef2edd945ff94d828856b0d8d6de43d84896e0"><meta name="robots" content="noindex">
         <!-- Book generated using mdBook -->
         <meta charset="UTF-8">
         <title>Training and Inference with torch - The x2c Book</title>
@@ -41,7 +41,7 @@
             const path_to_root = "../";
             const default_light_theme = "light";
             const default_dark_theme = "light";
-            window.path_to_searchindex_js = "../searchindex-2d9fa7d7.js";
+            window.path_to_searchindex_js = "../searchindex-3b52a977.js";
         </script>
         <!-- Start loading toc.js asap -->
         <script src="../toc-4b92af2b.js"></script>
@@ -218,16 +218,15 @@
                     <main>
                         <h1 id="training-and-inference-with-torch"><a class="header" href="#training-and-inference-with-torch">Training and Inference with torch</a></h1>
 <p>For package setup and supported operations, see the
-<a href="https://github.com/gwf/x2c/blob/41db5bec6153473e3ea5e1ee141252abcb38d93b/packages/torch/README.md">Torch package README</a>.
+<a href="https://github.com/gwf/x2c/blob/73ef2edd945ff94d828856b0d8d6de43d84896e0/packages/torch/README.md">Torch package README</a>.
 This chapter belongs to <a href="../library/advanced-topics.html">Advanced Topics</a>.</p>
-<p>The <code>torch</code> package reaches PyTorch’s C++ library, libtorch, from <span class="x2c-wordmark">x2c</span>.
-Tensors, autograd, layers, optimizers, schedules, checkpoints, TorchScript
-inference, and the MNIST reader are all libtorch’s; the package supplies <span class="x2c-wordmark">x2c</span>
-types and methods over them. The entry unit is <code>packages/torch/src/torch.x</code>,
-the C ABI it compiles over is <code>src/torch-2.10.h</code>, and <code>src/torch-shim.cpp</code>
-implements that ABI. libtorch has no C API and no stable C++ ABI, so the shim
-is the package’s only C++ and it is tied to exactly the pinned version,
-2.10.0.</p>
+<p>The <code>torch</code> package provides <span class="x2c-wordmark">x2c</span> types and methods for PyTorch’s C++ library,
+libtorch. It wraps tensors, autograd, layers, optimizers, schedules,
+checkpoints, TorchScript inference, and the MNIST reader. The entry unit,
+<code>packages/torch/src/torch.x</code>, calls the C ABI declared in <code>src/torch-2.10.h</code>.
+<code>src/torch-shim.cpp</code> implements that ABI. libtorch has no C API or stable C++
+ABI, so the shim is the package’s only C++ code and is tied to the pinned
+version, 2.10.0.</p>
 <p>A program links the pinned libtorch shared libraries dynamically through an
 rpath into the prepared prefix, so it depends on that prefix at run time.
 <code>torch.compile</code> and TorchScript capture work on
@@ -398,11 +397,10 @@ mini-batching is <span class="x2c-wordmark">x2c</span>: a permutation and an <co
 </span><span class="line"><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">  adam.</span><span style="--shiki-light:#6F42C1;--shiki-dark:#E9E5DF">step</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">();</span>
 </span><span class="line"><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">}</span></span></code></pre>
 
-<p>libtorch ships exactly two learning-rate schedules, <code>Scheduler.step_lr</code>
-and <code>Scheduler.reduce_on_plateau</code>; the first advances with <code>step</code>, the
-second with <code>step_metric</code>. The other three are <span class="x2c-wordmark">x2c</span> arithmetic over
-<code>Optimizer.lr</code> and <code>set_lr</code>, each writing the rate for the number of
-completed <code>step</code> calls, starting at construction with none taken:</p>
+<p>The package exposes two native libtorch schedules. Advance <code>Scheduler.step_lr</code>
+with <code>step</code> and <code>Scheduler.reduce_on_plateau</code> with <code>step_metric</code>. The three
+<span class="x2c-wordmark">x2c</span> schedules below use <code>Optimizer.lr</code> and <code>set_lr</code>. Each sets the rate for
+the number of completed <code>step</code> calls, starting at zero when constructed:</p>
 <ul>
 <li><code>Scheduler.cosine(o, t_max, eta_min)</code> anneals along a half cosine:
 after <code>t</code> steps the rate is
@@ -489,9 +487,9 @@ reach.</p>
 <h2 id="errors"><a class="header" href="#errors">Errors</a></h2>
 <p>A failure inside libtorch raises <code>&lt;bad-state&gt;</code> with <code>(library "torch")</code>,
 the operation name, and the first line of libtorch’s text under
-<code>(message ...)</code>; the full text stays available through <code>xt_last_error_full</code> in the raw API.
-Every entry point in <code>torch-2.10.h</code> catches, so no C++ exception crosses
-the ABI. This arm in <code>examples/mlp.x</code> prints <code>caught matmul: mat1 and mat2 shapes cannot be multiplied (3x5 and 4x8)</code>.</p>
+<code>(message ...)</code>. The raw API function <code>xt_last_error_full</code> returns the full
+text. The shim catches C++ exceptions at every entry point in <code>torch-2.10.h</code>
+before they cross the ABI. This arm in <code>examples/mlp.x</code> prints <code>caught matmul: mat1 and mat2 shapes cannot be multiplied (3x5 and 4x8)</code>.</p>
 <!-- ignore: an import needs the built torch package archive. -->
 <pre class="shiki shiki-themes x2c-light x2c-dark x2c-code" style="--shiki-light:#24292e;--shiki-dark:#e9e5df;--shiki-light-bg:#fff;--shiki-dark-bg:#101011" tabindex="0"><code class="language-x2c no-highlight ignore"><span class="line"><span style="--shiki-light:#A626A4;--shiki-light-font-weight:bold;--shiki-dark:#FF4FD8;--shiki-dark-font-weight:bold">try</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF"> { (</span><span style="--shiki-light:#D73A49;--shiki-dark:#F0ADA1">void</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">) </span><span style="--shiki-light:#6F42C1;--shiki-dark:#E9E5DF">_forward</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">(model, Tensor.</span><span style="--shiki-light:#6F42C1;--shiki-dark:#E9E5DF">randn</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">(</span><span style="--shiki-light:#A626A4;--shiki-light-font-weight:bold;--shiki-dark:#FF4FD8;--shiki-dark-font-weight:bold">%(</span><span style="--shiki-light:#005CC5;--shiki-dark:#A9C9F5">3</span><span style="--shiki-light:#005CC5;--shiki-dark:#A9C9F5"> 5</span><span style="--shiki-light:#A626A4;--shiki-light-font-weight:bold;--shiki-dark:#FF4FD8;--shiki-dark-font-weight:bold">)</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">, XT_FLOAT32)); }</span>
 </span><span class="line"><span style="--shiki-light:#D73A49;--shiki-dark:#F0ADA1">catch</span><span style="--shiki-light:#A626A4;--shiki-light-font-weight:bold;--shiki-dark:#FF4FD8;--shiki-dark-font-weight:bold"> %(</span><span style="--shiki-light:#005CC5;--shiki-dark:#E9E5DF">bad-state</span><span style="--shiki-light:#A626A4;--shiki-light-font-weight:bold;--shiki-dark:#FF4FD8;--shiki-dark-font-weight:bold"> (</span><span style="--shiki-light:#005CC5;--shiki-dark:#E9E5DF">library</span><span style="--shiki-light:#A626A4;--shiki-light-font-weight:bold;--shiki-dark:#FF4FD8;--shiki-dark-font-weight:bold"> "</span><span style="--shiki-light:#032F62;--shiki-dark:#9EDFB8">torch</span><span style="--shiki-light:#A626A4;--shiki-light-font-weight:bold;--shiki-dark:#FF4FD8;--shiki-dark-font-weight:bold">"</span><span style="--shiki-light:#A626A4;--shiki-light-font-weight:bold;--shiki-dark:#FF4FD8;--shiki-dark-font-weight:bold">)</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF"> *detail</span><span style="--shiki-light:#A626A4;--shiki-light-font-weight:bold;--shiki-dark:#FF4FD8;--shiki-dark-font-weight:bold">)</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">: {</span>
@@ -622,7 +620,7 @@ or establish a general speedup.</p>
 <p>The MNIST row uses 50 warmup batches. The chain rows come from a separate
 comparison of the two release styles; the applications were not all rerun
 with them. The
-<a href="https://github.com/gwf/x2c/blob/41db5bec6153473e3ea5e1ee141252abcb38d93b/packages/torch/benchmarks/README.md">benchmark harness</a>
+<a href="https://github.com/gwf/x2c/blob/73ef2edd945ff94d828856b0d8d6de43d84896e0/packages/torch/benchmarks/README.md">benchmark harness</a>
 describes the workloads, their counts, and how to reproduce them.</p>
 <p>*The stock-PyTorch comparison of explicit tabular training remains a failed
 numerical check: its validation-loss difference was 0.223%, above the 0.1%
@@ -708,8 +706,8 @@ one. Results agree with Python within float32 tolerance.</li>
                 <span class="x2c-wordmark footer-wordmark">x2c</span>
             </a>
             <p>&copy; 2025&ndash;2026 <a href="https://flake.org">GWF</a> &middot;
-                <a href="https://github.com/gwf/x2c/blob/41db5bec6153473e3ea5e1ee141252abcb38d93b/LICENSE">Apache 2.0</a> &middot;
-                <a href="https://github.com/gwf/x2c/blob/41db5bec6153473e3ea5e1ee141252abcb38d93b/TRADEMARKS.md">Trademarks</a> &middot;
+                <a href="https://github.com/gwf/x2c/blob/73ef2edd945ff94d828856b0d8d6de43d84896e0/LICENSE">Apache 2.0</a> &middot;
+                <a href="https://github.com/gwf/x2c/blob/73ef2edd945ff94d828856b0d8d6de43d84896e0/TRADEMARKS.md">Trademarks</a> &middot;
                 <a href="../../x2c-book.pdf">Book PDF</a></p>
             <a href="#mdbook-content" class="footer-top">Back to top <span aria-hidden="true">&uarr;</span></a>
         </footer>

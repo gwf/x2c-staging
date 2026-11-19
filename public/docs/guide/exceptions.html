@@ -1,6 +1,6 @@
 <!DOCTYPE HTML>
 <html lang="en" class="light sidebar-visible" dir="ltr">
-    <head><meta name="x2c-release-channel" content="staging"><meta name="x2c-candidate" content="candidate-dbb82213e36d72f73b0be2ff3fe136ac78aae811-43901439345-2"><meta name="x2c-site-source" content="41db5bec6153473e3ea5e1ee141252abcb38d93b"><meta name="robots" content="noindex">
+    <head><meta name="x2c-release-channel" content="staging"><meta name="x2c-candidate" content="candidate-dbb82213e36d72f73b0be2ff3fe136ac78aae811-43901439345-2"><meta name="x2c-site-source" content="73ef2edd945ff94d828856b0d8d6de43d84896e0"><meta name="robots" content="noindex">
         <!-- Book generated using mdBook -->
         <meta charset="UTF-8">
         <title>Errors and Cleanup - The x2c Book</title>
@@ -41,7 +41,7 @@
             const path_to_root = "../";
             const default_light_theme = "light";
             const default_dark_theme = "light";
-            window.path_to_searchindex_js = "../searchindex-2d9fa7d7.js";
+            window.path_to_searchindex_js = "../searchindex-3b52a977.js";
         </script>
         <!-- Start loading toc.js asap -->
         <script src="../toc-4b92af2b.js"></script>
@@ -229,9 +229,9 @@ gives the full statement rules.</p>
 <pre class="shiki shiki-themes x2c-light x2c-dark x2c-code" style="--shiki-light:#24292e;--shiki-dark:#e9e5df;--shiki-light-bg:#fff;--shiki-dark-bg:#101011" tabindex="0"><code class="language-x2c no-highlight ignore"><span class="line"><span style="--shiki-light:#D73A49;--shiki-dark:#F0ADA1">raise</span><span style="--shiki-light:#A626A4;--shiki-light-font-weight:bold;--shiki-dark:#FF4FD8;--shiki-dark-font-weight:bold"> %(</span><span style="--shiki-light:#005CC5;--shiki-dark:#E9E5DF">size-limit</span><span style="--shiki-light:#A626A4;--shiki-light-font-weight:bold;--shiki-dark:#FF4FD8;--shiki-dark-font-weight:bold"> (</span><span style="--shiki-light:#005CC5;--shiki-dark:#E9E5DF">operation</span><span style="--shiki-light:#A626A4;--shiki-light-font-weight:bold;--shiki-dark:#FF4FD8;--shiki-dark-font-weight:bold"> "</span><span style="--shiki-light:#032F62;--shiki-dark:#9EDFB8">Block.reserve</span><span style="--shiki-light:#A626A4;--shiki-light-font-weight:bold;--shiki-dark:#FF4FD8;--shiki-dark-font-weight:bold">"</span><span style="--shiki-light:#A626A4;--shiki-light-font-weight:bold;--shiki-dark:#FF4FD8;--shiki-dark-font-weight:bold">)</span><span style="--shiki-light:#A626A4;--shiki-light-font-weight:bold;--shiki-dark:#FF4FD8;--shiki-dark-font-weight:bold"> (</span><span style="--shiki-light:#005CC5;--shiki-dark:#E9E5DF">capacity</span><span style="--shiki-light:#A626A4;--shiki-light-font-weight:bold;--shiki-dark:#FF4FD8;--shiki-dark-font-weight:bold"> $</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">requested</span><span style="--shiki-light:#A626A4;--shiki-light-font-weight:bold;--shiki-dark:#FF4FD8;--shiki-dark-font-weight:bold">))</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">;</span></span></code></pre>
 
 <p>The first item is a compact <code>Symbol</code> naming the cause. The remaining items are
-<code>(key value)</code> detail pairs. <code>Error</code> also records the source location. The
-cause is what a handler branches on. Put the reporting mechanism and the
-module that found the failure in the details.</p>
+<code>(key value)</code> detail pairs. <code>Error</code> also records the source location. A handler
+branches on the cause. Put the reporting mechanism and the module that found
+the failure in the details.</p>
 <p>The runtime raises 31 <em>shared causes</em>; the
 <a href="../reference/language.html#shared-causes">reference</a> lists them. Prefer
 the most specific shared cause. For example, <code>&lt;bad-arity&gt;</code> identifies an
@@ -364,9 +364,9 @@ another disposition raises <code>&lt;bad-arg&gt;</code> and leaves the previous 
 unchanged. It also rejects <code>&lt;log&gt;</code>, <code>&lt;collect&gt;</code>, or <code>&lt;ignore&gt;</code> for every
 non-returning cause, leaving those policies at <code>&lt;abort&gt;</code>. Unknown <code>Error</code>
 causes remain legal and default to <code>&lt;abort&gt;</code>.</p>
-<p>The default <code>Logger</code> registers an observing <code>Error</code> handler. An uncaught
-<code>Error</code>, one whose policy is <code>&lt;abort&gt;</code>, is reported as one line on standard
-error, and the process then aborts:</p>
+<p>The default <code>Logger</code> registers an observing <code>Error</code> handler. When an
+uncaught <code>Error</code> has the <code>&lt;abort&gt;</code> policy, the handler reports it on one
+line on standard error. The process then aborts:</p>
 <pre><code class="language-text">x2c: uncaught &lt;bad-state&gt; in main (config.x:12): operation load-config, path x.toml
 </code></pre>
 <p>The line names the cause, the raising function and source line, and the
@@ -451,9 +451,9 @@ jump into a protected region, or sideways into a sibling protected region,
 is a compile-time error because that region’s cleanup was never registered on
 the source path.</p>
 <h2 id="cleanup-and-scopes"><a class="header" href="#cleanup-and-scopes">Cleanup and scopes</a></h2>
-<p><code>Error</code> transfer does not release a <code>Scope</code> automatically. Write the region as
-<code>auto</code> whenever a raising call can cross the release; its deferred release
-runs on the error path too:</p>
+<p><code>Error</code> transfer does not release a <code>Scope</code> automatically. Use <code>auto</code> if
+an <code>Error</code> could transfer control past the release. <code>auto</code> runs the deferred
+release on that path too:</p>
 <pre class="shiki shiki-themes x2c-light x2c-dark x2c-code" style="--shiki-light:#24292e;--shiki-dark:#e9e5df;--shiki-light-bg:#fff;--shiki-dark-bg:#101011" tabindex="0"><code class="language-x2c no-highlight"><span class="line"><span style="--shiki-light:#D73A49;--shiki-dark:#F0ADA1">static</span><span style="--shiki-light:#D73A49;--shiki-dark:#F0ADA1"> void</span><span style="--shiki-light:#6F42C1;--shiki-dark:#E9E5DF"> render</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">(</span><span style="--shiki-light:#007C8A;--shiki-dark:#29D3E2">String</span><span style="--shiki-light:#E36209;--shiki-dark:#E9E5DF"> text</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">, </span><span style="--shiki-light:#D73A49;--shiki-dark:#F0ADA1">int</span><span style="--shiki-light:#E36209;--shiki-dark:#E9E5DF"> width</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">) {</span>
 </span><span class="line"><span style="--shiki-light:#D73A49;--shiki-dark:#F0ADA1">  auto</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF"> {</span>
 </span><span class="line"><span style="--shiki-light:#D73A49;--shiki-dark:#F0ADA1">    char</span><span style="--shiki-light:#D73A49;--shiki-dark:#E9E5DF"> *</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">line </span><span style="--shiki-light:#D73A49;--shiki-dark:#E9E5DF">=</span><span style="--shiki-light:#6F42C1;--shiki-dark:#E9E5DF"> xmalloc</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">(width </span><span style="--shiki-light:#D73A49;--shiki-dark:#E9E5DF">+</span><span style="--shiki-light:#005CC5;--shiki-dark:#A9C9F5"> 1</span><span style="--shiki-light:#24292E;--shiki-dark:#E9E5DF">);</span>
@@ -538,8 +538,8 @@ The raw <code>Scope</code> leak report runs after all shutdown hooks.</p>
                 <span class="x2c-wordmark footer-wordmark">x2c</span>
             </a>
             <p>&copy; 2025&ndash;2026 <a href="https://flake.org">GWF</a> &middot;
-                <a href="https://github.com/gwf/x2c/blob/41db5bec6153473e3ea5e1ee141252abcb38d93b/LICENSE">Apache 2.0</a> &middot;
-                <a href="https://github.com/gwf/x2c/blob/41db5bec6153473e3ea5e1ee141252abcb38d93b/TRADEMARKS.md">Trademarks</a> &middot;
+                <a href="https://github.com/gwf/x2c/blob/73ef2edd945ff94d828856b0d8d6de43d84896e0/LICENSE">Apache 2.0</a> &middot;
+                <a href="https://github.com/gwf/x2c/blob/73ef2edd945ff94d828856b0d8d6de43d84896e0/TRADEMARKS.md">Trademarks</a> &middot;
                 <a href="../../x2c-book.pdf">Book PDF</a></p>
             <a href="#mdbook-content" class="footer-top">Back to top <span aria-hidden="true">&uarr;</span></a>
         </footer>
