@@ -1,6 +1,6 @@
 <!DOCTYPE HTML>
 <html lang="en" class="light sidebar-visible" dir="ltr">
-    <head><meta name="x2c-release-channel" content="staging"><meta name="x2c-candidate" content="candidate-dbb82213e36d72f73b0be2ff3fe136ac78aae811-43901439345-2"><meta name="x2c-site-source" content="73ef2edd945ff94d828856b0d8d6de43d84896e0"><meta name="robots" content="noindex">
+    <head><meta name="x2c-release-channel" content="staging"><meta name="x2c-candidate" content="candidate-dbb82213e36d72f73b0be2ff3fe136ac78aae811-43901439345-2"><meta name="x2c-site-source" content="d87f0022534078ee8d5f65a845d5b02715d2a0fb"><meta name="robots" content="noindex">
         <!-- Book generated using mdBook -->
         <meta charset="UTF-8">
         <title>Substring Maps - The x2c Book</title>
@@ -41,7 +41,7 @@
             const path_to_root = "../../";
             const default_light_theme = "light";
             const default_dark_theme = "light";
-            window.path_to_searchindex_js = "../../searchindex-3b52a977.js";
+            window.path_to_searchindex_js = "../../searchindex-e86e1ed9.js";
         </script>
         <!-- Start loading toc.js asap -->
         <script src="../../toc-4b92af2b.js"></script>
@@ -233,7 +233,7 @@
 <tr><td><a href="#MapSubInt.enumerate"><code>MapSubInt.enumerate</code></a></td><td>Initializes <code>dest</code> to yield canonical <code>(key value)</code> <code>List</code>s in bucket order.</td></tr>
 <tr><td><a href="#MapSubInt.increment"><code>MapSubInt.increment</code></a></td><td>Adds one occurrence without copying or interning the word’s bytes.</td></tr>
 <tr><td><a href="#MapSubInt.iter"><code>MapSubInt.iter</code></a></td><td>Initializes <code>dest</code> as a single-pass iterator over boxed values.</td></tr>
-<tr><td><a href="#MapSubInt.keys"><code>MapSubInt.keys</code></a></td><td>Initializes <code>dest</code> as a single-pass iterator over boxed keys.</td></tr>
+<tr><td><a href="#MapSubInt.keys"><code>MapSubInt.keys</code></a></td><td>Initializes <code>dest</code> as a single-pass iterator over keys in bucket order.</td></tr>
 <tr><td><a href="#MapSubInt.move_to"><code>MapSubInt.move_to</code></a></td><td>Moves the record, backing Blocks, and nullable owned contents together.</td></tr>
 <tr><td><a href="#MapSubInt.new"><code>MapSubInt.new</code></a></td><td>Creates an empty count table in the current Scope.</td></tr>
 <tr><td><a href="#MapSubInt.scope"><code>MapSubInt.scope</code></a></td><td>Acquires the Map’s scope for explicitly owned contents.</td></tr>
@@ -254,18 +254,20 @@
 <h4 id="mapsubintenumerate"><a class="header" href="#mapsubintenumerate">MapSubInt.enumerate</a></h4>
 <p><code>Iter MapSubInt.enumerate(MapSubInt map, Iter dest)</code></p>
 <p>Initializes <code>dest</code> to yield canonical <code>(key value)</code> <code>List</code>s in bucket
-order.
-The caller owns <code>dest</code>, and the iterator borrows <code>map</code>; both must remain
-live during traversal. A null <code>dest</code> returns NULL, and a null map is
-exhausted. Each step boxes both fields and interns two <code>List</code> cells. Each
-cell belongs to the pool owning its canonical match, which may be an
-ancestor pool, or to the current pool when newly allocated. Structural
-mutation invalidates the iterator. Each MapLongDouble pull allocates its
-long key as a <code>Var</code> in the current <code>Scope</code>; the yielded <code>List</code> and
-anything retaining it must not outlive that <code>Scope</code>.</p>
-<p><strong>Raises:</strong> <code>&lt;alloc-fail&gt;</code> or <code>&lt;size-limit&gt;</code> while interning the <code>List</code>, and
-for MapLongDouble, <code>&lt;alloc-fail&gt;</code> or <code>&lt;bad-enc&gt;</code> while boxing its key.
-Shared causes do not return from the pull.</p>
+order. The caller owns <code>dest</code>, and the iterator borrows <code>map</code>. Both must
+remain live during traversal. A null <code>dest</code> returns NULL, and a null map
+is exhausted. Structural mutation invalidates the iterator.</p>
+<p>Each step boxes both fields and interns two <code>List</code> cells. Each cell
+belongs to the pool owning its canonical match, which may be an ancestor
+pool, or to the current pool when newly allocated. For <code>MapSubInt</code>,
+boxing materializes the key as a canonical <code>String</code> and boxes the count.
+The key follows its actual owning pool. Each <code>MapLongDouble</code> pull
+allocates its long key as a <code>Var</code> in the current <code>Scope</code>. The yielded
+<code>List</code> and anything retaining it must stay within that <code>Scope</code>.</p>
+<p><strong>Raises:</strong> <code>&lt;alloc-fail&gt;</code> or <code>&lt;size-limit&gt;</code> while interning the <code>List</code>.
+For <code>MapSubInt</code>, materializing the key may raise any cause from
+<code>Substring.str</code>. For <code>MapLongDouble</code>, boxing the key may raise
+<code>&lt;alloc-fail&gt;</code> or <code>&lt;bad-enc&gt;</code>. Shared causes do not return from the pull.</p>
 <p>Source: <code>lib/substring-map.x</code></p>
 <p><a id="MapSubInt.increment"></a></p>
 <h4 id="mapsubintincrement"><a class="header" href="#mapsubintincrement">MapSubInt.increment</a></h4>
@@ -285,16 +287,18 @@ iterator.</p>
 <p><a id="MapSubInt.keys"></a></p>
 <h4 id="mapsubintkeys"><a class="header" href="#mapsubintkeys">MapSubInt.keys</a></h4>
 <p><code>Iter MapSubInt.keys(MapSubInt map, Iter dest)</code></p>
-<p>Initializes <code>dest</code> as a single-pass iterator over boxed keys.
-The caller owns <code>dest</code>, and the iterator borrows <code>map</code>; both must remain
-live during traversal. A null <code>dest</code> returns NULL. Keys follow bucket
-order, a null map is exhausted, and structural mutation invalidates the
-iterator. MapIntInt and both String-keyed families box keys without
-allocation.
-Each MapLongDouble pull allocates its long key as a <code>Var</code> in the current
-<code>Scope</code>; the yielded <code>Var</code> and anything retaining it must not outlive
-that <code>Scope</code>.</p>
-<p><strong>Raises:</strong> MapLongDouble iteration may raise <code>&lt;alloc-fail&gt;</code> or <code>&lt;bad-enc&gt;</code>
+<p>Initializes <code>dest</code> as a single-pass iterator over keys in bucket order.
+The caller owns <code>dest</code>, and the iterator borrows <code>map</code>. Both must remain
+live during traversal. A null <code>dest</code> returns NULL, and a null map is
+exhausted. Structural mutation invalidates the iterator.</p>
+<p>Each <code>MapSubInt</code> pull materializes the key as a canonical <code>String</code> with
+<code>Substring.str</code>. The result follows its actual owning pool.
+<code>MapIntInt</code> and both String-keyed families box keys without allocation.
+Each <code>MapLongDouble</code> pull allocates its long key as a <code>Var</code> in the
+current <code>Scope</code>. The yielded <code>Var</code> and anything retaining it must stay
+within that <code>Scope</code>.</p>
+<p><strong>Raises:</strong> for <code>MapSubInt</code>, the causes from <code>Substring.str</code> while
+materializing a key. For <code>MapLongDouble</code>, <code>&lt;alloc-fail&gt;</code> or <code>&lt;bad-enc&gt;</code>
 while boxing a key.</p>
 <p>Source: <code>lib/substring-map.x</code></p>
 <p><a id="MapSubInt.move_to"></a></p>
@@ -385,7 +389,7 @@ preserves the table and exports the source Strings used by its views.</p>
 <p>Source: <code>lib/substring-map.x</code></p>
 <h2 id="examples"><a class="header" href="#examples">Examples</a></h2>
 <ul>
-<li><a href="https://github.com/gwf/x2c/blob/73ef2edd945ff94d828856b0d8d6de43d84896e0/examples/c2x2c/words-v4.x"><code>c2x2c/words-v4</code></a></li>
+<li><a href="https://github.com/gwf/x2c/blob/d87f0022534078ee8d5f65a845d5b02715d2a0fb/examples/c2x2c/words-v4.x"><code>c2x2c/words-v4</code></a></li>
 </ul>
 
                     </main>
@@ -423,8 +427,8 @@ preserves the table and exports the source Strings used by its views.</p>
                 <span class="x2c-wordmark footer-wordmark">x2c</span>
             </a>
             <p>&copy; 2025&ndash;2026 <a href="https://flake.org">GWF</a> &middot;
-                <a href="https://github.com/gwf/x2c/blob/73ef2edd945ff94d828856b0d8d6de43d84896e0/LICENSE">Apache 2.0</a> &middot;
-                <a href="https://github.com/gwf/x2c/blob/73ef2edd945ff94d828856b0d8d6de43d84896e0/TRADEMARKS.md">Trademarks</a> &middot;
+                <a href="https://github.com/gwf/x2c/blob/d87f0022534078ee8d5f65a845d5b02715d2a0fb/LICENSE">Apache 2.0</a> &middot;
+                <a href="https://github.com/gwf/x2c/blob/d87f0022534078ee8d5f65a845d5b02715d2a0fb/TRADEMARKS.md">Trademarks</a> &middot;
                 <a href="../../../x2c-book.pdf">Book PDF</a></p>
             <a href="#mdbook-content" class="footer-top">Back to top <span aria-hidden="true">&uarr;</span></a>
         </footer>
