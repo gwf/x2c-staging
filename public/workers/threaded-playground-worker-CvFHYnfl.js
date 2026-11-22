@@ -1,0 +1,3 @@
+(function(){self.onmessage=async({data:e})=>{if(!crossOriginIsolated)self.postMessage({kind:`error`,text:`Threads require a cross-origin-isolated page (COOP and COEP headers).`});else try{let{default:t}=await import(
+/* @vite-ignore */
+new URL(e.url,self.location.href).href);await t({print:e=>self.postMessage({kind:`stdout`,text:e}),printErr:e=>self.postMessage({kind:`stderr`,text:e}),onExit:e=>self.postMessage({kind:`exit`,status:e}),onAbort:e=>self.postMessage({kind:`error`,text:e})})}catch(e){e&&typeof e==`object`&&`name`in e&&e.name===`ExitStatus`?self.postMessage({kind:`exit`,status:e.status}):self.postMessage({kind:`error`,text:String(e)})}}})();

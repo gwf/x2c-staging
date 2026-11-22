@@ -1,6 +1,6 @@
 <!DOCTYPE HTML>
 <html lang="en" class="light sidebar-visible" dir="ltr">
-    <head><meta name="x2c-release-channel" content="staging"><meta name="x2c-candidate" content="candidate-aea10eccdca3a7e560b5328aeb940cad10f1783d-44663677924-1"><meta name="x2c-site-source" content="0dedc33686d956b23214b34bb50cb1f12f07975b"><meta name="robots" content="noindex">
+    <head><meta name="x2c-release-channel" content="staging"><meta name="x2c-candidate" content="candidate-aea10eccdca3a7e560b5328aeb940cad10f1783d-44663677924-1"><meta name="x2c-site-source" content="46798f5183b255c1c8d3da90df2f2ca420b25d26"><meta name="robots" content="noindex">
         <!-- Book generated using mdBook -->
         <meta charset="UTF-8">
         <title>Building the Compiler - The x2c Book</title>
@@ -41,7 +41,7 @@
             const path_to_root = "../";
             const default_light_theme = "light";
             const default_dark_theme = "light";
-            window.path_to_searchindex_js = "../searchindex-48b9eed9.js";
+            window.path_to_searchindex_js = "../searchindex-875ca42e.js";
         </script>
         <!-- Start loading toc.js asap -->
         <script src="../toc-4b92af2b.js"></script>
@@ -238,7 +238,7 @@ and <code>make build-safe</code> run <code>make configure</code> automatically b
 work or cleaning.</p>
 <p>For optional packages, use <code>./configure --packages</code>, or name only the ones
 you intend to build, such as <code>./configure --packages termbox2</code>. See the
-<a href="https://github.com/gwf/x2c/blob/0dedc33686d956b23214b34bb50cb1f12f07975b/packages/README.md">package instructions</a> for native dependencies.
+<a href="https://github.com/gwf/x2c/blob/46798f5183b255c1c8d3da90df2f2ca420b25d26/packages/README.md">package instructions</a> for native dependencies.
 These reports check command availability and required OpenSSL Perl modules;
 upstream configure scripts and compilers still check platform support.</p>
 <h2 id="build-a-fresh-clone"><a class="header" href="#build-a-fresh-clone">Build a fresh clone</a></h2>
@@ -367,6 +367,46 @@ unsupported in this single-threaded browser build. <code>Job</code>, <code>File.
 behavior. In-memory HTTP parsing, routing, and response construction remain
 available. Browser execution requires Memory64;
 check the playground’s support notice before running a program.</p>
+<p>The default runtime gets secure random bytes through Emscripten’s
+<code>getentropy</code>; the browser provider uses Web Crypto. It also uses
+Emscripten’s current C-stack bound for <span class="x2c-wordmark">x2c</span>’s existing depth checks.
+The Lisp evaluator uses a smaller WebAssembly stack share so its existing
+<code>&lt;call-stack&gt;</code> error precedes the engine limit on tested nested forms.
+The WebAssembly engine can still reach its own call-stack limit first on
+other deeply recursive paths.</p>
+<h3 id="optional-pthread-and-task-profiles"><a class="header" href="#optional-pthread-and-task-profiles">Optional pthread and task profiles</a></h3>
+<p><code>make wasm-runtime-threads</code> writes a separate pthread archive.
+<code>WASM_PROFILE=threads tools/wasm-build input.x output-stem</code> links against it.
+Run the generated loader on a dedicated Worker with a stable URL. The
+browser page and its workers need <code>Cross-Origin-Opener-Policy: same-origin</code>
+and <code>Cross-Origin-Embedder-Policy: require-corp</code>. The build prewarms four
+pthread workers by default; <code>WASM_PTHREAD_POOL_SIZE</code> changes that capacity.
+An exhausted browser pool reports a thread-start failure. Emscripten can
+grow the pool beyond its initial size under Node. The site includes threaded
+examples only when built with <code>PLAYGROUND_THREADS=1</code> and served with these
+headers. Its opt-in development server sets them.</p>
+<p><code>make wasm-runtime-tasks</code> writes a separate Asyncify archive.
+<code>WASM_PROFILE=tasks tools/wasm-build input.x output-stem</code> links against it.
+The loader must read <code>module.x2cMainResult</code> after the module factory
+resolves. If Emscripten has not called <code>onExit</code>, the loader must call
+<code>module._emscripten_force_exit(module.x2cMainResult)</code> and handle its
+<code>ExitStatus</code>. This runs exit hooks and preserves a nonzero return after
+resumed tasks. A task keeps its requested C stack plus 512 KiB of Asyncify
+storage; the caller has another 512 KiB. The default task stack is 8 MiB.
+These profiles are separate; combining tasks with pthreads needs its own
+verification.</p>
+<h3 id="browser-files"><a class="header" href="#browser-files">Browser files</a></h3>
+<p>The site’s default playground build embeds declared example fixtures.
+The <code>love/files</code> and <code>power/counting</code> examples also accept a selected
+file. The runner copies selected files to distinct <code>/input</code> directories,
+passes their virtual paths as arguments, and offers files written under
+<code>/output</code> for download after the run. Each run has a fresh MEMFS instance.
+The browser cannot access arbitrary host paths.</p>
+<p>An application can opt into persistent files through the runner’s
+<code>persistence</code> key. The Worker mounts <code>/persistent/&lt;key&gt;</code> with IDBFS, loads
+it before <code>main</code>, and flushes a successful run before reporting completion.
+The browser’s Web Locks API serializes runs for the same key across Workers.
+The site does not offer persistence to its current gallery examples.</p>
 <h2 id="installation-layouts"><a class="header" href="#installation-layouts">Installation layouts</a></h2>
 <p><code>make install</code> builds and installs into <code>$HOME/.local/x2c</code>; an explicit
 <code>PREFIX</code> selects another dedicated prefix. Repeat it to update that prefix
@@ -433,8 +473,8 @@ the <a href="implementation-map.html">Implementation Map</a> for feature ownersh
                 <span class="x2c-wordmark footer-wordmark">x2c</span>
             </a>
             <p>&copy; 2025&ndash;2026 <a href="https://flake.org">GWF</a> &middot;
-                <a href="https://github.com/gwf/x2c/blob/0dedc33686d956b23214b34bb50cb1f12f07975b/LICENSE">Apache 2.0</a> &middot;
-                <a href="https://github.com/gwf/x2c/blob/0dedc33686d956b23214b34bb50cb1f12f07975b/TRADEMARKS.md">Trademarks</a> &middot;
+                <a href="https://github.com/gwf/x2c/blob/46798f5183b255c1c8d3da90df2f2ca420b25d26/LICENSE">Apache 2.0</a> &middot;
+                <a href="https://github.com/gwf/x2c/blob/46798f5183b255c1c8d3da90df2f2ca420b25d26/TRADEMARKS.md">Trademarks</a> &middot;
                 <a href="../../x2c-book.pdf">Book PDF</a></p>
             <a href="#mdbook-content" class="footer-top">Back to top <span aria-hidden="true">&uarr;</span></a>
         </footer>
