@@ -213,7 +213,7 @@ esac
 version="${version#v}"
 asset="x2c-$version-$platform.tar.gz"
 valid_version "$version" || fail "invalid release version: $version"
-release_tag="${release_tag:-candidate-aea10eccdca3a7e560b5328aeb940cad10f1783d-44663677924-1}"
+release_tag="${release_tag:-candidate-22e85c5d624dcac0be3e9e566a2f9831d6efbf65-45200971660-1}"
 if [ -n "$current" ]; then
   comparison="$(compare_versions "$version" "$current")"
   echo "x2c: installed $current at $prefix; selected $version"
